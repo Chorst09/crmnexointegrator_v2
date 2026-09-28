@@ -763,7 +763,7 @@ router.get('/companies', requireRole(['ADMIN']), async (req, res) => {
       data: companies.map(mapCompanyWithLicense),
       summary: {
         totalCompanies: companies.length,
-        activeLicenses: companies.filter((company) => company.licenses.some((license) => license.status === 'ACTIVE')).length
+        activeLicenses: companies.filter((company) => (company.licenses || []).some((license) => license.status === 'ACTIVE')).length
       }
     });
   } catch (error) {

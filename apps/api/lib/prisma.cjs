@@ -243,6 +243,7 @@ const inMemoryStore = {
     }
   ],
   tenantcompany: [],
+  companylicense: [],
   licenseplan: [],
   systemSetting: [],
   proposalTemplate: [],
@@ -409,6 +410,19 @@ function enrichRecord(normalized, record) {
       lead: comp ? { id: comp.id, name: comp.name } : null,
       opportunity: opp ? { id: opp.id, title: opp.title, value: opp.value, stage: opp.stage } : null,
       items: items.map((i) => ({ ...i, product: { id: 'prod-1', name: i.descricao, price: i.precoSugerido, category: 'Telecom' } })),
+      ...record
+    };
+  }
+  if (normalized === 'tenantcompany') {
+    const lcs = (inMemoryStore['companylicense'] || []).filter((l) => l.tenantCompanyId === record.id);
+    const urs = (inMemoryStore['user'] || []).filter((u) => u.tenantCompanyId === record.id);
+    const enrichedLicenses = lcs.map(license => {
+      const plan = (inMemoryStore['licenseplan'] || []).find((p) => p.id === license.planId || p.code === license.planCode);
+      return { plan: plan || null, ...license };
+    });
+    return {
+      users: urs,
+      licenses: enrichedLicenses,
       ...record
     };
   }
