@@ -1,0 +1,300 @@
+{
+  "generatedAt": "2026-04-14T11:28:42.897Z",
+  "generatedBy": {
+    "id": null,
+    "name": "Conversor D1->B2G",
+    "email": null,
+    "role": "SYSTEM"
+  },
+  "settings": {
+    "appName": "CRM B2G",
+    "logoUrl": null
+  },
+  "modules": {
+    "users": [
+      {
+        "id": "90189681-27b3-4782-8fbf-8d499f524847",
+        "name": "Luciano Andersen",
+        "email": "luciano.andersen@doubletelecom.com.br",
+        "role": "ADMIN",
+        "active": true,
+        "companyId": "c78b9f25-e240-45a3-b869-2fce92ce208d"
+      },
+      {
+        "id": "f2ba7f6d-8019-4b83-ba70-6229607e4f67",
+        "name": "admin01",
+        "email": "admin01@corpsales.local",
+        "role": "USER",
+        "active": true,
+        "companyId": "5874750e-6ab6-4455-86bf-d2510b562d08"
+      },
+      {
+        "id": "3d036491-8000-4a09-85f0-422c8976b6fd",
+        "name": "Administrador",
+        "email": "admin@corpsales.local",
+        "role": "ADMIN",
+        "active": true,
+        "companyId": "5874750e-6ab6-4455-86bf-d2510b562d08"
+      },
+      {
+        "id": "1451b68f-0aa8-453e-9af7-e352535d8f4b",
+        "name": "Master",
+        "email": "master@corpsales.local",
+        "role": "ADMIN",
+        "active": true,
+        "companyId": "5874750e-6ab6-4455-86bf-d2510b562d08"
+      },
+      {
+        "id": "onboarding-admin-5874750e-6ab6-4455-86bf-d2510b562d08",
+        "name": "Vitor Hugo",
+        "email": "comercial@emartcar.com.br",
+        "role": "ADMIN",
+        "active": true,
+        "companyId": "5874750e-6ab6-4455-86bf-d2510b562d08"
+      },
+      {
+        "id": "124aa532-3785-4b1a-8f70-45f342842b95",
+        "name": "Carlos Horst",
+        "email": "chorstconsult@gmail.com",
+        "role": "ADMIN",
+        "active": true,
+        "companyId": "8ace0f23-5c34-4122-b880-e49560cd3010"
+      },
+      {
+        "id": "fae6bce4-96b3-4246-a3de-03940fd30e1f",
+        "name": "Carlos Horst",
+        "email": "carlos.horst@doubletelecom.com.br",
+        "role": "ADMIN",
+        "active": true,
+        "companyId": "c78b9f25-e240-45a3-b869-2fce92ce208d"
+      }
+    ],
+    "regions": [],
+    "companies": [
+      {
+        "id": "5874750e-6ab6-4455-86bf-d2510b562d08",
+        "name": "E-Mart Car",
+        "document": null,
+        "email": null,
+        "phone": null,
+        "status": "ACTIVE",
+        "segment": null,
+        "leadScore": 0,
+        "notes": null
+      },
+      {
+        "id": "8ace0f23-5c34-4122-b880-e49560cd3010",
+        "name": "ChorstConsult",
+        "document": null,
+        "email": null,
+        "phone": null,
+        "status": "ACTIVE",
+        "segment": null,
+        "leadScore": 0,
+        "notes": null
+      },
+      {
+        "id": "c78b9f25-e240-45a3-b869-2fce92ce208d",
+        "name": "Dlouble TI",
+        "document": null,
+        "email": null,
+        "phone": null,
+        "status": "ACTIVE",
+        "segment": null,
+        "leadScore": 0,
+        "notes": null
+      },
+      {
+        "id": "1ec2e9ba-dda4-40d9-84f2-bb3ed1ee16df",
+        "name": "Empresa Padrão",
+        "document": null,
+        "email": null,
+        "phone": null,
+        "status": "ACTIVE",
+        "segment": null,
+        "leadScore": 0,
+        "notes": null
+      }
+    ],
+    "opportunities": [
+      {
+        "id": "37ba8dc9-d90b-4151-abba-dbc69646727a",
+        "title": "Oportunidade - Edital Parancidade Links.pdf",
+        "projectName": "Oportunidade - Edital Parancidade Links.pdf",
+        "description": "Link Internet - Curitiba (Sede): Link Internet dedicado de 1 Gb full duplex e simétrica, com endereços IP fixos e ANTI-DDoS.\nRede MPLS Tronco - Curitiba (Sede): Rede MPLS tronco de 800 Mbps, full duplex e simétrica.\nRede MPLS - Curitiba (Anexo): Rede MPLS de 200 Mbps, full duplex e simétrica.\nRede MPLS - Londrina: Rede MPLS de 100 Mbps, full duplex e simétrica.\nRede MPLS - Maringá: Rede MPLS de 100 Mbps, full duplex e simétrica.\nRede MPLS - Guarapuava: Rede MPLS de 100 Mbps, full duplex e simétrica.\nRede MPLS - Cascavel: Rede MPLS de 100 Mbps, full duplex e simétrica.\nRede MPLS - Francisco Beltrão: Rede MPLS de 100 Mbps, full duplex e simétrica.\nRede MPLS - Ponta Grossa: Rede MPLS de 100 Mbps, full duplex e simétrica.",
+        "value": 399600,
+        "probability": 25,
+        "stage": "DIAGNOSIS",
+        "b2gStage": "Análise",
+        "source": "MANUAL",
+        "expectedCloseDate": "2026-03-26T00:00:00.000Z",
+        "companyId": "c78b9f25-e240-45a3-b869-2fce92ce208d",
+        "ownerId": "fae6bce4-96b3-4246-a3de-03940fd30e1f"
+      },
+      {
+        "id": "11a98edc-60bb-4651-9d15-18bb6e2d2add",
+        "title": "Oportunidade - Especificações técnicas - SCANNERS DE MESA.pdf",
+        "projectName": "Oportunidade - Especificações técnicas - SCANNERS DE MESA.pdf",
+        "description": "Scanner de mesa Colorido – A4 HP ScanJet G3110: Scanner de mesa A4 (HP ScanJet G3110), flatbed, USB 2.0, 4800x4800 dpi (ótica), 48 bits de cor, captura A4, TWAIN/WIA, captura de fotos. Software com OCR (PT-BR), exporta PDF/TIFF/JPEG, correção de ângulo/inclinação, rotação automática, conversão P&B, detecção/eliminação de páginas em branco, importação/edição de imagens. Compatível com Windows 7/8.1 Pro/10/11+. Inclui manuais, drivers, acessórios, cabos, softwares e suporte técnico. Período de garantia não especificado.",
+        "value": 280000,
+        "probability": 25,
+        "stage": "PROPOSAL",
+        "b2gStage": "Proposta enviada",
+        "source": "MANUAL",
+        "expectedCloseDate": "2026-03-19T00:00:00.000Z",
+        "companyId": "c78b9f25-e240-45a3-b869-2fce92ce208d",
+        "ownerId": "fae6bce4-96b3-4246-a3de-03940fd30e1f"
+      },
+      {
+        "id": "ed835019-266a-4984-930e-4c91a7dd596c",
+        "title": "Oportunidade - TR_V5 - Link E MPLS (3).pdf",
+        "projectName": "Oportunidade - TR_V5 - Link E MPLS (3).pdf",
+        "description": "Acesso MPLS (Multiprotocol Label Switching): Conectividade em fibra óptica para 8 unidades, velocidades simétricas (800Mbps para Curitiba Sede, 200Mbps para Curitiba Anexo, 100Mbps para demais), VPN MPLS full mesh, QoS com 4 filas (dados normais, dados expressos, voz), tempos de atraso e descarte de pacotes máximos definidos, roteador no cliente com 1 interface GigabitEthernet, suporte OSPF/SNMP/DHCP/SSH, filtragem de pacotes, logging, 1 RU, homologado Anatel.\nLink dedicado de acesso à internet com IP Fixo e Anti-DDoS: Link dedicado de 1Gbps simétrico para Curitiba Sede, com endereços IP fixos (mín. 14 IPv4/IPv6 válidos e fixos), 2 IPs de servidores DNS, sem franquia de dados, redirecionamento de conexões, conexão direta com no máximo 1 AS hop a 2 backbones Internet (nacional/internacional), solução ANTI-DDoS com monitoramento, detecção e mitigação de ataques (DoS/DDoS) no backbone da CONTRATADA no Brasil, latência máxima de 100ms durante ataque, sem taxa adicional por volume de mitigação, mitigação seletiva de tráfego malicioso.",
+        "value": 408000,
+        "probability": 25,
+        "stage": "PROPOSAL",
+        "b2gStage": "Proposta enviada",
+        "source": "MANUAL",
+        "expectedCloseDate": "2026-03-19T00:00:00.000Z",
+        "companyId": "1ec2e9ba-dda4-40d9-84f2-bb3ed1ee16df",
+        "ownerId": "90189681-27b3-4782-8fbf-8d499f524847"
+      },
+      {
+        "id": "cafb8025-9ffb-4b64-be39-92b9f7073357",
+        "title": "Monitores Policia Civil",
+        "projectName": "Monitores Policia Civil",
+        "description": "600 - Monitores 27” com Taxa de atualização de 48-120Hz; IPS com USB Hub; Controle e gerenciabilidade LADM.\n130 – Monitores 21,5”, FHD 1920x1080. Mecânica: ajuste de altura até 13cm e rotação de 90º. Cabo HDMI. Conexões HDMI 1.4; VGA.\n\nOportunidade aprovado na Samsung",
+        "value": 876000,
+        "probability": 50,
+        "stage": "DIAGNOSIS",
+        "b2gStage": "Análise",
+        "expectedCloseDate": "2026-03-17T00:00:00.000Z",
+        "companyId": "c78b9f25-e240-45a3-b869-2fce92ce208d",
+        "ownerId": "fae6bce4-96b3-4246-a3de-03940fd30e1f"
+      },
+      {
+        "id": "7558e1ac-dd01-4aec-9ef1-fb9d6befd0b6",
+        "title": "Oportunidade - 03.5 Termo de referência - Anexo 4 - Switches Core e Tor.pdf",
+        "projectName": "Oportunidade - 03.5 Termo de referência - Anexo 4 - Switches Core e Tor.pdf",
+        "description": "Switch CORE: Switch Ethernet camada 3, 1/10/25/40/100GBE, ativo x ativo com gestão centralizada. Novo, última geração, 100% licenciado. 2 fontes AC 110/220V 60Hz redundantes hotswap, matriz de comutação >= 4 Tbps. Mínimo 48 portas SFP+ 1/10/25G e 8 portas 40/100G QSFP28, todas simultâneas. Acompanha 10 Gbics BaseT, 20 Gbics MM 10G 300m, 6 Gbics SM 10G 20km, 2 Cabos DAC 100G 5m, 3 Módulos QSFP+ 40G SM 20km, protetores SFP+/QSFP+. Suporte a IPv4/IPv6, jumbo frames, gerenciamento SNMPv1/v2/v3, RMON, CLI/WEB (HTTPS), SSHv2. Telemetria sFLOW/IPFIX, scripts Python/Java/Perl, NETCONF/YANG. Desempenho: 16k rotas IPv4, 8k Multicast IPv4, 4k VLANs, 1k interfaces virtuais, 90k endereços MAC, 2k ACLs IPv4/IPv6. QoS, segurança ACLs L2/L3/L4, 802.1x, autenticação MAC/Web/portal, port-security, AAA RADIUS, controle broadcast/multicast, proteção DoS. Estrutura rack 19\", kit de suporte, documentação técnica, acessórios, software, cabos, certificado Anatel. Garantia 60 meses on-site e lifetime para firmware/software.\nSwitch TOR 48 Portas Datacenter: Switch Ethernet camada 3, 1/10/25/40/100GBE, ativo x ativo com gestão centralizada. Novo, última geração, 100% licenciado. 2 fontes AC 110/220V 60Hz redundantes hotswap, matriz de comutação >= 4 Tbps. Mínimo 48 portas SFP+ 1/10/25G e 6 portas 40/100G QSFP28, todas simultâneas. Acompanha 24 Gbics BaseT, 24 Gbics MM 10G 100m, 6 Gbics MM 25G 100m. Características gerais de gerenciamento, análise de rede, desempenho, QoS e segurança idênticas ao Switch CORE. Estrutura rack 19\", kit de suporte, documentação técnica, acessórios, software, cabos, certificado Anatel. Garantia 60 meses on-site e lifetime para firmware/software.\nSwitch TOR (andares): Switch Ethernet camada 3, 1/10/40/100GBE, gestão centralizada. Novo, última geração, 100% licenciado. 2 fontes AC 110/220V 60Hz redundantes hotswap, matriz de comutação >= 2 Tbps. Mínimo 24 portas SFP+ 1/10G e 6 portas 40/100G QSFP28, todas simultâneas. Acompanha 12 Gbics BaseT, 12 Gbics MM 10G 100m, 3 módulos QSFP28 MM 40G 300m, protetores SFP+/QSFP+. Características gerais de gerenciamento, análise de rede, QoS e segurança idênticas ao Switch CORE. Desempenho: 16k rotas IPv4, 8k Multicast IPv4, 4k VLANs. Estrutura rack 19\", kit de suporte, documentação técnica, acessórios, software, cabos, certificado Anatel. Garantia 60 meses on-site e lifetime para firmware/software.\nInstalação: Instalação e configuração dos switches no local da CONTRATANTE por profissionais certificados pelo fabricante. Prazo de conclusão de instalação de até 15 dias corridos. Entrega de documentação 'AS BUILT'.\nSuporte técnico ao ambiente por 48 meses: Suporte técnico especializado por 48 meses (08:00 às 18:00 comercial, 18:01 às 07:59 NOC). Início após entrega da instalação. Sistema de chamados com 0800, SLA tracking. Técnico residente (08:30-17:30). Cobertura para todos os equipamentos e interconexões. Softwares e licenças para o suporte por no mínimo 60 meses. SLAs definidos: Básico (8h úteis / 16h corridas), Intermediário (4h úteis / 8h corridas), Crítico (2h úteis / 4h corridas).\nRepasse de Conhecimento: Curso OFICIAL DA FABRICANTE dos equipamentos, com mínimo de 40 horas ON-SITE para pelo menos 6 participantes da CONTRATANTE. Abrangendo tópicos de gerenciamento, roteamento, segurança, QoS, etc.",
+        "value": 0,
+        "probability": 25,
+        "stage": "DIAGNOSIS",
+        "b2gStage": "Análise",
+        "source": "MANUAL",
+        "expectedCloseDate": "2026-03-30T00:00:00.000Z",
+        "companyId": "c78b9f25-e240-45a3-b869-2fce92ce208d",
+        "ownerId": "fae6bce4-96b3-4246-a3de-03940fd30e1f"
+      },
+      {
+        "id": "c249fa9e-720f-4d30-a8ec-65cee8c8f758",
+        "title": "Oportunidade - 03.3 Termo de referência - Anexo 2 - Telefonia.pdf",
+        "projectName": "Oportunidade - 03.3 Termo de referência - Anexo 2 - Telefonia.pdf",
+        "description": "PABX: Solução de Telefonia IP (física ou em nuvem), homologada Anatel, com capacidade mínima para 1800 ramais e 1800 ligações simultâneas. Deve oferecer alta disponibilidade, suportar SIP, WebRTC, SIP INFO, múltiplos codecs de voz/vídeo, troncos SIP ilimitados, atendimento automático, correio de voz, atualização centralizada de firmware, criptografia entre ramais, modos de operação programáveis, sincronização NTP, interface aberta para gestão, gerenciamento GUI web, bloqueio de chamadas, suporte a FAX, gravação de chamadas estéreo em MP3/WAV com segregação por grupo e logs de auditoria, pesquisa e reprodução web, comentários em gravações, rastreamento de ações de usuário, protocolo por chamada com vocalização, call-back, click-to-call, encaminhamento de chamadas por status/número, integração LDAP e URAs. Inclui filas de atendimento, pesquisa de satisfação (CSAT/NPS), integração WhatsApp Business, monitoramento em tempo real de chamadas, segurança robusta (backup, SBC, protocolos criptografados, logs, blacklist, 802.1x EAP-TLS, criptografia fim a fim) e relatórios detalhados de utilização. Deve garantir QoS e ter certificação TIER III para datacenter em nuvem.\nTelefones IP Modelo 1 WI-FI de mesa: Telefone IP de mesa com 2 contas SIP, 4 teclas sensíveis ao contexto programáveis XML, Wi-Fi banda dupla (AC), conferência de 5 vias, tela LCD TFT colorido de 2,4 pol (320x240), discagem com um clique, porta auxiliar RJ9 para fones (compatível EHS), suporte a Português Brasileiro, agenda para download (XML, LDAP, até 1000 itens), log de chamadas (até 800 registros), inicialização segura, duas imagens de firmware, armazenamento de dados criptografado. Possui portas 10/100 Mbps com comutador duplo, criptografia Wi-Fi, suporte de base ajustável, QoS (camada 2 e 3) e segurança avançada (senhas, autenticação MD5, criptografia AES 256 bits, SRTP, TLS, controle de acesso 802.1x).\nTelefones IP Modelo 2 sem fio portátil: Telefone IP sem fio portátil com LCD TFT colorido de 1,8 pol (240x320), redundância e failover de servidores, Bluetooth integrado, 2 contas SIP, codecs G.722, G.729A/B (áudio HD), criptografia Wi-Fi (WEP/WPA/WPA2/WPA Enterprise) e bateria recarregável de 2000 mAh (8 horas de conversação, 200 horas em espera).\nTelefones IP Modelo 3 de Telefonista: Telefone IP para telefonista com portas 10/100/1000 Mbps com comutador duplo e PoE/PoE+ integrado, tela Touchscreen LCD IPS capacitiva de 5 pol (1024x600) (5 pontos), Bluetooth 4.0 integrado, 11 teclas de função para conferência, 2 teclas Android (HOME/BACK), Wi-Fi banda dupla (AC), compatível com módulo de expansão (E), e suporte a codecs de vídeo H.264 BP/MP/HP com resolução de até 720p@30 qps para videoconferência de 3 vias.\nMódulo de Expansão para telefone de telefonista: Módulo de expansão com LCD TFT colorido de 4,3 pol (272 x 480) exibindo 20 páginas (até 40 linhas/módulo), permitindo até 4 módulos encadeados em margarida. Oferece recursos avançados de chamada como BLF, chamada em espera para transferência/captação, discagem rápida, presença, interfone e transferência/encaminhamento de áudio-conferência.\nBase concentradora para Telefone IP Modelo 4: Base concentradora com 5 contas SIP por sistema, capacidade para até 5 ramais de fones móveis por base, 3 indicadores LED (alimentação, rede, DECT), botão de emparelhamento/paginação, 1 porta Ethernet 10/100 Mbps com detecção automática, PoE integrado. Suporta diversos protocolos SIP/TCP/IP, codecs de voz, agenda para download (até 1000 entradas) e log de chamadas (até 750 registros).\nTelefone IP sem fio de mesa modelo 4: Telefone IP sem fio de mesa com LCD TFT colorido de 128x160, 2 teclas programáveis, 5 teclas de navegação/menu, 4 teclas exclusivas, compatibilidade HAC, codecs G.722 (áudio HD) e G.726 (banda estreita), AEC, AGC, redução de ruído ambiente, áudio HD, conector para fones de 3,5 mm e presilha removível para cinto.\nTelefone IP para conferências: Telefone IP para conferências com alto-falante full-duplex e câmara acústica HD, suporte a alcance de captação de 5M, porta de rede 10/100/1000 Mbps com PoE+ e porta de mídia dedicada, Wi-Fi 6 banda dupla, Bluetooth Integrado (V2.1+EDR, V5.0 modo duplo), conferência de áudio de até 12 vias e contatos para download (XML, LDAP, até 2000 itens).\nHeadset Tipo 1: Headset com conexão Bluetooth 4.2, permitindo conexão simultânea com dois dispositivos Bluetooth. Possui controle de áudio (ligar/desligar, silenciar microfone, aumentar/diminuir volume) e microfone com braço em arco médio e cancelamento de ruído unidirecional.\nHeadset Tipo 2: Headset com conexão USB, tira ajustável para a cabeça, controles sincronizados e possibilidade de uso à esquerda ou direita. Oferece áudio HD para comunicação clara e fácil, tecnologia de cancelamento de ruído e comprimento de cabo de no mínimo 2M.\nLicenças de Softphone (call center): Licenças de Softphone com atualização mínima garantida de 5 anos, permitindo ligações e conferências de áudio com até 20 participantes (internos e externos), acesso a salas de áudio. Disponível para Windows 10, iOS 10, Android 9 (ou superiores). Permite alternar dispositivos durante ligação e exibe status 'ocupado'. Suporta transferência e retenção de chamadas, codecs G.711, G.729 e G.722. Inclui suporte SIP/TLS (criptografia AES-256, hash SHA384) e SRTP (AES-128 Counter Mode, HMAC-SHA-1). 100% compatível com PABX ofertado e utilizável em Call Center e para portabilidade de ramal.\nATA 2 canais: ATA com 2 portas FXS para telefone e 2 portas RJ45 10/100/1000 Mbps para rede. Possui LEDs indicadores, suporta voz, fax, modem e recursos de telefonia como ID de chamadas, chamada em espera, transferência, encaminhamento e conferência de 3 vias. Compatível com diversos codecs (G.711, G.723.1, G.729A/B, G.726, iLBC, OPUS), relé de fax T.38. Suporta múltiplos protocolos de rede (TCP/IP/UDP, RTP/RTCP, HTTP/HTTPS, ARP/RARP, ICMP, DNS, DHCP, NTP, TFTP, TELNET, STUN, SIP, TLS, SRTP, TR-069), QoS (Camada 2 e 3) e métodos DTMF. Oferece provisionamento seguro (HTTP/HTTPS/TELNET/TFTP/TR-069 com AES, syslog) e segurança (SRTP, TLS/SIPS/HTTPS para controle e gerenciamento).\nATA 4 canais: ATA com 4 portas FXS para telefone e 2 portas RJ45 10/100/1000 Mbps para rede. Possui LEDs indicadores, suporta voz, fax, modem e recursos de telefonia como ID de chamadas, chamada em espera, transferência, encaminhamento e conferência de 3 vias. Compatível com diversos codecs (G.711, G.723.1, G.729A/B, G.726, iLBC, OPUS), relé de fax T.38. Suporta múltiplos protocolos de rede (TCP/IP/UDP, RTP/RTCP, HTTP/HTTPS, ARP/RARP, ICMP, DNS, DHCP, NTP, TFTP, TELNET, STUN, SIP, TLS, SRTP, TR-069), QoS (Camada 2 e 3) e métodos DTMF. Oferece provisionamento seguro (HTTP/HTTPS/TELNET/TFTP/TR-069 com AES, syslog) e segurança (SRTP, TLS/SIPS/HTTPS para controle e gerenciamento).\nATA 8 canais: ATA com 8 portas FXS para telefone e 2 portas RJ45 10/100/1000 Mbps para rede. Possui LEDs indicadores, suporta voz, fax, modem e recursos de telefonia como ID de chamadas, chamada em espera, transferência, encaminhamento e conferência de 3 vias. Compatível com diversos codecs (G.711, G.723.1, G.729A/B, G.726, iLBC, OPUS), relé de fax T.38. Suporta múltiplos protocolos de rede (TCP/IP/UDP, RTP/RTCP, HTTP/HTTPS, ARP/RARP, ICMP, DNS, DHCP, NTP, TFTP, TELNET, STUN, SIP, TLS, SRTP, TR-069), QoS (Camada 2 e 3) e métodos DTMF. Oferece provisionamento seguro (HTTP/HTTPS/TELNET/TFTP/TR-069 com AES, syslog) e segurança (SRTP, TLS/SIPS/HTTPS para controle e gerenciamento).\nATA 16 Canais: ATA com 16 portas RJ11 para telefone e 1 porta RJ45 10/100/1000 Mbps para rede. Possui LEDs indicadores e display LCD retroiluminado. Suporta voz, fax, modem, funcionalidades Voice-over-Packet, compressão de voz (G.711, G.723.1, G.76, G.729 A/B, iLBC), relé de fax T.38. Oferece funcionalidades de telefonia avançadas (ID de chamador, espera, transferência, encaminhamento, conferência de 3 vias, paginação, auto discagem). Inclui QoS (DiffServ, TOS, 802.1P/Q VLAN), múltiplos protocolos de rede e DTMF. Suporta sinalização SIP (RFC 3261 UDP/TCP/TLS), 4 perfis de servidor SIP, aprovisionamento (TFTP, HTTP, HTTTPS, TR069), segurança (SRTP, TLS/SIPS, HTTPS, 802.1x) e gerenciamento web. Possui fonte de alimentação universal e proteção elétrica K.21. Montagem em mesa/rack. Suporta ID de chamador (Bellcore Type 1&2, ETSI, BT, NTT, CID baseado DTMF) e vários métodos de desconexão.\nATA 32 Canais: ATA com 16 portas RJ11 para telefone e 1 porta RJ45 10/100/1000 Mbps para rede. Possui LEDs indicadores e display LCD retroiluminado. Suporta voz, fax, modem, funcionalidades Voice-over-Packet, compressão de voz (G.711, G.723.1, G.76, G.729 A/B, iLBC), relé de fax T.38. Oferece funcionalidades de telefonia avançadas (ID de chamador, espera, transferência, encaminhamento, conferência de 3 vias, paginação, auto discagem). Inclui QoS (DiffServ, TOS, 802.1P/Q VLAN), múltiplos protocolos de rede e DTMF. Suporta sinalização SIP (RFC 3261 UDP/TCP/TLS), 4 perfis de servidor SIP, aprovisionamento (TFTP, HTTP, HTTTPS, TR069), segurança (SRTP, TLS/SIPS, HTTPS, 802.1x) e gerenciamento web. Possui fonte de alimentação universal e proteção elétrica K.21. Montagem em mesa/rack. Suporta ID de chamador (Bellcore Type 1&2, ETSI, BT, NTT, CID baseado DTMF) e vários métodos de desconexão.\nLinhas SIP: Linhas SIP do tipo ITX, com facilidade de personalização de identificação (CallerID ou Bina). Devem identificar 10 dígitos (CN+NÚMERO) para código de área e ser entregues de forma digital via tronco SIP ou IAX, através de link exclusivo em túnel criptografado.\nPortabilidade de 0800: Serviço de portabilidade numérica para números 0800.\nLigações ilimitadas fixo e móvel locais e DDD: Serviço de tráfego de voz ilimitado para chamadas fixas e móveis locais e de longa distância (DDD).\nMinuto Ligação DDI: Minuto de ligação para chamadas de Discagem Direta Internacional (DDI).",
+        "value": 0,
+        "probability": 0,
+        "stage": "DIAGNOSIS",
+        "b2gStage": "Análise",
+        "source": "MANUAL",
+        "expectedCloseDate": "2026-03-17T00:00:00.000Z",
+        "companyId": "c78b9f25-e240-45a3-b869-2fce92ce208d",
+        "ownerId": "fae6bce4-96b3-4246-a3de-03940fd30e1f"
+      },
+      {
+        "id": "3e98740b-753b-4e21-b8ef-9ec2162767a4",
+        "title": "Oportunidade - edital1773184711.pdf",
+        "projectName": "Oportunidade - edital1773184711.pdf",
+        "description": "Locação de Firewall de Próxima Geração (NGFW) com Serviço de Gestão: Appliance dedicado de segurança (hardware proprietário, aceleração por processadores especializados), montagem em rack 19\" (1RU), mínimo 8 portas Ethernet RJ45 Gigabit, mínimo 8 portas 10 Gigabit Ethernet SFP+, portas de gerenciamento dedicadas, throughput de firewall 39 Gbps (IPv4/IPv6), IPS Throughput 9 Gbps, NGFW Throughput 7 Gbps, Threat Protection Throughput 6 Gbps, VPN IPsec Throughput 36 Gbps, Inspeção SSL/TLS 7 Gbps, 11 milhões de sessões simultâneas, 400 mil novas sessões TCP/segundo, Alta Disponibilidade nativa. Suporte a SD-WAN Nativo, Segmentação de Redes, Controle de Aplicações (Layer 7), Filtragem Web, Prevenção de Intrusão (IPS), Proteção contra Malware, Licenças completas de segurança (UTM/Enterprise Bundle). Equipamento não deve estar em End-of-Sale e deve possuir suporte oficial do fabricante por no mínimo 5 anos.\nLocação de Ponto de Acesso Indoor com Serviço de Gestão: Wi-Fi 6 (IEEE 802.11ax) ou superior, retrocompatível com 802.11a/b/g/n/ac Wave 2, arquitetura de rádio MIMO 2x2:2 (2.4 GHz e 5 GHz simultâneas), throughput agregado mínimo de 1.7 Gbps, suporte a modulação 1024-QAM (20, 40, 80 MHz), otimização RF, suporte a OFDMA e MU-MIMO, Roaming (802.11k, v, r), RRM automático, Airtime Fairness, sensibilidade de recepção mínima -96 dBm (2.4GHz) e -93 dBm (5GHz), 1 interface Ethernet 10/100/1000 Mbps, alimentação via PoE (802.3af ou 802.3at), mínimo 8 WLANs/SSIDs virtuais por rádio, VLANs (802.1Q), Client Isolation, WPA2/WPA3-Enterprise/Personal, OWE, integração com Radius/AD/Captive Portal. Homologação ANATEL e certificação Wi-Fi Alliance. Não deve estar em End-of-Sale e deve possuir suporte oficial do fabricante por no mínimo 5 anos.\nLocação de Ponto de Acesso Outdoor com Serviço de Gestão: Wi-Fi 6 (IEEE 802.11ax) ou superior, retrocompatível com 802.11a/b/g/n/ac Wave 2, arquitetura de rádio MIMO 2x2:2 (2.4 GHz e 5 GHz simultâneas), throughput agregado mínimo de 1.7 Gbps, suporte a modulação 1024-QAM (20, 40, 80 MHz), otimização RF, suporte a OFDMA e MU-MIMO, Roaming (802.11k, v, r), RRM automático, Airtime Fairness, sensibilidade de recepção mínima -93 dBm (2.4GHz) e -91 dBm (5GHz), 1 interface Ethernet 10/100/1000 Mbps blindada (proteção surto), alimentação via PoE (802.3at ou superior), mínimo 8 WLANs/SSIDs virtuais por rádio, VLANs (802.1Q), Client Isolation, WPA2/WPA3-Enterprise/Personal, OWE, integração com Radius/AD/Captive Portal. Grau de Proteção IP67, chassi resistente a corrosão e raios UV, operação contínua em temperaturas extremas (-20°C a +60°C), design compacto para postes/fachadas. Homologação ANATEL e certificação Wi-Fi Alliance. Não deve estar em End-of-Sale e deve possuir suporte oficial do fabricante por no mínimo 5 anos. Itens 2 e 3 devem ser do mesmo fabricante.",
+        "value": 1034352,
+        "probability": 25,
+        "stage": "PROPOSAL",
+        "b2gStage": "Proposta enviada",
+        "source": "MANUAL",
+        "expectedCloseDate": "2026-03-27T00:00:00.000Z",
+        "companyId": "c78b9f25-e240-45a3-b869-2fce92ce208d",
+        "ownerId": "fae6bce4-96b3-4246-a3de-03940fd30e1f"
+      },
+      {
+        "id": "d28faf76-a42d-4c11-af6a-5cf0ea8e3572",
+        "title": "Colocation",
+        "projectName": "Colocation",
+        "description": "Colocation em Curitiba",
+        "value": 44280000,
+        "probability": 25,
+        "stage": "DIAGNOSIS",
+        "b2gStage": "Análise",
+        "source": "MANUAL",
+        "expectedCloseDate": "2026-12-11T00:00:00.000Z",
+        "companyId": "1ec2e9ba-dda4-40d9-84f2-bb3ed1ee16df",
+        "ownerId": "fae6bce4-96b3-4246-a3de-03940fd30e1f"
+      },
+      {
+        "id": "2d286ffa-b819-4dd3-a4b8-ee9c126c3108",
+        "title": "N PUBLIC",
+        "projectName": "N PUBLIC",
+        "description": "80 - WebCam\n160 - Scanner",
+        "value": 0,
+        "probability": 50,
+        "stage": "PROPOSAL",
+        "b2gStage": "Proposta enviada",
+        "expectedCloseDate": "2026-12-10T00:00:00.000Z",
+        "companyId": "1ec2e9ba-dda4-40d9-84f2-bb3ed1ee16df",
+        "ownerId": "fae6bce4-96b3-4246-a3de-03940fd30e1f"
+      },
+      {
+        "id": "370e297e-a238-4c6b-9f25-8579bd09abf6",
+        "title": "N PUBLIC",
+        "projectName": "N PUBLIC",
+        "description": "Termos de ref. para:\n289 Mini PCs\n03 Workstations\n19 Notebooks\n313 Monitores",
+        "value": 4556413.97,
+        "probability": 25,
+        "stage": "PROPOSAL",
+        "b2gStage": "Proposta enviada",
+        "expectedCloseDate": "2026-10-01T00:00:00.000Z",
+        "companyId": "1ec2e9ba-dda4-40d9-84f2-bb3ed1ee16df",
+        "ownerId": "fae6bce4-96b3-4246-a3de-03940fd30e1f"
+      },
+      {
+        "id": "65ba2345-a282-420b-b789-a3c71f85693f",
+        "title": "N PUBLIC",
+        "projectName": "N PUBLIC",
+        "description": "Esta em fase de balizamento de preços.",
+        "value": 46800000,
+        "probability": 25,
+        "stage": "DIAGNOSIS",
+        "b2gStage": "Análise",
+        "expectedCloseDate": "2026-11-10T00:00:00.000Z",
+        "companyId": "1ec2e9ba-dda4-40d9-84f2-bb3ed1ee16df",
+        "ownerId": "fae6bce4-96b3-4246-a3de-03940fd30e1f"
+      }
+    ],
+    "activities": [],
+    "products": [],
+    "priceTables": [],
+    "crossSell": [],
+    "upSell": [],
+    "approvals": []
+  },
+  "metadata": {
+    "sourceFile": "crm-b2b-backup-2026-04-13T18-15-26-396Z.json",
+    "sourceVersion": 11,
+    "sourceType": "crm-b2b-d1",
+    "exportedAt": "2026-04-13T18:15:24.674Z",
+    "inputCounts": {
+      "users": 7,
+      "companies": 4,
+      "opportunities": 11
+    },
+    "outputCounts": {
+      "users": 7,
+      "companies": 4,
+      "opportunities": 11
+    },
+    "skipped": {
+      "opportunities": 0
+    },
+    "transforms": {
+      "masterRolesDowngradedToAdmin": 2
+    }
+  }
+}

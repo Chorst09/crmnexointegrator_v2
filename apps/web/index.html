@@ -1,0 +1,37 @@
+
+<!DOCTYPE html>
+<html lang="pt-br">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="/favicon.ico" />
+    <title>CRM NEXOS - Conexões que impulsionam negócios</title>
+    <meta name="description" content="Sistema de CRM comercial completo com gestão B2B, B2G, pipeline, propostas, calculadoras e projetos." />
+    <meta property="og:title" content="CRM NEXOS - Conexões que impulsionam negócios" />
+    <meta property="og:description" content="Sistema de CRM comercial completo com gestão B2B, B2G, pipeline, propostas, calculadoras e projetos." />
+    
+    <!-- Mercado Pago SDK -->
+    <script src="https://sdk.mercadopago.com/js/v2"></script>
+    
+    <script>
+      // Set the initial theme before React mounts to avoid a flash.
+      (function () {
+        try {
+          var key = 'crm-theme';
+          var stored = localStorage.getItem(key); // 'light' | 'dark' | 'system' | null
+          var theme = stored || 'system';
+          var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+          var isDark = theme === 'dark' || (theme === 'system' && prefersDark);
+          document.documentElement.classList.toggle('dark', isDark);
+          document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+        } catch (e) {
+          // Best-effort only.
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

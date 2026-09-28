@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: nexoscrm-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nexoscrm
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
+      POSTGRES_DB: nexoscrm
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexoscrm -d nexoscrm"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - nexoscrm-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: nexoscrm-backend
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: ${DATABASE_URL:?DATABASE_URL required}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET required}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      GEMINI_MODEL: ${GEMINI_MODEL:-}
+      JWT_EXPIRES_IN: 7d
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://209.50.241.25}
+      BCRYPT_ROUNDS: 12
+    volumes:
+      - uploads_data:/app/uploads
+    ports:
+      - "127.0.0.1:3002:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nexoscrm-net
+      - icontainer-network
+
+  frontend:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-/api}
+    container_name: nexoscrm-frontend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8080:80"
+    networks:
+      - nexoscrm-net
+
+volumes:
+  postgres_data:
+  uploads_data:
+
+networks:
+  nexoscrm-net:
+    driver: bridge
+
+  icontainer-network:
+    external: true

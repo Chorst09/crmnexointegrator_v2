@@ -1,0 +1,505 @@
+openapi: 3.0.3
+info:
+  title: CRM B2B/B2G Integration API
+  version: 1.0.0
+  description: |
+    API pública para integração com ERPs (TOTVS, SAP, Senior) e ferramentas de automação.
+    - OAuth2 client_credentials
+    - Rate limiting por parceiro
+    - Idempotência via Idempotency-Key
+    - Webhooks assinados (HMAC-SHA256)
+servers:
+  - url: /api/integration
+security:
+  - OAuth2ClientCredentials: []
+paths:
+  /oauth/token:
+    post:
+      summary: Emitir token OAuth2 (client_credentials)
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [grant_type, client_id, client_secret]
+              properties:
+                grant_type:
+                  type: string
+                  enum: [client_credentials]
+                client_id:
+                  type: string
+                client_secret:
+                  type: string
+                scope:
+                  type: string
+                  example: b2b:write b2g:read pre_sales:write
+      responses:
+        '200':
+          description: Token emitido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access_token:
+                    type: string
+                  token_type:
+                    type: string
+                    example: Bearer
+                  expires_in:
+                    type: integer
+                  scope:
+                    type: string
+        '400':
+          $ref: '#/components/responses/StandardError'
+        '401':
+          $ref: '#/components/responses/StandardError'
+
+  /v1/health:
+    get:
+      summary: Healthcheck autenticado da integração
+      responses:
+        '200':
+          description: Integração autenticada
+
+  /v1/b2b/customers/sync:
+    post:
+      summary: Upsert de cliente PJ (B2B)
+      description: CNPJ é chave de negócio principal para integração ERP nacional.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/B2BCustomerSyncRequest'
+      responses:
+        '200':
+          description: Cliente atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/B2BCustomerSyncResponse'
+        '201':
+          description: Cliente criado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/B2BCustomerSyncResponse'
+        '400':
+          $ref: '#/components/responses/StandardError'
+        '401':
+          $ref: '#/components/responses/StandardError'
+        '409':
+          $ref: '#/components/responses/StandardError'
+        '429':
+          $ref: '#/components/responses/StandardError'
+
+  /v1/b2b/orders/sync:
+    post:
+      summary: Upsert de pedido B2B
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [externalOrderId, totalValue]
+              properties:
+                externalOrderId:
+                  type: string
+                cnpj:
+                  type: string
+                customerExternalId:
+                  type: string
+                totalValue:
+                  type: number
+                currency:
+                  type: string
+                  example: BRL
+                status:
+                  type: string
+                  example: APPROVED
+                issuedAt:
+                  type: string
+                  format: date-time
+                createOpportunity:
+                  type: boolean
+      responses:
+        '200':
+          description: Pedido sincronizado
+        '400':
+          $ref: '#/components/responses/StandardError'
+
+  /v1/b2g/bids/status:
+    get:
+      summary: Listar status de licitatórios B2G
+      parameters:
+        - in: query
+          name: status
+          schema:
+            type: string
+            enum: [MONITORANDO, ANALISE_EM_ANDAMENTO, ANALISE_CONCLUIDA, PROPOSTA_EM_PREPARACAO, ENVIADA, SUSPENSA, ENCERRADA]
+        - in: query
+          name: updatedSince
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Lista paginada de licitatórios
+
+  /v1/b2g/bids/{externalBidId}/status:
+    patch:
+      summary: Atualizar status de licitatório
+      parameters:
+        - in: path
+          name: externalBidId
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/B2GBidStatusUpdateRequest'
+      responses:
+        '200':
+          description: Status atualizado
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/B2GBidStatusUpdateResponse'
+        '400':
+          $ref: '#/components/responses/StandardError'
+        '404':
+          $ref: '#/components/responses/StandardError'
+
+  /v1/pre-sales/leads:
+    post:
+      summary: Entrada de lead (pré-vendas)
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [companyName]
+              properties:
+                externalLeadId:
+                  type: string
+                companyName:
+                  type: string
+                cnpj:
+                  type: string
+                sourceChannel:
+                  type: string
+                  example: WEBSITE
+                leadScore:
+                  type: integer
+                  minimum: 0
+                  maximum: 100
+                qualificationStatus:
+                  type: string
+                  example: QUALIFIED
+                customFields:
+                  type: object
+      responses:
+        '201':
+          description: Lead recebido e sincronizado
+
+  /v1/connectors/{provider}/leads:
+    post:
+      summary: Entrada de lead por conector CRM (Zoho, TOTVS, Bitrix24, etc.)
+      parameters:
+        - in: path
+          name: provider
+          required: true
+          schema:
+            type: string
+            enum: [ZOHO, TOTVS, BITRIX24, HUBSPOT, PIPEDRIVE, SALESFORCE, GENERIC]
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Payload do CRM de origem (aceita formato nativo ou normalizado)
+      responses:
+        '200':
+          description: Lead atualizado
+        '201':
+          description: Lead criado
+        '400':
+          $ref: '#/components/responses/StandardError'
+
+  /v1/pre-sales/leads/{externalLeadId}/convert:
+    post:
+      summary: Converter lead em oportunidade
+      parameters:
+        - in: path
+          name: externalLeadId
+          required: true
+          schema:
+            type: string
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                opportunityTitle:
+                  type: string
+                value:
+                  type: number
+                stage:
+                  type: string
+                  enum: [LEAD, QUALIFICATION, DIAGNOSIS, PROPOSAL, NEGOTIATION, WON, LOST]
+                expectedCloseDate:
+                  type: string
+                  format: date-time
+                ownerUserId:
+                  type: string
+      responses:
+        '201':
+          description: Oportunidade criada
+
+  /v1/events/{eventType}:
+    post:
+      summary: Emissão manual de evento para webhooks
+      parameters:
+        - in: path
+          name: eventType
+          required: true
+          schema:
+            type: string
+            enum: [lead_qualified, opportunity_created, bid_status_changed, bid_expired, customer_synced, order_synced, price_table_synced]
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '202':
+          description: Evento enfileirado
+
+  /admin/partners:
+    get:
+      summary: Listar parceiros (admin interno)
+      security:
+        - InternalJwt: []
+      responses:
+        '200':
+          description: Lista de parceiros
+    post:
+      summary: Criar parceiro (admin interno)
+      security:
+        - InternalJwt: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name:
+                  type: string
+                type:
+                  type: string
+                  enum: [ERP, API_EXTERNAL, WEBHOOK]
+                provider:
+                  type: string
+                  enum: [TOTVS, SAP, SENIOR, GENERIC_ERP, CUSTOM]
+                partnerTier:
+                  type: string
+                  enum: [BRONZE, SILVER, GOLD, PLATINUM]
+                scopes:
+                  type: array
+                  items:
+                    type: string
+                webhookUrl:
+                  type: string
+      responses:
+        '201':
+          description: Parceiro criado com credenciais
+
+components:
+  securitySchemes:
+    OAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: /api/integration/oauth/token
+          scopes:
+            b2b:read: Leitura B2B
+            b2b:write: Escrita B2B
+            b2g:read: Leitura B2G
+            b2g:write: Escrita B2G
+            pre_sales:read: Leitura de pré-vendas
+            pre_sales:write: Escrita de pré-vendas
+            webhooks:write: Emissão manual de eventos webhook
+            mapping:read: Leitura de mapeamentos
+            mapping:write: Escrita de mapeamentos
+    InternalJwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdempotencyKey:
+      in: header
+      name: Idempotency-Key
+      required: true
+      schema:
+        type: string
+      description: Chave de idempotência para evitar duplicidade em operações de escrita.
+
+  responses:
+    StandardError:
+      description: Erro padronizado
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StandardError'
+
+  schemas:
+    StandardError:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: RESOURCE_CONFLICT
+            message:
+              type: string
+              example: Descrição objetiva
+            details:
+              type: object
+            correlationId:
+              type: string
+              format: uuid
+
+    B2BCustomerSyncRequest:
+      type: object
+      required: [cnpj, razaoSocial]
+      properties:
+        externalId:
+          type: string
+          example: SA1-000245
+        cnpj:
+          type: string
+          example: 12.345.678/0001-90
+        razaoSocial:
+          type: string
+          example: ACME Soluções Industriais LTDA
+        nomeFantasia:
+          type: string
+          example: ACME
+        inscricaoEstadual:
+          type: string
+          example: 110042490114
+        codigoMunicipioIBGE:
+          type: string
+          example: 3550308
+        codigoSA1:
+          type: string
+          example: A000245
+        segment:
+          type: string
+          example: Tecnologia
+        address:
+          type: string
+          example: Av. Paulista, 1000
+        city:
+          type: string
+          example: São Paulo
+        state:
+          type: string
+          example: SP
+        customFields:
+          type: object
+          additionalProperties: true
+
+    B2BCustomerSyncResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            customer:
+              type: object
+            metadata:
+              type: object
+            webhooks:
+              type: object
+
+    B2GBidStatusUpdateRequest:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [MONITORANDO, ANALISE_EM_ANDAMENTO, ANALISE_CONCLUIDA, PROPOSTA_EM_PREPARACAO, ENVIADA, SUSPENSA, ENCERRADA]
+        message:
+          type: string
+        proposalDueDate:
+          type: string
+          format: date-time
+        fiscalRetentions:
+          type: object
+          properties:
+            retencaoISS:
+              type: number
+            retencaoIRRF:
+              type: number
+            retencaoPIS:
+              type: number
+            retencaoCOFINS:
+              type: number
+            retencaoCSLL:
+              type: number
+        documentation:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              required:
+                type: boolean
+              status:
+                type: string
+              notes:
+                type: string
+
+    B2GBidStatusUpdateResponse:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            notice:
+              type: object
+            metadata:
+              type: object
+            webhooks:
+              type: object

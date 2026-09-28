@@ -1,0 +1,207 @@
+================================================================================
+                    CAMINHOS COMPLETOS PARA CÓPIA
+                        Simuladores Double v2
+================================================================================
+
+BASE DO PROJETO:
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/
+
+================================================================================
+📦 MÓDULO #1: DASHBOARD (5 arquivos)
+================================================================================
+
+COPIAR PARA: /seu-crm/src/components/dashboard/
+
+ARQUIVOS:
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/dashboard/DashboardView.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/dashboard/CalculatorsMenuView.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/dashboard/QuoteStatusChart.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/dashboard/RoDashboardView.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/dashboard/StatCard.tsx
+
+COMANDO:
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/dashboard/ /seu-crm/src/components/
+
+================================================================================
+💰 MÓDULO #2: CALCULADORAS - CORE (4 calculadoras essenciais)
+================================================================================
+
+COPIAR PARA: /seu-crm/src/components/calculators/
+
+ARQUIVOS CORE:
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/InternetRadioCalculator.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/InternetFibraCalculator.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/PABXSIPCalculator.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/DoubleFibraRadioCalculator.tsx
+
+COMANDO:
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/InternetRadioCalculator.tsx /seu-crm/src/components/calculators/
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/InternetFibraCalculator.tsx /seu-crm/src/components/calculators/
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/PABXSIPCalculator.tsx /seu-crm/src/components/calculators/
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/DoubleFibraRadioCalculator.tsx /seu-crm/src/components/calculators/
+
+================================================================================
+💰 MÓDULO #2: CALCULADORAS - SHARED (8 componentes compartilhados - ESSENCIAL)
+================================================================================
+
+COPIAR PARA: /seu-crm/src/components/calculators/
+
+ARQUIVOS SHARED:
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/CommissionTablesUnified.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/ClientManagerForm.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/ClientManagerInfo.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/DRETable.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/DREComponent.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/ChannelSellerTable.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/ChannelDirectorTable.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/ChannelInfluencerTable.tsx
+
+COMANDO:
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/Commission*.tsx /seu-crm/src/components/calculators/
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/ClientManager*.tsx /seu-crm/src/components/calculators/
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/DRE*.tsx /seu-crm/src/components/calculators/
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/Channel*.tsx /seu-crm/src/components/calculators/
+
+================================================================================
+💰 MÓDULO #2: CALCULADORAS - EXTENDED (Optional - 6 calculadoras adicionais)
+================================================================================
+
+ARQUIVOS EXTENDED:
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/MaquinasVirtuaisCalculator.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/InternetOKv2Calculator.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/VMCalculator.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/MaquinasVirtuaisCalculatorSimple.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/InternetManCalculator.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/InternetManRadioCalculator.tsx
+
+COMANDO (opcional):
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/Maquinas*.tsx /seu-crm/src/components/calculators/
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/InternetOK*.tsx /seu-crm/src/components/calculators/
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/VM*.tsx /seu-crm/src/components/calculators/
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/InternetMan*.tsx /seu-crm/src/components/calculators/
+
+================================================================================
+📄 MÓDULO #3: PROPOSTAS COMERCIAIS (7 arquivos)
+================================================================================
+
+COPIAR PARA: /seu-crm/src/components/proposals/
+
+ARQUIVOS:
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/proposals/ProposalsView.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/proposals/ProposalForm.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/proposals/ProposalStatusBadge.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/proposals/ProposalApprovalRequestButton.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/proposals/ProposalApprovalInfo.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/proposals/ProposalApprovalActions.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/proposals/VMProposals.tsx
+
+COMANDO:
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/proposals/ /seu-crm/src/components/
+
+================================================================================
+🎣 HOOKS NECESSÁRIOS (6 arquivos)
+================================================================================
+
+COPIAR PARA: /seu-crm/src/hooks/
+
+ARQUIVOS CORE (Essencial - adaptar para seu CRM):
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/hooks/use-auth.tsx
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/hooks/use-proposals-with-permissions.ts
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/hooks/use-commissions.ts
+
+ARQUIVOS SUPPORT (Opcional):
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/hooks/use-deep-linked-proposal.ts
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/hooks/use-proposals-api.ts
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/hooks/use-calculators.ts
+
+COMANDO:
+cp /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/hooks/*.ts* /seu-crm/src/hooks/
+
+================================================================================
+📚 LIBS NECESSÁRIAS (6+ arquivos)
+================================================================================
+
+COPIAR PARA: /seu-crm/src/lib/
+
+ARQUIVOS CORE (Essencial - adaptar para seu CRM):
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/lib/permissions.ts
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/lib/database.ts
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/lib/proposal-sync.ts
+
+ARQUIVOS SUPPORT:
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/lib/types.ts
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/lib/auth.ts
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/lib/proposal-id-generator.ts
+
+SUBDIRETÓRIOS:
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/lib/proposals/
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/lib/validations/
+
+COMANDO:
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/lib/ /seu-crm/src/
+
+================================================================================
+🎨 COMPONENTES UI (20+ arquivos compartilhados)
+================================================================================
+
+COPIAR PARA: /seu-crm/src/components/ui/
+
+COMANDO:
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/ui/ /seu-crm/src/components/
+
+================================================================================
+🔗 COMPONENTES SHARED (3 arquivos)
+================================================================================
+
+COPIAR PARA: /seu-crm/src/components/shared/
+
+COMANDO:
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/shared/ /seu-crm/src/components/
+
+================================================================================
+🔌 API ROUTES (Múltiplos arquivos)
+================================================================================
+
+COPIAR PARA: /seu-crm/src/app/api/
+
+LOCALIZAÇÃO:
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/app/api/proposals/
+/Users/carloshorst/Documents/DESENVOLVIMENTO/EM PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/app/api/commissions/
+
+COMANDO:
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/app/api/ /seu-crm/src/app/
+
+================================================================================
+✅ COMANDO RÁPIDO - COPIAR TUDO (CORE + ESSENCIAL)
+================================================================================
+
+cd /seu-projeto-crm
+
+# Core
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/dashboard/ src/components/
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/calculators/ src/components/
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/proposals/ src/components/
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/ui/ src/components/
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/components/shared/ src/components/
+
+# Hooks e Libs
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/hooks/ src/
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/lib/ src/
+
+# APIs
+cp -r /Users/carloshorst/Documents/DESENVOLVIMENTO/EM\ PRODUÇÃO/DOUBLE/SimuladoresDoublev2/src/app/api/ src/app/
+
+================================================================================
+🎯 PRÓXIMO PASSO
+================================================================================
+
+Depois de copiar os arquivos, ler e seguir:
+
+1. GUIA_EXTRACAO_MODULAR.md - Instruções detalhadas de integração
+2. EXEMPLO_INTEGRACAO_CRM.md - Tutorial passo a passo com código
+3. INDICE_ARQUIVOS_MODULOS.md - Localização de todos os arquivos
+
+================================================================================
+Data: 10 de Agosto de 2026
+Status: ✅ Pronto para Integração
+================================================================================

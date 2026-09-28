@@ -1,0 +1,465 @@
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import ScrollToTop from './components/ScrollToTop';
+import ErrorBoundary from './components/ErrorBoundary';
+import AppShell from './layout/AppShell';
+import DashboardGeral from './pages/DashboardGeral';
+import DashboardHome from './pages/DashboardHome';
+import Dashboard from './pages/Dashboard';
+import Empresas from './pages/Empresas';
+import Oportunidades from './pages/Oportunidades';
+import Comissoes from './pages/Comissoes';
+import Atividades from './pages/Atividades';
+import Simuladores from './pages/Simuladores';
+import Produtos from './pages/Produtos';
+import Propostas from './pages/Propostas';
+import TemplatesPropostas from './pages/TemplatesPropostas';
+import Contratos from './pages/Contratos';
+import PosVenda from './pages/PosVenda';
+import Automacoes from './pages/Automacoes';
+import LeadManagement from './pages/LeadManagement';
+import PreVendas from './pages/PreVendas';
+import Calculadoras from './pages/Calculadoras';
+import Precificacao from './pages/PrecificacaoHome';
+import RatearProdutos from './pages/RatearProdutos';
+import RateiosSalvos from './pages/RateiosSalvos';
+import GestaoPocs from './pages/GestaoPocs';
+import OrcamentosPrevendas from './pages/OrcamentosPrevendas';
+import PrevendasCadastros from './pages/PrevendasCadastros';
+import Relatorios from './pages/Relatorios';
+import Integracoes from './pages/Integracoes';
+import FuncionalidadesAvancadas from './pages/FuncionalidadesAvancadas';
+import MetasPerformance from './pages/MetasPerformance';
+import Kickoff from './pages/Kickoff';
+import VendedoresFixed from './pages/VendedoresFixed';
+import Solicitacoes from './pages/Solicitacoes';
+import Administracao from './pages/Administracao';
+import B2GEditais from './pages/B2GEditais';
+import B2GAnaliseEditaisTR from './pages/B2GAnaliseEditaisTR';
+import PortalBusca from './pages/PortalBusca';
+import Login from './pages/Login';
+import Checkout from './pages/Checkout';
+import Setup from './pages/Setup';
+import ProtectedRoute from './components/ProtectedRoute';
+import RoleGuard from './components/RoleGuard';
+import { ROLES, getUserAccess, normalizeRole } from './utils/permissions';
+
+function B2GRouteScreen() {
+  const location = useLocation();
+
+  return (
+    <ErrorBoundary resetKey={location.pathname} scopeLabel="B2G">
+      <B2GEditais />
+    </ErrorBoundary>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <ScrollToTop />
+      <Routes>
+        <Route path="/" element={<DashboardHome />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/setup" element={<Setup />} />
+
+        <Route
+          element={
+            <ProtectedRoute>
+              <AppShell />
+            </ProtectedRoute>
+          }
+        >
+          <Route path="dashboard" element={<Dashboard />} />
+
+          <Route path="dashboard-geral" element={<DashboardGeral />} />
+
+          <Route
+            path="dashboard-b2b"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER, ROLES.USER]}>
+                <Dashboard />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="empresas"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <Empresas />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="oportunidades"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <Oportunidades />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="b2g-portal-busca"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <PortalBusca />
+              </RoleGuard>
+            }
+          />
+
+          <Route path="b2g-editais" element={<Navigate to="/b2g-dashboard" replace />} />
+          <Route
+            path="b2g-dashboard"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <B2GRouteScreen />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-leads"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <B2GRouteScreen />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-orgaos"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <Empresas clientType="B2G" />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-oportunidades"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <B2GRouteScreen />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-analise"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <Navigate to="/b2g-analise-editais-tr" replace />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-analise-editais-tr"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <B2GAnaliseEditaisTR />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-resumos"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <B2GRouteScreen />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-atas"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <B2GRouteScreen />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-atividades"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <B2GRouteScreen />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-documentacao"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <B2GRouteScreen />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-relatorios"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <B2GRouteScreen />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-historico"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <B2GRouteScreen />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="atividades"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <Atividades />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="simuladores"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER]}>
+                <Simuladores />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="kickoff"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <Kickoff />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="produtos"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <Produtos />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="propostas"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <Propostas />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="templates-propostas"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <TemplatesPropostas />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="contratos"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <Contratos />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="pos-venda"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <PosVenda />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="automacoes"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <Automacoes />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="leads"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <LeadManagement />
+              </RoleGuard>
+            }
+          />
+
+          {/* Menu Pré-Vendas: somente ADMIN/MANAGER (DIRECTOR não acessa) */}
+          <Route
+            path="pre-vendas"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <PreVendas />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="solicitacoes"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <Solicitacoes />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="calculadoras"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <Calculadoras />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="precificacao"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <Precificacao />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="ratear-produtos"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <RatearProdutos />
+              </RoleGuard>
+            }
+          />
+          <Route path="rateio-produtos" element={<Navigate to="/ratear-produtos" replace />} />
+          <Route
+            path="rateios-salvos"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <RateiosSalvos />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="gestao-pocs"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <GestaoPocs />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="orcamentos"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <OrcamentosPrevendas />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="prevendas-distribuidores"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <PrevendasCadastros forcedTab="distribuidores" />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="prevendas-fornecedores"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <PrevendasCadastros forcedTab="fornecedores" />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="prevendas-registro-oportunidades"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <PrevendasCadastros forcedTab="oportunidades" />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="prevendas-cadastros"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.PRE_SALES, ROLES.USER]}>
+                <Navigate to="/prevendas-distribuidores" replace />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="comissoes"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <Comissoes />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="vendedores"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <VendedoresFixed />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="metas-performance"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <MetasPerformance />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="relatorios"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <Relatorios />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="integracoes"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <Integracoes />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="funcionalidades-avancadas"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER]}>
+                <FuncionalidadesAvancadas />
+              </RoleGuard>
+            }
+          />
+
+          <Route
+            path="configuracoes"
+            element={
+              <RoleGuard allowedRoles={[ROLES.MASTER, ROLES.ADMIN]}>
+                <Administracao />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="administracao"
+            element={
+              <RoleGuard allowedRoles={[ROLES.MASTER]}>
+                <Administracao />
+              </RoleGuard>
+            }
+          />
+
+          <Route path="*" element={<Navigate to="/dashboard-geral" replace />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
+  );
+}

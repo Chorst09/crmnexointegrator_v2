@@ -1,0 +1,211 @@
+╔════════════════════════════════════════════════════════════════════╗
+║                                                                    ║
+║    📦 CÓDIGO RATEAR PRODUTOS & RATEIOS SALVOS - PRONTO PARA USO   ║
+║                                                                    ║
+║    Data: 18/06/2026                                               ║
+║    Versão: 2.0                                                    ║
+║    Status: ✅ PRONTO PARA DEPLOY EM OUTRO SISTEMA                 ║
+║                                                                    ║
+╚════════════════════════════════════════════════════════════════════╝
+
+📁 ARQUIVOS DISPONIBILIZADOS:
+════════════════════════════════════════════════════════════════════
+
+1. 📄 rateio-precificacao-v2.tsx (1.629 linhas - 90 KB)
+   ├─ Componente React completo
+   ├─ Motor de cálculo integrado
+   ├─ Interface com 5 abas (NF-e, Rateio, Cenários, Resultado, Config)
+   ├─ Persistência em localStorage
+   ├─ Exportação JSON/CSV/PDF
+   ├─ Auditoria com checksum SHA256
+   ├─ Importação de propostas
+   └─ Tudo em um arquivo!
+
+2. 📄 page.tsx (764 linhas - 33 KB)
+   ├─ Página "Rateios Salvos"
+   ├─ Listagem com busca e filtros
+   ├─ Visualização de detalhes
+   ├─ Impressão em PDF
+   ├─ Deletar rateios
+   └─ Copie para: src/app/pricing/rateios-salvos/page.tsx
+
+3. 📄 RatearProdutos.tsx (640 linhas - 25 KB)
+   ├─ Versão alternativa compacta
+   ├─ Funcionalidades principais
+   └─ Ideal para integração simples
+
+4. 📄 EXEMPLO_INTEGRACAO.ts (408 linhas)
+   ├─ 10 exemplos práticos de uso
+   ├─ Hooks customizados
+   ├─ Integração com API
+   ├─ Validação de dados
+   ├─ Exportação CSV
+   └─ Incluso no diretório para referência
+
+5. 📄 README.md (312 linhas)
+   ├─ Guia de integração
+   ├─ Descrição dos arquivos
+   ├─ Como usar cada componente
+   ├─ Estrutura de dados
+   ├─ Troubleshooting
+   └─ Checklist de deploy
+
+════════════════════════════════════════════════════════════════════
+
+🚀 COMO COMEÇAR (3 Passos):
+════════════════════════════════════════════════════════════════════
+
+PASSO 1: Copiar Arquivos
+└─ cp rateio-precificacao-v2.tsx seu-projeto/src/components/
+
+PASSO 2: Usar em Sua Página
+└─ import RateioPrecificacaoV2 from '@/components/rateio-precificacao-v2'
+   export default function() { return <RateioPrecificacaoV2 /> }
+
+PASSO 3: Acessar no Navegador
+└─ http://seu-sistema/pricing/ratear-produtos
+
+════════════════════════════════════════════════════════════════════
+
+✅ O QUE ESTÁ INCLUÍDO:
+════════════════════════════════════════════════════════════════════
+
+FUNCIONALIDADES:
+  ✅ Cálculo de rateio de despesas
+  ✅ 4 métodos: Por Custo, Por Venda, Por Quantidade, Peso Manual
+  ✅ Composição de produtos (alvo composto por fontes)
+  ✅ Persistência em localStorage
+  ✅ Exportação JSON/CSV/PDF
+  ✅ Auditoria com checksum
+  ✅ Histórico de operações
+  ✅ Importação de propostas
+  ✅ Interface completa com abas
+  ✅ Dados demo para teste
+
+RECURSOS:
+  ✅ Sem dependências externas
+  ✅ 100% TypeScript tipado
+  ✅ React Hooks modernos
+  ✅ UI com shadcn/components (adapte se necessário)
+  ✅ localStorage para persistência
+  ✅ PDF com impression automática
+  ✅ CSV para Excel
+  ✅ JSON estruturado
+
+════════════════════════════════════════════════════════════════════
+
+📋 CHECKLIST DE INTEGRAÇÃO:
+════════════════════════════════════════════════════════════════════
+
+[ ] 1. Ler este arquivo (00-LEIA-PRIMEIRO.txt)
+[ ] 2. Ler README.md para entender a estrutura
+[ ] 3. Revisar EXEMPLO_INTEGRACAO.ts para ver casos de uso
+[ ] 4. Copiar rateio-precificacao-v2.tsx para seu projeto
+[ ] 5. Adaptar imports de UI components se necessário
+[ ] 6. Criar página em src/app/pricing/ratear-produtos/page.tsx
+[ ] 7. Importar RateioPrecificacaoV2 e usá-lo na página
+[ ] 8. Adicionar menu lateral para /pricing/ratear-produtos
+[ ] 9. Testar com dados demo (clique "Carrega Dados Demo")
+[ ] 10. Copiar page.tsx para rateios-salvos (opcional)
+[ ] 11. Adicionar menu para /pricing/rateios-salvos
+[ ] 12. Testar salvamento e carregamento de rateios
+[ ] 13. Exportar JSON/CSV/PDF
+[ ] 14. Imprimir PDF
+[ ] 15. Deploy em produção
+
+════════════════════════════════════════════════════════════════════
+
+🎯 ARQUIVOS POR CASO DE USO:
+════════════════════════════════════════════════════════════════════
+
+CASO 1: Integração Simples (Apenas Cálculo)
+└─ Use: rateio-precificacao-v2.tsx ou RatearProdutos.tsx
+
+CASO 2: Integração Completa (Com Histórico)
+├─ Use: rateio-precificacao-v2.tsx
+└─ Use: page.tsx para rateios-salvos
+
+CASO 3: Integração em Componente Existente
+├─ Extraia calcRateio() de rateio-precificacao-v2.tsx
+└─ Consulte: EXEMPLO_INTEGRACAO.ts
+
+════════════════════════════════════════════════════════════════════
+
+💻 REQUISITOS TÉCNICOS:
+════════════════════════════════════════════════════════════════════
+
+✅ React 16.8+ (Hooks)
+✅ Next.js 12+ (App Router)
+✅ TypeScript 4.5+
+✅ Tailwind CSS (para estilos)
+✅ shadcn/ui components (ou adapte)
+✅ Node.js 14+
+
+OPCIONAL:
+  - Backend Node.js para persistência em banco de dados
+  - API REST para sincronização entre dispositivos
+
+════════════════════════════════════════════════════════════════════
+
+🧪 TESTE RÁPIDO (5 minutos):
+════════════════════════════════════════════════════════════════════
+
+1. Abrir: /pricing/ratear-produtos
+2. Clicar: "Carrega Dados Demo"
+3. Ver: 3 produtos e 2 despesas carregados
+4. Abrir aba: "Rateio"
+5. Clicar: "Executar Rateio"
+6. Ver: Resultado na aba "Resultado"
+7. Salvar: Clicar "Salvar Rateio"
+8. Ir para: /pricing/rateios-salvos
+9. Ver: Rateio salvo na lista
+10. Imprimir: Clicar "PDF"
+
+════════════════════════════════════════════════════════════════════
+
+📞 SUPORTE & REFERÊNCIA:
+════════════════════════════════════════════════════════════════════
+
+📄 README.md
+   └─ Guia completo de integração
+
+📄 EXEMPLO_INTEGRACAO.ts
+   └─ 10 exemplos práticos
+
+📄 rateio-precificacao-v2.tsx
+   └─ Código comentado e bem estruturado
+
+════════════════════════════════════════════════════════════════════
+
+🎁 BÔNUS:
+════════════════════════════════════════════════════════════════════
+
+✅ Dados demo prontos para testar
+✅ Comentários no código explicando lógica
+✅ TypeScript tipado 100%
+✅ Sem dependências externas
+✅ Pronto para produção
+
+════════════════════════════════════════════════════════════════════
+
+✨ PRONTO PARA USAR!
+════════════════════════════════════════════════════════════════════
+
+Você possui TODO o código necessário para integrar o módulo
+"Ratear Produtos & Rateios Salvos" em seu sistema!
+
+Todos os arquivos estão em:
+/RATEAR_PRODUTOS_CODIGO/
+
+Comece lendo:
+1. Este arquivo (00-LEIA-PRIMEIRO.txt)
+2. README.md
+3. rateio-precificacao-v2.tsx
+
+E depois consulte EXEMPLO_INTEGRACAO.ts para casos específicos!
+
+════════════════════════════════════════════════════════════════════
+Data: 18/06/2026
+Status: ✅ Pronto para Deploy
+Versão: 2.0
+════════════════════════════════════════════════════════════════════

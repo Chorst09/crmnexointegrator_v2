@@ -1,0 +1,67 @@
+# ============================================
+# COMANDOS FINAIS - Execute no servidor
+# ssh root@209.50.241.25
+# ============================================
+
+# 1. Criar usuário PostgreSQL corretamente
+sudo -u postgres psql -c "CREATE USER chorst WITH PASSWORD '<ADMIN_PASSWORD>';"
+sudo -u postgres psql -c "GRANT ALL PRIVILEGES ON DATABASE nexoscrm TO chorst;"
+
+# 2. Atualizar .env com usuário em minúsculo
+cd /var/www/nexoscrm/backend
+cat > .env << 'EOF'
+NODE_ENV=production
+PORT=3001
+HOST=0.0.0.0
+DATABASE_URL=postgresql://chorst:<ADMIN_PASSWORD>@localhost:5432/nexoscrm?schema=public
+JWT_SECRET=<JWT_SECRET>
+JWT_EXPIRES_IN=7d
+CORS_ORIGIN=http://209.50.241.25:3001
+BCRYPT_ROUNDS=12
+MAX_FILE_SIZE=10485760
+UPLOAD_PATH=./uploads
+LOG_LEVEL=info
+EOF
+
+# 3. Executar migrations
+npx prisma migrate deploy
+
+# 4. Criar usuário admin
+node -e "
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcryptjs');
+const prisma = new PrismaClient();
+
+async function createAdmin() {
+  try {
+    const hash = await bcrypt.hash('<ADMIN_PASSWORD>', 12);
+    const user = await prisma.user.create({
+      data: {
+        name: 'Administrador',
+        email: 'admin@nexoscrm.com',
+        password: hash,
+        role: 'ADMIN'
+      }
+    });
+    console.log('Admin criado:', user.email);
+  } catch(e) {
+    console.log('Admin já existe ou erro:', e.message);
+  } finally {
+    await prisma.\$disconnect();
+  }
+}
+createAdmin();
+"
+
+# 5. Reiniciar aplicação
+pm2 restart nexoscrm-api
+
+# 6. Testar
+sleep 5
+curl http://localhost:3001/health
+curl http://localhost:3001/ | head -5
+
+echo "✅ Sistema pronto!"
+echo "🌐 Acesse: http://209.50.241.25:3001"
+echo "📧 Login: admin@nexoscrm.com"
+echo "🔑 Senha: <ADMIN_PASSWORD>"

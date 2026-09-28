@@ -1,0 +1,121 @@
+# ============================================
+# COMANDOS FINAIS - Execute no servidor
+# ssh root@209.50.241.25
+# ============================================
+
+# 1. Criar frontend simples
+cd /var/www/nexoscrm/frontend
+mkdir -p dist
+
+# 2. Criar index.html
+cat > dist/index.html << 'EOF'
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexosCRM</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: #555; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #0056b3; }
+        .status { margin-top: 20px; padding: 10px; border-radius: 4px; text-align: center; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NexosCRM</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" value="admin@nexoscrm.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" value="<ADMIN_PASSWORD>" required>
+            </div>
+            <button type="submit">Entrar</button>
+        </form>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('status');
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    status.innerHTML = '<div class="success">Login realizado com sucesso!</div>';
+                    localStorage.setItem('token', data.token);
+                    setTimeout(() => {
+                        window.location.href = '/dashboard.html';
+                    }, 1000);
+                } else {
+                    status.innerHTML = '<div class="error">Erro no login. Verifique suas credenciais.</div>';
+                }
+            } catch (error) {
+                status.innerHTML = '<div class="error">Erro de conexão: ' + error.message + '</div>';
+            }
+        });
+        
+        // Testar API
+        fetch('/api/health')
+            .then(response => response.json())
+            .then(data => console.log('API Status:', data))
+            .catch(error => console.error('API Error:', error));
+    </script>
+</body>
+</html>
+EOF
+
+# 3. Configurar Nginx
+cat > /etc/nginx/sites-available/nexoscrm << 'EOF'
+server {
+    listen 80;
+    server_name _;
+    root /var/www/nexoscrm/frontend/dist;
+    index index.html;
+    
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    
+    location /api/ {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOF
+
+# 4. Ativar configuração
+nginx -t
+systemctl reload nginx
+
+# 5. Testar
+curl -s http://localhost/ | head -10
+curl -s http://localhost/api/health
+
+echo "✅ Pronto! Acesse http://209.50.241.25"

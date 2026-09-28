@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  nexoscrm-db:
+    image: postgres:15-alpine
+    container_name: nexoscrm-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: nexoscrm
+      POSTGRES_PASSWORD: nexoscrm123
+      POSTGRES_DB: nexoscrm
+    ports:
+      - "5433:5432"
+    volumes:
+      - nexoscrm_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U nexoscrm"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  nexoscrm_data:

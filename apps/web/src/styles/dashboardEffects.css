@@ -1,0 +1,371 @@
+/**
+ * Efeitos avançados para dashboards
+ * Animações, transições, e visual effects
+ */
+
+/* ─── ANIMAÇÕES CUSTOMIZADAS ─────────────────────────────────────────────── */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(24, 200, 223, 0.45);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(24, 200, 223, 0.75), 0 0 30px rgba(255, 122, 0, 0.24);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse-neon {
+  0%, 100% {
+    box-shadow: 0 0 15px rgba(255, 122, 0, 0.24);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(255, 122, 0, 0.46), 0 0 45px rgba(24, 200, 223, 0.22);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* ─── CLASSES UTILITÁRIAS ─────────────────────────────────────────────────── */
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.6s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.5s ease-out forwards;
+}
+
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-pulse-neon {
+  animation: pulse-neon 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.1) 50%, transparent 100%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
+}
+
+.animate-rotate {
+  animation: rotate 20s linear infinite;
+}
+
+.animate-wave {
+  animation: wave 1.5s ease-in-out infinite;
+}
+
+/* ─── CARD STYLES ────────────────────────────────────────────────────────── */
+
+.dashboard-card {
+  position: relative;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(55, 65, 81, 0.92);
+  background: linear-gradient(135deg, rgba(17, 24, 39, 0.97) 0%, rgba(13, 20, 35, 0.96) 100%);
+  overflow: hidden;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.32);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dashboard-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 122, 0, 0.08), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.dashboard-card:hover {
+  border-color: rgba(255, 122, 0, 0.55);
+  box-shadow: 0 8px 32px rgba(255, 122, 0, 0.12), 0 16px 48px rgba(0, 0, 0, 0.35);
+  transform: translateY(-4px);
+}
+
+.dashboard-card:hover::before {
+  opacity: 1;
+}
+
+/* ─── GRADIENTE ANIMADO ──────────────────────────────────────────────────── */
+
+.gradient-animated {
+  background-size: 300% 300%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+/* ─── EFEITO GLITCH ──────────────────────────────────────────────────────── */
+
+.glitch {
+  position: relative;
+  color: #fff;
+}
+
+.glitch::before,
+.glitch::after {
+  content: attr(data-text);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.8;
+}
+
+.glitch::before {
+  animation: glitch-anim-1 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+  color: #18c8df;
+  z-index: -1;
+}
+
+.glitch::after {
+  animation: glitch-anim-2 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) reverse infinite;
+  color: #ff7a00;
+  z-index: -2;
+}
+
+@keyframes glitch-anim-1 {
+  0% {
+    clip-path: polygon(0 0, 0 0, 0 0, 0 0);
+  }
+  20% {
+    clip-path: polygon(0 0, 0 100%, 0 100%, 0 0);
+  }
+  40% {
+    clip-path: polygon(0 10%, 0 85%, 100% 85%, 100% 10%);
+  }
+  60% {
+    clip-path: polygon(0 10%, 0 40%, 100% 38%, 100% 0);
+  }
+  80% {
+    clip-path: polygon(0 0, 0 100%, 0 100%, 0 0);
+  }
+  100% {
+    clip-path: polygon(0 0, 0 0, 0 0, 0 0);
+  }
+}
+
+@keyframes glitch-anim-2 {
+  0% {
+    clip-path: polygon(0 0, 0 0, 0 0, 0 0);
+  }
+  20% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+  40% {
+    clip-path: polygon(100% 50%, 0 50%, 0 100%, 100% 0);
+  }
+  60% {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 50%);
+  }
+  80% {
+    clip-path: polygon(0 0, 0 0, 0 0, 0 0);
+  }
+  100% {
+    clip-path: polygon(0 0, 0 0, 0 0, 0 0);
+  }
+}
+
+/* ─── LOADING SKELETON ────────────────────────────────────────────────────── */
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+  border-radius: 8px;
+}
+
+/* ─── EFEITO NEON BORDER ─────────────────────────────────────────────────── */
+
+.neon-border {
+  position: relative;
+  border-radius: 12px;
+  padding: 1px;
+  background: linear-gradient(45deg, transparent, rgba(255, 122, 0, 0.52), rgba(24, 200, 223, 0.38), transparent);
+}
+
+.neon-border::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(45deg, #ff7a00, #18c8df, #1f7fe5, #22c55e);
+  background-size: 300% 300%;
+  animation: gradient-shift 6s ease infinite;
+  opacity: 0.1;
+  z-index: -1;
+}
+
+/* ─── CHIP/BADGE COM EFEITO ──────────────────────────────────────────────── */
+
+.metric-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 20px;
+  background: rgba(255, 122, 0, 0.12);
+  border: 1px solid rgba(255, 122, 0, 0.34);
+  color: #ffb15c;
+  font-size: 12px;
+  font-weight: 600;
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+.metric-chip:hover {
+  background: rgba(255, 122, 0, 0.2);
+  border-color: rgba(255, 122, 0, 0.62);
+  box-shadow: 0 0 15px rgba(255, 122, 0, 0.24);
+}
+
+/* ─── CONTADOR ANIMADO ────────────────────────────────────────────────────── */
+
+.counter-number {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+/* ─── GRID RESPONSIVO ────────────────────────────────────────────────────── */
+
+.dashboard-grid {
+  display: grid;
+  gap: 16px;
+  grid-auto-flow: dense;
+}
+
+@media (min-width: 640px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .dashboard-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.dashboard-grid .grid-span-2 {
+  grid-column: span 2;
+}
+
+.dashboard-grid .grid-span-full {
+  grid-column: 1 / -1;
+}
+
+/* ─── ESTADO VAZIO ────────────────────────────────────────────────────────── */
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  color: #b0b0c0;
+}
+
+.empty-state svg {
+  width: 48px;
+  height: 48px;
+  opacity: 0.5;
+  margin-bottom: 12px;
+}
+
+/* ─── RESPONDER À PREFERÊNCIA DE MOVIMENTO REDUZIDO ──────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

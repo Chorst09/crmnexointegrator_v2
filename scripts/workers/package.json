@@ -1,0 +1,47 @@
+{
+  "name": "nexosintegrator-pncp-worker",
+  "version": "1.0.0",
+  "description": "Worker de ingestão diária da API PNCP para o sistema NexosIntegrator",
+  "main": "fetchPncpData.ts",
+  "scripts": {
+    "start": "node fetchPncpData.js",
+    "dev": "ts-node fetchPncpData.ts",
+    "build": "tsc fetchPncpData.ts --outDir dist",
+    "test": "ts-node fetchPncpData.ts --date=2026-09-01 --verbose",
+    "setup-cron": "chmod +x setup/install-cron.sh && ./setup/install-cron.sh",
+    "logs": "tail -f ../../logs/workers/pncp-worker.log",
+    "errors": "tail -f ../../logs/workers/pncp-worker-error.log"
+  },
+  "keywords": [
+    "pncp",
+    "contratacoes-publicas",
+    "worker",
+    "api-integration",
+    "data-ingestion"
+  ],
+  "author": "AI Assistant (Engenheiro de Dados)",
+  "license": "MIT",
+  "dependencies": {
+    "@prisma/client": "^5.22.0",
+    "axios": "^1.20.0",
+    "date-fns": "^2.30.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.43",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seu-usuario/nexosintegrator.git"
+  },
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/seu-usuario/nexosintegrator/issues"
+  },
+  "homepage": "https://github.com/seu-usuario/nexosintegrator#readme"
+}
