@@ -123,17 +123,6 @@ export default function Topbar({ onMenuClick }) {
         <div className="ml-auto flex shrink-0 items-center gap-3 text-cyan-50">
           <button
             type="button"
-            onClick={() => setIsTestFlowOpen(true)}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500/25 via-blue-500/25 to-indigo-500/25 hover:from-cyan-500/40 hover:to-indigo-500/40 border border-cyan-400/40 text-cyan-200 hover:text-white shadow-sm transition-all text-xs font-semibold cursor-pointer"
-            title="Executar ou Visualizar Teste de Fluxo B2B Integrado (Todos os 10 Módulos)"
-          >
-            <Rocket className="h-4 w-4 text-cyan-400 animate-pulse" />
-            <span className="hidden md:inline">Teste Fluxo B2B (10 Módulos)</span>
-            <span className="md:hidden">Teste B2B</span>
-          </button>
-
-          <button
-            type="button"
             className="hidden h-10 w-10 items-center justify-center rounded-full border border-transparent text-cyan-50 transition hover:border-cyan-200/16 hover:bg-[#102033]/78 sm:inline-flex"
             aria-label="Notificações"
             title="Notificações"
