@@ -642,7 +642,64 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
     setError('');
     if (mode === 'create') {
       const user = (() => { try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; } })();
-      setForm({ ...EMPTY_FORM, commercialLead: user.name || '' });
+      if (opportunity) {
+        const b2g = parseB2GData(opportunity.description);
+        setForm({
+          ...EMPTY_FORM,
+          commercialLead: user.name || '',
+          processNumber: b2g.processNumber || opportunity.number || opportunity.processNumber || '',
+          uasgId: b2g.uasgId || '',
+          agency: b2g.agency || opportunity.company?.name || opportunity.agency || '',
+          projectName: b2g.projectName || opportunity.projectName || '',
+          customerRelationship: opportunity.projectClientType || b2g.customerRelationship || 'NEW_CLIENT',
+          sphere: b2g.sphere || 'Municipal',
+          location: b2g.location || opportunity.location || '',
+          sourcePortal: b2g.sourcePortal || opportunity.sourcePortal || '',
+          opportunityRegistrationPortal: b2g.opportunityRegistrationPortal || '',
+          manufacturerRegistrationStatus: b2g.manufacturerRegistrationStatus || '',
+          modality: b2g.modality || opportunity.modality || '',
+          type: b2g.type || 'Eletrônico',
+          objectSummary: b2g.objectSummary || opportunity.title || opportunity.objectSummary || '',
+          objectDetailed: b2g.objectDetailed || b2g.objetoResumido || '',
+          estimatedMonthlyValue: b2g.estimatedMonthlyValue || '',
+          estimatedOneTimeValue: b2g.estimatedOneTimeValue || '',
+          estimatedValue: b2g.estimatedValue || opportunity.value || '',
+          maxAcceptableValue: b2g.maxAcceptableValue || '',
+          estimatedMargin: b2g.estimatedMargin || '',
+          expectedTicket: b2g.expectedTicket || '',
+          contractType: b2g.contractType || 'Contrato',
+          contractTermMonths: b2g.contractTermMonths || '12',
+          readjustmentClause: b2g.readjustmentClause || false,
+          guaranteePercentage: b2g.guaranteePercentage || '',
+          publicationDate: b2g.publicationDate || '',
+          openingDate: b2g.openingDate || opportunity.openingDate || '',
+          challengeDeadline: b2g.challengeDeadline || '',
+          proposalDeadline: b2g.proposalDeadline || '',
+          estimatedValidity: b2g.estimatedValidity || '',
+          currentPhase: b2g.currentPhase || b2g.faseAtual || 'Análise',
+          technicalLead: b2g.technicalLead || '',
+          partner: b2g.partner || '',
+          manufacturer: b2g.manufacturer || '',
+          competitionLevel: b2g.competitionLevel || 'medio',
+          mainCompetitors: b2g.mainCompetitors || '',
+          strategyDescription: b2g.strategyDescription || '',
+          winProbability: b2g.winProbability ?? b2g.probabilidadeGanho ?? '50',
+          decision: b2g.decision || 'PENDING',
+          decisionJustification: b2g.decisionJustification || '',
+          briefingLink: b2g.briefingLink || b2g.linkBriefing || '',
+          documentChecklistComplete: b2g.documentChecklistComplete || false,
+          certificatesRequired: b2g.certificatesRequired || [],
+          samplesRequired: b2g.samplesRequired || false,
+          technicalVisitMandatory: b2g.technicalVisitMandatory || false,
+          judgmentType: b2g.judgmentType || 'Menor Preço',
+          restrictiveRequirements: b2g.restrictiveRequirements || false,
+          riskLevel: b2g.riskLevel || b2g.grauRisco || 'baixo',
+          penalties: b2g.penalties || '',
+          legalNotes: b2g.legalNotes || ''
+        });
+      } else {
+        setForm({ ...EMPTY_FORM, commercialLead: user.name || '' });
+      }
     } else if (opportunity) {
       const b2g = parseB2GData(opportunity.description);
       setForm({

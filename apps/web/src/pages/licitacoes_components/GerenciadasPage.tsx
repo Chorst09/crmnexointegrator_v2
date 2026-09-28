@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Briefcase, Search, ExternalLink, Calendar, MapPin, Building2, Clock, Trash2, CheckCircle2 } from 'lucide-react';
+import { Briefcase, Search, ExternalLink, Calendar, MapPin, Building2, Clock, Trash2, CheckCircle2, TrendingUp } from 'lucide-react';
 import { Licitacao } from './types';
 import { cn } from './utils';
+import { B2GOpportunityEditModal } from '../../components/B2GOpportunityModal';
 
 interface ManagedLicitacao extends Licitacao {
   _managedId: string;
@@ -21,9 +22,13 @@ const getAuthHeaders = () => {
 export function GerenciadasPage() {
   const [gerenciadas, setGerenciadas] = useState<ManagedLicitacao[]>([]);
   const [loading, setLoading] = useState(true);
+  const [leads, setLeads] = useState<any[]>([]);
+  const [selectedBiddingOpportunity, setSelectedBiddingOpportunity] = useState<any>(null);
+  const [isOpportunityModalOpen, setIsOpportunityModalOpen] = useState(false);
 
   useEffect(() => {
     fetchGerenciadas();
+    fetchLeads();
   }, []);
 
   const fetchGerenciadas = async () => {
@@ -44,6 +49,18 @@ export function GerenciadasPage() {
       setGerenciadas([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchLeads = async () => {
+    try {
+      const res = await fetch('/api/companies?clientType=B2G', { headers: getAuthHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        setLeads(Array.isArray(data) ? data : []);
+      }
+    } catch (err) {
+      console.error('Error fetching leads:', err);
     }
   };
 
@@ -75,6 +92,53 @@ export function GerenciadasPage() {
     } catch (err) {
       console.error(err);
     }
+  };
+
+  const handleConvertToOpportunity = (lic: ManagedLicitacao) => {
+    const orgaoName = lic.orgao || lic.orgaoEntidade?.razaoSocial || '';
+    const matchingLead = leads.find(l => l.name === orgaoName);
+    
+    // Se o órgão não for uma empresa/lead existente na listagem B2G, adicione um item virtual temporário
+    if (!matchingLead && orgaoName) {
+      const virtualLead = { id: `virtual-${Date.now()}`, name: orgaoName };
+      setLeads(prev => [virtualLead, ...prev]);
+    }
+
+    const prefilledDescription = {
+      processNumber: lic.numeroCompra || lic.numeroControlePNCP || '',
+      agency: orgaoName,
+      projectName: lic.objeto_resumo ? lic.objeto_resumo.slice(0, 100) : '',
+      customerRelationship: 'NEW_CLIENT',
+      sphere: 'Municipal',
+      location: `${lic.uf || ''}${lic.cidade ? ' - ' + lic.cidade : ''}`,
+      modality: lic.modalidade || lic.modalidadeNome || '',
+      type: 'Eletrônico',
+      objectSummary: lic.objeto_resumo || lic.objetoCompra || '',
+      objectDetailed: lic.objeto_resumo || lic.objetoCompra || '',
+      estimatedValue: lic.valor_estimado || lic.valorTotalEstimado || 0,
+      openingDate: lic.data_abertura ? new Date(lic.data_abertura).toISOString().split('T')[0] : '',
+      currentPhase: 'Análise',
+      sourcePortal: 'PNCP'
+    };
+
+    const prefilledOpp = {
+      title: lic.objeto_resumo || lic.numeroControlePNCP || 'Nova Oportunidade B2G',
+      number: lic.numeroCompra || lic.numeroControlePNCP || '',
+      value: lic.valor_estimado || lic.valorTotalEstimado || 0,
+      projectClientType: 'NEW_CLIENT',
+      description: JSON.stringify(prefilledDescription),
+      projectName: lic.objeto_resumo ? lic.objeto_resumo.slice(0, 100) : '',
+      company: { name: orgaoName }
+    };
+
+    setSelectedBiddingOpportunity(prefilledOpp);
+    setIsOpportunityModalOpen(true);
+  };
+
+  const handleOpportunitySaved = () => {
+    setIsOpportunityModalOpen(false);
+    setSelectedBiddingOpportunity(null);
+    alert('Oportunidade B2G criada com sucesso!');
   };
 
   const fases = ['Análise', 'Preparação', 'Proposta Enviada', 'Ganha', 'Perdida'];
@@ -178,6 +242,13 @@ export function GerenciadasPage() {
                       
                       <div className="flex flex-col gap-2">
                         <button 
+                          className="w-full px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg text-sm font-semibold hover:brightness-110 transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer border-0"
+                          onClick={() => handleConvertToOpportunity(lic)}
+                        >
+                          <TrendingUp className="w-4 h-4" />
+                          Converter em Oportunidade
+                        </button>
+                        <button 
                           className="w-full px-4 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer"
                           onClick={() => {
                             if (lic.linkSistemaOrigem || lic.linkProcessoEletronico) {
@@ -205,6 +276,17 @@ export function GerenciadasPage() {
           )}
         </div>
       </main>
+
+      {isOpportunityModalOpen && (
+        <B2GOpportunityEditModal
+          isOpen={isOpportunityModalOpen}
+          onClose={() => setIsOpportunityModalOpen(false)}
+          opportunity={selectedBiddingOpportunity}
+          leads={leads}
+          onSaved={handleOpportunitySaved}
+          mode="create"
+        />
+      )}
     </div>
   );
 }
