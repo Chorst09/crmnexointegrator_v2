@@ -215,8 +215,8 @@ const enforceRolePolicies = (req, res, next) => {
 
 // Middlewares
 app.use(cors(corsOptions));
-app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '2mb' }));
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || '150mb' }));
+app.use(express.urlencoded({ extended: true, limit: process.env.JSON_BODY_LIMIT || '150mb' }));
 
 // Timeout global para requests - evita que conexões lentas ao banco
 // ou erros inesperados deixem requisições pendentes, consumindo
@@ -330,6 +330,7 @@ app.use('/api/opportunity-attention-points', attentionPointsRoutes);
 app.use('/api/opportunity-learnings', learningsRoutes);
 app.use('/api/kickoff', require('./api/kickoff.cjs'));
 app.use('/api/audit-logs', require('./api/audit-logs.cjs'));
+app.use('/api/admin/backup', require('./api/admin-backup.cjs'));
 const testFlowB2B = require('./api/test-flow-b2b.cjs');
 app.use('/api/test-flow-b2b', testFlowB2B.router);
 app.use('/api/test-flow', testFlowB2B.router);
