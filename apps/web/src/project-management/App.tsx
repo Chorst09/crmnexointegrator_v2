@@ -5,7 +5,7 @@ import {
   BarChart2, LayoutTemplate, MoreHorizontal,
   Search, Bell, Settings, Plus, ChevronDown, CheckCircle2,
   List as ListIcon, Calendar, Activity, Upload,
-  Users2, GanttChartSquare, ArrowLeft, X, Target, Briefcase, DollarSign, GitBranch
+  Users2, GanttChartSquare, ArrowLeft, X, Target, Briefcase, DollarSign
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -19,7 +19,7 @@ import GanttView from './components/GanttView';
 import ActivityView from './components/ActivityView';
 import WorkloadView from './components/WorkloadView';
 import ProjectRACIMatrixView from './components/ProjectRACIMatrixView';
-import { HomeView, PlannedView, DocsView, WhiteboardsView, ProcessMappingBoard } from './components/GlobalViews';
+import { HomeView, PlannedView, DocsView, WhiteboardsView } from './components/GlobalViews';
 import TaskModal from './components/TaskModal';
 import CreateTaskModal from './components/CreateTaskModal';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
@@ -29,7 +29,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-type ViewMode = 'board' | 'list' | 'dashboard' | 'team' | 'calendar' | 'gantt' | 'raci' | 'activity' | 'workload' | 'process';
+type ViewMode = 'board' | 'list' | 'dashboard' | 'team' | 'calendar' | 'gantt' | 'raci' | 'activity' | 'workload';
 type ProjectStatus = NonNullable<Space['status']>;
 type ProjectPhase = NonNullable<Space['phase']>;
 type ProjectPriority = 'Baixa' | 'Normal' | 'Alta' | 'Urgente';
@@ -1498,7 +1498,6 @@ export default function App({ onBack }: { onBack?: () => void }) {
               <Tab icon={Calendar} label="Calendário" active={activeView === 'calendar'} onClick={() => setActiveView('calendar')} />
               <Tab icon={GanttChartSquare} label="Gantt" active={activeView === 'gantt'} onClick={() => setActiveView('gantt')} />
               <Tab icon={CheckCircle2} label="Matriz RACI" active={activeView === 'raci'} onClick={() => setActiveView('raci')} />
-              <Tab icon={GitBranch} label="Mapeamento de Processos" active={activeView === 'process'} onClick={() => setActiveView('process')} />
               <Tab icon={Activity} label="Atividade" active={activeView === 'activity'} onClick={() => setActiveView('activity')} />
               <Tab icon={ListIcon} label="Carga de trabalho" active={activeView === 'workload'} onClick={() => setActiveView('workload')} />
               <div className="flex items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer pb-2">
@@ -1589,7 +1588,6 @@ export default function App({ onBack }: { onBack?: () => void }) {
           {activeView === 'calendar' && <CalendarView issues={activeProjectIssues} onTaskClick={setSelectedTask} />}
           {activeView === 'gantt' && <GanttView issues={activeProjectIssues} />}
           {activeView === 'raci' && activeProject && <ProjectRACIMatrixView issues={activeProjectRaciIssues} users={activeTeamUsers} onUpdateIssue={handlePersistedIssueChange} />}
-          {activeView === 'process' && activeProject && <ProcessMappingBoard key={activeProject.id} activeProject={activeProject} onBack={() => setActiveView('dashboard')} />}
           {activeView === 'activity' && <ActivityView project={activeProject} issues={activeProjectIssues} users={activeTeamUsers} onTaskClick={setSelectedTask} />}
           {activeView === 'workload' && <WorkloadView issues={activeProjectIssues} users={activeTeamUsers} />}
         </div>
