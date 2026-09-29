@@ -165,6 +165,10 @@ const toDateTimeBr = (value) => {
 
 const asString = (value) => String(value || '').trim();
 
+const normalizeIdList = (value) => (Array.isArray(value) ? value : [])
+  .map((entry) => asString(typeof entry === 'object' && entry ? entry.id : entry))
+  .filter(Boolean);
+
 const escapeHtml = (value) => asString(value)
   .replace(/&/g, '&amp;')
   .replace(/</g, '&lt;')
@@ -318,6 +322,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState(forcedTabKey || TAB_KEYS.DISTRIBUIDORES);
   const [searchTerm, setSearchTerm] = useState('');
+  const [supplierFilter, setSupplierFilter] = useState('');
 
   const [registry, setRegistry] = useState(defaultRegistry);
   const [pipelineOpportunities, setPipelineOpportunities] = useState([]);
@@ -377,6 +382,10 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
   const currentTab = forcedTabKey || activeTab;
 
+  useEffect(() => {
+    if (currentTab !== TAB_KEYS.OPORTUNIDADES) setSupplierFilter('');
+  }, [currentTab]);
+
   const stats = useMemo(() => {
     const oportunidadesVinculadas = (registry.oportunidades || []).filter((item) => asString(item.oportunidadeId)).length;
 
@@ -412,13 +421,39 @@ export default function PrevendasCadastros({ forcedTab = null }) {
     ];
   }, [registry]);
 
+  const supplierFilterOptions = useMemo(() => {
+    const counts = new Map();
+
+    (registry.oportunidades || []).forEach((item) => {
+      normalizeIdList(item.fornecedorIds).forEach((id) => {
+        counts.set(id, (counts.get(id) || 0) + 1);
+      });
+    });
+
+    return (registry.fornecedores || [])
+      .map((item) => ({
+        id: asString(item.id),
+        nome: asString(item.nome) || 'Sem nome',
+        total: counts.get(asString(item.id)) || 0
+      }))
+      .filter((option) => option.id && option.total > 0)
+      .sort((a, b) => b.total - a.total || a.nome.localeCompare(b.nome, 'pt-BR'));
+  }, [registry.oportunidades, registry.fornecedores]);
+
   const activeRows = useMemo(() => {
     const source = registry[currentTab] || [];
     const term = asString(searchTerm).toLowerCase();
-    if (!term) return source;
+    const supplierId = asString(supplierFilter);
 
-    return source.filter((item) => {
-      if (currentTab === TAB_KEYS.OPORTUNIDADES) {
+    if (currentTab === TAB_KEYS.OPORTUNIDADES) {
+      return source.filter((item) => {
+        if (supplierId && !normalizeIdList(item.fornecedorIds).includes(supplierId)) return false;
+        if (!term) return true;
+
+        const supplierNames = normalizeIdList(item.fornecedorIds)
+          .map((id) => fornMap.get(id))
+          .filter(Boolean);
+
         return [
           item.titulo,
           item.cliente,
@@ -428,14 +463,19 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           item.origem,
           item.observacoes,
           item.numeroOportunidade,
-          item.produto
+          item.produto,
+          ...supplierNames
         ]
           .filter(Boolean)
           .join(' ')
           .toLowerCase()
           .includes(term);
-      }
+      });
+    }
 
+    if (!term) return source;
+
+    return source.filter((item) => {
       return [
         item.nome,
         item.logoUrl,
@@ -475,7 +515,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         .toLowerCase()
         .includes(term);
     });
-  }, [currentTab, registry, searchTerm]);
+  }, [currentTab, registry, searchTerm, supplierFilter, fornMap]);
 
   const closeModal = () => {
     setModalOpen(false);
@@ -740,8 +780,8 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       return;
     }
 
-    const linkedDistributors = (item.distribuidorIds || []).map((id) => distMap.get(id)).filter(Boolean);
-    const linkedSuppliers = (item.fornecedorIds || []).map((id) => fornMap.get(id)).filter(Boolean);
+    const linkedDistributors = normalizeIdList(item.distribuidorIds).map((id) => distMap.get(id)).filter(Boolean);
+    const linkedSuppliers = normalizeIdList(item.fornecedorIds).map((id) => fornMap.get(id)).filter(Boolean);
     const validity = getValidityInfo(item.dataValidade);
     const validityColors = pdfValidityColors[validity.tone] || pdfValidityColors.slate;
     const generatedAt = new Date().toLocaleString('pt-BR');
@@ -1028,8 +1068,8 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           </section>
 
           <section class="section card">
-            <h2>Fornecedores Vinculados</h2>
-            ${renderList(linkedSuppliers, 'Nenhum fornecedor vinculado.')}
+            <h2>Fabricantes / Fornecedores Vinculados</h2>
+            ${renderList(linkedSuppliers, 'Nenhum fabricante vinculado.')}
           </section>
 
           <section class="section">
@@ -2206,14 +2246,35 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
   const renderOpportunityCards = () => {
     if (activeRows.length === 0) {
-      return <div className="py-12 text-center text-slate-400">Nenhum registro de oportunidade encontrado.</div>;
+      const hasFilters = asString(searchTerm) || supplierFilter;
+      return (
+        <div className="py-12 text-center text-slate-400">
+          <p>{hasFilters ? 'Nenhuma oportunidade encontrada para os filtros aplicados.' : 'Nenhum registro de oportunidade encontrado.'}</p>
+          {hasFilters && (
+            <button
+              type="button"
+              onClick={() => {
+                setSupplierFilter('');
+                setSearchTerm('');
+              }}
+              className="mt-3 text-sm text-sky-300 underline-offset-2 hover:underline"
+            >
+              Limpar filtros
+            </button>
+          )}
+        </div>
+      );
     }
 
     return (
       <div className="space-y-3">
         {activeRows.map((item) => {
-          const linkedDistributors = (item.distribuidorIds || []).map((id) => distMap.get(id)).filter(Boolean);
-          const linkedSuppliers = (item.fornecedorIds || []).map((id) => fornMap.get(id)).filter(Boolean);
+          const linkedDistributors = normalizeIdList(item.distribuidorIds)
+            .map((id) => distMap.get(id))
+            .filter(Boolean);
+          const linkedSuppliers = normalizeIdList(item.fornecedorIds)
+            .map((id) => fornMap.get(id))
+            .filter(Boolean);
           const validity = getValidityInfo(item.dataValidade);
 
           return (
@@ -2230,7 +2291,15 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                     </span>
                   </div>
 
-                  <p className="text-sm text-slate-300">
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <span className="inline-flex items-center gap-1 rounded-md border border-purple-500/40 bg-purple-500/15 px-2 py-0.5 text-[11px] font-medium text-purple-100">
+                      <Package className="h-3 w-3" />
+                      Fabricante{linkedSuppliers.length > 1 ? 'es' : ''}:{' '}
+                      {linkedSuppliers.length > 0 ? linkedSuppliers.join(', ') : 'não informado'}
+                    </span>
+                  </div>
+
+                  <p className="mt-2 text-sm text-slate-300">
                     Cliente: {item.cliente || '-'} • Origem: {item.origem || '-'} • Modalidade: {item.modalidade || '-'}
                   </p>
 
@@ -2240,7 +2309,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
                   {item.numeroOportunidade && (
                     <p className="mt-1 text-sm text-slate-300">
-                      Fornecedor: {item.numeroOportunidade}{item.produto ? ` • ${item.produto}` : ''}
+                      Nº oportunidade: {item.numeroOportunidade}{item.produto ? ` • Produto: ${item.produto}` : ''}
                     </p>
                   )}
 
@@ -2258,9 +2327,6 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
                   <p className="mt-1 text-xs text-slate-400">
                     Distribuidores: {linkedDistributors.length > 0 ? linkedDistributors.join(', ') : 'Nenhum'}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    Fornecedores: {linkedSuppliers.length > 0 ? linkedSuppliers.join(', ') : 'Nenhum'}
                   </p>
 
                   {item.observacoes && (
@@ -2381,20 +2447,79 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           </button>
         </div>
 
-        <div className="mt-4 relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder={
-              currentTab === TAB_KEYS.OPORTUNIDADES
-                ? 'Buscar por título, cliente, origem, modalidade ou status'
-                : 'Buscar por nome, CNPJ, contato, cidade, status ou categoria'
-            }
-            className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 py-2.5 pl-10 pr-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
-          />
+        <div className="mt-4 flex flex-col gap-3 lg:flex-row lg:items-center">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(event) => setSearchTerm(event.target.value)}
+              placeholder={
+                currentTab === TAB_KEYS.OPORTUNIDADES
+                  ? 'Buscar por título, cliente, fabricante, origem, modalidade ou status'
+                  : 'Buscar por nome, CNPJ, contato, cidade, status ou categoria'
+              }
+              className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 py-2.5 pl-10 pr-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+            />
+          </div>
+
+          {currentTab === TAB_KEYS.OPORTUNIDADES && supplierFilterOptions.length > 0 && (
+            <div className="relative lg:w-72">
+              <Package className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-purple-300" />
+              <select
+                value={supplierFilter}
+                onChange={(event) => setSupplierFilter(event.target.value)}
+                aria-label="Filtrar por fabricante"
+                className="w-full appearance-none rounded-lg border border-slate-600/50 bg-slate-900/40 py-2.5 pl-10 pr-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-purple-500/50"
+              >
+                <option value="">Todos os fabricantes</option>
+                {supplierFilterOptions.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.nome} ({option.total})
+                  </option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
+
+        {currentTab === TAB_KEYS.OPORTUNIDADES && (asString(searchTerm) || supplierFilter) && (
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-400">
+            <span>
+              {activeRows.length} de {registry.oportunidades.length} oportunidade(s)
+            </span>
+            {supplierFilter && (
+              <button
+                type="button"
+                onClick={() => setSupplierFilter('')}
+                className="inline-flex items-center gap-1 rounded-full border border-purple-500/40 bg-purple-500/15 px-2 py-0.5 text-purple-100 hover:bg-purple-500/25"
+              >
+                Fabricante: {fornMap.get(supplierFilter) || '—'}
+                <X className="h-3 w-3" />
+              </button>
+            )}
+            {asString(searchTerm) && (
+              <button
+                type="button"
+                onClick={() => setSearchTerm('')}
+                className="inline-flex items-center gap-1 rounded-full border border-sky-500/40 bg-sky-500/15 px-2 py-0.5 text-sky-100 hover:bg-sky-500/25"
+              >
+                Busca: &quot;{searchTerm}&quot;
+                <X className="h-3 w-3" />
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={() => {
+                setSupplierFilter('');
+                setSearchTerm('');
+              }}
+              className="inline-flex items-center gap-1 text-slate-300 underline-offset-2 hover:underline"
+            >
+              Limpar filtros
+            </button>
+          </div>
+        )}
       </div>
 
       <div className="crm-card rounded-xl p-4">
