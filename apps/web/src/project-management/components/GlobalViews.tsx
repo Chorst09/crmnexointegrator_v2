@@ -3,7 +3,7 @@ import {
   Home, CheckCircle2, FileText, LayoutTemplate, Clock, Calendar,
   Search, Plus, Filter, List, Sparkles, ArrowLeft,
   BarChart2, Briefcase, Users, ArrowUpRight, Target, GitBranch, AlertTriangle,
-  ClipboardCheck, Lightbulb, Gauge, Layers3, TimerReset, Route, Wand2, Trash2, RotateCcw, Save,
+  ClipboardCheck, Lightbulb, Gauge, TimerReset, Route, Wand2, Trash2, Save,
   Upload, Download, Eye, Pencil, FileDown
 } from 'lucide-react';
 import { Tldraw } from 'tldraw';
@@ -1417,23 +1417,13 @@ function cloneBoard<T>(value: T): T {
   return JSON.parse(JSON.stringify(value));
 }
 
-function loadBoard<T>(key: string, fallback: T): T {
-  if (typeof window === 'undefined') return cloneBoard(fallback);
-  const stored = window.localStorage.getItem(key);
-  if (!stored) return cloneBoard(fallback);
-  try {
-    return JSON.parse(stored) as T;
-  } catch {
-    return cloneBoard(fallback);
-  }
-}
-
 function BoardShell({
   title,
   subtitle,
   icon: Icon,
   onBack,
   actions,
+  saveBadge,
   children
 }: {
   title: string;
@@ -1441,6 +1431,7 @@ function BoardShell({
   icon: any;
   onBack: () => void;
   actions?: React.ReactNode;
+  saveBadge?: React.ReactNode;
   children: React.ReactNode;
 }) {
   return (
@@ -1469,10 +1460,12 @@ function BoardShell({
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className="flex items-center gap-2 rounded-md border border-[#22c55e]/35 bg-[#22c55e]/10 px-3 py-2 text-xs font-black text-[#5ee2a0]">
-              <Save className="h-4 w-4" />
-              Autosalvo
-            </span>
+            {saveBadge ?? (
+              <span className="flex items-center gap-2 rounded-md border border-[#22c55e]/35 bg-[#22c55e]/10 px-3 py-2 text-xs font-black text-[#5ee2a0]">
+                <Save className="h-4 w-4" />
+                Autosalvo
+              </span>
+            )}
             {actions}
           </div>
         </header>
@@ -2149,33 +2142,358 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
   );
 }
 
+type ProductBrainstorm = {
+  id: string;
+  name: string;
+  context: string;
+  ideas: ProductIdea[];
+  matrix: MatrixQuadrant[];
+  roadmap: RoadmapWave[];
+};
+
+const PRODUCT_BRAINSTORMS_KEY = 'pm-product-brainstormings-list';
+const LEGACY_PRODUCT_BOARD_KEY = 'pm-product-brainstorm-board';
+
+function readProductBrainstorms(): ProductBrainstorm[] {
+  const fallback: ProductBrainstorm[] = [
+    { id: 'default', name: 'Brainstorming de Produto', context: '', ...cloneBoard(PRODUCT_DEFAULT_BOARD) }
+  ];
+
+  if (typeof window === 'undefined') return fallback;
+
+  const stored = window.localStorage.getItem(PRODUCT_BRAINSTORMS_KEY);
+  if (stored) {
+    try {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    } catch (error) {
+      console.error('Erro ao ler brainstormings de produto', error);
+    }
+  }
+
+  const legacy = window.localStorage.getItem(LEGACY_PRODUCT_BOARD_KEY);
+  if (legacy) {
+    try {
+      const parsedLegacy = JSON.parse(legacy);
+      if (parsedLegacy && Array.isArray(parsedLegacy.ideas)) {
+        return [{ id: 'default', name: 'Brainstorming de Produto', context: '', ...parsedLegacy }];
+      }
+    } catch (error) {
+      console.error('Erro ao migrar brainstorming de produto', error);
+    }
+  }
+
+  return fallback;
+}
+
 function ProductBrainstormBoard({ onBack }: { onBack: () => void }) {
-  const [board, setBoard] = useState(() => loadBoard('pm-product-brainstorm-board', PRODUCT_DEFAULT_BOARD));
-  const averageScore = board.ideas.length ? Math.round(board.ideas.reduce((sum, idea) => sum + Number(idea.score || 0), 0) / board.ideas.length) : 0;
-  const personas = new Set(board.ideas.map(idea => idea.cluster).filter(Boolean)).size;
+  const [brainstorms, setBrainstorms] = useState<ProductBrainstorm[]>(readProductBrainstorms);
+  const [activeId, setActiveId] = useState<string>(() => readProductBrainstorms()[0]?.id || 'default');
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [isExportingPDF, setIsExportingPDF] = useState(false);
+
+  const board = brainstorms.find(entry => entry.id === activeId) || brainstorms[0];
+
+  const averageScore = board?.ideas.length
+    ? Math.round(board.ideas.reduce((sum, idea) => sum + Number(idea.score || 0), 0) / board.ideas.length)
+    : 0;
+  const clusters = new Set(board?.ideas.map(idea => idea.cluster).filter(Boolean)).size;
+  const hypotheses = (board?.matrix || []).reduce((sum, item) => sum + (item.ideas?.length || 0), 0);
+
+  const persistBrainstorms = (list: ProductBrainstorm[]) => {
+    setBrainstorms(list);
+    window.localStorage.setItem(PRODUCT_BRAINSTORMS_KEY, JSON.stringify(list));
+    setIsDirty(false);
+  };
+
+  const mutateActive = (mutate: (current: ProductBrainstorm) => ProductBrainstorm) => {
+    setBrainstorms(current => current.map(entry => (entry.id === activeId ? mutate(entry) : entry)));
+    setIsDirty(true);
+  };
+
+  const handleSave = () => {
+    setSaveStatus('saving');
+    window.localStorage.setItem(PRODUCT_BRAINSTORMS_KEY, JSON.stringify(brainstorms));
+    setIsDirty(false);
+    setTimeout(() => {
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    }, 400);
+  };
+
+  const handleCreateNew = () => {
+    const newId = `brainstorm-${Date.now()}`;
+    const newBoard: ProductBrainstorm = {
+      id: newId,
+      name: `Brainstorming de Produto ${brainstorms.length + 1}`,
+      context: '',
+      ideas: [{ title: 'Nova ideia', cluster: 'Oportunidade', score: 70, color: '#22c55e' }],
+      matrix: cloneBoard(PRODUCT_DEFAULT_BOARD.matrix)
+        .slice(0, 1)
+        .map(item => ({ ...item, ideas: ['Nova hipótese'] })),
+      roadmap: [{ wave: 'Onda 1', title: 'Validar valor', text: 'Descreva o objetivo desta onda.', color: '#22c55e' }]
+    };
+    persistBrainstorms([...brainstorms, newBoard]);
+    setActiveId(newId);
+    setIsEditing(true);
+    setIsEditingName(false);
+    setEditedName(newBoard.name);
+  };
+
+  const handleDelete = (id: string) => {
+    if (brainstorms.length <= 1) {
+      alert('Não é possível excluir o único brainstorming de produto.');
+      return;
+    }
+    if (!confirm('Deseja realmente excluir este brainstorming de produto?')) return;
+    const nextList = brainstorms.filter(entry => entry.id !== id);
+    persistBrainstorms(nextList);
+    if (activeId === id) {
+      setActiveId(nextList[0].id);
+      setIsDirty(false);
+    }
+  };
+
+  const handleRename = () => {
+    const name = editedName.trim();
+    if (!name) return;
+    persistBrainstorms(brainstorms.map(entry => (entry.id === activeId ? { ...entry, name } : entry)));
+    setIsEditingName(false);
+  };
+
+  const handleExportPDF = () => {
+    setIsExportingPDF(true);
+    try {
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const margin = 15;
+
+      const newPage = () => {
+        pdf.setFillColor(253, 254, 255);
+        pdf.rect(0, 0, 210, 297, 'F');
+        pdf.setFillColor(34, 197, 94);
+        pdf.rect(0, 0, 210, 4, 'F');
+      };
+
+      newPage();
+
+      pdf.setTextColor(15, 23, 42);
+      pdf.setFontSize(20);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text(board.name || 'Brainstorming de Produto', margin, 22);
+
+      pdf.setTextColor(100, 116, 139);
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text('Relatorio de ideias, clusters, priorizacao e roadmap sugerido.', margin, 28);
+
+      let yPos = 34;
+
+      if (board.context) {
+        pdf.setTextColor(71, 85, 105);
+        pdf.setFontSize(9.5);
+        const contextLines = pdf.splitTextToSize(board.context, 180) as string[];
+        pdf.text(contextLines, margin, yPos);
+        yPos += contextLines.length * 5 + 4;
+      }
+
+      pdf.setDrawColor(226, 232, 240);
+      pdf.setLineWidth(0.5);
+      pdf.line(margin, yPos, 210 - margin, yPos);
+      yPos += 8;
+
+      pdf.setFillColor(248, 250, 252);
+      pdf.rect(margin, yPos, 180, 16, 'F');
+      pdf.setDrawColor(226, 232, 240);
+      pdf.rect(margin, yPos, 180, 16);
+
+      pdf.setTextColor(15, 23, 42);
+      pdf.setFontSize(9);
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('IDEIAS:', margin + 6, yPos + 10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`${board.ideas.length}`, margin + 40, yPos + 10);
+
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('CLUSTERS:', margin + 65, yPos + 10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`${clusters}`, margin + 100, yPos + 10);
+
+      pdf.setFont('helvetica', 'bold');
+      pdf.text('SCORE MEDIO:', margin + 118, yPos + 10);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(`${averageScore}`, margin + 155, yPos + 10);
+
+      yPos += 26;
+
+      const ensureSpace = (needed: number) => {
+        if (yPos + needed <= 275) return;
+        pdf.addPage();
+        newPage();
+        yPos = 20;
+      };
+
+      const sectionTitle = (title: string, tone: [number, number, number]) => {
+        ensureSpace(20);
+        pdf.setTextColor(tone[0], tone[1], tone[2]);
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(title, margin, yPos);
+        pdf.setDrawColor(tone[0], tone[1], tone[2]);
+        pdf.setLineWidth(0.3);
+        pdf.line(margin, yPos + 2, margin + 95, yPos + 2);
+        yPos += 8;
+      };
+
+      sectionTitle('BANCO DE IDEIAS', [34, 197, 94]);
+
+      if (board.ideas.length === 0) {
+        pdf.setTextColor(148, 163, 184);
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text('Nenhuma ideia registrada.', margin, yPos);
+        yPos += 8;
+      }
+
+      board.ideas.forEach((idea, index) => {
+        ensureSpace(25);
+        pdf.setFillColor(248, 250, 252);
+        pdf.rect(margin, yPos, 180, 20, 'F');
+        pdf.setDrawColor(226, 232, 240);
+        pdf.rect(margin, yPos, 180, 20);
+
+        pdf.setTextColor(15, 23, 42);
+        pdf.setFontSize(10);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(`${index + 1}. ${idea.title}`, margin + 6, yPos + 7);
+
+        pdf.setTextColor(100, 116, 139);
+        pdf.setFontSize(8.5);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`Cluster: ${idea.cluster || '-'}`, margin + 6, yPos + 13);
+
+        pdf.setTextColor(34, 197, 94);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(`SCORE: ${Number(idea.score || 0)}`, margin + 150, yPos + 13);
+
+        yPos += 25;
+      });
+
+      sectionTitle('MATRIZ IMPACTO X ESFORCO', [24, 200, 223]);
+
+      if (board.matrix.length === 0) {
+        pdf.setTextColor(148, 163, 184);
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text('Nenhum quadrante registrado.', margin, yPos);
+        yPos += 8;
+      }
+
+      board.matrix.forEach(item => {
+        const ideasText = item.ideas?.length ? item.ideas.join(', ') : 'Sem hipoteses registradas.';
+        const lines = pdf.splitTextToSize(`${item.quadrant} - ${item.hint}: ${ideasText}`, 170) as string[];
+        const boxHeight = 11 + lines.length * 5;
+
+        ensureSpace(boxHeight + 5);
+        pdf.setFillColor(248, 250, 252);
+        pdf.rect(margin, yPos, 180, boxHeight, 'F');
+        pdf.setDrawColor(226, 232, 240);
+        pdf.rect(margin, yPos, 180, boxHeight);
+
+        pdf.setTextColor(15, 23, 42);
+        pdf.setFontSize(9);
+        pdf.text(lines, margin + 6, yPos + 7);
+
+        yPos += boxHeight + 5;
+      });
+
+      sectionTitle('ROADMAP SUGERIDO', [255, 122, 0]);
+
+      if (board.roadmap.length === 0) {
+        pdf.setTextColor(148, 163, 184);
+        pdf.setFontSize(9);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text('Nenhuma onda registrada.', margin, yPos);
+        yPos += 8;
+      }
+
+      board.roadmap.forEach(item => {
+        const bodyLines = pdf.splitTextToSize(item.text || '', 165) as string[];
+        const boxHeight = 18 + bodyLines.length * 5;
+
+        ensureSpace(boxHeight + 5);
+        pdf.setFillColor(248, 250, 252);
+        pdf.rect(margin, yPos, 180, boxHeight, 'F');
+        pdf.setDrawColor(226, 232, 240);
+        pdf.rect(margin, yPos, 180, boxHeight);
+
+        pdf.setTextColor(255, 122, 0);
+        pdf.setFontSize(8.5);
+        pdf.setFont('helvetica', 'bold');
+        pdf.text(String(item.wave || '').toUpperCase(), margin + 6, yPos + 7);
+
+        pdf.setTextColor(15, 23, 42);
+        pdf.setFontSize(10);
+        pdf.text(item.title, margin + 6, yPos + 13);
+
+        pdf.setTextColor(71, 85, 105);
+        pdf.setFontSize(8.5);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(bodyLines, margin + 6, yPos + 19);
+
+        yPos += boxHeight + 5;
+      });
+
+      const totalPages = (pdf as any).internal.getNumberOfPages();
+      for (let i = 1; i <= totalPages; i++) {
+        pdf.setPage(i);
+        pdf.setTextColor(148, 153, 160);
+        pdf.setFontSize(7.5);
+        pdf.setFont('helvetica', 'normal');
+        pdf.text(`Pagina ${i} de ${totalPages}`, 170, 290);
+        pdf.text(`Gerado em ${new Date().toLocaleDateString('pt-BR')} por PMO Inteligente`, margin, 290);
+      }
+
+      pdf.save(`Brainstorming_${board.name.replace(/\s+/g, '_')}.pdf`);
+    } catch (error) {
+      console.error(error);
+      alert('Erro ao gerar o PDF do brainstorming de produto.');
+    } finally {
+      setIsExportingPDF(false);
+    }
+  };
 
   useEffect(() => {
-    window.localStorage.setItem('pm-product-brainstorm-board', JSON.stringify(board));
-  }, [board]);
+    const warnUnsaved = (event: BeforeUnloadEvent) => {
+      if (!isDirty) return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', warnUnsaved);
+    return () => window.removeEventListener('beforeunload', warnUnsaved);
+  }, [isDirty]);
 
   const updateIdea = (index: number, patch: Partial<ProductIdea>) => {
-    setBoard(current => ({
+    mutateActive(current => ({
       ...current,
-      ideas: current.ideas.map((idea, ideaIndex) => ideaIndex === index ? { ...idea, ...patch } : idea)
+      ideas: current.ideas.map((idea, ideaIndex) => (ideaIndex === index ? { ...idea, ...patch } : idea))
     }));
   };
 
   const updateMatrix = (index: number, patch: Partial<MatrixQuadrant>) => {
-    setBoard(current => ({
+    mutateActive(current => ({
       ...current,
-      matrix: current.matrix.map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item)
+      matrix: current.matrix.map((item, itemIndex) => (itemIndex === index ? { ...item, ...patch } : item))
     }));
   };
 
   const updateRoadmap = (index: number, patch: Partial<RoadmapWave>) => {
-    setBoard(current => ({
+    mutateActive(current => ({
       ...current,
-      roadmap: current.roadmap.map((item, itemIndex) => itemIndex === index ? { ...item, ...patch } : item)
+      roadmap: current.roadmap.map((item, itemIndex) => (itemIndex === index ? { ...item, ...patch } : item))
     }));
   };
 
@@ -2185,25 +2503,162 @@ function ProductBrainstormBoard({ onBack }: { onBack: () => void }) {
       subtitle="Organize hipóteses, ideias, dores, oportunidades e priorização para transformar colaboração em roadmap."
       icon={Lightbulb}
       onBack={onBack}
+      saveBadge={
+        <span
+          className={`flex items-center gap-2 rounded-md border px-3 py-2 text-xs font-black ${
+            isDirty
+              ? 'border-[#f6b40b]/40 bg-[#f6b40b]/10 text-[#f6b40b]'
+              : 'border-[#22c55e]/35 bg-[#22c55e]/10 text-[#5ee2a0]'
+          }`}
+        >
+          <Save className="h-4 w-4" />
+          {isDirty ? 'Alterações não salvas' : 'Salvo'}
+        </span>
+      }
       actions={
-        <>
-          <button type="button" onClick={() => setBoard(current => ({ ...current, ideas: [...current.ideas, { title: 'Nova ideia', cluster: 'Oportunidade', score: 70, color: '#22c55e' }] }))} className={boardActionButtonClass}>
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={handleExportPDF}
+            disabled={isExportingPDF}
+            className="flex items-center gap-2 rounded-md border border-cyan-800/40 bg-cyan-950/20 px-3 py-2 text-xs font-black text-cyan-400 transition-colors hover:bg-cyan-900/30 hover:text-cyan-300 disabled:opacity-50"
+          >
+            <FileDown className="h-4 w-4" />
+            {isExportingPDF ? 'Gerando PDF...' : 'Visualizar em PDF'}
+          </button>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={!isDirty}
+            className="flex items-center gap-2 rounded-md border border-emerald-800/40 bg-emerald-950/20 px-3 py-2 text-xs font-black text-emerald-400 transition-colors hover:bg-emerald-900/30 hover:text-emerald-300 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Save className="h-4 w-4" />
+            {saveStatus === 'saving' ? 'Salvando...' : saveStatus === 'saved' ? 'Salvo! ✓' : 'Salvar'}
+          </button>
+          <button
+            type="button"
+            onClick={() => setIsEditing(current => !current)}
+            className={`flex items-center gap-2 rounded-md px-3 py-2 text-xs font-black transition-colors ${
+              isEditing
+                ? 'border border-[#18c8df]/40 bg-[#18c8df]/15 text-[#5ee2a0]'
+                : 'border border-[#374151] bg-[#111827] text-slate-200 hover:border-[#18c8df] hover:text-white'
+            }`}
+          >
+            {isEditing ? <Eye className="h-4 w-4" /> : <Pencil className="h-4 w-4" />}
+            {isEditing ? 'Concluir edição' : 'Editar'}
+          </button>
+          <button
+            type="button"
+            onClick={handleCreateNew}
+            className="flex items-center gap-2 rounded-md border border-[#ff7a00]/40 bg-[#ff7a00]/10 px-3 py-2 text-xs font-black text-[#ffb15c] transition-colors hover:bg-[#ff7a00]/20"
+          >
             <Plus className="h-4 w-4" />
-            Ideia
+            Novo Brainstorming de Produto
           </button>
-          <button type="button" onClick={() => setBoard(cloneBoard(PRODUCT_DEFAULT_BOARD))} className={boardActionButtonClass}>
-            <RotateCcw className="h-4 w-4" />
-            Restaurar
-          </button>
-        </>
+        </div>
       }
     >
+      <div className="rounded-lg border border-[#263345] bg-[#0b1020]/88 p-4">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+          <div className="flex min-w-0 flex-1 items-center gap-3">
+            <span className="whitespace-nowrap text-xs font-bold text-slate-400">Brainstorming Ativo:</span>
+            {isEditingName ? (
+              <div className="flex max-w-md flex-1 items-center gap-2">
+                <input
+                  autoFocus
+                  value={editedName}
+                  onChange={event => setEditedName(event.target.value)}
+                  onKeyDown={event => {
+                    if (event.key === 'Enter') handleRename();
+                    if (event.key === 'Escape') setIsEditingName(false);
+                  }}
+                  className="flex-1 rounded-md border border-[#ff7a00] bg-[#070b16] px-2.5 py-1.5 text-sm font-semibold text-slate-100 outline-none"
+                />
+                <button
+                  type="button"
+                  onClick={handleRename}
+                  className="rounded-md bg-[#ff7a00] px-3 py-1.5 text-xs font-bold text-slate-950 hover:bg-[#f6b40b]"
+                >
+                  Salvar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setIsEditingName(false)}
+                  className="rounded-md bg-slate-800 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-700"
+                >
+                  Cancelar
+                </button>
+              </div>
+            ) : (
+              <div className="flex min-w-0 items-center gap-2">
+                <select
+                  value={board?.id || ''}
+                  onChange={event => {
+                    if (isDirty && !confirm('Há alterações não salvas neste brainstorming. Deseja trocar mesmo assim?')) return;
+                    setActiveId(event.target.value);
+                    setIsDirty(false);
+                    setIsEditingName(false);
+                  }}
+                  className="max-w-[320px] rounded-md border border-[#263345] bg-[#070b16] px-3 py-1.5 text-sm font-bold text-slate-200 outline-none"
+                >
+                  {brainstorms.map(entry => (
+                    <option key={entry.id} value={entry.id}>{entry.name}</option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditingName(true);
+                    setEditedName(board.name);
+                  }}
+                  className="rounded p-2 text-slate-400 transition-colors hover:bg-[#111827] hover:text-slate-200"
+                  title="Editar nome do brainstorming"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(board.id)}
+                  className="rounded p-2 text-slate-500 transition-colors hover:bg-[#ef4444]/15 hover:text-red-400"
+                  title="Excluir brainstorming de produto"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+          </div>
+          <div className="text-xs leading-tight text-slate-500">
+            Clique em <span className="font-bold text-emerald-400">Salvar</span> para persistir as alterações.
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <label className="mb-1 block text-xs font-bold text-slate-400" htmlFor="product-brainstorm-context">
+            Contexto / Problema a resolver
+          </label>
+          {isEditing ? (
+            <textarea
+              id="product-brainstorm-context"
+              value={board.context}
+              onChange={event => mutateActive(current => ({ ...current, context: event.target.value }))}
+              rows={2}
+              placeholder="Descreva o contexto, dores ou objetivos que esta sessão de brainstorm deve tratar."
+              className={`${editableTextAreaClass} mt-2`}
+            />
+          ) : (
+            <p className="mt-2 rounded-md border border-[#263345] bg-[#070b16] px-2.5 py-2 text-sm font-semibold text-slate-300">
+              {board.context || 'Sem contexto registrado.'}
+            </p>
+          )}
+        </div>
+      </div>
+
       <section className="grid gap-4 md:grid-cols-4">
         {[
           { icon: Lightbulb, label: 'Ideias', value: String(board.ideas.length), tone: '#f6b40b' },
-          { icon: Users, label: 'Clusters', value: String(personas), tone: '#18c8df' },
+          { icon: Users, label: 'Clusters', value: String(clusters), tone: '#18c8df' },
           { icon: Gauge, label: 'Score médio', value: String(averageScore), tone: '#22c55e' },
-          { icon: Layers3, label: 'Roadmap', value: `${board.roadmap.length} ondas`, tone: '#ff7a00' }
+          { icon: Wand2, label: 'Hipóteses', value: String(hypotheses), tone: '#ff7a00' }
         ].map(item => {
           const Icon = item.icon;
           return (
@@ -2223,46 +2678,161 @@ function ProductBrainstormBoard({ onBack }: { onBack: () => void }) {
             <span className="rounded-full border border-[#22c55e]/35 bg-[#22c55e]/10 px-3 py-1 text-xs font-black text-[#5ee2a0]">Priorizado</span>
           </div>
           <div className="space-y-3">
+            {board.ideas.length === 0 && <p className="py-6 text-center text-sm text-slate-500">Nenhuma ideia registrada.</p>}
             {board.ideas.map((idea, index) => (
               <div key={`${idea.title}-${index}`} className="rounded-lg border border-[#263345] bg-[#070b16] p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1 space-y-2">
-                    <input value={idea.title} onChange={event => updateIdea(index, { title: event.target.value })} className={editableInputClass} />
-                    <input value={idea.cluster} onChange={event => updateIdea(index, { cluster: event.target.value })} className={editableSmallInputClass} />
+                    {isEditing ? (
+                      <>
+                        <input value={idea.title} onChange={event => updateIdea(index, { title: event.target.value })} className={editableInputClass} />
+                        <input value={idea.cluster} onChange={event => updateIdea(index, { cluster: event.target.value })} className={editableSmallInputClass} />
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-sm font-semibold text-slate-100">{idea.title || 'Sem título'}</p>
+                        <p className="text-xs font-semibold text-slate-500">{idea.cluster || 'Sem cluster'}</p>
+                      </>
+                    )}
                   </div>
-                  <input type="number" min="0" max="100" value={idea.score} onChange={event => updateIdea(index, { score: Number(event.target.value) })} className="w-16 rounded-full border border-transparent px-2.5 py-1 text-center text-xs font-black outline-none focus:border-[#ff7a00]" style={{ color: idea.color, backgroundColor: `${idea.color}16` }} />
-                  <button type="button" onClick={() => setBoard(current => ({ ...current, ideas: current.ideas.filter((_, ideaIndex) => ideaIndex !== index) }))} className={dangerIconButtonClass} title="Remover ideia">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={idea.score}
+                        onChange={event => updateIdea(index, { score: Number(event.target.value) })}
+                        className="w-16 rounded-full border border-transparent px-2.5 py-1 text-center text-xs font-black outline-none focus:border-[#ff7a00]"
+                        style={{ color: idea.color, backgroundColor: `${idea.color}16` }}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => mutateActive(current => ({ ...current, ideas: current.ideas.filter((_, ideaIndex) => ideaIndex !== index) }))}
+                        className={dangerIconButtonClass}
+                        title="Remover ideia"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </>
+                  ) : (
+                    <span
+                      className="rounded-full border border-transparent px-2.5 py-1 text-center text-xs font-black"
+                      style={{ color: idea.color, backgroundColor: `${idea.color}16` }}
+                    >
+                      {Number(idea.score || 0)}
+                    </span>
+                  )}
                 </div>
                 <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#263345]">
-                  <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, Number(idea.score || 0)))}%`, background: `linear-gradient(90deg, ${idea.color}, #f6b40b)` }} />
+                  <div
+                    className="h-full rounded-full"
+                    style={{
+                      width: `${Math.max(0, Math.min(100, Number(idea.score || 0)))}%`,
+                      background: `linear-gradient(90deg, ${idea.color}, #f6b40b)`
+                    }}
+                  />
                 </div>
               </div>
             ))}
+            {isEditing && (
+              <button
+                type="button"
+                onClick={() => mutateActive(current => ({ ...current, ideas: [...current.ideas, { title: 'Nova ideia', cluster: 'Oportunidade', score: 70, color: '#22c55e' }] }))}
+                className="w-full rounded-lg border border-dashed border-[#374151] bg-[#070b16]/60 p-3 text-sm font-black text-[#18c8df] transition-colors hover:border-[#18c8df] hover:text-[#5ee2a0]"
+              >
+                + Nova ideia
+              </button>
+            )}
           </div>
         </div>
 
         <div className="rounded-lg border border-[#263345] bg-[#0b1020]/88 p-5">
           <h2 className="text-xl font-black text-white">Matriz impacto x esforço</h2>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
+            {board.matrix.length === 0 && <p className="py-6 text-center text-sm text-slate-500">Nenhum quadrante registrado.</p>}
             {board.matrix.map((item, index) => (
               <div key={`${item.quadrant}-${index}`} className="min-h-[150px] rounded-lg border border-[#263345] bg-[#070b16] p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <input value={item.quadrant} onChange={event => updateMatrix(index, { quadrant: event.target.value })} className="min-w-0 flex-1 bg-transparent text-sm font-black text-slate-100 outline-none focus:text-white" />
+                  {isEditing ? (
+                    <input
+                      value={item.quadrant}
+                      onChange={event => updateMatrix(index, { quadrant: event.target.value })}
+                      className="min-w-0 flex-1 bg-transparent text-sm font-black text-slate-100 outline-none focus:text-white"
+                    />
+                  ) : (
+                    <p className="min-w-0 flex-1 text-sm font-black text-slate-100">{item.quadrant}</p>
+                  )}
                   <Wand2 className="h-4 w-4" style={{ color: item.color }} />
                 </div>
-                <input value={item.hint} onChange={event => updateMatrix(index, { hint: event.target.value })} className="mb-4 w-full bg-transparent text-xs font-semibold text-slate-500 outline-none focus:text-slate-300" />
+                {isEditing ? (
+                  <input
+                    value={item.hint}
+                    onChange={event => updateMatrix(index, { hint: event.target.value })}
+                    className="mb-4 w-full bg-transparent text-xs font-semibold text-slate-500 outline-none focus:text-slate-300"
+                  />
+                ) : (
+                  <p className="mb-4 text-xs font-semibold text-slate-500">{item.hint}</p>
+                )}
                 <div className="space-y-2">
-                  {item.ideas.map((idea, ideaIndex) => (
-                    <input key={`${idea}-${ideaIndex}`} value={idea} onChange={event => updateMatrix(index, { ideas: item.ideas.map((current, currentIndex) => currentIndex === ideaIndex ? event.target.value : current) })} className="w-full rounded-md border px-3 py-2 text-xs font-bold text-slate-300 outline-none focus:border-[#ff7a00]" style={{ borderColor: `${item.color}33`, backgroundColor: `${item.color}10` }} />
+                  {(item.ideas || []).map((idea, ideaIndex) => (
+                    isEditing ? (
+                      <div key={`${idea}-${ideaIndex}`} className="flex items-center gap-1.5">
+                        <input
+                          value={idea}
+                          onChange={event => updateMatrix(index, { ideas: item.ideas.map((current, currentIndex) => (currentIndex === ideaIndex ? event.target.value : current)) })}
+                          className="w-full rounded-md border px-3 py-2 text-xs font-bold text-slate-300 outline-none focus:border-[#ff7a00]"
+                          style={{ borderColor: `${item.color}33`, backgroundColor: `${item.color}10` }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => updateMatrix(index, { ideas: item.ideas.filter((_, currentIndex) => currentIndex !== ideaIndex) })}
+                          className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md border border-[#374151] bg-[#111827] text-slate-500 transition-colors hover:border-[#ef4444] hover:text-[#ef4444]"
+                          title="Remover hipótese"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <p
+                        key={`${idea}-${ideaIndex}`}
+                        className="rounded-md border px-3 py-2 text-xs font-bold text-slate-300"
+                        style={{ borderColor: `${item.color}33`, backgroundColor: `${item.color}10` }}
+                      >
+                        {idea}
+                      </p>
+                    )
                   ))}
-                  <button type="button" onClick={() => updateMatrix(index, { ideas: [...item.ideas, 'Nova hipótese'] })} className="text-xs font-black text-[#18c8df] hover:text-[#5ee2a0]">
-                    + Hipótese
-                  </button>
+                  {isEditing && (
+                    <button
+                      type="button"
+                      onClick={() => updateMatrix(index, { ideas: [...(item.ideas || []), 'Nova hipótese'] })}
+                      className="text-xs font-black text-[#18c8df] hover:text-[#5ee2a0]"
+                    >
+                      + Hipótese
+                    </button>
+                  )}
                 </div>
+                {isEditing && board.matrix.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => mutateActive(current => ({ ...current, matrix: current.matrix.filter((_, matrixIndex) => matrixIndex !== index) }))}
+                    className="mt-3 text-xs font-black text-slate-600 hover:text-[#ef4444]"
+                  >
+                    Remover quadrante
+                  </button>
+                )}
               </div>
             ))}
+            {isEditing && (
+              <button
+                type="button"
+                onClick={() => mutateActive(current => ({ ...current, matrix: [...current.matrix, { quadrant: 'Novo quadrante', hint: 'Descreva o critério', ideas: ['Nova hipótese'], color: '#18c8df' }] }))}
+                className="min-h-[150px] rounded-lg border border-dashed border-[#374151] bg-[#070b16]/60 p-4 text-sm font-black text-[#18c8df] transition-colors hover:border-[#18c8df] hover:text-[#5ee2a0]"
+              >
+                + Novo quadrante
+              </button>
+            )}
           </div>
         </div>
       </section>
@@ -2270,19 +2840,64 @@ function ProductBrainstormBoard({ onBack }: { onBack: () => void }) {
       <section className="rounded-lg border border-[#263345] bg-[#0b1020]/88 p-5">
         <h2 className="text-xl font-black text-white">Roadmap sugerido</h2>
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
+          {board.roadmap.length === 0 && <p className="py-6 text-center text-sm text-slate-500">Nenhuma onda registrada.</p>}
           {board.roadmap.map((item, index) => (
             <div key={`${item.wave}-${index}`} className="rounded-lg border border-[#263345] bg-[#070b16] p-4">
-              <input value={item.wave} onChange={event => updateRoadmap(index, { wave: event.target.value })} className="w-28 rounded-full border border-transparent px-3 py-1 text-[11px] font-black uppercase tracking-wide outline-none focus:border-[#ff7a00]" style={{ color: item.color, backgroundColor: `${item.color}14` }} />
-              <input value={item.title} onChange={event => updateRoadmap(index, { title: event.target.value })} className="mt-4 w-full bg-transparent text-base font-black text-slate-100 outline-none focus:text-white" />
-              <textarea value={item.text} onChange={event => updateRoadmap(index, { text: event.target.value })} rows={3} className={`${editableTextAreaClass} mt-2`} />
-              <button type="button" onClick={() => setBoard(current => ({ ...current, roadmap: current.roadmap.filter((_, roadmapIndex) => roadmapIndex !== index) }))} className="mt-3 text-xs font-black text-slate-600 hover:text-[#ef4444]">
-                Remover onda
-              </button>
+              {isEditing ? (
+                <input
+                  value={item.wave}
+                  onChange={event => updateRoadmap(index, { wave: event.target.value })}
+                  className="w-28 rounded-full border border-transparent px-3 py-1 text-[11px] font-black uppercase tracking-wide outline-none focus:border-[#ff7a00]"
+                  style={{ color: item.color, backgroundColor: `${item.color}14` }}
+                />
+              ) : (
+                <span
+                  className="inline-block w-28 rounded-full border border-transparent px-3 py-1 text-[11px] font-black uppercase tracking-wide"
+                  style={{ color: item.color, backgroundColor: `${item.color}14` }}
+                >
+                  {item.wave}
+                </span>
+              )}
+              {isEditing ? (
+                <>
+                  <input
+                    value={item.title}
+                    onChange={event => updateRoadmap(index, { title: event.target.value })}
+                    className="mt-4 w-full bg-transparent text-base font-black text-slate-100 outline-none focus:text-white"
+                  />
+                  <textarea
+                    value={item.text}
+                    onChange={event => updateRoadmap(index, { text: event.target.value })}
+                    rows={3}
+                    className={`${editableTextAreaClass} mt-2`}
+                  />
+                </>
+              ) : (
+                <>
+                  <p className="mt-4 text-base font-black text-slate-100">{item.title}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{item.text}</p>
+                </>
+              )}
+              {isEditing && (
+                <button
+                  type="button"
+                  onClick={() => mutateActive(current => ({ ...current, roadmap: current.roadmap.filter((_, roadmapIndex) => roadmapIndex !== index) }))}
+                  className="mt-3 text-xs font-black text-slate-600 hover:text-[#ef4444]"
+                >
+                  Remover onda
+                </button>
+              )}
             </div>
           ))}
-          <button type="button" onClick={() => setBoard(current => ({ ...current, roadmap: [...current.roadmap, { wave: 'Nova onda', title: 'Nova entrega', text: 'Descreva a próxima entrega do roadmap.', color: '#18c8df' }] }))} className="min-h-[170px] rounded-lg border border-dashed border-[#374151] bg-[#070b16]/60 p-4 text-sm font-black text-[#18c8df] transition-colors hover:border-[#18c8df] hover:text-[#5ee2a0]">
-            + Nova onda
-          </button>
+          {isEditing && (
+            <button
+              type="button"
+              onClick={() => mutateActive(current => ({ ...current, roadmap: [...current.roadmap, { wave: 'Nova onda', title: 'Nova entrega', text: 'Descreva a próxima entrega do roadmap.', color: '#18c8df' }] }))}
+              className="min-h-[170px] rounded-lg border border-dashed border-[#374151] bg-[#070b16]/60 p-4 text-sm font-black text-[#18c8df] transition-colors hover:border-[#18c8df] hover:text-[#5ee2a0]"
+            >
+              + Nova onda
+            </button>
+          )}
         </div>
       </section>
     </BoardShell>
