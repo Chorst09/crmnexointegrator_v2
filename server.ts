@@ -89,6 +89,16 @@ async function startServer() {
 
   app.listen(PORT, HOST, () => {
     console.log(`🚀 CRM NEXOS rodando em http://${HOST}:${PORT}`);
+  }).on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.log(`⚠️  Porta ${PORT} em uso, tentando porta ${PORT + 1}...`);
+      app.listen(PORT + 1, HOST, () => {
+        console.log(`🚀 CRM NEXOS rodando em http://${HOST}:${PORT + 1}`);
+      });
+    } else {
+      console.error('❌ Erro ao iniciar servidor:', err);
+      process.exit(1);
+    }
   });
 }
 
