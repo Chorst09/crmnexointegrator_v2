@@ -53,6 +53,14 @@ async function startServer() {
     res.status(404).json({ error: 'Template PPTX não encontrado' });
   });
 
+  const webDistPath = path.resolve(__dirname, 'apps/web/dist');
+
+  // Serve static files first if they exist so assets are never blocked by API middlewares
+  if (fs.existsSync(webDistPath)) {
+    console.log(`📦 Servindo arquivos estáticos de produção: ${webDistPath}`);
+    app.use(express.static(webDistPath));
+  }
+
   // Load API application from apps/api
   try {
     const apiApp = require('./apps/api/server.cjs');
@@ -62,11 +70,7 @@ async function startServer() {
     console.error('⚠️  Aviso ao carregar apps/api/server.cjs:', err?.message || err);
   }
 
-  const webDistPath = path.resolve(__dirname, 'apps/web/dist');
-
   if (fs.existsSync(webDistPath)) {
-    console.log(`📦 Servindo arquivos estáticos de produção: ${webDistPath}`);
-    app.use(express.static(webDistPath));
     app.get('*', (req, res, next) => {
       if (req.path.startsWith('/api')) return next();
       res.sendFile(path.join(webDistPath, 'index.html'));

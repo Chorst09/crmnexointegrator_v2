@@ -66,6 +66,17 @@ const isAllowedOrigin = (origin) => {
     return true;
   }
 
+  // Always permit chorstconsult.com.br domains and subdomains (e.g. nexos, nexosv2)
+  const cleanOrigin = origin.replace(/^https?:\/\//i, '').split(':')[0].toLowerCase();
+  if (cleanOrigin === 'chorstconsult.com.br' || cleanOrigin.endsWith('.chorstconsult.com.br')) {
+    return true;
+  }
+
+  // Always permit VPS server IP
+  if (cleanOrigin === '209.50.241.25') {
+    return true;
+  }
+
   // Permit any configured explicit origins
   if (corsOrigins.length > 0 && corsOrigins.includes(origin)) {
     return true;
@@ -86,7 +97,7 @@ const corsOptions = {
     }
 
     console.warn('⚠️ CORS bloqueado para origin:', origin, 'Origins configuradas:', corsOrigins);
-    return callback(new Error('Not allowed by CORS'));
+    return callback(null, false);
   },
   credentials: true
 };
