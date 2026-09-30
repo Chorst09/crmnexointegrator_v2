@@ -516,18 +516,20 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         const target = selectedFabricanteFilter.toUpperCase();
         filtered = filtered.filter((item) => {
           const fab = getOpportunityFabricante(item, fornMap).toUpperCase();
-          const num = String(item.numeroOportunidade || '').toUpperCase();
-          const prod = String(item.produto || '').toUpperCase();
-          const tit = String(item.titulo || '').toUpperCase();
-          const cli = String(item.cliente || '').toUpperCase();
           const directFab = String(item.fabricante || '').toUpperCase();
+          const linkedSuppliers = (item.fornecedorIds || [])
+            .map((id) => String(fornMap.get(id) || '').toUpperCase())
+            .filter(Boolean);
+          const num = String(item.numeroOportunidade || '').toUpperCase();
+
           return (
             fab.includes(target) ||
             directFab.includes(target) ||
-            num.includes(target) ||
-            prod.includes(target) ||
-            tit.includes(target) ||
-            cli.includes(target)
+            linkedSuppliers.some((s) => s.includes(target)) ||
+            num.startsWith(target) ||
+            num.includes(`RO ${target}`) ||
+            num.includes(`RO-${target}`) ||
+            num.includes(`RO_${target}`)
           );
         });
       }
@@ -602,7 +604,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         .toLowerCase()
         .includes(term);
     });
-  }, [currentTab, registry, searchTerm]);
+  }, [currentTab, registry, searchTerm, selectedFabricanteFilter, selectedStatusFilter, fornMap]);
 
   const closeModal = () => {
     setModalOpen(false);
