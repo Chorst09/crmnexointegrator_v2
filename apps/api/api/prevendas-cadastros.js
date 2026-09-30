@@ -127,6 +127,7 @@ const normalizeOpportunityRegistry = (input = {}, preserve = {}) => {
     prioridade: toString(input.prioridade, preserve.prioridade || 'MEDIUM').toUpperCase() || 'MEDIUM',
     distribuidorIds: toStringArray(input.distribuidorIds ?? preserve.distribuidorIds),
     fornecedorIds: toStringArray(input.fornecedorIds ?? preserve.fornecedorIds),
+    fabricante: toString(input.fabricante, preserve.fabricante || ''),
     numeroOportunidade: toString(input.numeroOportunidade, preserve.numeroOportunidade || ''),
     produto: toString(input.produto, preserve.produto || ''),
     dataAbertura: toDateOrNull(input.dataAbertura || preserve.dataAbertura),

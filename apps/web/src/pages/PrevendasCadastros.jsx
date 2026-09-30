@@ -2,14 +2,17 @@ import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft,
+  Award,
   Building2,
   CalendarDays,
+  Check,
   ClipboardList,
   DollarSign,
   Eye,
   ExternalLink,
   FileDown,
   FileText,
+  Filter,
   Globe2,
   Image,
   Link2,
@@ -20,6 +23,8 @@ import {
   RefreshCcw,
   Search,
   ShoppingCart,
+  Sparkles,
+  Tag,
   Target,
   Trash2,
   User,
@@ -130,11 +135,66 @@ const defaultOpportunityForm = {
   prioridade: 'MEDIUM',
   distribuidorIds: [],
   fornecedorIds: [],
+  fabricante: '',
   observacoes: '',
   numeroOportunidade: '',
   produto: '',
   dataAbertura: '',
   dataValidade: ''
+};
+
+export const getOpportunityFabricante = (item, fornMap) => {
+  if (item?.fabricante && String(item.fabricante).trim()) {
+    return String(item.fabricante).trim().toUpperCase();
+  }
+  if (Array.isArray(item?.fornecedorIds) && item.fornecedorIds.length > 0 && fornMap) {
+    const names = item.fornecedorIds.map((id) => fornMap.get(id)).filter(Boolean);
+    if (names.length > 0) return names.join(', ').toUpperCase();
+  }
+  const rawNum = String(item?.numeroOportunidade || '').trim();
+  if (rawNum) {
+    const match = rawNum.match(/^(DELL|LENOVO|CISCO|HP|HPE|FORTINET|ARUBA|HUAWEI|SOPHOS|MICROSOFT|VMWARE|NUTANIX|CHECKPOINT|PALO\s*ALTO|EXTREME|RUCKUS|AVAYA|INTEL|AMD|ORACLE|IBM|REDHAT|ZABBIX)/i);
+    if (match) return match[1].toUpperCase();
+    const roMatch = rawNum.match(/^RO[-_\s]+([A-Za-z0-9]+)/i);
+    if (roMatch) return roMatch[1].toUpperCase();
+  }
+  const rawTitle = `${item?.titulo || ''} ${item?.produto || ''}`;
+  const matchTitle = rawTitle.match(/\b(DELL|LENOVO|CISCO|HP|HPE|FORTINET|ARUBA|HUAWEI|SOPHOS|MICROSOFT|VMWARE|NUTANIX|CHECKPOINT|PALO\s*ALTO|EXTREME)\b/i);
+  if (matchTitle) return matchTitle[1].toUpperCase();
+
+  return '';
+};
+
+export const getFabricanteBadgeStyle = (fabricanteName) => {
+  const norm = String(fabricanteName || '').toUpperCase();
+  if (norm.includes('DELL')) {
+    return 'border-blue-500/60 bg-blue-600/25 text-blue-300 shadow-sm shadow-blue-900/40 ring-1 ring-blue-400/30';
+  }
+  if (norm.includes('LENOVO')) {
+    return 'border-red-500/60 bg-red-600/25 text-red-300 shadow-sm shadow-red-900/40 ring-1 ring-red-400/30';
+  }
+  if (norm.includes('HP') || norm.includes('HPE')) {
+    return 'border-cyan-500/60 bg-cyan-600/25 text-cyan-300 shadow-sm shadow-cyan-900/40 ring-1 ring-cyan-400/30';
+  }
+  if (norm.includes('CISCO')) {
+    return 'border-sky-500/60 bg-sky-600/25 text-sky-300 shadow-sm shadow-sky-900/40 ring-1 ring-sky-400/30';
+  }
+  if (norm.includes('FORTINET')) {
+    return 'border-emerald-500/60 bg-emerald-600/25 text-emerald-300 shadow-sm shadow-emerald-900/40 ring-1 ring-emerald-400/30';
+  }
+  if (norm.includes('ARUBA')) {
+    return 'border-orange-500/60 bg-orange-600/25 text-orange-300 shadow-sm shadow-orange-900/40 ring-1 ring-orange-400/30';
+  }
+  if (norm.includes('HUAWEI')) {
+    return 'border-rose-500/60 bg-rose-600/25 text-rose-300 shadow-sm shadow-rose-900/40 ring-1 ring-rose-400/30';
+  }
+  if (norm.includes('MICROSOFT')) {
+    return 'border-teal-500/60 bg-teal-600/25 text-teal-300 shadow-sm shadow-teal-900/40 ring-1 ring-teal-400/30';
+  }
+  if (norm.includes('SOPHOS')) {
+    return 'border-indigo-500/60 bg-indigo-600/25 text-indigo-300 shadow-sm shadow-indigo-900/40 ring-1 ring-indigo-400/30';
+  }
+  return 'border-amber-500/60 bg-amber-500/25 text-amber-300 shadow-sm shadow-amber-900/40 ring-1 ring-amber-400/30';
 };
 
 const OPPORTUNITY_TERM_OPTIONS = ['12', '24', '36', '48', '60'];
@@ -318,6 +378,8 @@ export default function PrevendasCadastros({ forcedTab = null }) {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState(forcedTabKey || TAB_KEYS.DISTRIBUIDORES);
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedFabricanteFilter, setSelectedFabricanteFilter] = useState('ALL');
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState('ALL');
 
   const [registry, setRegistry] = useState(defaultRegistry);
   const [pipelineOpportunities, setPipelineOpportunities] = useState([]);
@@ -412,13 +474,74 @@ export default function PrevendasCadastros({ forcedTab = null }) {
     ];
   }, [registry]);
 
+  const availableFabricantes = useMemo(() => {
+    const counts = new Map();
+    const addFab = (raw) => {
+      if (!raw) return;
+      const clean = String(raw).trim().toUpperCase();
+      if (!clean) return;
+      counts.set(clean, (counts.get(clean) || 0) + 1);
+    };
+
+    (registry.oportunidades || []).forEach((item) => {
+      const fab = getOpportunityFabricante(item, fornMap);
+      if (fab) {
+        fab.split(',').forEach((f) => addFab(f));
+      }
+    });
+
+    ['DELL', 'LENOVO', 'HP', 'CISCO', 'FORTINET', 'ARUBA', 'HUAWEI'].forEach((b) => {
+      if (!counts.has(b)) counts.set(b, 0);
+    });
+
+    (registry.fornecedores || []).forEach((f) => {
+      if (f.nome && !counts.has(f.nome.trim().toUpperCase())) {
+        counts.set(f.nome.trim().toUpperCase(), 0);
+      }
+    });
+
+    return Array.from(counts.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+  }, [registry.oportunidades, registry.fornecedores, fornMap]);
+
   const activeRows = useMemo(() => {
     const source = registry[currentTab] || [];
     const term = asString(searchTerm).toLowerCase();
-    if (!term) return source;
 
-    return source.filter((item) => {
+    let filtered = source;
+
+    if (currentTab === TAB_KEYS.OPORTUNIDADES) {
+      if (selectedFabricanteFilter !== 'ALL') {
+        const target = selectedFabricanteFilter.toUpperCase();
+        filtered = filtered.filter((item) => {
+          const fab = getOpportunityFabricante(item, fornMap).toUpperCase();
+          const num = String(item.numeroOportunidade || '').toUpperCase();
+          const prod = String(item.produto || '').toUpperCase();
+          const tit = String(item.titulo || '').toUpperCase();
+          const cli = String(item.cliente || '').toUpperCase();
+          const directFab = String(item.fabricante || '').toUpperCase();
+          return (
+            fab.includes(target) ||
+            directFab.includes(target) ||
+            num.includes(target) ||
+            prod.includes(target) ||
+            tit.includes(target) ||
+            cli.includes(target)
+          );
+        });
+      }
+
+      if (selectedStatusFilter !== 'ALL') {
+        filtered = filtered.filter((item) => String(item.status || 'ABERTA').toUpperCase() === selectedStatusFilter);
+      }
+    }
+
+    if (!term) return filtered;
+
+    return filtered.filter((item) => {
       if (currentTab === TAB_KEYS.OPORTUNIDADES) {
+        const fab = getOpportunityFabricante(item, fornMap);
         return [
           item.titulo,
           item.cliente,
@@ -428,7 +551,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           item.origem,
           item.observacoes,
           item.numeroOportunidade,
-          item.produto
+          item.produto,
+          item.fabricante,
+          fab,
+          `RO ${fab}`,
+          `RO ${item.fabricante}`
         ]
           .filter(Boolean)
           .join(' ')
@@ -509,6 +636,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         prioridade: item.prioridade || 'MEDIUM',
         distribuidorIds: Array.isArray(item.distribuidorIds) ? item.distribuidorIds : [],
         fornecedorIds: Array.isArray(item.fornecedorIds) ? item.fornecedorIds : [],
+        fabricante: item.fabricante || '',
         observacoes: item.observacoes || '',
         numeroOportunidade: item.numeroOportunidade || '',
         produto: item.produto || '',
@@ -658,6 +786,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       cliente: asString(opportunityForm.cliente),
       valorEstimado: opportunityForm.valorEstimado === '' ? null : Number(opportunityForm.valorEstimado),
       prazo: opportunityForm.prazo || null,
+      fabricante: asString(opportunityForm.fabricante),
       dataAbertura: opportunityForm.dataAbertura || null,
       dataValidade: opportunityForm.dataValidade || null,
       distribuidorIds: Array.isArray(opportunityForm.distribuidorIds) ? opportunityForm.distribuidorIds : [],
@@ -742,6 +871,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
     const linkedDistributors = (item.distribuidorIds || []).map((id) => distMap.get(id)).filter(Boolean);
     const linkedSuppliers = (item.fornecedorIds || []).map((id) => fornMap.get(id)).filter(Boolean);
+    const oppFabricante = getOpportunityFabricante(item, fornMap);
     const validity = getValidityInfo(item.dataValidade);
     const validityColors = pdfValidityColors[validity.tone] || pdfValidityColors.slate;
     const generatedAt = new Date().toLocaleString('pt-BR');
@@ -991,6 +1121,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
             <article class="card">
               <h2>Registro no Fornecedor</h2>
               ${renderRows([
+                ['Fabricante / Fornecedor (RO)', oppFabricante ? `RO ${oppFabricante}` : '-'],
                 ['Número da oportunidade', item.numeroOportunidade],
                 ['Produto', item.produto],
                 ['Data de abertura', toDateBr(item.dataAbertura)],
@@ -2206,88 +2337,164 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
   const renderOpportunityCards = () => {
     if (activeRows.length === 0) {
-      return <div className="py-12 text-center text-slate-400">Nenhum registro de oportunidade encontrado.</div>;
+      return (
+        <div className="py-16 text-center text-slate-400">
+          <Tag className="mx-auto h-12 w-12 text-slate-600 mb-3" />
+          <p className="text-base font-medium text-slate-300">Nenhum registro de oportunidade encontrado.</p>
+          <p className="text-xs text-slate-500 mt-1">Tente ajustar a busca ou os filtros de Fabricante e Status acima.</p>
+        </div>
+      );
     }
 
     return (
-      <div className="space-y-3">
+      <div className="space-y-4">
         {activeRows.map((item) => {
           const linkedDistributors = (item.distribuidorIds || []).map((id) => distMap.get(id)).filter(Boolean);
           const linkedSuppliers = (item.fornecedorIds || []).map((id) => fornMap.get(id)).filter(Boolean);
           const validity = getValidityInfo(item.dataValidade);
+          const oppFabricante = getOpportunityFabricante(item, fornMap);
 
           return (
-            <div key={item.id} className="crm-gradient-glass rounded-xl p-4">
-              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-                <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex flex-wrap items-center gap-2">
-                    <span className="text-base font-semibold text-white">{item.titulo || 'Sem título'}</span>
-                    <span className={`rounded-full border px-2 py-0.5 text-[11px] ${badgeClassForStatus(item.status)}`}>
-                      {item.status || 'ABERTA'}
-                    </span>
-                    <span className={`rounded-full border px-2 py-0.5 text-[11px] ${badgeClassForPriority(item.prioridade)}`}>
-                      {priorityLabel(item.prioridade)}
-                    </span>
+            <div key={item.id} className="crm-gradient-glass rounded-xl p-4 border border-slate-700/60 transition-all duration-200 hover:border-slate-500/60 shadow-lg">
+              {/* DESTAQUE PRINCIPAL DO FABRICANTE / FORNECEDOR / RO */}
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-700/60 pb-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  {/* BADGE DESTAQUE DO FABRICANTE */}
+                  <div
+                    className={`inline-flex items-center gap-1.5 rounded-lg border px-3.5 py-1.5 text-xs font-black tracking-wider uppercase ${getFabricanteBadgeStyle(oppFabricante)}`}
+                  >
+                    <Tag className="h-3.5 w-3.5" />
+                    <span>{oppFabricante ? `RO ${oppFabricante}` : 'RO (FABRICANTE NÃO DEFINIDO)'}</span>
                   </div>
 
-                  <p className="text-sm text-slate-300">
-                    Cliente: {item.cliente || '-'} • Origem: {item.origem || '-'} • Modalidade: {item.modalidade || '-'}
-                  </p>
-
-                  <p className="mt-1 text-sm text-slate-300">
-                    Valor estimado: {toCurrency(item.valorEstimado)} • Prazo: {formatOpportunityTerm(item.prazo)}
-                  </p>
-
                   {item.numeroOportunidade && (
-                    <p className="mt-1 text-sm text-slate-300">
-                      Fornecedor: {item.numeroOportunidade}{item.produto ? ` • ${item.produto}` : ''}
-                    </p>
+                    <div className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/90 px-3 py-1 text-xs font-mono text-slate-200">
+                      <span className="text-slate-500 font-sans text-[11px] font-semibold">Nº RO:</span>
+                      <span className="font-bold text-sky-400">{item.numeroOportunidade}</span>
+                    </div>
                   )}
 
-                  <p className="mt-1 text-xs text-slate-400">
-                    {item.dataAbertura ? `Abertura: ${toDateBr(item.dataAbertura)}` : ''}
-                    {item.dataValidade ? ` • Validade: ${toDateBr(item.dataValidade)}` : ''}
-                    <span className={`ml-2 rounded-full border px-2 py-0.5 text-[10px] ${validityBadgeClass(validity.tone)}`}>
-                      {validity.label}
-                    </span>
-                  </p>
-
-                  {item.oportunidadeId && (
-                    <p className="mt-1 text-xs text-sky-200">Pipeline: {item.oportunidadeId}</p>
-                  )}
-
-                  <p className="mt-1 text-xs text-slate-400">
-                    Distribuidores: {linkedDistributors.length > 0 ? linkedDistributors.join(', ') : 'Nenhum'}
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    Fornecedores: {linkedSuppliers.length > 0 ? linkedSuppliers.join(', ') : 'Nenhum'}
-                  </p>
-
-                  {item.observacoes && (
-                    <p className="mt-2 text-xs text-slate-300">{item.observacoes}</p>
+                  {item.produto && (
+                    <div className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/60 bg-slate-800/60 px-2.5 py-1 text-xs text-slate-300">
+                      <Package className="h-3.5 w-3.5 text-cyan-400" />
+                      <span className="font-medium text-slate-200">{item.produto}</span>
+                    </div>
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center justify-end gap-2">
+                <div className="flex items-center gap-2">
+                  <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-wide uppercase ${badgeClassForStatus(item.status)}`}>
+                    {item.status || 'ABERTA'}
+                  </span>
+                  <span className={`rounded-full border px-2 py-0.5 text-[11px] ${badgeClassForPriority(item.prioridade)}`}>
+                    {priorityLabel(item.prioridade)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                <div className="min-w-0 flex-1">
+                  <div className="mb-2">
+                    <h4 className="text-base font-bold text-white tracking-tight">{item.titulo || 'Sem título'}</h4>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 py-1.5 text-xs">
+                    <div className="rounded-lg bg-slate-900/50 border border-slate-800 p-2.5">
+                      <span className="text-slate-400 block text-[11px] font-medium">Cliente / Solicitante</span>
+                      <span className="font-semibold text-slate-200 text-sm block truncate">{item.cliente || '-'}</span>
+                      <span className="text-[11px] text-slate-500 block mt-0.5">
+                        Origem: {item.origem || 'B2B'} • Modalidade: {item.modalidade || 'VENDA'}
+                      </span>
+                    </div>
+
+                    <div className="rounded-lg bg-slate-900/50 border border-slate-800 p-2.5">
+                      <span className="text-slate-400 block text-[11px] font-medium">Valor Estimado / Prazo</span>
+                      <span className="font-bold text-emerald-400 text-sm block">{toCurrency(item.valorEstimado)}</span>
+                      <span className="text-[11px] text-slate-400 block mt-0.5">
+                        Prazo: {formatOpportunityTerm(item.prazo)}
+                      </span>
+                    </div>
+
+                    <div className="rounded-lg bg-slate-900/50 border border-slate-800 p-2.5">
+                      <span className="text-slate-400 block text-[11px] font-medium">Validade do Registro (RO)</span>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${validityBadgeClass(validity.tone)}`}>
+                          {validity.label}
+                        </span>
+                        <span className="text-slate-300 font-mono text-xs">{toDateBr(item.dataValidade)}</span>
+                      </div>
+                      {item.dataAbertura && (
+                        <span className="text-[11px] text-slate-500 block mt-0.5">
+                          Abertura: {toDateBr(item.dataAbertura)}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {item.oportunidadeId && (
+                    <div className="mt-2 flex items-center gap-2 text-xs text-sky-300">
+                      <Link2 className="w-3.5 h-3.5 text-sky-400" />
+                      <span>Pipeline Comercial: <strong className="text-white">{item.oportunidadeId}</strong></span>
+                    </div>
+                  )}
+
+                  <div className="mt-2.5 flex flex-wrap gap-3 text-xs">
+                    {linkedDistributors.length > 0 && (
+                      <div className="flex items-center gap-1.5 text-slate-400">
+                        <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Distribuidores:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {linkedDistributors.map((d) => (
+                            <span key={d} className="rounded bg-slate-800/80 border border-slate-700 px-1.5 py-0.5 text-slate-300 font-medium">
+                              {d}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {linkedSuppliers.length > 0 && (
+                      <div className="flex items-center gap-1.5 text-slate-400">
+                        <Package className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Fornecedores:</span>
+                        <div className="flex flex-wrap gap-1">
+                          {linkedSuppliers.map((s) => (
+                            <span key={s} className="rounded bg-sky-950/60 border border-sky-800/50 px-1.5 py-0.5 text-sky-300 font-medium">
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {item.observacoes && (
+                    <div className="mt-2.5 rounded-lg border border-slate-800/80 bg-slate-950/50 p-2.5 text-xs text-slate-400">
+                      <strong className="text-slate-300">Obs:</strong> {item.observacoes}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex flex-wrap items-center justify-end gap-2 xl:pt-1">
                   <button
                     type="button"
                     onClick={() => handleViewOpportunityPdf(item)}
                     title="Visualizar registro em PDF"
-                    className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/50 bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/25"
+                    className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/50 bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/25 transition-colors"
                   >
                     <FileText className="h-3.5 w-3.5" /> PDF
                   </button>
                   <button
                     type="button"
                     onClick={() => openEditModal(TAB_KEYS.OPORTUNIDADES, item)}
-                    className="rounded-lg border border-slate-500/40 px-3 py-2 text-xs text-slate-100 hover:bg-slate-800/40"
+                    className="rounded-lg border border-slate-500/40 px-3 py-2 text-xs font-medium text-slate-100 hover:bg-slate-800/40 transition-colors"
                   >
                     Editar
                   </button>
                   <button
                     type="button"
                     onClick={() => deleteItem(TAB_KEYS.OPORTUNIDADES, item)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-rose-500/50 px-3 py-2 text-xs text-rose-100 hover:bg-rose-500/20"
+                    className="inline-flex items-center gap-1 rounded-lg border border-rose-500/50 px-3 py-2 text-xs font-medium text-rose-100 hover:bg-rose-500/20 transition-colors"
                     disabled={saving}
                   >
                     <Trash2 className="h-3.5 w-3.5" /> Excluir
@@ -2381,19 +2588,116 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           </button>
         </div>
 
-        <div className="mt-4 relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(event) => setSearchTerm(event.target.value)}
-            placeholder={
-              currentTab === TAB_KEYS.OPORTUNIDADES
-                ? 'Buscar por título, cliente, origem, modalidade ou status'
-                : 'Buscar por nome, CNPJ, contato, cidade, status ou categoria'
-            }
-            className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 py-2.5 pl-10 pr-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
-          />
+        <div className="mt-4 flex flex-col gap-3">
+          <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center">
+            <div className="relative flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(event) => setSearchTerm(event.target.value)}
+                placeholder={
+                  currentTab === TAB_KEYS.OPORTUNIDADES
+                    ? 'Buscar por título, cliente, fabricante (ex: DELL, LENOVO), RO, produto ou status...'
+                    : 'Buscar por nome, CNPJ, contato, cidade, status ou categoria...'
+                }
+                className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 py-2.5 pl-10 pr-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+              />
+            </div>
+
+            {currentTab === TAB_KEYS.OPORTUNIDADES && (
+              <div className="flex flex-wrap items-center gap-2">
+                {/* SELECT FILTRO POR FABRICANTE */}
+                <div className="flex items-center gap-1.5">
+                  <Tag className="h-4 w-4 text-amber-400 shrink-0" />
+                  <select
+                    value={selectedFabricanteFilter}
+                    onChange={(e) => setSelectedFabricanteFilter(e.target.value)}
+                    className="rounded-lg border border-slate-600/50 bg-slate-900/90 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                  >
+                    <option value="ALL">Todos os Fabricantes (RO)</option>
+                    {availableFabricantes.map((f) => (
+                      <option key={f.name} value={f.name}>
+                        RO {f.name} {f.count > 0 ? `(${f.count})` : ''}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* SELECT STATUS */}
+                <select
+                  value={selectedStatusFilter}
+                  onChange={(e) => setSelectedStatusFilter(e.target.value)}
+                  className="rounded-lg border border-slate-600/50 bg-slate-900/90 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+                >
+                  <option value="ALL">Todos os Status</option>
+                  <option value="ABERTA">Aberta</option>
+                  <option value="EM_ANALISE">Em Análise</option>
+                  <option value="EM_COTACAO">Em Cotação</option>
+                  <option value="PRECIFICADA">Precificada</option>
+                  <option value="DEVOLVIDA">Devolvida</option>
+                  <option value="GANHA">Ganha</option>
+                  <option value="PERDIDA">Perdida</option>
+                </select>
+
+                {(selectedFabricanteFilter !== 'ALL' || selectedStatusFilter !== 'ALL' || searchTerm) && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedFabricanteFilter('ALL');
+                      setSelectedStatusFilter('ALL');
+                      setSearchTerm('');
+                    }}
+                    className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-2.5 py-1.5 text-xs font-medium text-rose-200 hover:bg-rose-500/20 transition-colors"
+                  >
+                    Limpar filtros
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* CHIPS RÁPIDOS DE FILTRO POR FABRICANTE (DELL, LENOVO, HP, CISCO, ETC) */}
+          {currentTab === TAB_KEYS.OPORTUNIDADES && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-800/80">
+              <span className="text-xs font-semibold text-slate-400 flex items-center gap-1 mr-1">
+                <Filter className="h-3 w-3 text-sky-400" /> Filtrar por Fabricante:
+              </span>
+              <button
+                type="button"
+                onClick={() => setSelectedFabricanteFilter('ALL')}
+                className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
+                  selectedFabricanteFilter === 'ALL'
+                    ? 'bg-sky-500 text-white shadow-sm shadow-sky-500/40 font-bold'
+                    : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:bg-slate-800 hover:text-white'
+                }`}
+              >
+                Todos ({(registry.oportunidades || []).length})
+              </button>
+              {availableFabricantes.slice(0, 10).map((f) => {
+                const isSelected = selectedFabricanteFilter === f.name;
+                return (
+                  <button
+                    key={f.name}
+                    type="button"
+                    onClick={() => setSelectedFabricanteFilter(isSelected ? 'ALL' : f.name)}
+                    className={`rounded-lg px-2.5 py-1 text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${
+                      isSelected
+                        ? `${getFabricanteBadgeStyle(f.name)} ring-2 ring-white/60 font-black scale-105`
+                        : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:border-slate-500 hover:text-white'
+                    }`}
+                  >
+                    <span>RO {f.name}</span>
+                    {f.count > 0 && (
+                      <span className="rounded-full bg-slate-800/90 px-1.5 py-0.2 text-[10px] text-slate-300">
+                        {f.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
@@ -2705,10 +3009,53 @@ export default function PrevendasCadastros({ forcedTab = null }) {
             </div>
 
             <div className="mt-2 rounded-lg border border-sky-600/30 bg-sky-900/20 p-3">
-              <p className="mb-3 text-sm font-medium text-sky-200">Registro no Fornecedor</p>
+              <p className="mb-3 text-sm font-semibold text-sky-200 flex items-center gap-1.5">
+                <Tag className="w-4 h-4 text-amber-400" /> Registro no Fornecedor (RO)
+              </p>
+
+              {/* CAMPO FABRICANTE / FORNECEDOR EM DESTAQUE */}
+              <div className="mb-3.5 rounded-lg border border-amber-500/40 bg-slate-900/80 p-3 shadow-inner">
+                <label className="space-y-1 block">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-bold text-amber-300 flex items-center gap-1.5">
+                      <Tag className="w-3.5 h-3.5" /> Fabricante / Fornecedor (Ex.: DELL, LENOVO, FORTINET, CISCO, HP)
+                    </span>
+                    {opportunityForm.fabricante && (
+                      <span className="text-xs text-amber-400 font-extrabold uppercase tracking-wide">
+                        RO {opportunityForm.fabricante}
+                      </span>
+                    )}
+                  </div>
+                  <input
+                    type="text"
+                    value={opportunityForm.fabricante}
+                    onChange={(event) => setOpportunityForm((prev) => ({ ...prev, fabricante: event.target.value.toUpperCase() }))}
+                    className="w-full rounded-lg border border-amber-500/60 bg-slate-950/80 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 font-bold uppercase tracking-wide"
+                    placeholder="Ex.: DELL, LENOVO, CISCO, HP, FORTINET"
+                  />
+                </label>
+                <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[11px] text-slate-400 font-medium">Marcas rápidas:</span>
+                  {['DELL', 'LENOVO', 'HP', 'CISCO', 'FORTINET', 'ARUBA', 'HUAWEI', 'MICROSOFT'].map((brand) => (
+                    <button
+                      key={brand}
+                      type="button"
+                      onClick={() => setOpportunityForm((prev) => ({ ...prev, fabricante: brand }))}
+                      className={`rounded px-2.5 py-0.5 text-xs font-bold transition-all ${
+                        opportunityForm.fabricante === brand
+                          ? 'bg-amber-500 text-slate-950 shadow-sm scale-105'
+                          : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
+                      }`}
+                    >
+                      {brand}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <label className="space-y-1">
-                  <span className="text-sm text-slate-300">Número da oportunidade</span>
+                  <span className="text-sm text-slate-300">Número da oportunidade / RO</span>
                   <input
                     type="text"
                     value={opportunityForm.numeroOportunidade}
@@ -2793,9 +3140,16 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                           onChange={(event) => {
                             setOpportunityForm((prev) => {
                               const current = new Set(prev.fornecedorIds);
-                              if (event.target.checked) current.add(item.id);
-                              else current.delete(item.id);
-                              return { ...prev, fornecedorIds: Array.from(current) };
+                              let nextFabricante = prev.fabricante;
+                              if (event.target.checked) {
+                                current.add(item.id);
+                                if (!nextFabricante) {
+                                  nextFabricante = item.nome ? item.nome.toUpperCase() : '';
+                                }
+                              } else {
+                                current.delete(item.id);
+                              }
+                              return { ...prev, fornecedorIds: Array.from(current), fabricante: nextFabricante };
                             });
                           }}
                         />
