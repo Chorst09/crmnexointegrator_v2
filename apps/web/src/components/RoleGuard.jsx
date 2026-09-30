@@ -1,6 +1,6 @@
 import { Navigate } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
-import { moduleFromPath, canAccessModule, roleSatisfiesAllowed } from '../utils/permissions';
+import { moduleFromPath, canAccessModule, roleSatisfiesAllowed, toCanonicalRole } from '../utils/permissions';
 
 const RoleGuard = ({ children, allowedRoles }) => {
   const location = useLocation();
