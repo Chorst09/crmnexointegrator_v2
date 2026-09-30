@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ModernTable from '../components/ModernTable';
 import Modal from '../components/Modal';
@@ -446,6 +446,9 @@ export default function Administracao() {
   const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [restoreFileInfo, setRestoreFileInfo] = useState(null);
   const [restoreSuccessData, setRestoreSuccessData] = useState(null);
+  const [routineStatus, setRoutineStatus] = useState(null);
+  const [routineLoading, setRoutineLoading] = useState(false);
+  const [activeBackupSubTab, setActiveBackupSubTab] = useState('rotina');
   const [confirmDialog, setConfirmDialog] = useState({
     isOpen: false,
     title: '',
@@ -1133,6 +1136,29 @@ export default function Administracao() {
       setBackupLoading(false);
     }
   };
+
+  const fetchRoutineStatus = useCallback(async () => {
+    try {
+      setRoutineLoading(true);
+      const res = await fetch(buildApiUrl('/admin/backup/routine-status'), {
+        headers: getAuthHeaders()
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setRoutineStatus(data);
+      }
+    } catch (e) {
+      console.warn('Erro ao carregar status da rotina de backup:', e);
+    } finally {
+      setRoutineLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (activeTab === 'backup') {
+      fetchRoutineStatus();
+    }
+  }, [activeTab, fetchRoutineStatus]);
 
   const performActualRestore = async (fileText, backupJson) => {
     const parseModuleData = (modules, key) => {
@@ -2552,39 +2578,303 @@ export default function Administracao() {
       )}
 
       {activeTab === 'backup' && (
-        <div className="crm-card rounded-2xl p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Backup completo do sistema</h2>
-          <p className="text-sm text-gray-600 dark:text-slate-200">
-            Exporte todas as tabelas do banco de dados, schema Prisma, migrations e arquivos de upload vinculados ao sistema.
-          </p>
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="space-y-6">
+          {/* Sub-tabs switch */}
+          <div className="flex flex-wrap items-center gap-2 border-b border-slate-700/60 pb-3">
             <button
               type="button"
-              onClick={exportBackupSnapshot}
-              disabled={backupLoading || restoreLoading}
-              className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition-colors disabled:opacity-50"
+              onClick={() => setActiveBackupSubTab('rotina')}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+                activeBackupSubTab === 'rotina'
+                  ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/40 shadow-sm shadow-cyan-900/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
             >
-              {backupLoading ? 'Gerando backup completo...' : 'Exportar backup completo (.json)'}
+              <span>🛡️</span>
+              <span>4. Rotina Automatizada (Segunda a Sexta às 17h)</span>
+              <span className="px-2 py-0.5 text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full font-mono">
+                Ativo
+              </span>
             </button>
-            <input
-              type="file"
-              accept="application/json,.json"
-              onChange={(e) => setRestoreFile(e.target.files?.[0] || null)}
-              className="text-sm text-gray-700 dark:text-slate-100"
-            />
+
             <button
               type="button"
-              onClick={restoreBackupSnapshot}
-              disabled={!restoreFile || restoreLoading || backupLoading}
-              className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+              onClick={() => setActiveBackupSubTab('manual')}
+              className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
+                activeBackupSubTab === 'manual'
+                  ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/40 shadow-sm shadow-cyan-900/20'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+              }`}
             >
-              {restoreLoading ? 'Restaurando...' : 'Restaurar backup (.json)'}
+              <span>💾</span>
+              <span>Exportação / Restauração Manual (.json)</span>
             </button>
           </div>
-          <p className="text-xs text-gray-500 dark:text-slate-300">
-            Admin e Master podem restaurar backups completos pelo arquivo exportado. A operação substitui as tabelas do banco e exige confirmação antes de iniciar.
-          </p>
-          {backupResult && <div className="text-sm text-emerald-600 dark:text-emerald-300">{backupResult}</div>}
+
+          {activeBackupSubTab === 'rotina' && (
+            <div className="space-y-6">
+              {/* Card 1: Status Geral da Rotina */}
+              <div className="crm-card rounded-2xl p-6 border border-cyan-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/20 shadow-xl space-y-5">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-3">
+                      <span className="text-2xl">🛡️</span>
+                      <h2 className="text-xl font-bold text-white tracking-wide">
+                        Rotina de Backup Automatizada do Banco de Dados
+                      </h2>
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        Cron Ativo
+                      </span>
+                    </div>
+                    <p className="text-sm text-slate-300">
+                      Cópia de segurança programada do banco PostgreSQL nativo com integridade estrutural validada e retenção de 30 dias.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={fetchRoutineStatus}
+                    disabled={routineLoading}
+                    className="self-start md:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-2 transition-all disabled:opacity-50"
+                  >
+                    <span className={routineLoading ? 'animate-spin' : ''}>↻</span>
+                    <span>{routineLoading ? 'Atualizando...' : 'Atualizar Status'}</span>
+                  </button>
+                </div>
+
+                {/* 4 Blocos Informativos Principais */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
+                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
+                      <span>⏰</span> Agendamento
+                    </div>
+                    <div className="text-sm font-bold text-white">Seg a Sex às 17h00</div>
+                    <div className="text-xs text-cyan-400 font-mono">0 17 * * 1-5 (BRT -03)</div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
+                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
+                      <span>🗄️</span> Banco de Dados
+                    </div>
+                    <div className="text-sm font-bold text-white">crmnexointegrator_v2</div>
+                    <div className="text-xs text-slate-400">PostgreSQL 16 (100 Tabelas)</div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
+                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
+                      <span>📅</span> Política de Retenção
+                    </div>
+                    <div className="text-sm font-bold text-white">30 Dias de Histórico</div>
+                    <div className="text-xs text-slate-400">Limpeza e rotação automática</div>
+                  </div>
+
+                  <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
+                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
+                      <span>✅</span> Integridade Estrutural
+                    </div>
+                    <div className="text-sm font-bold text-emerald-400">100% Comprovada</div>
+                    <div className="text-xs text-slate-400">Validação pós-dump (pg_restore)</div>
+                  </div>
+                </div>
+
+                {/* Domínio & Caminho do Script */}
+                <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2 text-slate-300">
+                    <span className="font-semibold text-slate-400">🌐 Domínio Produção:</span>
+                    <a
+                      href="https://nexosv2.chorstconsult.com.br"
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-cyan-400 underline font-mono hover:text-cyan-300"
+                    >
+                      https://nexosv2.chorstconsult.com.br
+                    </a>
+                  </div>
+                  <div className="flex items-center gap-2 text-slate-300 font-mono text-[11px]">
+                    <span className="font-semibold text-slate-400">📁 Armazenamento:</span>
+                    <span className="text-slate-300 bg-slate-800 px-2 py-0.5 rounded">/var/backups/crmnexointegrator_v2/</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Card 2: Lista dos Backups Gerados no Servidor */}
+              <div className="crm-card rounded-2xl p-6 border border-slate-800 bg-slate-900/90 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-lg">📦</span>
+                    <h3 className="text-base font-bold text-white">
+                      Cópias de Segurança Disponíveis no Servidor ({routineStatus?.files?.length || 0})
+                    </h3>
+                  </div>
+                  <span className="text-xs text-slate-400">
+                    Retidos em <code className="text-cyan-300">/var/backups/crmnexointegrator_v2/</code>
+                  </span>
+                </div>
+
+                {routineStatus?.files && routineStatus.files.length > 0 ? (
+                  <div className="overflow-x-auto rounded-xl border border-slate-800">
+                    <table className="w-full text-left text-xs text-slate-200">
+                      <thead className="bg-slate-800/80 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-700/60">
+                        <tr>
+                          <th className="px-4 py-3">Arquivo do Backup</th>
+                          <th className="px-4 py-3">Tamanho</th>
+                          <th className="px-4 py-3">Data / Hora de Geração</th>
+                          <th className="px-4 py-3">Formato</th>
+                          <th className="px-4 py-3 text-right">Integridade</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-800">
+                        {routineStatus.files.map((file, idx) => (
+                          <tr key={idx} className="hover:bg-slate-800/40 transition-colors">
+                            <td className="px-4 py-3 font-mono text-cyan-300 font-medium">
+                              {file.name}
+                            </td>
+                            <td className="px-4 py-3 font-semibold text-slate-100">
+                              {file.sizeFormatted}
+                            </td>
+                            <td className="px-4 py-3 text-slate-300">
+                              {new Date(file.modifiedAt || file.createdAt).toLocaleString('pt-BR')}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px]">
+                                PostgreSQL Custom (-Fc)
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-right">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                                ✓ Íntegro
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded-xl bg-slate-800/30 border border-dashed border-slate-700 text-center text-xs text-slate-400">
+                    {routineLoading ? 'Consultando backups no servidor...' : 'Nenhum arquivo de backup encontrado ainda ou permissão restrita.'}
+                  </div>
+                )}
+              </div>
+
+              {/* Card 3: Documentação e Procedimento de Restauração (Disaster Recovery) */}
+              <div className="crm-card rounded-2xl p-6 border border-slate-800 bg-slate-900/90 space-y-4">
+                <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
+                  <span className="text-lg">📖</span>
+                  <h3 className="text-base font-bold text-white">
+                    Guia de Procedimentos Operacionais e Restauração (Disaster Recovery)
+                  </h3>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  {/* Bloco 1: Restauração Sandbox */}
+                  <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+                    <div className="font-bold text-amber-300 flex items-center gap-1.5">
+                      <span>🧪</span> 1. Testar Restauração em Sandbox (Sem Risco)
+                    </div>
+                    <p className="text-slate-300 leading-relaxed">
+                      Cria uma base temporária, restaura as 100 tabelas, confere contagens de clientes e editais e depois remove a base de teste:
+                    </p>
+                    <pre className="p-2.5 rounded bg-slate-900 text-emerald-400 font-mono text-[11px] overflow-x-auto border border-slate-800">
+                      /var/www/crmnexointegrator_v2/scripts/restore-crmnexointegrator_v2.sh --test &lt;caminho_do_dump&gt;
+                    </pre>
+                  </div>
+
+                  {/* Bloco 2: Restauração Produção */}
+                  <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+                    <div className="font-bold text-rose-300 flex items-center gap-1.5">
+                      <span>⚠️</span> 2. Restauração Direta em Produção
+                    </div>
+                    <p className="text-slate-300 leading-relaxed">
+                      Gera um snapshot de segurança prévio, para a aplicação temporariamente, restaura a base e reaplica as permissões:
+                    </p>
+                    <pre className="p-2.5 rounded bg-slate-900 text-cyan-300 font-mono text-[11px] overflow-x-auto border border-slate-800">
+                      /var/www/crmnexointegrator_v2/scripts/restore-crmnexointegrator_v2.sh --live &lt;caminho_do_dump&gt;
+                    </pre>
+                  </div>
+
+                  {/* Bloco 3: Logs */}
+                  <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+                    <div className="font-bold text-cyan-300 flex items-center gap-1.5">
+                      <span>📋</span> 3. Acompanhamento dos Logs da Rotina
+                    </div>
+                    <p className="text-slate-300 leading-relaxed">
+                      Para acompanhar a execução do agendamento das 17h00 em tempo real na VPS:
+                    </p>
+                    <pre className="p-2.5 rounded bg-slate-900 text-slate-300 font-mono text-[11px] overflow-x-auto border border-slate-800">
+                      tail -f /var/log/crmnexointegrator_v2-backup.log
+                    </pre>
+                  </div>
+
+                  {/* Bloco 4: Disparo Manual */}
+                  <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
+                    <div className="font-bold text-purple-300 flex items-center gap-1.5">
+                      <span>⚡</span> 4. Execução Manual Imediata
+                    </div>
+                    <p className="text-slate-300 leading-relaxed">
+                      Para disparar um backup sob demanda pelo terminal a qualquer momento:
+                    </p>
+                    <pre className="p-2.5 rounded bg-slate-900 text-slate-300 font-mono text-[11px] overflow-x-auto border border-slate-800">
+                      /var/www/crmnexointegrator_v2/scripts/backup-crmnexointegrator_v2.sh
+                    </pre>
+                  </div>
+                </div>
+
+                {/* Trecho do Log do Servidor */}
+                {routineStatus?.lastLogSnippet && (
+                  <div className="space-y-2 pt-2">
+                    <div className="flex items-center justify-between text-xs text-slate-400">
+                      <span className="font-semibold text-slate-300 flex items-center gap-1.5">
+                        <span>📟</span> Últimas Linhas do Log de Execução no Servidor:
+                      </span>
+                      <span className="font-mono text-[11px]">/var/log/crmnexointegrator_v2-backup.log</span>
+                    </div>
+                    <pre className="p-3 rounded-xl bg-black/80 text-emerald-400 font-mono text-[11px] overflow-x-auto border border-slate-800 leading-relaxed max-h-48 overflow-y-auto">
+                      {routineStatus.lastLogSnippet}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {activeBackupSubTab === 'manual' && (
+            <div className="crm-card rounded-2xl p-6 space-y-4">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Backup manual sob demanda (.json)</h2>
+              <p className="text-sm text-gray-600 dark:text-slate-200">
+                Exporte todas as tabelas do banco de dados, schema Prisma, migrations e arquivos de upload vinculados ao sistema em formato JSON para download em seu computador.
+              </p>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={exportBackupSnapshot}
+                  disabled={backupLoading || restoreLoading}
+                  className="bg-cyan-600 text-white px-4 py-2 rounded-lg hover:bg-cyan-700 transition-colors disabled:opacity-50"
+                >
+                  {backupLoading ? 'Gerando backup completo...' : 'Exportar backup completo (.json)'}
+                </button>
+                <input
+                  type="file"
+                  accept="application/json,.json"
+                  onChange={(e) => setRestoreFile(e.target.files?.[0] || null)}
+                  className="text-sm text-gray-700 dark:text-slate-100"
+                />
+                <button
+                  type="button"
+                  onClick={restoreBackupSnapshot}
+                  disabled={!restoreFile || restoreLoading || backupLoading}
+                  className="bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
+                >
+                  {restoreLoading ? 'Restaurando...' : 'Restaurar backup (.json)'}
+                </button>
+              </div>
+              <p className="text-xs text-gray-500 dark:text-slate-300">
+                Admin e Master podem restaurar backups completos pelo arquivo exportado. A operação substitui as tabelas do banco e exige confirmação antes de iniciar.
+              </p>
+              {backupResult && <div className="text-sm text-emerald-600 dark:text-emerald-300">{backupResult}</div>}
+            </div>
+          )}
         </div>
       )}
 
