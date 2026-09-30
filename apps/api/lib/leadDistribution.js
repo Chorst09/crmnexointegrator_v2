@@ -19,16 +19,77 @@ const normalizeExcludedSellerIds = (excludeSellerIds = []) => {
   return [...new Set(excludeSellerIds.map((id) => String(id || '').trim()).filter(Boolean))];
 };
 
-// Função para obter vendedores disponíveis
+// User.region e uma relacao (Region), nao um campo escalar. Passar a regiao como
+// string em `where.region` faz o Prisma lancar e a busca inteira e descartada.
+const buildRegionFilter = (region) => {
+  const value = String(region || '').trim();
+  if (!value) return undefined;
+  return {
+    OR: [
+      { code: { equals: value, mode: 'insensitive' } },
+      { state: { equals: value, mode: 'insensitive' } },
+      { name: { equals: value, mode: 'insensitive' } }
+    ]
+  };
+};
+
+// UFs -> macrorregioes, para casar Company.state com Region.code
+const STATE_TO_REGION = {
+  SP: 'SUDESTE', RJ: 'SUDESTE', MG: 'SUDESTE', ES: 'SUDESTE',
+  RS: 'SUL', SC: 'SUL', PR: 'SUL',
+  GO: 'CENTRO_OESTE', MT: 'CENTRO_OESTE', MS: 'CENTRO_OESTE', DF: 'CENTRO_OESTE',
+  BA: 'NORDESTE', PE: 'NORDESTE', CE: 'NORDESTE', MA: 'NORDESTE', PI: 'NORDESTE',
+  RN: 'NORDESTE', PB: 'NORDESTE', SE: 'NORDESTE', AL: 'NORDESTE',
+  AM: 'NORTE', PA: 'NORTE', AC: 'NORTE', RO: 'NORTE', RR: 'NORTE', AP: 'NORTE', TO: 'NORTE'
+};
+
+const resolveRegionFromState = (state) => {
+  const uf = String(state || '').trim().toUpperCase();
+  return STATE_TO_REGION[uf] || null;
+};
+
+// Region.code guarda tanto UF (SP) quanto macrorregiao (SUL). Testa a UF antes da
+// macrorregiao para respeitar o cadastro de regioes existente.
+const resolveRegionCandidates = (state) => {
+  const uf = String(state || '').trim().toUpperCase();
+  const macro = STATE_TO_REGION[uf];
+  return [uf, macro].filter(Boolean);
+};
+
+// Retorna o vendedor com menos oportunidades ativas do pool informado
+const pickLeastLoaded = (sellers) =>
+  sellers.reduce((min, seller) =>
+    seller.activeOpportunities < min.activeOpportunities ? seller : min
+  );
+
+// Busca o pool de vendedores de uma regiao e, se nao houver nenhum, tenta os
+// candidatos restantes e por fim o pool geral. Devolve [] (sem lancar) para a
+// estrategia poder degradar sem quebrar a conversao.
+const resolveSellerPool = async (region, options) => {
+  const candidates = (Array.isArray(region) ? region : [region])
+    .map((value) => String(value || '').trim())
+    .filter(Boolean);
+
+  for (const candidate of candidates) {
+    const sellers = await getAvailableSellers(candidate, options);
+    if (sellers.length > 0) return sellers;
+  }
+
+  // Sem candidatos (region nulo) ou sem seller em nenhum deles: pool geral
+  return getAvailableSellers(null, options);
+};
+
+// Funcao para obter vendedores disponiveis
 export async function getAvailableSellers(region = null, options = {}) {
   try {
     const excludedSellerIds = normalizeExcludedSellerIds(options.excludeSellerIds);
     const where = {
       role: 'SELLER'
     };
-    
-    if (region) {
-      where.region = region;
+
+    const regionFilter = buildRegionFilter(region);
+    if (regionFilter) {
+      where.region = regionFilter;
     }
 
     if (excludedSellerIds.length > 0) {
@@ -72,21 +133,23 @@ export async function getAvailableSellers(region = null, options = {}) {
   }
 }
 
-// Distribuição Round Robin
+// Distribuicao Round Robin. Devolve null quando nao ha vendedor elegivel.
 export async function distributeRoundRobin(companyId, region = null, options = {}) {
   try {
-    const sellers = await getAvailableSellers(region, options);
-    
+    const sellers = await resolveSellerPool(region, options);
+
     if (sellers.length === 0) {
-      throw new Error('Nenhum vendedor disponível');
+      return null;
     }
+
+    const regionFilter = buildRegionFilter(region);
 
     // Buscar o último vendedor que recebeu um lead
     const lastAssignment = await prisma.opportunity.findFirst({
       where: {
         owner: {
           role: 'SELLER',
-          ...(region && { region })
+          ...(regionFilter ? { region: regionFilter } : {})
         }
       },
       include: {
@@ -111,21 +174,17 @@ export async function distributeRoundRobin(companyId, region = null, options = {
   }
 }
 
-// Distribuição por Balanceamento de Carga
+// Distribuicao por Balanceamento de Carga. Devolve null quando nao ha vendedor elegivel.
 export async function distributeLoadBalance(companyId, region = null, options = {}) {
   try {
-    const sellers = await getAvailableSellers(region, options);
-    
+    const sellers = await resolveSellerPool(region, options);
+
     if (sellers.length === 0) {
-      throw new Error('Nenhum vendedor disponível');
+      return null;
     }
 
     // Encontrar o vendedor com menos oportunidades ativas
-    const sellerWithLeastLoad = sellers.reduce((min, seller) => 
-      seller.activeOpportunities < min.activeOpportunities ? seller : min
-    );
-
-    return sellerWithLeastLoad;
+    return pickLeastLoaded(sellers);
   } catch (error) {
     console.error('Erro na distribuição por carga:', error);
     throw error;
@@ -145,40 +204,9 @@ export async function distributeRegionBased(companyId, options = {}) {
       return await distributeRoundRobin(companyId, null, options);
     }
 
-    // Mapear estados para regiões
-    const regionMapping = {
-      'SP': 'SUDESTE',
-      'RJ': 'SUDESTE',
-      'MG': 'SUDESTE',
-      'ES': 'SUDESTE',
-      'RS': 'SUL',
-      'SC': 'SUL',
-      'PR': 'SUL',
-      'GO': 'CENTRO_OESTE',
-      'MT': 'CENTRO_OESTE',
-      'MS': 'CENTRO_OESTE',
-      'DF': 'CENTRO_OESTE',
-      'BA': 'NORDESTE',
-      'PE': 'NORDESTE',
-      'CE': 'NORDESTE',
-      'MA': 'NORDESTE',
-      'PI': 'NORDESTE',
-      'RN': 'NORDESTE',
-      'PB': 'NORDESTE',
-      'SE': 'NORDESTE',
-      'AL': 'NORDESTE',
-      'AM': 'NORTE',
-      'PA': 'NORTE',
-      'AC': 'NORTE',
-      'RO': 'NORTE',
-      'RR': 'NORTE',
-      'AP': 'NORTE',
-      'TO': 'NORTE'
-    };
+    const region = resolveRegionCandidates(company.state);
 
-    const region = regionMapping[company.state];
-    
-    if (region) {
+    if (region.length > 0) {
       // Tentar distribuir para vendedor da região
       const regionalSeller = await distributeLoadBalance(companyId, region, options);
       if (regionalSeller) {
@@ -206,8 +234,10 @@ export async function distributeScoreBased(companyId, options = {}) {
       throw new Error('Empresa não encontrada');
     }
 
-    const sellers = await getAvailableSellers(null, options);
-    
+    // Prioriza o pool da região do lead, com queda para o pool geral
+    const region = resolveRegionCandidates(company.state);
+    const sellers = await resolveSellerPool(region, options);
+
     if (sellers.length === 0) {
       throw new Error('Nenhum vendedor disponível');
     }
@@ -226,11 +256,11 @@ export async function distributeScoreBased(companyId, options = {}) {
 
     // Para leads de score médio (40-69), usar balanceamento de carga
     if (company.leadScore >= 40) {
-      return await distributeLoadBalance(companyId, company.state, options);
+      return await distributeLoadBalance(companyId, region, options);
     }
 
     // Para leads de baixo score (<40), usar round robin
-    return await distributeRoundRobin(companyId, company.state, options);
+    return await distributeRoundRobin(companyId, region, options);
   } catch (error) {
     console.error('Erro na distribuição por score:', error);
     throw error;
@@ -268,7 +298,7 @@ export async function distributeLeadToSeller(
     }
 
     if (!assignedSeller) {
-      throw new Error('Não foi possível atribuir vendedor');
+      throw new Error('Nenhum vendedor disponível');
     }
 
     return assignedSeller;

@@ -79,6 +79,7 @@ const PRIORITY_META = {
 };
 
 const DESTINATION_OPTIONS = [
+  { value: 'B2B', label: 'B2B Privado' },
   { value: 'PRE_VENDAS', label: 'Pré-Vendas' },
   { value: 'SDR', label: 'SDR' },
   { value: 'DIRETORIA_COMERCIAL', label: 'Diretoria Comercial' },
@@ -216,7 +217,7 @@ export default function Atividades() {
     opportunityId: '',
     assignedToId: '',
     sourceArea: 'COMERCIAL',
-    targetArea: 'PRE_VENDAS'
+    targetArea: 'B2B'
   });
 
   const [empresas, setEmpresas] = useState([]);
@@ -516,7 +517,7 @@ export default function Atividades() {
       opportunityId: '',
       assignedToId: '',
       sourceArea: 'COMERCIAL',
-      targetArea: 'PRE_VENDAS'
+      targetArea: 'B2B'
     });
   };
 
@@ -662,7 +663,7 @@ export default function Atividades() {
 
     const nextType = searchParams.get('type') || 'TASK';
     const nextSourceArea = searchParams.get('sourceArea') || 'COMERCIAL';
-    const nextTargetArea = searchParams.get('targetArea') || (nextType === BUDGET_REQUEST_TYPE ? 'PRE_VENDAS' : '');
+    const nextTargetArea = searchParams.get('targetArea') || (nextType === BUDGET_REQUEST_TYPE ? 'PRE_VENDAS' : 'B2B');
     const nextCompanyId = searchParams.get('companyId') || '';
     const nextOpportunityId = searchParams.get('opportunityId') || '';
     const nextSubject = searchParams.get('subject') || '';

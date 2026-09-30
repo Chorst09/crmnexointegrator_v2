@@ -1,0 +1,21 @@
+services:
+  nexosv2integrator:
+    image: postgres:15-alpine
+    container_name: nexosv2integrator
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: nexoscrm
+    volumes:
+      - nexosv2_local_data:/var/lib/postgresql/data
+    ports:
+      - "5436:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d nexoscrm"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  nexosv2_local_data:
