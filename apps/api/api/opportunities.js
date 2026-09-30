@@ -380,7 +380,7 @@ export default async function handler(req) {
       return new Response('Sem acesso ao módulo desta oportunidade', { status: 403 });
     }
 
-    const resolvedOwnerId = canSeeAllOpportunities(req.user) ? body.ownerId : req.user.userId;
+    const resolvedOwnerId = (canSeeAllOpportunities(req.user) && body.ownerId) ? body.ownerId : (req.user?.userId || req.user?.id);
     if (!resolvedOwnerId) {
       return new Response('ownerId é obrigatório', { status: 400 });
     }
