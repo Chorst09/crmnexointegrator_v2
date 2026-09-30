@@ -487,12 +487,10 @@ async function executeB2BTestFlow(user = null, options = {}) {
         opportunityId: opportunity.id,
         companyId: company.id,
         ownerId: userId,
-        scheduledDate: kickoffDate.toISOString(),
-        durationMinutes: 60,
+        scheduledDate: kickoffDate,
         platform: 'MEET',
         meetingLink: 'https://meet.google.com/nex-b2b-test',
-        meetingNotes: 'Reunião de alinhamento com cliente: apresentação das equipes de implantação, validação de cronograma físico e canais de escalonamento.',
-        tenantCompanyId
+        meetingNotes: 'Reunião de alinhamento com cliente: apresentação das equipes de implantação, validação de cronograma físico e canais de escalonamento.'
       }
     });
 
@@ -508,19 +506,17 @@ async function executeB2BTestFlow(user = null, options = {}) {
 
     await prisma.kickoffChecklistItem.createMany({
       data: [
-        { meetingId: kickoffMeeting.id, title: 'Contrato comercial e proposta aceita anexados', category: 'COMERCIAL', order: 1, isCompleted: true },
-        { meetingId: kickoffMeeting.id, title: 'Topologia e dimensionamento da Pré-Vendas validados', category: 'TECNICO', order: 2, isCompleted: true },
-        { meetingId: kickoffMeeting.id, title: 'Verificação de espaço em rack e energia no cliente', category: 'INFRAESTRUTURA', order: 3, isCompleted: false },
-        { meetingId: kickoffMeeting.id, title: 'Criação de credenciais de acesso ao console NGFW', category: 'ACESSO', order: 4, isCompleted: false }
+        { meetingId: kickoffMeeting.id, title: 'Contrato comercial e proposta aceita anexados', order: 1, isCompleted: true },
+        { meetingId: kickoffMeeting.id, title: 'Topologia e dimensionamento da Pré-Vendas validados', order: 2, isCompleted: true },
+        { meetingId: kickoffMeeting.id, title: 'Verificação de espaço em rack e energia no cliente', order: 3, isCompleted: false },
+        { meetingId: kickoffMeeting.id, title: 'Criação de credenciais de acesso ao console NGFW', order: 4, isCompleted: false }
       ]
     });
 
     await prisma.kickoffParticipant.createMany({
       data: [
-        { meetingId: kickoffMeeting.id, name: 'Executivo Comercial (Vendas)', email: 'comercial@doubletelecom.com.br', role: 'ORGANIZER', attendanceStatus: 'CONFIRMED' },
-        { meetingId: kickoffMeeting.id, name: 'Engenheiro de Pré-Vendas', email: 'prevendas@doubletelecom.com.br', role: 'PRESENTER', attendanceStatus: 'CONFIRMED' },
-        { meetingId: kickoffMeeting.id, name: 'Gerente de Projetos (PM)', email: 'projetos@doubletelecom.com.br', role: 'MODERATOR', attendanceStatus: 'CONFIRMED' },
-        { meetingId: kickoffMeeting.id, name: `${contact.name} (Cliente)`, email: contact.email, role: 'CLIENT', attendanceStatus: 'INVITED' }
+        { meetingId: kickoffMeeting.id, userId, role: 'ORGANIZADOR', status: 'CONFIRMADO', isRequired: true },
+        { meetingId: kickoffMeeting.id, contactId: contact.id, role: 'EXTERNO', status: 'CONVIDADO', isRequired: true }
       ]
     });
   }

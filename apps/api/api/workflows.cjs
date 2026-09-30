@@ -7,6 +7,13 @@ const router = express.Router();
 
 const getWorkflowDelegate = () => prisma.workflow || prisma.advancedWorkflow || null;
 const getAutomationRuleDelegate = () => prisma.automationRule || null;
+const getAutomationRuleOrderBy = () => {
+  const fields = prisma.automationRule?.fields;
+  if (fields?.createdAt) return { createdAt: 'desc' };
+  if (fields?.lastRun) return { lastRun: { sort: 'desc', nulls: 'last' } };
+  if (fields?.name) return { name: 'asc' };
+  return undefined;
+};
 const emptyPagination = (page, limit) => ({
   page: parseInt(page),
   limit: parseInt(limit),
@@ -183,7 +190,7 @@ router.get('/automation-rules', authenticateToken, async (req, res) => {
     const [rules, total] = await Promise.all([
       automationRuleDelegate.findMany({
         where,
-        orderBy: { createdAt: 'desc' },
+        ...(getAutomationRuleOrderBy() ? { orderBy: getAutomationRuleOrderBy() } : {}),
         skip,
         take: parseInt(limit)
       }),
