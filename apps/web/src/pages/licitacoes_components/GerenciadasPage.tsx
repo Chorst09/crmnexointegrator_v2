@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Briefcase, Search, ExternalLink, Calendar, MapPin, Building2, Clock, Trash2, CheckCircle2, TrendingUp } from 'lucide-react';
 import { Licitacao } from './types';
 import { cn } from './utils';
@@ -20,6 +21,7 @@ const getAuthHeaders = () => {
 };
 
 export function GerenciadasPage() {
+  const navigate = useNavigate();
   const [gerenciadas, setGerenciadas] = useState<ManagedLicitacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [leads, setLeads] = useState<any[]>([]);
@@ -138,7 +140,10 @@ export function GerenciadasPage() {
   const handleOpportunitySaved = () => {
     setIsOpportunityModalOpen(false);
     setSelectedBiddingOpportunity(null);
-    alert('Oportunidade B2G criada com sucesso!');
+    fetchGerenciadas();
+    if (window.confirm('Oportunidade B2G salva com sucesso no sistema!\n\nDeseja abrir a tela de Oportunidades B2G (Pipeline/Kanban) agora?')) {
+      navigate('/b2g-oportunidades');
+    }
   };
 
   const fases = ['Análise', 'Preparação', 'Proposta Enviada', 'Ganha', 'Perdida'];

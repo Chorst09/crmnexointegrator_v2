@@ -863,7 +863,11 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
         probability: parseMoneyInput(form.winProbability) || 50,
         stage: isCreateMode ? 'QUALIFICATION' : preservedPipelineStage,
         source: 'MANUAL',
-        companyId, ownerId: user?.id || '', clientType: 'B2G',
+        companyId: (companyId && !String(companyId).startsWith('virtual-')) ? companyId : undefined,
+        companyName: form.agency,
+        agency: form.agency,
+        ownerId: user?.id || '',
+        clientType: 'B2G',
         b2gStage: isCreateMode ? initialKanbanStage : preservedKanbanStage
       };
       console.log('[B2GOpportunityEditModal] Salvando oportunidade:', { mode, id: opportunity?.id, clientType: 'B2G' });

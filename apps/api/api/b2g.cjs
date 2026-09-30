@@ -57,8 +57,24 @@ const getPrismaModelFields = (modelName) => {
 };
 
 const prismaModelHasField = (modelName, fieldName) => {
+  if (modelName === 'Opportunity' && fieldName === 'clientType') {
+    return false;
+  }
   const fields = getPrismaModelFields(modelName);
-  return fields.size === 0 || fields.has(fieldName);
+  if (fields.size > 0) {
+    return fields.has(fieldName);
+  }
+  if (modelName === 'Opportunity') {
+    const oppFields = new Set([
+      'id', 'number', 'title', 'projectName', 'projectClientType', 'projectType',
+      'projectMonths', 'description', 'value', 'probability', 'stage', 'b2gStage',
+      'source', 'expectedCloseDate', 'actualCloseDate', 'lossReason',
+      'stageDecisionDetails', 'notes', 'companyId', 'ownerId', 'tenantCompanyId',
+      'createdAt', 'updatedAt'
+    ]);
+    return oppFields.has(fieldName);
+  }
+  return true;
 };
 
 const generateOpportunityNumber = async (clientType = 'B2G') => {

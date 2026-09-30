@@ -397,6 +397,71 @@ export default async function handler(req) {
       : resolveStageDecisionLossReason(stageDecisionDetails);
     
     const opportunity = await prisma.$transaction(async (tx) => {
+      // Garantir que companyId seja um ID válido no banco para não falhar a FK
+      let resolvedCompanyId = body.companyId;
+      const agencyName = (
+        body.companyName ||
+        body.agency ||
+        body.company?.name ||
+        (() => {
+          try {
+            const desc = typeof body.description === 'string' ? JSON.parse(body.description) : body.description;
+            return desc?.agency || desc?.orgao || null;
+          } catch { return null; }
+        })() ||
+        ''
+      ).trim();
+
+      let targetCompany = null;
+      if (resolvedCompanyId && !String(resolvedCompanyId).startsWith('virtual-')) {
+        targetCompany = await tx.company.findFirst({
+          where: {
+            id: resolvedCompanyId,
+            ...(req.user?.tenantCompanyId ? { tenantCompanyId: req.user.tenantCompanyId } : {})
+          }
+        });
+      }
+
+      if (!targetCompany && agencyName) {
+        targetCompany = await tx.company.findFirst({
+          where: {
+            name: { equals: agencyName, mode: 'insensitive' },
+            ...(req.user?.tenantCompanyId ? { tenantCompanyId: req.user.tenantCompanyId } : {})
+          }
+        });
+      }
+
+      if (!targetCompany && agencyName) {
+        targetCompany = await tx.company.create({
+          data: {
+            name: agencyName,
+            clientType: clientType === 'B2G' ? 'B2G' : 'B2B',
+            segment: clientType === 'B2G' ? 'B2G GOVERNO' : 'B2B',
+            status: 'PROSPECT',
+            tenantCompanyId: req.user?.tenantCompanyId || null
+          }
+        });
+      }
+
+      if (!targetCompany) {
+        targetCompany = await tx.company.findFirst({
+          where: req.user?.tenantCompanyId ? { tenantCompanyId: req.user.tenantCompanyId } : {}
+        });
+        if (!targetCompany) {
+          targetCompany = await tx.company.create({
+            data: {
+              name: clientType === 'B2G' ? 'Órgão Público B2G' : 'Cliente Corporativo B2B',
+              clientType: clientType === 'B2G' ? 'B2G' : 'B2B',
+              segment: clientType === 'B2G' ? 'B2G GOVERNO' : 'B2B',
+              status: 'PROSPECT',
+              tenantCompanyId: req.user?.tenantCompanyId || null
+            }
+          });
+        }
+      }
+
+      resolvedCompanyId = targetCompany.id;
+
       const number = body.number || await generateOpportunityNumber(tx, clientType);
       const created = await tx.opportunity.create({
         data: {
@@ -417,7 +482,7 @@ export default async function handler(req) {
           lossReason,
           stageDecisionDetails,
           notes: body.notes,
-          companyId: body.companyId,
+          companyId: resolvedCompanyId,
           ownerId: resolvedOwnerId,
           tenantCompanyId: req.user?.tenantCompanyId || null,
           products: body.products ? {
