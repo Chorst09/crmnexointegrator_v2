@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/use-auth';
 import { Proposal, Partner } from '@/lib/types';
 import ProposalsView from '@/components/proposals/ProposalsView';
 import { Phone, Server, Wifi, Radio, TrendingUp, Target, Maximize2, Minimize2, Loader2, RefreshCcw } from 'lucide-react';
+import '../../../components/PipelineDashboardModel.css';
 import {
   BarChart,
   Bar,
@@ -39,60 +40,60 @@ const FUNNEL_LAYER_STYLE = [
   {
     key: 'simulations',
     label: 'Simulações',
-    color: '#0ea5e9',
-    edge: '#38bdf8',
+    palette: ['#ff4b42', '#db1f25', '#7f1018'],
+    width: 100,
     temperatures: [0, 25],
   },
   {
     key: 'qualification',
     label: 'Qualificação',
-    color: '#2563eb',
-    edge: '#60a5fa',
+    palette: ['#ff9950', '#e35d22', '#853013'],
+    width: 88,
     temperatures: [25],
   },
   {
     key: 'diagnosis',
     label: 'Diagnóstico Técnico',
-    color: '#0f9f8f',
-    edge: '#2dd4bf',
+    palette: ['#fff4a6', '#e4d66e', '#837934'],
+    width: 78,
     temperatures: [50],
   },
   {
     key: 'proposal',
     label: 'Proposta Gerada',
-    color: '#f59e0b',
-    edge: '#fbbf24',
+    palette: ['#c0e867', '#83bd38', '#41691d'],
+    width: 68,
     temperatures: [50, 75],
   },
   {
     key: 'negotiation',
     label: 'Negociação',
-    color: '#ea580c',
-    edge: '#fb923c',
+    palette: ['#36d9e5', '#16aaba', '#0d5d69'],
+    width: 56,
     temperatures: [75],
   },
   {
     key: 'won',
     label: 'Aprovadas',
-    color: '#16a34a',
-    edge: '#4ade80',
+    palette: ['#34d399', '#16a34a', '#14532d'],
+    width: 45,
     temperatures: [100],
   },
   {
     key: 'lost',
     label: 'Perdidas',
-    color: '#64748b',
-    edge: '#94a3b8',
+    palette: ['#ef4444', '#b91c1c', '#7f1d1d'],
+    width: 35,
     temperatures: [0],
   },
 ] as const;
 
 const TEMPERATURE_LEVELS = [
-  { value: 0, label: 'Frio / rascunho', color: '#ff436d' },
-  { value: 25, label: 'Cotação inicial', color: '#fff176' },
-  { value: 50, label: 'Qualificada', color: '#4ade80' },
-  { value: 75, label: 'Quente / em proposta', color: '#20d4f5' },
-  { value: 100, label: 'Aprovada / fechada', color: '#a855f7' },
+  { value: 0, label: 'Frio', color: '#ef4444' },
+  { value: 25, label: 'Amarelo Claro', color: '#fef08a' },
+  { value: 50, label: 'Verde / Qualificado', color: '#22c55e' },
+  { value: 75, label: 'Ciano / Quente', color: '#22d3ee' },
+  { value: 100, label: 'Fechado', color: '#a855f7' },
 ] as const;
 
 const FORECAST_STEP_LEVELS = [0, 25, 50, 75, 100] as const;
@@ -475,15 +476,21 @@ const DashboardView = () => {
       fechados,
       perdidos,
     ];
-    const widths = [100, 91, 82, 72, 62, 50, 36];
     const base = Math.max(total, 1);
+    const maxStageWidth = 510;
+    const stageHeight = 44;
 
-    return FUNNEL_LAYER_STYLE.map((stage, index) => ({
-      ...stage,
-      value: values[index],
-      percent: (values[index] / base) * 100,
-      width: widths[index],
-    }));
+    return FUNNEL_LAYER_STYLE.map((stage, index) => {
+      const renderedWidth = (stage.width / 100) * maxStageWidth;
+      return {
+        ...stage,
+        value: values[index],
+        percent: Math.round((values[index] / base) * 100),
+        renderedWidth,
+        y: 18 + index * (stageHeight + 4),
+        height: stageHeight,
+      };
+    });
   }, [filteredMonthProposals, salesFunnelData]);
 
   const funnelSummary = useMemo(() => {
@@ -1065,189 +1072,241 @@ const DashboardView = () => {
         ))}
       </div>
 
-      {/* ── FUNIL + TEMPERATURA ── */}
+      {/* ── FUNIL ESTRATÉGICO 3D + TERMÔMETRO DO PIPELINE ── */}
       <div
-        className="anim-card overflow-hidden rounded-lg border shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)]"
+        className="anim-card overflow-hidden rounded-2xl border border-slate-700/60 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)]"
         style={{
           ...simulatorPanelStyle,
           animationDelay: "140ms",
           background:
-            'radial-gradient(circle at 18% 16%, rgba(32,212,245,0.18), transparent 34%), radial-gradient(circle at 78% 12%, rgba(255,111,15,0.14), transparent 32%), linear-gradient(135deg, rgba(18,31,54,0.98) 0%, rgba(9,14,27,0.98) 48%, rgba(14,25,48,0.98) 100%)',
+            'radial-gradient(circle at 18% 16%, rgba(32,212,245,0.14), transparent 34%), radial-gradient(circle at 78% 12%, rgba(255,111,15,0.12), transparent 32%), linear-gradient(135deg, rgba(14,23,42,0.98) 0%, rgba(9,14,27,0.98) 50%, rgba(11,20,38,0.98) 100%)',
         }}
       >
-        <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_300px]">
-          <section className="relative min-h-[400px] overflow-hidden px-5 py-6 md:px-8">
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(150deg,rgba(14,165,233,0.10),transparent_38%,rgba(245,158,11,0.08)_72%,transparent)]" />
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.06] to-transparent" />
-            <div className="relative z-10 mb-5 flex items-start justify-between gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px]">
+          {/* Coluna Esquerda: Funil Cônico 3D */}
+          <section className="relative min-h-[420px] overflow-hidden px-4 py-5 sm:px-6 md:px-8">
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(150deg,rgba(14,165,233,0.08),transparent_38%,rgba(245,158,11,0.06)_72%,transparent)]" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.04] to-transparent" />
+            
+            <div className="relative z-10 mb-4 flex items-start justify-between gap-4">
               <div>
-                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#ff6f0f]">Simulator Funnel</p>
-                <h3 className="text-xl font-black uppercase leading-tight text-[#f4f7fb] md:text-2xl">Funil de Simulações Estratégico</h3>
-                <p className="mt-1 text-sm font-semibold text-[#8f9caf]">Da calculadora aberta até a proposta aprovada</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#ff6f0f]">Pipeline Comercial</p>
+                <h3 className="text-xl font-black uppercase leading-tight text-[#f4f7fb] md:text-2xl">Funil de Simulações B2B</h3>
+                <p className="mt-0.5 text-xs font-semibold text-[#8f9caf]">Propostas e simulações por etapa comercial</p>
               </div>
               <div className="rounded-lg border border-[#ff6f0f40] bg-[#ff6f0f12] p-2.5">
                 <Target className="h-5 w-5 text-[#ff6f0f]" />
               </div>
             </div>
 
-            <div className="relative z-10 mx-auto flex max-w-[610px] flex-col items-center pt-2">
+            <div className="relative z-10 flex h-[360px] w-full items-center justify-center overflow-hidden">
               {selectedTemperatureValue !== null && (
                 <div
-                  className="mb-3 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em]"
+                  className="absolute right-2 top-0 z-10 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] shadow-lg"
                   style={{
                     borderColor: visualTemperatureLevel.color,
                     color: visualTemperatureLevel.color,
-                    background: 'rgba(3,8,18,0.72)',
-                    boxShadow: `0 0 22px ${visualTemperatureLevel.color}44`,
+                    background: 'rgba(3,8,18,0.78)',
+                    boxShadow: `0 0 22px ${visualTemperatureLevel.color}55`,
                   }}
                 >
                   Temp. {visualTemperaturePercent}%
                 </div>
               )}
-              {funnelVisualData.map((item, index) => {
-                const layerHeight = index === 0 ? 52 : 48;
-                const textTone = item.key === 'proposal' ? '#172033' : '#ffffff';
-                const isTemperatureFiltered = selectedTemperatureValue !== null;
-                const isHighlighted = isTemperatureFiltered && item.temperatures.includes(selectedTemperatureValue);
-                const stageOpacity = isTemperatureFiltered && !isHighlighted ? 0.34 : 1;
-                const selectedGlow = visualTemperatureLevel.color;
 
-                return (
-                  <div
-                    key={item.key}
-                    className="-mt-1.5 first:mt-0 w-full transition-all duration-500"
-                    style={{
-                      maxWidth: `${item.width}%`,
-                      opacity: stageOpacity,
-                      filter: isHighlighted
-                        ? `drop-shadow(0 0 10px ${selectedGlow}) drop-shadow(0 12px 18px ${selectedGlow}66)`
-                        : `drop-shadow(0 12px 14px ${item.color}24)`,
-                    }}
-                  >
-                    <div
-                      className="relative mx-auto"
-                      style={{ height: layerHeight }}
+              <svg
+                viewBox="0 0 620 360"
+                className="h-full w-full max-w-[660px]"
+                preserveAspectRatio="xMidYMid meet"
+                role="img"
+                aria-label="Funil de simulações B2B em sete etapas"
+              >
+                <defs>
+                  {funnelVisualData.map((stage) => (
+                    <React.Fragment key={stage.key}>
+                      <linearGradient id={`sim-front-${stage.key}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor={stage.palette[2]} />
+                        <stop offset="17%" stopColor={stage.palette[1]} />
+                        <stop offset="50%" stopColor={stage.palette[0]} />
+                        <stop offset="83%" stopColor={stage.palette[1]} />
+                        <stop offset="100%" stopColor={stage.palette[2]} />
+                      </linearGradient>
+                      <linearGradient id={`sim-rim-${stage.key}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor={stage.palette[0]} />
+                        <stop offset="48%" stopColor={stage.palette[1]} />
+                        <stop offset="100%" stopColor={stage.palette[2]} />
+                      </linearGradient>
+                      <linearGradient id={`sim-depth-${stage.key}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#000000" stopOpacity="0" />
+                        <stop offset="100%" stopColor="#020713" stopOpacity="0.58" />
+                      </linearGradient>
+                    </React.Fragment>
+                  ))}
+                  <filter id="sim-stage-shadow" x="-20%" y="-25%" width="140%" height="175%">
+                    <feDropShadow dx="0" dy="6" stdDeviation="4.5" floodColor="#01040c" floodOpacity="0.65" />
+                  </filter>
+                  <filter id="sim-selected-glow" x="-25%" y="-35%" width="150%" height="190%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor={visualTemperatureLevel.color || '#22d3ee'} floodOpacity="0.95" />
+                    <feDropShadow dx="0" dy="0" stdDeviation="12" floodColor={visualTemperatureLevel.color || '#22d3ee'} floodOpacity="0.55" />
+                  </filter>
+                </defs>
+
+                {funnelVisualData.map((stage, index) => {
+                  const centerX = 310;
+                  const nextWidth = funnelVisualData[index + 1]?.renderedWidth || stage.renderedWidth * 0.72;
+                  const bottomWidth = Math.min(stage.renderedWidth - 10, nextWidth + 12);
+                  const topLeft = centerX - stage.renderedWidth / 2;
+                  const topRight = centerX + stage.renderedWidth / 2;
+                  const bottomLeft = centerX - bottomWidth / 2;
+                  const bottomRight = centerX + bottomWidth / 2;
+                  const topY = stage.y;
+                  const bottomY = topY + stage.height;
+                  const textColor = stage.key === 'diagnosis' ? '#27303b' : '#ffffff';
+                  const isTemperatureFiltered = selectedTemperatureValue !== null;
+                  const isHighlighted = isTemperatureFiltered && (stage.temperatures as readonly number[]).includes(selectedTemperatureValue);
+                  const isMuted = isTemperatureFiltered && !isHighlighted;
+                  const stageOpacity = isMuted ? 0.34 : 1;
+                  const strokeColor = isHighlighted ? visualTemperatureLevel.color : stage.palette[2];
+                  const strokeWidth = isHighlighted ? 2.8 : 1.2;
+
+                  return (
+                    <g
+                      key={stage.key}
+                      filter={isHighlighted ? 'url(#sim-selected-glow)' : 'url(#sim-stage-shadow)'}
+                      opacity={stageOpacity}
+                      className="cursor-pointer transition-all duration-300"
                     >
-                      <div
-                        className="absolute inset-x-0 top-0 h-[27px] rounded-[50%] border"
-                        style={{
-                          background: `linear-gradient(180deg, ${item.edge} 0%, ${item.color} 72%)`,
-                          borderColor: isHighlighted ? selectedGlow : `${item.edge}cc`,
-                          boxShadow: isHighlighted
-                            ? `inset 0 3px 0 rgba(255,255,255,0.32), inset 0 -10px 18px rgba(2,6,18,0.2), 0 0 0 2px ${selectedGlow}88`
-                            : `inset 0 3px 0 rgba(255,255,255,0.28), inset 0 -10px 18px rgba(2,6,18,0.2)`,
-                        }}
+                      <title>{`${stage.label}: ${stage.value} proposta${stage.value === 1 ? '' : 's'} (${stage.percent}%)`}</title>
+                      {/* Corpo Cônico Frontal */}
+                      <path
+                        d={`M ${topLeft + 5} ${topY + 2} C ${topLeft + 10} ${topY + 14}, ${bottomLeft - 3} ${bottomY - 13}, ${bottomLeft} ${bottomY - 5} Q ${centerX} ${bottomY + 7} ${bottomRight} ${bottomY - 5} C ${bottomRight + 3} ${bottomY - 13}, ${topRight - 10} ${topY + 14}, ${topRight - 5} ${topY + 2} Z`}
+                        fill={`url(#sim-front-${stage.key})`}
+                        stroke={strokeColor}
+                        strokeWidth={strokeWidth}
                       />
-                      <div
-                        className="absolute left-[5%] right-[5%] top-[13px] h-[27px]"
-                        style={{
-                          clipPath: 'polygon(0 0, 100% 0, 88% 100%, 12% 100%)',
-                          background: isHighlighted
-                            ? `linear-gradient(90deg, ${adjustHexColor(selectedGlow, -0.24)} 0%, ${selectedGlow} 48%, ${adjustHexColor(item.color, -0.18)} 100%)`
-                            : `linear-gradient(90deg, ${adjustHexColor(item.color, -0.22)} 0%, ${item.color} 50%, ${adjustHexColor(item.color, -0.28)} 100%)`,
-                          boxShadow: 'inset 0 -14px 18px rgba(2,6,18,0.26)',
-                        }}
+                      {/* Curvatura Interna de Profundidade */}
+                      <path
+                        d={`M ${bottomLeft} ${bottomY - 8} Q ${centerX} ${bottomY + 8} ${bottomRight} ${bottomY - 8} Q ${centerX} ${bottomY + 15} ${bottomLeft} ${bottomY - 8} Z`}
+                        fill={`url(#sim-depth-${stage.key})`}
+                        opacity="0.8"
                       />
-                      <div
-                        className="absolute left-[11%] right-[11%] top-[16px] h-[11px] rounded-[50%]"
-                        style={{
-                          background: `linear-gradient(180deg, rgba(255,255,255,0.38), ${item.edge}88 70%, transparent)`,
-                        }}
+                      {/* Borda Elíptica Superior */}
+                      <ellipse
+                        cx={centerX}
+                        cy={topY + 2}
+                        rx={stage.renderedWidth / 2}
+                        ry="10"
+                        fill={`url(#sim-rim-${stage.key})`}
+                        stroke={isHighlighted ? visualTemperatureLevel.color : 'rgba(255,255,255,0.42)'}
+                        strokeWidth={isHighlighted ? 2.6 : 1.2}
+                      />
+                      {/* Núcleo Elíptico Escuro da Borda */}
+                      <ellipse
+                        cx={centerX}
+                        cy={topY + 3}
+                        rx={Math.max(stage.renderedWidth / 2 - 10, 24)}
+                        ry="5.5"
+                        fill={stage.palette[2]}
+                        opacity="0.72"
                       />
                       {isHighlighted && (
-                        <div
-                          className="absolute -inset-x-2 top-[-2px] h-[34px] rounded-[50%] border"
-                          style={{
-                            borderColor: `${selectedGlow}dd`,
-                            boxShadow: `0 0 18px ${selectedGlow}77`,
-                          }}
+                        <ellipse
+                          cx={centerX}
+                          cy={topY + 2}
+                          rx={stage.renderedWidth / 2 + 7}
+                          ry="15"
+                          fill="none"
+                          stroke={visualTemperatureLevel.color}
+                          strokeWidth="2"
+                          strokeDasharray="8 7"
+                          opacity="0.9"
                         />
                       )}
-                      <div className="absolute inset-x-4 top-[15px] flex flex-col items-center justify-center text-center leading-tight" style={{ color: textTone }}>
-                        <span className="max-w-full truncate text-sm font-black md:text-base">{item.label}</span>
-                        <span className="text-xs font-black md:text-sm">
-                          {item.value} - {item.percent.toFixed(1).replace('.', ',')}%
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+                      {/* Reflexo de Brilho Especular */}
+                      <path
+                        d={`M ${topLeft + 16} ${topY - 1} Q ${centerX} ${topY - 8} ${topRight - 16} ${topY - 1}`}
+                        fill="none"
+                        stroke="#ffffff"
+                        strokeLinecap="round"
+                        strokeWidth="1.8"
+                        opacity="0.38"
+                      />
+                      {/* Texto com Nome e Porcentagem */}
+                      <text
+                        x={centerX}
+                        y={topY + 26}
+                        textAnchor="middle"
+                        fill={textColor}
+                        fontFamily="Arial, Segoe UI, sans-serif"
+                        fontSize={stage.renderedWidth < 220 ? '12' : stage.renderedWidth < 290 ? '13' : '14'}
+                        fontWeight="800"
+                        paintOrder="stroke"
+                        stroke={textColor === '#ffffff' ? 'rgba(3,8,18,0.38)' : 'transparent'}
+                        strokeWidth="1.2"
+                      >
+                        {`${stage.label} (${stage.percent}%)`}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
             </div>
           </section>
 
-          <aside className="relative border-t border-[#344159] px-5 py-6 xl:border-l xl:border-t-0">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_52%_22%,rgba(168,85,247,0.12),transparent_36%),linear-gradient(180deg,rgba(15,23,42,0.34),rgba(5,9,20,0.2))]" />
-            <div className="relative z-10 flex h-full min-h-[400px] items-center justify-center gap-5">
-              <div className="relative flex h-[330px] w-[74px] flex-col items-center">
-                <div className="relative h-[258px] w-[46px] rounded-full border-[6px] border-[#94a3b8] bg-[#1a2436] shadow-[inset_0_0_0_5px_rgba(7,11,22,0.88),0_16px_28px_rgba(0,0,0,0.42)]">
-                  <div className="absolute inset-x-[13px] bottom-4 top-5 overflow-hidden rounded-full bg-[#4b5563]">
-                    <div
-                      className="absolute inset-x-0 bottom-0 rounded-full"
-                      style={{
-                        height: `${Math.max(visualTemperaturePercent, 4)}%`,
-                        background: `linear-gradient(0deg, ${adjustHexColor(visualTemperatureLevel.color, -0.35)} 0%, ${visualTemperatureLevel.color} 62%, ${adjustHexColor(visualTemperatureLevel.color, 0.32)} 100%)`,
-                        boxShadow: `0 0 18px ${visualTemperatureLevel.color}bf`,
-                      }}
-                    />
-                    <div className="absolute left-1 top-4 h-[82%] w-1 rounded-full bg-white/35 blur-[1px]" />
-                  </div>
+          {/* Coluna Direita: Termômetro do Pipeline com Visual Padrão */}
+          <aside className="relative border-t border-slate-800/80 px-6 py-6 lg:border-l lg:border-t-0 flex flex-col justify-center">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_52%_22%,rgba(168,85,247,0.08),transparent_36%),linear-gradient(180deg,rgba(15,23,42,0.4),rgba(5,9,20,0.2))]" />
+            <div className="relative z-10 pipeline-model__temperature-content">
+              <div
+                className="pipeline-model__thermometer"
+                role="img"
+                aria-label={`Temperatura atual do pipeline: ${visualTemperaturePercent.toFixed(1)}%`}
+                style={{
+                  '--temperature-color': visualTemperatureLevel.color,
+                  '--temperature-height': `${Math.max(visualTemperaturePercent, 4)}%`,
+                } as React.CSSProperties}
+              >
+                <div className="pipeline-model__thermometer-tube">
+                  <div className="pipeline-model__thermometer-liquid" />
+                  <div className="pipeline-model__thermometer-shine" />
                 </div>
-                <div className="-mt-3 flex h-[92px] w-[92px] items-center justify-center rounded-full border-[7px] border-[#94a3b8] bg-[#1a2436] shadow-[inset_0_0_0_5px_rgba(7,11,22,0.88),0_16px_28px_rgba(0,0,0,0.48)]">
-                  <div
-                    className="relative h-[56px] w-[56px] overflow-hidden rounded-full"
-                    style={{
-                      background: `radial-gradient(circle at 36% 30%, ${adjustHexColor(visualTemperatureLevel.color, 0.38)} 0%, ${visualTemperatureLevel.color} 42%, ${adjustHexColor(visualTemperatureLevel.color, -0.45)} 100%)`,
-                      boxShadow: `0 0 22px ${visualTemperatureLevel.color}aa`,
-                    }}
-                  >
-                    <div className="absolute left-4 top-2 h-4 w-6 rotate-[-28deg] rounded-full bg-white/55 blur-[1px]" />
-                    <div className="absolute inset-x-2 bottom-2 h-5 rounded-full bg-black/18" />
-                  </div>
+                <div className="pipeline-model__thermometer-bulb">
+                  <div className="pipeline-model__thermometer-bulb-liquid" />
+                  <div className="pipeline-model__thermometer-bulb-shine" />
                 </div>
               </div>
 
-              <div className="min-w-0">
-                <div className="mb-5">
-                  <h4 className="text-xl font-black leading-tight text-[#f4f7fb]">Temperatura das Calculadoras</h4>
-                  <p className="mt-1 text-base font-semibold" style={{ color: visualTemperatureLevel.color }}>
-                    {visualTemperaturePercent.toFixed(1)}% {selectedTemperatureValue === null ? 'atual' : 'selecionada'}
-                  </p>
+              <div className="pipeline-model__temperature-copy">
+                <div className="pipeline-model__temperature-title">
+                  <strong className="text-white text-base font-bold">Temperatura do Pipeline</strong>
+                  <span className="text-xs text-slate-400 font-semibold">{visualTemperaturePercent.toFixed(1)}% atual</span>
                 </div>
-                <div className="space-y-5">
+                <div className="pipeline-model__temperature-levels">
                   {TEMPERATURE_LEVELS.map((level) => {
                     const isActive = selectedTemperatureValue === level.value || (selectedTemperatureValue === null && visualTemperatureLevel.value === level.value);
                     return (
-                    <div
-                      key={level.value}
-                      className="flex items-center gap-3 rounded-md px-2 py-1 transition-all"
-                      style={{
-                        background: isActive ? `${level.color}18` : 'transparent',
-                        boxShadow: isActive ? `0 0 18px ${level.color}30` : 'none',
-                      }}
-                    >
-                      <span
-                        className="h-1 w-7 rounded-full"
+                      <div
+                        key={level.value}
+                        className="transition-all"
                         style={{
-                          backgroundColor: level.color,
-                          boxShadow: isActive ? `0 0 12px ${level.color}` : 'none',
+                          opacity: isActive ? 1 : 0.82,
                         }}
-                      />
-                      <span className="text-sm font-semibold" style={{ color: isActive ? '#ffffff' : '#d7deea' }}>
-                        <b className="font-black text-white">{level.value}%</b> - {level.label}
-                      </span>
-                    </div>
+                      >
+                        <i style={{ backgroundColor: level.color }} />
+                        <span><b>{level.value}%</b> - {level.label}</span>
+                      </div>
                     );
                   })}
                 </div>
-                <div className="mt-6 grid grid-cols-2 gap-3">
-                  <div className="rounded-lg border border-[#ff6f0f40] bg-[#ff6f0f12] px-3 py-2.5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#8f9caf]">Forecast Final</p>
-                    <p className="text-lg font-black text-[#ffb21a]">{formatCurrencyCompact(monthlyFunnelBoard.top[2]?.amount || 0)}</p>
+
+                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-slate-800/80 pt-3">
+                  <div className="rounded-lg border border-[#ff6f0f33] bg-[#ff6f0f0d] px-2.5 py-2">
+                    <p className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-400">Forecast Final</p>
+                    <p className="text-sm font-black text-[#ffb21a]">{formatCurrencyCompact(monthlyFunnelBoard.top[2]?.amount || 0)}</p>
                   </div>
-                  <div className="rounded-lg border border-[#20d4f540] bg-[#20d4f512] px-3 py-2.5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#8f9caf]">Qtd. Prevista</p>
-                    <p className="text-lg font-black text-[#20d4f5]">{monthlyFunnelBoard.top[2]?.qty || 0}</p>
+                  <div className="rounded-lg border border-[#20d4f533] bg-[#20d4f50d] px-2.5 py-2">
+                    <p className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-400">Qtd. Prevista</p>
+                    <p className="text-sm font-black text-[#20d4f5]">{monthlyFunnelBoard.top[2]?.qty || 0}</p>
                   </div>
                 </div>
               </div>

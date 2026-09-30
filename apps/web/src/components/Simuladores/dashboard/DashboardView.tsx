@@ -1,12 +1,11 @@
-"use client";
 
 import React, { useState, useEffect, useMemo } from 'react';
 // PostgreSQL via Prisma - APIs REST
 import { useAuth } from '@/hooks/use-auth';
 import { Proposal, Partner } from '@/lib/types';
 import ProposalsView from '@/components/proposals/ProposalsView';
-import StatCard from './StatCard';
-import { Phone, Server, Wifi, Radio, TrendingUp, PieChart as PieChartIcon, Target, Maximize2, Minimize2, Loader2 } from 'lucide-react';
+import { Phone, Server, Wifi, Radio, TrendingUp, Target, Maximize2, Minimize2, Loader2, RefreshCcw } from 'lucide-react';
+import '../../../components/PipelineDashboardModel.css';
 import {
   BarChart,
   Bar,
@@ -39,48 +38,64 @@ const BUSINESS_TYPE_LABELS: Record<string, string> = {
 
 const FUNNEL_LAYER_STYLE = [
   {
-    key: 'lead_generation',
-    label: 'Geração de Leads',
-    gradient: 'from-rose-500 to-red-600',
-    shadow: 'shadow-[0_0_24px_rgba(239,68,68,0.45)]',
+    key: 'simulations',
+    label: 'Simulações',
+    palette: ['#ff4b42', '#db1f25', '#7f1018'],
+    width: 100,
+    temperatures: [0, 25],
   },
   {
-    key: 'qualify',
-    label: 'Qualificar Leads',
-    gradient: 'from-amber-500 to-orange-500',
-    shadow: 'shadow-[0_0_24px_rgba(251,146,60,0.4)]',
+    key: 'qualification',
+    label: 'Qualificação',
+    palette: ['#ff9950', '#e35d22', '#853013'],
+    width: 88,
+    temperatures: [25],
   },
   {
-    key: 'evaluate',
-    label: 'Avaliar Desafios / Problemas',
-    gradient: 'from-emerald-500 to-green-600',
-    shadow: 'shadow-[0_0_24px_rgba(34,197,94,0.4)]',
+    key: 'diagnosis',
+    label: 'Diagnóstico Técnico',
+    palette: ['#fff4a6', '#e4d66e', '#837934'],
+    width: 78,
+    temperatures: [50],
   },
   {
-    key: 'solve',
-    label: 'Solucionar Problemas',
-    gradient: 'from-cyan-500 to-sky-600',
-    shadow: 'shadow-[0_0_24px_rgba(14,165,233,0.4)]',
+    key: 'proposal',
+    label: 'Proposta Gerada',
+    palette: ['#c0e867', '#83bd38', '#41691d'],
+    width: 68,
+    temperatures: [50, 75],
   },
   {
-    key: 'convert',
-    label: 'Converter',
-    gradient: 'from-blue-500 to-indigo-600',
-    shadow: 'shadow-[0_0_24px_rgba(59,130,246,0.45)]',
+    key: 'negotiation',
+    label: 'Negociação',
+    palette: ['#36d9e5', '#16aaba', '#0d5d69'],
+    width: 56,
+    temperatures: [75],
   },
   {
-    key: 'close',
-    label: 'Fechar',
-    gradient: 'from-violet-500 to-purple-600',
-    shadow: 'shadow-[0_0_24px_rgba(139,92,246,0.45)]',
+    key: 'won',
+    label: 'Aprovadas',
+    palette: ['#34d399', '#16a34a', '#14532d'],
+    width: 45,
+    temperatures: [100],
+  },
+  {
+    key: 'lost',
+    label: 'Perdidas',
+    palette: ['#ef4444', '#b91c1c', '#7f1d1d'],
+    width: 35,
+    temperatures: [0],
   },
 ] as const;
 
-const FORECAST_GAUGE_COLORS = ['#d50000', '#ef5b2a', '#d6db00', '#f0b400', '#00a651'] as const;
-const FORECAST_GAUGE_RADIUS = 64;
-const FORECAST_GAUGE_ARC_PATH = `M 26 82 A ${FORECAST_GAUGE_RADIUS} ${FORECAST_GAUGE_RADIUS} 0 0 1 154 82`;
-const FORECAST_GAUGE_ARC_LENGTH = Math.PI * FORECAST_GAUGE_RADIUS;
-const FORECAST_GAUGE_SEGMENT_LENGTH = FORECAST_GAUGE_ARC_LENGTH / FORECAST_GAUGE_COLORS.length;
+const TEMPERATURE_LEVELS = [
+  { value: 0, label: 'Frio', color: '#ef4444' },
+  { value: 25, label: 'Amarelo Claro', color: '#fef08a' },
+  { value: 50, label: 'Verde / Qualificado', color: '#22c55e' },
+  { value: 75, label: 'Ciano / Quente', color: '#22d3ee' },
+  { value: 100, label: 'Fechado', color: '#a855f7' },
+] as const;
+
 const FORECAST_STEP_LEVELS = [0, 25, 50, 75, 100] as const;
 
 const formatCurrencyCompact = (value: number) =>
@@ -225,6 +240,14 @@ const snapToForecastStep = (percent: number) =>
     FORECAST_STEP_LEVELS[0]
   );
 
+const getEffectiveForecastTemperature = (proposal: Proposal): number => {
+  const statusWeight = getForecastWeightPercent(proposal.status);
+  if (statusWeight === 0 || statusWeight === 75 || statusWeight === 100) return statusWeight;
+
+  const explicitTemperature = getForecastTemperatureFromProposal(proposal);
+  return explicitTemperature !== undefined ? snapToForecastStep(explicitTemperature) : statusWeight;
+};
+
 const classifyFunnelStage = (status: string): 'previstos' | 'fechados' | 'perdidos' => {
   const normalizedStatus = (status || '').trim().toLowerCase();
 
@@ -279,9 +302,8 @@ const DashboardView = () => {
       }
 
       if (selectedTemperature !== 'all') {
-        const explicitTemperature = getForecastTemperatureFromProposal(proposal);
-        const proposalTemperature = explicitTemperature !== undefined ? explicitTemperature : getForecastWeightPercent(proposal.status);
-        if (String(proposalTemperature) !== selectedTemperature) return false;
+        const selectedTemperatureValue = Number(selectedTemperature);
+        if (getEffectiveForecastTemperature(proposal) !== selectedTemperatureValue) return false;
       }
 
       return true;
@@ -393,12 +415,12 @@ const DashboardView = () => {
 
   const chartData = useMemo(() => {
     return [
-      { name: 'PABX/SIP', proposals: countProposalsByType.pabx, amount: valuesByType.pabx, color: '#3b82f6' },
-      { name: 'Máq. Virtuais', proposals: countProposalsByType.maquinasVirtuais, amount: valuesByType.maquinasVirtuais, color: '#a855f7' },
-      { name: 'Internet Fibra', proposals: countProposalsByType.fibra, amount: valuesByType.fibra, color: '#22c55e' },
-      { name: 'Double Fibra/Radio', proposals: countProposalsByType.doubleFibraRadio, amount: valuesByType.doubleFibraRadio, color: '#ef4444' },
-      { name: 'Rede Man/MPLS Fibra', proposals: countProposalsByType.man, amount: valuesByType.man, color: '#06b6d4' },
-      { name: 'Rede Man/MPLS Radio', proposals: countProposalsByType.manRadio, amount: valuesByType.manRadio, color: '#f97316' },
+      { name: 'PABX/SIP', proposals: countProposalsByType.pabx, amount: valuesByType.pabx, color: '#ff6f0f' },
+      { name: 'Máq. Virtuais', proposals: countProposalsByType.maquinasVirtuais, amount: valuesByType.maquinasVirtuais, color: '#20d4f5' },
+      { name: 'Internet Fibra', proposals: countProposalsByType.fibra, amount: valuesByType.fibra, color: '#18d97c' },
+      { name: 'Double Fibra/Radio', proposals: countProposalsByType.doubleFibraRadio, amount: valuesByType.doubleFibraRadio, color: '#ff436d' },
+      { name: 'Rede Man/MPLS Fibra', proposals: countProposalsByType.man, amount: valuesByType.man, color: '#2384ff' },
+      { name: 'Rede Man/MPLS Radio', proposals: countProposalsByType.manRadio, amount: valuesByType.manRadio, color: '#ffb21a' },
     ];
   }, [countProposalsByType, valuesByType]);
 
@@ -439,33 +461,44 @@ const DashboardView = () => {
   }, [filteredMonthProposals]);
 
   const funnelVisualData = useMemo(() => {
-    const previstos = salesFunnelData.find((item) => item.key === 'previstos')?.value || 0;
+    const total = filteredMonthProposals.length;
+    const countByMinimumTemperature = (minimum: number) =>
+      filteredMonthProposals.filter((proposal) => classifyFunnelStage(proposal.status) === 'previstos' && getEffectiveForecastTemperature(proposal) >= minimum).length;
     const fechados = salesFunnelData.find((item) => item.key === 'fechados')?.value || 0;
-    const topo = Math.max(previstos, fechados, 1);
+    const perdidos = salesFunnelData.find((item) => item.key === 'perdidos')?.value || 0;
 
-    const s6 = fechados;
-    const s5 = Math.max(s6, Math.round(topo * 0.14));
-    const s4 = Math.max(s5, Math.round(topo * 0.27));
-    const s3 = Math.max(s4, Math.round(topo * 0.4));
-    const s2 = Math.max(s3, Math.round(topo * 0.62));
-    const s1 = Math.max(s2, topo);
+    const values = [
+      total,
+      countByMinimumTemperature(25),
+      countByMinimumTemperature(50),
+      Math.max(countByMinimumTemperature(50), fechados),
+      countByMinimumTemperature(75),
+      fechados,
+      perdidos,
+    ];
+    const base = Math.max(total, 1);
+    const maxStageWidth = 510;
+    const stageHeight = 44;
 
-    const values = [s1, s2, s3, s4, s5, s6];
-    const widths = [100, 92, 84, 76, 68, 60];
-
-    return FUNNEL_LAYER_STYLE.map((stage, index) => ({
-      ...stage,
-      value: values[index],
-      width: widths[index],
-    }));
-  }, [salesFunnelData]);
+    return FUNNEL_LAYER_STYLE.map((stage, index) => {
+      const renderedWidth = (stage.width / 100) * maxStageWidth;
+      return {
+        ...stage,
+        value: values[index],
+        percent: Math.round((values[index] / base) * 100),
+        renderedWidth,
+        y: 18 + index * (stageHeight + 4),
+        height: stageHeight,
+      };
+    });
+  }, [filteredMonthProposals, salesFunnelData]);
 
   const funnelSummary = useMemo(() => {
-    const previstos = salesFunnelData.find((item) => item.key === 'previstos')?.value || 0;
+    const previstos = filteredMonthProposals.length;
     const fechados = salesFunnelData.find((item) => item.key === 'fechados')?.value || 0;
     const conversion = previstos > 0 ? (fechados / previstos) * 100 : 0;
     return { previstos, fechados, conversion };
-  }, [salesFunnelData]);
+  }, [filteredMonthProposals.length, salesFunnelData]);
 
   const monthlyFunnelBoard = useMemo(() => {
     const isRenewal = (status: string) => ['renovacao', 'renovado', 'renovada'].includes(normalizeStatus(status));
@@ -484,8 +517,7 @@ const DashboardView = () => {
 
     const weightedForecast = all.reduce(
       (acc, proposal) => {
-        const explicitTemperature = getForecastTemperatureFromProposal(proposal);
-        const weight = (explicitTemperature !== undefined ? explicitTemperature : getForecastWeightPercent(proposal.status)) / 100;
+        const weight = getEffectiveForecastTemperature(proposal) / 100;
 
         acc.value += (proposal.value || 0) * weight;
         acc.qty += weight;
@@ -502,46 +534,33 @@ const DashboardView = () => {
 
     return {
       top: [
-        { title: 'funil de vendas', amount: sum(all), qty: all.length, color: 'from-emerald-500 via-teal-500 to-cyan-600' },
-        { title: 'funil de renovação', amount: sum(renewals), qty: renewals.length, color: 'from-blue-500 via-indigo-500 to-purple-600' },
-        { title: 'forecast de vendas', amount: forecastValue, qty: forecastQty, color: 'from-violet-500 via-purple-500 to-fuchsia-600' },
+        { title: 'funil de vendas', amount: sum(all), qty: all.length, color: 'from-[#ff6f0f] via-[#ff9d17] to-[#ffb21a]' },
+        { title: 'funil de renovação', amount: sum(renewals), qty: renewals.length, color: 'from-[#2384ff] via-[#1a9cff] to-[#20d4f5]' },
+        { title: 'forecast de vendas', amount: forecastValue, qty: forecastQty, color: 'from-[#18d97c] via-[#20d4f5] to-[#2384ff]' },
       ],
       bottom: [
-        { title: 'vendas novas assinadas', amount: sum(newSigned), qty: newSigned.length, color: 'from-green-600 via-emerald-600 to-teal-700' },
-        { title: 'vendas únicas assinadas', amount: sum(uniqueSigned), qty: uniqueSigned.length, color: 'from-teal-600 via-cyan-600 to-sky-700' },
-        { title: 'renovações de contratos assinados', amount: sum(renewalSigned), qty: renewalSigned.length, color: 'from-amber-500 via-orange-500 to-red-600' },
-        { title: 'projetos perdidos', amount: sum(lost), qty: lost.length, color: 'from-rose-600 via-pink-600 to-red-700' },
+        { title: 'vendas novas assinadas', amount: sum(newSigned), qty: newSigned.length, color: 'from-[#18d97c] via-[#14c779] to-[#0fa666]' },
+        { title: 'vendas únicas assinadas', amount: sum(uniqueSigned), qty: uniqueSigned.length, color: 'from-[#20d4f5] via-[#2384ff] to-[#1d5ee8]' },
+        { title: 'renovações de contratos assinados', amount: sum(renewalSigned), qty: renewalSigned.length, color: 'from-[#ffb21a] via-[#ff8f13] to-[#ff6f0f]' },
+        { title: 'projetos perdidos', amount: sum(lost), qty: lost.length, color: 'from-[#ff436d] via-[#ef3358] to-[#c81f43]' },
       ],
       forecastPercent,
     };
   }, [filteredMonthProposals]);
-
-  const salesForecastChartData = useMemo(() => {
-    const newSales = monthlyFunnelBoard.bottom[0];
-    const renewals = monthlyFunnelBoard.bottom[2];
-    const lost = monthlyFunnelBoard.bottom[3];
-    const forecast = monthlyFunnelBoard.top[2];
-
-    return [
-      { key: 'new-sales', label: 'Novas', fullLabel: 'Vendas novas assinadas', value: newSales?.amount || 0, qty: newSales?.qty || 0, color: '#22c55e' },
-      { key: 'renewals', label: 'Renovações', fullLabel: 'Renovações assinadas', value: renewals?.amount || 0, qty: renewals?.qty || 0, color: '#f59e0b' },
-      { key: 'lost', label: 'Perdidos', fullLabel: 'Projetos perdidos', value: -(lost?.amount || 0), qty: lost?.qty || 0, color: '#ef4444' },
-      { key: 'forecast', label: 'Forecast', fullLabel: 'Forecast final', value: forecast?.amount || 0, qty: forecast?.qty || 0, color: '#8b5cf6' },
-    ];
-  }, [monthlyFunnelBoard]);
 
   const forecastGaugePercent = useMemo(
     () => Math.max(0, Math.min(monthlyFunnelBoard.forecastPercent, 100)),
     [monthlyFunnelBoard.forecastPercent]
   );
 
-  const forecastGaugeNeedle = useMemo(() => {
-    const theta = Math.PI - (forecastGaugePercent / 100) * Math.PI;
-    return {
-      x: 90 + 52 * Math.cos(theta),
-      y: 82 - 52 * Math.sin(theta),
-    };
-  }, [forecastGaugePercent]);
+  const selectedTemperatureValue = selectedTemperature === 'all' ? null : Number(selectedTemperature);
+  const visualTemperaturePercent = selectedTemperatureValue === null
+    ? forecastGaugePercent
+    : Math.max(0, Math.min(selectedTemperatureValue, 100));
+  const visualTemperatureLevel = TEMPERATURE_LEVELS
+    .slice()
+    .reverse()
+    .find((level) => visualTemperaturePercent >= level.value) || TEMPERATURE_LEVELS[0];
 
   useEffect(() => {
     const animationTimer = setTimeout(() => setDashboardReady(true), 120);
@@ -552,11 +571,16 @@ const DashboardView = () => {
       try {
         console.log('Fetching proposals for user:', user.id, user.email);
         
-        const response = await fetch('/api/proposals?dashboard=true&all=true', {
+        // Ler token do CRM para autenticar a chamada
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+        const authHeaders: Record<string, string> = {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        };
+
+        const response = await fetch('/api/simulator/proposals?dashboard=true&all=true', {
           method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: authHeaders,
         });
 
         if (!response.ok) {
@@ -612,9 +636,11 @@ const DashboardView = () => {
           return {
             id: data.id,
             baseId: baseIdRaw,
+            base_id: baseIdRaw,
             version: data.version || 1,
             title: title,
-            client: data.client || 'N/A',
+            client: data.metadata?.clientData || data.client || 'N/A',
+            clientData: data.metadata?.clientData || null,
             type: data.type || 'standard',
             value: parseFloat(data.value) || 0,
             status: data.status || 'Rascunho',
@@ -622,8 +648,27 @@ const DashboardView = () => {
               ? data.forecastTemperature
               : (data.metadata?.forecastTemperature !== undefined ? Number(data.metadata.forecastTemperature) : undefined),
             metadata: data.metadata,
+            // Produtos do metadata (onde são realmente salvos)
+            products: data.metadata?.products || data.products || [],
+            items: data.metadata?.products || data.items || [],
+            // Descontos
+            applySalespersonDiscount: data.metadata?.applySalespersonDiscount ?? false,
+            appliedDirectorDiscountPercentage: data.metadata?.appliedDirectorDiscountPercentage ?? 0,
+            baseTotalMonthly: data.metadata?.baseTotalMonthly || data.metadata?.totalMonthly || parseFloat(data.value) || 0,
+            totalMonthly: data.metadata?.totalMonthly || parseFloat(data.value) || 0,
+            // Cliente existente
+            isExistingClient: data.metadata?.isExistingClient ?? false,
+            previousMonthlyFee: data.metadata?.previousMonthlyFee ?? 0,
             createdBy: data.createdBy || 'N/A',
-            accountManager: accountManagerRaw || 'N/A',
+            accountManager: (() => {
+              // accountManager pode vir como string JSON do banco
+              const raw = accountManagerRaw;
+              if (!raw) return 'N/A';
+              if (typeof raw === 'string') {
+                try { return JSON.parse(raw); } catch { return raw; }
+              }
+              return raw;
+            })(),
             createdAt: data.createdAt,
             distributorId: data.distributorId || 'N/A',
             date: createdAtDate.toISOString(),
@@ -694,8 +739,13 @@ const DashboardView = () => {
     }
 
     try {
-      const response = await fetch(`/api/proposals/${id}`, {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const response = await fetch(`/api/simulator/proposals/${id}`, {
         method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
       });
 
       if (!response.ok) {
@@ -758,11 +808,15 @@ const DashboardView = () => {
     try {
       console.log('🔄 Sincronizando propostas...');
       
-      const response = await fetch('/api/proposals?dashboard=true&all=true', {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+      const authHeaders: Record<string, string> = {
+        'Content-Type': 'application/json',
+        ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+      };
+
+      const response = await fetch('/api/simulator/proposals?dashboard=true&all=true', {
         method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: authHeaders,
       });
 
       if (!response.ok) {
@@ -866,659 +920,619 @@ const DashboardView = () => {
     ? valueDistributionData
     : [{ name: 'Sem valores', value: 1, color: '#475569' }];
 
+  const simulatorPanelStyle = {
+    background: 'linear-gradient(180deg, rgba(20,29,49,0.97) 0%, rgba(9,14,27,0.99) 100%)',
+    borderColor: 'rgba(78,91,118,0.48)'
+  };
+
+  const simulatorInnerStyle = {
+    background: 'linear-gradient(145deg, rgba(17,26,45,0.94) 0%, rgba(9,15,28,0.96) 100%)',
+    borderColor: 'rgba(67,80,106,0.5)'
+  };
+
+  const chartTooltipStyle = {
+    backgroundColor: 'rgba(7, 11, 22, 0.96)',
+    border: '1px solid rgba(255, 111, 15, 0.42)',
+    borderRadius: '8px',
+    color: '#f8fafc',
+    boxShadow: '0 20px 40px rgba(0,0,0,0.45)'
+  };
+
+  const simulatorKpis = [
+    {
+      label: 'Propostas',
+      value: totalProposalsMonth,
+      caption: 'Volume total no período',
+      color: '#20d4f5',
+      border: 'rgba(32,212,245,0.36)',
+      background: 'rgba(32,212,245,0.12)'
+    },
+    {
+      label: 'Receita Total',
+      value: formatCurrencyCompact(totalValueMonth),
+      caption: 'Pipeline em simulações',
+      color: '#ff6f0f',
+      border: 'rgba(255,111,15,0.36)',
+      background: 'rgba(255,111,15,0.12)'
+    },
+    {
+      label: 'Forecast',
+      value: `${forecastGaugePercent.toFixed(1).replace('.', ',')}%`,
+      caption: 'Temperatura comercial',
+      color: '#18d97c',
+      border: 'rgba(24,217,124,0.36)',
+      background: 'rgba(24,217,124,0.12)'
+    }
+  ];
+
   if (loading) {
-    return <div>Carregando...</div>;
+    return (
+      <div className="market-dashboard flex min-h-screen items-center justify-center bg-[#070b16] text-[#8f9caf]">
+        Carregando...
+      </div>
+    );
   }
 
   return (
-    <div className="market-dashboard min-h-screen p-4 space-y-5 rounded-xl" data-section="dashboard-main">
+    <div className="market-dashboard min-h-screen space-y-6 bg-[#070b16] p-6" data-section="dashboard-main">
       <style>{`
-        [data-section="dashboard-main"]:fullscreen {
-          overflow-y: auto;
-          overflow-x: hidden;
-          padding: 1.5rem;
-        }
-        [data-section="dashboard-main"]:-webkit-full-screen {
-          overflow-y: auto;
-          overflow-x: hidden;
-          padding: 1.5rem;
-        }
+        [data-section="dashboard-main"]:fullscreen { overflow-y: auto; padding: 1.5rem; }
+        [data-section="dashboard-main"]:-webkit-full-screen { overflow-y: auto; padding: 1.5rem; }
+        @keyframes gauge-needle { from { transform-origin: 90px 82px; transform: rotate(-90deg); } }
+        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+        .anim-card { animation: fadeSlideUp 0.6s ease-out both; }
       `}</style>
-      <div data-section="dashboard-top" className="space-y-8">
-        <div className="rounded-xl border border-slate-700/30 bg-gradient-to-r from-slate-900/80 via-slate-800/70 to-slate-900/80 p-4 shadow-[0_18px_42px_-28px_rgba(0,0,0,0.85)]">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
-              <div className="rounded-xl bg-gradient-to-br from-emerald-500 to-cyan-600 p-3 shadow-lg">
-                <TrendingUp className="h-7 w-7 text-white" />
-              </div>
-              <div>
-                <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">Painel Analítico</h2>
-                <p className="text-slate-300">Visão moderna de volume e receita total</p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-3">
-              <button
-                onClick={handleFullscreenToggle}
-                className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-cyan-300 hover:bg-cyan-500/20 transition-colors duration-200 flex items-center gap-2"
-                title={isFullscreen ? 'Sair da apresentação' : 'Entrar em apresentação'}
-              >
-                {isFullscreen ? (
-                  <>
-                    <Minimize2 className="h-5 w-5" />
-                    <span>Sair Apresentação</span>
-                  </>
-                ) : (
-                  <>
-                    <Maximize2 className="h-5 w-5" />
-                    <span>Apresentação</span>
-                  </>
-                )}
-              </button>
-              <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-2">
-                <p className="text-xs uppercase tracking-wide text-cyan-300">Total de propostas</p>
-                <p className="text-xl font-semibold text-white">{totalProposalsMonth}</p>
-              </div>
-              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2">
-                <p className="text-xs uppercase tracking-wide text-emerald-300">Total em valores</p>
-                <p className="text-xl font-semibold text-white">{formatCurrency(totalValueMonth)}</p>
-              </div>
-            </div>
+
+      {/* ── HEADER ── */}
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border px-6 py-4 shadow-[0_28px_70px_-48px_rgba(0,0,0,0.95)]" style={simulatorPanelStyle}>
+        <div className="flex items-center gap-4">
+          <div className="rounded-lg bg-gradient-to-br from-[#ff6f0f] to-[#ffb21a] p-3 shadow-[0_18px_40px_-22px_rgba(255,111,15,0.9)]">
+            <TrendingUp className="h-7 w-7 text-white" />
+          </div>
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#ffb21a]">Simulator Intelligence</p>
+            <h2 className="text-2xl font-black uppercase text-[#f4f7fb]">Painel Analítico</h2>
+            <p className="text-sm font-semibold text-[#8f9caf]">Visão moderna de volume, forecast e receita total</p>
           </div>
         </div>
+        <div className="flex flex-wrap gap-3 items-center">
+          <button onClick={handleFullscreenToggle}
+            className="flex items-center gap-2 rounded-md border border-[#344159] bg-[#101827]/95 px-4 py-2 text-sm font-bold text-[#cbd5e4] transition-all hover:border-[#ff6f0f] hover:text-[#ffb21a]">
+            {isFullscreen ? <><Minimize2 className="h-4 w-4" /><span>Sair</span></> : <><Maximize2 className="h-4 w-4" /><span>Apresentação</span></>}
+          </button>
+          {simulatorKpis.map((item) => (
+            <div
+              key={item.label}
+              className="rounded-lg border px-4 py-2 text-center"
+              style={{ borderColor: item.border, background: item.background }}
+            >
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#8f9caf]">{item.label}</p>
+              <p className="text-xl font-black" style={{ color: item.color }}>{item.value}</p>
+            </div>
+          ))}
+        </div>
+      </div>
 
-        <div className="rounded-xl border border-slate-700/30 bg-slate-900/70 p-4 shadow-[0_18px_42px_-28px_rgba(0,0,0,0.85)]">
-          <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-xl font-bold text-white">Filtros do Dashboard</h3>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={handleSyncProposals}
-                disabled={isSyncing}
-                className="rounded-lg border border-emerald-600 bg-emerald-600/10 px-4 py-2 text-sm text-emerald-300 hover:bg-emerald-600/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
-              >
-                {isSyncing ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Sincronizando...
-                  </>
-                ) : (
-                  <>
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                    Sincronizar
-                  </>
-                )}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setSelectedAccountManager('all');
-                  setSelectedBusinessType('all');
-                  setSelectedTemperature('all');
-                }}
-                className="rounded-lg border border-slate-600 px-3 py-2 text-sm text-slate-200 hover:bg-slate-800"
-              >
-                Limpar filtros
-              </button>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-300">Gerente de Contas</label>
-              <select
-                value={selectedAccountManager}
-                onChange={(e) => setSelectedAccountManager(e.target.value)}
-                className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-slate-100 focus:border-cyan-500 focus:outline-none"
-              >
-                <option value="all">Todos os gerentes</option>
-                {accountManagerOptions.map((manager) => (
-                  <option key={manager} value={manager}>
-                    {manager}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-300">Tipo de Negócio</label>
-              <select
-                value={selectedBusinessType}
-                onChange={(e) => setSelectedBusinessType(e.target.value)}
-                className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-slate-100 focus:border-cyan-500 focus:outline-none"
-              >
-                <option value="all">Todos os tipos</option>
-                {businessTypeOptions.map((type) => (
-                  <option key={type} value={type}>
-                    {formatBusinessType(type)}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-slate-300">Temperatura</label>
-              <select
-                value={selectedTemperature}
-                onChange={(e) => setSelectedTemperature(e.target.value)}
-                className="w-full rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 text-sm text-slate-100 focus:border-cyan-500 focus:outline-none"
-              >
-                <option value="all">Todas as temperaturas</option>
-                <option value="0">0%</option>
-                <option value="25">25%</option>
-                <option value="50">50%</option>
-                <option value="75">75%</option>
-                <option value="100">100%</option>
-              </select>
-            </div>
+      {/* ── FILTROS ── */}
+      <div className="rounded-lg border p-5" style={simulatorPanelStyle}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-base font-black uppercase tracking-[0.12em] text-[#f4f7fb]">Filtros</h3>
+          <div className="flex gap-2">
+            <button onClick={handleSyncProposals} disabled={isSyncing}
+              className="flex items-center gap-1.5 rounded-md border border-[#18d97c66] bg-[#18d97c14] px-3 py-1.5 text-xs font-bold text-[#18d97c] transition-colors hover:bg-[#18d97c22] disabled:opacity-50">
+              {isSyncing ? <><Loader2 className="h-3 w-3 animate-spin" />Sincronizando...</> : <>
+                <RefreshCcw className="h-3 w-3" />
+                Sincronizar
+              </>}
+            </button>
+            <button onClick={() => { setSelectedAccountManager("all"); setSelectedBusinessType("all"); setSelectedTemperature("all"); }}
+              className="rounded-md border border-[#344159] px-3 py-1.5 text-xs font-bold text-[#cbd5e4] transition-colors hover:border-[#ff6f0f] hover:text-[#ffb21a]">
+              Limpar
+            </button>
           </div>
         </div>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+          {[
+            { label: "Gerente de Contas", value: selectedAccountManager, onChange: setSelectedAccountManager,
+              options: [{ v: "all", l: "Todos os gerentes" }, ...accountManagerOptions.map(m => ({ v: m, l: m }))] },
+            { label: "Tipo de Negócio", value: selectedBusinessType, onChange: setSelectedBusinessType,
+              options: [{ v: "all", l: "Todos os tipos" }, ...businessTypeOptions.map(t => ({ v: t, l: formatBusinessType(t) }))] },
+            { label: "Temperatura", value: selectedTemperature, onChange: setSelectedTemperature,
+              options: [{ v: "all", l: "Todas" }, { v: "0", l: "0%" }, { v: "25", l: "25%" }, { v: "50", l: "50%" }, { v: "75", l: "75%" }, { v: "100", l: "100%" }] },
+          ].map(f => (
+            <div key={f.label}>
+              <label className="mb-1.5 block text-[11px] font-black uppercase tracking-[0.12em] text-[#8f9caf]">{f.label}</label>
+              <select value={f.value} onChange={e => f.onChange(e.target.value)}
+                className="w-full rounded-md border border-[#344159] bg-[#101827]/90 px-3 py-2 text-sm font-bold text-[#e7edf8] focus:border-[#ff6f0f] focus:outline-none">
+                {f.options.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
+              </select>
+            </div>
+          ))}
+        </div>
+      </div>
 
-        <div className="relative overflow-hidden rounded-xl border border-cyan-500/20 bg-gradient-to-br from-[#2b4360] via-[#16314f] to-[#0c2138] p-4 shadow-[0_18px_42px_-28px_rgba(0,0,0,0.85)] lg:p-5">
-          <div className="pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-cyan-400/25 blur-3xl" />
-          <div className="pointer-events-none absolute -bottom-28 -left-16 h-72 w-72 rounded-full bg-indigo-500/20 blur-3xl" />
-          <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/15 to-transparent" />
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-[#051226]/80 to-transparent" />
-          <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.08),transparent_45%,transparent_65%,rgba(14,116,144,0.18))]" />
-          <div className="pointer-events-none absolute inset-0 rounded-3xl shadow-[inset_0_1px_0_rgba(255,255,255,0.35),inset_0_-30px_60px_rgba(2,6,18,0.65)]" />
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(56,189,248,0.18),transparent_45%),radial-gradient(circle_at_80%_10%,rgba(59,130,246,0.2),transparent_40%)]" />
-          <div className="relative z-10 mb-5 overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-r from-[#2f4662]/85 via-[#214167]/75 to-[#284f77]/85 px-5 py-5 shadow-[0_24px_60px_rgba(3,12,28,0.55)] backdrop-blur-sm">
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(110deg,rgba(255,255,255,0.22),transparent_35%,transparent_65%,rgba(255,255,255,0.08))]" />
-            <div className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-20px_40px_rgba(2,6,18,0.55)]" />
-            <div className="relative z-10">
-            <div className="mb-4 flex flex-col items-start justify-between gap-3 md:flex-row md:items-end">
+      {/* ── KPI CARDS TOP ── */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+        {monthlyFunnelBoard.top.map((item, i) => (
+          <div key={item.title} className="anim-card relative overflow-hidden rounded-lg p-5 shadow-[0_24px_50px_-28px_rgba(0,0,0,0.9)]" style={{ animationDelay: `${i * 80}ms` }}>
+            <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-90`} />
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.2)_0%,transparent_48%,rgba(0,0,0,0.22)_100%)]" />
+            <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-24px_44px_rgba(0,0,0,0.34)]" />
+            <div className="relative z-10 flex flex-col h-full gap-3">
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-white/82">{item.title}</p>
+              <div className="flex items-end justify-between">
+                <p className="text-4xl font-black leading-none text-white">{formatCurrencyCompact(item.amount)}</p>
+                <div className="text-right">
+                  <p className="text-2xl font-black text-white/90">{item.qty}</p>
+                  <p className="text-xs font-bold text-white/70">projetos</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── FUNIL ESTRATÉGICO 3D + TERMÔMETRO DO PIPELINE ── */}
+      <div
+        className="anim-card overflow-hidden rounded-2xl border border-slate-700/60 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)]"
+        style={{
+          ...simulatorPanelStyle,
+          animationDelay: "140ms",
+          background:
+            'radial-gradient(circle at 18% 16%, rgba(32,212,245,0.14), transparent 34%), radial-gradient(circle at 78% 12%, rgba(255,111,15,0.12), transparent 32%), linear-gradient(135deg, rgba(14,23,42,0.98) 0%, rgba(9,14,27,0.98) 50%, rgba(11,20,38,0.98) 100%)',
+        }}
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px]">
+          {/* Coluna Esquerda: Funil Cônico 3D */}
+          <section className="relative min-h-[420px] overflow-hidden px-4 py-5 sm:px-6 md:px-8">
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(150deg,rgba(14,165,233,0.08),transparent_38%,rgba(245,158,11,0.06)_72%,transparent)]" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.04] to-transparent" />
+            
+            <div className="relative z-10 mb-4 flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-cyan-200/80">Resumo Geral</p>
-                <p className="text-xl font-black tracking-tight text-slate-100 md:text-2xl">Forecast</p>
+                <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#ff6f0f]">Pipeline Comercial</p>
+                <h3 className="text-xl font-black uppercase leading-tight text-[#f4f7fb] md:text-2xl">Funil de Simulações B2B</h3>
+                <p className="mt-0.5 text-xs font-semibold text-[#8f9caf]">Propostas e simulações por etapa comercial</p>
               </div>
-              <div className="relative overflow-hidden rounded-xl border border-cyan-200/20 bg-gradient-to-br from-[#244268] via-[#1c3559] to-[#152a46] px-3 py-2 shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_16px_30px_rgba(3,10,25,0.55)]">
-                <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.18),transparent_55%)]" />
-                <div className="pointer-events-none absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-white/20 to-transparent" />
-                <div className="relative z-10">
-                  <p className="text-xs uppercase tracking-[0.16em] text-slate-200/90">Indicador Forecast</p>
-                  <svg width="180" height="92" viewBox="0 0 180 92" className="mt-1">
-                    <defs>
-                      <filter id="forecastGaugeShadow" x="-30%" y="-30%" width="160%" height="160%">
-                        <feDropShadow dx="0" dy="6" stdDeviation="4" floodColor="#0a1222" floodOpacity="0.55" />
-                      </filter>
-                    </defs>
-                    {FORECAST_GAUGE_COLORS.map((color, index) => (
-                      <path
-                        key={`forecast-gauge-segment-${color}`}
-                        d={FORECAST_GAUGE_ARC_PATH}
-                        fill="none"
-                        stroke={color}
-                        strokeWidth="20"
-                        strokeLinecap="butt"
-                        strokeDasharray={`${FORECAST_GAUGE_SEGMENT_LENGTH} ${FORECAST_GAUGE_ARC_LENGTH}`}
-                        strokeDashoffset={-index * FORECAST_GAUGE_SEGMENT_LENGTH}
-                        filter="url(#forecastGaugeShadow)"
-                      />
-                    ))}
-                    <path d="M42 82 A48 48 0 0 1 138 82 L138 82 L42 82 Z" fill="#c9c9c9" />
-                    <line x1="90" y1="82" x2={forecastGaugeNeedle.x} y2={forecastGaugeNeedle.y} stroke="#0b0b0b" strokeWidth="4" strokeLinecap="round" />
-                    <circle cx="90" cy="82" r="5.5" fill="#0b0b0b" />
-                    <text x="90" y="66" textAnchor="middle" className="fill-[#111111] text-[22px] font-bold">
-                      {forecastGaugePercent.toFixed(1).replace('.', ',')}%
-                    </text>
-                  </svg>
-                </div>
-              </div>
-            </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {monthlyFunnelBoard.top.map((item) => (
-                <div key={item.title} className="flex h-full flex-col">
-                  <p className="mb-2 min-h-[28px] text-lg font-semibold tracking-wide text-slate-100 capitalize">{item.title}</p>
-                  <div className={`relative overflow-hidden rounded-[20px] bg-gradient-to-r ${item.color} px-5 py-3 text-slate-50 shadow-[0_24px_50px_rgba(3,10,25,0.5)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_30px_60px_rgba(3,10,25,0.6)]`}>
-                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(115deg,rgba(255,255,255,0.28),transparent_40%,transparent_65%,rgba(0,0,0,0.2))]" />
-                    <div className="pointer-events-none absolute -top-6 left-6 h-16 w-32 rounded-full bg-white/35 blur-2xl" />
-                    <div className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.45),inset_0_-18px_30px_rgba(2,6,18,0.45)]" />
-                    <div className="relative z-10 flex h-[132px] flex-col justify-between">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xl font-black leading-none tracking-tight lg:text-2xl">{formatCurrencyCompact(item.amount)}</p>
-                        <p className="text-xl font-black leading-none tracking-tight lg:text-2xl">{item.qty}</p>
-                      </div>
-                      <div className="mt-1 flex items-center justify-between text-sm text-slate-100/95 capitalize md:text-base">
-                        <span>Forecast</span>
-                        <span>Qtd. projetos</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-4">
-              {monthlyFunnelBoard.bottom.map((item) => (
-                <div key={item.title} className="flex h-full flex-col">
-                  <p className="mb-2 min-h-[54px] text-base font-bold leading-tight tracking-wide text-slate-100 capitalize md:text-[1.04rem]">{item.title}</p>
-                  <div className={`relative overflow-hidden rounded-[20px] bg-gradient-to-r ${item.color} px-4 py-3 text-slate-50 shadow-[0_20px_45px_rgba(3,10,25,0.45)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_28px_55px_rgba(3,10,25,0.55)]`}>
-                    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.22),transparent_45%,transparent_70%,rgba(0,0,0,0.2))]" />
-                    <div className="pointer-events-none absolute -top-6 left-6 h-14 w-28 rounded-full bg-white/30 blur-2xl" />
-                    <div className="pointer-events-none absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.4),inset_0_-18px_28px_rgba(2,6,18,0.4)]" />
-                    <div className="relative z-10 flex h-[124px] flex-col justify-between">
-                      <div className="flex items-center justify-between">
-                        <p className="text-xl font-black leading-none tracking-tight">{formatCurrencyCompact(item.amount)}</p>
-                        <p className="text-xl font-black leading-none tracking-tight">{item.qty}</p>
-                      </div>
-                      <div className="mt-1 flex items-center justify-between text-sm text-slate-100/95 capitalize">
-                        <span>Forecast</span>
-                        <span>Qtd. projetos</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-            </div>
-          </div>
-
-          <div className="relative z-10 mt-2 grid grid-cols-1 gap-4 xl:grid-cols-[430px_minmax(0,1fr)]">
-            <div className="rounded-xl border border-slate-200/15 bg-[#163252]/70 p-4 shadow-[0_0_28px_rgba(14,116,144,0.18)] md:p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.17em] text-cyan-200/80">Projeção Comercial</p>
-                  <h4 className="text-xl font-bold text-white">Previsões de Venda</h4>
-                  <p className="mt-1 text-sm text-slate-200/95">Composição do forecast por origem e impacto de perdas.</p>
-                </div>
-                <div className="rounded-xl border border-cyan-500/35 bg-cyan-500/10 px-3 py-2 text-right">
-                  <p className="text-[11px] uppercase tracking-wider text-cyan-300">Taxa prevista</p>
-                  <p className="text-2xl font-bold text-cyan-100">{monthlyFunnelBoard.forecastPercent.toFixed(1)}%</p>
-                </div>
-              </div>
-
-              <div className="h-[280px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={salesForecastChartData} margin={{ top: 8, right: 8, left: -4, bottom: 4 }}>
-                    <defs>
-                      {salesForecastChartData.map((item) => {
-                        const highlight = adjustHexColor(item.color, 0.22);
-                        const shadow = adjustHexColor(item.color, -0.32);
-                        return (
-                          <linearGradient key={`forecast-bar-grad-${item.key}`} id={`forecastBarGrad-${item.key}`} x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor={highlight} stopOpacity={0.95} />
-                            <stop offset="55%" stopColor={item.color} stopOpacity={0.85} />
-                            <stop offset="100%" stopColor={shadow} stopOpacity={0.95} />
-                          </linearGradient>
-                        );
-                      })}
-                      <filter id="forecastBarShadow" x="-30%" y="-30%" width="160%" height="160%">
-                        <feDropShadow dx="0" dy="12" stdDeviation="9" floodColor="#060d1f" floodOpacity="0.55" />
-                      </filter>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#2e4c73" vertical={false} />
-                    <XAxis dataKey="label" stroke="#93c5fd" tickLine={false} axisLine={false} fontSize={12} />
-                    <YAxis
-                      stroke="#93c5fd"
-                      tickLine={false}
-                      axisLine={false}
-                      tickFormatter={(value) => formatCurrencyCompact(Math.abs(Number(value)))}
-                    />
-                    <Tooltip
-                      cursor={{ fill: 'rgba(148, 163, 184, 0.08)' }}
-                      contentStyle={{ backgroundColor: '#0f2541', border: '1px solid #2e4c73', borderRadius: '10px' }}
-                      labelStyle={{ color: '#e2e8f0' }}
-                      formatter={(value: number | string) => [formatCurrency(Math.abs(Number(value))), 'Valor projetado']}
-                    />
-                    <Bar
-                      dataKey="value"
-                      radius={[12, 12, 4, 4]}
-                      animationDuration={1200}
-                      animationEasing="ease-out"
-                      filter="url(#forecastBarShadow)"
-                      stroke="rgba(255,255,255,0.35)"
-                      strokeWidth={1}
-                    >
-                      {salesForecastChartData.map((item) => (
-                        <Cell key={`forecast-cell-${item.key}`} fill={`url(#forecastBarGrad-${item.key})`} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div className="mt-3 grid grid-cols-2 gap-2.5">
-                <div className="rounded-xl border border-violet-500/40 bg-violet-500/10 px-3 py-2">
-                  <p className="text-xs uppercase tracking-wide text-violet-200">Forecast final</p>
-                  <p className="text-lg font-bold text-white">{formatCurrency(monthlyFunnelBoard.top[2]?.amount || 0)}</p>
-                </div>
-                <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2">
-                  <p className="text-xs uppercase tracking-wide text-emerald-200">Qtd. prevista</p>
-                  <p className="text-lg font-bold text-white">{monthlyFunnelBoard.top[2]?.qty || 0} projetos</p>
-                </div>
+              <div className="rounded-lg border border-[#ff6f0f40] bg-[#ff6f0f12] p-2.5">
+                <Target className="h-5 w-5 text-[#ff6f0f]" />
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200/15 bg-[#133458]/55 p-4 md:p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-black leading-tight tracking-tight text-white">Funil de Vendas Estratégico</h3>
-                  <p className="mt-2 text-sm font-medium tracking-[0.01em] text-slate-200 md:text-base">Jornada completa do lead até o fechamento</p>
+            <div className="relative z-10 flex h-[360px] w-full items-center justify-center overflow-hidden">
+              {selectedTemperatureValue !== null && (
+                <div
+                  className="absolute right-2 top-0 z-10 rounded-full border px-3 py-1 text-[10px] font-black uppercase tracking-[0.16em] shadow-lg"
+                  style={{
+                    borderColor: visualTemperatureLevel.color,
+                    color: visualTemperatureLevel.color,
+                    background: 'rgba(3,8,18,0.78)',
+                    boxShadow: `0 0 22px ${visualTemperatureLevel.color}55`,
+                  }}
+                >
+                  Temp. {visualTemperaturePercent}%
                 </div>
-                <div className="rounded-xl border border-blue-500/20 bg-[#17345f]/70 p-3 text-cyan-300 shadow-[0_0_18px_rgba(37,99,235,0.28)]">
-                  <Target className="h-6 w-6 text-[#5eb2ff]" />
-                </div>
-              </div>
+              )}
 
-              <div className="mx-auto mt-6 max-w-[560px] space-y-2.5">
-                {funnelVisualData.map((item) => (
-                  <div key={item.key} className="mx-auto transition-all duration-500" style={{ width: `${item.width}%` }}>
-                    <div className={`rounded-xl bg-gradient-to-r ${item.gradient} px-4 py-2.5 ${item.shadow}`}>
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-semibold text-white md:text-base">{item.label}</span>
-                        <span className="text-xl font-black leading-none tracking-tight text-white">{item.value}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              <div className="mt-4 flex justify-center">
-                <div className="relative flex h-[68px] w-[68px] items-center justify-center rounded-full bg-slate-700/45">
-                  <div className="h-[44px] w-[44px] rounded-full border border-slate-400/40" />
-                  <div className="absolute h-[26px] w-[26px] rounded-full border border-slate-400/60" />
-                  <div className="absolute h-[11px] w-[11px] rounded-full bg-violet-500 shadow-[0_0_12px_rgba(139,92,246,0.9)]" />
-                </div>
-              </div>
-
-              <div className="mt-5 border-t border-slate-600/70 pt-4">
-                <div className="grid grid-cols-1 gap-2.5 md:grid-cols-3">
-                  <div className="rounded-xl border border-blue-500/60 bg-gradient-to-b from-[#1a3564] to-[#172e58] px-4 py-2.5 text-center">
-                    <p className="text-2xl font-black leading-none tracking-tight text-slate-100">{funnelSummary.previstos}</p>
-                    <p className="text-sm text-blue-200">Leads no Funil</p>
-                  </div>
-                  <div className="rounded-xl border border-violet-500/60 bg-gradient-to-b from-[#3b2b72] to-[#352660] px-4 py-2.5 text-center">
-                    <p className="text-2xl font-black leading-none tracking-tight text-violet-200">{funnelSummary.fechados}</p>
-                    <p className="text-sm text-violet-200">Vendas Concluídas</p>
-                  </div>
-                  <div className="rounded-xl border border-emerald-500/60 bg-gradient-to-b from-[#1f5d4d] to-[#18493d] px-4 py-2.5 text-center">
-                    <p className="text-2xl font-black leading-none tracking-tight text-emerald-300">{funnelSummary.conversion.toFixed(1)}%</p>
-                    <p className="text-sm text-emerald-200">Taxa de Conversão</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-        <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-          <div
-            className={`relative overflow-hidden rounded-xl border border-slate-700/30 bg-gradient-to-br from-[#0f1e36] via-[#0b1a31] to-[#111f39] p-4 shadow-[0_18px_42px_-28px_rgba(0,0,0,0.85)] transition-all duration-700 ${
-              dashboardReady ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            }`}
-          >
-            <div className="mb-4 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-cyan-400" />
-              <h3 className="text-xl font-bold text-white">Propostas por Serviço</h3>
-            </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={chartData} margin={{ top: 10, right: 10, left: -10, bottom: 8 }}>
+              <svg
+                viewBox="0 0 620 360"
+                className="h-full w-full max-w-[660px]"
+                preserveAspectRatio="xMidYMid meet"
+                role="img"
+                aria-label="Funil de simulações B2B em sete etapas"
+              >
                 <defs>
-                  {chartData.map((entry, index) => {
-                    const highlight = adjustHexColor(entry.color, 0.22);
-                    const shadow = adjustHexColor(entry.color, -0.32);
-                    return (
-                      <linearGradient key={`service-bar-grad-${entry.name}`} id={`serviceBarGrad-${index}`} x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="0%" stopColor={highlight} stopOpacity={0.95} />
-                        <stop offset="55%" stopColor={entry.color} stopOpacity={0.85} />
-                        <stop offset="100%" stopColor={shadow} stopOpacity={0.95} />
+                  {funnelVisualData.map((stage) => (
+                    <React.Fragment key={stage.key}>
+                      <linearGradient id={`sim-front-${stage.key}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor={stage.palette[2]} />
+                        <stop offset="17%" stopColor={stage.palette[1]} />
+                        <stop offset="50%" stopColor={stage.palette[0]} />
+                        <stop offset="83%" stopColor={stage.palette[1]} />
+                        <stop offset="100%" stopColor={stage.palette[2]} />
                       </linearGradient>
+                      <linearGradient id={`sim-rim-${stage.key}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor={stage.palette[0]} />
+                        <stop offset="48%" stopColor={stage.palette[1]} />
+                        <stop offset="100%" stopColor={stage.palette[2]} />
+                      </linearGradient>
+                      <linearGradient id={`sim-depth-${stage.key}`} x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" stopColor="#000000" stopOpacity="0" />
+                        <stop offset="100%" stopColor="#020713" stopOpacity="0.58" />
+                      </linearGradient>
+                    </React.Fragment>
+                  ))}
+                  <filter id="sim-stage-shadow" x="-20%" y="-25%" width="140%" height="175%">
+                    <feDropShadow dx="0" dy="6" stdDeviation="4.5" floodColor="#01040c" floodOpacity="0.65" />
+                  </filter>
+                  <filter id="sim-selected-glow" x="-25%" y="-35%" width="150%" height="190%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="5" floodColor={visualTemperatureLevel.color || '#22d3ee'} floodOpacity="0.95" />
+                    <feDropShadow dx="0" dy="0" stdDeviation="12" floodColor={visualTemperatureLevel.color || '#22d3ee'} floodOpacity="0.55" />
+                  </filter>
+                </defs>
+
+                {funnelVisualData.map((stage, index) => {
+                  const centerX = 310;
+                  const nextWidth = funnelVisualData[index + 1]?.renderedWidth || stage.renderedWidth * 0.72;
+                  const bottomWidth = Math.min(stage.renderedWidth - 10, nextWidth + 12);
+                  const topLeft = centerX - stage.renderedWidth / 2;
+                  const topRight = centerX + stage.renderedWidth / 2;
+                  const bottomLeft = centerX - bottomWidth / 2;
+                  const bottomRight = centerX + bottomWidth / 2;
+                  const topY = stage.y;
+                  const bottomY = topY + stage.height;
+                  const textColor = stage.key === 'diagnosis' ? '#27303b' : '#ffffff';
+                  const isTemperatureFiltered = selectedTemperatureValue !== null;
+                  const isHighlighted = isTemperatureFiltered && (stage.temperatures as readonly number[]).includes(selectedTemperatureValue);
+                  const isMuted = isTemperatureFiltered && !isHighlighted;
+                  const stageOpacity = isMuted ? 0.34 : 1;
+                  const strokeColor = isHighlighted ? visualTemperatureLevel.color : stage.palette[2];
+                  const strokeWidth = isHighlighted ? 2.8 : 1.2;
+
+                  return (
+                    <g
+                      key={stage.key}
+                      filter={isHighlighted ? 'url(#sim-selected-glow)' : 'url(#sim-stage-shadow)'}
+                      opacity={stageOpacity}
+                      className="cursor-pointer transition-all duration-300"
+                    >
+                      <title>{`${stage.label}: ${stage.value} proposta${stage.value === 1 ? '' : 's'} (${stage.percent}%)`}</title>
+                      {/* Corpo Cônico Frontal */}
+                      <path
+                        d={`M ${topLeft + 5} ${topY + 2} C ${topLeft + 10} ${topY + 14}, ${bottomLeft - 3} ${bottomY - 13}, ${bottomLeft} ${bottomY - 5} Q ${centerX} ${bottomY + 7} ${bottomRight} ${bottomY - 5} C ${bottomRight + 3} ${bottomY - 13}, ${topRight - 10} ${topY + 14}, ${topRight - 5} ${topY + 2} Z`}
+                        fill={`url(#sim-front-${stage.key})`}
+                        stroke={strokeColor}
+                        strokeWidth={strokeWidth}
+                      />
+                      {/* Curvatura Interna de Profundidade */}
+                      <path
+                        d={`M ${bottomLeft} ${bottomY - 8} Q ${centerX} ${bottomY + 8} ${bottomRight} ${bottomY - 8} Q ${centerX} ${bottomY + 15} ${bottomLeft} ${bottomY - 8} Z`}
+                        fill={`url(#sim-depth-${stage.key})`}
+                        opacity="0.8"
+                      />
+                      {/* Borda Elíptica Superior */}
+                      <ellipse
+                        cx={centerX}
+                        cy={topY + 2}
+                        rx={stage.renderedWidth / 2}
+                        ry="10"
+                        fill={`url(#sim-rim-${stage.key})`}
+                        stroke={isHighlighted ? visualTemperatureLevel.color : 'rgba(255,255,255,0.42)'}
+                        strokeWidth={isHighlighted ? 2.6 : 1.2}
+                      />
+                      {/* Núcleo Elíptico Escuro da Borda */}
+                      <ellipse
+                        cx={centerX}
+                        cy={topY + 3}
+                        rx={Math.max(stage.renderedWidth / 2 - 10, 24)}
+                        ry="5.5"
+                        fill={stage.palette[2]}
+                        opacity="0.72"
+                      />
+                      {isHighlighted && (
+                        <ellipse
+                          cx={centerX}
+                          cy={topY + 2}
+                          rx={stage.renderedWidth / 2 + 7}
+                          ry="15"
+                          fill="none"
+                          stroke={visualTemperatureLevel.color}
+                          strokeWidth="2"
+                          strokeDasharray="8 7"
+                          opacity="0.9"
+                        />
+                      )}
+                      {/* Reflexo de Brilho Especular */}
+                      <path
+                        d={`M ${topLeft + 16} ${topY - 1} Q ${centerX} ${topY - 8} ${topRight - 16} ${topY - 1}`}
+                        fill="none"
+                        stroke="#ffffff"
+                        strokeLinecap="round"
+                        strokeWidth="1.8"
+                        opacity="0.38"
+                      />
+                      {/* Texto com Nome e Porcentagem */}
+                      <text
+                        x={centerX}
+                        y={topY + 26}
+                        textAnchor="middle"
+                        fill={textColor}
+                        fontFamily="Arial, Segoe UI, sans-serif"
+                        fontSize={stage.renderedWidth < 220 ? '12' : stage.renderedWidth < 290 ? '13' : '14'}
+                        fontWeight="800"
+                        paintOrder="stroke"
+                        stroke={textColor === '#ffffff' ? 'rgba(3,8,18,0.38)' : 'transparent'}
+                        strokeWidth="1.2"
+                      >
+                        {`${stage.label} (${stage.percent}%)`}
+                      </text>
+                    </g>
+                  );
+                })}
+              </svg>
+            </div>
+          </section>
+
+          {/* Coluna Direita: Termômetro do Pipeline com Visual Padrão */}
+          <aside className="relative border-t border-slate-800/80 px-6 py-6 lg:border-l lg:border-t-0 flex flex-col justify-center">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_52%_22%,rgba(168,85,247,0.08),transparent_36%),linear-gradient(180deg,rgba(15,23,42,0.4),rgba(5,9,20,0.2))]" />
+            <div className="relative z-10 pipeline-model__temperature-content">
+              <div
+                className="pipeline-model__thermometer"
+                role="img"
+                aria-label={`Temperatura atual do pipeline: ${visualTemperaturePercent.toFixed(1)}%`}
+                style={{
+                  '--temperature-color': visualTemperatureLevel.color,
+                  '--temperature-height': `${Math.max(visualTemperaturePercent, 4)}%`,
+                } as React.CSSProperties}
+              >
+                <div className="pipeline-model__thermometer-tube">
+                  <div className="pipeline-model__thermometer-liquid" />
+                  <div className="pipeline-model__thermometer-shine" />
+                </div>
+                <div className="pipeline-model__thermometer-bulb">
+                  <div className="pipeline-model__thermometer-bulb-liquid" />
+                  <div className="pipeline-model__thermometer-bulb-shine" />
+                </div>
+              </div>
+
+              <div className="pipeline-model__temperature-copy">
+                <div className="pipeline-model__temperature-title">
+                  <strong className="text-white text-base font-bold">Temperatura do Pipeline</strong>
+                  <span className="text-xs text-slate-400 font-semibold">{visualTemperaturePercent.toFixed(1)}% atual</span>
+                </div>
+                <div className="pipeline-model__temperature-levels">
+                  {TEMPERATURE_LEVELS.map((level) => {
+                    const isActive = selectedTemperatureValue === level.value || (selectedTemperatureValue === null && visualTemperatureLevel.value === level.value);
+                    return (
+                      <div
+                        key={level.value}
+                        className="transition-all"
+                        style={{
+                          opacity: isActive ? 1 : 0.82,
+                        }}
+                      >
+                        <i style={{ backgroundColor: level.color }} />
+                        <span><b>{level.value}%</b> - {level.label}</span>
+                      </div>
                     );
                   })}
-                  <filter id="serviceBarShadow" x="-30%" y="-30%" width="160%" height="160%">
-                    <feDropShadow dx="0" dy="12" stdDeviation="9" floodColor="#060d1f" floodOpacity="0.55" />
-                  </filter>
-                </defs>
-                <CartesianGrid strokeDasharray="4 4" stroke="#334155" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" tickLine={false} axisLine={false} fontSize={12} />
-                <YAxis stroke="#94a3b8" tickLine={false} axisLine={false} allowDecimals={false} />
-                <Tooltip
-                  cursor={{ fill: 'rgba(148, 163, 184, 0.08)' }}
-                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '10px' }}
-                  labelStyle={{ color: '#e2e8f0' }}
-                  formatter={(value: number | string) => [`${value} propostas`, 'Volume']}
-                />
-                <Bar
-                  dataKey="proposals"
-                  radius={[12, 12, 4, 4]}
-                  animationDuration={1200}
-                  animationEasing="ease-out"
-                  filter="url(#serviceBarShadow)"
-                  stroke="rgba(255,255,255,0.35)"
-                  strokeWidth={1}
-                >
-                  {chartData.map((entry, index) => (
-                    <Cell key={`proposals-cell-${index}`} fill={`url(#serviceBarGrad-${index})`} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-cyan-500/10 to-transparent" />
-          </div>
+                </div>
 
-          <div
-            className={`relative overflow-hidden rounded-xl border border-slate-700/30 bg-gradient-to-br from-[#111c33] via-[#0f1a2f] to-[#121f39] p-4 shadow-[0_18px_42px_-28px_rgba(0,0,0,0.85)] transition-all duration-700 delay-100 ${
-              dashboardReady ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            }`}
-          >
-            <div className="mb-4 flex items-center gap-2">
-              <PieChartIcon className="h-5 w-5 text-purple-400" />
-              <h3 className="text-xl font-bold text-white">Distribuição de Propostas</h3>
-            </div>
-            <div className="relative h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <defs>
-                    {safeProposalDistributionData.map((entry, index) => {
-                      const highlight = adjustHexColor(entry.color, 0.25);
-                      const shadow = adjustHexColor(entry.color, -0.35);
-                      return (
-                        <radialGradient key={`proposal-pie-grad-${index}`} id={`proposalPieGrad-${index}`} cx="30%" cy="30%" r="75%">
-                          <stop offset="0%" stopColor={highlight} stopOpacity={0.95} />
-                          <stop offset="60%" stopColor={entry.color} stopOpacity={0.9} />
-                          <stop offset="100%" stopColor={shadow} stopOpacity={0.95} />
-                        </radialGradient>
-                      );
-                    })}
-                    <filter id="proposalPieShadow" x="-30%" y="-30%" width="160%" height="160%">
-                      <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#070f25" floodOpacity="0.55" />
-                    </filter>
-                  </defs>
-                  <Pie
-                    data={safeProposalDistributionData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={62}
-                    outerRadius={96}
-                    paddingAngle={3}
-                    dataKey="value"
-                    animationDuration={1300}
-                    animationEasing="ease-out"
-                    stroke="rgba(255,255,255,0.5)"
-                    strokeWidth={1}
-                    filter="url(#proposalPieShadow)"
-                  >
-                    {safeProposalDistributionData.map((entry, index) => (
-                      <Cell key={`proposal-pie-${index}`} fill={`url(#proposalPieGrad-${index})`} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '10px' }}
-                    labelStyle={{ color: '#e2e8f0' }}
-                    formatter={(value: number | string) => [`${value} propostas`, 'Volume']}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs uppercase tracking-wider text-slate-400">Total</span>
-                <span className="text-2xl font-bold text-white">{totalProposalsMonth}</span>
+                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-slate-800/80 pt-3">
+                  <div className="rounded-lg border border-[#ff6f0f33] bg-[#ff6f0f0d] px-2.5 py-2">
+                    <p className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-400">Forecast Final</p>
+                    <p className="text-sm font-black text-[#ffb21a]">{formatCurrencyCompact(monthlyFunnelBoard.top[2]?.amount || 0)}</p>
+                  </div>
+                  <div className="rounded-lg border border-[#20d4f533] bg-[#20d4f50d] px-2.5 py-2">
+                    <p className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-400">Qtd. Prevista</p>
+                    <p className="text-sm font-black text-[#20d4f5]">{monthlyFunnelBoard.top[2]?.qty || 0}</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          </aside>
+        </div>
 
-          <div
-            className={`relative overflow-hidden rounded-xl border border-slate-700/30 bg-gradient-to-br from-[#101f36] via-[#0c1b30] to-[#121f39] p-4 shadow-[0_18px_42px_-28px_rgba(0,0,0,0.85)] transition-all duration-700 delay-200 ${
-              dashboardReady ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            }`}
-          >
-            <div className="mb-4 flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-emerald-400" />
-              <h3 className="text-xl font-bold text-white">Volume x Receita</h3>
+        <div className="border-t border-[#344159] p-5">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+            <div className="rounded-lg border border-[#2384ff40] bg-[#2384ff12] px-4 py-3 text-center">
+              <p className="text-3xl font-black text-[#2384ff]">{funnelSummary.previstos}</p>
+              <p className="mt-1 text-xs font-bold text-[#8f9caf]">Simulações no Funil</p>
             </div>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={chartData} margin={{ top: 10, right: 20, left: -10, bottom: 8 }}>
+            <div className="rounded-lg border border-[#20d4f540] bg-[#20d4f512] px-4 py-3 text-center">
+              <p className="text-3xl font-black text-[#20d4f5]">{funnelSummary.fechados}</p>
+              <p className="mt-1 text-xs font-bold text-[#8f9caf]">Propostas Aprovadas</p>
+            </div>
+            <div className="rounded-lg border border-[#18d97c40] bg-[#18d97c12] px-4 py-3 text-center">
+              <p className="text-3xl font-black text-[#18d97c]">{funnelSummary.conversion.toFixed(1)}%</p>
+              <p className="mt-1 text-xs font-bold text-[#8f9caf]">Taxa de Conversão</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── KPI CARDS BOTTOM ── */}
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        {monthlyFunnelBoard.bottom.map((item, i) => (
+          <div key={item.title} className="anim-card relative overflow-hidden rounded-lg p-4 shadow-[0_20px_44px_-28px_rgba(0,0,0,0.88)]" style={{ animationDelay: `${200 + i * 60}ms` }}>
+            <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-85`}/>
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.15)_0%,transparent_50%)]"/>
+            <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]"/>
+            <div className="relative z-10">
+              <p className="mb-2 text-[11px] font-black uppercase leading-tight tracking-[0.12em] text-white/75">{item.title}</p>
+              <p className="text-2xl font-black leading-none text-white">{formatCurrencyCompact(item.amount)}</p>
+              <p className="mt-1 text-sm font-bold text-white/80">{item.qty} projetos</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── GRÁFICOS ── */}
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+
+        {/* Propostas por Serviço */}
+        <div className={`anim-card relative overflow-hidden rounded-lg border p-6 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)] transition-all duration-700 ${dashboardReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ ...simulatorPanelStyle, animationDelay: "300ms" }}>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="h-2 w-2 rounded-full bg-[#20d4f5] shadow-[0_0_8px_rgba(32,212,245,0.8)]"/>
+            <h3 className="text-lg font-black uppercase text-[#f4f7fb]">Propostas por Serviço</h3>
+          </div>
+          <ResponsiveContainer width="100%" height={260}>
+            <BarChart data={chartData} margin={{ top: 8, right: 8, left: -15, bottom: 6 }} barSize={28}>
+              <defs>
+                {chartData.map((entry, i) => (
+                  <linearGradient key={i} id={`svcGrad-${i}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor={adjustHexColor(entry.color, 0.25)} stopOpacity={1}/>
+                    <stop offset="100%" stopColor={adjustHexColor(entry.color, -0.2)} stopOpacity={0.9}/>
+                  </linearGradient>
+                ))}
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(82,96,124,0.22)" vertical={false}/>
+              <XAxis dataKey="name" stroke="#8f9caf" tickLine={false} axisLine={false} fontSize={11} interval={0} angle={-20} textAnchor="end" height={40}/>
+              <YAxis stroke="#8f9caf" tickLine={false} axisLine={false} allowDecimals={false} fontSize={11}/>
+              <Tooltip cursor={{ fill: "rgba(255,255,255,0.03)" }}
+                contentStyle={chartTooltipStyle}
+                formatter={(v: number | string) => [`${v} propostas`, "Volume"]}/>
+              <Bar dataKey="proposals" radius={[8, 8, 2, 2]} animationDuration={1200} stroke="rgba(255,255,255,0.2)" strokeWidth={1}>
+                {chartData.map((_, i) => <Cell key={i} fill={`url(#svcGrad-${i})`}/>)}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Distribuição de Propostas - Pizza */}
+        <div className={`anim-card relative overflow-hidden rounded-lg border p-6 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)] transition-all duration-700 delay-100 ${dashboardReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ ...simulatorPanelStyle, animationDelay: "360ms" }}>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="h-2 w-2 rounded-full bg-[#ff6f0f] shadow-[0_0_8px_rgba(255,111,15,0.8)]"/>
+            <h3 className="text-lg font-black uppercase text-[#f4f7fb]">Distribuição de Propostas</h3>
+          </div>
+          <div className="relative h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
                 <defs>
-                  <linearGradient id="volumeBarGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#7dd3fc" stopOpacity={0.95} />
-                    <stop offset="55%" stopColor="#18c8df" stopOpacity={0.85} />
-                    <stop offset="100%" stopColor="#0b4a6f" stopOpacity={0.95} />
-                  </linearGradient>
-                  <linearGradient id="volumeLineGrad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#22c55e" stopOpacity={0.95} />
-                    <stop offset="50%" stopColor="#34d399" stopOpacity={0.95} />
-                    <stop offset="100%" stopColor="#86efac" stopOpacity={0.9} />
-                  </linearGradient>
-                  <filter id="volumeLineGlow" x="-40%" y="-40%" width="180%" height="180%">
-                    <feDropShadow dx="0" dy="0" stdDeviation="6" floodColor="#22c55e" floodOpacity="0.6" />
-                  </filter>
-                  <filter id="volumeBarShadow" x="-30%" y="-30%" width="160%" height="160%">
-                    <feDropShadow dx="0" dy="10" stdDeviation="8" floodColor="#061428" floodOpacity="0.55" />
-                  </filter>
+                  {safeProposalDistributionData.map((entry, i) => (
+                    <radialGradient key={i} id={`ppGrad-${i}`} cx="30%" cy="30%" r="75%">
+                      <stop offset="0%" stopColor={adjustHexColor(entry.color, 0.3)} stopOpacity={1}/>
+                      <stop offset="100%" stopColor={adjustHexColor(entry.color, -0.3)} stopOpacity={0.95}/>
+                    </radialGradient>
+                  ))}
                 </defs>
-                <CartesianGrid strokeDasharray="4 4" stroke="#334155" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" tickLine={false} axisLine={false} fontSize={12} />
-                <YAxis yAxisId="left" stroke="#94a3b8" tickLine={false} axisLine={false} allowDecimals={false} />
-                <YAxis
-                  yAxisId="right"
-                  orientation="right"
-                  stroke="#94a3b8"
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(value) => formatCurrencyCompact(Number(value))}
-                />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '10px' }}
-                  labelStyle={{ color: '#e2e8f0' }}
-                  formatter={(value: number | string, name: string | number) =>
-                    name === 'Valor'
-                      ? [formatCurrency(Number(value)), 'Valor']
-                      : [`${value} propostas`, 'Volume']
-                  }
-                />
-                <Bar
-                  yAxisId="left"
-                  dataKey="proposals"
-                  name="Propostas"
-                  fill="url(#volumeBarGrad)"
-                  radius={[10, 10, 4, 4]}
-                  animationDuration={1100}
-                  filter="url(#volumeBarShadow)"
-                  stroke="rgba(255,255,255,0.3)"
-                  strokeWidth={1}
-                />
-                <Line
-                  yAxisId="right"
-                  type="monotone"
-                  dataKey="amount"
-                  name="Valor"
-                  stroke="url(#volumeLineGrad)"
-                  strokeWidth={3.5}
-                  dot={{ r: 4, strokeWidth: 2, stroke: '#052e2b', fill: '#34d399' }}
-                  activeDot={{ r: 6, fill: '#6ee7b7' }}
-                  animationDuration={1450}
-                  filter="url(#volumeLineGlow)"
-                />
-              </LineChart>
+                <Pie data={safeProposalDistributionData} cx="50%" cy="50%" innerRadius={68} outerRadius={100}
+                  paddingAngle={4} dataKey="value" animationDuration={1200}
+                  stroke="rgba(255,255,255,0.15)" strokeWidth={1}>
+                  {safeProposalDistributionData.map((_, i) => <Cell key={i} fill={`url(#ppGrad-${i})`}/>)}
+                </Pie>
+                <Tooltip contentStyle={chartTooltipStyle}
+                  formatter={(v: number | string) => [`${v} propostas`, "Volume"]}/>
+              </PieChart>
             </ResponsiveContainer>
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#8f9caf]">Total</span>
+              <span className="text-3xl font-black text-[#f4f7fb]">{totalProposalsMonth}</span>
+            </div>
           </div>
+          {/* Legenda */}
+          <div className="mt-3 flex flex-wrap gap-2 justify-center">
+            {safeProposalDistributionData.map((entry, i) => (
+              <div key={i} className="flex items-center gap-1.5">
+                <div className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: entry.color }}/>
+                <span className="text-xs font-semibold text-[#8f9caf]">{entry.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
 
-          <div
-            className={`relative overflow-hidden rounded-xl border border-slate-700/30 bg-gradient-to-br from-[#111c33] via-[#0f1a2f] to-[#121f39] p-4 shadow-[0_18px_42px_-28px_rgba(0,0,0,0.85)] transition-all duration-700 delay-300 ${
-              dashboardReady ? 'translate-y-0 opacity-100' : 'translate-y-4 opacity-0'
-            }`}
-          >
-            <div className="mb-4 flex items-center gap-2">
-              <PieChartIcon className="h-5 w-5 text-emerald-400" />
-              <h3 className="text-xl font-bold text-white">Distribuição de Valores</h3>
+        {/* Volume x Receita - Line + Bar */}
+        <div className={`anim-card relative overflow-hidden rounded-lg border p-6 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)] transition-all duration-700 delay-200 ${dashboardReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ ...simulatorPanelStyle, animationDelay: "420ms" }}>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="h-2 w-2 rounded-full bg-[#18d97c] shadow-[0_0_8px_rgba(24,217,124,0.8)]"/>
+            <h3 className="text-lg font-black uppercase text-[#f4f7fb]">Volume × Receita</h3>
+          </div>
+          <ResponsiveContainer width="100%" height={260}>
+            <LineChart data={chartData} margin={{ top: 8, right: 20, left: -15, bottom: 6 }}>
+              <defs>
+                <linearGradient id="lineGradColor" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#18d97c"/>
+                  <stop offset="100%" stopColor="#20d4f5"/>
+                </linearGradient>
+                <filter id="lineGlow"><feDropShadow dx="0" dy="0" stdDeviation="4" floodColor="#18d97c" floodOpacity="0.7"/></filter>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(82,96,124,0.22)" vertical={false}/>
+              <XAxis dataKey="name" stroke="#8f9caf" tickLine={false} axisLine={false} fontSize={11} interval={0} angle={-20} textAnchor="end" height={40}/>
+              <YAxis yAxisId="left" stroke="#8f9caf" tickLine={false} axisLine={false} allowDecimals={false} fontSize={11}/>
+              <YAxis yAxisId="right" orientation="right" stroke="#8f9caf" tickLine={false} axisLine={false}
+                tickFormatter={v => formatCurrencyCompact(Number(v))} fontSize={11}/>
+              <Tooltip contentStyle={chartTooltipStyle}
+                formatter={(v: number | string, name: string | number) => name === "Valor" ? [formatCurrency(Number(v)), "Valor"] : [`${v} propostas`, "Volume"]}/>
+              <Bar yAxisId="left" dataKey="proposals" name="Propostas" fill="rgba(32,212,245,0.22)" radius={[6, 6, 2, 2]}
+                stroke="rgba(32,212,245,0.5)" strokeWidth={1} animationDuration={1000}/>
+              <Line yAxisId="right" type="monotone" dataKey="amount" name="Valor" stroke="url(#lineGradColor)"
+                strokeWidth={3} dot={{ r: 4, fill: "#18d97c", stroke: "#052e16", strokeWidth: 2 }}
+                activeDot={{ r: 6, fill: "#20d4f5" }} animationDuration={1300} filter="url(#lineGlow)"/>
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Distribuição de Valores */}
+        <div className={`anim-card relative overflow-hidden rounded-lg border p-6 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)] transition-all duration-700 delay-300 ${dashboardReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ ...simulatorPanelStyle, animationDelay: "480ms" }}>
+          <div className="flex items-center gap-2 mb-5">
+            <div className="h-2 w-2 rounded-full bg-[#ffb21a] shadow-[0_0_8px_rgba(255,178,26,0.8)]"/>
+            <h3 className="text-lg font-black uppercase text-[#f4f7fb]">Distribuição de Valores</h3>
+          </div>
+          <div className="relative h-[260px]">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <defs>
+                  {safeValueDistributionData.map((entry, i) => (
+                    <radialGradient key={i} id={`vpGrad-${i}`} cx="30%" cy="30%" r="75%">
+                      <stop offset="0%" stopColor={adjustHexColor(entry.color, 0.3)} stopOpacity={1}/>
+                      <stop offset="100%" stopColor={adjustHexColor(entry.color, -0.3)} stopOpacity={0.95}/>
+                    </radialGradient>
+                  ))}
+                </defs>
+                <Pie data={safeValueDistributionData} cx="50%" cy="50%" innerRadius={68} outerRadius={100}
+                  paddingAngle={4} dataKey="value" animationDuration={1200}
+                  stroke="rgba(255,255,255,0.15)" strokeWidth={1}>
+                  {safeValueDistributionData.map((_, i) => <Cell key={i} fill={`url(#vpGrad-${i})`}/>)}
+                </Pie>
+                <Tooltip contentStyle={chartTooltipStyle}
+                  formatter={(v: number | string) => [formatCurrency(Number(v)), "Valor"]}/>
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#8f9caf]">Receita</span>
+              <span className="text-2xl font-black text-[#ffb21a]">{formatCurrencyCompact(totalValueMonth)}</span>
             </div>
-            <div className="relative h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <defs>
-                    {safeValueDistributionData.map((entry, index) => {
-                      const highlight = adjustHexColor(entry.color, 0.25);
-                      const shadow = adjustHexColor(entry.color, -0.35);
-                      return (
-                        <radialGradient key={`value-pie-grad-${index}`} id={`valuePieGrad-${index}`} cx="30%" cy="30%" r="75%">
-                          <stop offset="0%" stopColor={highlight} stopOpacity={0.95} />
-                          <stop offset="60%" stopColor={entry.color} stopOpacity={0.9} />
-                          <stop offset="100%" stopColor={shadow} stopOpacity={0.95} />
-                        </radialGradient>
-                      );
-                    })}
-                    <filter id="valuePieShadow" x="-30%" y="-30%" width="160%" height="160%">
-                      <feDropShadow dx="0" dy="10" stdDeviation="10" floodColor="#070f25" floodOpacity="0.55" />
-                    </filter>
-                  </defs>
-                  <Pie
-                    data={safeValueDistributionData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={62}
-                    outerRadius={96}
-                    paddingAngle={3}
-                    dataKey="value"
-                    animationDuration={1300}
-                    animationEasing="ease-out"
-                    stroke="rgba(255,255,255,0.5)"
-                    strokeWidth={1}
-                    filter="url(#valuePieShadow)"
-                  >
-                    {safeValueDistributionData.map((entry, index) => (
-                      <Cell key={`value-pie-${index}`} fill={`url(#valuePieGrad-${index})`} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '10px' }}
-                    labelStyle={{ color: '#e2e8f0' }}
-                    formatter={(value: number | string) => [formatCurrency(Number(value)), 'Valor']}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-xs uppercase tracking-wider text-slate-400">Receita</span>
-                <span className="text-2xl font-bold text-white">{formatCurrencyCompact(totalValueMonth)}</span>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2 justify-center">
+            {safeValueDistributionData.map((entry, i) => (
+              <div key={i} className="flex items-center gap-1.5">
+                <div className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: entry.color }}/>
+                <span className="text-xs font-semibold text-[#8f9caf]">{entry.name}</span>
               </div>
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </div>
 
+      {/* ── STAT CARDS ── */}
       <div>
-        <div className="mb-8">
-          <div className="flex items-center gap-4">
-            <div className="rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 p-3 shadow-lg">
-              <Server className="h-8 w-8 text-white" />
-            </div>
-            <div>
-              <h2 className="text-xl font-black tracking-tight text-white sm:text-2xl">Visão Geral</h2>
-              <p className="text-slate-400">Resumo de propostas por calculadora</p>
-            </div>
+        <div className="flex items-center gap-3 mb-5">
+          <div className="rounded-lg bg-gradient-to-br from-[#ff6f0f] to-[#ffb21a] p-2.5 shadow-[0_18px_40px_-22px_rgba(255,111,15,0.9)]">
+            <Server className="h-5 w-5 text-white"/>
+          </div>
+          <div>
+            <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#20d4f5]">Product Mix</p>
+            <h2 className="text-xl font-black uppercase text-[#f4f7fb]">Resumo por Calculadora</h2>
+            <p className="text-sm font-semibold text-[#8f9caf]">Propostas geradas por produto</p>
           </div>
         </div>
-
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-          <StatCard icon={<Phone className="w-6 h-6 text-blue-500" />} title="Propostas PABX/SIP" value={countProposalsByType.pabx.toString()} subtext="Total" />
-          <StatCard icon={<Server className="w-6 h-6 text-purple-500" />} title="Propostas Máquinas Virtuais" value={countProposalsByType.maquinasVirtuais.toString()} subtext="Total" />
-          <StatCard icon={<Wifi className="w-6 h-6 text-green-500" />} title="Propostas Internet Fibra" value={countProposalsByType.fibra.toString()} subtext="Total" />
-          <StatCard icon={<Radio className="w-6 h-6 text-red-500" />} title="Propostas Double-Fibra/Radio" value={countProposalsByType.doubleFibraRadio.toString()} subtext="Total" />
-          <StatCard icon={<Wifi className="w-6 h-6 text-cyan-500" />} title="Propostas Internet Man Fibra" value={countProposalsByType.man.toString()} subtext="Total" />
-          <StatCard icon={<Radio className="w-6 h-6 text-orange-500" />} title="Propostas Internet Man Radio" value={countProposalsByType.manRadio.toString()} subtext="Total" />
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
+          {[
+            { icon: <Phone className="w-5 h-5"/>, color: "from-[#ff6f0f] to-[#ffb21a]", label: "PABX/SIP", count: countProposalsByType.pabx, value: valuesByType.pabx },
+            { icon: <Server className="w-5 h-5"/>, color: "from-[#20d4f5] to-[#2384ff]", label: "Máq. Virtuais", count: countProposalsByType.maquinasVirtuais, value: valuesByType.maquinasVirtuais },
+            { icon: <Wifi className="w-5 h-5"/>, color: "from-[#18d97c] to-[#10b968]", label: "Internet Fibra", count: countProposalsByType.fibra, value: valuesByType.fibra },
+            { icon: <Radio className="w-5 h-5"/>, color: "from-[#ff436d] to-[#c81f43]", label: "Double Fibra/Radio", count: countProposalsByType.doubleFibraRadio, value: valuesByType.doubleFibraRadio },
+            { icon: <Wifi className="w-5 h-5"/>, color: "from-[#2384ff] to-[#1d5ee8]", label: "Man/MPLS Fibra", count: countProposalsByType.man, value: valuesByType.man },
+            { icon: <Radio className="w-5 h-5"/>, color: "from-[#ffb21a] to-[#ff6f0f]", label: "Man/MPLS Radio", count: countProposalsByType.manRadio, value: valuesByType.manRadio },
+          ].map((stat, i) => (
+            <div key={i} className="anim-card relative overflow-hidden rounded-lg border p-4 shadow-[0_20px_44px_-30px_rgba(0,0,0,0.88)]" style={{ ...simulatorInnerStyle, animationDelay: `${500 + i * 50}ms` }}>
+              <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-20`}/>
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.06)_0%,transparent_60%)]"/>
+              <div className="relative z-10">
+                <div className={`inline-flex p-2 rounded-lg bg-gradient-to-br ${stat.color} mb-3 shadow-lg text-white`}>{stat.icon}</div>
+                <p className="mb-1 text-xs font-black uppercase tracking-[0.08em] text-[#8f9caf]">{stat.label}</p>
+                <p className="text-2xl font-black leading-none text-[#f4f7fb]">{stat.count}</p>
+                <p className="mt-1 text-xs font-bold text-[#ffb21a]">{formatCurrencyCompact(stat.value)}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      <ProposalsView 
-        proposals={proposals} 
+      {/* ── PROPOSTAS VIEW ── */}
+      <ProposalsView
+        proposals={proposals}
         partners={partners}
         onSave={handleSave}
         onDelete={handleDelete}
