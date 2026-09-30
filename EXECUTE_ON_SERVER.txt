@@ -1,0 +1,51 @@
+PRODUCTION SERVER FIX - EXECUTE THESE COMMANDS
+===============================================
+
+SSH into production server:
+  ssh root@209.50.241.25
+
+Then copy and paste these commands (one by one or all at once):
+
+═══════════════════════════════════════════════════════════════════
+
+cd /opt/nexoscrm/apps/api
+
+echo "=== Step 1: Stop containers ==="
+docker compose down
+
+echo "=== Step 2: Clean Prisma cache ==="
+rm -rf .prisma
+rm -rf node_modules/.prisma
+rm -rf dist
+
+echo "=== Step 3: Verify schema ==="
+grep "status TaskStatus @default(PENDENTE)" prisma/schema.prisma && echo "✅ Schema correct" || echo "❌ Schema wrong"
+
+echo "=== Step 4: Rebuild Docker (this takes 2-3 min) ==="
+docker compose build backend --no-cache
+
+echo "=== Step 5: Start containers ==="
+docker compose up -d backend
+
+echo "=== Step 6: Wait 5 seconds ==="
+sleep 5
+
+echo "=== Step 7: Check status ==="
+docker compose ps backend
+
+echo "=== Step 8: Show logs ==="
+docker compose logs backend --tail 30
+
+═══════════════════════════════════════════════════════════════════
+
+If you see errors about "TODO" in logs, the fix didn't work.
+If you see container running and logs look normal, test task creation.
+
+TEST TASK CREATION:
+1. Go to: https://nexoscrm.com/projetos/{any-project-id}
+2. Click "Quadro" tab
+3. Click "+ Adicionar Tarefa" on any column
+4. Fill title and click submit
+5. Task should appear in that column
+
+═══════════════════════════════════════════════════════════════════

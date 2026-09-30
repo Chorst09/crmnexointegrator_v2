@@ -1,0 +1,2261 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// === CADASTRO MESTRE ===
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(SELLER)
+  tenantCompanyId String?
+  tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+  regionId  String?
+  region    Region?  @relation(fields: [regionId], references: [id])
+  quota     Float?
+  commissionSalePercentage Float?
+  commissionProject12 Float?
+  commissionProject24 Float?
+  commissionProject36 Float?
+  commissionProject48 Float?
+  commissionProject60 Float?
+  accessB2B Boolean  @default(true)
+  accessB2G Boolean  @default(true)
+  accessPreSales Boolean @default(false)
+  accessManagement Boolean @default(false)
+  accessAutomation Boolean @default(false)
+  permissionOverrides Json @default("{}")
+  isCompanyOwner Boolean @default(false)
+  createdAt DateTime @default(now())
+  
+  // Relacionamentos
+  opportunities       Opportunity[]
+  activities          Activity[]
+  commissions         Commission[]
+  approvalRequests    ApprovalRequest[] @relation("ApprovalRequester")
+  approvalSteps       ApprovalStep[]    @relation("ApprovalApprover")
+  salesTargets        SalesTarget[]
+  teamBonusDistributions TeamBonusDistribution[]
+  workflowExecutions  WorkflowExecution[]
+  notifications       Notification[]
+  customerOnboardings CustomerOnboarding[]
+  supportTickets      SupportTicket[]
+  ticketResponses     TicketResponse[]
+  churnAlerts         ChurnAlert[]
+  preSalesRequests    PreSalesRequest[] @relation("PreSalesRequester")
+  preSalesApproved    PreSalesRequest[] @relation("PreSalesApprover")
+  preSalesRejected    PreSalesRequest[] @relation("PreSalesRejecter")
+  preSalesApprovals   PreSalesApproval[] @relation("PreSalesApprovalApprover")
+  opportunityFollowUps OpportunityFollowUp[] @relation("OpportunityFollowUps")
+  managedProjects    Project[] @relation("ProjectManager")
+  createdProjects    Project[] @relation("ProjectCreator")
+  projectTasks       ProjectTask[]
+  projectTeams       ProjectTeam[]
+  projectTimelogs    ProjectTimelog[]
+  projectRisks       ProjectRisk[]
+  issueReported      ProjectIssue[] @relation("IssueReporter")
+  issueAssigned      ProjectIssue[] @relation("IssueAssignee")
+  crRequested        ProjectChangeRequest[] @relation("CRRequester")
+  crApproved         ProjectChangeRequest[] @relation("CRApprover")
+  acceptancesApproved ProjectAcceptance[] @relation("AcceptanceApprover")
+  phasesAssigned      ProjectPhase[]      @relation("PhaseAssignee")
+  phasesAccountable   ProjectPhase[]      @relation("PhaseAccountable")
+  attentionPoints     OpportunityAttentionPoint[] @relation("AttentionPointAuthor")
+  attentionPointsResolved OpportunityAttentionPoint[] @relation("AttentionPointResolver")
+  learnings           OpportunityLearning[] @relation("LearningAuthor")
+
+  @@index([tenantCompanyId])
+  @@index([role])
+}
+
+model Company {
+  id          String   @id @default(uuid())
+  name        String
+  document    String?
+  segment     String?
+  clientType  ClientType @default(B2B)
+  size        CompanySize?
+  website     String?
+  logo        String?
+  address     String?
+  city        String?
+  state       String?
+  country     String   @default("Brasil")
+  regionId    String?
+  region      Region?  @relation(fields: [regionId], references: [id])
+  status      CompanyStatus @default(ACTIVE)
+  leadScore   Int      @default(0)
+  churnRisk   Float    @default(0)
+  accessB2B   Boolean  @default(true)
+  accessB2G   Boolean  @default(false)
+  accessPreSales Boolean @default(false)
+  accessManagement Boolean @default(false)
+  accessAutomation Boolean @default(false)
+  tenantCompanyId String?
+  tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relacionamentos
+  contacts      Contact[]
+  opportunities Opportunity[]
+  activities    Activity[]
+  contracts     Contract[]
+  documents     CompanyDocument[]
+  customerOnboardings CustomerOnboarding[]
+  supportTickets SupportTicket[]
+  npssurveys    NPSSurvey[]
+  churnAlerts   ChurnAlert[]
+  preSalesLeads PreSalesRequest[] @relation("PreSalesLead")
+  integrationOrders IntegrationOrder[]
+  projects          Project[]
+
+  @@index([tenantCompanyId])
+}
+
+model Contact {
+  id        String   @id @default(uuid())
+  name      String
+  email     String?
+  phone     String?
+  position  String?
+  isPrimary Boolean  @default(false)
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Product {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  category    String?
+  price       Float
+  margin      Float?
+  active      Boolean  @default(true)
+  tenantCompanyId String?
+  tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+  createdAt   DateTime @default(now())
+  
+  // Relacionamentos
+  opportunities OpportunityProduct[]
+  proposals     ProposalItem[]
+  prices        ProductPrice[]
+  crossSells    CrossSellRule[] @relation("MainProduct")
+  upSells       UpSellRule[]    @relation("MainProduct")
+  suggestedBy   CrossSellRule[] @relation("SuggestedProduct")
+  upSellTarget  UpSellRule[]    @relation("TargetProduct")
+  preSalesItems PreSalesItem[]  @relation("PreSalesProduct")
+
+  @@index([tenantCompanyId])
+}
+
+// === FUNIL DE VENDAS ===
+model Opportunity {
+  id              String   @id @default(uuid())
+  number          String?  @unique
+  title           String
+  projectName     String?
+  projectClientType String?
+  projectType     String   @default("SINGLE")
+  projectMonths   Int?
+  description     String?
+  value           Float
+  probability     Int      @default(50)
+  stage           Stage
+  b2gStage        String?
+  source          LeadSource?
+  expectedCloseDate DateTime?
+  actualCloseDate DateTime?
+  lossReason      String?
+  stageDecisionDetails Json?
+  notes           String?
+  
+  // Relacionamentos
+  companyId String
+  company   Company @relation(fields: [companyId], references: [id])
+  ownerId   String
+  owner     User    @relation(fields: [ownerId], references: [id])
+  tenantCompanyId String?
+  tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+  
+  products    OpportunityProduct[]
+  activities  Activity[]
+  proposals   Proposal[]
+  commission  Commission?
+  competitors CompetitorComparison[]
+  preSalesRequests PreSalesRequest[]
+  integrationOrders IntegrationOrder[]
+  followUps   OpportunityFollowUp[]
+  project     Project?
+  attentionPoints OpportunityAttentionPoint[]
+  learnings       OpportunityLearning[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([b2gStage])
+  @@index([tenantCompanyId])
+}
+
+// === PONTOS DE ATENÇÃO ===
+model OpportunityAttentionPoint {
+  id            String            @id @default(uuid())
+  opportunityId String
+  opportunity   Opportunity       @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  authorId      String
+  author        User              @relation("AttentionPointAuthor", fields: [authorId], references: [id])
+  description   String
+  severity      AttentionSeverity @default(MEDIA)
+  status        AttentionStatus   @default(PENDENTE)
+  resolvedAt    DateTime?
+  resolvedById  String?
+  resolvedBy    User?             @relation("AttentionPointResolver", fields: [resolvedById], references: [id])
+  tenantCompanyId String?
+  tenantCompany TenantCompany?    @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([opportunityId])
+  @@index([tenantCompanyId])
+}
+
+// === APRENDIZADOS ===
+model OpportunityLearning {
+  id            String           @id @default(uuid())
+  opportunityId String
+  opportunity   Opportunity      @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  authorId      String
+  author        User             @relation("LearningAuthor", fields: [authorId], references: [id])
+  category      LearningCategory
+  description   String
+  tenantCompanyId String?
+  tenantCompany TenantCompany?   @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([opportunityId])
+  @@index([tenantCompanyId])
+}
+
+model OpportunityFollowUp {
+  id            String   @id @default(uuid())
+  type          String   // CALL, EMAIL, MEETING, NOTE, WHATSAPP, etc
+  content       String
+  attachments   String?  // JSON com URLs de anexos
+  
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User     @relation("OpportunityFollowUps", fields: [userId], references: [id])
+  
+  createdAt DateTime @default(now())
+  
+  @@index([opportunityId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model OpportunityProduct {
+  id            String      @id @default(uuid())
+  quantity      Int         @default(1)
+  unitPrice     Float
+  discount      Float       @default(0)
+  
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  productId     String
+  product       Product     @relation(fields: [productId], references: [id])
+  
+  @@unique([opportunityId, productId])
+}
+
+// === GESTÃO DE ATIVIDADES ===
+model Activity {
+  id          String       @id @default(uuid())
+  type        ActivityType
+  subject     String
+  description String?
+  status      ActivityStatus @default(PENDING)
+  priority    Priority     @default(MEDIUM)
+  dueDate     DateTime?
+  completedAt DateTime?
+  
+  // Relacionamentos
+  companyId String?
+  company   Company? @relation(fields: [companyId], references: [id])
+  opportunityId String?
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id])
+  assignedToId  String
+  assignedTo    User @relation(fields: [assignedToId], references: [id])
+  tenantCompanyId String?
+  tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantCompanyId])
+}
+
+// === PROPOSTAS ===
+model Proposal {
+  id          String   @id @default(uuid())
+  number      String   @unique
+  type        ProposalType @default(COMMERCIAL)
+  title       String
+  description String?
+  sectionsData Json    @default("{}") // Conteudo das secoes do template (texto/campos por secao)
+  totalValue  Float
+  discount    Float    @default(0)
+  tax         Float    @default(0)
+  status      ProposalStatus @default(DRAFT)
+  validUntil  DateTime?
+  version     Int      @default(1)
+  
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  priceTableId  String?
+  priceTable    PriceTable? @relation(fields: [priceTableId], references: [id])
+  templateId    String?
+  template      ProposalTemplate? @relation(fields: [templateId], references: [id])
+  
+  items     ProposalItem[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProposalTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  type        ProposalType @default(COMMERCIAL)
+  description String?
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  
+  // Configurações da Capa
+  coverEnabled     Boolean @default(true)
+  coverTitle       String?
+  coverSubtitle    String?
+  coverLogo        String?
+  coverBackground  String?
+  
+  // Configurações do Cabeçalho
+  headerEnabled    Boolean @default(true)
+  headerLogo       String?
+  headerText       String?
+  headerHeight     Int     @default(80)
+  
+  // Configurações do Rodapé
+  footerEnabled    Boolean @default(true)
+  footerText       String?
+  footerLogo       String?
+  footerHeight     Int     @default(60)
+  
+  // Configurações do Índice
+  indexEnabled     Boolean @default(true)
+  indexTitle       String  @default("Índice")
+  
+  // Configurações de Seções
+  sections         Json    // Array de seções configuráveis
+  
+  // Configurações de Estilo
+  primaryColor     String  @default("#3B82F6")
+  secondaryColor   String  @default("#64748B")
+  fontFamily       String  @default("Inter")
+  fontSize         Int     @default(12)
+  
+  // Configurações de Layout
+  pageMargins      Json    @default("{\"top\": 40, \"right\": 40, \"bottom\": 40, \"left\": 40}")
+  pageSize         String  @default("A4")
+  pageOrientation  String  @default("portrait")
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  proposals Proposal[]
+}
+
+model ProposalItem {
+  id          String   @id @default(uuid())
+  quantity    Int      @default(1)
+  unitPrice   Float
+  discount    Float    @default(0)
+  totalPrice  Float
+  
+  proposalId String
+  proposal   Proposal @relation(fields: [proposalId], references: [id])
+  productId  String
+  product    Product  @relation(fields: [productId], references: [id])
+}
+
+// === COMISSIONAMENTO ===
+model Commission {
+  id            String   @id @default(uuid())
+  percentage    Float
+  amount        Float
+  calculationBase Float?
+  projectType   String   @default("SINGLE")
+  projectMonths Int?
+  status        CommissionStatus @default(PENDING)
+  paidAt        DateTime?
+  
+  opportunityId String   @unique
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  sellerId      String
+  seller        User     @relation(fields: [sellerId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// === INTEGRAÇÕES ===
+model Integration {
+  id          String   @id @default(uuid())
+  name        String
+  type        IntegrationType
+  provider    IntegrationProvider @default(CUSTOM)
+  partnerTier PartnerTier @default(BRONZE)
+  config      Json
+  isActive    Boolean  @default(true)
+  apiKey      String?
+  clientId    String?  @unique
+  clientSecretHash String?
+  scopes      String[] @default([])
+  rateLimitPerMinute Int?
+  webhookSigningSecret String?
+  metadata    Json?
+  webhookUrl  String?
+  lastSync    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  syncLogs          IntegrationLog[]
+  oauthTokens       IntegrationAccessToken[]
+  rateLimitWindows  IntegrationRateLimitWindow[]
+  idempotencyKeys   IntegrationIdempotencyKey[]
+  webhookEndpoints  IntegrationWebhookEndpoint[]
+  webhookDeliveries IntegrationWebhookDelivery[]
+  fieldMappings     IntegrationFieldMapping[]
+  customFields      IntegrationCustomField[]
+  entityMappings    IntegrationEntityMapping[]
+  entityData        IntegrationEntityData[]
+  orders            IntegrationOrder[]
+}
+
+model IntegrationLog {
+  id            String   @id @default(uuid())
+  integrationId String
+  integration   Integration @relation(fields: [integrationId], references: [id])
+  action        String
+  status        LogStatus
+  message       String?
+  data          Json?
+  createdAt     DateTime @default(now())
+}
+
+model IntegrationAccessToken {
+  id            String      @id @default(uuid())
+  integrationId String
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  tokenHash     String      @unique
+  scopes        String[]    @default([])
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  lastUsedAt    DateTime?
+  createdAt     DateTime    @default(now())
+
+  @@index([integrationId, expiresAt])
+  @@index([tokenHash, expiresAt])
+}
+
+model IntegrationRateLimitWindow {
+  id            String      @id @default(uuid())
+  integrationId String
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  windowStart   DateTime
+  requestCount  Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([integrationId, windowStart])
+  @@index([windowStart])
+}
+
+model IntegrationIdempotencyKey {
+  id            String      @id @default(uuid())
+  integrationId String
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  scope         String
+  key           String
+  requestHash   String
+  statusCode    Int
+  responseBody  Json?
+  createdAt     DateTime    @default(now())
+  expiresAt     DateTime
+
+  @@unique([integrationId, scope, key])
+  @@index([expiresAt])
+}
+
+model IntegrationWebhookEndpoint {
+  id              String                     @id @default(uuid())
+  integrationId   String
+  integration     Integration                @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  eventType       String
+  url             String
+  secret          String?
+  isActive        Boolean                    @default(true)
+  maxRetries      Int                        @default(5)
+  timeoutMs       Int                        @default(10000)
+  lastTriggeredAt DateTime?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+
+  deliveries      IntegrationWebhookDelivery[]
+
+  @@index([integrationId, eventType, isActive])
+}
+
+model IntegrationWebhookDelivery {
+  id              String                     @id @default(uuid())
+  endpointId      String
+  endpoint        IntegrationWebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  integrationId   String
+  integration     Integration                @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  eventType       String
+  payload         Json
+  idempotencyKey  String?
+  status          WebhookDeliveryStatus      @default(PENDING)
+  attempt         Int                        @default(0)
+  maxRetries      Int                        @default(5)
+  httpStatus      Int?
+  errorResponse   String?
+  nextAttemptAt   DateTime?
+  sentAt          DateTime?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+
+  @@index([status, nextAttemptAt])
+  @@index([integrationId, eventType, createdAt])
+}
+
+model IntegrationFieldMapping {
+  id            String            @id @default(uuid())
+  integrationId String
+  integration   Integration       @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  module        IntegrationModule
+  entityType    IntegrationEntityType
+  sourceField   String
+  targetField   String
+  transformRule Json?
+  defaultValue  String?
+  isCustom      Boolean           @default(false)
+  isRequired    Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([integrationId, module, entityType, sourceField])
+  @@index([integrationId, module, entityType])
+}
+
+model IntegrationCustomField {
+  id            String              @id @default(uuid())
+  integrationId String
+  integration   Integration         @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  module        IntegrationModule
+  entityType    IntegrationEntityType
+  fieldKey      String
+  label         String
+  dataType      CustomFieldDataType @default(STRING)
+  description   String?
+  totvsFieldCode String?
+  isRequired    Boolean             @default(false)
+  defaultValue  Json?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@unique([integrationId, module, entityType, fieldKey])
+  @@index([integrationId, module, entityType])
+}
+
+model IntegrationEntityMapping {
+  id            String              @id @default(uuid())
+  integrationId String
+  integration   Integration         @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  module        IntegrationModule
+  entityType    IntegrationEntityType
+  internalId    String
+  externalId    String
+  metadata      Json?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@unique([integrationId, module, entityType, externalId])
+  @@index([integrationId, module, entityType, internalId])
+}
+
+model IntegrationEntityData {
+  id            String              @id @default(uuid())
+  integrationId String
+  integration   Integration         @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  module        IntegrationModule
+  entityType    IntegrationEntityType
+  entityId      String
+  data          Json
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@unique([integrationId, module, entityType, entityId])
+  @@index([integrationId, module, entityType])
+}
+
+model IntegrationOrder {
+  id              String      @id @default(uuid())
+  integrationId   String
+  integration     Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  externalOrderId String
+  companyId       String?
+  company         Company?    @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  opportunityId   String?
+  opportunity     Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  status          String      @default("PENDING")
+  currency        String      @default("BRL")
+  totalValue      Float
+  issuedAt        DateTime?
+  payload         Json?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@unique([integrationId, externalOrderId])
+  @@index([companyId, issuedAt])
+}
+
+// === LICENCIAMENTO MULTIEMPRESA ===
+model TenantCompany {
+  id          String              @id @default(uuid())
+  name        String
+  legalName   String?
+  cnpj        String?             @unique
+  email       String?
+  phone       String?
+  status      TenantCompanyStatus @default(PROSPECT)
+  notes       String?
+  accessB2B   Boolean             @default(true)
+  accessB2G   Boolean             @default(false)
+  accessPreSales Boolean          @default(false)
+  accessManagement Boolean        @default(false)
+  accessAutomation Boolean        @default(false)
+  rolePolicyOverrides Json        @default("{}")
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  users       User[]
+  licenses    CompanyLicense[]
+  companies   Company[]
+  products    Product[]
+  opportunities Opportunity[]
+  activities  Activity[]
+  attentionPoints OpportunityAttentionPoint[]
+  learnings   OpportunityLearning[]
+
+  @@index([status, createdAt])
+}
+
+model LicensePlan {
+  id            String              @id @default(uuid())
+  code          String              @unique
+  name          String
+  description   String?
+  billingCycle  LicenseBillingCycle
+  price         Float
+  currency      String              @default("BRL")
+  seatsIncluded Int                 @default(1)
+  isActive      Boolean             @default(true)
+  sortOrder     Int                 @default(0)
+  features      Json                @default("{}")
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  licenses      CompanyLicense[]
+
+  @@index([isActive, sortOrder])
+}
+
+model CompanyLicense {
+  id                  String          @id @default(uuid())
+  tenantCompanyId     String
+  tenantCompany       TenantCompany   @relation(fields: [tenantCompanyId], references: [id], onDelete: Cascade)
+  planId              String
+  plan                LicensePlan     @relation(fields: [planId], references: [id], onDelete: Restrict)
+  status              LicenseStatus   @default(PENDING)
+  seats               Int             @default(1)
+  startDate           DateTime
+  endDate             DateTime
+  priceAtPurchase     Float
+  notes               String?
+  paymentReference    String?         @unique
+  paymentStatus       PaymentStatus   @default(PENDING)
+  paymentConfirmedAt  DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@index([tenantCompanyId, status, endDate])
+  @@index([paymentStatus, createdAt])
+}
+
+// === FUNCIONALIDADES AVANÇADAS ===
+model PriceTable {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  isDefault   Boolean  @default(false)
+  validFrom   DateTime
+  validUntil  DateTime?
+  regionId    String?
+  region      Region?  @relation(fields: [regionId], references: [id])
+  customerSegment String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  prices      ProductPrice[]
+  proposals   Proposal[]
+}
+
+model ProductPrice {
+  id           String     @id @default(uuid())
+  productId    String
+  product      Product    @relation(fields: [productId], references: [id])
+  priceTableId String
+  priceTable   PriceTable @relation(fields: [priceTableId], references: [id])
+  price        Float
+  minQuantity  Int        @default(1)
+  maxQuantity  Int?
+  discount     Float      @default(0)
+  
+  @@unique([productId, priceTableId, minQuantity])
+}
+
+model Competitor {
+  id          String   @id @default(uuid())
+  name        String
+  website     String?
+  strengths   String?
+  weaknesses  String?
+  pricing     String?
+  marketShare Float?
+  notes       String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  comparisons CompetitorComparison[]
+}
+
+model CompetitorComparison {
+  id            String      @id @default(uuid())
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
+  competitorId  String
+  competitor    Competitor  @relation(fields: [competitorId], references: [id])
+  status        CompetitorStatus
+  notes         String?
+  createdAt     DateTime    @default(now())
+}
+
+model Region {
+  id          String   @id @default(uuid())
+  name        String
+  code        String   @unique
+  country     String   @default("Brasil")
+  state       String?
+  city        String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  
+  users       User[]
+  companies   Company[]
+  priceTables PriceTable[]
+  teamBonuses TeamBonus[]
+}
+
+model ApprovalWorkflow {
+  id          String   @id @default(uuid())
+  name        String
+  type        WorkflowType
+  steps       Json
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  
+  approvals   ApprovalRequest[]
+}
+
+model ApprovalRequest {
+  id          String            @id @default(uuid())
+  workflowId  String
+  workflow    ApprovalWorkflow  @relation(fields: [workflowId], references: [id])
+  entityType  String
+  entityId    String
+  requesterId String
+  requester   User              @relation("ApprovalRequester", fields: [requesterId], references: [id])
+  currentStep Int               @default(0)
+  status      ApprovalStatus
+  data        Json
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  
+  steps       ApprovalStep[]
+}
+
+model ApprovalStep {
+  id          String          @id @default(uuid())
+  requestId   String
+  request     ApprovalRequest @relation(fields: [requestId], references: [id])
+  stepNumber  Int
+  approverId  String
+  approver    User            @relation("ApprovalApprover", fields: [approverId], references: [id])
+  status      StepStatus
+  comments    String?
+  approvedAt  DateTime?
+  createdAt   DateTime        @default(now())
+}
+
+// === CROSS-SELL E UPSELL ===
+model CrossSellRule {
+  id                String  @id @default(uuid())
+  name              String
+  mainProductId     String
+  mainProduct       Product @relation("MainProduct", fields: [mainProductId], references: [id])
+  suggestedProductId String
+  suggestedProduct  Product @relation("SuggestedProduct", fields: [suggestedProductId], references: [id])
+  probability       Float   @default(0.5)
+  discount          Float   @default(0)
+  isActive          Boolean @default(true)
+  createdAt         DateTime @default(now())
+}
+
+model UpSellRule {
+  id              String  @id @default(uuid())
+  name            String
+  mainProductId   String
+  mainProduct     Product @relation("MainProduct", fields: [mainProductId], references: [id])
+  targetProductId String
+  targetProduct   Product @relation("TargetProduct", fields: [targetProductId], references: [id])
+  minQuantity     Int     @default(1)
+  discount        Float   @default(0)
+  isActive        Boolean @default(true)
+  createdAt       DateTime @default(now())
+}
+
+// === METAS DE VENDAS ===
+model SalesTarget {
+  id              String   @id @default(uuid())
+  sellerId        String
+  seller          User     @relation(fields: [sellerId], references: [id])
+  targetValue     Float
+  targetDeals     Int      @default(0)
+  startDate       DateTime
+  endDate         DateTime
+  description     String?
+  bonusPercentage Float    @default(0)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// === COMISSÕES POR EQUIPE ===
+model TeamBonus {
+  id            String   @id @default(uuid())
+  regionId      String?
+  region        Region?  @relation(fields: [regionId], references: [id])
+  totalAmount   Float
+  description   String
+  period        String
+  criteria      Json
+  createdAt     DateTime @default(now())
+  
+  distributions TeamBonusDistribution[]
+}
+
+model TeamBonusDistribution {
+  id           String    @id @default(uuid())
+  teamBonusId  String
+  teamBonus    TeamBonus @relation(fields: [teamBonusId], references: [id])
+  sellerId     String
+  seller       User      @relation(fields: [sellerId], references: [id])
+  amount       Float
+  percentage   Float
+  createdAt    DateTime  @default(now())
+}
+
+// === WORKFLOWS AVANÇADOS ===
+model AdvancedWorkflow {
+  id              String   @id @default(uuid())
+  name            String
+  description     String?
+  type            WorkflowAdvancedType
+  category        WorkflowCategory @default(GENERAL)
+  trigger         Json
+  conditions      Json
+  actions         Json
+  escalationRules Json?
+  priority        Priority @default(MEDIUM)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  executions      WorkflowExecution[]
+}
+
+model WorkflowExecution {
+  id            String            @id @default(uuid())
+  workflowId    String
+  workflow      AdvancedWorkflow  @relation(fields: [workflowId], references: [id])
+  triggeredById String?
+  triggeredBy   User?             @relation(fields: [triggeredById], references: [id])
+  triggerData   Json
+  status        ExecutionStatus
+  results       Json?
+  error         String?
+  createdAt     DateTime          @default(now())
+  completedAt   DateTime?
+}
+
+// === NOTIFICAÇÕES AVANÇADAS ===
+model Notification {
+  id          String             @id @default(uuid())
+  type        NotificationType
+  title       String
+  message     String
+  channel     NotificationChannel
+  recipientId String
+  recipient   User               @relation(fields: [recipientId], references: [id])
+  status      NotificationStatus
+  sentAt      DateTime?
+  readAt      DateTime?
+  createdAt   DateTime           @default(now())
+}
+
+// === PÓS-VENDA ===
+model CustomerOnboarding {
+  id              String   @id @default(uuid())
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id])
+  contractId      String?
+  contract        Contract? @relation(fields: [contractId], references: [id])
+  assignedToId    String
+  assignedTo      User     @relation(fields: [assignedToId], references: [id])
+  status          OnboardingStatus @default(PENDING)
+  expectedEndDate DateTime?
+  actualEndDate   DateTime?
+  description     String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  steps           OnboardingStep[]
+}
+
+model OnboardingStep {
+  id            String            @id @default(uuid())
+  onboardingId  String
+  onboarding    CustomerOnboarding @relation(fields: [onboardingId], references: [id])
+  title         String
+  description   String?
+  status        StepStatus        @default(PENDING)
+  order         Int
+  dueDate       DateTime?
+  completedAt   DateTime?
+  createdAt     DateTime          @default(now())
+}
+
+model SupportTicket {
+  id           String        @id @default(uuid())
+  number       String        @unique
+  title        String
+  description  String
+  priority     Priority      @default(MEDIUM)
+  category     String
+  status       TicketStatus  @default(OPEN)
+  companyId    String?
+  company      Company?      @relation(fields: [companyId], references: [id])
+  assignedToId String?
+  assignedTo   User?         @relation(fields: [assignedToId], references: [id])
+  slaDeadline  DateTime?
+  resolvedAt   DateTime?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  
+  responses    TicketResponse[]
+}
+
+model TicketResponse {
+  id         String        @id @default(uuid())
+  ticketId   String
+  ticket     SupportTicket @relation(fields: [ticketId], references: [id])
+  message    String
+  isInternal Boolean       @default(false)
+  authorId   String
+  author     User          @relation(fields: [authorId], references: [id])
+  createdAt  DateTime      @default(now())
+}
+
+model NPSSurvey {
+  id           String       @id @default(uuid())
+  companyId    String?
+  company      Company?     @relation(fields: [companyId], references: [id])
+  contractId   String?
+  contract     Contract?    @relation(fields: [contractId], references: [id])
+  score        Int?
+  feedback     String?
+  status       SurveyStatus @default(PENDING)
+  sentAt       DateTime?
+  respondedAt  DateTime?
+  createdAt    DateTime     @default(now())
+}
+
+model ChurnAlert {
+  id           String      @id @default(uuid())
+  companyId    String
+  company      Company     @relation(fields: [companyId], references: [id])
+  riskLevel    ChurnRisk
+  score        Float
+  reasons      String[]
+  assignedToId String?
+  assignedTo   User?       @relation(fields: [assignedToId], references: [id])
+  status       AlertStatus @default(ACTIVE)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// === ENUMS DO MÓDULO DE PROJETOS ===
+enum ProjectType {
+  B2B
+  B2G
+}
+
+enum ProjectPhaseType {
+  SETUP
+  KICKOFF_INTERNO
+  KICKOFF_EXTERNO
+  EXECUCAO
+  MONITORAMENTO
+  ENCERRAMENTO
+}
+
+enum ProjectStatus {
+  PLANEJADO
+  EM_ANDAMENTO
+  PAUSADO
+  CONCLUIDO
+  CANCELADO
+}
+
+enum ProjectPhaseStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  DELAYED
+  AT_RISK
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+  BLOCKED
+}
+
+enum ProjectRole {
+  PROJECT_MANAGER
+  TECH_LEAD
+  DEVELOPER
+  ANALYST
+  QA
+  ARCHITECT
+  CONSULTANT
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RiskStatus {
+  IDENTIFIED
+  MITIGATING
+  RESOLVED
+  ACCEPTED
+  ESCALATED
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  ESCALATED
+}
+
+enum AttachmentCategory {
+  CONTRACT
+  DELIVERABLE
+  MINUTES
+  CHANGE_REQUEST
+  ACCEPTANCE
+  OTHER
+}
+
+enum ChangeRequestType {
+  SCOPE
+  SCHEDULE
+  BUDGET
+  QUALITY
+  RESOURCE
+}
+
+enum ChangeRequestStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  IMPLEMENTED
+}
+
+enum BillingStatus {
+  PENDING
+  INVOICED
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum AcceptanceType {
+  PROVISIONAL
+  FINAL
+}
+
+enum AcceptanceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CONDITIONALLY_APPROVED
+}
+
+// === CONTRATOS ===
+model Contract {
+  id              String   @id @default(uuid())
+  number          String   @unique
+  title           String
+  description     String?
+  value           Float
+  startDate       DateTime
+  endDate         DateTime
+  status          ContractStatus @default(ACTIVE)
+  
+  // Campos de SLA
+  slaResponseTime    Int?     // Tempo de resposta em horas
+  slaResolutionTime  Int?     // Tempo de resolução em horas
+  slaAvailability    Float?   // Disponibilidade em % (ex: 99.9)
+  slaDescription     String?  // Descrição detalhada do SLA
+  
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  
+  // Relacionamentos
+  customerOnboardings CustomerOnboarding[]
+  npsSurveys         NPSSurvey[]
+  attachments        ContractAttachment[]
+  projects           Project[]
+}
+
+model ContractAttachment {
+  id          String   @id @default(uuid())
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  path        String
+  
+  contractId  String
+  contract    Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CompanyDocument {
+  id           String   @id @default(uuid())
+  filename     String
+  originalName String
+  mimeType     String
+  size         Int
+  path         String
+
+  companyId    String
+  company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+// === PRÉ-VENDAS ===
+model PreSalesRequest {
+  id                  String   @id @default(uuid())
+  numero              String   @unique
+  titulo              String
+  descricao           String
+  nomeCliente         String?  // Nome do cliente
+  modalidade          String?  // 'VENDA', 'LOCACAO', 'SERVICO'
+  status              PreSalesStatus @default(NOVA)
+  prioridade          Priority @default(MEDIUM)
+  tiposPrecificacao   String[] // ['VENDA', 'LOCACAO', 'SERVICOS']
+  regimeTributario    String?  // 'LUCRO_PRESUMIDO', 'LUCRO_REAL', 'SIMPLES_NACIONAL'
+  valorSugerido       Float?
+  custoTotal          Float?
+  margemLucro         Float?
+  calculoDetalhes     Json?    // Detalhes do cálculo de precificação
+  observacoes         String?
+  dataAprovacao       DateTime?
+  dataRejeicao        DateTime?
+  
+  // Relacionamentos
+  solicitanteId       String
+  solicitante         User     @relation("PreSalesRequester", fields: [solicitanteId], references: [id])
+  leadId              String?
+  lead                Company? @relation("PreSalesLead", fields: [leadId], references: [id])
+  opportunityId       String?
+  opportunity         Opportunity? @relation(fields: [opportunityId], references: [id])
+  aprovadoPorId       String?
+  aprovadoPor         User?    @relation("PreSalesApprover", fields: [aprovadoPorId], references: [id])
+  rejeitadoPorId      String?
+  rejeitadoPor        User?    @relation("PreSalesRejecter", fields: [rejeitadoPorId], references: [id])
+  
+  items               PreSalesItem[]
+  aprovacoes          PreSalesApproval[]
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model PreSalesItem {
+  id                  String   @id @default(uuid())
+  preSalesRequestId   String
+  preSalesRequest     PreSalesRequest @relation(fields: [preSalesRequestId], references: [id], onDelete: Cascade)
+  productId           String?
+  product             Product? @relation("PreSalesProduct", fields: [productId], references: [id])
+  descricao           String?  // Para itens customizados sem produto
+  quantidade          Int      @default(1)
+  custoUnitario       Float    @default(0)
+  precoSugerido       Float    @default(0)
+  margemLucro         Float    @default(0)
+  observacoes         String?
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model PreSalesApproval {
+  id                  String   @id @default(uuid())
+  preSalesRequestId   String
+  preSalesRequest     PreSalesRequest @relation(fields: [preSalesRequestId], references: [id], onDelete: Cascade)
+  aprovadorId         String
+  aprovador           User     @relation("PreSalesApprovalApprover", fields: [aprovadorId], references: [id])
+  status              ApprovalStatus
+  observacoes         String?
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model PreSalesPoc {
+  id                       String   @id @default(uuid())
+  relatedOpportunityId     String?
+  relatedOpportunityNumber String?
+  relatedOpportunityTitle  String?
+  title                    String
+  client                   String
+  solution                 String
+  environment              String?
+  objective                String
+  scope                    String?
+  successCriteria          String
+  commercialOwner          String
+  technicalOwner           String
+  startDate                DateTime?
+  dueDate                  DateTime?
+  priority                 Priority @default(MEDIUM)
+  status                   String   @default("PLANEJAMENTO")
+  progress                 Int      @default(0)
+  nextStep                 String?
+  risks                    String?
+  resultSummary            String?
+  decisionReason           String?
+  notes                    String?
+  createdById              String?
+  createdByName            String?
+  approvedAt               DateTime?
+  discardedAt              DateTime?
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  followUps                PreSalesPocFollowUp[]
+
+  @@index([status])
+  @@index([priority])
+  @@index([dueDate])
+  @@index([relatedOpportunityId])
+}
+
+model PreSalesPocFollowUp {
+  id            String      @id @default(uuid())
+  pocId         String
+  poc           PreSalesPoc @relation(fields: [pocId], references: [id], onDelete: Cascade)
+  note          String
+  nextStep      String?
+  status        String?
+  progress      Int?
+  createdById   String?
+  createdByName String?
+  createdAt     DateTime    @default(now())
+
+  @@index([pocId, createdAt])
+}
+
+// === B2G: EDITAIS, TR E ATAS ===
+model BidNotice {
+  id                String          @id @default(uuid())
+  type              BidNoticeType   @default(EDITAL)
+  title             String
+  referenceCode     String?
+  organization      String
+  stateCode         String?
+  modality          String?
+  objectDescription String?
+  estimatedValue    Float?
+  openingDate       DateTime?
+  proposalDueDate   DateTime?
+  status            BidNoticeStatus @default(MONITORANDO)
+  sourceUrl         String?
+  documentText      String?
+  summary           String?
+  aiAnalysis        Json?
+  documentation     Json?
+  tags              String[]        @default([])
+  createdByName     String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  history           BidNoticeHistory[]
+}
+
+model BidNoticeHistory {
+  id            String    @id @default(uuid())
+  noticeId      String
+  notice        BidNotice @relation(fields: [noticeId], references: [id], onDelete: Cascade)
+  eventType     String
+  title         String
+  details       String?
+  payload       Json?
+  createdByName String?
+  createdAt     DateTime  @default(now())
+}
+
+model SavedAnalysis {
+  id                  String   @id @default(uuid())
+  analysisId          String
+  companyId           String
+  createdByUserId     String
+  fileName            String
+  processedAt         String
+  extractedData       Json
+  originalFileDataUri String?
+  summaryPdfDataUri   String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@unique([companyId, analysisId])
+  @@index([companyId, createdByUserId])
+  @@index([createdAt])
+}
+
+// === CONFIGURAÇÕES DO SISTEMA ===
+model SystemSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+// === ENUMS ===
+enum Role {
+  MASTER
+  ADMIN
+  MANAGER
+  DIRECTOR
+  SELLER
+  USER
+  PRE_SALES
+  USER_B2B
+}
+
+enum Stage {
+  LEAD
+  QUALIFICATION
+  DIAGNOSIS
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+}
+
+enum LeadSource {
+  WEBSITE
+  WHATSAPP
+  PHONE
+  EMAIL
+  REFERRAL
+  CAMPAIGN
+  MANUAL
+}
+
+enum CompanySize {
+  MICRO
+  SMALL
+  MEDIUM
+  LARGE
+  ENTERPRISE
+}
+
+enum CompanyStatus {
+  LEAD
+  PROSPECT
+  ACTIVE
+  INACTIVE
+  CHURNED
+}
+
+enum ActivityType {
+  CALL
+  MEETING
+  EMAIL
+  TASK
+  FOLLOW_UP
+  SOLICITACAO_ORCAMENTO
+}
+
+enum ActivityStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  VIEWED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+enum ProposalType {
+  COMMERCIAL
+  TECHNICAL
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+enum IntegrationType {
+  ERP
+  WHATSAPP
+  EMAIL_MARKETING
+  VOIP
+  API_EXTERNAL
+  WEBHOOK
+}
+
+enum IntegrationProvider {
+  TOTVS
+  SAP
+  SENIOR
+  GENERIC_ERP
+  CUSTOM
+}
+
+enum PartnerTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum IntegrationModule {
+  B2B
+  B2G
+  PRE_SALES
+}
+
+enum IntegrationEntityType {
+  CUSTOMER
+  PRICE_TABLE
+  PRODUCT
+  ORDER
+  LEAD
+  OPPORTUNITY
+  BID_NOTICE
+  BID_DOCUMENT
+  CONTRACT
+}
+
+enum TenantCompanyStatus {
+  PROSPECT
+  ACTIVE
+  SUSPENDED
+  CANCELED
+}
+
+enum LicenseBillingCycle {
+  MONTHLY
+  QUARTERLY
+  SEMIANNUAL
+  ANNUAL
+}
+
+enum LicenseStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+  CANCELED
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  REFUNDED
+}
+
+enum AttentionSeverity {
+  BAIXA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum AttentionStatus {
+  PENDENTE
+  RESOLVIDO
+}
+
+enum LearningCategory {
+  NEGOCIACAO
+  CONCORRENCIA
+  EDITAL_JURIDICO
+  ESCOPO_TECNICO
+  PERDA_DE_DEAL
+  RELACIONAMENTO
+  PRECIFICACAO
+  OUTRO
+}
+
+enum CustomFieldDataType {
+  STRING
+  NUMBER
+  BOOLEAN
+  DATE
+  JSON
+  OBJECT
+  ARRAY
+}
+
+enum WebhookDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
+}
+
+enum LogStatus {
+  SUCCESS
+  ERROR
+  WARNING
+  INFO
+}
+
+enum CompetitorStatus {
+  COMPETING
+  WON_AGAINST
+  LOST_TO
+  NOT_COMPETING
+}
+
+enum WorkflowType {
+  PROPOSAL_APPROVAL
+  DISCOUNT_APPROVAL
+  PRICE_APPROVAL
+  CONTRACT_APPROVAL
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum StepStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  SKIPPED
+}
+
+enum WorkflowAdvancedType {
+  CONDITIONAL
+  SEQUENTIAL
+  PARALLEL
+  ESCALATION
+  APPROVAL
+  NOTIFICATION
+}
+
+enum WorkflowCategory {
+  GENERAL
+  SALES
+  MARKETING
+  SUPPORT
+  FINANCE
+  HR
+}
+
+enum ExecutionStatus {
+  PENDING
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum NotificationType {
+  WORKFLOW
+  APPROVAL
+  REMINDER
+  ALERT
+  SYSTEM
+  MARKETING
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+  SMS
+  WHATSAPP
+  PUSH
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+enum OnboardingStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+enum SurveyStatus {
+  PENDING
+  SENT
+  RESPONDED
+  EXPIRED
+}
+
+enum ChurnRisk {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AlertStatus {
+  ACTIVE
+  RESOLVED
+  DISMISSED
+}
+
+enum ContractStatus {
+  DRAFT
+  AWAITING_SIGNATURE
+  ACTIVE
+  RENEWAL_PENDING
+  EXPIRED
+  CANCELLED
+  RENEWED
+}
+
+enum PreSalesStatus {
+  NOVA
+  EM_PRECIFICACAO
+  AGUARDANDO_APROVACAO
+  ENVIADA
+  APROVADO
+  REPROVADO
+  FINALIZADA
+  REJEITADA
+  CANCELADA
+}
+
+enum BidNoticeType {
+  EDITAL
+  TERMO_REFERENCIA
+  ATA_REGISTRO_PRECOS
+  DOCUMENTACAO
+}
+
+enum BidNoticeStatus {
+  MONITORANDO
+  ANALISE_EM_ANDAMENTO
+  ANALISE_CONCLUIDA
+  PROPOSTA_EM_PREPARACAO
+  ENVIADA
+  SUSPENSA
+  ENCERRADA
+}
+
+enum ClientType {
+  B2B
+  B2G
+  B2C
+}
+
+// === CHECKOUT E ASSINATURAS ===
+model PendingSubscription {
+  id                String   @id @default(uuid())
+  planId            String
+  planName          String
+  price             Float
+  companyName       String
+  document          String
+  email             String
+  phone             String
+  responsibleName   String
+  responsibleEmail  String
+  responsiblePhone  String
+  status            String   @default("PENDING") // PENDING, APPROVED, REJECTED, EXPIRED
+  paymentData       Json     @default("{}")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([status])
+  @@index([responsibleEmail])
+}
+
+// === MÓDULO DE PROJETOS ===
+model Project {
+  id              String   @id @default(uuid())
+  number          String   @unique
+  name            String
+  description     String?
+  type            ProjectType
+  phase           ProjectPhaseType @default(SETUP)
+  status          ProjectStatus @default(PLANEJADO)
+  budget          Float    @default(0)
+  actualCost      Float    @default(0)
+  margin          Float    @default(0)
+  plannedStartDate DateTime?
+  plannedEndDate  DateTime?
+  actualStartDate DateTime?
+  actualEndDate   DateTime?
+  healthScore     Int      @default(100)
+  progressPercent Int      @default(0)
+  metadata        Json     @default("{}")
+
+  opportunityId   String?  @unique
+  contractId      String?
+  companyId       String
+  projectManagerId String
+  createdBy       String
+
+  opportunity     Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  contract        Contract?    @relation(fields: [contractId], references: [id], onDelete: SetNull)
+  company         Company      @relation(fields: [companyId], references: [id])
+  projectManager  User         @relation("ProjectManager", fields: [projectManagerId], references: [id])
+  creator         User         @relation("ProjectCreator", fields: [createdBy], references: [id])
+
+  phases          ProjectPhase[]
+  milestones      ProjectMilestone[]
+  tasks           ProjectTask[]
+  team            ProjectTeam[]
+  timelogs        ProjectTimelog[]
+  risks           ProjectRisk[]
+  issues          ProjectIssue[]
+  attachments     ProjectAttachment[]
+  changeRequests  ProjectChangeRequest[]
+  billings        ProjectBilling[]
+  acceptances     ProjectAcceptance[]
+  b2gConfig       ProjectB2GConfig?
+  b2bConfig       ProjectB2BConfig?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([companyId])
+  @@index([projectManagerId])
+  @@index([status])
+  @@index([phase])
+  @@index([type])
+}
+
+model ProjectPhase {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  name            String
+  description     String?
+  order           Int
+  status          ProjectPhaseStatus @default(PENDING)
+  plannedStartDate DateTime?
+  plannedEndDate  DateTime?
+  actualStartDate DateTime?
+  actualEndDate   DateTime?
+  progressPercent Int      @default(0)
+  assignedToId    String?
+  assignedTo      User?    @relation("PhaseAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+  
+  // Matriz RACI
+  responsibleIds  Json?    @default("[]")  // R - Quem executa (array de user IDs)
+  accountableId   String?                  // A - Quem aprova (apenas 1 pessoa)
+  accountable     User?    @relation("PhaseAccountable", fields: [accountableId], references: [id], onDelete: SetNull)
+  consultedIds    Json?    @default("[]")  // C - Quem deve ser consultado (array de user IDs)
+  informedIds     Json?    @default("[]")  // I - Quem deve ser informado (array de user IDs)
+
+  milestones      ProjectMilestone[]
+  tasks           ProjectTask[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([order])
+  @@index([assignedToId])
+  @@index([accountableId])
+}
+
+model ProjectMilestone {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  phaseId         String?
+  phase           ProjectPhase? @relation(fields: [phaseId], references: [id], onDelete: SetNull)
+  name            String
+  description     String?
+  status          MilestoneStatus @default(PENDING)
+  plannedDate     DateTime?
+  actualDate      DateTime?
+  billingTrigger  Boolean  @default(false)
+  billingValue    Float    @default(0)
+  deliverables    Json     @default("[]")
+
+  tasks           ProjectTask[]
+  billings        ProjectBilling[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([phaseId])
+  @@index([status])
+}
+
+model ProjectTask {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  phaseId         String?
+  phase           ProjectPhase? @relation(fields: [phaseId], references: [id], onDelete: SetNull)
+  milestoneId     String?
+  milestone       ProjectMilestone? @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
+  title           String
+  description     String?
+  status          TaskStatus @default(TODO)
+  priority        Priority @default(MEDIUM)
+  dueDate         DateTime?
+  completedAt     DateTime?
+  assignedToId    String?
+  assignedTo      User?    @relation(fields: [assignedToId], references: [id])
+  estimatedHours  Float    @default(0)
+  actualHours     Float    @default(0)
+  dependencyId    String?
+  dependency      ProjectTask? @relation("TaskDependency", fields: [dependencyId], references: [id])
+  dependents      ProjectTask[] @relation("TaskDependency")
+
+  timelogs        ProjectTimelog[]
+  issues          ProjectIssue[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([phaseId])
+  @@index([milestoneId])
+  @@index([assignedToId])
+  @@index([status])
+}
+
+model ProjectTeam {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  role            ProjectRole @default(DEVELOPER)
+  allocationPercent Float  @default(100)
+  hourlyCost      Float    @default(0)
+  startDate       DateTime?
+  endDate         DateTime?
+  isActive        Boolean  @default(true)
+
+  timelogs        ProjectTimelog[]
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([projectId, userId])
+  @@index([projectId])
+  @@index([userId])
+}
+
+model ProjectTimelog {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taskId          String
+  task            ProjectTask @relation(fields: [taskId], references: [id])
+  teamId          String?
+  team            ProjectTeam? @relation(fields: [teamId], references: [id])
+  userId          String
+  user            User     @relation(fields: [userId], references: [id])
+  logDate         DateTime
+  hours           Float
+  description     String?
+  billable        Boolean  @default(true)
+
+  createdAt       DateTime @default(now())
+
+  @@index([projectId])
+  @@index([taskId])
+  @@index([userId])
+  @@index([logDate])
+}
+
+model ProjectRisk {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  level           RiskLevel @default(MEDIUM)
+  status          RiskStatus @default(IDENTIFIED)
+  impact          String?
+  mitigationPlan  String?
+  ownerId         String?
+  owner           User?    @relation(fields: [ownerId], references: [id])
+  identifiedDate  DateTime @default(now())
+  resolvedDate    DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([level])
+  @@index([status])
+}
+
+model ProjectIssue {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  taskId          String?
+  task            ProjectTask? @relation(fields: [taskId], references: [id])
+  title           String
+  description     String?
+  status          IssueStatus @default(OPEN)
+  priority        Priority @default(MEDIUM)
+  reportedById    String?
+  reportedBy      User?    @relation("IssueReporter", fields: [reportedById], references: [id])
+  assignedToId    String?
+  assignedTo      User?    @relation("IssueAssignee", fields: [assignedToId], references: [id])
+  reportedDate    DateTime @default(now())
+  resolvedDate    DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+  @@index([priority])
+}
+
+model ProjectAttachment {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  filename        String
+  originalName    String
+  mimeType        String
+  size            Int
+  path            String
+  category        AttachmentCategory @default(OTHER)
+
+  createdAt       DateTime @default(now())
+
+  @@index([projectId])
+}
+
+model ProjectChangeRequest {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  type            ChangeRequestType @default(SCOPE)
+  status          ChangeRequestStatus @default(SUBMITTED)
+  impactCost      Float    @default(0)
+  impactDays      Int      @default(0)
+  requestedById   String?
+  requestedBy     User?    @relation("CRRequester", fields: [requestedById], references: [id])
+  approvedById    String?
+  approvedBy      User?    @relation("CRApprover", fields: [approvedById], references: [id])
+  justification   Json     @default("{}")
+  decidedAt       DateTime?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+}
+
+model ProjectBilling {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  milestoneId     String?
+  milestone       ProjectMilestone? @relation(fields: [milestoneId], references: [id])
+  invoiceNumber   String?
+  amount          Float
+  tax             Float    @default(0)
+  totalAmount     Float
+  status          BillingStatus @default(PENDING)
+  dueDate         DateTime?
+  paidAt          DateTime?
+  invoiceData     Json     @default("{}")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([status])
+}
+
+model ProjectAcceptance {
+  id              String   @id @default(uuid())
+  projectId       String
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  type            AcceptanceType @default(PROVISIONAL)
+  status          AcceptanceStatus @default(PENDING)
+  documentNumber  String?
+  checklist       Json     @default("[]")
+  approvedById    String?
+  approvedBy      User?    @relation("AcceptanceApprover", fields: [approvedById], references: [id])
+  approvedAt      DateTime?
+  notes           String?
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([projectId])
+  @@index([type])
+  @@index([status])
+}
+
+model ProjectB2GConfig {
+  id              String   @id @default(uuid())
+  projectId       String   @unique
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  empenhoNumber   String?
+  empenhoValue    Float    @default(0)
+  ordemServicoNumber String?
+  editalNumber    String?
+  orgaoCNPJ       String?
+  fiscalContrato  String?
+  gestorContrato  String?
+  medicoes        Json     @default("[]")
+  aditivos        Json     @default("[]")
+  conformidade    Json     @default("{}")
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model ProjectB2BConfig {
+  id              String   @id @default(uuid())
+  projectId       String   @unique
+  project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  slaConfig       Json     @default("{}")
+  slaHistory      Json     @default("[]")
+  billingSchedule Json     @default("[]")
+  timesheetConfig Json     @default("{}")
+  contractMargin  Float    @default(0)
+  realizedMargin  Float    @default(0)
+
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// === INTEGRAÇÃO PNCP ===
+model LicitacaoPncp {
+  // Campos de identificação PNCP
+  id                          String   @id @default(uuid())
+  numeroControlePncp          String   @unique @map("numero_controle_pncp") // Chave única do PNCP
+  numeroCompra                String?  @map("numero_compra")
+  anoCompra                   Int?     @map("ano_compra")
+  processo                    String?
+  sequencialCompra            Int?     @map("sequencial_compra")
+  
+  // Informações básicas da licitação
+  objetoCompra                String?  @map("objeto_compra")
+  informacaoComplementar      String?  @map("informacao_complementar")
+  valorTotalEstimado          Decimal  @default(0) @map("valor_total_estimado") @db.Decimal(15, 4)
+  valorTotalHomologado        Decimal  @default(0) @map("valor_total_homologado") @db.Decimal(15, 4)
+  srp                         Boolean  @default(false) // Sistema de Registro de Preços
+  
+  // Tipo de instrumento e modalidade
+  tipoInstrumentoConvocatorioId   Int?     @map("tipo_instrumento_convocatorio_id")
+  tipoInstrumentoConvocatorioNome String?  @map("tipo_instrumento_convocatorio_nome")
+  modalidadeId                    Int?     @map("modalidade_id")
+  modalidadeNome                  String?  @map("modalidade_nome")
+  modoDisputaId                   Int?     @map("modo_disputa_id")
+  modoDisputaNome                 String?  @map("modo_disputa_nome")
+  
+  // Situação da licitação
+  situacaoCompraId            Int?     @map("situacao_compra_id")
+  situacaoCompraNome          String?  @map("situacao_compra_nome")
+  
+  // Amparo legal (estrutura JSON)
+  amparoLegal                 Json?    @map("amparo_legal")
+  
+  // Datas importantes
+  dataAberturaProposta        DateTime? @map("data_abertura_proposta")
+  dataEncerramentoProposta    DateTime? @map("data_encerramento_proposta")
+  dataPublicacaoPncp          DateTime? @map("data_publicacao_pncp") @db.Date
+  dataInclusaoPncp            DateTime? @map("data_inclusao_pncp") @db.Date
+  dataAtualizacaoPncp         DateTime? @map("data_atualizacao_pncp") @db.Date
+  
+  // Dados do órgão (estrutura JSON)
+  orgaoEntidade               Json?    @map("orgao_entidade")
+  unidadeOrgao                Json?    @map("unidade_orgao")
+  
+  // Dados do órgão sub-rogado (estrutura JSON)
+  orgaoSubRogado              Json?    @map("orgao_sub_rogado")
+  unidadeSubRogada            Json?    @map("unidade_sub_rogada")
+  
+  // Informações complementares
+  usuarioNome                 String?  @map("usuario_nome")
+  linkSistemaOrigem           String?  @map("link_sistema_origem")
+  justificativaPresencial     String?  @map("justificativa_presencial")
+  
+  // Campos de controle interno
+  origemDados                 String   @default("PNCP_API") @map("origem_dados")
+  statusProcessamento         StatusProcessamentoPncp @default(NOVO) @map("status_processamento")
+  metadataProcessamento       Json?    @map("metadata_processamento")
+  hashVerificacao             String?  @map("hash_verificacao")
+  
+  // Timestamps padrão
+  createdAt                   DateTime @default(now()) @map("created_at")
+  updatedAt                   DateTime @updatedAt @map("updated_at")
+
+  @@index([numeroControlePncp])
+  @@index([dataPublicacaoPncp])
+  @@index([modalidadeId, modalidadeNome])
+  @@index([situacaoCompraId])
+  @@index([dataAberturaProposta, dataEncerramentoProposta])
+  @@index([valorTotalEstimado])
+  @@index([statusProcessamento, createdAt])
+  @@index([anoCompra])
+  @@map("licitacoes_pncp")
+}
+
+// === ENUMS PARA LICITAÇÕES PNCP ===
+enum StatusProcessamentoPncp {
+  NOVO
+  PROCESSADO
+  ERRO
+  REPROCESSAR
+}
+
+// === TABELA DE AUDITORIA CORPORATIVA (AUDIT_LOGS) ===
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String?  @map("user_id")
+  userName    String?  @map("user_name")
+  userEmail   String?  @map("user_email")
+  userRole    String?  @map("user_role")
+  action      String   @map("action")
+  resource    String   @map("resource")
+  resourceId  String?  @map("resource_id")
+  details     Json?    @map("details")
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource, resourceId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

@@ -1,0 +1,20 @@
+services:
+  postgres_test:
+    image: postgres:16-alpine
+    container_name: crm_postgres_test
+    environment:
+      POSTGRES_DB: crm_test
+      POSTGRES_USER: crm_test
+      POSTGRES_PASSWORD: crm_test123
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crm_test -d crm_test"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_test_data:

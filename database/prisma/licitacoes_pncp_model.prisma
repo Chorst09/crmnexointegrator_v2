@@ -1,0 +1,225 @@
+// ============================================================================
+// Modelo Prisma para integração com API PNCP
+// Autor: AI Assistant (Arquiteto de Software)
+// Data: 2026-09-03
+// Descrição: Modelo para tabela licitacoes_pncp
+// ============================================================================
+
+// ADICIONAR ESTE MODELO AO ARQUIVO schema.prisma PRINCIPAL
+
+// === INTEGRAÇÃO PNCP ===
+model LicitacaoPncp {
+  // Campos de identificação PNCP
+  id                          String   @id @default(uuid())
+  numeroControlePncp          String   @unique @map("numero_controle_pncp") // Chave única do PNCP
+  numeroCompra                String?  @map("numero_compra")
+  anoCompra                   Int?     @map("ano_compra")
+  processo                    String?
+  sequencialCompra            Int?     @map("sequencial_compra")
+  
+  // Informações básicas da licitação
+  objetoCompra                String?  @map("objeto_compra")
+  informacaoComplementar      String?  @map("informacao_complementar")
+  valorTotalEstimado          Decimal  @default(0) @map("valor_total_estimado") @db.Decimal(15, 4)
+  valorTotalHomologado        Decimal  @default(0) @map("valor_total_homologado") @db.Decimal(15, 4)
+  srp                         Boolean  @default(false) // Sistema de Registro de Preços
+  
+  // Tipo de instrumento e modalidade
+  tipoInstrumentoConvocatorioId   Int?     @map("tipo_instrumento_convocatorio_id")
+  tipoInstrumentoConvocatorioNome String?  @map("tipo_instrumento_convocatorio_nome")
+  modalidadeId                    Int?     @map("modalidade_id")
+  modalidadeNome                  String?  @map("modalidade_nome")
+  modoDisputaId                   Int?     @map("modo_disputa_id")
+  modoDisputaNome                 String?  @map("modo_disputa_nome")
+  
+  // Situação da licitação
+  situacaoCompraId            Int?     @map("situacao_compra_id")
+  situacaoCompraNome          String?  @map("situacao_compra_nome")
+  
+  // Amparo legal (estrutura JSON)
+  amparoLegal                 Json?    @map("amparo_legal")
+  
+  // Datas importantes
+  dataAberturaProposta        DateTime? @map("data_abertura_proposta")
+  dataEncerramentoProposta    DateTime? @map("data_encerramento_proposta")
+  dataPublicacaoPncp          DateTime? @map("data_publicacao_pncp") @db.Date
+  dataInclusaoPncp            DateTime? @map("data_inclusao_pncp") @db.Date
+  dataAtualizacaoPncp         DateTime? @map("data_atualizacao_pncp") @db.Date
+  
+  // Dados do órgão (estrutura JSON)
+  orgaoEntidade               Json?    @map("orgao_entidade")
+  unidadeOrgao                Json?    @map("unidade_orgao")
+  
+  // Dados do órgão sub-rogado (estrutura JSON)
+  orgaoSubRogado              Json?    @map("orgao_sub_rogado")
+  unidadeSubRogada            Json?    @map("unidade_sub_rogada")
+  
+  // Informações complementares
+  usuarioNome                 String?  @map("usuario_nome")
+  linkSistemaOrigem           String?  @map("link_sistema_origem")
+  justificativaPresencial     String?  @map("justificativa_presencial")
+  
+  // Campos de controle interno
+  origemDados                 String   @default("PNCP_API") @map("origem_dados")
+  statusProcessamento         StatusProcessamentoPncp @default(NOVO) @map("status_processamento")
+  metadataProcessamento       Json?    @map("metadata_processamento")
+  hashVerificacao             String?  @map("hash_verificacao")
+  
+  // Timestamps padrão
+  createdAt                   DateTime @default(now()) @map("created_at")
+  updatedAt                   DateTime @updatedAt @map("updated_at")
+
+  @@index([numeroControlePncp])
+  @@index([dataPublicacaoPncp])
+  @@index([modalidadeId, modalidadeNome])
+  @@index([situacaoCompraId])
+  @@index([dataAberturaProposta, dataEncerramentoProposta])
+  @@index([valorTotalEstimado])
+  @@index([statusProcessamento, createdAt])
+  @@index([anoCompra])
+  @@map("licitacoes_pncp")
+}
+
+// === ENUMS PARA LICITAÇÕES PNCP ===
+enum StatusProcessamentoPncp {
+  NOVO
+  PROCESSADO
+  ERRO
+  REPROCESSAR
+}
+
+// === ESTRUTURAS DE TIPOS TYPESCRIPT PARA OS CAMPOS JSON ===
+
+// Tipo TypeScript para orgaoEntidade
+// interface OrgaoEntidadePncp {
+//   cnpj: string;
+//   razaoSocial: string;
+//   poderId: string; // L - Legislativo, E - Executivo, J - Judiciário
+//   esferaId: string; // F - Federal, E - Estadual, M - Municipal, D - Distrital
+// }
+
+// Tipo TypeScript para unidadeOrgao  
+// interface UnidadeOrgaoPncp {
+//   codigoUnidade: string;
+//   nomeUnidade: string;
+//   codigoIbge: number;
+//   municipioNome: string;
+//   ufSigla: string;
+//   ufNome: string;
+// }
+
+// Tipo TypeScript para amparoLegal
+// interface AmparoLegalPncp {
+//   codigo: number;
+//   nome: string;
+//   descricao: string;
+// }
+
+// Tipo TypeScript para metadataProcessamento
+// interface MetadataProcessamentoPncp {
+//   dataUltimaConsulta: string;
+//   tentativasProcessamento: number;
+//   erros?: string[];
+//   dadosOriginais?: any;
+//   versaoApi?: string;
+// }
+
+// ============================================================================
+// QUERIES DE EXEMPLO USANDO PRISMA
+// ============================================================================
+
+// Buscar licitações por data de publicação
+// const licitacoesPorData = await prisma.licitacaoPncp.findMany({
+//   where: {
+//     dataPublicacaoPncp: {
+//       gte: new Date('2026-01-01'),
+//       lte: new Date('2026-01-31')
+//     },
+//     statusProcessamento: 'PROCESSADO'
+//   },
+//   orderBy: {
+//     dataPublicacaoPncp: 'desc'
+//   }
+// });
+
+// Buscar licitações por modalidade
+// const licitacoesPregao = await prisma.licitacaoPncp.findMany({
+//   where: {
+//     modalidadeId: 6, // Pregão Eletrônico
+//     statusProcessamento: 'PROCESSADO'
+//   },
+//   select: {
+//     numeroControlePncp: true,
+//     objetoCompra: true,
+//     valorTotalEstimado: true,
+//     orgaoEntidade: true,
+//     dataAberturaProposta: true
+//   }
+// });
+
+// Buscar licitações por CNPJ do órgão usando Prisma JSON
+// const licitacoesPorOrgao = await prisma.licitacaoPncp.findMany({
+//   where: {
+//     orgaoEntidade: {
+//       path: ['cnpj'],
+//       equals: '00394460000141'
+//     }
+//   }
+// });
+
+// Buscar licitações por UF usando Prisma JSON
+// const licitacoesPorUF = await prisma.licitacaoPncp.findMany({
+//   where: {
+//     unidadeOrgao: {
+//       path: ['ufSigla'],
+//       equals: 'SP'
+//     }
+//   }
+// });
+
+// Agregar dados por modalidade
+// const estatisticasPorModalidade = await prisma.licitacaoPncp.groupBy({
+//   by: ['modalidadeId', 'modalidadeNome'],
+//   where: {
+//     statusProcessamento: 'PROCESSADO'
+//   },
+//   _count: {
+//     _all: true
+//   },
+//   _sum: {
+//     valorTotalEstimado: true
+//   },
+//   orderBy: {
+//     _count: {
+//       _all: 'desc'
+//     }
+//   }
+// });
+
+// UPSERT para inserir ou atualizar licitação
+// const upsertLicitacao = await prisma.licitacaoPncp.upsert({
+//   where: {
+//     numeroControlePncp: '00394460000141-1-000001/2026'
+//   },
+//   update: {
+//     valorTotalEstimado: 150000.00,
+//     statusProcessamento: 'PROCESSADO',
+//     updatedAt: new Date()
+//   },
+//   create: {
+//     numeroControlePncp: '00394460000141-1-000001/2026',
+//     objetoCompra: 'Aquisição de equipamentos de informática',
+//     valorTotalEstimado: 150000.00,
+//     modalidadeId: 6,
+//     modalidadeNome: 'Pregão - Eletrônico',
+//     orgaoEntidade: {
+//       cnpj: '00394460000141',
+//       razaoSocial: 'Ministério da Fazenda',
+//       poderId: 'E',
+//       esferaId: 'F'
+//     },
+//     statusProcessamento: 'PROCESSADO'
+//   }
+// });
+
+// ============================================================================

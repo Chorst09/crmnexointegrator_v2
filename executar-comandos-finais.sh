@@ -1,0 +1,150 @@
+#!/bin/bash
+# ============================================
+# Executar Comandos Finais
+# ============================================
+
+echo "🚀 Executando comandos finais..."
+
+# Usar sshpass se disponível
+if command -v sshpass &> /dev/null; then
+    SSH_CMD="sshpass -p '<SSH_PASSWORD>' ssh -o StrictHostKeyChecking=no root@209.50.241.25"
+else
+    SSH_CMD="ssh root@209.50.241.25"
+fi
+
+# Executar comandos
+$SSH_CMD << 'ENDSSH'
+cd /var/www/nexoscrm/frontend
+mkdir -p dist
+
+cat > dist/index.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NexosCRM</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 400px; margin: 100px auto; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; text-align: center; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; color: #555; }
+        input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px; }
+        button:hover { background: #0056b3; }
+        .status { margin-top: 20px; padding: 10px; border-radius: 4px; text-align: center; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>NexosCRM</h1>
+        <p style="text-align: center; color: #666; margin-bottom: 30px;">Sistema de CRM Completo</p>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" value="admin@nexoscrm.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" value="<ADMIN_PASSWORD>" required>
+            </div>
+            <button type="submit">Entrar no Sistema</button>
+        </form>
+        <div id="status"></div>
+        <div style="margin-top: 30px; padding: 15px; background: #e9ecef; border-radius: 4px; font-size: 14px;">
+            <strong>Funcionalidades:</strong><br>
+            • Gestão de Clientes e Empresas<br>
+            • Funil de Vendas e Oportunidades<br>
+            • Propostas e Contratos<br>
+            • Pós-venda e Suporte<br>
+            • Comissionamento<br>
+            • Automações e Workflows
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('status');
+            
+            status.innerHTML = '<div style="text-align: center; color: #007bff;">Conectando...</div>';
+            
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    status.innerHTML = '<div class="success">✅ Login realizado com sucesso!</div>';
+                    localStorage.setItem('token', data.token);
+                } else {
+                    const error = await response.json();
+                    status.innerHTML = '<div class="error">❌ ' + (error.message || 'Erro no login') + '</div>';
+                }
+            } catch (error) {
+                status.innerHTML = '<div class="error">❌ Erro de conexão com a API</div>';
+            }
+        });
+        
+        // Testar API ao carregar
+        fetch('/api/health')
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ API funcionando:', data);
+                document.title = 'NexosCRM - Online';
+            })
+            .catch(error => {
+                console.error('❌ API offline:', error);
+                document.title = 'NexosCRM - API Offline';
+            });
+    </script>
+</body>
+</html>
+HTMLEOF
+
+cat > /etc/nginx/sites-available/nexoscrm << 'NGINXEOF'
+server {
+    listen 80;
+    server_name _;
+    root /var/www/nexoscrm/frontend/dist;
+    index index.html;
+    
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+    
+    location /api/ {
+        proxy_pass http://localhost:3001;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+NGINXEOF
+
+nginx -t && systemctl reload nginx
+
+echo "✅ Configuração finalizada!"
+echo "🌐 Testando..."
+curl -s http://localhost/ | head -5
+curl -s http://localhost/api/health
+ENDSSH
+
+echo ""
+echo "🎉 DEPLOY FINALIZADO!"
+echo ""
+echo "🌐 Acesse: http://209.50.241.25"
+echo "📧 Login: admin@nexoscrm.com"
+echo "🔑 Senha: <ADMIN_PASSWORD>"

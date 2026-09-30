@@ -1,0 +1,8 @@
+{
+  "name": "CRM NEXOS",
+  "description": "Sistema de CRM comercial completo com gestão B2B, B2G, pipeline, propostas, calculadoras e projetos.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

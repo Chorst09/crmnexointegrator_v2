@@ -1,0 +1,517 @@
+// Prisma Schema for Neon PostgreSQL
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("NEON_DATABASE_URL")
+  directUrl = env("NEON_DIRECT_URL") // Optional: for migrations
+}
+
+// User Management
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String
+  password  String
+  role      Role     @default(SELLER)
+  commissionSalePercentage Float?
+  commissionProject12 Float?
+  commissionProject24 Float?
+  commissionProject36 Float?
+  commissionProject48 Float?
+  commissionProject60 Float?
+  active    Boolean  @default(true)
+  lastLogin DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  ownedOpportunities Opportunity[]
+  activities         Activity[]
+  commissions        Commission[]
+  salesTargets       SalesTarget[]
+
+  @@map("users")
+}
+
+enum Role {
+  ADMIN
+  MANAGER
+  SELLER
+}
+
+// Company Management
+model Company {
+  id         String      @id @default(cuid())
+  name       String
+  document   String      @unique
+  segment    String?
+  size       CompanySize @default(SMALL)
+  website    String?
+  logo       String?
+  address    String?
+  city       String?
+  state      String?
+  country    String      @default("Brasil")
+  regionId   String?
+  status     CompanyStatus @default(LEAD)
+  leadScore  Int         @default(0)
+  churnRisk  Float       @default(0)
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  // Relationships
+  region        Region?       @relation(fields: [regionId], references: [id])
+  contacts      Contact[]
+  opportunities Opportunity[]
+  contracts     Contract[]
+  activities    Activity[]
+
+  @@map("companies")
+}
+
+enum CompanySize {
+  MICRO
+  SMALL
+  MEDIUM
+  LARGE
+  ENTERPRISE
+}
+
+enum CompanyStatus {
+  LEAD
+  PROSPECT
+  ACTIVE
+  INACTIVE
+  CHURNED
+}
+
+// Contact Management
+model Contact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String?
+  phone     String?
+  position  String?
+  isPrimary Boolean  @default(false)
+  companyId String
+  createdAt DateTime @default(now())
+
+  // Relationships
+  company Company @relation(fields: [companyId], references: [id], onDelete: Cascade)
+
+  @@map("contacts")
+}
+
+// Opportunity Management
+model Opportunity {
+  id                String    @id @default(cuid())
+  title             String
+  description       String?
+  value             Float
+  probability       Int       @default(50)
+  stage             OpportunityStage @default(LEAD)
+  source            String?
+  expectedCloseDate DateTime?
+  actualCloseDate   DateTime?
+  lossReason        String?
+  companyId         String
+  ownerId           String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  // Relationships
+  company    Company              @relation(fields: [companyId], references: [id])
+  owner      User                 @relation(fields: [ownerId], references: [id])
+  products   OpportunityProduct[]
+  activities Activity[]
+  proposals  Proposal[]
+  commission Commission?
+
+  @@map("opportunities")
+}
+
+enum OpportunityStage {
+  LEAD
+  QUALIFICATION
+  DIAGNOSIS
+  PROPOSAL
+  NEGOTIATION
+  WON
+  LOST
+}
+
+// Product Management
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  category    String?
+  price       Float
+  margin      Float?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  // Relationships
+  opportunities OpportunityProduct[]
+  proposalItems ProposalItem[]
+
+  @@map("products")
+}
+
+model OpportunityProduct {
+  id            String @id @default(cuid())
+  quantity      Int    @default(1)
+  unitPrice     Float
+  discount      Float  @default(0)
+  opportunityId String
+  productId     String
+
+  // Relationships
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  product     Product     @relation(fields: [productId], references: [id])
+
+  @@map("opportunity_products")
+}
+
+// Proposal Management
+model Proposal {
+  id            String         @id @default(cuid())
+  number        String         @unique
+  title         String
+  description   String?
+  version       Int            @default(1)
+  status        ProposalStatus @default(DRAFT)
+  totalValue    Float
+  discount      Float          @default(0)
+  tax           Float          @default(0)
+  validUntil    DateTime?
+  templateId    String?
+  opportunityId String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  // Relationships
+  opportunity Opportunity    @relation(fields: [opportunityId], references: [id])
+  template    ProposalTemplate? @relation(fields: [templateId], references: [id])
+  items       ProposalItem[]
+
+  @@map("proposals")
+}
+
+enum ProposalStatus {
+  DRAFT
+  SENT
+  VIEWED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+model ProposalTemplate {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  config      Json     // Template configuration
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  proposals Proposal[]
+
+  @@map("proposal_templates")
+}
+
+model ProposalItem {
+  id         String @id @default(cuid())
+  quantity   Int    @default(1)
+  unitPrice  Float
+  discount   Float  @default(0)
+  totalPrice Float
+  proposalId String
+  productId  String
+
+  // Relationships
+  proposal Proposal @relation(fields: [proposalId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id])
+
+  @@map("proposal_items")
+}
+
+// Contract Management
+model Contract {
+  id              String          @id @default(cuid())
+  number          String          @unique
+  title           String
+  description     String?
+  value           Float
+  startDate       DateTime
+  endDate         DateTime
+  status          ContractStatus  @default(DRAFT)
+  renewalMonths   Int?
+  renewalNotice   Int?
+  companyId       String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  // SLA Fields
+  slaResponseTime   Int?    // in hours
+  slaResolutionTime Int?    // in hours
+  slaAvailability   Float?  // percentage
+  slaDescription    String?
+
+  // Relationships
+  company     Company              @relation(fields: [companyId], references: [id])
+  attachments ContractAttachment[]
+  renewals    ContractRenewal[]
+
+  @@map("contracts")
+}
+
+enum ContractStatus {
+  DRAFT
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+  CANCELLED
+}
+
+model ContractAttachment {
+  id         String   @id @default(cuid())
+  filename   String
+  originalName String
+  mimeType   String
+  size       Int
+  path       String
+  contractId String
+  uploadedAt DateTime @default(now())
+
+  // Relationships
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@map("contract_attachments")
+}
+
+model ContractRenewal {
+  id         String          @id @default(cuid())
+  contractId String
+  oldEndDate DateTime
+  newEndDate DateTime
+  status     RenewalStatus   @default(PENDING)
+  createdAt  DateTime        @default(now())
+  processedAt DateTime?
+
+  // Relationships
+  contract Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+
+  @@map("contract_renewals")
+}
+
+enum RenewalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  PROCESSED
+}
+
+// Activity Management
+model Activity {
+  id           String         @id @default(cuid())
+  type         ActivityType
+  subject      String
+  description  String?
+  status       ActivityStatus @default(PENDING)
+  priority     Priority       @default(MEDIUM)
+  dueDate      DateTime?
+  completedAt  DateTime?
+  companyId    String?
+  opportunityId String?
+  assignedToId String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  // Relationships
+  company     Company?     @relation(fields: [companyId], references: [id])
+  opportunity Opportunity? @relation(fields: [opportunityId], references: [id])
+  assignedTo  User         @relation(fields: [assignedToId], references: [id])
+
+  @@map("activities")
+}
+
+enum ActivityType {
+  CALL
+  EMAIL
+  MEETING
+  TASK
+  NOTE
+}
+
+enum ActivityStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+// Commission Management
+model Commission {
+  id            String           @id @default(cuid())
+  percentage    Float
+  amount        Float
+  status        CommissionStatus @default(PENDING)
+  paidAt        DateTime?
+  opportunityId String           @unique
+  sellerId      String
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  // Relationships
+  opportunity Opportunity @relation(fields: [opportunityId], references: [id])
+  seller      User        @relation(fields: [sellerId], references: [id])
+
+  @@map("commissions")
+}
+
+enum CommissionStatus {
+  PENDING
+  APPROVED
+  PAID
+  CANCELLED
+}
+
+// Sales Target Management
+model SalesTarget {
+  id        String   @id @default(cuid())
+  sellerId  String
+  period    String   // "2024-01", "2024-Q1", etc.
+  target    Float
+  achieved  Float    @default(0)
+  bonus     Float?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationships
+  seller User @relation(fields: [sellerId], references: [id])
+
+  @@unique([sellerId, period])
+  @@map("sales_targets")
+}
+
+// Region Management
+model Region {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  code      String    @unique
+  country   String    @default("Brasil")
+  createdAt DateTime  @default(now())
+
+  // Relationships
+  companies Company[]
+
+  @@map("regions")
+}
+
+// Post-Sales Management
+model OnboardingProcess {
+  id          String            @id @default(cuid())
+  title       String
+  description String?
+  companyId   String
+  contractId  String?
+  assignedTo  String?
+  status      OnboardingStatus  @default(PENDING)
+  startDate   DateTime?
+  endDate     DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  // Relationships
+  steps OnboardingStep[]
+
+  @@map("onboarding_processes")
+}
+
+enum OnboardingStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model OnboardingStep {
+  id          String    @id @default(cuid())
+  processId   String
+  title       String
+  description String?
+  order       Int
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  dueDate     DateTime?
+
+  // Relationships
+  process OnboardingProcess @relation(fields: [processId], references: [id], onDelete: Cascade)
+
+  @@map("onboarding_steps")
+}
+
+model SupportTicket {
+  id          String        @id @default(cuid())
+  number      String        @unique
+  subject     String
+  description String
+  priority    Priority      @default(MEDIUM)
+  status      TicketStatus  @default(OPEN)
+  companyId   String?
+  assignedTo  String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("support_tickets")
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  WAITING_CUSTOMER
+  RESOLVED
+  CLOSED
+}
+
+model NPSSurvey {
+  id        String   @id @default(cuid())
+  companyId String?
+  score     Int      // 0-10
+  feedback  String?
+  createdAt DateTime @default(now())
+
+  @@map("nps_surveys")
+}
+
+model ChurnAlert {
+  id        String     @id @default(cuid())
+  companyId String
+  riskLevel RiskLevel
+  reasons   String[]
+  score     Float
+  createdAt DateTime   @default(now())
+
+  @@map("churn_alerts")
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}

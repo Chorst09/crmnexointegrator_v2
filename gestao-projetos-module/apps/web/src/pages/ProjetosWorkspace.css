@@ -1,0 +1,33 @@
+.project-management-embed {
+  --pm-bg: #070b16;
+  --pm-bg-elevated: #070b16;
+  --pm-surface: #111827;
+  --pm-surface-strong: #0d1423;
+  --pm-border: #263345;
+  --pm-accent: #ff7a00;
+  --pm-success: #22c55e;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  color-scheme: dark;
+  background: var(--pm-bg);
+}
+
+.project-management-embed > div {
+  height: 100vh;
+  min-height: 0;
+}
+
+.project-management-embed h1,
+.project-management-embed h2,
+.project-management-embed h3,
+.project-management-embed h4 {
+  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  letter-spacing: 0;
+}
+
+@media (max-width: 767px) {
+  .project-management-embed > div {
+    min-width: 920px;
+  }
+}

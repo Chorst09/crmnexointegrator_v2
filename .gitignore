@@ -1,0 +1,81 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Testing
+coverage/
+*.lcov
+.nyc_output
+
+# Production
+dist/
+build/
+.netlify/
+.wrangler/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production
+.env*.local
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+
+# Prisma
+**/prisma/migrations/
+!**/prisma/migrations/.gitkeep
+!apps/api/prisma/migrations/
+!apps/api/prisma/migrations/**
+
+# Temporary files
+*.tmp
+*.temp
+*.tar.gz
+.cache/
+tmp/
+tmp/pptx_extract/
+
+# Docker
+docker-compose.override.yml
+
+# Uploads
+uploads/
+**/uploads/
+
+# Build artifacts
+*.tsbuildinfo
+
+# Local source archives
+SimuladoresDoublev2.zip
