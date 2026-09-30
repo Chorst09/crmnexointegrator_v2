@@ -29,7 +29,8 @@ fail() {
 
 # ── 1. Pré-requisitos ─────────────────────────────────────────────────────────
 mkdir -p "${BACKUP_DIR}"
-chmod 700 "${BACKUP_DIR}"
+chown root:postgres "${BACKUP_DIR}" 2>/dev/null || true
+chmod 750 "${BACKUP_DIR}"
 
 command -v pg_dump >/dev/null 2>&1 || fail "pg_dump não encontrado no sistema"
 
@@ -52,7 +53,7 @@ log "Dump customizado concluído: ${BACKUP_FILE} (${HUMAN_SIZE})"
 
 # ── 3. Validação de Integridade do Dump ───────────────────────────────────────
 log "Verificando integridade estrutural do arquivo de backup..."
-if sudo -u "${DB_USER}" pg_restore --list "${BACKUP_FILE}" >/dev/null 2>&1; then
+if pg_restore --list "${BACKUP_FILE}" >/dev/null 2>&1; then
   log "Integridade do arquivo de backup validada com SUCESSO."
 else
   fail "Validação de integridade do dump falhou! O arquivo pode estar corrompido."
