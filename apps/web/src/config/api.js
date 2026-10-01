@@ -1,7 +1,16 @@
 // Configuração da API - Detecta automaticamente o ambiente
 const getApiBaseUrl = () => {
   const explicitApiUrl = String(import.meta.env.VITE_API_URL || '').trim();
-  const isProd = import.meta.env.PROD;
+
+  // Em ambiente de navegador, se estiver em domínio real (não localhost), SEMPRE usa a rota relativa '/api'
+  // evitando que variáveis de build locais (ex: localhost:3001) quebrem o login com ERR_CONNECTION_REFUSED.
+  if (typeof window !== 'undefined' && window.location) {
+    const currentHost = String(window.location.hostname || '').toLowerCase();
+    const isLocalDev = currentHost === 'localhost' || currentHost === '127.0.0.1';
+    if (!isLocalDev) {
+      return '/api';
+    }
+  }
 
   const normalizePathBase = (value) => {
     const clean = String(value || '')
@@ -15,11 +24,9 @@ const getApiBaseUrl = () => {
     return `/${clean}`;
   };
 
-  // Permite definir URL absoluta no build (Coolify, ambientes separados etc.)
   if (explicitApiUrl) {
     const normalized = explicitApiUrl.replace(/\/+$/, '');
 
-    // URL absoluta: validações extras para evitar host inválido em produção.
     if (/^https?:\/\//i.test(normalized)) {
       let parsed;
       try {
@@ -29,25 +36,16 @@ const getApiBaseUrl = () => {
       }
 
       const hostname = String(parsed.hostname || '').toLowerCase();
-
-      // Em produção, nunca faz sentido apontar o browser para localhost/127.0.0.1.
-      if (isProd && (hostname === 'localhost' || hostname === '127.0.0.1')) {
-        return '/api';
-      }
-
-      // Em produção, host de rótulo único (ex.: https://api) costuma ser configuração inválida.
-      if (isProd && hostname && !hostname.includes('.') && hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      if (hostname === 'localhost' || hostname === '127.0.0.1') {
         return '/api';
       }
 
       return normalized;
     }
 
-    // URL relativa explícita: normaliza para sempre começar com "/".
     return normalizePathBase(normalized);
   }
 
-  // Em produção sem VITE_API_URL definido, ou ambiente integrado, usa URL relativa
   return '/api';
 };
 
