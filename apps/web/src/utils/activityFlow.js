@@ -12,12 +12,15 @@ export const ACTIVITY_AREAS = {
   GERENTE_CONTAS: 'Gerente de Contas'
 };
 
-export const ACTIVITY_AREA_OPTIONS = Object.entries(ACTIVITY_AREAS)
-  .filter(([value]) => value !== 'B2B_PRIVADO' && value !== 'B2G_GOVERNO')
-  .map(([value, label]) => ({
-    value,
-    label
-  }));
+export const ACTIVITY_AREA_OPTIONS = [
+  { value: 'B2B', label: 'B2B Privado' },
+  { value: 'COMERCIAL', label: 'Comercial' },
+  { value: 'PRE_VENDAS', label: 'Pré-Vendas' },
+  { value: 'SDR', label: 'SDR' },
+  { value: 'DIRETORIA_COMERCIAL', label: 'Diretoria Comercial' },
+  { value: 'GERENTE_CONTAS', label: 'Gerente de Contas' },
+  { value: 'B2G', label: 'B2G Governo' }
+];
 
 const safeJsonParse = (value, fallback) => {
   try {
@@ -88,6 +91,9 @@ export const hydrateActivityFlow = (activity) => {
   return {
     ...activity,
     description: parsed.cleanDescription,
-    flow: parsed.flow
+    flow: {
+      ...(activity?.flow || {}),
+      ...(parsed.flow || {})
+    }
   };
 };

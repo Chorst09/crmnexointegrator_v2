@@ -427,7 +427,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                         Capacidade Técnica Operacional
                       </div>
                       <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
-                        {ficha.requisitos_habilitacao.atestados_capacidade_tecnica.map((item, idx) => (
+                        {(ficha.requisitos_habilitacao?.atestados_capacidade_tecnica || []).map((item, idx) => (
                           <li key={idx} className="leading-snug">{item}</li>
                         ))}
                       </ul>
@@ -440,7 +440,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                         Qualificação Econômico-Financeira
                       </div>
                       <div className="space-y-1 text-[11px]">
-                        {ficha.requisitos_habilitacao.exigencias_contabeis.map((ind, idx) => (
+                        {(ficha.requisitos_habilitacao?.exigencias_contabeis || []).map((ind, idx) => (
                           <div key={idx} className={`flex justify-between py-0.5 border-b last:border-0 ${isDarkDoc ? 'border-slate-800' : 'border-slate-200'}`}>
                             <span className={`font-medium ${isDarkDoc ? 'text-slate-400' : 'text-slate-700'}`}>{ind.nome_indice}:</span>
                             <span className={`font-bold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>{ind.regra}</span>
@@ -455,7 +455,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                         Regularidade Fiscal, Social e Trabalhista
                       </div>
                       <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
-                        {ficha.requisitos_habilitacao.certidoes_e_registros_especificos.map((cert, idx) => (
+                        {(ficha.requisitos_habilitacao?.certidoes_e_registros_especificos || []).map((cert, idx) => (
                           <li key={idx} className="leading-snug">{cert}</li>
                         ))}
                       </ul>
@@ -467,7 +467,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                         Equipe Técnica e Registros em Conselhos
                       </div>
                       <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
-                        {ficha.requisitos_habilitacao.qualificacao_equipe_chave.map((eq, idx) => (
+                        {(ficha.requisitos_habilitacao?.qualificacao_equipe_chave || []).map((eq, idx) => (
                           <li key={idx} className="leading-snug">{eq}</li>
                         ))}
                       </ul>
@@ -499,7 +499,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                   isDarkDoc ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-500'
                 }`}>
                   <span className={`font-semibold uppercase ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
-                    Ficha Técnica Executiva • {ficha.orgao_comprador.slice(0, 50)}
+                    Ficha Técnica Executiva • {(ficha.orgao_comprador || '').slice(0, 50)}
                   </span>
                   <span className="font-mono">ID: {ficha.id_licitacao}</span>
                 </div>
@@ -519,13 +519,13 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                     <div className={`p-3 rounded border space-y-2 ${isDarkDoc ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                       <div>
                         <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Prazo de Início e Entrega</span>
-                        <span className={`font-semibold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>{ficha.prazos_e_locais.prazo_inicio_entrega}</span>
+                        <span className={`font-semibold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>{ficha.prazos_e_locais?.prazo_inicio_entrega || 'Até 15 dias úteis'}</span>
                       </div>
                       <div>
                         <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Vigência Contratual</span>
-                        <span className={`font-semibold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>{ficha.prazos_e_locais.vigencia_contrato}</span>
+                        <span className={`font-semibold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>{ficha.prazos_e_locais?.vigencia_contrato || '12 meses'}</span>
                       </div>
-                      {ficha.prazos_e_locais.regime_execucao && (
+                      {ficha.prazos_e_locais?.regime_execucao && (
                         <div>
                           <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Regime de Execução</span>
                           <span className={`font-semibold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>{ficha.prazos_e_locais.regime_execucao}</span>
@@ -537,12 +537,12 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                       <div>
                         <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Locais de Entrega / Prestação</span>
                         <ul className={`list-disc list-inside text-[11px] mt-0.5 space-y-0.5 ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
-                          {ficha.prazos_e_locais.locais_prestacao_entrega.map((loc, idx) => (
+                          {(ficha.prazos_e_locais?.locais_prestacao_entrega || []).map((loc, idx) => (
                             <li key={idx}>{loc}</li>
                           ))}
                         </ul>
                       </div>
-                      {ficha.prazos_e_locais.prazo_recebimento_provisorio_definitivo && (
+                      {ficha.prazos_e_locais?.prazo_recebimento_provisorio_definitivo && (
                         <div>
                           <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Recebimento Provisório e Definitivo</span>
                           <span className={`text-[11px] ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>{ficha.prazos_e_locais.prazo_recebimento_provisorio_definitivo}</span>
@@ -578,13 +578,13 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                         <div className={`text-[11px] space-y-1 ${isDarkDoc ? 'text-amber-200' : 'text-amber-950'}`}>
                           <div>
                             <strong>Obrigatoriedade:</strong>{' '}
-                            {ficha.pontos_de_atencao_risco.regras_vistoria.obrigatoria ? 'Sim (Exigência Formal)' : 'Facultativa / Não Exigida'}
+                            {ficha.pontos_de_atencao_risco?.regras_vistoria?.obrigatoria ? 'Sim (Exigência Formal)' : 'Facultativa / Não Exigida'}
                           </div>
                           <div>
                             <strong>Permite Declaração Substitutiva:</strong>{' '}
-                            {ficha.pontos_de_atencao_risco.regras_vistoria.permite_declaracao_substitutiva ? 'Sim (Declaração de Pleno Conhecimento)' : 'Não'}
+                            {ficha.pontos_de_atencao_risco?.regras_vistoria?.permite_declaracao_substitutiva ? 'Sim (Declaração de Pleno Conhecimento)' : 'Não'}
                           </div>
-                          {ficha.pontos_de_atencao_risco.regras_vistoria.detalhes_e_prazo && (
+                          {ficha.pontos_de_atencao_risco?.regras_vistoria?.detalhes_e_prazo && (
                             <div className={`text-[10px] mt-1 italic ${isDarkDoc ? 'text-amber-300/80' : 'text-amber-900'}`}>
                               {ficha.pontos_de_atencao_risco.regras_vistoria.detalhes_e_prazo}
                             </div>
@@ -600,11 +600,11 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                         <div className={`text-[11px] space-y-1 ${isDarkDoc ? 'text-slate-300' : 'text-slate-800'}`}>
                           <div>
                             <strong>Exigência de Amostra/PoC:</strong>{' '}
-                            {ficha.pontos_de_atencao_risco.exigencia_amostra_poc || 'Não exigida na fase de propostas'}
+                            {ficha.pontos_de_atencao_risco?.exigencia_amostra_poc || 'Não exigida na fase de propostas'}
                           </div>
                           <div>
                             <strong>Garantia Contratual (arts. 96-102):</strong>{' '}
-                            {ficha.pontos_de_atencao_risco.garantia_contratual || 'Conforme percentual previsto na minuta do contrato'}
+                            {ficha.pontos_de_atencao_risco?.garantia_contratual || 'Conforme percentual previsto na minuta do contrato'}
                           </div>
                         </div>
                       </div>
@@ -623,7 +623,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                       <ul className={`list-disc list-inside space-y-1 text-[11px] ${
                         isDarkDoc ? 'text-rose-200' : 'text-rose-950'
                       }`}>
-                        {ficha.pontos_de_atencao_risco.clausulas_punitivas_multas.map((multa, idx) => (
+                        {(ficha.pontos_de_atencao_risco?.clausulas_punitivas_multas || []).map((multa, idx) => (
                           <li key={idx} className="leading-snug">{multa}</li>
                         ))}
                       </ul>
@@ -635,7 +635,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                         Recomendações e Orientações Técnicas ao Licitante
                       </div>
                       <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
-                        {ficha.pontos_de_atencao_risco.pontos_de_atencao_gerais.map((pt, idx) => (
+                        {(ficha.pontos_de_atencao_risco?.pontos_de_atencao_gerais || []).map((pt, idx) => (
                           <li key={idx} className="leading-snug">{pt}</li>
                         ))}
                       </ul>

@@ -72,6 +72,50 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
     setTimeout(() => setNotification(null), 4000);
   };
 
+  const normalizeFicha = (f: any): FichaTecnicaEditalTR => {
+    if (!f) return {} as any;
+    const nested = typeof f.analysisData === 'string'
+      ? (() => { try { return JSON.parse(f.analysisData); } catch (_) { return {}; } })()
+      : (typeof f.analysisData === 'object' && f.analysisData !== null ? f.analysisData : {});
+    const merged = { ...nested, ...f };
+    return {
+      ...merged,
+      id_licitacao: merged.id_licitacao || merged.numeroControlePNCP || `DOC-${f.id || ''}`,
+      orgao_comprador: merged.orgao_comprador || merged.orgao || 'Órgão Licitante',
+      resumo_executivo: merged.resumo_executivo || merged.objeto || 'Contratação regida pela Lei nº 14.133/2021.',
+      valor_estimado_total: typeof merged.valor_estimado_total === 'number' ? merged.valor_estimado_total : (parseFloat(merged.valor_estimado) || 0),
+      requisitos_habilitacao: {
+        atestados_capacidade_tecnica: Array.isArray(merged.requisitos_habilitacao?.atestados_capacidade_tecnica)
+          ? merged.requisitos_habilitacao.atestados_capacidade_tecnica
+          : [],
+        certidoes_e_registros_especificos: Array.isArray(merged.requisitos_habilitacao?.certidoes_e_registros_especificos)
+          ? merged.requisitos_habilitacao.certidoes_e_registros_especificos
+          : [],
+        exigencias_contabeis: Array.isArray(merged.requisitos_habilitacao?.exigencias_contabeis)
+          ? merged.requisitos_habilitacao.exigencias_contabeis
+          : [],
+        qualificacao_equipe_chave: Array.isArray(merged.requisitos_habilitacao?.qualificacao_equipe_chave)
+          ? merged.requisitos_habilitacao.qualificacao_equipe_chave
+          : []
+      },
+      prazos_e_locais: merged.prazos_e_locais || {
+        prazo_inicio_entrega: '',
+        locais_prestacao_entrega: [],
+        vigencia_contrato: '',
+        regime_execucao: '',
+        prazo_recebimento_provisorio_definitivo: ''
+      },
+      pontos_de_atencao_risco: merged.pontos_de_atencao_risco || {
+        clausulas_punitivas_multas: [],
+        exigencia_amostra_poc: '',
+        garantia_contratual: '',
+        regras_vistoria: { obrigatoria: false, permite_declaracao_substitutiva: true, detalhes_e_prazo: '' },
+        pontos_de_atencao_gerais: []
+      },
+      matriz_itens: Array.isArray(merged.matriz_itens) ? merged.matriz_itens : []
+    };
+  };
+
   const carregarFichas = async () => {
     try {
       setLoading(true);
@@ -79,11 +123,13 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
         headers: getAuthHeaders()
       });
       if (res.ok) {
-        const data: FichaTecnicaEditalTR[] = await res.json();
-        setFichas(data);
+        const rawData = await res.json();
+        const list = Array.isArray(rawData) ? rawData : [];
+        const normalized = list.map(item => normalizeFicha(item));
+        setFichas(normalized);
         // Atualiza backup local
         try {
-          localStorage.setItem('fichas_analisadas_backup', JSON.stringify(data));
+          localStorage.setItem('fichas_analisadas_backup', JSON.stringify(normalized));
         } catch (e) {}
       } else {
         throw new Error('Falha ao obter do servidor');
@@ -93,7 +139,10 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
       try {
         const backupRaw = localStorage.getItem('fichas_analisadas_backup');
         if (backupRaw) {
-          setFichas(JSON.parse(backupRaw));
+          const list = JSON.parse(backupRaw);
+          if (Array.isArray(list)) {
+            setFichas(list.map(normalizeFicha));
+          }
         }
       } catch (e) {}
     } finally {

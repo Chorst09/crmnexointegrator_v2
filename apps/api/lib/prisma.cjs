@@ -55,8 +55,8 @@ async function ensureB2GTablesExist() {
 
     await realPrisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "editais_analisados" (
-        "id" UUID PRIMARY KEY,
-        "userId" UUID,
+        "id" VARCHAR(255) PRIMARY KEY,
+        "userId" VARCHAR(255),
         "tenantCompanyId" VARCHAR(255),
         "numeroControlePNCP" VARCHAR(255),
         "orgao" VARCHAR(500),
@@ -68,7 +68,35 @@ async function ensureB2GTablesExist() {
         "updated_at" TIMESTAMP DEFAULT NOW()
       );
     `);
-    console.log('[Prisma Init] Tabelas B2G garantidas com sucesso!');
+
+    // Tenta flexibilizar userId se a tabela já existia como UUID
+    try {
+      await realPrisma.$executeRawUnsafe(`
+        ALTER TABLE "editais_analisados" ALTER COLUMN "id" TYPE VARCHAR(255);
+        ALTER TABLE "editais_analisados" ALTER COLUMN "userId" TYPE VARCHAR(255);
+      `);
+    } catch (_) {}
+
+    await realPrisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS "SimulatorProposal" (
+        "id" VARCHAR(255) PRIMARY KEY,
+        "baseId" VARCHAR(255),
+        "version" INTEGER DEFAULT 1,
+        "title" VARCHAR(500),
+        "client" VARCHAR(500),
+        "type" VARCHAR(255),
+        "value" DECIMAL DEFAULT 0,
+        "status" VARCHAR(255) DEFAULT 'Rascunho',
+        "forecastTemperature" DECIMAL,
+        "metadata" JSONB,
+        "createdBy" VARCHAR(255),
+        "accountManager" TEXT,
+        "distributorId" VARCHAR(255),
+        "createdAt" TIMESTAMP DEFAULT NOW(),
+        "updatedAt" TIMESTAMP DEFAULT NOW()
+      );
+    `);
+    console.log('[Prisma Init] Tabelas B2G e Simuladores garantidas com sucesso!');
   } catch (err) {
     console.error('[Prisma Init] Falha ao executar auto-migration das tabelas B2G:', err.message);
   }
@@ -249,6 +277,8 @@ const inMemoryStore = {
   proposalTemplate: [],
   activity: [],
   project: [],
+  editais_analisados: [],
+  simulatorproposal: [],
   auditlog: [
     {
       id: 'audit-init-001',
@@ -574,8 +604,10 @@ function createModelHandler(modelName) {
 const handleMockRawQuery = (query, params = []) => {
   if (!inMemoryStore.gerenciadas_licitacao) inMemoryStore.gerenciadas_licitacao = [];
   if (!inMemoryStore.alertas_licitacao) inMemoryStore.alertas_licitacao = [];
+  if (!inMemoryStore.editais_analisados) inMemoryStore.editais_analisados = [];
 
-  const q = String(query).toUpperCase();
+  const rawQ = String(query);
+  const q = rawQ.trim().toUpperCase();
 
   // SELECT COUNT(*) AS total_gerenciadas FROM gerenciadas_licitacao
   if (q.includes('COUNT(*)') && (q.includes('GERENCIADAS_LICITACAO') || q.includes('"GERENCIADAS_LICITACAO"'))) {
@@ -822,17 +854,40 @@ const handleMockRawQuery = (query, params = []) => {
     return [{ count: 0 }];
   }
 
-  if (q.startsWith('SELECT * FROM')) {
+  if (q.startsWith('SELECT') && q.includes('FROM')) {
     const match = q.match(/FROM\s+["']?([a-zA-Z0-9_]+)["']?/i);
     if (match) {
       const key = match[1].toLowerCase();
-      return inMemoryStore[key] || [];
+      let list = inMemoryStore[key] || [];
+      if (q.includes('"numeroControlePNCP" = $1') && params[0]) {
+        list = list.filter(item => item.numeroControlePNCP === params[0]);
+      } else if (q.includes('id = $1') && params[0]) {
+        list = list.filter(item => item.id === params[0]);
+      }
+      return list;
     }
     return [];
   }
 
-  if (q.startsWith('INSERT INTO')) {
-    const match = q.match(/INSERT INTO\s+["']?([a-zA-Z0-9_]+)["']?\s*\(([^)]+)\)/i);
+  if (q.startsWith('UPDATE')) {
+    const match = q.match(/UPDATE\s+["']?([a-zA-Z0-9_]+)["']?/i);
+    if (match) {
+      const key = match[1].toLowerCase();
+      const list = inMemoryStore[key] || [];
+      const idTarget = params[params.length - 1];
+      if (idTarget) {
+        const idx = list.findIndex(item => item.id === idTarget);
+        if (idx >= 0) {
+          list[idx] = { ...list[idx], updated_at: new Date().toISOString() };
+        }
+      }
+      return 1;
+    }
+    return 1;
+  }
+
+  if (q.includes('INSERT INTO')) {
+    const match = rawQ.match(/INSERT\s+INTO\s+["']?([a-zA-Z0-9_]+)["']?\s*\(([\s\S]+?)\)/i);
     if (match) {
       const key = match[1].toLowerCase();
       const cols = match[2].split(',').map(c => c.trim().replace(/["']/g, ''));
@@ -840,13 +895,17 @@ const handleMockRawQuery = (query, params = []) => {
       cols.forEach((col, idx) => {
         row[col] = params[idx] !== undefined ? params[idx] : null;
       });
+      if (!row.id) {
+        const crypto = require('crypto');
+        row.id = crypto.randomUUID();
+      }
       if (!Array.isArray(inMemoryStore[key])) {
         inMemoryStore[key] = [];
       }
       inMemoryStore[key].push(row);
-      return 1;
+      return [row];
     }
-    return 1;
+    return [{}];
   }
 
   return [];
@@ -856,19 +915,29 @@ const prismaProxy = new Proxy(realPrisma || {}, {
   get(target, prop) {
     if (prop === '$queryRaw' || prop === '$executeRaw' || prop === '$queryRawUnsafe' || prop === '$executeRawUnsafe') {
       return async (...args) => {
+        let result;
         if (isDatabaseConnected && realPrisma && typeof realPrisma[prop] === 'function') {
           try {
-            return await realPrisma[prop].apply(realPrisma, args);
+            result = await realPrisma[prop].apply(realPrisma, args);
           } catch (e) {
             console.warn('[AI Studio] Real DB raw query failed, fallback to mock:', e.message);
             isDatabaseConnected = false;
           }
         }
-        // Run mock fallback emulator
-        const query = args[0] || '';
-        const params = args.slice(1);
-        const actualParams = Array.isArray(params[0]) ? params[0] : params;
-        return handleMockRawQuery(query, actualParams);
+        if (result === undefined) {
+          // Run mock fallback emulator
+          const query = args[0] || '';
+          const params = args.slice(1);
+          const actualParams = Array.isArray(params[0]) ? params[0] : params;
+          result = handleMockRawQuery(query, actualParams);
+        }
+        // $queryRaw and $queryRawUnsafe must always return an Array so destructuring like `const [row] = ...` never throws
+        if (prop === '$queryRaw' || prop === '$queryRawUnsafe') {
+          if (!Array.isArray(result)) {
+            result = result != null ? [result] : [];
+          }
+        }
+        return result;
       };
     }
     if (prop === '$transaction') {

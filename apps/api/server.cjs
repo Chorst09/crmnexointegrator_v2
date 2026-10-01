@@ -272,7 +272,8 @@ app.use('/api', (req, res, next) => {
     req.path.startsWith('/proxy-download') ||
     req.path.startsWith('/pncp-arquivos') ||
     req.path.startsWith('/proposta-comercial-double.pptx') ||
-    req.path.startsWith('/analise-tr')
+    req.path.startsWith('/analise-tr') ||
+    req.path.startsWith('/simulator/proposals')
   ) {
     const authHeader = req.headers['authorization'];
     if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -431,6 +432,7 @@ app.use('/api/activities', handleLegacyAPI('./api/activities.js'));
 // app.use('/api/products', handleLegacyAPI('./api/products.js')); // Agora usando CommonJS
 // app.use('/api/proposals', handleLegacyAPI('./api/proposals.js')); // Agora usando CommonJS
 app.use('/api/commissions', handleLegacyAPI('./api/commissions.js'));
+app.use('/api/simulator/proposals', require('./api/simulator-proposals.cjs'));
 app.use('/api/gestao/analise-financeira', require('./api/financial-analysis.cjs'));
 app.use('/api/users', handleLegacyAPI('./api/users.js'));
 app.use('/api/dashboard', handleLegacyAPI('./api/dashboard.js'));

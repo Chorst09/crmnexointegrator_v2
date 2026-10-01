@@ -132,9 +132,10 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
   // Sincroniza ficha externa quando aberta a partir de 'Editais Analisados'
   useEffect(() => {
     if (initialFicha) {
-      setFichaTecnica(initialFicha);
+      const fichaSegura = ensureFichaCompleta(initialFicha);
+      setFichaTecnica(fichaSegura);
       setActiveTab('workbench');
-      mostrarFeedback(`Edital ${initialFicha.id_licitacao} carregado na bancada de análise.`);
+      mostrarFeedback(`Edital ${fichaSegura.id_licitacao} carregado na bancada de análise.`);
       if (onClearInitialFicha) onClearInitialFicha();
     }
   }, [initialFicha]);
@@ -298,9 +299,10 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
       if (response.ok) {
         const result = await response.json();
-        setFichaTecnica(result.ficha);
+        const fichaSegura = ensureFichaCompleta(result.ficha);
+        setFichaTecnica(fichaSegura);
         setFonteExtracao(result.fonte || 'Extrator Lei 14.133/2021');
-        await persistirFichaServidor(result.ficha);
+        await persistirFichaServidor(fichaSegura);
         mostrarFeedback("Edital analisado com sucesso e salvo em Editais Analisados!");
       } else {
         throw new Error("Erro no processamento da API");
@@ -312,6 +314,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
       gerarFichaTecnicaFallback(lic);
     } finally {
       setIsProcessing(false);
+      setCurrentStep(0);
     }
   };
 
@@ -326,14 +329,112 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
     }
   };
 
-  const gerarFichaTecnicaFallback = (lic?: Licitacao) => {
+  const ensureFichaCompleta = (rawFicha?: any): FichaTecnicaEditalTR => {
+    if (!rawFicha) return gerarFichaTecnicaObjeto();
+    // Se for uma linha do banco com analysisData aninhado, desaninha
+    const nested = typeof rawFicha.analysisData === 'string'
+      ? (() => { try { return JSON.parse(rawFicha.analysisData); } catch (_) { return {}; } })()
+      : (typeof rawFicha.analysisData === 'object' && rawFicha.analysisData !== null ? rawFicha.analysisData : {});
+    const ficha = { ...nested, ...rawFicha };
+
+    return {
+      id_licitacao: ficha.id_licitacao || ficha.numeroControlePNCP || `DOC-${Date.now().toString().slice(-6)}`,
+      orgao_comprador: ficha.orgao_comprador || ficha.orgao_nome || ficha.orgao || "Prefeitura Municipal de Curitiba",
+      modalidade_contratacao: ficha.modalidade_contratacao || ficha.modalidade || "Pregão Eletrônico (Lei 14.133/2021)",
+      criterio_julgamento: ficha.criterio_julgamento || "Menor Preço por Item / Maior Desconto",
+      modo_disputa: ficha.modo_disputa || "Aberto",
+      data_abertura: ficha.data_abertura || ficha.data_abertura_proposta || "28/09/2026 às 10:00",
+      data_limite_proposta: ficha.data_limite_proposta || "28/09/2026 até às 09:59",
+      data_fim_esclarecimento: ficha.data_fim_esclarecimento || "Até 3 dias úteis anteriores à data de abertura (art. 164 da Lei 14.133/2021)",
+      data_fim_impugnacao: ficha.data_fim_impugnacao || "Até 3 dias úteis anteriores à data de abertura (art. 164 da Lei 14.133/2021)",
+      valor_estimado_total: typeof ficha.valor_estimado_total === 'number' ? ficha.valor_estimado_total : (Number(ficha.valor_estimado) || 150000.0),
+      portal_compras: ficha.portal_compras || "Compras.gov.br / Portal Nacional de Contratações Públicas (PNCP)",
+      resumo_executivo: ficha.resumo_executivo || ficha.objeto || "Contratação conforme especificações da Lei nº 14.133/2021.",
+      requisitos_habilitacao: {
+        atestados_capacidade_tecnica: Array.isArray(ficha.requisitos_habilitacao?.atestados_capacidade_tecnica) && ficha.requisitos_habilitacao.atestados_capacidade_tecnica.length > 0
+          ? ficha.requisitos_habilitacao.atestados_capacidade_tecnica
+          : [
+              "Atestado de Capacidade Técnica comprovando fornecimento compatível com o objeto (mínimo de 50% das quantidades estimadas).",
+              "Comprovação de estrutura de suporte técnico e reposição em até 48 horas úteis."
+            ],
+        certidoes_e_registros_especificos: Array.isArray(ficha.requisitos_habilitacao?.certidoes_e_registros_especificos) && ficha.requisitos_habilitacao.certidoes_e_registros_especificos.length > 0
+          ? ficha.requisitos_habilitacao.certidoes_e_registros_especificos
+          : [
+              "Certidão Conjunta Negativa de Débitos Relativos aos Tributos Federais e à Dívida Ativa da União.",
+              "Certificado de Regularidade do FGTS (CRF).",
+              "Certidão Negativa de Débitos Trabalhistas (CNDT).",
+              "Certidão Negativa de Falência e Concordata."
+            ],
+        exigencias_contabeis: Array.isArray(ficha.requisitos_habilitacao?.exigencias_contabeis) && ficha.requisitos_habilitacao.exigencias_contabeis.length > 0
+          ? ficha.requisitos_habilitacao.exigencias_contabeis
+          : [
+              { nome_indice: "Índice de Liquidez Geral (LG)", regra: ">= 1.0" },
+              { nome_indice: "Índice de Liquidez Corrente (LC)", regra: ">= 1.0" },
+              { nome_indice: "Índice de Solvência Geral (SG)", regra: ">= 1.0" },
+              { nome_indice: "Patrimônio Líquido", regra: "10% do valor estimado caso os índices sejam < 1.0" }
+            ],
+        qualificacao_equipe_chave: Array.isArray(ficha.requisitos_habilitacao?.qualificacao_equipe_chave) && ficha.requisitos_habilitacao.qualificacao_equipe_chave.length > 0
+          ? ficha.requisitos_habilitacao.qualificacao_equipe_chave
+          : ["Declaração de equipe técnica e indicação de responsável técnico credenciado."]
+      },
+      prazos_e_locais: {
+        prazo_inicio_entrega: ficha.prazos_e_locais?.prazo_inicio_entrega || "Até 15 (quinze) dias corridos a partir da Ordem de Fornecimento / Nota de Empenho.",
+        locais_prestacao_entrega: Array.isArray(ficha.prazos_e_locais?.locais_prestacao_entrega) && ficha.prazos_e_locais.locais_prestacao_entrega.length > 0
+          ? ficha.prazos_e_locais.locais_prestacao_entrega
+          : ["Almoxarifado Central e unidades regionais do órgão contratante."],
+        vigencia_contrato: ficha.prazos_e_locais?.vigencia_contrato || "12 (doze) meses prorrogáveis por até 5 anos nos termos do art. 106 da Lei 14.133/2021.",
+        regime_execucao: ficha.prazos_e_locais?.regime_execucao || "Empreitada por Preço Unitário",
+        prazo_recebimento_provisorio_definitivo: ficha.prazos_e_locais?.prazo_recebimento_provisorio_definitivo || "Provisório em até 15 dias; Definitivo em até 30 dias após verificação de conformidade."
+      },
+      pontos_de_atencao_risco: {
+        clausulas_punitivas_multas: Array.isArray(ficha.pontos_de_atencao_risco?.clausulas_punitivas_multas) && ficha.pontos_de_atencao_risco.clausulas_punitivas_multas.length > 0
+          ? ficha.pontos_de_atencao_risco.clausulas_punitivas_multas
+          : [
+              "Multa moratória de 0,5% por dia de atraso sobre o valor da parcela descumprida.",
+              "Multa compensatória de 10% a 20% em caso de inexecução total ou rescisão culposa.",
+              "Impedimento de licitar e contratar com a Administração Pública por até 3 anos (art. 156, III)."
+            ],
+        exigencia_amostra_poc: ficha.pontos_de_atencao_risco?.exigencia_amostra_poc || ficha.pontos_de_atencao_risco?.exigencia_amostra || "Apresentação obrigatória de amostra/PoC para o 1º classificado provisório em até 5 dias úteis.",
+        garantia_contratual: ficha.pontos_de_atencao_risco?.garantia_contratual || "Garantia contratual de 5% sobre o valor global do contrato.",
+        regras_vistoria: {
+          obrigatoria: Boolean(ficha.pontos_de_atencao_risco?.regras_vistoria?.obrigatoria),
+          permite_declaracao_substitutiva: ficha.pontos_de_atencao_risco?.regras_vistoria?.permite_declaracao_substitutiva !== false,
+          detalhes_e_prazo: ficha.pontos_de_atencao_risco?.regras_vistoria?.detalhes_e_prazo || "Vistoria facultativa com declaração formal de pleno conhecimento do local."
+        },
+        pontos_de_atencao_gerais: Array.isArray(ficha.pontos_de_atencao_risco?.pontos_de_atencao_gerais) && ficha.pontos_de_atencao_risco.pontos_de_atencao_gerais.length > 0
+          ? ficha.pontos_de_atencao_risco.pontos_de_atencao_gerais
+          : [
+              "Garantia mínima de fábrica de 12 meses com assistência técnica autorizada.",
+              "Vedada a subcontratação sem autorização prévia por escrito."
+            ]
+      },
+      matriz_itens: Array.isArray(ficha.matriz_itens) && ficha.matriz_itens.length > 0
+        ? ficha.matriz_itens
+        : [
+            {
+              item_numero: 1,
+              codigo_catalogo: "CATSER-21123",
+              especificacao_sucinta: "Serviço ou fornecimento principal especificado no Termo de Referência",
+              unidade: "UN",
+              quantitativo: 1,
+              valor_estimado_unitario: typeof ficha.valor_estimado_total === 'number' ? ficha.valor_estimado_total : 150000.0,
+              valor_estimado_total: typeof ficha.valor_estimado_total === 'number' ? ficha.valor_estimado_total : 150000.0
+            }
+          ],
+      tags_classificacao: Array.isArray(ficha.tags_classificacao) ? ficha.tags_classificacao : ["Lei 14.133/2021", "Pregão Eletrônico"],
+      documentos_origem: ficha.documentos_origem || { edital: "edital.pdf", termo_referencia: "termo_referencia.docx" },
+      data_processamento: ficha.data_processamento || new Date().toISOString()
+    };
+  };
+
+  const gerarFichaTecnicaObjeto = (lic?: Licitacao): FichaTecnicaEditalTR => {
     const nomeDoc = uploadedFiles[0]?.name || "Edital_TR.pdf";
     const dataRaw = lic?.dataHoraAberturaSessaoPublica || lic?.data_abertura;
     const dataAberturaBase = dataRaw ? formatarDataAmigavel(dataRaw) : "28/09/2026 às 10:00";
     const dataLimiteRaw = lic?.dataEncerramentoProposta || dataRaw;
     const dataLimiteBase = dataLimiteRaw ? `${new Date(dataLimiteRaw).toLocaleDateString('pt-BR')} até às 09:59` : "28/09/2026 até às 09:59";
 
-    const ficha: FichaTecnicaEditalTR = {
+    return {
       id_licitacao: lic?.numeroControlePNCP || `DOC-${Date.now().toString().slice(-6)}`,
       orgao_comprador: lic?.orgao || "Prefeitura Municipal de Curitiba",
       modalidade_contratacao: lic?.modalidade || "Pregão Eletrônico (Lei 14.133/2021)",
@@ -373,7 +474,8 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
           "Almoxarifado Central e unidades regionais do órgão contratante."
         ],
         vigencia_contrato: "12 (doze) meses prorrogáveis por até 5 anos nos termos do art. 106 da Lei 14.133/2021.",
-        regime_execucao: "Empreitada por Preço Unitário"
+        regime_execucao: "Empreitada por Preço Unitário",
+        prazo_recebimento_provisorio_definitivo: "Provisório em até 15 dias; Definitivo em até 30 dias após verificação de conformidade."
       },
       pontos_de_atencao_risco: {
         clausulas_punitivas_multas: [
@@ -437,7 +539,10 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
       },
       data_processamento: new Date().toISOString()
     };
+  };
 
+  const gerarFichaTecnicaFallback = (lic?: Licitacao) => {
+    const ficha = ensureFichaCompleta(gerarFichaTecnicaObjeto(lic));
     setFichaTecnica(ficha);
     setFonteExtracao('Motor Estruturado Lei 14.133/2021');
     persistirFichaServidor(ficha);
@@ -1211,7 +1316,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           Atestados de Capacidade Técnica
                         </span>
                         <ul className="space-y-1.5 text-xs text-slate-200">
-                          {fichaTecnica.requisitos_habilitacao.atestados_capacidade_tecnica.map((att, i) => (
+                          {(fichaTecnica.requisitos_habilitacao?.atestados_capacidade_tecnica || []).map((att, i) => (
                             <li key={i} className="flex items-start gap-2 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700/60">
                               <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
                               <span>{att}</span>
@@ -1225,7 +1330,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           Índices Contábeis e Econômicos Exigidos
                         </span>
                         <div className="grid grid-cols-2 gap-2">
-                          {fichaTecnica.requisitos_habilitacao.exigencias_contabeis.map((ind, i) => (
+                          {(fichaTecnica.requisitos_habilitacao?.exigencias_contabeis || []).map((ind, i) => (
                             <div key={i} className="bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700/60 text-xs">
                               <span className="font-semibold text-slate-900 dark:text-slate-100 block">{ind.nome_indice}</span>
                               <span className="text-emerald-700 dark:text-emerald-400 font-mono mt-0.5 block">{ind.regra}</span>
@@ -1239,7 +1344,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           Certidões e Registros Específicos
                         </span>
                         <div className="flex flex-wrap gap-1.5">
-                          {fichaTecnica.requisitos_habilitacao.certidoes_e_registros_especificos.map((cert, i) => (
+                          {(fichaTecnica.requisitos_habilitacao?.certidoes_e_registros_especificos || []).map((cert, i) => (
                             <span key={i} className="text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-200 px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700">
                               {cert}
                             </span>
@@ -1264,21 +1369,21 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                       <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-700/60">
                         <span className="text-xs text-slate-400 block mb-1">Prazo para Início / Entrega</span>
                         <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                          {fichaTecnica.prazos_e_locais.prazo_inicio_entrega}
+                          {fichaTecnica.prazos_e_locais?.prazo_inicio_entrega || 'Até 15 dias úteis'}
                         </span>
                       </div>
 
                       <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-700/60">
                         <span className="text-xs text-slate-400 block mb-1">Vigência Contratual</span>
                         <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                          {fichaTecnica.prazos_e_locais.vigencia_contrato}
+                          {fichaTecnica.prazos_e_locais?.vigencia_contrato || '12 meses'}
                         </span>
                       </div>
 
                       <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-700/60">
                         <span className="text-xs text-slate-400 block mb-1">Regime de Execução</span>
                         <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                          {fichaTecnica.prazos_e_locais.regime_execucao || 'Preço Unitário'}
+                          {fichaTecnica.prazos_e_locais?.regime_execucao || 'Preço Unitário'}
                         </span>
                       </div>
 
@@ -1287,7 +1392,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           Locais de Prestação / Entrega
                         </span>
                         <div className="space-y-1 text-xs text-slate-200">
-                          {fichaTecnica.prazos_e_locais.locais_prestacao_entrega.map((loc, i) => (
+                          {(fichaTecnica.prazos_e_locais?.locais_prestacao_entrega || []).map((loc, i) => (
                             <div key={i} className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800/60 p-2 rounded border border-slate-100 dark:border-slate-700/60">
                               <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
                               <span>{loc}</span>
@@ -1315,7 +1420,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                     <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
                       <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Exigência de Amostra / PoC</span>
                       <p className="text-xs text-white leading-relaxed">
-                        {fichaTecnica.pontos_de_atencao_risco.exigencia_amostra_poc || "Não exigido."}
+                        {fichaTecnica.pontos_de_atencao_risco?.exigencia_amostra_poc || "Não exigido."}
                       </p>
                     </div>
 
@@ -1323,7 +1428,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                     <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
                       <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Regra de Vistoria Técnica</span>
                       <p className="text-xs text-white leading-relaxed">
-                        {fichaTecnica.pontos_de_atencao_risco.regras_vistoria.detalhes_e_prazo || "Vistoria facultativa com declaração substitutiva."}
+                        {fichaTecnica.pontos_de_atencao_risco?.regras_vistoria?.detalhes_e_prazo || "Vistoria facultativa com declaração substitutiva."}
                       </p>
                     </div>
 
@@ -1331,7 +1436,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                     <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
                       <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Garantia Contratual</span>
                       <p className="text-xs text-white leading-relaxed">
-                        {fichaTecnica.pontos_de_atencao_risco.garantia_contratual || "Não exigida."}
+                        {fichaTecnica.pontos_de_atencao_risco?.garantia_contratual || "Não exigida."}
                       </p>
                     </div>
                   </div>
@@ -1339,7 +1444,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                   <div>
                     <span className="text-xs font-semibold text-slate-400 uppercase block mb-2">Cláusulas Punitivas e Sanções</span>
                     <div className="space-y-1.5">
-                      {fichaTecnica.pontos_de_atencao_risco.clausulas_punitivas_multas.map((pun, i) => (
+                      {(fichaTecnica.pontos_de_atencao_risco?.clausulas_punitivas_multas || []).map((pun, i) => (
                         <div key={i} className="text-xs text-rose-900 dark:text-rose-300 bg-rose-50/70 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/60 p-2.5 rounded-lg flex items-start gap-2">
                           <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 mt-0.5 flex-shrink-0" />
                           <span>{pun}</span>
@@ -1379,7 +1484,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                       </div>
                       <div className="flex items-center gap-1.5 ml-1">
                         <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-200 font-medium">
-                          {isModoEdicaoTabela ? itensRascunho.length : fichaTecnica.matriz_itens.length} itens
+                          {isModoEdicaoTabela ? itensRascunho.length : (fichaTecnica.matriz_itens?.length || 0)} itens
                         </span>
                         {isModoEdicaoTabela && (
                           <span className="text-xs px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border border-amber-300 dark:border-amber-800 font-semibold flex items-center gap-1">
@@ -1479,7 +1584,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
                       {!isModoEdicaoTabela ? (
                         <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs text-slate-200">
-                          {fichaTecnica.matriz_itens.map((it, idx) => (
+                          {(fichaTecnica.matriz_itens || []).map((it, idx) => (
                             <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors group">
                               <td className="py-3 px-3 font-semibold text-slate-900 dark:text-slate-100">{it.item_numero || idx + 1}</td>
                               <td className="py-3 px-3 font-mono text-slate-400">{it.codigo_catalogo || '-'}</td>
@@ -1617,7 +1722,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           </td>
                           <td className="py-3 px-3 text-right font-bold text-sm text-emerald-700 dark:text-emerald-400">
                             {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
-                              (isModoEdicaoTabela ? itensRascunho : fichaTecnica.matriz_itens).reduce(
+                              (isModoEdicaoTabela ? itensRascunho : (fichaTecnica.matriz_itens || [])).reduce(
                                 (acc, it) => acc + (it.valor_estimado_total || 0), 0
                               )
                             )}

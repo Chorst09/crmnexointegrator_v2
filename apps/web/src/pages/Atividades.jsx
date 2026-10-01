@@ -79,11 +79,12 @@ const PRIORITY_META = {
 };
 
 const DESTINATION_OPTIONS = [
+  { value: 'B2B', label: 'B2B Privado' },
+  { value: 'COMERCIAL', label: 'Comercial' },
   { value: 'PRE_VENDAS', label: 'Pré-Vendas' },
   { value: 'SDR', label: 'SDR' },
   { value: 'DIRETORIA_COMERCIAL', label: 'Diretoria Comercial' },
-  { value: 'GERENTE_CONTAS', label: 'Gerente de Contas' },
-  { value: 'COMERCIAL', label: 'Comercial' }
+  { value: 'GERENTE_CONTAS', label: 'Gerente de Contas' }
 ];
 
 const BUDGET_REQUEST_TYPE = 'SOLICITACAO_ORCAMENTO';
@@ -137,22 +138,22 @@ const isPreSalesRelatedActivity = (activity) => {
     text.includes('pré-vendas') ||
     text.includes('pre-vendas') ||
     text.includes('orçamento') ||
-    text.includes('orc-') ||
-    text.includes('dimensionamento') ||
-    text.includes('precifica')
+    text.includes('orc-')
   );
 };
 
 const getActivityDisplayType = (activity) => {
-  if (activity?.type === 'TASK' && activity?.flow?.targetArea === 'PRE_VENDAS') {
+  if (activity?.type === 'TASK' && activity?.flow?.targetArea === 'PRE_VENDAS' && activity?.flow?.activityStage === 'ORCAMENTO_PREVENDAS') {
     return BUDGET_REQUEST_TYPE;
   }
-  return activity?.type;
+  return activity?.type || 'TASK';
 };
 
-const getActivityDisplayStatus = (activity) => (
-  activity?.flow?.activityStage === PROPOSAL_SENT_STAGE ? 'PROPOSAL_SENT' : activity?.status
-);
+const getActivityDisplayStatus = (activity) => {
+  if (activity?.status === 'PENDING') return 'PENDING';
+  if (activity?.flow?.activityStage === PROPOSAL_SENT_STAGE) return 'PROPOSAL_SENT';
+  return activity?.status || 'PENDING';
+};
 
 const isOverdue = (dueDate, status) => {
   if (!dueDate) return false;
@@ -210,13 +211,14 @@ export default function Atividades() {
     type: 'CALL',
     subject: '',
     description: '',
+    status: 'PENDING',
     priority: 'MEDIUM',
     dueDate: '',
     companyId: '',
     opportunityId: '',
     assignedToId: '',
-    sourceArea: 'COMERCIAL',
-    targetArea: 'PRE_VENDAS'
+    sourceArea: 'B2B',
+    targetArea: 'B2B'
   });
 
   const [empresas, setEmpresas] = useState([]);
@@ -510,13 +512,14 @@ export default function Atividades() {
       type: 'CALL',
       subject: '',
       description: '',
+      status: 'PENDING',
       priority: 'MEDIUM',
       dueDate: '',
       companyId: '',
       opportunityId: '',
       assignedToId: '',
-      sourceArea: 'COMERCIAL',
-      targetArea: 'PRE_VENDAS'
+      sourceArea: 'B2B',
+      targetArea: 'B2B'
     });
   };
 
@@ -531,15 +534,18 @@ export default function Atividades() {
     try {
       setSaving(true);
       const isBudgetRequest = formData.type === BUDGET_REQUEST_TYPE;
-      const targetAreaForPayload = isBudgetRequest ? 'PRE_VENDAS' : formData.targetArea;
+      const targetAreaForPayload = isBudgetRequest ? 'PRE_VENDAS' : (formData.targetArea || 'B2B');
+      const sourceAreaForPayload = formData.sourceArea || 'B2B';
       const payload = {
         ...formData,
+        status: formData.status || 'PENDING',
         type: isBudgetRequest ? 'TASK' : formData.type,
+        sourceArea: sourceAreaForPayload,
         targetArea: targetAreaForPayload,
         description: addFlowMetadataToDescription(formData.description, {
-          sourceArea: formData.sourceArea,
+          sourceArea: sourceAreaForPayload,
           targetArea: targetAreaForPayload,
-          createdFrom: 'ATIVIDADES',
+          createdFrom: 'ATIVIDADES_B2B',
           createdByName: getCurrentUserName()
         })
       };
@@ -690,7 +696,14 @@ export default function Atividades() {
       if (filtros.status && getActivityDisplayStatus(activity) !== filtros.status) return false;
       if (filtros.type && getActivityDisplayType(activity) !== filtros.type) return false;
       if (filtros.priority && activity.priority !== filtros.priority) return false;
-      if (filtros.targetArea && activity?.flow?.targetArea !== filtros.targetArea) return false;
+      if (filtros.targetArea) {
+        const actTarget = activity?.flow?.targetArea;
+        if (filtros.targetArea === 'B2B') {
+          if (actTarget !== 'B2B' && actTarget !== 'B2B_PRIVADO' && actTarget !== 'COMERCIAL') return false;
+        } else if (actTarget !== filtros.targetArea) {
+          return false;
+        }
+      }
       return true;
     });
     if (!term) return items;
@@ -813,6 +826,11 @@ export default function Atividades() {
           <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold bg-indigo-500/10 text-indigo-900 dark:text-indigo-200">
             {getAreaLabel(item?.flow?.targetArea)}
           </span>
+          {item?.flow?.targetArea === 'PRE_VENDAS' && item?.status === 'PENDING' && (
+            <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              Pendente B2B
+            </span>
+          )}
           <div className="mt-1 text-[11px] text-[var(--crm-muted)]">
             Origem: {getAreaLabel(item?.flow?.sourceArea)}
           </div>
@@ -1093,7 +1111,14 @@ export default function Atividades() {
         <div className="mt-3 space-y-1 text-xs text-[var(--crm-muted)]">
           <div>Empresa: <span className="text-[var(--crm-ink)]">{item.company?.name || item.companyName || (item.companyId ? 'TechCorp Telecomunicações & TI S/A' : '-')}</span></div>
           <div>Responsavel: <span className="text-[var(--crm-ink)]">{item.assignedTo?.name || item.assignedToName || 'Equipe Comercial'}</span></div>
-          <div>Destino: <span className="text-[var(--crm-ink)]">{getAreaLabel(item?.flow?.targetArea)}</span></div>
+          <div>
+            Destino: <span className="text-[var(--crm-ink)] font-semibold">{getAreaLabel(item?.flow?.targetArea)}</span>
+            {item?.flow?.targetArea === 'PRE_VENDAS' && item?.status === 'PENDING' && (
+              <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                Pendente B2B
+              </span>
+            )}
+          </div>
           <div>
             Vencimento:{' '}
             <span className={isOverdue(item.dueDate, item.status) ? 'font-bold text-red-400' : 'text-[var(--crm-ink)]'}>
@@ -1893,7 +1918,7 @@ export default function Atividades() {
                   setFormData((p) => ({
                     ...p,
                     type: nextType,
-                    targetArea: nextType === BUDGET_REQUEST_TYPE ? 'PRE_VENDAS' : p.targetArea
+                    targetArea: nextType === BUDGET_REQUEST_TYPE ? 'PRE_VENDAS' : (p.targetArea === 'PRE_VENDAS' ? 'B2B' : p.targetArea)
                   }));
                 }}
                 className="crm-input"
@@ -1904,6 +1929,21 @@ export default function Atividades() {
                 <option value="TASK">Tarefa</option>
                 <option value="FOLLOW_UP">Follow-up</option>
                 <option value="SOLICITACAO_ORCAMENTO">Solicitacao de Orcamento</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[var(--crm-ink)] mb-2">Status da Atividade *</label>
+              <select
+                required
+                value={formData.status || 'PENDING'}
+                onChange={(e) => setFormData((p) => ({ ...p, status: e.target.value }))}
+                className="crm-input"
+              >
+                <option value="PENDING">Pendente (Aguardando Início)</option>
+                <option value="IN_PROGRESS">Em andamento</option>
+                <option value="COMPLETED">Concluída</option>
+                <option value="CANCELLED">Cancelada</option>
               </select>
             </div>
 
@@ -1994,7 +2034,12 @@ export default function Atividades() {
               </select>
               {formData.targetArea === 'PRE_VENDAS' && (
                 <p className="mt-1 text-xs text-blue-600 dark:text-blue-300">
-                  Este envio vira uma solicitação no módulo Pre-Vendas &gt; Solicitações.
+                  Este envio cria uma solicitação no módulo Pré-Vendas &gt; Solicitações e também permanece como atividade Pendente no B2B para acompanhamento.
+                </p>
+              )}
+              {(formData.targetArea === 'B2B' || formData.targetArea === 'COMERCIAL') && (
+                <p className="mt-1 text-xs text-emerald-600 dark:text-emerald-400">
+                  Atividade do fluxo B2B Privado salva na coluna Pendentes.
                 </p>
               )}
             </div>

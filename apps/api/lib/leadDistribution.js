@@ -23,8 +23,15 @@ const normalizeExcludedSellerIds = (excludeSellerIds = []) => {
 export async function getAvailableSellers(region = null, options = {}) {
   try {
     const excludedSellerIds = normalizeExcludedSellerIds(options.excludeSellerIds);
+    const clientType = options.clientType || 'B2B';
+    
+    // Papéis válidos para vendas/gestão de leads (apenas valores válidos do enum Role do Prisma)
+    const sellerRoles = ['SELLER', 'USER_B2B', 'USER', 'ADMIN', 'MASTER', 'MANAGER', 'DIRECTOR', 'PRE_SALES'];
+
     const where = {
-      role: 'SELLER'
+      role: { in: sellerRoles },
+      ...(clientType === 'B2B' ? { accessB2B: true } : {}),
+      ...(clientType === 'B2G' ? { accessB2G: true } : {})
     };
     
     if (region) {
@@ -37,8 +44,11 @@ export async function getAvailableSellers(region = null, options = {}) {
       };
     }
 
-    const sellers = await prisma.user.findMany({
+    let sellers = await prisma.user.findMany({
       where,
+      orderBy: [
+        { name: 'asc' }
+      ],
       include: {
         opportunities: {
           where: {
@@ -61,10 +71,56 @@ export async function getAvailableSellers(region = null, options = {}) {
       }
     });
 
+    // Fallback: se nenhum vendedor foi encontrado com filtros específicos, busca usuários ativos
+    if (sellers.length === 0) {
+      sellers = await prisma.user.findMany({
+        where: excludedSellerIds.length > 0 ? { id: { notIn: excludedSellerIds } } : {},
+        orderBy: [{ name: 'asc' }],
+        include: {
+          opportunities: {
+            where: {
+              stage: {
+                notIn: ['WON', 'LOST']
+              }
+            }
+          },
+          _count: {
+            select: {
+              opportunities: {
+                where: {
+                  stage: {
+                    notIn: ['WON', 'LOST']
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Se ainda vazio e temos usuário atual autenticado, inclui o usuário atual
+    if (sellers.length === 0 && options.currentUser?.id) {
+      const current = await prisma.user.findUnique({
+        where: { id: options.currentUser.id },
+        include: {
+          opportunities: {
+            where: { stage: { notIn: ['WON', 'LOST'] } }
+          },
+          _count: {
+            select: { opportunities: { where: { stage: { notIn: ['WON', 'LOST'] } } } }
+          }
+        }
+      });
+      if (current) {
+        sellers = [current];
+      }
+    }
+
     return sellers.map(seller => ({
       ...seller,
-      activeOpportunities: seller._count.opportunities,
-      totalValue: seller.opportunities.reduce((sum, opp) => sum + opp.value, 0)
+      activeOpportunities: seller._count?.opportunities || 0,
+      totalValue: (seller.opportunities || []).reduce((sum, opp) => sum + (opp.value || 0), 0)
     }));
   } catch (error) {
     console.error('Erro ao buscar vendedores:', error);
@@ -75,19 +131,27 @@ export async function getAvailableSellers(region = null, options = {}) {
 // Distribuição Round Robin
 export async function distributeRoundRobin(companyId, region = null, options = {}) {
   try {
-    const sellers = await getAvailableSellers(region, options);
+    let sellers = await getAvailableSellers(region, options);
     
     if (sellers.length === 0) {
+      sellers = await getAvailableSellers(null, options);
+    }
+
+    if (sellers.length === 0 && options.currentUser?.id) {
+      const user = await prisma.user.findUnique({ where: { id: options.currentUser.id } });
+      if (user) return user;
+    }
+
+    if (sellers.length === 0) {
+      const fallbackUser = await prisma.user.findFirst({ orderBy: { createdAt: 'asc' } });
+      if (fallbackUser) return fallbackUser;
       throw new Error('Nenhum vendedor disponível');
     }
 
     // Buscar o último vendedor que recebeu um lead
     const lastAssignment = await prisma.opportunity.findFirst({
       where: {
-        owner: {
-          role: 'SELLER',
-          ...(region && { region })
-        }
+        ...(region && { owner: { region } })
       },
       include: {
         owner: true
@@ -101,7 +165,9 @@ export async function distributeRoundRobin(companyId, region = null, options = {
     
     if (lastAssignment) {
       const lastSellerIndex = sellers.findIndex(s => s.id === lastAssignment.ownerId);
-      nextSellerIndex = (lastSellerIndex + 1) % sellers.length;
+      if (lastSellerIndex >= 0) {
+        nextSellerIndex = (lastSellerIndex + 1) % sellers.length;
+      }
     }
 
     return sellers[nextSellerIndex];
@@ -114,15 +180,26 @@ export async function distributeRoundRobin(companyId, region = null, options = {
 // Distribuição por Balanceamento de Carga
 export async function distributeLoadBalance(companyId, region = null, options = {}) {
   try {
-    const sellers = await getAvailableSellers(region, options);
+    let sellers = await getAvailableSellers(region, options);
     
     if (sellers.length === 0) {
+      sellers = await getAvailableSellers(null, options);
+    }
+
+    if (sellers.length === 0 && options.currentUser?.id) {
+      const user = await prisma.user.findUnique({ where: { id: options.currentUser.id } });
+      if (user) return user;
+    }
+
+    if (sellers.length === 0) {
+      const fallbackUser = await prisma.user.findFirst({ orderBy: { createdAt: 'asc' } });
+      if (fallbackUser) return fallbackUser;
       throw new Error('Nenhum vendedor disponível');
     }
 
     // Encontrar o vendedor com menos oportunidades ativas
     const sellerWithLeastLoad = sellers.reduce((min, seller) => 
-      seller.activeOpportunities < min.activeOpportunities ? seller : min
+      (seller.activeOpportunities || 0) < (min.activeOpportunities || 0) ? seller : min
     );
 
     return sellerWithLeastLoad;
@@ -206,9 +283,16 @@ export async function distributeScoreBased(companyId, options = {}) {
       throw new Error('Empresa não encontrada');
     }
 
-    const sellers = await getAvailableSellers(null, options);
+    let sellers = await getAvailableSellers(null, options);
     
+    if (sellers.length === 0 && options.currentUser?.id) {
+      const user = await prisma.user.findUnique({ where: { id: options.currentUser.id } });
+      if (user) return user;
+    }
+
     if (sellers.length === 0) {
+      const fallbackUser = await prisma.user.findFirst({ orderBy: { createdAt: 'asc' } });
+      if (fallbackUser) return fallbackUser;
       throw new Error('Nenhum vendedor disponível');
     }
 
@@ -267,6 +351,14 @@ export async function distributeLeadToSeller(
         assignedSeller = await distributeLoadBalance(companyId, null, options);
     }
 
+    if (!assignedSeller && options.currentUser?.id) {
+      assignedSeller = await prisma.user.findUnique({ where: { id: options.currentUser.id } });
+    }
+
+    if (!assignedSeller) {
+      assignedSeller = await prisma.user.findFirst({ orderBy: { createdAt: 'asc' } });
+    }
+
     if (!assignedSeller) {
       throw new Error('Não foi possível atribuir vendedor');
     }
@@ -284,7 +376,8 @@ export async function createOpportunityForLead(
   strategy = DISTRIBUTION_STRATEGIES.LOAD_BALANCE,
   sellerId = null,
   projectName = null,
-  projectClientType = null
+  projectClientType = null,
+  options = {}
 ) {
   try {
     const company = await prisma.company.findUnique({
@@ -336,8 +429,7 @@ export async function createOpportunityForLead(
     if (sellerId) {
       assignedSeller = await prisma.user.findFirst({
         where: {
-          id: sellerId,
-          role: 'SELLER'
+          id: sellerId
         },
         select: {
           id: true,
@@ -347,12 +439,50 @@ export async function createOpportunityForLead(
           quota: true
         }
       });
+    }
 
-      if (!assignedSeller) {
-        throw new Error('Vendedor selecionado não encontrado ou inválido');
+    // Se nenhum vendedor foi especificado, priorizar usuário logado se fornecido
+    if (!assignedSeller && options.currentUser?.id) {
+      assignedSeller = await prisma.user.findFirst({
+        where: {
+          id: options.currentUser.id
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          regionId: true,
+          quota: true
+        }
+      });
+    }
+
+    if (!assignedSeller) {
+      try {
+        assignedSeller = await distributeLeadToSeller(companyId, strategy, options);
+      } catch (distErr) {
+        console.warn('⚠️ Falha ao distribuir por estratégia:', distErr.message);
       }
-    } else {
-      assignedSeller = await distributeLeadToSeller(companyId, strategy);
+    }
+
+    // Fallbacks de segurança
+    if (!assignedSeller) {
+      assignedSeller = await prisma.user.findFirst({
+        where: { accessB2B: true },
+        orderBy: { name: 'asc' },
+        select: { id: true, name: true, email: true, regionId: true, quota: true }
+      });
+    }
+
+    if (!assignedSeller) {
+      assignedSeller = await prisma.user.findFirst({
+        orderBy: { createdAt: 'asc' },
+        select: { id: true, name: true, email: true, regionId: true, quota: true }
+      });
+    }
+
+    if (!assignedSeller) {
+      throw new Error('Nenhum usuário ou vendedor disponível no sistema');
     }
 
     // Criar oportunidade

@@ -158,7 +158,23 @@ router.get('/', async (req, res) => {
               }
             });
           }
-          if (!preSalesRequest && act.opportunityId) {
+          if (!preSalesRequest && act.id) {
+            preSalesRequest = await prisma.preSalesRequest.findFirst({
+              where: { observacoes: { contains: act.id } },
+              include: {
+                items: {
+                  include: { product: true }
+                }
+              }
+            });
+          }
+          const isExplicitPreSales = parsed.flow?.targetArea === PRE_SALES_TARGET ||
+            parsed.flow?.sourceArea === PRE_SALES_TARGET ||
+            act.type === 'SOLICITACAO_ORCAMENTO' ||
+            String(act.subject || '').toLowerCase().includes('pré-vendas') ||
+            String(act.subject || '').toLowerCase().includes('orçamento');
+
+          if (!preSalesRequest && isExplicitPreSales && act.opportunityId) {
             preSalesRequest = await prisma.preSalesRequest.findFirst({
               where: { opportunityId: act.opportunityId },
               include: {
@@ -168,19 +184,9 @@ router.get('/', async (req, res) => {
               }
             });
           }
-          if (!preSalesRequest && act.companyId) {
+          if (!preSalesRequest && isExplicitPreSales && act.companyId) {
             preSalesRequest = await prisma.preSalesRequest.findFirst({
               where: { leadId: act.companyId },
-              include: {
-                items: {
-                  include: { product: true }
-                }
-              }
-            });
-          }
-          if (!preSalesRequest && act.id) {
-            preSalesRequest = await prisma.preSalesRequest.findFirst({
-              where: { observacoes: { contains: act.id } },
               include: {
                 items: {
                   include: { product: true }
@@ -376,7 +382,7 @@ router.post('/', async (req, res) => {
       type: req.body.type || 'TASK',
       subject: req.body.subject || 'Sem título',
       description: descriptionWithFlow,
-      status: 'PENDING',
+      status: req.body.status || 'PENDING',
       priority: req.body.priority || 'MEDIUM',
       assignedToId
     };

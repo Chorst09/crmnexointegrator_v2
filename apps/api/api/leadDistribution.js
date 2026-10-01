@@ -8,12 +8,15 @@ import {
 
 export default async function handler(req) {
   if (req.method === 'GET') {
-    const { action, region } = req.query || {};
+    const { action, region, clientType } = req.query || {};
     
     try {
-      if (action === 'sellers') {
-        // Listar vendedores disponíveis
-        const sellers = await getAvailableSellers(region);
+      if (!action || action === 'sellers') {
+        // Listar vendedores disponíveis (padrão)
+        const sellers = await getAvailableSellers(region, { 
+          clientType: clientType || 'B2B',
+          currentUser: req.user 
+        });
         return Response.json(sellers);
       }
       
@@ -58,7 +61,8 @@ export default async function handler(req) {
         
         const assignedSeller = await distributeLeadToSeller(
           companyId, 
-          strategy || DISTRIBUTION_STRATEGIES.LOAD_BALANCE
+          strategy || DISTRIBUTION_STRATEGIES.LOAD_BALANCE,
+          { currentUser: req.user, clientType: req.query?.clientType || 'B2B' }
         );
         
         return Response.json({
@@ -80,7 +84,8 @@ export default async function handler(req) {
           strategy || DISTRIBUTION_STRATEGIES.LOAD_BALANCE,
           sellerId || null,
           projectName || null,
-          projectClientType || null
+          projectClientType || null,
+          { currentUser: req.user, clientType: req.query?.clientType || projectClientType || 'B2B' }
         );
         
         return Response.json(result);

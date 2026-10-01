@@ -157,7 +157,7 @@ async function executeB2BTestFlow(user = null, options = {}) {
       title: activitySubject,
       subject: activitySubject,
       type: 'TASK',
-      status: 'IN_PROGRESS',
+      status: 'PENDING',
       priority: 'HIGH',
       description: activityDescription,
       companyId: company.id,
@@ -166,12 +166,35 @@ async function executeB2BTestFlow(user = null, options = {}) {
       dueDate: new Date(Date.now() + 2 * 86400000).toISOString()
     }
   });
+
+  const b2bCommercialActivity = await prisma.activity.create({
+    data: {
+      title: `[B2B] Acompanhamento Comercial & Proposta - ${company.name}`,
+      subject: `[B2B] Acompanhamento Comercial & Proposta - ${company.name}`,
+      type: 'FOLLOW_UP',
+      status: 'PENDING',
+      priority: 'HIGH',
+      description: `Atividade B2B em Pendentes: Alinhar escopo com o cliente, receber dimensionamento do Pré-Vendas e enviar proposta formal.\n\n${flowMarker}${JSON.stringify({
+        sourceArea: 'B2B',
+        targetArea: 'B2B',
+        createdFrom: 'FLUXO_TESTE_B2B',
+        createdByName: 'Vendas Corporativas B2B',
+        activityStage: 'PENDING',
+        updatedAt: now.toISOString()
+      })}`,
+      companyId: company.id,
+      opportunityId: opportunity.id,
+      assignedToId: userId,
+      dueDate: new Date(Date.now() + 3 * 86400000).toISOString()
+    }
+  });
+
   log(
     4,
-    'Atividade de Engenharia Encaminhada para Pré-Vendas',
-    `Atividade criada e despachada para a equipe de Pré-Vendas: "Dimensionamento NGFW & Viabilidade Técnica" vinculada à oportunidade e à empresa`,
-    activity.id,
-    { badge: 'Módulo: Atividades & Tarefas' }
+    'Atividades B2B Salvas em PENDENTES e Encaminhadas para Pré-Vendas',
+    `Atividades salvas na coluna PENDENTES de B2B ("Acompanhamento Comercial") e despachada para Pré-Vendas ("Dimensionamento NGFW")`,
+    b2bCommercialActivity.id,
+    { badge: 'Módulo: Atividades B2B' }
   );
 
   // ==========================================
@@ -272,18 +295,17 @@ async function executeB2BTestFlow(user = null, options = {}) {
     data: {
       title: activitySubject,
       subject: activitySubject,
-      status: 'COMPLETED',
-      completedAt: now.toISOString(),
+      status: 'PENDING',
       description: returnedDescription
     }
   });
 
   log(
     5,
-    'Pré-Vendas Gera Orçamento Técnico Estruturado',
-    `Orçamento ${budgetNumber} criado pelo time técnico com 3 itens especificados: NGFW Virtual + Link Fibra/Rádio 100Mbps + Serviço de Implantação`,
+    'Pré-Vendas Gera Orçamento Técnico & Mantém Atividade em Pendente no B2B',
+    `Orçamento ${budgetNumber} criado pelo time técnico e disponível na coluna PENDENTES do B2B com 3 itens especificados: NGFW Virtual + Link Fibra/Rádio 100Mbps + Setup`,
     preSalesRequest.id,
-    { badge: 'Módulo: Pré-Vendas & Orçamentos' }
+    { badge: 'Módulo: Pré-Vendas & Atividades B2B' }
   );
 
   // ==========================================
