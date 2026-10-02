@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
+import net from 'net';
 import { fileURLToPath } from 'url';
 import { createRequire } from 'module';
 
@@ -22,7 +23,7 @@ try {
         if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
           value = value.substring(1, value.length - 1);
         }
-        if (key && !key.startsWith('#')) {
+        if (key && !key.startsWith('#') && !(key in process.env)) {
           process.env[key] = value;
           // Clean up escaped double quotes from shell injection
           process.env[key] = process.env[key].replace(/\\"/g, '"');
@@ -35,8 +36,27 @@ try {
 }
 
 const app = express();
-const PORT = parseInt(process.env.PORT || '3000', 10);
 const HOST = '0.0.0.0';
+const DEFAULT_PORT = 3000;
+const PORT_EXPLICIT = process.env.PORT !== undefined && process.env.PORT !== '';
+const PORT = PORT_EXPLICIT ? parseInt(process.env.PORT as string, 10) : DEFAULT_PORT;
+
+const findAvailablePort = (startPort: number, attempts = 20): Promise<number> =>
+  new Promise((resolve, reject) => {
+    const attempt = (port: number, remaining: number) => {
+      const probe = net.createServer();
+      probe.once('error', (err: NodeJS.ErrnoException) => {
+        if (err.code === 'EADDRINUSE' && remaining > 0) {
+          attempt(port + 1, remaining - 1);
+          return;
+        }
+        reject(err);
+      });
+      probe.once('listening', () => probe.close(() => resolve(port)));
+      probe.listen(port, HOST);
+    };
+    attempt(startPort, attempts);
+  });
 
 async function startServer() {
   // Direct route for commercial proposal PPTX template
@@ -91,8 +111,33 @@ async function startServer() {
     app.use(vite.middlewares);
   }
 
-  app.listen(PORT, HOST, () => {
-    console.log(`🚀 CRM NEXOS rodando em http://${HOST}:${PORT}`);
+  let activePort = PORT;
+  if (!PORT_EXPLICIT) {
+    try {
+      activePort = await findAvailablePort(PORT);
+      if (activePort !== PORT) {
+        console.warn(`⚠️  Porta ${PORT} já está em uso. Iniciando na porta ${activePort} (defina PORT= no .env para fixar).`);
+      }
+    } catch (err: any) {
+      console.error(`❌ Nenhuma porta livre a partir de ${PORT}:`, err?.message || err);
+      process.exit(1);
+    }
+  }
+
+  const server = app.listen(activePort, HOST, () => {
+    console.log(`🚀 CRM NEXOS rodando em http://localhost:${activePort}`);
+  });
+
+  server.on('error', (err: NodeJS.ErrnoException) => {
+    if (err.code === 'EADDRINUSE') {
+      console.error(`\n❌ EADDRINUSE: a porta ${activePort} já está em uso.`);
+      console.error(`   Verifique o processo: lsof -nP -iTCP:${activePort} -sTCP:LISTEN`);
+      console.error(`   Encerre com:         kill $(lsof -ti tcp:${activePort})`);
+      console.error(`   Ou defina outra porta: PORT=3001 npm start\n`);
+    } else {
+      console.error('❌ Erro no servidor HTTP:', err);
+    }
+    process.exit(1);
   });
 }
 

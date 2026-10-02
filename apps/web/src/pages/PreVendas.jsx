@@ -387,7 +387,11 @@ export default function PreVendas() {
 
       const hydrated = Array.isArray(response.data) ? response.data.map(hydrateActivityFlow) : [];
       const relatedToPreSales = hydrated
-        .filter((activity) => activity?.flow?.targetArea === 'PRE_VENDAS' || activity?.flow?.sourceArea === 'PRE_VENDAS')
+        .filter((activity) => (
+          activity?.flow?.targetArea === 'PRE_VENDAS'
+          || activity?.flow?.sourceArea === 'PRE_VENDAS'
+          || activity?.flow?.targetArea === 'B2B'
+        ))
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setActivities(relatedToPreSales);
     } catch (error) {
@@ -686,7 +690,9 @@ export default function PreVendas() {
     const sent = activities.filter((item) => item?.flow?.sourceArea === 'PRE_VENDAS' && item?.flow?.targetArea !== 'PRE_VENDAS').length;
     const pending = activities.filter((item) => item.status === 'PENDING').length;
     const completed = activities.filter((item) => item.status === 'COMPLETED').length;
-    return { received, sent, pending, completed };
+    const b2bPending = activities.filter((item) => item?.flow?.targetArea === 'B2B' && item.status === 'PENDING').length;
+    const b2bInProgress = activities.filter((item) => item?.flow?.targetArea === 'B2B' && item.status === 'IN_PROGRESS').length;
+    return { received, sent, pending, completed, b2bPending, b2bInProgress };
   }, [activities]);
 
   const registroStats = useMemo(() => {
@@ -1821,6 +1827,7 @@ export default function PreVendas() {
                   {filteredActivities.map((activity) => {
                     const statusMeta = STATUS_META[activity.status] || STATUS_META.PENDING;
                     const priorityMeta = PRIORITY_META[activity.priority] || PRIORITY_META.MEDIUM;
+                    const isB2BPending = activity?.flow?.targetArea === 'B2B';
                     return (
                       <div
                         key={activity.id}
@@ -1857,7 +1864,7 @@ export default function PreVendas() {
                                 className="px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs inline-flex items-center gap-1"
                               >
                                 <RefreshCcw className="w-3 h-3" />
-                                Iniciar
+                                {isB2BPending ? 'Assumir' : 'Iniciar'}
                               </button>
                             )}
                             {activity.status === 'IN_PROGRESS' && (
@@ -1867,7 +1874,7 @@ export default function PreVendas() {
                                 className="px-3 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white text-xs inline-flex items-center gap-1"
                               >
                                 <CheckSquare className="w-3 h-3" />
-                                Concluir
+                                {isB2BPending ? 'Devolver ao Comercial' : 'Concluir'}
                               </button>
                             )}
                             {activity.status !== 'COMPLETED' && activity.status !== 'CANCELLED' && (
