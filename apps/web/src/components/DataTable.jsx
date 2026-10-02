@@ -95,15 +95,41 @@ const DataTable = ({
             <tbody className="divide-y divide-[color:var(--crm-border)]">
               {data.map((item, index) => (
                 <tr key={item.id || index} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                  {columns.map((column) => (
-                    <td key={column.key} className="px-6 py-4 whitespace-nowrap">
-                      {column.render ? column.render(item) : (
+                  {columns.map((column) => {
+                    const cellValue = item ? item[column.key] : undefined;
+                    let renderedContent = null;
+                    if (column.render) {
+                      try {
+                        renderedContent = column.render(item, cellValue);
+                      } catch (err) {
+                        renderedContent = cellValue ?? '';
+                      }
+                    } else {
+                      const displayVal = (typeof cellValue === 'object' && cellValue !== null && !React.isValidElement(cellValue))
+                        ? (cellValue.name || cellValue.title || cellValue.label || '')
+                        : cellValue;
+                      renderedContent = (
                         <div className="text-sm text-[var(--crm-ink)]">
-                          {item[column.key]}
+                          {displayVal}
                         </div>
-                      )}
-                    </td>
-                  ))}
+                      );
+                    }
+
+                    if (
+                      renderedContent !== null &&
+                      renderedContent !== undefined &&
+                      typeof renderedContent === 'object' &&
+                      !React.isValidElement(renderedContent)
+                    ) {
+                      renderedContent = String(cellValue ?? '');
+                    }
+
+                    return (
+                      <td key={column.key} className="px-6 py-4 whitespace-nowrap">
+                        {renderedContent}
+                      </td>
+                    );
+                  })}
                   {(onView || onEdit || onDelete) && (
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">

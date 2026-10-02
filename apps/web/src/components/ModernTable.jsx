@@ -199,15 +199,43 @@ const ModernTable = ({
                         className="rounded border-gray-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 bg-white dark:bg-slate-950"
                       />
                     </td>
-                    {columns.map((column) => (
-                      <td key={column.key} className="px-6 py-4">
-                        {column.render ? column.render(item) : (
+                    {columns.map((column) => {
+                      const cellValue = item ? item[column.key] : undefined;
+                      let renderedContent = null;
+                      if (column.render) {
+                        try {
+                          renderedContent = column.render(item, cellValue);
+                        } catch (err) {
+                          console.error('Error rendering cell:', err);
+                          renderedContent = cellValue ?? '';
+                        }
+                      } else {
+                        const displayValue = (typeof cellValue === 'object' && cellValue !== null && !React.isValidElement(cellValue))
+                          ? (cellValue.name || cellValue.title || cellValue.label || '')
+                          : cellValue;
+                        renderedContent = (
                           <div className="text-sm text-[var(--crm-ink)]">
-                            {item[column.key]}
+                            {displayValue}
                           </div>
-                        )}
-                      </td>
-                    ))}
+                        );
+                      }
+
+                      // Defensive guard: if renderedContent is a plain object, avoid React error #31
+                      if (
+                        renderedContent !== null &&
+                        renderedContent !== undefined &&
+                        typeof renderedContent === 'object' &&
+                        !React.isValidElement(renderedContent)
+                      ) {
+                        renderedContent = String(cellValue ?? '');
+                      }
+
+                      return (
+                        <td key={column.key} className="px-6 py-4">
+                          {renderedContent}
+                        </td>
+                      );
+                    })}
                     {hasActions && (
                       <td
                         className={[

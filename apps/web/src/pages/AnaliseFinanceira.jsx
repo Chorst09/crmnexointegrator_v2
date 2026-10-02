@@ -626,21 +626,38 @@ const AnaliseFinanceira = () => {
                 <h3 className="font-bold text-white text-base mb-4">Oportunidades Cadastradas</h3>
                 <ModernTable
                   columns={[
-                    { key: 'nome', label: 'Oportunidade / Projeto' },
-                    { key: 'cliente', label: 'Cliente / Órgão' },
-                    { key: 'origem', label: 'Segmento', render: (val) => (
-                      <span className={`px-2 py-0.5 rounded text-xs font-bold ${val === 'B2B' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-blue-500/20 text-blue-300'}`}>
-                        {val}
-                      </span>
+                    { key: 'nome', label: 'Oportunidade / Projeto', render: (row) => (
+                      <span className="font-medium text-slate-200">{row?.nome || '-'}</span>
                     )},
-                    { key: 'estagio', label: 'Estágio', render: (val) => (
-                      <span className={`px-2 py-0.5 rounded text-xs font-semibold ${val === 'WON' ? 'bg-green-500/20 text-green-300' : val === 'LOST' ? 'bg-red-500/20 text-red-300' : 'bg-cyan-500/20 text-cyan-300'}`}>
-                        {val}
-                      </span>
+                    { key: 'cliente', label: 'Cliente / Órgão', render: (row) => (
+                      <span className="text-slate-300">{row?.cliente || '-'}</span>
                     )},
-                    { key: 'vendedor', label: 'Responsável' },
-                    { key: 'valor', label: 'Valor', render: (val) => formatBRL(val) },
-                    { key: 'data', label: 'Data Fechamento' }
+                    { key: 'origem', label: 'Segmento', render: (row) => {
+                      const val = (typeof row === 'object' && row !== null ? row.origem : row) || 'B2B';
+                      return (
+                        <span className={`px-2 py-0.5 rounded text-xs font-bold ${val === 'B2B' ? 'bg-emerald-500/20 text-emerald-300' : 'bg-blue-500/20 text-blue-300'}`}>
+                          {String(val)}
+                        </span>
+                      );
+                    }},
+                    { key: 'estagio', label: 'Estágio', render: (row) => {
+                      const val = (typeof row === 'object' && row !== null ? row.estagio : row) || '-';
+                      return (
+                        <span className={`px-2 py-0.5 rounded text-xs font-semibold ${val === 'WON' ? 'bg-green-500/20 text-green-300' : val === 'LOST' ? 'bg-red-500/20 text-red-300' : 'bg-cyan-500/20 text-cyan-300'}`}>
+                          {String(val)}
+                        </span>
+                      );
+                    }},
+                    { key: 'vendedor', label: 'Responsável', render: (row) => (
+                      <span className="text-slate-300">{row?.vendedor || '-'}</span>
+                    )},
+                    { key: 'valor', label: 'Valor', render: (row) => {
+                      const val = typeof row === 'object' && row !== null ? row.valor : row;
+                      return <span className="font-semibold text-emerald-400">{formatBRL(val)}</span>;
+                    }},
+                    { key: 'data', label: 'Data Fechamento', render: (row) => (
+                      <span className="text-slate-400">{row?.data || '-'}</span>
+                    )}
                   ]}
                   data={geral.tabela_oportunidades || []}
                 />
@@ -737,16 +754,30 @@ const AnaliseFinanceira = () => {
             <h3 className="font-bold text-white text-base mb-4">Carteira de Oportunidades B2B</h3>
             <ModernTable
               columns={[
-                { key: 'nome', label: 'Nome da Oportunidade' },
-                { key: 'cliente', label: 'Cliente' },
-                { key: 'vendedor', label: 'Vendedor' },
-                { key: 'estagio', label: 'Estágio', render: (val) => (
-                  <span className={`px-2 py-0.5 rounded text-xs font-semibold ${val === 'WON' ? 'bg-green-500/20 text-green-300' : 'bg-cyan-500/20 text-cyan-300'}`}>
-                    {val}
-                  </span>
+                { key: 'nome', label: 'Nome da Oportunidade', render: (row) => (
+                  <span className="font-medium text-slate-200">{row?.nome || '-'}</span>
                 )},
-                { key: 'valor', label: 'Valor', render: (val) => formatBRL(val) },
-                { key: 'data', label: 'Data' }
+                { key: 'cliente', label: 'Cliente', render: (row) => (
+                  <span className="text-slate-300">{row?.cliente || '-'}</span>
+                )},
+                { key: 'vendedor', label: 'Vendedor', render: (row) => (
+                  <span className="text-slate-300">{row?.vendedor || '-'}</span>
+                )},
+                { key: 'estagio', label: 'Estágio', render: (row) => {
+                  const val = (typeof row === 'object' && row !== null ? row.estagio : row) || '-';
+                  return (
+                    <span className={`px-2 py-0.5 rounded text-xs font-semibold ${val === 'WON' ? 'bg-green-500/20 text-green-300' : 'bg-cyan-500/20 text-cyan-300'}`}>
+                      {String(val)}
+                    </span>
+                  );
+                }},
+                { key: 'valor', label: 'Valor', render: (row) => {
+                  const val = typeof row === 'object' && row !== null ? row.valor : row;
+                  return <span className="font-semibold text-emerald-400">{formatBRL(val)}</span>;
+                }},
+                { key: 'data', label: 'Data', render: (row) => (
+                  <span className="text-slate-400">{row?.data || '-'}</span>
+                )}
               ]}
               data={b2b.tabela_oportunidades || []}
             />
@@ -841,16 +872,30 @@ const AnaliseFinanceira = () => {
             <h3 className="font-bold text-white text-base mb-4">Editais e Processos Licitatórios B2G</h3>
             <ModernTable
               columns={[
-                { key: 'nome', label: 'Processo / Objeto' },
-                { key: 'cliente', label: 'Órgão / Ente Público' },
-                { key: 'vendedor', label: 'Responsável Técnico' },
-                { key: 'estagio', label: 'Fase', render: (val) => (
-                  <span className={`px-2 py-0.5 rounded text-xs font-semibold ${val === 'WON' ? 'bg-green-500/20 text-green-300' : val === 'LOST' ? 'bg-red-500/20 text-red-300' : 'bg-blue-500/20 text-blue-300'}`}>
-                    {val}
-                  </span>
+                { key: 'nome', label: 'Processo / Objeto', render: (row) => (
+                  <span className="font-medium text-slate-200">{row?.nome || '-'}</span>
                 )},
-                { key: 'valor', label: 'Valor Estimado / Fechado', render: (val) => formatBRL(val) },
-                { key: 'data', label: 'Data Homologação' }
+                { key: 'cliente', label: 'Órgão / Ente Público', render: (row) => (
+                  <span className="text-slate-300">{row?.cliente || '-'}</span>
+                )},
+                { key: 'vendedor', label: 'Responsável Técnico', render: (row) => (
+                  <span className="text-slate-300">{row?.vendedor || '-'}</span>
+                )},
+                { key: 'estagio', label: 'Fase', render: (row) => {
+                  const val = (typeof row === 'object' && row !== null ? row.estagio : row) || '-';
+                  return (
+                    <span className={`px-2 py-0.5 rounded text-xs font-semibold ${val === 'WON' ? 'bg-green-500/20 text-green-300' : val === 'LOST' ? 'bg-red-500/20 text-red-300' : 'bg-blue-500/20 text-blue-300'}`}>
+                      {String(val)}
+                    </span>
+                  );
+                }},
+                { key: 'valor', label: 'Valor Estimado / Fechado', render: (row) => {
+                  const val = typeof row === 'object' && row !== null ? row.valor : row;
+                  return <span className="font-semibold text-blue-400">{formatBRL(val)}</span>;
+                }},
+                { key: 'data', label: 'Data Homologação', render: (row) => (
+                  <span className="text-slate-400">{row?.data || '-'}</span>
+                )}
               ]}
               data={b2g.tabela_oportunidades || []}
             />
@@ -1022,15 +1067,25 @@ const AnaliseFinanceira = () => {
 
             <ModernTable
               columns={[
-                { key: 'title', label: 'Proposta / Identificador' },
-                { key: 'client', label: 'Cliente' },
-                { key: 'typeLabel', label: 'Produto / Solução', render: (val) => (
-                  <span className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
-                    {val}
-                  </span>
+                { key: 'title', label: 'Proposta / Identificador', render: (row) => (
+                  <span className="font-medium text-slate-200">{row?.title || '-'}</span>
                 )},
-                { key: 'status', label: 'Status' },
-                { key: 'forecastTemperature', label: 'Temperatura', render: (val) => {
+                { key: 'client', label: 'Cliente', render: (row) => (
+                  <span className="text-slate-300">{row?.client || '-'}</span>
+                )},
+                { key: 'typeLabel', label: 'Produto / Solução', render: (row) => {
+                  const val = (typeof row === 'object' && row !== null ? row.typeLabel : row) || 'Geral';
+                  return (
+                    <span className="px-2 py-0.5 rounded text-xs font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                      {String(val)}
+                    </span>
+                  );
+                }},
+                { key: 'status', label: 'Status', render: (row) => (
+                  <span className="text-slate-400">{row?.status || '-'}</span>
+                )},
+                { key: 'forecastTemperature', label: 'Temperatura', render: (row) => {
+                  const val = (typeof row === 'object' && row !== null ? row.forecastTemperature : row) || 0;
                   let badgeColor = 'bg-blue-500/20 text-blue-300 border-blue-500/30';
                   if (val > 75) badgeColor = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
                   else if (val > 50) badgeColor = 'bg-orange-500/20 text-orange-300 border-orange-500/30';
@@ -1044,11 +1099,19 @@ const AnaliseFinanceira = () => {
                     </div>
                   );
                 }},
-                { key: 'value', label: 'Valor Nominal', render: (val) => formatBRL(val) },
-                { key: 'valor_ponderado', label: 'Previsão Ponderada', render: (val) => (
-                  <span className="font-semibold text-amber-300">{formatBRL(val)}</span>
-                )},
-                { key: 'accountManager', label: 'Vendedor' }
+                { key: 'value', label: 'Valor Nominal', render: (row) => {
+                  const val = typeof row === 'object' && row !== null ? row.value : row;
+                  return <span className="font-semibold text-slate-200">{formatBRL(val)}</span>;
+                }},
+                { key: 'valor_ponderado', label: 'Previsão Ponderada', render: (row) => {
+                  const val = typeof row === 'object' && row !== null ? row.valor_ponderado : row;
+                  return (
+                    <span className="font-semibold text-amber-300">{formatBRL(val)}</span>
+                  );
+                }},
+                { key: 'accountManager', label: 'Vendedor', render: (row) => (
+                  <span className="text-slate-300">{row?.accountManager || '-'}</span>
+                )}
               ]}
               data={filteredSimProposals.slice(0, 100)}
             />
