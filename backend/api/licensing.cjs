@@ -258,7 +258,7 @@ const generatePassword = () => {
 
 const resolveMasterEmails = () => {
   return new Set(
-    String(process.env.MASTER_EMAILS || process.env.MASTER_EMAIL || '')
+    String(process.env.MASTER_EMAILS || process.env.MASTER_EMAIL || 'admin@crm.com,chorstconsult@gmail.com,carlos.horst@doubletelecom.com.br')
       .split(',')
       .map((item) => item.trim().toLowerCase())
       .filter(Boolean)

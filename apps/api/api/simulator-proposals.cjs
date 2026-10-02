@@ -7,6 +7,7 @@
 const express = require('express');
 const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken } = require('../lib/auth.cjs');
+const { canAccessChorstData } = require('../lib/chorst-privacy.cjs');
 
 const router = express.Router();
 
@@ -51,6 +52,18 @@ router.get('/', optionalAuth, async (req, res) => {
     const role = String(req.user?.role || '').toUpperCase();
     if (userId && !['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(role)) {
       where.createdBy = req.user?.email || userId;
+    }
+
+    // Regra de Isolamento: Somente carlos.horst@doubletelecom.com.br (e o próprio chorstconsult)
+    // podem visualizar dados/propostas do usuário chorstconsult@gmail.com
+    if (!canAccessChorstData(req.user)) {
+      where.AND = where.AND || [];
+      where.AND.push({
+        NOT: [
+          { createdBy: { contains: 'chorstconsult@gmail.com', mode: 'insensitive' } },
+          { accountManager: { contains: 'chorstconsult@gmail.com', mode: 'insensitive' } }
+        ]
+      });
     }
 
     let rows = [];
@@ -116,6 +129,14 @@ router.get('/:id', optionalAuth, async (req, res) => {
 
     if (!proposal) {
       return res.status(404).json({ success: false, error: 'Proposta não encontrada' });
+    }
+
+    if (!canAccessChorstData(req.user)) {
+      const createdBy = String(proposal.createdBy || '').toLowerCase();
+      const accountManager = String(proposal.accountManager || '').toLowerCase();
+      if (createdBy.includes('chorstconsult@gmail.com') || accountManager.includes('chorstconsult@gmail.com')) {
+        return res.status(404).json({ success: false, error: 'Proposta não encontrada' });
+      }
     }
 
     return res.json({

@@ -16,7 +16,7 @@ const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
 const getAuthMasterKey = () => String(process.env.AUTH_MASTER_KEY || '').trim();
 const getMasterEmails = () =>
   new Set(
-    String(process.env.MASTER_EMAILS || process.env.MASTER_EMAIL || 'admin@crm.com,chorstconsult@gmail.com')
+    String(process.env.MASTER_EMAILS || process.env.MASTER_EMAIL || 'admin@crm.com,chorstconsult@gmail.com,carlos.horst@doubletelecom.com.br')
       .split(',')
       .map((item) => item.trim().toLowerCase())
       .filter(Boolean)

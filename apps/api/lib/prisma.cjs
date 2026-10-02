@@ -1,4 +1,21 @@
-const { PrismaClient } = require('@prisma/client');
+let PrismaClient;
+try {
+  const fs = require('fs');
+  const path = require('path');
+  const candidatePaths = [
+    path.resolve(__dirname, '../../../backend/node_modules/@prisma/client'),
+    path.resolve(process.cwd(), 'backend/node_modules/@prisma/client'),
+    path.resolve(__dirname, '../../backend/node_modules/@prisma/client')
+  ];
+  let foundPath = candidatePaths.find(p => fs.existsSync(p));
+  if (foundPath) {
+    PrismaClient = require(foundPath).PrismaClient;
+  } else {
+    PrismaClient = require('@prisma/client').PrismaClient;
+  }
+} catch {
+  PrismaClient = require('@prisma/client').PrismaClient;
+}
 const bcrypt = require('bcryptjs');
 
 const rawUrl = String(process.env.DATABASE_URL || '').trim();

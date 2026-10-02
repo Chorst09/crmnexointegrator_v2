@@ -1,0 +1,252 @@
+/**
+ * API de Propostas do Módulo Simuladores
+ * Rota: /api/simulator/proposals
+ *
+ * Armazena propostas geradas pelas calculadoras do Simulador.
+ */
+const express = require('express');
+const { prisma } = require('../lib/prisma.cjs');
+const { authenticateToken } = require('../lib/auth.cjs');
+const { canAccessChorstData } = require('../lib/chorst-privacy.cjs');
+
+const router = express.Router();
+
+// Helper: normaliza proposta do formato do Simulador
+const normalizeProposal = (data) => ({
+  baseId: String(data.base_id || data.baseId || ''),
+  version: Number(data.version || 1),
+  title: String(data.title || 'Proposta'),
+  client: typeof data.client === 'string' ? data.client : (data.client?.name || 'N/A'),
+  type: String(data.type || 'standard').toUpperCase(),
+  value: parseFloat(data.value || data.totalMonthly || 0),
+  status: String(data.status || 'Rascunho'),
+  forecastTemperature: data.forecastTemperature != null ? Number(data.forecastTemperature) : null,
+  metadata: data.metadata || data,
+  createdBy: String(data.createdBy || data.created_by || ''),
+  accountManager: typeof data.accountManager === 'string'
+    ? data.accountManager
+    : JSON.stringify(data.accountManager || {}),
+  distributorId: String(data.distributorId || data.distributor_id || ''),
+});
+
+// Middleware opcional de autenticação que não bloqueia caso o token esteja em outro formato
+const optionalAuth = (req, res, next) => {
+  const authHeader = req.headers['authorization'];
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    return authenticateToken(req, res, next);
+  }
+  return next();
+};
+
+// ─── GET /api/simulator/proposals ─────────────────────────────────────────────
+router.get('/', optionalAuth, async (req, res) => {
+  try {
+    const { type, all, dashboard } = req.query;
+    const userId = req.user?.userId || req.user?.id;
+
+    // Filtro base
+    const where = {};
+    if (type && type !== 'all') where.type = type.toUpperCase();
+
+    // Se usuário autenticado não-master/admin, filtra por criador caso tenha
+    const role = String(req.user?.role || '').toUpperCase();
+    if (userId && !['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(role)) {
+      where.createdBy = req.user?.email || userId;
+    }
+
+    // Regra de Isolamento: Somente carlos.horst@doubletelecom.com.br (e o próprio chorstconsult)
+    // podem visualizar dados/propostas do usuário chorstconsult@gmail.com
+    if (!canAccessChorstData(req.user)) {
+      where.AND = where.AND || [];
+      where.AND.push({
+        NOT: [
+          { createdBy: { contains: 'chorstconsult@gmail.com', mode: 'insensitive' } },
+          { accountManager: { contains: 'chorstconsult@gmail.com', mode: 'insensitive' } }
+        ]
+      });
+    }
+
+    let rows = [];
+    try {
+      rows = await prisma.simulatorProposal.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: all || dashboard ? 1000 : 100,
+      });
+    } catch (dbErr) {
+      console.warn('⚠️ Falha ao buscar simulatorProposal do banco:', dbErr.message);
+      rows = [];
+    }
+
+    const proposals = (Array.isArray(rows) ? rows : []).map(r => ({
+      id: r.id,
+      baseId: r.baseId,
+      base_id: r.baseId,
+      version: r.version,
+      title: r.title,
+      client: r.client,
+      type: r.type,
+      value: Number(r.value || 0),
+      status: r.status,
+      forecastTemperature: r.forecastTemperature,
+      metadata: r.metadata,
+      createdBy: r.createdBy,
+      accountManager: (() => {
+        try {
+          return typeof r.accountManager === 'string' && r.accountManager.startsWith('{')
+            ? JSON.parse(r.accountManager)
+            : r.accountManager;
+        } catch {
+          return r.accountManager;
+        }
+      })(),
+      distributorId: r.distributorId,
+      createdAt: r.createdAt,
+      updatedAt: r.updatedAt,
+    }));
+
+    return res.json({ success: true, proposals, data: { proposals } });
+  } catch (err) {
+    console.error('❌ simulator-proposals GET:', err);
+    return res.status(500).json({ success: false, error: 'Erro ao buscar propostas' });
+  }
+});
+
+// ─── GET /api/simulator/proposals/:id ─────────────────────────────────────────
+router.get('/:id', optionalAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    let proposal = null;
+    try {
+      proposal = await prisma.simulatorProposal.findFirst({
+        where: {
+          OR: [{ id }, { baseId: id }]
+        }
+      });
+    } catch (e) {
+      console.warn('⚠️ Falha ao buscar simulatorProposal por id:', e.message);
+    }
+
+    if (!proposal) {
+      return res.status(404).json({ success: false, error: 'Proposta não encontrada' });
+    }
+
+    if (!canAccessChorstData(req.user)) {
+      const createdBy = String(proposal.createdBy || '').toLowerCase();
+      const accountManager = String(proposal.accountManager || '').toLowerCase();
+      if (createdBy.includes('chorstconsult@gmail.com') || accountManager.includes('chorstconsult@gmail.com')) {
+        return res.status(404).json({ success: false, error: 'Proposta não encontrada' });
+      }
+    }
+
+    return res.json({
+      success: true,
+      proposal,
+      data: proposal
+    });
+  } catch (err) {
+    console.error('❌ simulator-proposals GET /:id:', err);
+    return res.status(500).json({ success: false, error: 'Erro ao buscar proposta' });
+  }
+});
+
+// ─── POST /api/simulator/proposals ────────────────────────────────────────────
+router.post('/', optionalAuth, async (req, res) => {
+  try {
+    const normalized = normalizeProposal(req.body);
+    const userId = req.user?.email || req.user?.userId || req.user?.id || 'vendedor';
+
+    if (!normalized.baseId) {
+      normalized.baseId = `PROP-${Date.now().toString().slice(-6)}`;
+    }
+    if (!normalized.createdBy) {
+      normalized.createdBy = userId;
+    }
+
+    // Verificar se já existe (upsert por baseId + version)
+    let existing = null;
+    try {
+      existing = await prisma.simulatorProposal.findFirst({
+        where: { baseId: normalized.baseId, version: normalized.version },
+      });
+    } catch (e) {}
+
+    let saved;
+    const crypto = require('crypto');
+    if (existing) {
+      saved = await prisma.simulatorProposal.update({
+        where: { id: existing.id },
+        data: { ...normalized, updatedAt: new Date() },
+      });
+    } else {
+      saved = await prisma.simulatorProposal.create({
+        data: {
+          id: crypto.randomUUID(),
+          ...normalized,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      });
+    }
+
+    return res.status(201).json({ success: true, data: saved });
+  } catch (err) {
+    console.error('❌ simulator-proposals POST:', err);
+    return res.status(500).json({ success: false, error: 'Erro ao salvar proposta' });
+  }
+});
+
+// ─── PUT /api/simulator/proposals/:id & PUT /api/simulator/proposals ──────────
+const handlePutProposal = async (req, res) => {
+  try {
+    const id = req.params.id || req.body.id || req.body.baseId || req.body.base_id;
+    if (!id) {
+      return res.status(400).json({ success: false, error: 'ID da proposta não informado para atualização' });
+    }
+    const normalized = normalizeProposal(req.body);
+
+    // Tentar atualizar por id ou por baseId
+    let updated = null;
+    try {
+      updated = await prisma.simulatorProposal.update({
+        where: { id },
+        data: { ...normalized, updatedAt: new Date() },
+      });
+    } catch (updateErr) {
+      // Se falhar pelo id, tenta buscar por baseId
+      const found = await prisma.simulatorProposal.findFirst({
+        where: { OR: [{ id }, { baseId: id }] }
+      });
+      if (found) {
+        updated = await prisma.simulatorProposal.update({
+          where: { id: found.id },
+          data: { ...normalized, updatedAt: new Date() },
+        });
+      } else {
+        throw updateErr;
+      }
+    }
+
+    return res.json({ success: true, data: updated });
+  } catch (err) {
+    console.error('❌ simulator-proposals PUT:', err);
+    return res.status(500).json({ success: false, error: 'Erro ao atualizar proposta' });
+  }
+};
+
+router.put('/:id', optionalAuth, handlePutProposal);
+router.put('/', optionalAuth, handlePutProposal);
+
+// ─── DELETE /api/simulator/proposals/:id ──────────────────────────────────────
+router.delete('/:id', optionalAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    await prisma.simulatorProposal.delete({ where: { id } });
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('❌ simulator-proposals DELETE:', err);
+    return res.status(500).json({ success: false, error: 'Erro ao excluir proposta' });
+  }
+});
+
+module.exports = router;

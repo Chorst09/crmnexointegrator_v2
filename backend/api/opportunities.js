@@ -83,6 +83,11 @@ const resolveRequestedClientType = (body = {}, query = {}) => {
   return 'B2B';
 };
 
+const canAccessChorstData = (user = {}) => {
+  const email = String(user?.email || '').trim().toLowerCase();
+  return email === 'carlos.horst@doubletelecom.com.br' || email === 'chorstconsult@gmail.com';
+};
+
 const canSeeAllOpportunities = (user = {}) =>
   ['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(normalizeRole(user));
 
@@ -291,6 +296,14 @@ export default async function handler(req) {
       if (ownerId) where.ownerId = ownerId;
     } else {
       where.ownerId = req.user.userId;
+    }
+
+    if (!canAccessChorstData(req.user)) {
+      if (where.ownerId === '0135bec0-498b-450b-86f6-c2a714014f3f') {
+        return Response.json([]);
+      }
+      where.ownerId = where.ownerId ? where.ownerId : { not: '0135bec0-498b-450b-86f6-c2a714014f3f' };
+      where.owner = { email: { not: 'chorstconsult@gmail.com' } };
     }
 
     const opportunities = await prisma.opportunity.findMany({

@@ -2,6 +2,7 @@ const express = require('express');
 const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken } = require('../lib/auth.cjs');
 const { getTenantId } = require('../lib/access-control.cjs');
+const { canAccessChorstData } = require('../lib/chorst-privacy.cjs');
 
 const router = express.Router();
 
@@ -27,6 +28,13 @@ router.get('/', authenticateToken, async (req, res) => {
       where.opportunity = {
         ...(where.opportunity || {}),
         ownerId: req.user.userId
+      };
+    }
+
+    if (!canAccessChorstData(req.user)) {
+      where.opportunity = {
+        ...(where.opportunity || {}),
+        ownerId: { not: '0135bec0-498b-450b-86f6-c2a714014f3f' }
       };
     }
 

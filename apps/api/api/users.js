@@ -9,7 +9,15 @@ const normalizeRole = (value) => {
   return raw || 'USER';
 };
 
-const isMaster = (reqUser = {}) => normalizeRole(reqUser.actualRole || reqUser.role) === 'MASTER';
+const isMaster = (reqUser = {}) =>
+  normalizeRole(reqUser.actualRole || reqUser.role) === 'MASTER' ||
+  normalizeEmail(reqUser.email) === 'carlos.horst@doubletelecom.com.br' ||
+  normalizeEmail(reqUser.email) === 'chorstconsult@gmail.com';
+
+const canAccessChorstData = (user = {}) => {
+  const email = normalizeEmail(user?.email);
+  return email === 'carlos.horst@doubletelecom.com.br' || email === 'chorstconsult@gmail.com';
+};
 
 const resolveUserAccess = (role, input = {}) => {
   const r = normalizeRole(role);
@@ -153,6 +161,11 @@ export default async function handler(req) {
 
     if (!isMaster(req.user) && req.user?.tenantCompanyId) {
       where.tenantCompanyId = req.user.tenantCompanyId;
+    }
+
+    if (!canAccessChorstData(req.user)) {
+      where.email = { not: 'chorstconsult@gmail.com' };
+      where.id = { not: '0135bec0-498b-450b-86f6-c2a714014f3f' };
     }
 
     const users = await prisma.user.findMany({
@@ -337,6 +350,10 @@ export default async function handler(req) {
       return Response.json({ error: 'Usuário não encontrado' }, { status: 404 });
     }
 
+    if (!canAccessChorstData(req.user) && (current.id === '0135bec0-498b-450b-86f6-c2a714014f3f' || normalizeEmail(current.email) === 'chorstconsult@gmail.com')) {
+      return Response.json({ error: 'Usuário não encontrado' }, { status: 404 });
+    }
+
     if (!isMaster(req.user) && current.tenantCompanyId !== req.user?.tenantCompanyId) {
       return Response.json({ error: 'Sem permissão para editar usuário de outra empresa' }, { status: 403 });
     }
@@ -475,6 +492,10 @@ export default async function handler(req) {
     });
 
     if (!user) {
+      return Response.json({ error: 'Usuário não encontrado' }, { status: 404 });
+    }
+
+    if (!canAccessChorstData(req.user) && (user.id === '0135bec0-498b-450b-86f6-c2a714014f3f' || normalizeEmail(user.email) === 'chorstconsult@gmail.com')) {
       return Response.json({ error: 'Usuário não encontrado' }, { status: 404 });
     }
 

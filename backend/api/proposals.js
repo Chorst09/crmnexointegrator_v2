@@ -6,6 +6,11 @@ const { getTenantCompanyId, mergeRelationWhere } = require('../lib/tenantScope.c
 const router = express.Router();
 const prisma = new PrismaClient();
 
+const canAccessChorstData = (user = {}) => {
+  const email = String(user?.email || '').trim().toLowerCase();
+  return email === 'carlos.horst@doubletelecom.com.br' || email === 'chorstconsult@gmail.com';
+};
+
 const scopeProposalWhere = (req, where = {}) => {
   const tenantCompanyId = getTenantCompanyId(req.user);
   let scoped = { ...where };
@@ -14,6 +19,12 @@ const scopeProposalWhere = (req, where = {}) => {
     scoped = mergeRelationWhere(scoped, 'opportunity', { tenantCompanyId });
   } else if (req.user.role === 'SELLER') {
     scoped = mergeRelationWhere(scoped, 'opportunity', { ownerId: req.user.userId });
+  }
+
+  if (!canAccessChorstData(req.user)) {
+    scoped = mergeRelationWhere(scoped, 'opportunity', {
+      ownerId: { not: '0135bec0-498b-450b-86f6-c2a714014f3f' }
+    });
   }
 
   return scoped;

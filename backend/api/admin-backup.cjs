@@ -903,6 +903,64 @@ router.get('/summary', async (_req, res) => {
   }
 });
 
+router.get('/routine-status', async (_req, res) => {
+  try {
+    const backupDir = '/var/backups/crmnexointegrator_v2';
+    const logFile = '/var/log/crmnexointegrator_v2-backup.log';
+    let files = [];
+    let logSnippet = '';
+
+    try {
+      const dirEntries = await fs.readdir(backupDir, { withFileTypes: true });
+      for (const entry of dirEntries) {
+        if (entry.isFile() && (entry.name.endsWith('.dump') || entry.name.endsWith('.sql.gz'))) {
+          const filePath = path.join(backupDir, entry.name);
+          const stat = await fs.stat(filePath);
+          files.push({
+            name: entry.name,
+            sizeBytes: stat.size,
+            sizeFormatted: (stat.size / (1024 * 1024)).toFixed(2) + ' MB',
+            createdAt: stat.birthtime || stat.mtime,
+            modifiedAt: stat.mtime
+          });
+        }
+      }
+      files.sort((a, b) => new Date(b.modifiedAt) - new Date(a.modifiedAt));
+    } catch (e) {
+      // Directory may not exist in local dev
+    }
+
+    try {
+      const logContent = await fs.readFile(logFile, 'utf-8');
+      const lines = logContent.trim().split('\n');
+      logSnippet = lines.slice(-15).join('\n');
+    } catch (e) {
+      logSnippet = 'Log ainda não gerado ou aguardando primeiro ciclo do cron.';
+    }
+
+    res.json({
+      active: true,
+      schedule: 'Segunda a Sexta às 17:00 (America/Sao_Paulo)',
+      cronExpression: '0 17 * * 1-5',
+      database: 'nexoscrm',
+      databasePort: 5433,
+      domain: 'nexosv2.chorstconsult.com.br',
+      retentionDays: 30,
+      backupDir,
+      logFile,
+      backupScript: '/var/www/crmnexointegrator_v2/scripts/backup-crmnexointegrator_v2.sh',
+      restoreScript: '/var/www/crmnexointegrator_v2/scripts/restore-crmnexointegrator_v2.sh',
+      totalFiles: files.length,
+      files,
+      latestBackup: files[0] || null,
+      lastLogSnippet: logSnippet
+    });
+  } catch (err) {
+    console.error('Erro ao consultar status da rotina de backup:', err);
+    res.status(500).json({ error: 'Erro ao consultar status da rotina de backup.' });
+  }
+});
+
 router.get('/export', async (req, res) => {
   try {
     req.setTimeout?.(0);
