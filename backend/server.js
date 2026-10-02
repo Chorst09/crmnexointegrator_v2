@@ -26,7 +26,7 @@ const contractsRoutes = require('./api/contracts');
 const postSalesRoutes = require('./api/postSales');
 const workflowsRoutes = require('./api/workflows');
 const proposalsRoutes = require('./api/proposals');
-const simulatorProposalsRoutes = require('./api/simulator-proposals');
+const simulatorProposalsRoutes = require('../apps/api/api/simulator-proposals.cjs');
 const productsRoutes = require('./api/products');
 
 const app = express();
@@ -236,6 +236,58 @@ app.use('/api/licensing', require('./api/licensing.cjs'));
 app.use('/api/b2g-search', require('./api/b2g-search'));
 app.use('/api/bll-proxy', require('./api/bll-proxy'));
 app.use('/api/comprasnet-proxy', require('./api/comprasnet-proxy'));
+
+// B2G Licitações & Editais (PNCP em tempo real, gerenciadas, alertas, arquivos e TR)
+try {
+  const b2gLicitacoesRouter = require('../apps/api/api/b2g-licitacoes.cjs');
+  app.use('/api/b2g-licitacoes', b2gLicitacoesRouter);
+  app.use('/api/analise-tr', b2gLicitacoesRouter);
+  app.get('/api/proxy-download', (req, res) => {
+    const query = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+    res.redirect(307, '/api/b2g-licitacoes/proxy-download' + query);
+  });
+  app.get('/api/pncp-arquivos', (req, res) => {
+    const query = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
+    res.redirect(307, '/api/b2g-licitacoes/pncp-arquivos' + query);
+  });
+} catch (e) {
+  console.warn('⚠️ Aviso ao carregar b2g-licitacoes:', e.message);
+}
+
+// Filtros TI & Editais
+try {
+  app.use('/api/filtros-ti', require('../apps/api/api/filtros-ti-search.cjs'));
+} catch (e) {
+  console.warn('⚠️ Aviso ao carregar filtros-ti:', e.message);
+}
+
+// Acompanhamentos de Oportunidades & Follow-ups
+try {
+  app.use('/api/opportunity-followups', require('../apps/api/api/opportunity-followups.cjs'));
+} catch (e) {
+  console.warn('⚠️ Aviso ao carregar opportunity-followups:', e.message);
+}
+
+// Geração de PDF
+try {
+  app.use('/api/pdf-generator', require('../apps/api/api/pdf-generator.cjs'));
+} catch (e) {
+  console.warn('⚠️ Aviso ao carregar pdf-generator:', e.message);
+}
+
+// Template PPTX de Proposta Comercial Double
+app.get(['/api/proposta-comercial-double.pptx', '/proposta-comercial-double.pptx'], (req, res) => {
+  const fs = require('fs');
+  const primaryPath = path.resolve(__dirname, '../apps/web/public/proposta-comercial-double.pptx');
+  const apiPath = path.resolve(__dirname, '../apps/api/public/proposta-comercial-double.pptx');
+  const targetFile = fs.existsSync(primaryPath) ? primaryPath : (fs.existsSync(apiPath) ? apiPath : null);
+  if (targetFile) {
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.presentationml.presentation');
+    res.setHeader('Content-Disposition', 'inline; filename="proposta-comercial-double.pptx"');
+    return res.sendFile(targetFile);
+  }
+  res.status(404).json({ error: 'Template PPTX não encontrado' });
+});
 
 // Novas rotas CommonJS - migradas do apps/api
 app.use('/api/b2g', authenticateToken, require('./api/b2g.cjs'));

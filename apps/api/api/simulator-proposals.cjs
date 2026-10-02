@@ -99,6 +99,36 @@ router.get('/', optionalAuth, async (req, res) => {
   }
 });
 
+// ─── GET /api/simulator/proposals/:id ─────────────────────────────────────────
+router.get('/:id', optionalAuth, async (req, res) => {
+  try {
+    const { id } = req.params;
+    let proposal = null;
+    try {
+      proposal = await prisma.simulatorProposal.findFirst({
+        where: {
+          OR: [{ id }, { baseId: id }]
+        }
+      });
+    } catch (e) {
+      console.warn('⚠️ Falha ao buscar simulatorProposal por id:', e.message);
+    }
+
+    if (!proposal) {
+      return res.status(404).json({ success: false, error: 'Proposta não encontrada' });
+    }
+
+    return res.json({
+      success: true,
+      proposal,
+      data: proposal
+    });
+  } catch (err) {
+    console.error('❌ simulator-proposals GET /:id:', err);
+    return res.status(500).json({ success: false, error: 'Erro ao buscar proposta' });
+  }
+});
+
 // ─── POST /api/simulator/proposals ────────────────────────────────────────────
 router.post('/', optionalAuth, async (req, res) => {
   try {
@@ -145,23 +175,46 @@ router.post('/', optionalAuth, async (req, res) => {
   }
 });
 
-// ─── PUT /api/simulator/proposals/:id ─────────────────────────────────────────
-router.put('/:id', optionalAuth, async (req, res) => {
+// ─── PUT /api/simulator/proposals/:id & PUT /api/simulator/proposals ──────────
+const handlePutProposal = async (req, res) => {
   try {
-    const { id } = req.params;
+    const id = req.params.id || req.body.id || req.body.baseId || req.body.base_id;
+    if (!id) {
+      return res.status(400).json({ success: false, error: 'ID da proposta não informado para atualização' });
+    }
     const normalized = normalizeProposal(req.body);
 
-    const updated = await prisma.simulatorProposal.update({
-      where: { id },
-      data: { ...normalized, updatedAt: new Date() },
-    });
+    // Tentar atualizar por id ou por baseId
+    let updated = null;
+    try {
+      updated = await prisma.simulatorProposal.update({
+        where: { id },
+        data: { ...normalized, updatedAt: new Date() },
+      });
+    } catch (updateErr) {
+      // Se falhar pelo id, tenta buscar por baseId
+      const found = await prisma.simulatorProposal.findFirst({
+        where: { OR: [{ id }, { baseId: id }] }
+      });
+      if (found) {
+        updated = await prisma.simulatorProposal.update({
+          where: { id: found.id },
+          data: { ...normalized, updatedAt: new Date() },
+        });
+      } else {
+        throw updateErr;
+      }
+    }
 
     return res.json({ success: true, data: updated });
   } catch (err) {
     console.error('❌ simulator-proposals PUT:', err);
     return res.status(500).json({ success: false, error: 'Erro ao atualizar proposta' });
   }
-});
+};
+
+router.put('/:id', optionalAuth, handlePutProposal);
+router.put('/', optionalAuth, handlePutProposal);
 
 // ─── DELETE /api/simulator/proposals/:id ──────────────────────────────────────
 router.delete('/:id', optionalAuth, async (req, res) => {
