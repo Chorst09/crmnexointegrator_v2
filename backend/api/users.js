@@ -5,6 +5,7 @@ const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
 const normalizeRole = (value) => {
   const raw = String(value || '').trim().toUpperCase();
   if (raw === 'PRE-VENDAS' || raw === 'PREVENDAS') return 'PRE_SALES';
+  if (raw === 'SELLER' || raw === 'VENDEDOR') return 'SELLER';
   if (raw === 'USUARIO') return 'USER';
   return raw || 'USER';
 };
@@ -30,6 +31,7 @@ const resolveUserAccess = (role, input = {}) => {
     MANAGER: { accessB2B: true, accessB2G: true, accessPreSales: true, accessManagement: true, accessAutomation: true },
     DIRECTOR: { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: true, accessAutomation: false },
     PRE_SALES: { accessB2B: false, accessB2G: false, accessPreSales: true, accessManagement: false, accessAutomation: false },
+    SELLER: { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: false, accessAutomation: false },
     USER: { accessB2B: true, accessB2G: false, accessPreSales: false, accessManagement: false, accessAutomation: false }
   }[r] || { accessB2B: true, accessB2G: false, accessPreSales: false, accessManagement: false, accessAutomation: false };
 
@@ -159,7 +161,14 @@ export default async function handler(req) {
     }
 
     const where = {};
-    if (role) where.role = normalizeRole(role);
+    if (role) {
+      const norm = normalizeRole(role);
+      if (norm === 'SELLER') {
+        where.role = { in: ['SELLER', 'USER', 'USER_B2B', 'USER_B2G'] };
+      } else {
+        where.role = norm;
+      }
+    }
 
     if (!isMaster(req.user) && req.user?.tenantCompanyId) {
       where.tenantCompanyId = req.user.tenantCompanyId;

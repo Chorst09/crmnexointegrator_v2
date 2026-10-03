@@ -105,6 +105,29 @@ export const ROLE_ACCESS_POLICY = {
     accessManagement: false,
     accessAutomation: false
   },
+  [ROLES.SELLER]: {
+    dashboard: false,
+    leads: true,
+    opportunities: true,
+    publicOpportunities: true,
+    ownOpportunitiesOnly: false,
+    accessSimulador: true,
+    simuladorViewPricing: true,
+    simuladorViewCommissions: true,
+    simuladorViewDRE: true,
+    manufacturerRegistry: true,
+    documentation: true,
+    strategicReports: true,
+    management: false,
+    automation: false,
+    administration: false,
+    accessB2B: true,
+    accessB2G: true,
+    accessPreSales: false,
+    accessSimulador: true,
+    accessManagement: false,
+    accessAutomation: false
+  },
   [ROLES.PRE_SALES]: {
     dashboard: false,
     leads: true,
@@ -184,10 +207,10 @@ export const toCanonicalRole = (role, userOrEmail) => {
   const raw = String(role || '').trim().toUpperCase();
   if (!raw) return ROLES.USER;
   if (raw === 'PRE-VENDAS' || raw === 'PREVENDAS') return ROLES.PRE_SALES;
+  if (raw === 'SELLER' || raw === 'VENDEDOR') return ROLES.SELLER;
   if (raw === 'USUARIO') return ROLES.USER;
   if (raw === ROLES.MANAGER || raw === ROLES.DIRECTOR || raw === 'GERENTE') return ROLES.ADMIN;
-  if (raw === ROLES.SELLER || raw === 'VENDEDOR') return ROLES.USER;
-  if (raw === ROLES.MASTER || raw === ROLES.ADMIN || raw === ROLES.USER || raw === ROLES.PRE_SALES) return raw;
+  if (raw === ROLES.MASTER || raw === ROLES.ADMIN || raw === ROLES.USER || raw === ROLES.PRE_SALES || raw === ROLES.SELLER) return raw;
   return ROLES.USER;
 };
 
@@ -202,9 +225,9 @@ export const roleLabel = (role) => {
     [ROLES.ADMIN]: 'Admin',
     [ROLES.MANAGER]: 'Gestor',
     [ROLES.DIRECTOR]: 'Diretoria',
-    [ROLES.SELLER]: 'Vendas',
-    [ROLES.USER]: 'User',
-    [ROLES.PRE_SALES]: 'Pre-Vendas'
+    [ROLES.SELLER]: 'Vendedor',
+    [ROLES.USER]: 'Vendedor / Usuário',
+    [ROLES.PRE_SALES]: 'Pré-Vendas'
   };
 
   return labels[normalized] || normalized;

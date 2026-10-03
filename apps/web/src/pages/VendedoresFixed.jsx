@@ -7,11 +7,15 @@ import { API_ENDPOINTS, getAuthHeaders } from '../config/api';
 const normalizeRole = (value) => {
   const raw = String(value || '').trim().toUpperCase();
   if (raw === 'PRE-VENDAS' || raw === 'PREVENDAS') return 'PRE_SALES';
+  if (raw === 'SELLER' || raw === 'VENDEDOR' || raw === 'USER' || raw === 'USER_B2B' || raw === 'USER_B2G' || raw === 'USUARIO') return 'SELLER';
   return raw || 'SELLER';
 };
 
 const roleLabels = {
   SELLER: 'Vendedor',
+  USER: 'Vendedor',
+  USER_B2B: 'Vendedor B2B',
+  USER_B2G: 'Vendedor B2G',
   PRE_SALES: 'Pré-Vendas',
   DIRECTOR: 'Diretor',
   MANAGER: 'Gerente',
@@ -70,10 +74,18 @@ export default function VendedoresFixed() {
         sellersResponse.json(),
         preSalesResponse.json()
       ]);
-      const teamData = [
+      const rawTeam = [
         ...(Array.isArray(sellersData) ? sellersData : []),
         ...(Array.isArray(preSalesData) ? preSalesData : [])
       ];
+      // Deduplicar por ID
+      const teamMap = new Map();
+      rawTeam.forEach((member) => {
+        if (member?.id) {
+          teamMap.set(member.id, member);
+        }
+      });
+      const teamData = Array.from(teamMap.values());
       console.log('Equipe carregada:', teamData);
       setSellers(teamData);
 

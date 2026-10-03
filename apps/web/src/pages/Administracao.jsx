@@ -54,9 +54,9 @@ const normalizeRole = (value, userOrEmail) => {
   if (email === 'admin@crm.com' || email === 'chorstconsult@gmail.com') return 'MASTER';
   const raw = String(value || '').trim().toUpperCase();
   if (raw === 'PRE-VENDAS' || raw === 'PREVENDAS') return 'PRE_SALES';
+  if (raw === 'SELLER' || raw === 'VENDEDOR') return 'SELLER';
   if (raw === 'USUARIO') return 'USER';
   if (raw === 'MANAGER' || raw === 'DIRECTOR' || raw === 'GERENTE') return 'ADMIN';
-  if (raw === 'SELLER' || raw === 'VENDEDOR') return 'USER';
   return raw || 'USER';
 };
 
@@ -68,7 +68,7 @@ const roleLabel = (value) => {
     MANAGER: 'Manager',
     DIRECTOR: 'Diretor',
     SELLER: 'Vendedor',
-    USER: 'User',
+    USER: 'Usuário',
     PRE_SALES: 'Pre-Vendas'
   };
 
@@ -88,6 +88,7 @@ const resolveAccessByRole = (role, currentAccess) => {
     MANAGER: { accessB2B: true, accessB2G: true, accessPreSales: true, accessSimulador: true, accessManagement: true, accessAutomation: true },
     DIRECTOR: { accessB2B: true, accessB2G: true, accessPreSales: false, accessSimulador: true, accessManagement: true, accessAutomation: false },
     PRE_SALES: { accessB2B: false, accessB2G: false, accessPreSales: true, accessSimulador: true, accessManagement: false, accessAutomation: false },
+    SELLER: { accessB2B: true, accessB2G: true, accessPreSales: false, accessSimulador: true, accessManagement: false, accessAutomation: false },
     USER: { accessB2B: true, accessB2G: false, accessPreSales: false, accessSimulador: true, accessManagement: false, accessAutomation: false }
   }[normalizedRole] || { accessB2B: true, accessB2G: false, accessPreSales: false, accessSimulador: true, accessManagement: false, accessAutomation: false };
 
@@ -174,8 +175,8 @@ const SETTINGS_TABS = [
   { id: 'licenciamento', label: 'Administração de Licenças', icon: '🛡️', masterOnly: true, adminRouteOnly: true }
 ];
 
-const ROLE_POLICY_VISIBLE_ROLES = ['USER', 'PRE_SALES', 'ADMIN', 'MASTER'];
-const ROLE_POLICY_EDITABLE_ROLES = ['USER', 'PRE_SALES', 'ADMIN'];
+const ROLE_POLICY_VISIBLE_ROLES = ['SELLER', 'USER', 'PRE_SALES', 'ADMIN', 'MASTER'];
+const ROLE_POLICY_EDITABLE_ROLES = ['SELLER', 'USER', 'PRE_SALES', 'ADMIN'];
 
 const ROLE_POLICY_ACCESS_KEYS = MODULE_ACCESS_ITEMS.map((item) => item.key);
 const buildRolePolicyDraft = (role, company) => {
@@ -495,7 +496,7 @@ export default function Administracao() {
     [isAdministrationRoute, isAdminSession, isMasterSession]
   );
   const rolePolicyVisibleRoles = useMemo(
-    () => (isMasterSession ? ROLE_POLICY_VISIBLE_ROLES : ['USER', 'PRE_SALES', 'ADMIN']),
+    () => (isMasterSession ? ROLE_POLICY_VISIBLE_ROLES : ['SELLER', 'USER', 'PRE_SALES', 'ADMIN']),
     [isMasterSession]
   );
   const validTabIds = useMemo(() => new Set(availableTabs.map((tab) => tab.id)), [availableTabs]);
@@ -806,9 +807,9 @@ export default function Administracao() {
   };
 
   const openNewUser = () => {
-    const userRolePolicy = rolePolicyDrafts.USER || buildRolePolicyDraft('USER', contractedCompany);
+    const userRolePolicy = rolePolicyDrafts.SELLER || rolePolicyDrafts.USER || buildRolePolicyDraft('SELLER', contractedCompany);
     const defaultAccess = isMasterSession
-      ? resolveAccessByRole('USER', userRolePolicy.moduleAccess)
+      ? resolveAccessByRole('SELLER', userRolePolicy.moduleAccess)
       : constrainAccessToCompanyModules(userRolePolicy.moduleAccess, contractedCompany);
 
     setEditingUser(null);
@@ -816,7 +817,7 @@ export default function Administracao() {
       name: '',
       email: '',
       password: '',
-      role: 'USER',
+      role: 'SELLER',
       tenantCompanyId: isMasterSession ? '' : contractedCompany?.id || '',
       regionId: '',
       quota: '',
@@ -2230,11 +2231,20 @@ export default function Administracao() {
       {
         key: 'role',
         label: 'Perfil',
-        render: (u) => (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:text-gray-100">
-            {roleLabel(u.role)}
-          </span>
-        )
+        render: (u) => {
+          const role = normalizeRole(u.role);
+          let badgeClass = 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300';
+          if (role === 'MASTER') badgeClass = 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
+          else if (role === 'ADMIN') badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
+          else if (role === 'SELLER') badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-500/20';
+          else if (role === 'PRE_SALES') badgeClass = 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300 border border-cyan-500/20';
+
+          return (
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${badgeClass}`}>
+              {roleLabel(u.role)}
+            </span>
+          );
+        }
       },
       {
         key: 'tenantCompany',
@@ -4025,14 +4035,15 @@ export default function Administracao() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Perfil</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Perfil *</label>
               <select
                 value={userForm.role}
                 onChange={(e) => handleUserRoleChange(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="USER">User (B2B/B2G)</option>
-                <option value="PRE_SALES">Pre-Vendas</option>
+                <option value="SELLER">Vendedor (Comercial)</option>
+                <option value="USER">Usuário Padrão</option>
+                <option value="PRE_SALES">Pré-Vendas</option>
                 <option value="ADMIN">Administrador</option>
                 {isMasterSession && <option value="MASTER">Master</option>}
               </select>
