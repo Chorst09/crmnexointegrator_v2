@@ -45,6 +45,55 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
   const [selectedLicitacao, setSelectedLicitacao] = useState<Licitacao | null>(null);
   const [arquivos, setArquivos] = useState<any[]>([]);
   const [loadingArquivos, setLoadingArquivos] = useState(false);
+  const [managedIds, setManagedIds] = useState<Set<string>>(new Set());
+  const [addingId, setAddingId] = useState<string | null>(null);
+  const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
+
+  const getLicId = (lic: Licitacao | null | undefined): string => {
+    if (!lic) return '';
+    return String(lic.numeroControlePNCP || (lic as any).numero_controle_pncp || lic.id || '').trim();
+  };
+
+  const showToast = (text: string, type: 'success' | 'info' | 'error' = 'success') => {
+    setToastMessage({ text, type });
+    setTimeout(() => {
+      setToastMessage(prev => (prev?.text === text ? null : prev));
+    }, 4500);
+  };
+
+  useEffect(() => {
+    let active = true;
+    const fetchManagedIds = async () => {
+      try {
+        const res = await fetch(`/api/b2g-licitacoes/gerenciadas?t=${Date.now()}`, {
+          headers: getAuthHeaders()
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (Array.isArray(data) && active) {
+            const ids = new Set<string>();
+            data.forEach((item: any) => {
+              const k1 = item.numeroControlePNCP;
+              const k2 = item.numero_controle_pncp;
+              const k3 = item.id;
+              const k4 = item._managedId;
+              if (k1) ids.add(String(k1).trim());
+              if (k2) ids.add(String(k2).trim());
+              if (k3) ids.add(String(k3).trim());
+              if (k4) ids.add(String(k4).trim());
+            });
+            setManagedIds(ids);
+          }
+        }
+      } catch (e) {
+        console.warn('Erro ao pré-carregar IDs de gerenciadas:', e);
+      }
+    };
+    fetchManagedIds();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (selectedLicitacao) {
@@ -264,30 +313,48 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
   const [addingToManaged, setAddingToManaged] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
 
-  const handleAddToManaged = async () => {
-    if (!selectedLicitacao) return;
+  const handleAddToManaged = async (targetLic?: Licitacao) => {
+    const lic = targetLic || selectedLicitacao;
+    if (!lic) return;
+    const licId = getLicId(lic);
+
+    if (licId && managedIds.has(licId)) {
+      showToast('Esta licitação já está em suas Licitações Gerenciadas.', 'info');
+      return;
+    }
+
     setAddingToManaged(true);
+    if (licId) setAddingId(licId);
     setAddSuccess(false);
+
     try {
       const res = await fetch('/api/b2g-licitacoes/gerenciadas', {
         method: 'POST',
         headers: getAuthHeaders(),
-        body: JSON.stringify(selectedLicitacao)
+        body: JSON.stringify(lic)
       });
-      if (res.ok || res.status === 409) { // 409 == already added
+      if (res.ok || res.status === 409) {
+        if (licId) {
+          setManagedIds(prev => new Set([...prev, licId]));
+        }
         setAddSuccess(true);
-        setTimeout(() => {
-          setAddSuccess(false);
-          setSelectedLicitacao(null); // Close the modal
-          if (onNavigateToGerenciadas) {
-            onNavigateToGerenciadas();
-          }
-        }, 800);
+        showToast(
+          res.status === 409 
+            ? 'Esta licitação já está em Licitações Gerenciadas.' 
+            : '✓ Licitação adicionada às Gerenciadas com sucesso!', 
+          'success'
+        );
+        // Permanece na tela de busca! Não redireciona e não sai da tela.
+      } else {
+        const err = await res.json().catch(() => null);
+        showToast(err?.error || 'Erro ao adicionar licitação às gerenciadas.', 'error');
       }
     } catch (err) {
       console.error('Error adding to managed:', err);
+      showToast('Erro de comunicação ao salvar licitação.', 'error');
     } finally {
       setAddingToManaged(false);
+      setAddingId(null);
     }
   };
 
@@ -679,6 +746,9 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
             <div className="grid gap-4">
               {sortedLicitacoes.map((lic, i) => {
                 const aberturaStatus = getAberturaStatus(lic);
+                const licId = getLicId(lic);
+                const isCardManaged = Boolean(licId && managedIds.has(licId));
+                const isCardAdding = addingId === licId;
                 return (
                   <div key={lic.numeroControlePNCP || lic.id || `lic-${i}`} className="bg-[#011419] rounded-xl border border-[#07323e] p-6 shadow-sm hover:shadow-md transition-shadow group">
                   <div className="flex justify-between items-start mb-4">
@@ -736,13 +806,43 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
                       <strong className="text-xs text-slate-800 dark:text-slate-100">{formatAbertura(lic)}</strong>
                     </div>
                     
-                    <button 
-                      onClick={() => setSelectedLicitacao(lic)}
-                      className="ml-auto flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-950/70 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/80 hover:bg-cyan-100 dark:hover:bg-cyan-900/60 font-semibold text-xs sm:text-sm transition-all shadow-xs cursor-pointer"
-                    >
-                      <span>Detalhes e Anexos</span>
-                      <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
-                    </button>
+                    <div className="ml-auto flex items-center gap-2">
+                      {isCardManaged ? (
+                        <span className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/80 font-semibold text-xs shadow-xs">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <span>Gerenciada</span>
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          disabled={isCardAdding || addingToManaged}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddToManaged(lic);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#022129] hover:bg-[#032f3b] text-cyan-300 border border-cyan-800/70 font-semibold text-xs transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                          title="Adicionar a Licitações Gerenciadas sem sair da tela"
+                        >
+                          {isCardAdding ? (
+                            <div className="w-3.5 h-3.5 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
+                          ) : (
+                            <Briefcase className="w-3.5 h-3.5 text-cyan-400" />
+                          )}
+                          <span>Adicionar às Gerenciadas</span>
+                        </button>
+                      )}
+
+                      <button 
+                        onClick={() => {
+                          setAddSuccess(false);
+                          setSelectedLicitacao(lic);
+                        }}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-cyan-50 dark:bg-cyan-950/70 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800/80 hover:bg-cyan-100 dark:hover:bg-cyan-900/60 font-semibold text-xs sm:text-sm transition-all shadow-xs cursor-pointer"
+                      >
+                        <span>Detalhes e Anexos</span>
+                        <ExternalLink className="w-3.5 h-3.5 flex-shrink-0" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -983,34 +1083,65 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
             
             <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-[#011419] flex justify-between items-center">
               <div>
-                <button
-                  onClick={handleAddToManaged}
-                  disabled={addingToManaged || addSuccess}
-                  className={cn(
-                    "px-6 py-2.5 font-medium rounded-lg transition-all shadow-sm flex items-center gap-2 cursor-pointer",
-                    addSuccess 
-                      ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800" 
-                      : "bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white shadow-[#00171d]"
-                  )}
-                >
-                  {addingToManaged ? (
-                    <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
-                  ) : addSuccess ? (
-                    <CheckCircle2 className="w-5 h-5" />
-                  ) : (
-                    <Briefcase className="w-5 h-5" />
-                  )}
-                  {addSuccess ? 'Adicionada às Gerenciadas' : 'Adicionar às Gerenciadas'}
-                </button>
+                {(() => {
+                  const selId = getLicId(selectedLicitacao);
+                  const isManagedNow = Boolean(selId && managedIds.has(selId)) || addSuccess;
+                  return (
+                    <button
+                      type="button"
+                      onClick={() => handleAddToManaged()}
+                      disabled={addingToManaged || isManagedNow}
+                      className={cn(
+                        "px-6 py-2.5 font-medium rounded-lg transition-all shadow-sm flex items-center gap-2",
+                        isManagedNow 
+                          ? "bg-emerald-950/70 text-emerald-300 border border-emerald-800/80 cursor-default" 
+                          : "bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white shadow-[#00171d] cursor-pointer"
+                      )}
+                    >
+                      {addingToManaged ? (
+                        <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+                      ) : isManagedNow ? (
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                      ) : (
+                        <Briefcase className="w-5 h-5" />
+                      )}
+                      {isManagedNow ? 'Adicionada às Gerenciadas' : 'Adicionar às Gerenciadas'}
+                    </button>
+                  );
+                })()}
               </div>
               <button 
-                onClick={() => setSelectedLicitacao(null)}
+                onClick={() => {
+                  setSelectedLicitacao(null);
+                  setAddSuccess(false);
+                }}
                 className="px-6 py-2.5 bg-slate-900 dark:bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors shadow-sm cursor-pointer"
               >
                 Fechar
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Notificação Toast */}
+      {toastMessage && (
+        <div className="fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-4 py-3 rounded-xl bg-[#011c23] border border-cyan-500/50 text-white shadow-2xl shadow-cyan-950/80 animate-in fade-in slide-in-from-bottom-3 duration-200">
+          {toastMessage.type === 'success' ? (
+            <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+          ) : toastMessage.type === 'error' ? (
+            <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0" />
+          ) : (
+            <AlertCircle className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+          )}
+          <span className="text-sm font-medium text-slate-100">{toastMessage.text}</span>
+          <button 
+            type="button"
+            onClick={() => setToastMessage(null)}
+            className="ml-2 text-slate-400 hover:text-white cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
       )}
     </div>
