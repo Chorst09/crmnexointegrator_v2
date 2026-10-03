@@ -459,14 +459,28 @@ function generateAuthenticPDF({ tipo, cnpj, ano, seq, titulo, lic }) {
 }
 
 // ── GET /documento-gerado/:cnpj/:ano/:seq/:tipo — download de PDF gerado ────────
-router.get('/documento-gerado/:cnpj/:ano/:seq/:tipo', (req, res) => {
+router.get('/documento-gerado/:cnpj/:ano/:seq/:tipo', async (req, res) => {
   const { cnpj, ano, seq, tipo } = req.params;
   const titulo = req.query.titulo || `${tipo.toUpperCase()}_${seq}_${ano}.pdf`;
   
-  const lic = [...mockLicitacoes, ...REPOSITORY_LICITACOES].find(l => 
+  let lic = [...mockLicitacoes, ...REPOSITORY_LICITACOES].find(l => 
     (l.orgaoEntidade?.cnpj === cnpj && String(l.anoCompra) === String(ano) && String(l.sequencialCompra) === String(seq)) ||
     (l.numeroControlePNCP && l.numeroControlePNCP.includes(cnpj) && l.numeroControlePNCP.includes(ano))
   ) || null;
+
+  if (!lic && prisma) {
+    try {
+      const [row] = await prisma.$queryRawUnsafe(
+        `SELECT payload_completo, orgao, objeto_resumo, valor_estimado, modalidade, numero_controle_pncp 
+         FROM gerenciadas_licitacao 
+         WHERE numero_controle_pncp LIKE $1 OR id::text LIKE $2 LIMIT 1`,
+        `%${cnpj}%`, `%${seq}%`
+      );
+      if (row) {
+        lic = row.payload_completo || row;
+      }
+    } catch (_) {}
+  }
 
   try {
     const pdfBuf = generateAuthenticPDF({ tipo, cnpj, ano, seq, titulo, lic });
@@ -498,7 +512,7 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
     const url = `https://pncp.gov.br/api/pncp/v1/orgaos/${cnpj}/compras/${ano}/${seq}/arquivos`;
     const response = await fetch(url, {
       headers: { Accept: 'application/json', 'User-Agent': nextUA() },
-      signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 8000); return c.signal; })()
+      signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 2500); return c.signal; })()
     });
     if (response.ok) {
       const data = await response.json();
