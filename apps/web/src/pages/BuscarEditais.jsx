@@ -212,7 +212,7 @@ export default function BuscarEditais() {
               onNavigateToSearch={() => setCurrentView('search')}
             />
           )}
-          {currentView === 'gerenciadas' && <GerenciadasPage />}
+          {currentView === 'gerenciadas' && <GerenciadasPage onNavigateToSearch={() => setCurrentView('search')} />}
           {currentView === 'alerts' && <AlertsPage />}
           {currentView === 'pipeline' && <PipelineMonitor />}
         </main>

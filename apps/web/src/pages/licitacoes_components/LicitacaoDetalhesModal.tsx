@@ -1,0 +1,465 @@
+import React, { useState, useEffect } from 'react';
+import { 
+  X, 
+  FileText, 
+  Download, 
+  ExternalLink, 
+  MapPin, 
+  Calendar, 
+  Clock, 
+  CheckCircle2, 
+  Building2,
+  Briefcase 
+} from 'lucide-react';
+import { Licitacao } from './types';
+import { cn } from './utils';
+
+export interface LicitacaoDetalhesModalProps {
+  licitacao: Licitacao | null;
+  onClose: () => void;
+  onAddToManaged?: (lic: Licitacao) => void;
+  isManaged?: boolean;
+  addingToManaged?: boolean;
+  addSuccess?: boolean;
+  customFooterAction?: React.ReactNode;
+}
+
+export function LicitacaoDetalhesModal({
+  licitacao,
+  onClose,
+  onAddToManaged,
+  isManaged = false,
+  addingToManaged = false,
+  addSuccess = false,
+  customFooterAction
+}: LicitacaoDetalhesModalProps) {
+  const [arquivos, setArquivos] = useState<any[]>([]);
+  const [loadingArquivos, setLoadingArquivos] = useState(false);
+  const [downloadingUrl, setDownloadingUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!licitacao) {
+      setArquivos([]);
+      return;
+    }
+
+    const numControle = String(licitacao.numeroControlePNCP || (licitacao as any).numero_controle_pncp || licitacao.id || '').trim();
+
+    // CNPJ
+    let cnpj = licitacao.orgaoEntidade?.cnpj?.replace(/\D/g, '');
+    if (!cnpj && numControle.includes('-')) {
+      const part = numControle.split('-')[0].replace(/\D/g, '');
+      if (part.length === 14) cnpj = part;
+    }
+    if (!cnpj) cnpj = '00000000000100';
+
+    // Ano
+    let ano = licitacao.anoCompra;
+    if (!ano && numControle.includes('/')) {
+      const rawAno = parseInt(numControle.split('/')[1], 10);
+      if (!isNaN(rawAno) && rawAno > 1990) ano = rawAno;
+    }
+    if (!ano) ano = 2026;
+
+    // Sequencial
+    let sequencial = licitacao.sequencialCompra;
+    if (!sequencial && numControle.includes('-')) {
+      const parts = numControle.split('-');
+      if (parts.length >= 3) {
+        const rawSeq = parseInt(parts[2].split('/')[0], 10);
+        if (!isNaN(rawSeq) && rawSeq > 0) sequencial = rawSeq;
+      }
+    }
+    if (!sequencial && (licitacao as any).numeroCompra) {
+      const rawComp = parseInt(String((licitacao as any).numeroCompra).replace(/\D/g, ''), 10);
+      if (!isNaN(rawComp) && rawComp > 0) sequencial = rawComp;
+    }
+    if (!sequencial && licitacao.id) {
+      const rawId = parseInt(String(licitacao.id).replace(/\D/g, '').slice(-6), 10);
+      if (!isNaN(rawId) && rawId > 0) sequencial = rawId;
+    }
+    if (!sequencial) sequencial = 1;
+
+    setLoadingArquivos(true);
+    fetch(`/api/b2g-licitacoes/arquivos/${cnpj}/${ano}/${sequencial}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setArquivos(data);
+        } else {
+          setArquivos([]);
+        }
+      })
+      .catch((err) => {
+        console.error('Erro ao buscar arquivos PNCP:', err);
+        setArquivos([]);
+      })
+      .finally(() => setLoadingArquivos(false));
+  }, [licitacao]);
+
+  if (!licitacao) return null;
+
+  const getOrgaoName = (lic: Licitacao) => lic.orgao || lic.orgaoEntidade?.razaoSocial || 'Órgão não especificado';
+  const getUf = (lic: Licitacao) => lic.uf || lic.unidadeOrgao?.ufSigla || 'BR';
+  const getCidade = (lic: Licitacao) => lic.cidade || lic.unidadeOrgao?.municipioNome || '';
+  const getObjeto = (lic: Licitacao) => lic.objeto_resumo || lic.objetoCompra || 'Sem descrição';
+  const getData = (lic: Licitacao) => lic.data_abertura || lic.dataEncerramentoProposta || lic.dataHoraAberturaSessaoPublica || lic.dataAtualizacao || new Date().toISOString();
+  const getValor = (lic: Licitacao) => lic.valor_estimado || lic.valorTotalEstimado || 0;
+  const getSituacao = (lic: Licitacao) => lic.situacao || lic.situacaoCompraNome || 'Divulgada no PNCP';
+
+  const getAberturaDate = (lic: Licitacao): Date | null => {
+    const dtStr = lic.data_abertura || 
+                  lic.dataEncerramentoProposta || 
+                  lic.dataHoraAberturaSessaoPublica || 
+                  lic.dataAberturaProposta;
+    if (!dtStr) return null;
+    const d = new Date(dtStr);
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  const formatAbertura = (lic: Licitacao) => {
+    const d = getAberturaDate(lic);
+    if (!d) {
+      if (lic.dataAtualizacao) {
+        return `Atualizado em ${new Date(lic.dataAtualizacao).toLocaleDateString('pt-BR')}`;
+      }
+      return 'Data a definir';
+    }
+    return d.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getAberturaStatus = (lic: Licitacao) => {
+    const d = getAberturaDate(lic);
+    if (!d) return { label: 'Data pendente', type: 'neutral' };
+    
+    const now = Date.now();
+    const diffMs = d.getTime() - now;
+    const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffMs < 0) {
+      return { label: 'Abertura expirada (Já aconteceu)', type: 'expired' };
+    } else if (diffDays <= 0) {
+      return { label: 'Abre hoje!', type: 'imminent' };
+    } else if (diffDays === 1) {
+      return { label: 'Abre amanhã', type: 'soon' };
+    } else {
+      return { label: `Abre em ${diffDays} dias`, type: 'upcoming' };
+    }
+  };
+
+  const isAtivo = (lic: Licitacao) => {
+    const sit = (lic.situacao || lic.situacaoCompraNome || '').toLowerCase();
+    return sit.includes('divulgad') || sit.includes('publicad') || sit.includes('abert') || sit.includes('andamento');
+  };
+
+  const handleRealDownload = (url: string, title: string) => {
+    try {
+      setDownloadingUrl(url);
+      const safeTitle = title.toLowerCase().endsWith('.pdf') ? title : `${title}.pdf`;
+      let downloadEndpoint = url;
+      if (!url.startsWith('/api/b2g-licitacoes/documento-gerado/')) {
+        downloadEndpoint = `/api/b2g-licitacoes/proxy-download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(safeTitle)}`;
+      }
+      
+      const a = document.createElement('a');
+      a.href = downloadEndpoint;
+      a.setAttribute('download', safeTitle);
+      document.body.appendChild(a);
+      a.click();
+      
+      setTimeout(() => {
+        if (document.body.contains(a)) {
+          document.body.removeChild(a);
+        }
+        setDownloadingUrl(null);
+      }, 2000);
+    } catch (err) {
+      console.error('Erro no download:', err);
+      setDownloadingUrl(null);
+    }
+  };
+
+  const status = getAberturaStatus(licitacao);
+  const numControle = licitacao.numeroControlePNCP || (licitacao as any).numero_controle_pncp || (licitacao as any).numeroCompra || licitacao.id;
+  const isManagedNow = isManaged || addSuccess;
+
+  // Link PNCP fallback
+  const cnpjRaw = licitacao.orgaoEntidade?.cnpj?.replace(/\D/g, '') || (numControle ? String(numControle).split('-')[0].replace(/\D/g, '') : null);
+  const anoRaw = licitacao.anoCompra || (numControle && String(numControle).includes('/') ? String(numControle).split('/')[1] : null);
+  const seqRaw = licitacao.sequencialCompra || (numControle && String(numControle).includes('-') ? String(numControle).split('-')[2]?.split('/')[0] : null);
+
+  const pncpPageLink = licitacao.linkSistemaOrigem || 
+                        licitacao.linkProcessoEletronico || 
+                        (cnpjRaw && anoRaw && seqRaw ? `https://pncp.gov.br/app/editais/${cnpjRaw}/${anoRaw}/${seqRaw}` : null);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm" onClick={onClose}>
+      <div 
+        className="bg-[#011419] rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-[#07323e]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800 bg-[#011116]/60">
+          <div>
+            <div className="flex items-center gap-2 mb-1 flex-wrap">
+              <span className={cn(
+                "text-xs font-semibold px-2.5 py-1 rounded-md uppercase tracking-wider",
+                isAtivo(licitacao) ? "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300" : "bg-red-100 dark:bg-red-950/80 text-red-800 dark:text-red-300"
+              )}>
+                {getSituacao(licitacao)}
+              </span>
+              
+              <span className={cn(
+                "text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1",
+                status.type === 'expired' ? "bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300" : "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300"
+              )}>
+                <Clock className="w-3 h-3" />
+                {status.label}
+              </span>
+
+              <span className="text-sm text-slate-400 font-medium">{numControle || 'Sem código PNCP'}</span>
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-2">Detalhes e Anexos do Edital</h2>
+          </div>
+          <button 
+            onClick={onClose}
+            className="p-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
+            title="Fechar modal"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        
+        {/* Body */}
+        <div className="p-6 overflow-y-auto space-y-6">
+          {/* Objeto */}
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-2">Objeto da Contratação</h3>
+            <p className="text-slate-200 leading-relaxed text-sm bg-slate-900/40 p-4 rounded-xl border border-slate-800/80">
+              {getObjeto(licitacao)}
+            </p>
+          </div>
+
+          {/* Quadros de Informações */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">Informações Gerais</h3>
+              <div className="space-y-4">
+                <div>
+                  <span className="text-xs text-slate-400 block mb-1">Órgão / Ente Público</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100 flex items-center">
+                    <Building2 className="w-3.5 h-3.5 mr-1.5 text-cyan-400 flex-shrink-0" />
+                    {getOrgaoName(licitacao)}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-xs text-slate-400 block mb-1">Modalidade</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{licitacao.modalidade || licitacao.modalidadeNome || 'Não informada'}</span>
+                </div>
+                <div>
+                  <span className="text-xs text-slate-400 block mb-1">Localidade</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100 flex items-center">
+                    <MapPin className="w-3.5 h-3.5 mr-1.5 text-slate-400 flex-shrink-0" />
+                    {getCidade(licitacao) ? `${getCidade(licitacao)} - ${getUf(licitacao)}` : getUf(licitacao)}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">Valores e Prazos</h3>
+              <div className="space-y-4">
+                <div>
+                  <span className="text-xs text-slate-400 block mb-1">Valor Estimado</span>
+                  <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(getValor(licitacao))}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-xs text-slate-400 block mb-1">Data e Hora de Abertura</span>
+                  <span className="text-sm font-medium text-slate-900 dark:text-slate-100 flex items-center">
+                    <Clock className="w-3.5 h-3.5 mr-1.5 text-cyan-400 flex-shrink-0" />
+                    {formatAbertura(licitacao)}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-xs text-slate-400 block mb-1">Data de Atualização / Divulgação</span>
+                  <span className="text-sm font-medium text-slate-200 flex items-center">
+                    <Calendar className="w-3.5 h-3.5 mr-1.5 text-slate-400 flex-shrink-0" />
+                    {new Date(getData(licitacao)).toLocaleString('pt-BR')}
+                  </span>
+                </div>
+                {(licitacao.linkSistemaOrigem || licitacao.linkProcessoEletronico) && (
+                  <div>
+                    <span className="text-xs text-slate-400 block mb-1">Sistema de Origem</span>
+                    <a 
+                      href={licitacao.linkSistemaOrigem || licitacao.linkProcessoEletronico} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-sm font-medium text-cyan-400 hover:text-cyan-300 hover:underline flex items-center gap-1"
+                    >
+                      Acessar Processo Eletrônico <ExternalLink className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Anexos e Documentos Oficiais */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center">
+                <FileText className="w-4 h-4 mr-2 text-cyan-400" /> Documentos e Anexos Oficiais
+              </h3>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950/60 text-emerald-300 border border-emerald-800">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                Download Acelerado & Verificado
+              </span>
+            </div>
+            
+            {loadingArquivos ? (
+              <div className="flex flex-col justify-center items-center py-10 bg-slate-900/40 border border-[#07323e] rounded-xl">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500 mb-2"></div>
+                <p className="text-xs text-slate-400">Consultando documentos oficiais no PNCP...</p>
+              </div>
+            ) : arquivos.length > 0 ? (
+              <div className="border border-[#07323e] rounded-xl overflow-hidden shadow-sm divide-y divide-slate-800/80">
+                {arquivos.map((arq, idx) => {
+                  const fileUrl = arq.url || arq.uri;
+                  const isDownloadingThis = downloadingUrl === fileUrl;
+                  return (
+                    <div key={idx} className="flex items-center justify-between p-4 bg-[#011419] hover:bg-slate-900/60 transition-colors">
+                      <div className="flex items-center min-w-0 pr-4">
+                        <div className="bg-cyan-950/50 p-2.5 rounded-lg mr-4 border border-cyan-900/60 flex-shrink-0">
+                          <FileText className="w-5 h-5 text-cyan-400" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-slate-100 truncate" title={arq.titulo}>{arq.titulo}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <span className="text-xs text-slate-400 font-medium">{arq.tipoDocumentoNome || 'Documento Oficial'}</span>
+                            <span className="text-slate-600">•</span>
+                            <span className="text-[11px] text-emerald-300 bg-emerald-950/60 px-1.5 py-0.5 rounded font-mono border border-emerald-800">Fonte Oficial PNCP</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {fileUrl && (
+                          <a
+                            href={fileUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center px-3 py-2 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
+                            title="Abrir link direto do servidor governamental"
+                          >
+                            <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Abrir
+                          </a>
+                        )}
+                        <button 
+                          onClick={() => handleRealDownload(fileUrl, arq.titulo)}
+                          disabled={isDownloadingThis}
+                          className="flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 rounded-lg transition-all shadow-sm shadow-[#00171d] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
+                        >
+                          {isDownloadingThis ? (
+                            <>
+                              <div className="w-4 h-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+                              Baixando...
+                            </>
+                          ) : (
+                            <>
+                              <Download className="w-4 h-4 mr-2" /> Baixar
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="border border-[#07323e] rounded-xl p-6 bg-slate-900/40 text-center">
+                <FileText className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                <p className="text-sm font-semibold text-white">
+                  Nenhum anexo em PDF foi listado diretamente na API pública para esta contratação.
+                </p>
+                <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+                  Você pode consultar e baixar o edital completo e termos de referência diretamente no portal oficial do PNCP ou no sistema eletrônico do órgão.
+                </p>
+                {pncpPageLink && (
+                  <a 
+                    href={pncpPageLink}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-cyan-400 hover:text-cyan-300 hover:underline"
+                  >
+                    Abrir Página do Certame no PNCP / Sistema do Órgão <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+              </div>
+            )}
+            
+            <div className="mt-3 flex items-center justify-between text-xs text-slate-400 bg-slate-900/40 px-3 py-2 rounded-lg border border-slate-800">
+              <span className="flex items-center gap-1.5">
+                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                Proteção ativa: Validação de integridade binária e cache instantâneo para evitar arquivos corrompidos.
+              </span>
+              {pncpPageLink && (
+                <a
+                  href={pncpPageLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-cyan-400 hover:underline inline-flex items-center gap-1 font-medium ml-2 flex-shrink-0"
+                >
+                  Página da Licitação no PNCP <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+        
+        {/* Footer */}
+        <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-[#011419] flex justify-between items-center gap-3">
+          <div>
+            {onAddToManaged && (
+              <button
+                type="button"
+                onClick={() => onAddToManaged(licitacao)}
+                disabled={addingToManaged || isManagedNow}
+                className={cn(
+                  "px-6 py-2.5 font-medium rounded-lg transition-all shadow-sm flex items-center gap-2",
+                  isManagedNow 
+                    ? "bg-emerald-950/70 text-emerald-300 border border-emerald-800/80 cursor-default" 
+                    : "bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white shadow-[#00171d] cursor-pointer"
+                )}
+              >
+                {addingToManaged ? (
+                  <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+                ) : isManagedNow ? (
+                  <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                ) : (
+                  <Briefcase className="w-5 h-5" />
+                )}
+                {isManagedNow ? 'Adicionada às Gerenciadas' : 'Adicionar às Gerenciadas'}
+              </button>
+            )}
+
+            {customFooterAction}
+          </div>
+
+          <button 
+            onClick={onClose}
+            className="px-6 py-2.5 bg-slate-900 dark:bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors shadow-sm cursor-pointer"
+          >
+            Fechar
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

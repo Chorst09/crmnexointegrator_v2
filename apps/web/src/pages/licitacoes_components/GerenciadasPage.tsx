@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Briefcase, Search, ExternalLink, Calendar, MapPin, Building2, Clock, Trash2, CheckCircle2, TrendingUp } from 'lucide-react';
+import { Briefcase, Search, ExternalLink, Calendar, MapPin, Building2, Clock, Trash2, CheckCircle2, TrendingUp, FileText } from 'lucide-react';
 import { Licitacao } from './types';
 import { cn } from './utils';
 import { B2GOpportunityEditModal } from '../../components/B2GOpportunityModal';
+import { LicitacaoDetalhesModal } from './LicitacaoDetalhesModal';
 
 interface ManagedLicitacao extends Licitacao {
   _managedId: string;
@@ -20,13 +21,14 @@ const getAuthHeaders = () => {
   };
 };
 
-export function GerenciadasPage() {
+export function GerenciadasPage({ onNavigateToSearch }: { onNavigateToSearch?: () => void }) {
   const navigate = useNavigate();
   const [gerenciadas, setGerenciadas] = useState<ManagedLicitacao[]>([]);
   const [loading, setLoading] = useState(true);
   const [leads, setLeads] = useState<any[]>([]);
   const [selectedBiddingOpportunity, setSelectedBiddingOpportunity] = useState<any>(null);
   const [isOpportunityModalOpen, setIsOpportunityModalOpen] = useState(false);
+  const [selectedLicitacao, setSelectedLicitacao] = useState<Licitacao | null>(null);
 
   useEffect(() => {
     fetchGerenciadas();
@@ -151,13 +153,22 @@ export function GerenciadasPage() {
   return (
     <div className="flex flex-col h-full bg-[#011116]">
       <header className="px-8 py-6 bg-[#011419] border-b border-[#07323e]">
-        <div className="flex justify-between items-center max-w-7xl mx-auto">
+        <div className="flex justify-between items-center max-w-7xl mx-auto flex-wrap gap-4">
           <div>
             <h2 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight flex items-center gap-2">
               <Briefcase className="w-6 h-6 text-cyan-600 dark:text-cyan-400" /> Licitações Gerenciadas
             </h2>
             <p className="text-slate-400 mt-1">Acompanhe e gerencie as licitações selecionadas para participação do seu time.</p>
           </div>
+          {onNavigateToSearch && (
+            <button
+              onClick={onNavigateToSearch}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#021d25] hover:bg-[#032a35] border border-cyan-800/80 hover:border-cyan-400 text-cyan-300 hover:text-white transition-all text-xs sm:text-sm font-semibold cursor-pointer shadow-md group"
+            >
+              <Search className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
+              <span>Voltar para Buscar Editais</span>
+            </button>
+          )}
         </div>
       </header>
 
@@ -173,10 +184,19 @@ export function GerenciadasPage() {
                 <Briefcase className="w-8 h-8 text-slate-400" />
               </div>
               <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100 mb-1">Nenhuma licitação gerenciada</h3>
-              <p className="text-slate-400 max-w-sm mx-auto">
+              <p className="text-slate-400 max-w-sm mx-auto mb-5">
                 Você ainda não adicionou nenhuma licitação à sua lista de gerenciamento.
                 Vá para a busca e adicione oportunidades promissoras.
               </p>
+              {onNavigateToSearch && (
+                <button
+                  onClick={onNavigateToSearch}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white rounded-lg text-sm font-semibold transition-all cursor-pointer shadow-md"
+                >
+                  <Search className="w-4 h-4" />
+                  <span>Ir para o Portal de Busca</span>
+                </button>
+              )}
             </div>
           ) : (
             <div className="grid gap-4">
@@ -253,6 +273,15 @@ export function GerenciadasPage() {
                           <TrendingUp className="w-4 h-4" />
                           Converter em Oportunidade B2G
                         </button>
+
+                        <button 
+                          onClick={() => setSelectedLicitacao(lic)}
+                          className="w-full px-4 py-2 bg-cyan-950/70 hover:bg-cyan-900/80 text-cyan-300 border border-cyan-800/80 hover:border-cyan-500 rounded-lg text-sm font-medium transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer"
+                        >
+                          <ExternalLink className="w-4 h-4 text-cyan-400" />
+                          Detalhes e Anexos
+                        </button>
+
                         <button 
                           className="w-full px-4 py-2 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 rounded-lg text-sm font-medium hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-sm flex items-center justify-center gap-2 cursor-pointer"
                           onClick={() => {
@@ -281,6 +310,28 @@ export function GerenciadasPage() {
           )}
         </div>
       </main>
+
+      {/* Modal de Detalhes e Anexos com Downloads */}
+      {selectedLicitacao && (
+        <LicitacaoDetalhesModal
+          licitacao={selectedLicitacao}
+          onClose={() => setSelectedLicitacao(null)}
+          isManaged={true}
+          customFooterAction={
+            <button
+              onClick={() => {
+                const target = selectedLicitacao;
+                setSelectedLicitacao(null);
+                handleConvertToOpportunity(target);
+              }}
+              className="px-5 py-2.5 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white rounded-lg text-sm font-semibold transition-all shadow-sm flex items-center gap-2 cursor-pointer border-0"
+            >
+              <TrendingUp className="w-4 h-4" />
+              Converter em Oportunidade B2G
+            </button>
+          }
+        />
+      )}
 
       {isOpportunityModalOpen && (
         <B2GOpportunityEditModal

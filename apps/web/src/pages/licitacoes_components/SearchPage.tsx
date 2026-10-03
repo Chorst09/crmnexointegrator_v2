@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Search, Filter, AlertCircle, Calendar, DollarSign, MapPin, Building2, ExternalLink, X, FileText, Download, Briefcase, CheckCircle2, Clock, AlertTriangle, ShieldCheck, ArrowUpDown, RefreshCw, Layers } from 'lucide-react';
 import { Licitacao } from './types';
 import { cn } from './utils';
+import { LicitacaoDetalhesModal } from './LicitacaoDetalhesModal';
 
 // Helper para headers de autenticação
 const getAuthHeaders = () => {
@@ -43,8 +44,6 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
   const [newKeyword, setNewKeyword] = useState('');
   
   const [selectedLicitacao, setSelectedLicitacao] = useState<Licitacao | null>(null);
-  const [arquivos, setArquivos] = useState<any[]>([]);
-  const [loadingArquivos, setLoadingArquivos] = useState(false);
   const [managedIds, setManagedIds] = useState<Set<string>>(new Set());
   const [addingId, setAddingId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
@@ -94,38 +93,6 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
       active = false;
     };
   }, []);
-
-  useEffect(() => {
-    if (selectedLicitacao) {
-      const cnpj = selectedLicitacao.orgaoEntidade?.cnpj || 
-                   (selectedLicitacao.numeroControlePNCP ? selectedLicitacao.numeroControlePNCP.split('-')[0] : null) ||
-                   '00000000000100';
-      const ano = selectedLicitacao.anoCompra || 
-                  (selectedLicitacao.numeroControlePNCP ? selectedLicitacao.numeroControlePNCP.split('/')[1] : null) ||
-                  2026;
-      const sequencial = selectedLicitacao.sequencialCompra || 
-                         (selectedLicitacao.numeroControlePNCP ? parseInt(selectedLicitacao.numeroControlePNCP.split('-')[2] || '1', 10) : null) ||
-                         (selectedLicitacao.id ? String(selectedLicitacao.id).replace(/\D/g, '') || 1 : 1);
-
-      setLoadingArquivos(true);
-      fetch(`/api/b2g-licitacoes/arquivos/${cnpj}/${ano}/${sequencial}`)
-        .then(res => res.json())
-        .then(data => {
-          if (Array.isArray(data)) {
-            setArquivos(data);
-          } else {
-            setArquivos([]);
-          }
-        })
-        .catch(err => {
-          console.error('Error fetching files:', err);
-          setArquivos([]);
-        })
-        .finally(() => setLoadingArquivos(false));
-    } else {
-      setArquivos([]);
-    }
-  }, [selectedLicitacao]);
 
   useEffect(() => {
     fetchLicitacoes();
@@ -309,7 +276,6 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
     setActiveKeywords(activeKeywords.filter(kw => kw !== kwToRemove));
   };
 
-  const [downloadingUrl, setDownloadingUrl] = useState<string | null>(null);
   const [addingToManaged, setAddingToManaged] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
 
@@ -355,37 +321,6 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
     } finally {
       setAddingToManaged(false);
       setAddingId(null);
-    }
-  };
-
-  const handleRealDownload = (url: string, title: string) => {
-    try {
-      setDownloadingUrl(url);
-      
-      const safeTitle = title.toLowerCase().endsWith('.pdf') ? title : `${title}.pdf`;
-      // Se já for uma URL do backend interno para documento gerado, baixa direto
-      let downloadEndpoint = url;
-      if (!url.startsWith('/api/b2g-licitacoes/documento-gerado/')) {
-        downloadEndpoint = `/api/b2g-licitacoes/proxy-download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(safeTitle)}`;
-      }
-      
-      // Cria link nativo de download para streaming direto do browser
-      const a = document.createElement('a');
-      a.href = downloadEndpoint;
-      a.setAttribute('download', safeTitle);
-      document.body.appendChild(a);
-      a.click();
-      
-      setTimeout(() => {
-        if (document.body.contains(a)) {
-          document.body.removeChild(a);
-        }
-        setDownloadingUrl(null);
-      }, 1500);
-    } catch (error) {
-      console.error('Erro ao iniciar download:', error);
-      window.open(url, '_blank');
-      setDownloadingUrl(null);
     }
   };
 
@@ -854,274 +789,17 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
 
       {/* Modal de Detalhes e Anexos */}
       {selectedLicitacao && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm" onClick={() => setSelectedLicitacao(null)}>
-          <div 
-            className="bg-[#011419] rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200 border border-[#07323e]"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between p-6 border-b border-slate-100 dark:border-slate-800 bg-[#011116]/60">
-              <div>
-                <div className="flex items-center gap-2 mb-1 flex-wrap">
-                  <span className={cn(
-                    "text-xs font-semibold px-2.5 py-1 rounded-md uppercase tracking-wider",
-                    isAtivo(selectedLicitacao) ? "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300" : "bg-red-100 dark:bg-red-950/80 text-red-800 dark:text-red-300"
-                  )}>
-                    {getSituacao(selectedLicitacao)}
-                  </span>
-                  
-                  {/* Status Temporal no Modal */}
-                  {(() => {
-                    const status = getAberturaStatus(selectedLicitacao);
-                    return (
-                      <span className={cn(
-                        "text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1",
-                        status.type === 'expired' ? "bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300" : "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300"
-                      )}>
-                        <Clock className="w-3 h-3" />
-                        {status.label}
-                      </span>
-                    );
-                  })()}
-
-                  <span className="text-sm text-slate-400 font-medium">{selectedLicitacao.numeroControlePNCP || 'Sem código PNCP'}</span>
-                </div>
-                <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100 mt-2">Detalhes do Edital</h2>
-              </div>
-              <button 
-                onClick={() => setSelectedLicitacao(null)}
-                className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-800 rounded-lg transition-colors cursor-pointer"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6 overflow-y-auto">
-              <div className="mb-6">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-2">Objeto</h3>
-                <p className="text-slate-200 leading-relaxed">{getObjeto(selectedLicitacao)}</p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">Informações Gerais</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <span className="text-xs text-slate-400 block mb-1">Órgão</span>
-                      <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{getOrgaoName(selectedLicitacao)}</span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-slate-400 block mb-1">Modalidade</span>
-                      <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{selectedLicitacao.modalidade || selectedLicitacao.modalidadeNome || 'Não informada'}</span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-slate-400 block mb-1">Localidade</span>
-                      <span className="text-sm font-medium text-slate-900 dark:text-slate-100 flex items-center">
-                        <MapPin className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
-                        {getCidade(selectedLicitacao) ? `${getCidade(selectedLicitacao)} - ${getUf(selectedLicitacao)}` : getUf(selectedLicitacao)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">Valores e Datas</h3>
-                  <div className="space-y-4">
-                    <div>
-                      <span className="text-xs text-slate-400 block mb-1">Valor Estimado</span>
-                      <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(getValor(selectedLicitacao))}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-slate-400 block mb-1">Data e Hora de Abertura / Sessão Pública</span>
-                      <span className="text-sm font-medium text-slate-900 dark:text-slate-100 flex items-center">
-                        <Clock className="w-3.5 h-3.5 mr-1.5 text-blue-600 dark:text-blue-400" />
-                        {formatAbertura(selectedLicitacao)}
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-xs text-slate-400 block mb-1">Data de Atualização / Divulgação</span>
-                      <span className="text-sm font-medium text-slate-200 flex items-center">
-                        <Calendar className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
-                        {new Date(getData(selectedLicitacao)).toLocaleString('pt-BR')}
-                      </span>
-                    </div>
-                    {(selectedLicitacao.linkSistemaOrigem || selectedLicitacao.linkProcessoEletronico) && (
-                      <div>
-                        <span className="text-xs text-slate-400 block mb-1">Sistema de Origem</span>
-                        <a 
-                          href={selectedLicitacao.linkSistemaOrigem || selectedLicitacao.linkProcessoEletronico} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline flex items-center"
-                        >
-                          Acessar Processo Eletrônico <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
-                        </a>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider flex items-center">
-                    <FileText className="w-4 h-4 mr-2" /> Documentos e Anexos Oficiais
-                  </h3>
-                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-                    Download Acelerado & Verificado
-                  </span>
-                </div>
-                
-                {loadingArquivos ? (
-                  <div className="flex flex-col justify-center items-center py-8 bg-slate-50 dark:bg-slate-800/40 border border-[#07323e] rounded-xl">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-2"></div>
-                    <p className="text-xs text-slate-400">Consultando documentos oficiais no PNCP...</p>
-                  </div>
-                ) : arquivos.length > 0 ? (
-                  <div className="border border-[#07323e] rounded-xl overflow-hidden shadow-sm">
-                    {arquivos.map((arq, idx) => {
-                      const fileUrl = arq.url || arq.uri;
-                      const isDownloadingThis = downloadingUrl === fileUrl;
-                      return (
-                        <div key={idx} className="flex items-center justify-between p-4 bg-[#011419] border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
-                          <div className="flex items-center min-w-0 pr-4">
-                            <div className="bg-red-50 dark:bg-red-950/50 p-2.5 rounded-lg mr-4 border border-red-100 dark:border-red-900/60 flex-shrink-0">
-                              <FileText className="w-5 h-5 text-red-600 dark:text-red-400" />
-                            </div>
-                            <div className="min-w-0">
-                              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate" title={arq.titulo}>{arq.titulo}</p>
-                              <div className="flex items-center gap-2 mt-0.5">
-                                <span className="text-xs text-slate-400 font-medium">{arq.tipoDocumentoNome || 'Documento Oficial'}</span>
-                                <span className="text-slate-300 dark:text-slate-600">•</span>
-                                <span className="text-[11px] text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/60 px-1.5 py-0.5 rounded font-mono border border-emerald-200 dark:border-emerald-800">Fonte Oficial PNCP</span>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            {fileUrl && (
-                              <a
-                                href={fileUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center px-3 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
-                                title="Abrir link direto do servidor governamental"
-                              >
-                                <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Abrir
-                              </a>
-                            )}
-                            <button 
-                              onClick={() => handleRealDownload(fileUrl, arq.titulo)}
-                              disabled={isDownloadingThis}
-                              className="flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 rounded-lg transition-all shadow-sm shadow-[#00171d] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                            >
-                              {isDownloadingThis ? (
-                                <>
-                                  <div className="w-4 h-4 mr-2 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
-                                  Iniciando...
-                                </>
-                              ) : (
-                                <>
-                                  <Download className="w-4 h-4 mr-2" /> Baixar
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="border border-[#07323e] rounded-xl p-6 bg-slate-50 dark:bg-slate-800/40 text-center">
-                    <FileText className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-                    <p className="text-sm font-semibold text-white">
-                      Nenhum anexo em PDF foi listado diretamente na API pública para esta contratação.
-                    </p>
-                    <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
-                      Você pode consultar e baixar o edital completo e termos de referência diretamente no portal oficial do PNCP ou no sistema eletrônico do órgão.
-                    </p>
-                    {(selectedLicitacao.linkSistemaOrigem || selectedLicitacao.linkProcessoEletronico || (selectedLicitacao.orgaoEntidade?.cnpj && selectedLicitacao.anoCompra && selectedLicitacao.sequencialCompra)) && (
-                      <a 
-                        href={
-                          selectedLicitacao.linkSistemaOrigem || 
-                          selectedLicitacao.linkProcessoEletronico || 
-                          `https://pncp.gov.br/app/editais/${selectedLicitacao.orgaoEntidade?.cnpj}/${selectedLicitacao.anoCompra}/${selectedLicitacao.sequencialCompra}`
-                        }
-                        target="_blank" 
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center mt-4 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 rounded-lg shadow-sm shadow-[#00171d] transition-all cursor-pointer"
-                      >
-                        <ExternalLink className="w-4 h-4 mr-2" /> Acessar Edital Oficial no PNCP
-                      </a>
-                    )}
-                  </div>
-                )}
-                
-                <div className="mt-3 flex items-center justify-between text-xs text-slate-400 bg-slate-50 dark:bg-slate-800/40 px-3 py-2 rounded-lg border border-slate-200/60 dark:border-slate-800">
-                  <span className="flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    Proteção ativa: Validação de integridade binária e cache instantâneo para evitar arquivos corrompidos.
-                  </span>
-                  {(selectedLicitacao.linkSistemaOrigem || selectedLicitacao.linkProcessoEletronico || (selectedLicitacao.orgaoEntidade?.cnpj && selectedLicitacao.anoCompra && selectedLicitacao.sequencialCompra)) && (
-                    <a
-                      href={
-                        selectedLicitacao.linkSistemaOrigem || 
-                        selectedLicitacao.linkProcessoEletronico || 
-                        `https://pncp.gov.br/app/editais/${selectedLicitacao.orgaoEntidade?.cnpj}/${selectedLicitacao.anoCompra}/${selectedLicitacao.sequencialCompra}`
-                      }
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 dark:text-blue-400 hover:underline inline-flex items-center gap-1 font-medium ml-2"
-                    >
-                      Página da Licitação no PNCP <ExternalLink className="w-3.5 h-3.5" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </div>
-            
-            <div className="p-5 border-t border-slate-100 dark:border-slate-800 bg-[#011419] flex justify-between items-center">
-              <div>
-                {(() => {
-                  const selId = getLicId(selectedLicitacao);
-                  const isManagedNow = Boolean(selId && managedIds.has(selId)) || addSuccess;
-                  return (
-                    <button
-                      type="button"
-                      onClick={() => handleAddToManaged()}
-                      disabled={addingToManaged || isManagedNow}
-                      className={cn(
-                        "px-6 py-2.5 font-medium rounded-lg transition-all shadow-sm flex items-center gap-2",
-                        isManagedNow 
-                          ? "bg-emerald-950/70 text-emerald-300 border border-emerald-800/80 cursor-default" 
-                          : "bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white shadow-[#00171d] cursor-pointer"
-                      )}
-                    >
-                      {addingToManaged ? (
-                        <div className="w-5 h-5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
-                      ) : isManagedNow ? (
-                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                      ) : (
-                        <Briefcase className="w-5 h-5" />
-                      )}
-                      {isManagedNow ? 'Adicionada às Gerenciadas' : 'Adicionar às Gerenciadas'}
-                    </button>
-                  );
-                })()}
-              </div>
-              <button 
-                onClick={() => {
-                  setSelectedLicitacao(null);
-                  setAddSuccess(false);
-                }}
-                className="px-6 py-2.5 bg-slate-900 dark:bg-slate-800 text-white font-medium rounded-lg hover:bg-slate-800 dark:hover:bg-slate-700 transition-colors shadow-sm cursor-pointer"
-              >
-                Fechar
-              </button>
-            </div>
-          </div>
-        </div>
+        <LicitacaoDetalhesModal
+          licitacao={selectedLicitacao}
+          onClose={() => {
+            setSelectedLicitacao(null);
+            setAddSuccess(false);
+          }}
+          onAddToManaged={() => handleAddToManaged(selectedLicitacao)}
+          isManaged={Boolean(getLicId(selectedLicitacao) && managedIds.has(getLicId(selectedLicitacao)))}
+          addingToManaged={addingToManaged}
+          addSuccess={addSuccess}
+        />
       )}
 
       {/* Notificação Toast */}
