@@ -1,3 +1,4 @@
+"use client";
 
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +15,6 @@ import { ClientManagerForm } from './ClientManagerForm';
 import { ProposalApprovalRequestButton } from '@/components/proposals/ProposalApprovalRequestButton';
 import { ProposalStatusBadge } from '@/components/proposals/ProposalStatusBadge';
 import { ProposalApprovalInfo } from '@/components/proposals/ProposalApprovalInfo';
-import { ConvertToB2BOpportunityButton } from '@/components/proposals/ConvertToB2BOpportunityButton';
 import { ClientData, AccountManagerData } from '@/lib/types';
 import { ClientManagerInfo } from './ClientManagerInfo';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -1258,7 +1258,7 @@ const DoubleFibraRadioCalculator: React.FC<DoubleFibraRadioCalculatorProps> = ({
 
                 const response = await fetch(`/api/simulator/proposals/${currentProposal.id}`, {
                     method: 'PUT',
-                    headers: getCRMAuthHeaders(),
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(proposalToUpdate),
                 });
 
@@ -1320,7 +1320,7 @@ const DoubleFibraRadioCalculator: React.FC<DoubleFibraRadioCalculatorProps> = ({
 
                 const response = await fetch('/api/simulator/proposals', {
                     method: 'POST',
-                    headers: getCRMAuthHeaders(),
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(proposalToSave),
                 });
 
@@ -1550,7 +1550,9 @@ const DoubleFibraRadioCalculator: React.FC<DoubleFibraRadioCalculatorProps> = ({
             try {
                 const response = await fetch(`/api/simulator/proposals/${id}`, {
                     method: 'DELETE',
-                    headers: getCRMAuthHeaders(),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                 });
 
                 if (response.ok) {
@@ -1772,7 +1774,6 @@ const DoubleFibraRadioCalculator: React.FC<DoubleFibraRadioCalculatorProps> = ({
                                                     <Button variant="outline" size="sm" onClick={() => editProposal(p)}>
                                                         <Edit className="h-4 w-4 mr-2" /> Editar Proposta
                                                     </Button>
-                                                    <ConvertToB2BOpportunityButton proposal={p} />
                                                     <Button
                                                         variant="destructive"
                                                         size="sm"
@@ -2120,7 +2121,7 @@ const DoubleFibraRadioCalculator: React.FC<DoubleFibraRadioCalculatorProps> = ({
                                 )}
                             </div>
                         </div>
-                        <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} />
+                        <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} onClientDataChange={setClientData} onAccountManagerDataChange={setAccountManagerData} />
                     </div>
 
                     <Tabs defaultValue="calculator" className="w-full">

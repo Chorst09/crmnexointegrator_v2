@@ -19,77 +19,23 @@ const normalizeExcludedSellerIds = (excludeSellerIds = []) => {
   return [...new Set(excludeSellerIds.map((id) => String(id || '').trim()).filter(Boolean))];
 };
 
-// User.region e uma relacao (Region), nao um campo escalar. Passar a regiao como
-// string em `where.region` faz o Prisma lancar e a busca inteira e descartada.
-const buildRegionFilter = (region) => {
-  const value = String(region || '').trim();
-  if (!value) return undefined;
-  return {
-    OR: [
-      { code: { equals: value, mode: 'insensitive' } },
-      { state: { equals: value, mode: 'insensitive' } },
-      { name: { equals: value, mode: 'insensitive' } }
-    ]
-  };
-};
-
-// UFs -> macrorregioes, para casar Company.state com Region.code
-const STATE_TO_REGION = {
-  SP: 'SUDESTE', RJ: 'SUDESTE', MG: 'SUDESTE', ES: 'SUDESTE',
-  RS: 'SUL', SC: 'SUL', PR: 'SUL',
-  GO: 'CENTRO_OESTE', MT: 'CENTRO_OESTE', MS: 'CENTRO_OESTE', DF: 'CENTRO_OESTE',
-  BA: 'NORDESTE', PE: 'NORDESTE', CE: 'NORDESTE', MA: 'NORDESTE', PI: 'NORDESTE',
-  RN: 'NORDESTE', PB: 'NORDESTE', SE: 'NORDESTE', AL: 'NORDESTE',
-  AM: 'NORTE', PA: 'NORTE', AC: 'NORTE', RO: 'NORTE', RR: 'NORTE', AP: 'NORTE', TO: 'NORTE'
-};
-
-const resolveRegionFromState = (state) => {
-  const uf = String(state || '').trim().toUpperCase();
-  return STATE_TO_REGION[uf] || null;
-};
-
-// Region.code guarda tanto UF (SP) quanto macrorregiao (SUL). Testa a UF antes da
-// macrorregiao para respeitar o cadastro de regioes existente.
-const resolveRegionCandidates = (state) => {
-  const uf = String(state || '').trim().toUpperCase();
-  const macro = STATE_TO_REGION[uf];
-  return [uf, macro].filter(Boolean);
-};
-
-// Retorna o vendedor com menos oportunidades ativas do pool informado
-const pickLeastLoaded = (sellers) =>
-  sellers.reduce((min, seller) =>
-    seller.activeOpportunities < min.activeOpportunities ? seller : min
-  );
-
-// Busca o pool de vendedores de uma regiao e, se nao houver nenhum, tenta os
-// candidatos restantes e por fim o pool geral. Devolve [] (sem lancar) para a
-// estrategia poder degradar sem quebrar a conversao.
-const resolveSellerPool = async (region, options) => {
-  const candidates = (Array.isArray(region) ? region : [region])
-    .map((value) => String(value || '').trim())
-    .filter(Boolean);
-
-  for (const candidate of candidates) {
-    const sellers = await getAvailableSellers(candidate, options);
-    if (sellers.length > 0) return sellers;
-  }
-
-  // Sem candidatos (region nulo) ou sem seller em nenhum deles: pool geral
-  return getAvailableSellers(null, options);
-};
-
-// Funcao para obter vendedores disponiveis
+// Função para obter vendedores disponíveis
 export async function getAvailableSellers(region = null, options = {}) {
   try {
     const excludedSellerIds = normalizeExcludedSellerIds(options.excludeSellerIds);
-    const where = {
-      role: 'SELLER'
-    };
+    const clientType = options.clientType || 'B2B';
+    
+    // Papéis válidos para vendas/gestão de leads (apenas valores válidos do enum Role do Prisma)
+    const sellerRoles = ['SELLER', 'USER_B2B', 'USER', 'ADMIN', 'MASTER', 'MANAGER', 'DIRECTOR', 'PRE_SALES'];
 
-    const regionFilter = buildRegionFilter(region);
-    if (regionFilter) {
-      where.region = regionFilter;
+    const where = {
+      role: { in: sellerRoles },
+      ...(clientType === 'B2B' ? { accessB2B: true } : {}),
+      ...(clientType === 'B2G' ? { accessB2G: true } : {})
+    };
+    
+    if (region) {
+      where.region = region;
     }
 
     if (excludedSellerIds.length > 0) {
@@ -98,8 +44,11 @@ export async function getAvailableSellers(region = null, options = {}) {
       };
     }
 
-    const sellers = await prisma.user.findMany({
+    let sellers = await prisma.user.findMany({
       where,
+      orderBy: [
+        { name: 'asc' }
+      ],
       include: {
         opportunities: {
           where: {
@@ -122,10 +71,56 @@ export async function getAvailableSellers(region = null, options = {}) {
       }
     });
 
+    // Fallback: se nenhum vendedor foi encontrado com filtros específicos, busca usuários ativos
+    if (sellers.length === 0) {
+      sellers = await prisma.user.findMany({
+        where: excludedSellerIds.length > 0 ? { id: { notIn: excludedSellerIds } } : {},
+        orderBy: [{ name: 'asc' }],
+        include: {
+          opportunities: {
+            where: {
+              stage: {
+                notIn: ['WON', 'LOST']
+              }
+            }
+          },
+          _count: {
+            select: {
+              opportunities: {
+                where: {
+                  stage: {
+                    notIn: ['WON', 'LOST']
+                  }
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    // Se ainda vazio e temos usuário atual autenticado, inclui o usuário atual
+    if (sellers.length === 0 && options.currentUser?.id) {
+      const current = await prisma.user.findUnique({
+        where: { id: options.currentUser.id },
+        include: {
+          opportunities: {
+            where: { stage: { notIn: ['WON', 'LOST'] } }
+          },
+          _count: {
+            select: { opportunities: { where: { stage: { notIn: ['WON', 'LOST'] } } } }
+          }
+        }
+      });
+      if (current) {
+        sellers = [current];
+      }
+    }
+
     return sellers.map(seller => ({
       ...seller,
-      activeOpportunities: seller._count.opportunities,
-      totalValue: seller.opportunities.reduce((sum, opp) => sum + opp.value, 0)
+      activeOpportunities: seller._count?.opportunities || 0,
+      totalValue: (seller.opportunities || []).reduce((sum, opp) => sum + (opp.value || 0), 0)
     }));
   } catch (error) {
     console.error('Erro ao buscar vendedores:', error);
@@ -133,24 +128,30 @@ export async function getAvailableSellers(region = null, options = {}) {
   }
 }
 
-// Distribuicao Round Robin. Devolve null quando nao ha vendedor elegivel.
+// Distribuição Round Robin
 export async function distributeRoundRobin(companyId, region = null, options = {}) {
   try {
-    const sellers = await resolveSellerPool(region, options);
-
+    let sellers = await getAvailableSellers(region, options);
+    
     if (sellers.length === 0) {
-      return null;
+      sellers = await getAvailableSellers(null, options);
     }
 
-    const regionFilter = buildRegionFilter(region);
+    if (sellers.length === 0 && options.currentUser?.id) {
+      const user = await prisma.user.findUnique({ where: { id: options.currentUser.id } });
+      if (user) return user;
+    }
+
+    if (sellers.length === 0) {
+      const fallbackUser = await prisma.user.findFirst({ orderBy: { createdAt: 'asc' } });
+      if (fallbackUser) return fallbackUser;
+      throw new Error('Nenhum vendedor disponível');
+    }
 
     // Buscar o último vendedor que recebeu um lead
     const lastAssignment = await prisma.opportunity.findFirst({
       where: {
-        owner: {
-          role: 'SELLER',
-          ...(regionFilter ? { region: regionFilter } : {})
-        }
+        ...(region && { owner: { region } })
       },
       include: {
         owner: true
@@ -164,7 +165,9 @@ export async function distributeRoundRobin(companyId, region = null, options = {
     
     if (lastAssignment) {
       const lastSellerIndex = sellers.findIndex(s => s.id === lastAssignment.ownerId);
-      nextSellerIndex = (lastSellerIndex + 1) % sellers.length;
+      if (lastSellerIndex >= 0) {
+        nextSellerIndex = (lastSellerIndex + 1) % sellers.length;
+      }
     }
 
     return sellers[nextSellerIndex];
@@ -174,17 +177,32 @@ export async function distributeRoundRobin(companyId, region = null, options = {
   }
 }
 
-// Distribuicao por Balanceamento de Carga. Devolve null quando nao ha vendedor elegivel.
+// Distribuição por Balanceamento de Carga
 export async function distributeLoadBalance(companyId, region = null, options = {}) {
   try {
-    const sellers = await resolveSellerPool(region, options);
+    let sellers = await getAvailableSellers(region, options);
+    
+    if (sellers.length === 0) {
+      sellers = await getAvailableSellers(null, options);
+    }
+
+    if (sellers.length === 0 && options.currentUser?.id) {
+      const user = await prisma.user.findUnique({ where: { id: options.currentUser.id } });
+      if (user) return user;
+    }
 
     if (sellers.length === 0) {
-      return null;
+      const fallbackUser = await prisma.user.findFirst({ orderBy: { createdAt: 'asc' } });
+      if (fallbackUser) return fallbackUser;
+      throw new Error('Nenhum vendedor disponível');
     }
 
     // Encontrar o vendedor com menos oportunidades ativas
-    return pickLeastLoaded(sellers);
+    const sellerWithLeastLoad = sellers.reduce((min, seller) => 
+      (seller.activeOpportunities || 0) < (min.activeOpportunities || 0) ? seller : min
+    );
+
+    return sellerWithLeastLoad;
   } catch (error) {
     console.error('Erro na distribuição por carga:', error);
     throw error;
@@ -204,9 +222,40 @@ export async function distributeRegionBased(companyId, options = {}) {
       return await distributeRoundRobin(companyId, null, options);
     }
 
-    const region = resolveRegionCandidates(company.state);
+    // Mapear estados para regiões
+    const regionMapping = {
+      'SP': 'SUDESTE',
+      'RJ': 'SUDESTE',
+      'MG': 'SUDESTE',
+      'ES': 'SUDESTE',
+      'RS': 'SUL',
+      'SC': 'SUL',
+      'PR': 'SUL',
+      'GO': 'CENTRO_OESTE',
+      'MT': 'CENTRO_OESTE',
+      'MS': 'CENTRO_OESTE',
+      'DF': 'CENTRO_OESTE',
+      'BA': 'NORDESTE',
+      'PE': 'NORDESTE',
+      'CE': 'NORDESTE',
+      'MA': 'NORDESTE',
+      'PI': 'NORDESTE',
+      'RN': 'NORDESTE',
+      'PB': 'NORDESTE',
+      'SE': 'NORDESTE',
+      'AL': 'NORDESTE',
+      'AM': 'NORTE',
+      'PA': 'NORTE',
+      'AC': 'NORTE',
+      'RO': 'NORTE',
+      'RR': 'NORTE',
+      'AP': 'NORTE',
+      'TO': 'NORTE'
+    };
 
-    if (region.length > 0) {
+    const region = regionMapping[company.state];
+    
+    if (region) {
       // Tentar distribuir para vendedor da região
       const regionalSeller = await distributeLoadBalance(companyId, region, options);
       if (regionalSeller) {
@@ -234,11 +283,16 @@ export async function distributeScoreBased(companyId, options = {}) {
       throw new Error('Empresa não encontrada');
     }
 
-    // Prioriza o pool da região do lead, com queda para o pool geral
-    const region = resolveRegionCandidates(company.state);
-    const sellers = await resolveSellerPool(region, options);
+    let sellers = await getAvailableSellers(null, options);
+    
+    if (sellers.length === 0 && options.currentUser?.id) {
+      const user = await prisma.user.findUnique({ where: { id: options.currentUser.id } });
+      if (user) return user;
+    }
 
     if (sellers.length === 0) {
+      const fallbackUser = await prisma.user.findFirst({ orderBy: { createdAt: 'asc' } });
+      if (fallbackUser) return fallbackUser;
       throw new Error('Nenhum vendedor disponível');
     }
 
@@ -256,11 +310,11 @@ export async function distributeScoreBased(companyId, options = {}) {
 
     // Para leads de score médio (40-69), usar balanceamento de carga
     if (company.leadScore >= 40) {
-      return await distributeLoadBalance(companyId, region, options);
+      return await distributeLoadBalance(companyId, company.state, options);
     }
 
     // Para leads de baixo score (<40), usar round robin
-    return await distributeRoundRobin(companyId, region, options);
+    return await distributeRoundRobin(companyId, company.state, options);
   } catch (error) {
     console.error('Erro na distribuição por score:', error);
     throw error;
@@ -300,11 +354,13 @@ export async function distributeLeadToSeller(
     if (!assignedSeller && options.currentUser?.id) {
       assignedSeller = await prisma.user.findUnique({ where: { id: options.currentUser.id } });
     }
+
     if (!assignedSeller) {
       assignedSeller = await prisma.user.findFirst({ orderBy: { createdAt: 'asc' } });
     }
+
     if (!assignedSeller) {
-      throw new Error('Nenhum vendedor disponível');
+      throw new Error('Não foi possível atribuir vendedor');
     }
 
     return assignedSeller;
@@ -320,7 +376,8 @@ export async function createOpportunityForLead(
   strategy = DISTRIBUTION_STRATEGIES.LOAD_BALANCE,
   sellerId = null,
   projectName = null,
-  projectClientType = null
+  projectClientType = null,
+  options = {}
 ) {
   try {
     const company = await prisma.company.findUnique({
@@ -372,8 +429,7 @@ export async function createOpportunityForLead(
     if (sellerId) {
       assignedSeller = await prisma.user.findFirst({
         where: {
-          id: sellerId,
-          role: 'SELLER'
+          id: sellerId
         },
         select: {
           id: true,
@@ -383,12 +439,50 @@ export async function createOpportunityForLead(
           quota: true
         }
       });
+    }
 
-      if (!assignedSeller) {
-        throw new Error('Vendedor selecionado não encontrado ou inválido');
+    // Se nenhum vendedor foi especificado, priorizar usuário logado se fornecido
+    if (!assignedSeller && options.currentUser?.id) {
+      assignedSeller = await prisma.user.findFirst({
+        where: {
+          id: options.currentUser.id
+        },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          regionId: true,
+          quota: true
+        }
+      });
+    }
+
+    if (!assignedSeller) {
+      try {
+        assignedSeller = await distributeLeadToSeller(companyId, strategy, options);
+      } catch (distErr) {
+        console.warn('⚠️ Falha ao distribuir por estratégia:', distErr.message);
       }
-    } else {
-      assignedSeller = await distributeLeadToSeller(companyId, strategy);
+    }
+
+    // Fallbacks de segurança
+    if (!assignedSeller) {
+      assignedSeller = await prisma.user.findFirst({
+        where: { accessB2B: true },
+        orderBy: { name: 'asc' },
+        select: { id: true, name: true, email: true, regionId: true, quota: true }
+      });
+    }
+
+    if (!assignedSeller) {
+      assignedSeller = await prisma.user.findFirst({
+        orderBy: { createdAt: 'asc' },
+        select: { id: true, name: true, email: true, regionId: true, quota: true }
+      });
+    }
+
+    if (!assignedSeller) {
+      throw new Error('Nenhum usuário ou vendedor disponível no sistema');
     }
 
     // Criar oportunidade

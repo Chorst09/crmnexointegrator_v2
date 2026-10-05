@@ -2463,6 +2463,8 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                 <ClientManagerInfo
                                     clientData={clientData}
                                     accountManagerData={accountManagerData}
+                                    onClientDataChange={setClientData}
+                                    onAccountManagerDataChange={setAccountManagerData}
                                 />
                             )}
                         </div>

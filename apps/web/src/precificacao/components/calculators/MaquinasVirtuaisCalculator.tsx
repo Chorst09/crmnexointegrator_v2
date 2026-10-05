@@ -1,3 +1,4 @@
+"use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 // PostgreSQL via Prisma - APIs REST
@@ -14,7 +15,6 @@ import CommissionTablesUnified from './CommissionTablesUnified';
 import { ProposalApprovalRequestButton } from '@/components/proposals/ProposalApprovalRequestButton';
 import { ProposalStatusBadge } from '@/components/proposals/ProposalStatusBadge';
 import { ProposalApprovalInfo } from '@/components/proposals/ProposalApprovalInfo';
-import { ConvertToB2BOpportunityButton } from '@/components/proposals/ConvertToB2BOpportunityButton';
 import { useCommissions, getChannelIndicatorCommissionRate, getChannelInfluencerCommissionRate, getChannelSellerCommissionRate, getSellerCommissionRate, getDirectorCommissionRate } from '@/hooks/use-commissions';
 import { generateNextProposalId } from '@/lib/proposal-id-generator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -1464,7 +1464,9 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
             try {
                 const response = await fetch(`/api/simulator/proposals/${proposalId}`, {
                     method: 'DELETE',
-                    headers: getCRMAuthHeaders(),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                 });
 
                 if (response.ok) {
@@ -1982,7 +1984,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                 const response = await fetch(`/api/simulator/proposals/${currentProposal.id}`, {
                     method: 'PUT',
-                    headers: getCRMAuthHeaders(),
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(proposalToUpdate),
                 });
 
@@ -2066,7 +2068,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                 const response = await fetch('/api/simulator/proposals', {
                     method: 'POST',
-                    headers: getCRMAuthHeaders(),
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(proposalData),
                 });
 
@@ -2394,7 +2396,6 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                             >
                                                                 <Edit className="h-4 w-4 mr-2" /> Editar
                                                             </Button>
-                                                            <ConvertToB2BOpportunityButton proposal={p} />
                                                             <Button
                                                                 variant="destructive"
                                                                 size="sm"
@@ -2462,6 +2463,8 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                 <ClientManagerInfo
                                     clientData={clientData}
                                     accountManagerData={accountManagerData}
+                                    onClientDataChange={setClientData}
+                                    onAccountManagerDataChange={setAccountManagerData}
                                 />
                             )}
                         </div>

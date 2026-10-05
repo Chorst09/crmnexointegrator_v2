@@ -1808,7 +1808,7 @@ const InternetOKv2Calculator: React.FC<InternetOKv2CalculatorProps> = ({ onBackT
                                 )}
                             </div>
                         </div>
-                        <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} />
+                        <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} onClientDataChange={setClientData} onAccountManagerDataChange={setAccountManagerData} />
                     </div>
 
                     <Tabs defaultValue="calculator" className="w-full">

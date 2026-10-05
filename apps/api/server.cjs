@@ -239,9 +239,10 @@ app.use((req, res, next) => {
   if (req.path === '/health') return next();
 
   const isBackupRoute = req.path.startsWith('/api/admin/backup');
+  const isDownloadRoute = req.path.startsWith('/api/b2g-licitacoes/proxy-download') || req.path.includes('/documento-gerado/');
   const requestTimeout = req.path.startsWith('/api/ai-analysis/')
     ? AI_ANALYSIS_REQUEST_TIMEOUT
-    : (isBackupRoute ? 600000 : REQUEST_TIMEOUT);
+    : (isBackupRoute ? 600000 : (isDownloadRoute ? 120000 : REQUEST_TIMEOUT));
   res.setTimeout(requestTimeout, () => {
     console.error(`⏰ Request timeout (${requestTimeout}ms): ${req.method} ${req.path}`);
     if (!res.headersSent) {

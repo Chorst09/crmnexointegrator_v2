@@ -2265,7 +2265,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                 </div>
 
                 {/* Informações do Cliente e Gerente */}
-                <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} />
+                <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} onClientDataChange={setClientData} onAccountManagerDataChange={setAccountManagerData} />
             </div>
 
             <Tabs defaultValue="calculator" className="w-full">

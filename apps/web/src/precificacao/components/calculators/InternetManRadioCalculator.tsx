@@ -1,3 +1,4 @@
+"use client";
 
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +15,6 @@ import { ClientManagerForm } from './ClientManagerForm';
 import { ProposalApprovalRequestButton } from '@/components/proposals/ProposalApprovalRequestButton';
 import { ProposalStatusBadge } from '@/components/proposals/ProposalStatusBadge';
 import { ProposalApprovalInfo } from '@/components/proposals/ProposalApprovalInfo';
-import { ConvertToB2BOpportunityButton } from '@/components/proposals/ConvertToB2BOpportunityButton';
 import { ClientManagerInfo } from './ClientManagerInfo';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/use-auth';
@@ -23,6 +23,7 @@ import { useDeepLinkedProposal } from '@/hooks/use-deep-linked-proposal';
 import { Proposal, UserProfile, ClientData, AccountManagerData } from '@/lib/types';
 import { getPermissionsForRole, normalizeUserRole } from '@/lib/permissions';
 import { generateNextProposalId } from '@/lib/proposal-id-generator'; // Importar a interface Proposal, UserProfile, ClientData e AccountManagerData do arquivo centralizado
+import { getCRMAuthHeaders } from '@/config/api';
 
 
 import {
@@ -36,7 +37,6 @@ import {
     Trash2,
     ArrowLeft
 } from 'lucide-react';
-import { getCRMAuthHeaders } from '@/config/api';
 
 // Componente isolado para seletor de prazo contratual
 const ContractTermSelector = memo(({ value, onChange }: { value: number; onChange: (value: string) => void }) => {
@@ -1180,7 +1180,7 @@ const InternetManRadioCalculator: React.FC<InternetManRadioCalculatorProps> = ({
 
                 const response = await fetch(`/api/simulator/proposals/${currentProposal.id}`, {
                     method: 'PUT',
-                    headers: getCRMAuthHeaders(),
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(proposalToUpdate),
                 });
 
@@ -1248,7 +1248,7 @@ const InternetManRadioCalculator: React.FC<InternetManRadioCalculatorProps> = ({
 
                 const response = await fetch('/api/simulator/proposals', {
                     method: 'POST',
-                    headers: getCRMAuthHeaders(),
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(proposalToSave),
                 });
 
@@ -1532,7 +1532,9 @@ const InternetManRadioCalculator: React.FC<InternetManRadioCalculatorProps> = ({
             try {
                 const response = await fetch(`/api/simulator/proposals/${id}`, {
                     method: 'DELETE',
-                    headers: getCRMAuthHeaders(),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                 });
 
                 if (response.ok) {
@@ -1753,7 +1755,6 @@ const InternetManRadioCalculator: React.FC<InternetManRadioCalculatorProps> = ({
                                                     <Button variant="outline" size="sm" onClick={() => editProposal(p)}>
                                                         <Edit className="h-4 w-4 mr-2" /> Editar Proposta
                                                     </Button>
-                                                    <ConvertToB2BOpportunityButton proposal={p} />
                                                     <Button
                                                         variant="destructive"
                                                         size="sm"
@@ -2129,7 +2130,7 @@ const InternetManRadioCalculator: React.FC<InternetManRadioCalculatorProps> = ({
                                 )}
                             </div>
                         </div>
-                        <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} />
+                        <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} onClientDataChange={setClientData} onAccountManagerDataChange={setAccountManagerData} />
                     </div>
 
                     <Tabs defaultValue="calculator" className="w-full">

@@ -52,18 +52,20 @@ export function LicitacaoDetalhesModal({
       return;
     }
 
-    const numControle = String(licitacao.numeroControlePNCP || (licitacao as any).numero_controle_pncp || (licitacao as any).numeroCompra || licitacao.id || '').trim();
+    const numControle = String(licitacao.numeroControlePNCP || (licitacao as any).numero_controle_pncp || '').trim();
 
-    // CNPJ: extrai 14 dígitos ou limpa caracteres
+    // CNPJ: extrai os 14 dígitos reais do órgão licitante
     let cnpj = licitacao.orgaoEntidade?.cnpj?.replace(/\D/g, '') || '';
     if (!cnpj && numControle.includes('-')) {
       const part = numControle.split('-')[0].replace(/\D/g, '');
-      if (part.length >= 8) cnpj = part;
+      if (part.length === 14) cnpj = part;
+    }
+    if (!cnpj && (licitacao as any).cnpj) {
+      cnpj = String((licitacao as any).cnpj).replace(/\D/g, '');
     }
     if (!cnpj && licitacao.id && /^\d{14}$/.test(String(licitacao.id).trim())) {
       cnpj = String(licitacao.id).trim();
     }
-    if (!cnpj) cnpj = '76417005000186';
 
     // Ano da compra
     let ano = licitacao.anoCompra;
@@ -75,7 +77,7 @@ export function LicitacaoDetalhesModal({
       const d = new Date(licitacao.data_abertura);
       if (!isNaN(d.getFullYear()) && d.getFullYear() > 1990) ano = d.getFullYear();
     }
-    if (!ano) ano = 2026;
+    if (!ano) ano = new Date().getFullYear();
 
     // Sequencial da compra
     let sequencial = licitacao.sequencialCompra;
@@ -90,66 +92,30 @@ export function LicitacaoDetalhesModal({
       const rawComp = parseInt(String((licitacao as any).numeroCompra).replace(/\D/g, ''), 10);
       if (!isNaN(rawComp) && rawComp > 0) sequencial = rawComp;
     }
-    if (!sequencial && licitacao.id) {
-      const rawId = parseInt(String(licitacao.id).replace(/\D/g, '').slice(-4), 10);
-      if (!isNaN(rawId) && rawId > 0) sequencial = rawId;
+    if (!sequencial && licitacao.id && !isNaN(Number(licitacao.id))) {
+      sequencial = Number(licitacao.id);
     }
     if (!sequencial) sequencial = 1;
 
-    // Arquivos imediatos verificados para download instantâneo (sem tela em branco)
-    const numEdital = `${sequencial}_${ano}`;
-    const immediateFiles = [
-      {
-        sequencialDocumento: 1,
-        titulo: `Edital_de_Licitacao_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Edital de Licitação',
-        url: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/edital?titulo=Edital_de_Licitacao_${numEdital}.pdf`,
-        tamanhoArquivo: 1420580,
-        origem: 'PNCP_VERIFICADO'
-      },
-      {
-        sequencialDocumento: 2,
-        titulo: `Termo_de_Referencia_TR_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Termo de Referência (TR)',
-        url: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/tr?titulo=Termo_de_Referencia_TR_${numEdital}.pdf`,
-        tamanhoArquivo: 895400,
-        origem: 'PNCP_VERIFICADO'
-      },
-      {
-        sequencialDocumento: 3,
-        titulo: `Estudo_Tecnico_Preliminar_ETP_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Estudo Técnico Preliminar (ETP)',
-        url: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/etp?titulo=Estudo_Tecnico_Preliminar_ETP_${numEdital}.pdf`,
-        tamanhoArquivo: 620100,
-        origem: 'PNCP_VERIFICADO'
-      },
-      {
-        sequencialDocumento: 4,
-        titulo: `Minuta_de_Contrato_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Minuta Contratual',
-        url: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/minuta?titulo=Minuta_de_Contrato_${numEdital}.pdf`,
-        tamanhoArquivo: 412300,
-        origem: 'PNCP_VERIFICADO'
-      }
-    ];
-
-    // Exibe imediatamente os arquivos prontos para download
-    setArquivos(immediateFiles);
+    setArquivos([]);
     setSearchingPncp(true);
 
-    // Consulta em segundo plano se o PNCP oficial disponibilizou anexos adicionais
-    fetch(`/api/b2g-licitacoes/arquivos/${cnpj}/${ano}/${sequencial}`)
+    const targetCnpj = cnpj || '00000000000100';
+    fetch(`/api/b2g-licitacoes/arquivos/${targetCnpj}/${ano}/${sequencial}`)
       .then((res) => {
-        if (!res.ok) return null;
+        if (!res.ok) return [];
         return res.json();
       })
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setArquivos(data);
+        } else {
+          setArquivos([]);
         }
       })
       .catch((err) => {
-        console.warn('Busca de anexos PNCP concluída com fallback local:', err);
+        console.warn('Erro ao consultar arquivos do certame:', err);
+        setArquivos([]);
       })
       .finally(() => setSearchingPncp(false));
   }, [licitacao]);
@@ -164,24 +130,32 @@ export function LicitacaoDetalhesModal({
   const getValor = (lic: Licitacao) => lic.valor_estimado || lic.valorTotalEstimado || 0;
   const getSituacao = (lic: Licitacao) => lic.situacao || lic.situacaoCompraNome || 'Divulgada no PNCP';
 
-  const getAberturaDate = (lic: Licitacao): Date | null => {
-    const dtStr = lic.data_abertura || 
-                  lic.dataEncerramentoProposta || 
-                  lic.dataHoraAberturaSessaoPublica || 
-                  lic.dataAberturaProposta;
+  const getPrazoLimiteDate = (lic: Licitacao): Date | null => {
+    const dtStr = lic.dataEncerramentoProposta || 
+                  (lic as any).data_encerramento || 
+                  lic.dataHoraAberturaSessaoPublica;
+    if (dtStr) {
+      const d = new Date(dtStr);
+      if (!isNaN(d.getTime())) return d;
+    }
+    const dtFall = lic.dataHoraAberturaSessaoPublica || lic.data_abertura || lic.dataAberturaProposta;
+    if (dtFall) {
+      const d = new Date(dtFall);
+      if (!isNaN(d.getTime())) return d;
+    }
+    return null;
+  };
+
+  const getInicioPropostaDate = (lic: Licitacao): Date | null => {
+    const dtStr = lic.dataAberturaProposta || lic.data_abertura;
     if (!dtStr) return null;
     const d = new Date(dtStr);
     return isNaN(d.getTime()) ? null : d;
   };
 
-  const formatAbertura = (lic: Licitacao) => {
-    const d = getAberturaDate(lic);
-    if (!d) {
-      if (lic.dataAtualizacao) {
-        return `Atualizado em ${new Date(lic.dataAtualizacao).toLocaleDateString('pt-BR')}`;
-      }
-      return 'Data a definir';
-    }
+  const formatPrazoLimite = (lic: Licitacao) => {
+    const d = getPrazoLimiteDate(lic);
+    if (!d) return 'A definir';
     return d.toLocaleString('pt-BR', {
       day: '2-digit',
       month: '2-digit',
@@ -191,32 +165,52 @@ export function LicitacaoDetalhesModal({
     });
   };
 
-  const getAberturaStatus = (lic: Licitacao) => {
-    const d = getAberturaDate(lic);
-    if (!d) return { label: 'Data pendente', type: 'neutral' };
+  const formatInicioPropostas = (lic: Licitacao) => {
+    const d = getInicioPropostaDate(lic);
+    if (!d) return null;
+    return d.toLocaleString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  const getPrazoStatus = (lic: Licitacao) => {
+    const d = getPrazoLimiteDate(lic);
+    if (!d) return { label: 'Prazo a confirmar', type: 'neutral' };
     
     const now = Date.now();
     const diffMs = d.getTime() - now;
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
     
     if (diffMs < 0) {
-      return { label: 'Abertura expirada (Já aconteceu)', type: 'expired' };
-    } else if (diffDays <= 0) {
-      return { label: 'Abre hoje!', type: 'imminent' };
+      return { label: 'Prazo expirado', type: 'expired' };
+    } else if (diffHours <= 12) {
+      return { label: 'Encerra hoje!', type: 'imminent' };
     } else if (diffDays === 1) {
-      return { label: 'Abre amanhã', type: 'soon' };
+      return { label: 'Encerra amanhã', type: 'soon' };
     } else {
-      return { label: `Abre em ${diffDays} dias`, type: 'upcoming' };
+      return { label: `Encerra em ${diffDays} dias`, type: 'upcoming' };
     }
   };
 
   const isAtivo = (lic: Licitacao) => {
     const sit = (lic.situacao || lic.situacaoCompraNome || '').toLowerCase();
-    return sit.includes('divulgad') || sit.includes('publicad') || sit.includes('abert') || sit.includes('andamento');
+    return !/(encerrad|cancelad|revogad|suspens|anulad|fracassad|desert|homologad|adjudicad)/i.test(sit);
   };
 
   const handleRealDownload = (url: string, title: string) => {
     try {
+      if (!url) return;
+      // Se a URL é um link externo web (página HTML de acompanhamento), abre diretamente em nova aba
+      if (/^https?:\/\//i.test(url) && !url.includes('/download/') && !/\.(pdf|zip|docx?|xlsx?)$/i.test(url)) {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
       setDownloadingUrl(url);
       const safeTitle = title.toLowerCase().endsWith('.pdf') ? title : `${title}.pdf`;
       let downloadEndpoint = url;
@@ -242,18 +236,19 @@ export function LicitacaoDetalhesModal({
     }
   };
 
-  const status = getAberturaStatus(licitacao);
+  const status = getPrazoStatus(licitacao);
   const numControle = licitacao.numeroControlePNCP || (licitacao as any).numero_controle_pncp || (licitacao as any).numeroCompra || licitacao.id;
   const isManagedNow = isManaged || addSuccess;
 
-  // Link PNCP fallback
+  // Links oficiais
   const cnpjRaw = licitacao.orgaoEntidade?.cnpj?.replace(/\D/g, '') || (numControle ? String(numControle).split('-')[0].replace(/\D/g, '') : null);
   const anoRaw = licitacao.anoCompra || (numControle && String(numControle).includes('/') ? String(numControle).split('/')[1] : null);
   const seqRaw = licitacao.sequencialCompra || (numControle && String(numControle).includes('-') ? String(numControle).split('-')[2]?.split('/')[0] : null);
 
-  const pncpPageLink = licitacao.linkSistemaOrigem || 
-                        licitacao.linkProcessoEletronico || 
-                        (cnpjRaw && anoRaw && seqRaw ? `https://pncp.gov.br/app/editais/${cnpjRaw}/${anoRaw}/${seqRaw}` : null);
+  const origemLink = licitacao.linkSistemaOrigem || licitacao.linkProcessoEletronico || null;
+  const pncpPageLink = (cnpjRaw && anoRaw && seqRaw) 
+    ? `https://pncp.gov.br/app/editais/${cnpjRaw}/${anoRaw}/${seqRaw}` 
+    : (licitacao.pncpPageLink || null);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm" onClick={onClose}>
@@ -339,24 +334,33 @@ export function LicitacaoDetalhesModal({
                   </span>
                 </div>
                 <div>
-                  <span className="text-xs text-slate-400 block mb-1">Data e Hora de Abertura</span>
+                  <span className="text-xs text-slate-400 block mb-1">Prazo Limite para Envio de Propostas</span>
                   <span className="text-sm font-medium text-slate-900 dark:text-slate-100 flex items-center">
                     <Clock className="w-3.5 h-3.5 mr-1.5 text-cyan-400 flex-shrink-0" />
-                    {formatAbertura(licitacao)}
+                    {formatPrazoLimite(licitacao)}
                   </span>
                 </div>
+                {formatInicioPropostas(licitacao) && (
+                  <div>
+                    <span className="text-xs text-slate-400 block mb-1">Início do Recebimento de Propostas</span>
+                    <span className="text-sm font-medium text-slate-200 flex items-center">
+                      <Calendar className="w-3.5 h-3.5 mr-1.5 text-slate-400 flex-shrink-0" />
+                      {formatInicioPropostas(licitacao)}
+                    </span>
+                  </div>
+                )}
                 <div>
-                  <span className="text-xs text-slate-400 block mb-1">Data de Atualização / Divulgação</span>
-                  <span className="text-sm font-medium text-slate-200 flex items-center">
+                  <span className="text-xs text-slate-400 block mb-1">Data de Publicação / Divulgação</span>
+                  <span className="text-sm font-medium text-slate-300 flex items-center">
                     <Calendar className="w-3.5 h-3.5 mr-1.5 text-slate-400 flex-shrink-0" />
                     {new Date(getData(licitacao)).toLocaleString('pt-BR')}
                   </span>
                 </div>
-                {(licitacao.linkSistemaOrigem || licitacao.linkProcessoEletronico) && (
+                {origemLink && (
                   <div>
                     <span className="text-xs text-slate-400 block mb-1">Sistema de Origem</span>
                     <a 
-                      href={licitacao.linkSistemaOrigem || licitacao.linkProcessoEletronico} 
+                      href={origemLink} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="text-sm font-medium text-cyan-400 hover:text-cyan-300 hover:underline flex items-center gap-1"
@@ -389,7 +393,13 @@ export function LicitacaoDetalhesModal({
               </div>
             </div>
             
-            {arquivos.length > 0 ? (
+            {searchingPncp ? (
+              <div className="border border-[#07323e] rounded-xl p-8 bg-[#011419] text-center">
+                <div className="w-7 h-7 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin mx-auto mb-3"></div>
+                <p className="text-sm font-semibold text-slate-100">Buscando arquivos e documentos oficiais no PNCP...</p>
+                <p className="text-xs text-slate-400 mt-1">Consultando o repositório público de anexos do certame.</p>
+              </div>
+            ) : arquivos.length > 0 ? (
               <div className="border border-[#07323e] rounded-xl overflow-hidden shadow-sm divide-y divide-slate-800/80">
                 {arquivos.map((arq, idx) => {
                   const fileUrl = arq.url || arq.uri;
@@ -405,7 +415,9 @@ export function LicitacaoDetalhesModal({
                           <div className="flex items-center gap-2 mt-0.5">
                             <span className="text-xs text-slate-400 font-medium">{arq.tipoDocumentoNome || 'Documento Oficial'}</span>
                             <span className="text-slate-600">•</span>
-                            <span className="text-[11px] text-emerald-300 bg-emerald-950/60 px-1.5 py-0.5 rounded font-mono border border-emerald-800">Fonte Oficial PNCP</span>
+                            <span className="text-[11px] text-emerald-300 bg-emerald-950/60 px-1.5 py-0.5 rounded font-mono border border-emerald-800">
+                              {arq.origem === 'PNCP_OFICIAL' ? 'Anexo Oficial PNCP' : arq.origem === 'SISTEMA_ORIGEM' ? 'Sistema Oficial de Origem' : 'Documento Verificado'}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -416,7 +428,7 @@ export function LicitacaoDetalhesModal({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center px-3 py-2 text-xs font-medium text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-lg transition-colors cursor-pointer"
-                            title="Abrir ou pré-visualizar documento em nova aba"
+                            title="Abrir documento original em nova aba"
                           >
                             <ExternalLink className="w-3.5 h-3.5 mr-1.5" /> Abrir
                           </a>
@@ -444,23 +456,46 @@ export function LicitacaoDetalhesModal({
               </div>
             ) : (
               <div className="border border-[#07323e] rounded-xl p-6 bg-slate-900/40 text-center">
-                <FileText className="w-8 h-8 text-slate-400 mx-auto mb-2" />
+                <FileText className="w-8 h-8 text-cyan-400 mx-auto mb-2" />
                 <p className="text-sm font-semibold text-white">
-                  Nenhum anexo em PDF foi listado diretamente na API pública para esta contratação.
+                  Documentação e Edital Oficial
                 </p>
-                <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
-                  Você pode consultar e baixar o edital completo e termos de referência diretamente no portal oficial do PNCP ou no sistema eletrônico do órgão.
+                <p className="text-xs text-slate-300 mt-1 max-w-lg mx-auto">
+                  {origemLink
+                    ? "Este órgão licitante disponibiliza o edital na íntegra, termo de referência e anexos para download diretamente através do seu sistema eletrônico oficial de contratação."
+                    : "Os documentos oficiais estão registrados no Portal Nacional de Contratações Públicas (PNCP) e nos sistemas eletrônicos do órgão licitante."
+                  }
                 </p>
-                {pncpPageLink && (
-                  <a 
-                    href={pncpPageLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-cyan-400 hover:text-cyan-300 hover:underline"
-                  >
-                    Abrir Página do Certame no PNCP / Sistema do Órgão <ExternalLink className="w-3 h-3" />
-                  </a>
-                )}
+                <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
+                  {origemLink && (
+                    <a 
+                      href={origemLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white rounded-lg text-xs font-semibold shadow transition-all cursor-pointer"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" /> Acessar Sistema de Origem (Edital Completo)
+                    </a>
+                  )}
+                  {pncpPageLink && (
+                    <a 
+                      href={pncpPageLink}
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-cyan-300 rounded-lg text-xs font-medium border border-slate-700 transition-all cursor-pointer"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" /> Consultar Certame no PNCP
+                    </a>
+                  )}
+                  {cnpjRaw && anoRaw && seqRaw && (
+                    <button
+                      onClick={() => handleRealDownload(`/api/b2g-licitacoes/documento-gerado/${cnpjRaw}/${anoRaw}/${seqRaw}/resumo?titulo=Ficha_Resumo_Edital_${seqRaw}_${anoRaw}.pdf`, `Ficha_Resumo_Edital_${seqRaw}_${anoRaw}.pdf`)}
+                      className="inline-flex items-center gap-1.5 px-4 py-2 bg-slate-800/80 hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium border border-slate-700 transition-all cursor-pointer"
+                    >
+                      <Download className="w-3.5 h-3.5 text-emerald-400" /> Exportar Ficha Resumo (PDF)
+                    </button>
+                  )}
+                </div>
               </div>
             )}
             

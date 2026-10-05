@@ -21,26 +21,8 @@ async function executeB2BTestFlow(user = null, options = {}) {
     });
   };
 
+  const userId = user?.id || user?.userId || 'usr-master-1';
   const tenantCompanyId = user?.tenantCompanyId || null;
-
-  // Resolve um usuário real do banco: as relações de User (owner, solicitante,
-  // projectManager) são FKs, então o id precisa existir de fato em "User".
-  const resolveUserId = async () => {
-    const explicitId = user?.id || user?.userId || null;
-    if (explicitId) {
-      const existing = await prisma.user.findFirst({ where: { id: explicitId } });
-      if (existing) return existing.id;
-    }
-    const master = await prisma.user.findFirst({
-      where: { email: 'chorstconsult@gmail.com' }
-    });
-    if (master) return master.id;
-    const anyUser = await prisma.user.findFirst({});
-    if (anyUser) return anyUser.id;
-    throw new Error('Nenhum usuário encontrado em "User". Rode o seed antes do fluxo de teste.');
-  };
-
-  const userId = await resolveUserId();
 
   // ==========================================
   // PASSO 1: EMPRESA B2B
@@ -55,7 +37,9 @@ async function executeB2BTestFlow(user = null, options = {}) {
     company = await prisma.company.create({
       data: {
         name: companyName,
+        tradingName: 'TechCorp Brasil',
         document: companyCnpj,
+        cnpj: companyCnpj,
         clientType: 'B2B',
         segment: 'Tecnologia da Informação & Telecomunicações',
         size: 'LARGE',
@@ -117,24 +101,27 @@ async function executeB2BTestFlow(user = null, options = {}) {
   // PASSO 3: OPORTUNIDADE B2B NO FUNIL
   // ==========================================
   const oppTitle = 'Projeto Conectividade 100Mbps Redundante + Firewall Virtual NGFW';
-  const oppNumber = `OPP-${now.getFullYear()}-0420`;
   let opportunity = await prisma.opportunity.findFirst({
-    where: { number: oppNumber }
+    where: { companyId: company.id, title: oppTitle }
   });
 
+  const oppNumber = `OPP-${now.getFullYear()}-0420`;
   if (!opportunity) {
     opportunity = await prisma.opportunity.create({
       data: {
         title: oppTitle,
         number: oppNumber,
         companyId: company.id,
-        projectClientType: 'B2B',
+        clientType: 'B2B',
         stage: 'PROPOSAL',
         value: 43500,
+        mrr: 3500,
+        setupFee: 1500,
         probability: 90,
-        projectType: 'SINGLE',
+        projectType: 'B2B',
         projectMonths: 12,
         description: 'Implantação de Firewall Virtual Double de Alta Disponibilidade (NGFW Fortinet/Checkpoint) integrado a Link de Internet Dedicada 100Mbps redundante Fibra + Rádio.',
+        userId,
         ownerId: userId,
         expectedCloseDate: new Date(Date.now() + 15 * 86400000).toISOString()
       }
@@ -167,6 +154,7 @@ async function executeB2BTestFlow(user = null, options = {}) {
 
   const activity = await prisma.activity.create({
     data: {
+      title: activitySubject,
       subject: activitySubject,
       type: 'TASK',
       status: 'PENDING',
@@ -250,30 +238,26 @@ async function executeB2BTestFlow(user = null, options = {}) {
         numero: budgetNumber,
         titulo: 'Orçamento Técnico NGFW + Conectividade Corporativa',
         descricao: `Dimensionamento e cotação técnica executada pelo Pré-Vendas com alta disponibilidade. [FLOW_ACTIVITY_ID:${activity.id}]`,
-        status: 'APROVADO',
-        prioridade: 'HIGH',
-        tiposPrecificacao: ['VENDA'],
-        leadId: company.id,
+        status: 'APROVADA',
+        prioridade: 'ALTA',
+        tipo: 'B2B',
+        companyId: company.id,
         opportunityId: opportunity.id,
+        leadId: company.id,
         solicitanteId: userId,
+        valorTotal: 43500,
         valorSugerido: 43500,
         custoTotal: 2430,
         margemLucro: 48.5,
-        calculoDetalhes: {
-          valorTotal: 43500,
-          valorMensal: 3500,
-          valorSetup: 1500,
-          margemMedia: 48.5,
-          vigenciaMeses: 12
-        },
-        dataAprovacao: now.toISOString(),
-        observacoes: `Dimensionamento validado com SLA de 99.8%, túneis VPN dedicados e filtragem NGFW contra intrusões. [FLOW_ACTIVITY_ID:${activity.id}]`
+        margemMedia: 48.5,
+        observacoes: `Dimensionamento validado com SLA de 99.8%, túneis VPN dedicados e filtragem NGFW contra intrusões. [FLOW_ACTIVITY_ID:${activity.id}]`,
+        tenantCompanyId
       }
     });
 
     await prisma.preSalesItem.createMany({
       data: itemsPrecificados.map((i) => ({
-        preSalesRequestId: preSalesRequest.id,
+        requestId: preSalesRequest.id,
         descricao: i.descricao,
         quantidade: i.quantidade,
         custoUnitario: i.custoUnitario,
@@ -309,6 +293,7 @@ async function executeB2BTestFlow(user = null, options = {}) {
   await prisma.activity.update({
     where: { id: activity.id },
     data: {
+      title: activitySubject,
       subject: activitySubject,
       status: 'PENDING',
       description: returnedDescription
@@ -358,72 +343,53 @@ async function executeB2BTestFlow(user = null, options = {}) {
         number: proposalNumber,
         title: 'Proposta Comercial - Firewall Virtual Double & Link Dedicado 100Mbps',
         opportunityId: opportunity.id,
+        companyId: company.id,
         status: 'ACCEPTED',
         totalValue: 43500,
-        validUntil: new Date(Date.now() + 15 * 86400000).toISOString(),
-        description: 'Proposta comercial formal emitida conforme layout padrão de 10 lâminas (Datacenter, NGFW, Escopo, Premissas e Investimento).',
-        sectionsData: {
-          mensalidade: 3500,
-          taxaInstalacao: 1500,
-          validadeDias: 15
-        }
+        monthlyValue: 3500,
+        setupValue: 1500,
+        validityDays: 15,
+        notes: 'Proposta comercial formal emitida conforme layout padrão de 10 lâminas (Datacenter, NGFW, Escopo, Premissas e Investimento).',
+        tenantCompanyId
       }
     });
 
-    // "ProposalItem.productId" é obrigatório: resolve (ou cria) o produto pelo nome.
-    const linhasProposta = [
-      {
-        name: 'Internet 100Mbps rádio (Link de internet dedicada via rádio)',
-        category: 'Conectividade',
-        quantity: 1,
-        unitPrice: 500,
-        totalPrice: 6000
-      },
-      {
-        name: 'Rede MAN 50Mbps (Link L2L MAN via rádio)',
-        category: 'Conectividade',
-        quantity: 1,
-        unitPrice: 1000,
-        totalPrice: 12000
-      },
-      {
-        name: 'Link Double 100Mbps (Link redundante Rádio + Fibra Óptica)',
-        category: 'Conectividade',
-        quantity: 1,
-        unitPrice: 2000,
-        totalPrice: 24000
-      },
-      {
-        name: 'Taxa de Instalação e Ativação de Infraestrutura',
-        category: 'Servicos',
-        quantity: 1,
-        unitPrice: 1500,
-        totalPrice: 1500
-      }
-    ];
-
-    for (const linha of linhasProposta) {
-      let product = await prisma.product.findFirst({ where: { name: linha.name } });
-      if (!product) {
-        product = await prisma.product.create({
-          data: {
-            name: linha.name,
-            category: linha.category,
-            price: linha.unitPrice,
-            active: true
-          }
-        });
-      }
-      await prisma.proposalItem.create({
-        data: {
+    await prisma.proposalItem.createMany({
+      data: [
+        {
           proposalId: proposal.id,
-          productId: product.id,
-          quantity: linha.quantity,
-          unitPrice: linha.unitPrice,
-          totalPrice: linha.totalPrice
+          name: 'Internet 100Mbps rádio (Link de internet dedicada via rádio)',
+          quantity: 1,
+          unitPrice: 500,
+          monthlyPrice: 500,
+          totalPrice: 6000
+        },
+        {
+          proposalId: proposal.id,
+          name: 'Rede MAN 50Mbps (Link L2L MAN via rádio)',
+          quantity: 1,
+          unitPrice: 1000,
+          monthlyPrice: 1000,
+          totalPrice: 12000
+        },
+        {
+          proposalId: proposal.id,
+          name: 'Link Double 100Mbps (Link redundante Rádio + Fibra Óptica)',
+          quantity: 1,
+          unitPrice: 2000,
+          monthlyPrice: 2000,
+          totalPrice: 24000
+        },
+        {
+          proposalId: proposal.id,
+          name: 'Taxa de Instalação e Ativação de Infraestrutura',
+          quantity: 1,
+          unitPrice: 1500,
+          monthlyPrice: 0,
+          totalPrice: 1500
         }
-      });
-    }
+      ]
+    });
   }
   log(
     7,
@@ -443,7 +409,7 @@ async function executeB2BTestFlow(user = null, options = {}) {
       value: 43500,
       actualCloseDate: now.toISOString(),
       probability: 100,
-      notes: 'Solução técnica e alta disponibilidade validadas pela pré-vendas, melhor SLA e preço competitivo'
+      wonReason: 'Solução técnica e alta disponibilidade validadas pela pré-vendas, melhor SLA e preço competitivo'
     }
   });
 
@@ -481,7 +447,8 @@ async function executeB2BTestFlow(user = null, options = {}) {
         projectManagerId: userId,
         createdBy: userId,
         plannedStartDate: now.toISOString(),
-        plannedEndDate: new Date(Date.now() + 45 * 86400000).toISOString()
+        plannedEndDate: new Date(Date.now() + 45 * 86400000).toISOString(),
+        tenantCompanyId
       }
     });
 

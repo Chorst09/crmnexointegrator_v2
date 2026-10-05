@@ -343,7 +343,7 @@ async function buscarPNCPProxy({ objeto, uf, dataInicio, dataFim, tamanhoPagina 
 
   const res = await fetch(url.toString(), {
     headers: getAuthHeaders(),
-    signal: AbortSignal.timeout(55000)
+    signal: AbortSignal.timeout(30000)
   });
   if (!res.ok) {
     const publicacoes = await buscarPNCPPublicacao({ objeto, uf, dataInicio, dataFim, tamanhoPagina });
@@ -572,7 +572,7 @@ async function buscarCuritibaECompras({ objeto, uf, cidade, dataInicio, dataFim,
 
   const res = await fetch(url.toString(), {
     headers: getAuthHeaders(),
-    signal: AbortSignal.timeout(55000)
+    signal: AbortSignal.timeout(30000)
   });
   const payload = await res.json().catch(() => null);
   
@@ -607,7 +607,7 @@ async function buscarFonteB2GSearch(fonte, params) {
 
   const res = await fetch(url.toString(), {
     headers: getAuthHeaders(),
-    signal: AbortSignal.timeout(55000)
+    signal: AbortSignal.timeout(30000)
   });
   const payload = await res.json().catch(() => null);
   const data = Array.isArray(payload?.data) ? payload.data : [];

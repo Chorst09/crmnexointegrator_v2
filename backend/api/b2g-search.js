@@ -56,7 +56,7 @@ const safeJson = async (res) => {
 };
 
 // fetch com timeout + retry para erros transitórios de rede/5xx.
-async function fetchWithRetry(url, options = {}, { timeoutMs = 25000, retries = 1 } = {}) {
+async function fetchWithRetry(url, options = {}, { timeoutMs = 45000, retries = 2 } = {}) {
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
@@ -660,7 +660,7 @@ async function buscarComprasNet({ objeto, uf, pagina = 1, tamanhoPagina = 20, da
 
     const res = await fetch(url.toString(), {
       headers: { 'Accept': 'application/json', 'User-Agent': 'NexosCRM/2.0' },
-      signal: AbortSignal.timeout(8000)
+      signal: AbortSignal.timeout(15000)
     });
 
     if (!res.ok) {

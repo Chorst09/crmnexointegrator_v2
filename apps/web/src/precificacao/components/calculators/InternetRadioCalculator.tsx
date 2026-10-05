@@ -1,3 +1,4 @@
+"use client";
 
 import React, { useState, useEffect, useMemo, useCallback, memo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +15,6 @@ import { ClientManagerForm } from './ClientManagerForm';
 import { ProposalApprovalRequestButton } from '@/components/proposals/ProposalApprovalRequestButton';
 import { ProposalStatusBadge } from '@/components/proposals/ProposalStatusBadge';
 import { ProposalApprovalInfo } from '@/components/proposals/ProposalApprovalInfo';
-import { ConvertToB2BOpportunityButton } from '@/components/proposals/ConvertToB2BOpportunityButton';
 import { ClientManagerInfo } from './ClientManagerInfo';
 import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/hooks/use-auth';
@@ -25,6 +25,7 @@ import { getPermissionsForRole, normalizeUserRole } from '@/lib/permissions';
 import { Proposal, UserProfile, ClientData, AccountManagerData } from '@/lib/types'; // Importar a interface Proposal, UserProfile, ClientData e AccountManagerData do arquivo centralizado
 import { generateNextProposalId } from '@/lib/proposal-id-generator';
 import { setupProposalSyncListeners, setupProposalAutoRefresh } from '@/lib/proposal-sync';
+import { getCRMAuthHeaders } from '@/config/api';
 import {
     Wifi,
     Calculator,
@@ -36,7 +37,6 @@ import {
     Trash2,
     ArrowLeft
 } from 'lucide-react';
-import { getCRMAuthHeaders } from '@/config/api';
 
 // Componente isolado para seletor de prazo contratual
 const ContractTermSelector = memo(({ value, onChange }: { value: number; onChange: (value: string) => void }) => {
@@ -613,100 +613,6 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
         }).format(value || 0);
     };
 
-    const toMoneyNumber = (value: unknown): number => {
-        if (typeof value === 'number') {
-            return Number.isFinite(value) ? value : 0;
-        }
-
-        if (typeof value === 'string') {
-            const normalized = value
-                .replace(/[^\d,.-]/g, '')
-                .replace(/\.(?=\d{3}(?:\D|$))/g, '')
-                .replace(',', '.');
-            const parsed = Number(normalized);
-            return Number.isFinite(parsed) ? parsed : 0;
-        }
-
-        return 0;
-    };
-
-    const firstPositiveNumber = (...values: unknown[]): number => {
-        for (const value of values) {
-            const numeric = toMoneyNumber(value);
-            if (numeric > 0) return numeric;
-        }
-        return 0;
-    };
-
-    const getProposalProducts = (proposal: any): any[] => {
-        const products = proposal?.products;
-        const metadataProducts = proposal?.metadata?.products;
-        const items = proposal?.items;
-
-        if (Array.isArray(products) && products.length > 0) return products;
-        if (Array.isArray(metadataProducts) && metadataProducts.length > 0) return metadataProducts;
-        if (Array.isArray(items) && items.length > 0) return items;
-
-        return [];
-    };
-
-    const getProposalFinancialSummary = (proposal: any) => {
-        const products = getProposalProducts(proposal);
-        const productsMonthly = products.reduce((sum, product) => sum + toMoneyNumber(product.monthly ?? product.value), 0);
-        const productsSetup = products.reduce((sum, product) => sum + toMoneyNumber(product.setup ?? product.installationFee), 0);
-        const salespersonDiscount = Boolean(proposal?.applySalespersonDiscount ?? proposal?.metadata?.applySalespersonDiscount);
-        const directorDiscount = toMoneyNumber(
-            proposal?.appliedDirectorDiscountPercentage ?? proposal?.metadata?.appliedDirectorDiscountPercentage
-        );
-        const computedDiscountedMonthly =
-            productsMonthly *
-            (salespersonDiscount ? 0.95 : 1) *
-            (directorDiscount > 0 ? 1 - directorDiscount / 100 : 1);
-
-        const baseTotalMonthly = firstPositiveNumber(
-            proposal?.baseTotalMonthly,
-            proposal?.metadata?.baseTotalMonthly,
-            productsMonthly,
-            proposal?.totalMonthly,
-            proposal?.metadata?.totalMonthly,
-            proposal?.value,
-            proposal?.metadata?.value
-        );
-
-        const totalMonthly = firstPositiveNumber(
-            proposal?.totalMonthly,
-            proposal?.metadata?.totalMonthly,
-            proposal?.value,
-            proposal?.metadata?.value,
-            computedDiscountedMonthly,
-            baseTotalMonthly
-        );
-
-        const totalSetup = firstPositiveNumber(
-            proposal?.totalSetup,
-            proposal?.metadata?.totalSetup,
-            productsSetup,
-            proposal?.setup,
-            proposal?.metadata?.setup
-        );
-
-        const previousMonthlyFee = firstPositiveNumber(
-            proposal?.previousMonthlyFee,
-            proposal?.metadata?.previousMonthlyFee
-        );
-
-        return {
-            products,
-            baseTotalMonthly,
-            totalMonthly,
-            totalSetup,
-            previousMonthlyFee,
-            isExistingClient: Boolean(proposal?.isExistingClient ?? proposal?.metadata?.isExistingClient),
-            salespersonDiscount,
-            directorDiscount
-        };
-    };
-
     const formatPercentage = (value: number | undefined | null) => {
         return `${(value || 0).toFixed(2)}%`;
     };
@@ -1165,7 +1071,9 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
 
                 const response = await fetch(`/api/simulator/proposals/${currentProposal.id}`, {
                     method: 'PUT',
-                    headers: getCRMAuthHeaders(),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                     body: JSON.stringify(proposalToUpdate),
                 });
 
@@ -1296,7 +1204,7 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
 
                 const response = await fetch(`/api/simulator/proposals/${currentProposal.id}`, {
                     method: 'PUT',
-                    headers: getCRMAuthHeaders(),
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(proposalToUpdate),
                 });
 
@@ -1362,7 +1270,7 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
 
                 const response = await fetch('/api/simulator/proposals', {
                     method: 'POST',
-                    headers: getCRMAuthHeaders(),
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(proposalToSave),
                 });
 
@@ -1463,9 +1371,15 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
         }
 
         // Handle products - check multiple possible locations and formats
-        let products = getProposalProducts(proposal);
-        if (products.length > 0 && products === proposal.items) {
-            products = products.map((item: any) => ({
+        let products = [];
+        // Tentar em proposal.products, metadata.products, proposal.items
+        if (proposal.products && Array.isArray(proposal.products) && proposal.products.length > 0) {
+            products = proposal.products;
+        } else if (proposal.metadata?.products && Array.isArray(proposal.metadata.products) && proposal.metadata.products.length > 0) {
+            products = proposal.metadata.products;
+        } else if (proposal.items && Array.isArray(proposal.items)) {
+            // Convert items to products format if needed
+            products = proposal.items.map((item: any) => ({
                 id: item.id || `item-${Date.now()}`,
                 type: 'RADIO',
                 description: item.description || 'Internet Rádio',
@@ -1522,9 +1436,15 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
         }
 
         // Handle products - check multiple possible locations and formats
-        let products = getProposalProducts(proposal);
-        if (products.length > 0 && products === proposal.items) {
-            products = products.map((item: any) => ({
+        let products = [];
+        // Tentar em proposal.products, metadata.products, proposal.items
+        if (proposal.products && Array.isArray(proposal.products) && proposal.products.length > 0) {
+            products = proposal.products;
+        } else if (proposal.metadata?.products && Array.isArray(proposal.metadata.products) && proposal.metadata.products.length > 0) {
+            products = proposal.metadata.products;
+        } else if (proposal.items && Array.isArray(proposal.items)) {
+            // Convert items to products format if needed
+            products = proposal.items.map((item: any) => ({
                 id: item.id || `item-${Date.now()}`,
                 type: 'RADIO',
                 description: item.description || 'Internet Rádio',
@@ -1616,7 +1536,9 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
             try {
                 const response = await fetch(`/api/simulator/proposals/${id}`, {
                     method: 'DELETE',
-                    headers: getCRMAuthHeaders(),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                 });
 
                 if (response.ok) {
@@ -1633,8 +1555,6 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
             }
         }
     };
-
-    const currentProposalSummary = currentProposal ? getProposalFinancialSummary(currentProposal) : null;
 
     const filteredProposals = radioProposals.filter(p =>
         (typeof p.client === 'object' ? p.client.name : p.client)?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -1839,7 +1759,6 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
                                                     <Button variant="outline" size="sm" onClick={() => editProposal(p)}>
                                                         <Edit className="h-4 w-4 mr-2" /> Editar Proposta
                                                     </Button>
-                                                    <ConvertToB2BOpportunityButton proposal={p} />
                                                     <Button
                                                         variant="destructive"
                                                         size="sm"
@@ -1955,11 +1874,11 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {(currentProposalSummary?.products || []).map((product, index) => (
+                                    {(currentProposal.metadata?.products || currentProposal.products || currentProposal.items || []).map((product, index) => (
                                         <TableRow key={product.id || `product-${index}`}>
                                             <TableCell>{product.description}</TableCell>
-                                            <TableCell>{formatCurrency(toMoneyNumber(product.setup ?? product.installationFee))}</TableCell>
-                                            <TableCell>{formatCurrency(toMoneyNumber(product.monthly ?? product.value))}</TableCell>
+                                            <TableCell>{formatCurrency(product.setup)}</TableCell>
+                                            <TableCell>{formatCurrency(product.monthly)}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -1967,20 +1886,20 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
                         </div>
 
                         {/* Histórico de Descontos Aplicados - Logo após produtos */}
-                        {(currentProposalSummary?.salespersonDiscount || (currentProposalSummary?.directorDiscount || 0) > 0) && (
+                        {((currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) || ((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0) && (
                             <div className="border-t pt-4 print:pt-2">
                                 <div className="p-4 bg-orange-50 border border-orange-300 rounded">
                                     <h4 className="font-semibold text-orange-800 mb-3 flex items-center">
-                                        Histórico de Descontos Aplicados
+                                        📋 Histórico de Descontos Aplicados
                                     </h4>
                                     <div className="grid grid-cols-2 gap-4 text-sm">
                                         <div>
                                             <p className="mb-2"><strong>Versão:</strong> <span className="text-orange-600 font-semibold">v{currentProposal.version || 1}</span></p>
-                                            {currentProposalSummary?.salespersonDiscount && (
+                                            {(currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) && (
                                                 <p className="mb-2"><strong>Desconto Vendedor:</strong> <span className="text-orange-600 font-semibold">5%</span></p>
                                             )}
-                                            {(currentProposalSummary?.directorDiscount || 0) > 0 && (
-                                                <p className="mb-2"><strong>Desconto Diretor:</strong> <span className="text-orange-600 font-semibold">{currentProposalSummary?.directorDiscount || 0}%</span></p>
+                                            {((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0 && (
+                                                <p className="mb-2"><strong>Desconto Diretor:</strong> <span className="text-orange-600 font-semibold">{(currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0}%</span></p>
                                             )}
                                         </div>
                                         <div className="text-right">
@@ -2013,35 +1932,35 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
                             <h3 className="text-lg font-semibold text-gray-900 mb-3">Resumo Financeiro</h3>
 
                             {/* Descontos Aplicados - Valores detalhados */}
-                            {(currentProposalSummary?.salespersonDiscount || (currentProposalSummary?.directorDiscount || 0) > 0) && (
+                            {((currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) || ((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0) && (
                                 <div className="mb-4 p-4 bg-amber-50 border border-amber-300 rounded">
                                     <h4 className="font-semibold text-amber-800 mb-3 flex items-center">
-                                        Descontos Aplicados
+                                        💰 Descontos Aplicados
                                     </h4>
                                     <div className="space-y-2 text-sm">
                                         <div className="flex justify-between">
                                             <span><strong>Valor Original (Mensal):</strong></span>
-                                            <span className="font-semibold">{formatCurrency(currentProposalSummary?.baseTotalMonthly || 0)}</span>
+                                            <span className="font-semibold">{formatCurrency(currentProposal.baseTotalMonthly || currentProposal.metadata?.baseTotalMonthly || currentProposal.totalMonthly || currentProposal.metadata?.totalMonthly || 0)}</span>
                                         </div>
                                         
-                                        {currentProposalSummary?.salespersonDiscount && (
+                                        {(currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) && (
                                             <div className="flex justify-between text-orange-700">
                                                 <span><strong>Desconto Vendedor (5%):</strong></span>
-                                                <span className="font-semibold">-{formatCurrency((currentProposalSummary?.baseTotalMonthly || 0) * 0.05)}</span>
+                                                <span className="font-semibold">-{formatCurrency(((currentProposal.baseTotalMonthly || currentProposal.metadata?.baseTotalMonthly || currentProposal.totalMonthly || currentProposal.metadata?.totalMonthly || 0) * 0.05))}</span>
                                             </div>
                                         )}
 
-                                        {(currentProposalSummary?.directorDiscount || 0) > 0 && (
+                                        {((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0 && (
                                             <div className="flex justify-between text-orange-700">
-                                                <span><strong>Desconto Diretor ({currentProposalSummary?.directorDiscount || 0}%) - Apenas Mensal:</strong></span>
-                                                <span className="font-semibold">-{formatCurrency(((currentProposalSummary?.baseTotalMonthly || 0) * (currentProposalSummary?.salespersonDiscount ? 0.95 : 1)) * ((currentProposalSummary?.directorDiscount || 0) / 100))}</span>
+                                                <span><strong>Desconto Diretor ({(currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0}%) - Apenas Mensal:</strong></span>
+                                                <span className="font-semibold">-{formatCurrency((((currentProposal.baseTotalMonthly || currentProposal.metadata?.baseTotalMonthly || currentProposal.totalMonthly || currentProposal.metadata?.totalMonthly || 0) * (currentProposal.applySalespersonDiscount ? 0.95 : 1)) * ((currentProposal.appliedDirectorDiscountPercentage || 0) / 100)))}</span>
                                             </div>
                                         )}
                                         
                                         <div className="pt-2 mt-2 border-t border-amber-300">
                                             <div className="flex justify-between font-semibold">
                                                 <span>Valor Final (Mensal com desconto):</span>
-                                                <span className="text-green-700">{formatCurrency(currentProposalSummary?.totalMonthly || 0)}</span>
+                                                <span className="text-green-700">{formatCurrency(currentProposal.totalMonthly || 0)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -2051,55 +1970,60 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
                             {/* Resumo de Valores - Layout conforme print */}
                             <div className="space-y-3 mb-4 p-4 bg-slate-800 rounded-lg text-white">
                                 {/* Valor Original do Cliente (se for cliente existente) */}
-                                {(currentProposalSummary?.isExistingClient || (currentProposalSummary?.previousMonthlyFee || 0) > 0) && (currentProposalSummary?.previousMonthlyFee || 0) > 0 && (
+                                {(currentProposal.isExistingClient || currentProposal.previousMonthlyFee) && currentProposal.previousMonthlyFee && currentProposal.previousMonthlyFee > 0 && (
                                     <>
                                         <div className="flex justify-between items-center py-3 border-b border-slate-600">
                                             <span className="text-base flex items-center">
+                                                <span className="mr-2">💰</span>
                                                 <strong>Valor Original do Cliente:</strong>
                                             </span>
-                                            <span className="font-bold text-2xl">{formatCurrency(currentProposalSummary?.previousMonthlyFee || 0)}</span>
+                                            <span className="font-bold text-2xl">{formatCurrency(currentProposal.previousMonthlyFee || currentProposal?.metadata?.previousMonthlyFee || 0)}</span>
                                         </div>
                                     </>
                                 )}
                                 
                                 <div className="flex justify-between items-center py-2">
                                     <span className="text-base"><strong>Valor Original (Mensal):</strong></span>
-                                    <span className="font-bold text-xl">{formatCurrency(currentProposalSummary?.baseTotalMonthly || 0)}</span>
+                                    <span className="font-bold text-xl">{formatCurrency(currentProposal.baseTotalMonthly || currentProposal.metadata?.baseTotalMonthly || currentProposal.totalMonthly || currentProposal.metadata?.totalMonthly || 0)}</span>
                                 </div>
                                 
                                 <div className="flex justify-between items-center py-2">
                                     <span className="text-base"><strong>Total de Instalação:</strong></span>
-                                    <span className="font-bold text-xl">{formatCurrency(currentProposalSummary?.totalSetup || 0)}</span>
+                                    <span className="font-bold text-xl">{formatCurrency(currentProposal.totalSetup || 0)}</span>
                                 </div>
                                 
                                 <div className="flex justify-between items-center py-2">
                                     <span className="text-base"><strong>Total Mensal (com desconto):</strong></span>
-                                    <span className="font-bold text-xl">{formatCurrency(currentProposalSummary?.totalMonthly || 0)}</span>
+                                    <span className="font-bold text-xl">{formatCurrency(currentProposal.totalMonthly || 0)}</span>
                                 </div>
 
                                 {/* Diferença de Valor (se for cliente existente) */}
-                                {(currentProposalSummary?.isExistingClient || (currentProposalSummary?.previousMonthlyFee || 0) > 0) && (currentProposalSummary?.previousMonthlyFee || 0) > 0 && (
+                                {(currentProposal.isExistingClient || currentProposal.previousMonthlyFee) && currentProposal.previousMonthlyFee && currentProposal.previousMonthlyFee > 0 && (
                                     <>
                                         <div className={`mt-4 p-4 rounded-lg border-2 ${
-                                            (currentProposalSummary?.totalMonthly || 0) - (currentProposalSummary?.previousMonthlyFee || 0) >= 0
+                                            (currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0
                                                 ? 'bg-red-900/30 border-red-500'
                                                 : 'bg-green-900/30 border-green-500'
                                         }`}>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-base flex items-center">
+                                                    <span className="mr-2">📊</span>
                                                     <strong>Diferença de Valor:</strong>
                                                 </span>
                                                 <span className={`font-bold text-3xl ${
-                                                    (currentProposalSummary?.totalMonthly || 0) - (currentProposalSummary?.previousMonthlyFee || 0) >= 0
+                                                    (currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0
                                                         ? 'text-red-400'
                                                         : 'text-green-400'
                                                 }`}>
-                                                    {(currentProposalSummary?.totalMonthly || 0) - (currentProposalSummary?.previousMonthlyFee || 0) >= 0 ? '+' : ''}
-                                                    {formatCurrency((currentProposalSummary?.totalMonthly || 0) - (currentProposalSummary?.previousMonthlyFee || 0))}
+                                                    {(currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0 ? '+' : ''}
+                                                    {formatCurrency((currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee)}
                                                 </span>
                                             </div>
                                             <div className="text-center text-sm mt-2 flex items-center justify-center">
-                                                {(currentProposalSummary?.totalMonthly || 0) - (currentProposalSummary?.previousMonthlyFee || 0) >= 0
+                                                <span className="mr-2">
+                                                    {(currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0 ? '⬆️' : '⬇️'}
+                                                </span>
+                                                {(currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0
                                                     ? 'Aumento na mensalidade'
                                                     : 'Economia na mensalidade'
                                                 }
@@ -2111,21 +2035,19 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
                         </div>
 
                         {/* Payback Info se disponível */}
-                        {(currentProposalSummary?.totalSetup || 0) > 0 && (
+                        {(currentProposal.items || currentProposal.products || []).some(p => p.setup > 0) && (
                             <div className="border-t pt-4 print:pt-2">
                                 <h3 className="text-lg font-semibold text-gray-900 mb-3">Análise de Payback</h3>
                                 {(() => {
-                                    const proposalProducts = currentProposalSummary?.products || [];
+                                    const proposalProducts = (currentProposal.items || currentProposal.products || []) as any[];
                                     const firstProduct = proposalProducts[0];
                                     const details = firstProduct?.details || {};
 
-                                    const totalMonthly = currentProposalSummary?.totalMonthly || toMoneyNumber(firstProduct?.monthly ?? firstProduct?.value);
+                                    const totalMonthly = Number(currentProposal.totalMonthly ?? firstProduct?.monthly ?? 0);
                                     const contractTerm = Number(
                                         details.contractTerm ||
                                         currentProposal.contractPeriod ||
                                         (currentProposal as any).contract_period ||
-                                        currentProposal.metadata?.contractPeriod ||
-                                        currentProposal.metadata?.contract_period ||
                                         12
                                     );
 
@@ -2143,7 +2065,7 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
                                         if (plan) {
                                             const totalCommissions = calculateTotalCommissions(totalMonthly, contractTerm);
                                             paybackMonths = calculatePayback({
-                                                installationFee: firstPositiveNumber(firstProduct?.setup, firstProduct?.installationFee, currentProposalSummary?.totalSetup, details.includeInstallation ? plan.installationCost : 0),
+                                                installationFee: Number(firstProduct?.setup ?? (details.includeInstallation ? plan.installationCost : 0)),
                                                 manCost: Number(details.radioCost ?? plan.radioCost ?? 0),
                                                 monthlyRevenue: totalMonthly,
                                                 contractTerm,
@@ -2198,7 +2120,7 @@ const InternetRadioCalculator: React.FC<InternetRadioCalculatorProps> = ({ onBac
                                 )}
                             </div>
                         </div>
-                        <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} />
+                        <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} onClientDataChange={setClientData} onAccountManagerDataChange={setAccountManagerData} />
                     </div>
 
                     <Tabs defaultValue="calculator" className="w-full">

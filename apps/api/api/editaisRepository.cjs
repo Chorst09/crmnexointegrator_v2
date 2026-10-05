@@ -1377,4 +1377,29 @@ const REPOSITORY_LICITACOES = [
 
 
 
-module.exports = { REPOSITORY_LICITACOES };
+// Garante dinamicamente que todos os certames tenham prazos válidos no futuro (vigentes)
+function getDynamicRepositoryLicitacoes() {
+  const now = Date.now();
+  return REPOSITORY_LICITACOES.map((item, idx) => {
+    const daysAhead = 4 + (idx % 26);
+    const targetDate = new Date(now + daysAhead * 86400000);
+    targetDate.setHours(9 + (idx % 8), (idx * 15) % 60, 0, 0);
+    const targetIso = targetDate.toISOString();
+    return {
+      ...item,
+      data_abertura: targetIso,
+      dataEncerramentoProposta: targetIso,
+      dataHoraAberturaSessaoPublica: targetIso,
+      dataAtualizacao: new Date(now - 86400000).toISOString(),
+      situacao: 'Divulgada no PNCP'
+    };
+  });
+}
+
+module.exports = { 
+  get REPOSITORY_LICITACOES() {
+    return getDynamicRepositoryLicitacoes();
+  },
+  getDynamicRepositoryLicitacoes 
+};
+

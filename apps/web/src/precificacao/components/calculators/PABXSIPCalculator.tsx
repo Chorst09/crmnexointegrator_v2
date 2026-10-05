@@ -1,3 +1,4 @@
+"use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -20,7 +21,6 @@ import { ClientManagerForm } from './ClientManagerForm';
 import { ProposalApprovalRequestButton } from '@/components/proposals/ProposalApprovalRequestButton';
 import { ProposalStatusBadge } from '@/components/proposals/ProposalStatusBadge';
 import { ProposalApprovalInfo } from '@/components/proposals/ProposalApprovalInfo';
-import { ConvertToB2BOpportunityButton } from '@/components/proposals/ConvertToB2BOpportunityButton';
 
 // Interfaces locais
 interface ClientData {
@@ -1582,7 +1582,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                 const response = await fetch(`/api/simulator/proposals/${currentProposal.id}`, {
                     method: 'PUT',
-                    headers: getCRMAuthHeaders(),
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(proposalToUpdate),
                 });
 
@@ -1651,7 +1651,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                 const response = await fetch('/api/simulator/proposals', {
                     method: 'POST',
-                    headers: getCRMAuthHeaders(),
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(proposalData),
                 });
 
@@ -1690,7 +1690,9 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
             try {
                 const response = await fetch(`/api/simulator/proposals/${proposalId}`, {
                     method: 'DELETE',
-                    headers: getCRMAuthHeaders(),
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
                 });
 
                 if (response.ok) {
@@ -1924,7 +1926,6 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                     >
                                                         <Edit className="h-4 w-4 mr-2" /> Editar
                                                     </Button>
-                                                    <ConvertToB2BOpportunityButton proposal={proposal} />
                                                     <Button
                                                         variant="destructive"
                                                         size="sm"
@@ -2264,7 +2265,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                 </div>
 
                 {/* Informações do Cliente e Gerente */}
-                <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} />
+                <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} onClientDataChange={setClientData} onAccountManagerDataChange={setAccountManagerData} />
             </div>
 
             <Tabs defaultValue="calculator" className="w-full">

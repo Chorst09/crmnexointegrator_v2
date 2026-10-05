@@ -45,7 +45,6 @@ router.get('/', authenticateToken, async (req, res) => {
     if (!['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(role)) {
       where.createdBy = req.user?.email || userId;
     }
-    // debug removido
 
     const rows = await prisma.simulatorProposal.findMany({
       where,

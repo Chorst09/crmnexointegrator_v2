@@ -1147,7 +1147,11 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                         changes: proposalChanges,
                         forecastTemperature: Number(selectedForecastTemperature),
                         isExistingClient: isExistingClient,
-                        previousMonthlyFee: previousMonthlyFee
+                        previousMonthlyFee: previousMonthlyFee,
+                        products: productsToSave,
+                        contractPeriod: contractTerm,
+                        clientData: clientData,
+                        accountManagerData: accountManagerData
                     }
                 };
 
@@ -1313,7 +1317,11 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                         changes: proposalChanges,
                         forecastTemperature: Number(selectedForecastTemperature),
                         isExistingClient: isExistingClient,
-                        previousMonthlyFee: previousMonthlyFee
+                        previousMonthlyFee: previousMonthlyFee,
+                        products: productsToSave,
+                        contractPeriod: contractTerm,
+                        clientData: clientData,
+                        accountManagerData: accountManagerData
                     }
                 };
 
@@ -1423,12 +1431,16 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
             } else {
                 setAccountManagerData({ name: proposal.accountManager, email: '', phone: '' });
             }
+        } else if ((proposal as any).metadata?.accountManagerData) {
+            setAccountManagerData((proposal as any).metadata.accountManagerData);
         }
 
         // Handle products - check multiple possible locations and formats
         let products = [];
-        if (proposal.products && Array.isArray(proposal.products)) {
+        if (proposal.products && Array.isArray(proposal.products) && proposal.products.length > 0) {
             products = proposal.products;
+        } else if ((proposal as any).metadata?.products && Array.isArray((proposal as any).metadata.products) && (proposal as any).metadata.products.length > 0) {
+            products = (proposal as any).metadata.products;
         } else if ((proposal as any).items && Array.isArray((proposal as any).items)) {
             // Convert items to products format if needed
             products = (proposal as any).items.map((item: any) => ({
@@ -1478,12 +1490,16 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
             } else {
                 setAccountManagerData({ name: proposal.accountManager, email: '', phone: '' });
             }
+        } else if ((proposal as any).metadata?.accountManagerData) {
+            setAccountManagerData((proposal as any).metadata.accountManagerData);
         }
 
         // Handle products - check multiple possible locations and formats
         let products = [];
-        if (proposal.products && Array.isArray(proposal.products)) {
+        if (proposal.products && Array.isArray(proposal.products) && proposal.products.length > 0) {
             products = proposal.products;
+        } else if ((proposal as any).metadata?.products && Array.isArray((proposal as any).metadata.products) && (proposal as any).metadata.products.length > 0) {
+            products = (proposal as any).metadata.products;
         } else if ((proposal as any).items && Array.isArray((proposal as any).items)) {
             // Convert items to products format if needed
             products = (proposal as any).items.map((item: any) => ({
@@ -2174,7 +2190,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                 )}
                             </div>
                         </div>
-                        <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} />
+                        <ClientManagerInfo clientData={clientData} accountManagerData={accountManagerData} onClientDataChange={setClientData} onAccountManagerDataChange={setAccountManagerData} />
                     </div>
 
                     <Tabs defaultValue="calculator" className="w-full">

@@ -17,6 +17,9 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
   const [licitacoes, setLicitacoes] = useState<Licitacao[]>([]);
   const [totalDisponivel, setTotalDisponivel] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const getTodayISO = () => new Date().toISOString().split('T')[0];
+  const getPastDaysISO = (days: number) => new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUf, setSelectedUf] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
@@ -25,12 +28,13 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
   const [source, setSource] = useState<'pncp' | 'mock'>('mock');
   const [sortBy, setSortBy] = useState<'recente' | 'maior_valor' | 'menor_valor' | 'abertura_proxima'>('recente');
   
-  // Regra de Validade Temporal: Não trazer editais com data de abertura inferior à data de busca
+  // Regra de Validade Temporal: Não trazer editais com prazo expirado
   const [ocultarEncerrados, setOcultarEncerrados] = useState(true);
-  const [dataBuscaReferencia, setDataBuscaReferencia] = useState('2026-09-23');
+  const [dataBuscaReferencia, setDataBuscaReferencia] = useState(getTodayISO);
   
-  const [dataInicial, setDataInicial] = useState('2026-09-16');
-  const [dataFinal, setDataFinal] = useState('2026-11-20');
+  // Janela recente padrão (últimos 7 dias) para garantir certames ativos com propostas abertas
+  const [dataInicial, setDataInicial] = useState(() => getPastDaysISO(7));
+  const [dataFinal, setDataFinal] = useState(getTodayISO);
   
   const [activeKeywords, setActiveKeywords] = useState<string[]>([
     'computador', 'notebook', 'desktop', 'servidor', 'storage', 'monitor', 'impressora', 'scanner', 
@@ -130,40 +134,70 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
   const getValor = (lic: Licitacao) => lic.valor_estimado || lic.valorTotalEstimado || 0;
   const getSituacao = (lic: Licitacao) => lic.situacao || lic.situacaoCompraNome || 'Desconhecida';
 
-  // Obter data de abertura real do edital (abertura da sessão, encerramento de propostas ou data de abertura)
-  const getAberturaDate = (lic: Licitacao): Date | null => {
-    const dtStr = lic.data_abertura || 
-                  lic.dataEncerramentoProposta || 
-                  lic.dataHoraAberturaSessaoPublica || 
-                  lic.dataAberturaProposta;
+  // Obter prazo limite para envio de propostas ou início da sessão pública
+  const getPrazoLimiteDate = (lic: Licitacao): Date | null => {
+    const dtStr = lic.dataEncerramentoProposta || 
+                  (lic as any).data_encerramento || 
+                  lic.dataHoraAberturaSessaoPublica;
+    if (dtStr) {
+      const d = new Date(dtStr);
+      if (!isNaN(d.getTime())) return d;
+    }
+    // Fallback se não há data de encerramento explícita: verificar dataHoraAberturaSessaoPublica ou data_abertura
+    const dtFall = lic.dataHoraAberturaSessaoPublica || lic.data_abertura || lic.dataAberturaProposta;
+    if (dtFall) {
+      const d = new Date(dtFall);
+      if (!isNaN(d.getTime())) return d;
+    }
+    return null;
+  };
+
+  const getInicioPropostaDate = (lic: Licitacao): Date | null => {
+    const dtStr = lic.dataAberturaProposta || lic.data_abertura;
     if (!dtStr) return null;
     const d = new Date(dtStr);
     return isNaN(d.getTime()) ? null : d;
   };
 
-  // Regra solicitada: Se data_abertura < data_busca, o edital já aconteceu e não é válido
+  // Regra de Validade Temporal: Somente considerar editais válidos que ainda NÃO expiraram
   const isAberturaValida = (lic: Licitacao) => {
     if (!ocultarEncerrados) return true;
-    const abertura = getAberturaDate(lic);
-    if (!abertura) return true; // se não há data declarada, não descarta precipitadamente
 
+    // 1. Status explicitamente finalizado/cancelado
+    const status = String(lic.situacao || lic.situacaoCompraNome || '').toLowerCase();
+    if (/(encerrad|cancelad|revogad|suspens|anulad|fracassad|desert|homologad|adjudicad|concluid)/i.test(status)) {
+      return false;
+    }
+
+    const now = Date.now();
     const [ano, mes, dia] = dataBuscaReferencia.split('-').map(Number);
     const refDate = new Date(ano, mes - 1, dia, 0, 0, 0, 0);
+    const targetThreshold = (dataBuscaReferencia === getTodayISO()) ? now : refDate.getTime();
 
-    const hoje = new Date();
-    const hojeStr = `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, '0')}-${String(hoje.getDate()).padStart(2, '0')}`;
-    
-    // Se a data de busca for hoje, exclui certames cuja abertura já ocorreu até o momento atual
-    if (dataBuscaReferencia === hojeStr) {
-      return abertura.getTime() >= Date.now();
+    // 2. Prazo limite de envio de propostas
+    const limite = getPrazoLimiteDate(lic);
+    if (limite && !isNaN(limite.getTime())) {
+      // Se o prazo para envio de propostas já terminou, o edital expirou
+      return limite.getTime() >= targetThreshold;
     }
-    // Caso contrário, exclui certames com abertura anterior ao início da data de busca
-    return abertura.getTime() >= refDate.getTime();
+
+    // 3. Se não tem prazo de encerramento explícito, verifica se o certame tem abertura futura
+    const inicio = getInicioPropostaDate(lic);
+    if (inicio && !isNaN(inicio.getTime())) {
+      return inicio.getTime() >= targetThreshold;
+    }
+
+    // 4. Se não tem nenhuma data limite no futuro confirmada, descarta para não exibir expirados
+    return false;
   };
 
   const formatAbertura = (lic: Licitacao) => {
-    const d = getAberturaDate(lic);
+    const d = getPrazoLimiteDate(lic);
     if (!d) {
+      const inicio = getInicioPropostaDate(lic);
+      if (inicio) {
+        return `Início: ${inicio.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
+      }
       if (lic.dataAtualizacao) {
         return `Atualizado em ${new Date(lic.dataAtualizacao).toLocaleDateString('pt-BR')}`;
       }
@@ -179,21 +213,22 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
   };
 
   const getAberturaStatus = (lic: Licitacao) => {
-    const d = getAberturaDate(lic);
-    if (!d) return { label: 'Data pendente', type: 'neutral' };
+    const d = getPrazoLimiteDate(lic);
+    if (!d) return { label: 'Prazo a confirmar', type: 'neutral' };
     
     const now = Date.now();
     const diffMs = d.getTime() - now;
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
     
     if (diffMs < 0) {
-      return { label: 'Abertura expirada (Já aconteceu)', type: 'expired' };
-    } else if (diffDays <= 0) {
-      return { label: 'Abre hoje!', type: 'imminent' };
+      return { label: 'Prazo expirado', type: 'expired' };
+    } else if (diffHours <= 12) {
+      return { label: 'Encerra hoje!', type: 'imminent' };
     } else if (diffDays === 1) {
-      return { label: 'Abre amanhã', type: 'soon' };
+      return { label: 'Encerra amanhã', type: 'soon' };
     } else {
-      return { label: `Abre em ${diffDays} dias`, type: 'upcoming' };
+      return { label: `Encerra em ${diffDays} dias`, type: 'upcoming' };
     }
   };
 
@@ -254,13 +289,13 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
       return getValor(a) - getValor(b);
     }
     if (sortBy === 'abertura_proxima') {
-      const da = getAberturaDate(a)?.getTime() || Infinity;
-      const db = getAberturaDate(b)?.getTime() || Infinity;
+      const da = getPrazoLimiteDate(a)?.getTime() || Infinity;
+      const db = getPrazoLimiteDate(b)?.getTime() || Infinity;
       return da - db;
     }
-    // 'recente' padrão: ordena pela data do certame
-    const da = getAberturaDate(a)?.getTime() || new Date(getData(a)).getTime() || 0;
-    const db = getAberturaDate(b)?.getTime() || new Date(getData(b)).getTime() || 0;
+    // 'recente' padrão: ordena pela data mais recente do certame
+    const da = getPrazoLimiteDate(a)?.getTime() || new Date(getData(a)).getTime() || 0;
+    const db = getPrazoLimiteDate(b)?.getTime() || new Date(getData(b)).getTime() || 0;
     return db - da;
   });
 
@@ -737,7 +772,7 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
 
                     <div className="flex items-center text-slate-200">
                       <Calendar className="w-4 h-4 mr-1.5 text-cyan-600 dark:text-cyan-400 flex-shrink-0" />
-                      <span className="text-xs text-slate-400 mr-1">Abertura:</span>
+                      <span className="text-xs text-slate-400 mr-1">Prazo:</span>
                       <strong className="text-xs text-slate-800 dark:text-slate-100">{formatAbertura(lic)}</strong>
                     </div>
                     
