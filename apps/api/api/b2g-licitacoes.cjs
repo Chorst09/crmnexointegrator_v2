@@ -647,7 +647,7 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
     console.warn(`[getArquivosForEdital] Aviso ao consultar compraInfo (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, e.message);
   }
 
-  const filesList = [];
+  let filesList = [];
 
   // 2. Extração de arquivos reais quando o certame vem do Portal de Compras Públicas
   if (compraInfo?.linkSistemaOrigem) {
