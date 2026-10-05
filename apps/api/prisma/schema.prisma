@@ -1413,7 +1413,78 @@ model SystemSetting {
   updatedAt DateTime @updatedAt
 }
 
-// === ENUMS ===
+// === B2G: LICITAÇÕES GERENCIADAS ===
+model GerenciadaLicitacao {
+  id                  String   @id @default(uuid())
+  userId              String?  @map("user_id")
+  tenantCompanyId     String?  @map("tenant_company_id")
+  numeroControlePncp  String?  @map("numero_controle_pncp")
+  numeroCompra        String?  @map("numero_compra")
+  orgao               String?
+  uf                  String?
+  cidade              String?
+  modalidade          String?
+  objetoResumo        String?  @map("objeto_resumo")
+  dataAbertura        DateTime? @map("data_abertura")
+  dataEncerramento    DateTime? @map("data_encerramento")
+  valorEstimado       Decimal?  @map("valor_estimado") @db.Decimal(15, 4)
+  situacao            String?
+  linkSistemaOrigem   String?  @map("link_sistema_origem")
+  statusFase          String?  @map("status_fase") @default("Análise")
+  payloadCompleto     Json?    @map("payload_completo")
+  notas               String?
+  addedAt             DateTime @default(now()) @map("added_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@index(["user_id"])
+  @@index(["tenant_company_id"])
+  @@index(["numero_controle_pncp"])
+  @@index(["status_fase"])
+  @@map("gerenciadas_licitacao")
+}
+
+// === B2G: ALERTAS DE LICITAÇÃO ===
+model AlertaLicitacao {
+  id              String   @id @default(uuid())
+  userId          String?  @map("user_id")
+  tenantCompanyId String?  @map("tenant_company_id")
+  termo           String
+  uf              String?
+  modalidade      String?
+  dataAberturaInicio DateTime? @map("data_abertura_inicio")
+  minValor        Float?   @map("min_valor")
+  ativo           Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index(["user_id"])
+  @@index(["tenant_company_id"])
+  @@index(["ativo"])
+  @@map("alertas_licitacao")
+}
+
+// === B2G: EDITAIS ANALISADOS ===
+model EditalAnalisado {
+  id                  String   @id @default(uuid())
+  numeroControlePncp  String   @map("numero_controle_pncp")
+  orgao               String?
+  objeto              String?
+  valorEstimado       Decimal?  @map("valor_estimado") @db.Decimal(15, 4)
+  dataAbertura        DateTime? @map("data_abertura")
+  analysisData        Json?     @map("analysis_data")
+  userId              String?   @map("user_id")
+  tenantCompanyId     String?   @map("tenant_company_id")
+  convertidoOportunidade Boolean @default(false) @map("convertido_oportunidade")
+  oportunidadeId      String?   @map("oportunidade_id")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  @@unique([numeroControlePncp, userId])
+  @@index(["user_id"])
+  @@index(["tenant_company_id"])
+  @@map("editais_analisados")
+}
+
+// === CONFIGURAÇÕES DO SISTEMA ===
 enum Role {
   MASTER
   ADMIN
@@ -2245,6 +2316,115 @@ enum StatusProcessamentoPncp {
   PROCESSADO
   ERRO
   REPROCESSAR
+}
+
+// === MÓDULO SIMULADOR - LICITAÇÕES PERSISTIDAS ===
+model SimulatorLicitacao {
+  id                    String   @id @default(uuid())
+  codigo                String   @unique // ID único do mock (ex: "1001", "mock-1")
+  
+  // Campos principais espelhando a estrutura do PNCP
+  orgao                 String?
+  orgao_nome            String?  @map("orgao_nome")
+  uf                    String?
+  cidade                String?
+  modalidade            String?
+  modalidade_nome       String?  @map("modalidade_nome")
+  objeto_resumo         String?  @map("objeto_resumo")
+  objeto_compra         String?  @map("objeto_compra")
+  
+  // Datas
+  data_abertura         DateTime? @map("data_abertura")
+  data_encerramento     DateTime? @map("data_encerramento")
+  data_encerramento_proposta DateTime? @map("data_encerramento_proposta")
+  data_hora_abertura_sessao DateTime? @map("data_hora_abertura_sessao")
+  data_publicacao_pncp  DateTime? @map("data_publicacao_pncp")
+  data_atualizacao      DateTime? @map("data_atualizacao")
+  
+  // Valores
+  valor_estimado        Decimal? @default(0) @map("valor_estimado") @db.Decimal(15, 4)
+  valor_total_estimado  Decimal? @default(0) @map("valor_total_estimado") @db.Decimal(15, 4)
+  
+  // Identificação PNCP
+  numero_controle_pncp  String?  @map("numero_controle_pncp")
+  numero_compra         String?  @map("numero_compra")
+  ano_compra            Int?     @map("ano_compra")
+  sequencial_compra     Int?     @map("sequencial_compra")
+  processo              String?
+  
+  // Situação
+  situacao              String?
+  situacao_compra_nome  String?  @map("situacao_compra_nome")
+  
+  // Estruturas JSON
+  orgao_entidade        Json?    @map("orgao_entidade")
+  unidade_orgao         Json?    @map("unidade_orgao")
+  itens                 Json?    @default("[]")
+  requisitos_habilitacao Json?   @map("requisitos_habilitacao")
+  prazos_e_locais       Json?    @map("prazos_e_locais")
+  pontos_de_atencao_risco Json?  @map("pontos_de_atencao_risco")
+  matriz_itens          Json?    @map("matriz_itens")
+  
+  // Fontes e metadados
+  fonte                 String   @default("mock") // mock, pncp, manual
+  fonte_dados           String?  @map("fonte_dados")
+  link_sistema_origem   String?  @map("link_sistema_origem")
+  link_processo_eletronico String? @map("link_processo_eletronico")
+  
+  // Controle de versão e cache
+  version               Int      @default(1)
+  hash_verificacao      String?  @map("hash_verificacao")
+  last_synced_at        DateTime? @map("last_synced_at")
+  
+  // Status
+  is_ativo              Boolean  @default(true) @map("is_ativo")
+  is_mock               Boolean  @default(true) @map("is_mock")
+  
+  // Timestamps
+  created_at            DateTime @default(now()) @map("created_at")
+  updated_at            DateTime @updatedAt @map("updated_at")
+
+  @@index([codigo])
+  @@index([numero_controle_pncp])
+  @@index([fonte])
+  @@index([is_ativo])
+  @@index([ano_compra])
+  @@index([uf, cidade])
+  @@index([modalidade])
+  @@index([data_abertura, data_encerramento])
+  @@map("simulator_licitacao")
+}
+
+// === MÓDULO SIMULADOR - PROPOSTAS ===
+model SimulatorProposal {
+  id                  String   @id @default(uuid())
+  base_id             String   @map("base_id")
+  version             Int      @default(1)
+  title               String
+  client              String
+  type                String   @default("STANDARD")
+  value               Decimal  @default(0) @db.Decimal(15, 4)
+  status              String   @default("Rascunho")
+  forecast_temperature Float?  @map("forecast_temperature")
+  
+  // Campos JSON que armazenam dados estruturados
+  metadata            Json     @default("{}")
+  account_manager     String?  @map("account_manager")
+  
+  // Identificação
+  distributor_id      String?  @map("distributor_id")
+  created_by          String?  @map("created_by")
+  
+  // Timestamps
+  created_at          DateTime @default(now()) @map("created_at")
+  updated_at          DateTime @updatedAt @map("updated_at")
+
+  @@unique([base_id, version])
+  @@index([base_id])
+  @@index([type])
+  @@index([status])
+  @@index([created_by])
+  @@map("simulator_proposal")
 }
 
 // === TABELA DE AUDITORIA CORPORATIVA (AUDIT_LOGS) ===

@@ -43,6 +43,22 @@ const attentionPointsRoutes = require('./api/attention-points.cjs');
 const learningsRoutes = require('./api/learnings.cjs');
 const { ensureProposalTemplates } = require('./lib/ensure-proposal-templates.cjs');
 
+// Auto-sync do Simulador (blindagem contra perda de dados em reinicializações)
+let simulatorSyncDone = false;
+async function runSimulatorSync() {
+  if (simulatorSyncDone) return;
+  try {
+    const { syncSimulatorLicitacoes } = require('./lib/simulator-sync.cjs');
+    await syncSimulatorLicitacoes({ quiet: process.env.NODE_ENV !== 'production' });
+    simulatorSyncDone = true;
+    console.log('✅ Auto-sync do Simulador executado na inicialização');
+  } catch (err) {
+    console.warn('⚠️ Auto-sync do Simulador falhou (não crítico):', err.message);
+  }
+}
+// Executar sync após 3 segundos de inicialização
+setTimeout(runSimulatorSync, 3000);
+
 const app = express();
 const PORT = process.env.PORT || 3002;
 const HOST = process.env.HOST || '0.0.0.0';
@@ -435,6 +451,7 @@ app.use('/api/activities', handleLegacyAPI('./api/activities.js'));
 // app.use('/api/proposals', handleLegacyAPI('./api/proposals.js')); // Agora usando CommonJS
 app.use('/api/commissions', handleLegacyAPI('./api/commissions.js'));
 app.use('/api/simulator/proposals', require('./api/simulator-proposals.cjs'));
+app.use('/api/simulator/licitacoes', require('./api/simulator-licitacoes.cjs'));
 app.use('/api/gestao/analise-financeira', require('./api/financial-analysis.cjs'));
 app.use('/api/users', handleLegacyAPI('./api/users.js'));
 app.use('/api/dashboard', handleLegacyAPI('./api/dashboard.js'));

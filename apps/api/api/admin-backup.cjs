@@ -54,6 +54,179 @@ const getPrismaModels = () => {
   }
 };
 
+// Todas as tabelas que devem ser incluídas no backup/restore
+// Inclui: Prisma models + tabelas B2G + tabelas SIMULADOR
+const B2G_TABLES = [
+  'gerenciadas_licitacao',
+  'alertas_licitacao',
+  'editais_analisados',
+  'licitacoes_pncp'
+];
+
+const SIMULATOR_TABLES = [
+  'simulator_proposal',
+  'simulator_licitacao'
+];
+
+// Mapa de módulos: tableName (minúsculo) → módulo
+// Usado para agrupar logs de backup/restore por módulo funcional
+const MODULES_MAP = {
+  // ── B2B Core ───────────────────────────────────────────────────────────────
+  'User':                      'B2B Core',
+  'TenantCompany':             'B2B Core',
+  'LicensePlan':               'B2B Core',
+  'CompanyLicense':            'B2B Core',
+  'PendingSubscription':       'B2B Core',
+  'Region':                    'B2B Core',
+  'SystemSetting':             'B2B Core',
+
+  // ── CRM (clientes, pipeline, propostas) ───────────────────────────────────
+  'Company':                   'CRM',
+  'Contact':                   'CRM',
+  'Opportunity':               'CRM',
+  'OpportunityProduct':        'CRM',
+  'OpportunityFollowUp':       'CRM',
+  'OpportunityAttentionPoint': 'CRM',
+  'OpportunityLearning':       'CRM',
+  'Activity':                  'CRM',
+  'Proposal':                  'CRM',
+  'ProposalTemplate':          'CRM',
+  'ProposalItem':              'CRM',
+  'Commission':                'CRM',
+  'SalesTarget':               'CRM',
+  'Contract':                  'CRM',
+  'CompanyDocument':           'CRM',
+  'Product':                   'CRM',
+  'TeamBonusDistribution':     'CRM',
+
+  // ── B2G ────────────────────────────────────────────────────────────────────
+  'GerenciadaLicitacao':       'B2G',
+  'AlertaLicitacao':           'B2G',
+  'EditalAnalisado':           'B2G',
+  'LicitacaoPncp':             'B2G',
+  'gerenciadas_licitacao':     'B2G',
+  'alertas_licitacao':         'B2G',
+  'editais_analisados':        'B2G',
+  'licitacoes_pncp':           'B2G',
+  'BidNotice':                 'B2G',
+  'BidNoticeHistory':          'B2G',
+  'SavedAnalysis':             'B2G',
+
+  // ── SIMULADOR ──────────────────────────────────────────────────────────────
+  'SimulatorProposal':         'SIMULADOR',
+  'SimulatorLicitacao':        'SIMULADOR',
+  'simulator_proposal':        'SIMULADOR',
+  'simulator_licitacao':       'SIMULADOR',
+
+  // ── PRÉ-VENDAS ─────────────────────────────────────────────────────────────
+  'PreSalesRequest':           'PRÉ-VENDAS',
+  'PreSalesItem':              'PRÉ-VENDAS',
+  'PreSalesApproval':          'PRÉ-VENDAS',
+  'PreSalesPoc':               'PRÉ-VENDAS',
+  'PreSalesPocFollowUp':       'PRÉ-VENDAS',
+
+  // ── PROJETOS ───────────────────────────────────────────────────────────────
+  'Project':                   'PROJETOS',
+  'ProjectPhase':              'PROJETOS',
+  'ProjectTask':               'PROJETOS',
+  'ProjectTeam':               'PROJETOS',
+  'ProjectTimelog':            'PROJETOS',
+  'ProjectMilestone':          'PROJETOS',
+  'ProjectRisk':               'PROJETOS',
+  'ProjectIssue':              'PROJETOS',
+  'ProjectAttachment':         'PROJETOS',
+  'ProjectChangeRequest':      'PROJETOS',
+  'ProjectBilling':            'PROJETOS',
+  'ProjectAcceptance':         'PROJETOS',
+  'ProjectB2GConfig':          'PROJETOS',
+  'ProjectB2BConfig':          'PROJETOS',
+
+  // ── KICKOFF ────────────────────────────────────────────────────────────────
+  'KickoffMeeting':            'KICKOFF',
+  'KickoffParticipant':        'KICKOFF',
+  'KickoffAgendaItem':         'KICKOFF',
+  'KickoffChecklistItem':      'KICKOFF',
+  'KickoffActionItem':         'KICKOFF',
+  'KickoffHistory':            'KICKOFF',
+  'KickoffTemplate':           'KICKOFF',
+
+  // ── GESTÃO (Workflows, Notificações, Auditoria) ────────────────────────────
+  'Workflow':                  'GESTÃO',
+  'WorkflowExecution':         'GESTÃO',
+  'ApprovalRequest':           'GESTÃO',
+  'ApprovalStep':              'GESTÃO',
+  'Notification':              'GESTÃO',
+  'AuditLog':                  'GESTÃO',
+  'audit_logs':                'GESTÃO',
+  'IntegrationOrder':          'GESTÃO',
+  'IntegrationConfig':         'GESTÃO',
+
+  // ── PÓS-VENDAS (Onboarding, Suporte, Churn, NPS) ─────────────────────────
+  'CustomerOnboarding':        'PÓS-VENDAS',
+  'SupportTicket':             'PÓS-VENDAS',
+  'TicketResponse':            'PÓS-VENDAS',
+  'NPSSurvey':                 'PÓS-VENDAS',
+  'ChurnAlert':                'PÓS-VENDAS',
+};
+
+/**
+ * Classifica uma lista de tabelas por módulo e retorna o resumo.
+ * Cada entrada: { module, tables: [{tableName, rows?, restoredRows?}], totalRows }
+ */
+const buildModulesSummary = (tablesData) => {
+  const moduleMap = {};
+
+  for (const entry of tablesData) {
+    const tn = entry.tableName || entry.name || '';
+    const module = MODULES_MAP[tn] || MODULES_MAP[tn.toLowerCase()] || 'OUTROS';
+    if (!moduleMap[module]) {
+      moduleMap[module] = { module, tables: [], totalRows: 0, tableCount: 0 };
+    }
+    const rows = entry.restoredRows ?? entry.count ?? entry.rows ?? 0;
+    const rowCount = typeof rows === 'number' ? rows : (Array.isArray(rows) ? rows.length : 0);
+    moduleMap[module].tables.push({
+      tableName: tn,
+      rows: rowCount
+    });
+    moduleMap[module].totalRows += rowCount;
+    moduleMap[module].tableCount += 1;
+  }
+
+  // Ordenar: módulos conhecidos primeiro, depois OUTROS
+  const order = ['B2B Core', 'CRM', 'B2G', 'SIMULADOR', 'PRÉ-VENDAS', 'PROJETOS', 'KICKOFF', 'GESTÃO', 'PÓS-VENDAS', 'OUTROS'];
+  return Object.values(moduleMap).sort((a, b) => {
+    const ai = order.indexOf(a.module);
+    const bi = order.indexOf(b.module);
+    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+  });
+};
+
+/**
+ * Imprime o resumo de módulos no console em formato legível.
+ * @param {'BACKUP'|'RESTORE'} operation
+ * @param {Array} modulesSummary - resultado de buildModulesSummary()
+ * @param {number} totalRows
+ * @param {number} totalTables
+ */
+const logModulesSummary = (operation, modulesSummary, totalRows, totalTables) => {
+  const label = operation === 'BACKUP' ? 'EXPORTAÇÃO' : 'RESTAURAÇÃO';
+  const sep = '─'.repeat(60);
+  console.log(`\n[Backup ${label}] ${sep}`);
+  console.log(`[Backup ${label}] Módulos incluídos no ${operation.toLowerCase()}:`);
+  console.log(`[Backup ${label}] ${sep}`);
+
+  for (const mod of modulesSummary) {
+    const tableList = mod.tables.map(t => `${t.tableName}(${t.rows})`).join(', ');
+    const icon = mod.totalRows > 0 ? '✓' : '○';
+    console.log(`[Backup ${label}]   ${icon} ${mod.module.padEnd(14)} ${mod.tableCount} tabelas | ${String(mod.totalRows).padStart(6)} registros`);
+    console.log(`[Backup ${label}]       → ${tableList}`);
+  }
+
+  console.log(`[Backup ${label}] ${sep}`);
+  console.log(`[Backup ${label}] TOTAL: ${totalTables} tabelas | ${totalRows} registros`);
+  console.log(`[Backup ${label}] ${sep}\n`);
+};
+
 const listDatabaseTables = async () => {
   try {
     const tables = await prisma.$queryRaw`
@@ -68,29 +241,43 @@ const listDatabaseTables = async () => {
       .map((row) => row.table_name || row.tableName)
       .filter(Boolean);
 
-    if (names.length > 0) return names;
+    if (names.length > 0) {
+      // Garantir que todas as tabelas B2G e SIMULADOR estejam na lista
+      const nameSet = new Set(names.map(n => n.toLowerCase()));
+      const missingTables = [...B2G_TABLES, ...SIMULATOR_TABLES]
+        .filter(t => !nameSet.has(t.toLowerCase()));
+      
+      if (missingTables.length > 0) {
+        console.warn(`[Backup] Adicionando tabelas faltantes ao backup: ${missingTables.join(', ')}`);
+        return [...names, ...missingTables];
+      }
+      return names;
+    }
   } catch (err) {
-    console.warn('[Backup] Falha ao listar tabelas via information_schema, fallback para modelos:', err.message);
+    console.warn('[Backup] Falha ao listar tabelas via information_schema, usando lista fixa:', err.message);
   }
 
-  // Fallback para modelos definidos no schema do Prisma
+  // Combinar modelos Prisma com tabelas B2G e SIMULADOR
   const models = getPrismaModels();
-  if (models.length > 0) {
-    return models.map((m) => m.tableName);
-  }
+  const prismaTableNames = models.map((m) => m.tableName);
+  
+  // Remover duplicatas e adicionar faltantes
+  const allTables = new Set([
+    ...prismaTableNames,
+    ...B2G_TABLES,
+    ...SIMULATOR_TABLES
+  ]);
 
-  return [
-    'User', 'TenantCompany', 'Company', 'LicensePlan', 'CompanyLicense',
-    'Contact', 'Product', 'Opportunity', 'OpportunityProduct', 'Activity',
-    'Proposal', 'ProposalTemplate', 'ProposalItem', 'Commission', 'Region',
-    'Contract', 'PreSalesRequest', 'KickoffMeeting', 'Project', 'AuditLog'
-  ];
+  return Array.from(allTables).sort();
 };
 
 const readDatabaseTables = async () => {
   const tableNames = await listDatabaseTables();
   const tables = {};
+  const tableStats = [];
   let totalRows = 0;
+
+  console.log(`[Backup EXPORTAÇÃO] Iniciando leitura de ${tableNames.length} tabelas...`);
 
   for (const tableName of tableNames) {
     try {
@@ -100,14 +287,20 @@ const readDatabaseTables = async () => {
         count: safeRows.length,
         rows: safeRows
       };
+      tableStats.push({ tableName, count: safeRows.length });
       totalRows += safeRows.length;
     } catch (err) {
       console.warn(`[Backup Export] Aviso ao ler tabela ${tableName}:`, err.message);
       tables[tableName] = { count: 0, rows: [] };
+      tableStats.push({ tableName, count: 0 });
     }
   }
 
-  return { tableNames, tables, totalRows };
+  // Log agrupado por módulo
+  const modulesSummary = buildModulesSummary(tableStats);
+  logModulesSummary('BACKUP', modulesSummary, totalRows, tableNames.length);
+
+  return { tableNames, tables, totalRows, modulesSummary };
 };
 
 const summarizeDatabaseTables = async () => {
@@ -565,19 +758,21 @@ const restoreDatabase = async (backupTables) => {
   }
 
   if (skippedTables.length > 0) {
-    console.warn(`[Backup Restore] Tabelas do backup não presentes no banco e ignoradas: ${skippedTables.join(', ')}`);
+    console.warn(`[Backup RESTAURAÇÃO] Tabelas do backup ausentes no banco (ignoradas): ${skippedTables.join(', ')}`);
   }
 
   if (validTableNames.length === 0) {
     throw new Error('Nenhuma tabela do arquivo de backup corresponde às tabelas existentes no banco de dados.');
   }
 
+  console.log(`[Backup RESTAURAÇÃO] ${validTableNames.length} tabelas reconhecidas para restauração.`);
+
   const orderedTableNames = await orderTablesForInsert(validTableNames);
   const columnTypesByTable = await readColumnTypes(validTableNames);
 
   return prisma.$transaction(
     async (tx) => {
-      // 1. Desativa temporariamente a verificação estrita de foreign keys para permitir inserção sem bloqueios cíclicos
+      // 1. Desativa temporariamente a verificação estrita de foreign keys
       await tx.$executeRawUnsafe("SET CONSTRAINTS ALL DEFERRED;").catch(() => {});
       await tx.$executeRawUnsafe("SET session_replication_role = 'replica';").catch(() => {});
 
@@ -585,25 +780,33 @@ const restoreDatabase = async (backupTables) => {
       const truncateSql = validTableNames.map(escapeIdentifier).join(', ');
       try {
         await tx.$executeRawUnsafe(`TRUNCATE TABLE ${truncateSql} RESTART IDENTITY CASCADE`);
+        console.log(`[Backup RESTAURAÇÃO] Tabelas limpas (TRUNCATE CASCADE).`);
       } catch (truncateErr) {
-        console.warn('[Backup Restore] TRUNCATE CASCADE falhou, limpando tabelas com DELETE:', truncateErr.message);
+        console.warn('[Backup RESTAURAÇÃO] TRUNCATE CASCADE falhou, usando DELETE:', truncateErr.message);
         for (const tableName of [...orderedTableNames].reverse()) {
           await tx.$executeRawUnsafe(`DELETE FROM ${escapeIdentifier(tableName)}`).catch(() => {});
         }
       }
 
-      // 3. Insere os registros na ordem correta
+      // 3. Insere os registros na ordem correta, logando cada tabela
       let restoredRows = 0;
       const tables = [];
 
       for (const tableName of orderedTableNames) {
-        const rows = tableByName.get(tableName)?.rows || [];
-        const insertedRows = await insertRows(tx, tableName, rows, columnTypesByTable.get(tableName));
+        const sourceRows = tableByName.get(tableName)?.rows || [];
+        const module = MODULES_MAP[tableName] || MODULES_MAP[tableName.toLowerCase()] || 'OUTROS';
+        const insertedRows = await insertRows(tx, tableName, sourceRows, columnTypesByTable.get(tableName));
         restoredRows += insertedRows;
-        tables.push({ tableName, restoredRows: insertedRows });
+        tables.push({ tableName, restoredRows: insertedRows, module });
+
+        // Log inline por tabela
+        const icon = insertedRows > 0 ? '✓' : (sourceRows.length === 0 ? '○' : '⚠');
+        console.log(
+          `[Backup RESTAURAÇÃO]   ${icon} ${tableName.padEnd(38)} ${String(insertedRows).padStart(5)} registros  [${module}]`
+        );
       }
 
-      // 4. Sincroniza sequences numéricas (autoincrement / nextval)
+      // 4. Sincroniza sequences numéricas
       try {
         await tx.$executeRawUnsafe(`
           DO $$
@@ -628,13 +831,25 @@ const restoreDatabase = async (backupTables) => {
           END $$;
         `);
       } catch (seqErr) {
-        console.warn('[Backup Restore] Aviso ao sincronizar sequences:', seqErr.message);
+        console.warn('[Backup RESTAURAÇÃO] Aviso ao sincronizar sequences:', seqErr.message);
       }
 
       // 5. Restaura o modo normal de replicação
       await tx.$executeRawUnsafe("SET session_replication_role = 'origin';").catch(() => {});
 
-      return { tableCount: orderedTableNames.length, totalRows: restoredRows, tables };
+      // 6. Log final agrupado por módulo
+      const modulesSummary = buildModulesSummary(
+        tables.map(t => ({ tableName: t.tableName, restoredRows: t.restoredRows }))
+      );
+      logModulesSummary('RESTORE', modulesSummary, restoredRows, orderedTableNames.length);
+
+      return {
+        tableCount: orderedTableNames.length,
+        totalRows: restoredRows,
+        tables,
+        modulesSummary,
+        skippedTables
+      };
     },
     {
       maxWait: 30000,
@@ -968,11 +1183,22 @@ router.get('/export', async (req, res) => {
 
     const includeUploadContents = String(req.query.includeUploadContents || 'true') !== 'false';
     const generatedAt = new Date().toISOString();
+
+    console.log(`[Backup EXPORTAÇÃO] Iniciando exportação completa — ${generatedAt}`);
+
     const [database, uploads, system] = await Promise.all([
       readDatabaseTables(),
       collectUploads({ includeContents: includeUploadContents }),
       readSystemMetadata()
     ]);
+
+    // Montar resumo legível por módulo para incluir no JSON do backup
+    const modulesReport = (database.modulesSummary || []).map(m => ({
+      module: m.module,
+      tableCount: m.tableCount,
+      totalRows: m.totalRows,
+      tables: m.tables.map(t => `${t.tableName}(${t.rows})`)
+    }));
 
     const backup = {
       format: 'nexoscrm-full-system-backup',
@@ -983,6 +1209,12 @@ router.get('/export', async (req, res) => {
         name: req.user?.name || null,
         email: req.user?.email || null,
         role: req.user?.actualRole || req.user?.role || null
+      },
+      // Resumo de módulos incluídos — visível ao abrir o arquivo de backup
+      modulesSummary: {
+        totalTables: database.tableNames.length,
+        totalRows: database.totalRows,
+        modules: modulesReport
       },
       database: {
         provider: 'postgresql',
@@ -996,12 +1228,15 @@ router.get('/export', async (req, res) => {
       notes: [
         'Backup gerado pelo backend ativo do NexosCRM.',
         'Inclui todas as tabelas reais do schema public do PostgreSQL.',
-        'Inclui manifesto dos uploads e conteúdo base64 quando dentro do limite BACKUP_MAX_UPLOAD_BYTES.'
+        'Inclui manifesto dos uploads e conteúdo base64 quando dentro do limite BACKUP_MAX_UPLOAD_BYTES.',
+        `Módulos incluídos: ${modulesReport.map(m => `${m.module}(${m.tableCount}t/${m.totalRows}r)`).join(', ')}`
       ]
     };
 
     const body = JSON.stringify(backup, jsonReplacer, 2);
     const filename = `nexoscrm-backup-completo-${generatedAt.slice(0, 19).replace(/[:T]/g, '-')}.json`;
+
+    console.log(`[Backup EXPORTAÇÃO] Arquivo gerado: ${filename} — ${(body.length / 1024 / 1024).toFixed(2)} MB`);
 
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
@@ -1033,20 +1268,48 @@ router.post('/restore', async (req, res) => {
       });
     }
 
+    const restoredAt = new Date().toISOString();
+    console.log(`[Backup RESTAURAÇÃO] Iniciando restauração — backup gerado em: ${backup?.generatedAt || 'desconhecido'}`);
+
+    // Exibir o resumo de módulos do backup original (se disponível)
+    if (backup?.modulesSummary?.modules?.length) {
+      console.log(`[Backup RESTAURAÇÃO] Módulos contidos no arquivo de backup:`);
+      for (const m of backup.modulesSummary.modules) {
+        console.log(`[Backup RESTAURAÇÃO]   → ${m.module}: ${m.tableCount} tabelas, ${m.totalRows} registros`);
+      }
+    }
+
     const restoreSessionAnchor = await readRestoreSessionAnchor(req.user);
     const backupTables = normalizeBackupTables(backup);
     const database = await restoreDatabase(backupTables);
     const sessionAccess = await ensureRestoreSessionAnchor(restoreSessionAnchor);
     const uploads = await restoreUploads(backup.uploads);
 
+    // Resumo legível dos módulos restaurados para a resposta
+    const modulesRestoredReport = (database.modulesSummary || []).map(m => ({
+      module: m.module,
+      tableCount: m.tableCount,
+      totalRows: m.totalRows,
+      tables: m.tables.map(t => `${t.tableName}(${t.rows})`)
+    }));
+
+    console.log(`[Backup RESTAURAÇÃO] Concluída: ${database.tableCount} tabelas | ${database.totalRows} registros | uploads: ${uploads.restoredFiles} arquivos`);
+
     res.json({
       message: 'Backup completo restaurado com sucesso',
-      restoredAt: new Date().toISOString(),
+      restoredAt,
       restoredBy: {
         id: req.user?.id || req.user?.userId || null,
         name: req.user?.name || null,
         email: req.user?.email || null,
         role: req.user?.actualRole || req.user?.role || null
+      },
+      // Resumo por módulo do que foi restaurado
+      modulesSummary: {
+        totalTables: database.tableCount,
+        totalRows: database.totalRows,
+        modules: modulesRestoredReport,
+        skippedTables: database.skippedTables || []
       },
       database,
       uploads,
