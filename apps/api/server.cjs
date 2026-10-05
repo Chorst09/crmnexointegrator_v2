@@ -351,9 +351,10 @@ app.use('/api/test-flow-b2b', testFlowB2B.router);
 app.use('/api/test-flow', testFlowB2B.router);
 
 // Pré-executa o fluxo de teste B2B para que todos os 10 módulos já fiquem populados
-testFlowB2B.executeB2BTestFlow()
-  .then(() => console.log('✅ Fluxo de Teste B2B E2E inicializado com sucesso em todos os módulos!'))
-  .catch((err) => console.warn('⚠️ Aviso ao inicializar fluxo de teste B2B:', err?.message || err));
+// TEMPORARIAMENTE DESABILITADO: estava travando a inicialização do servidor
+// testFlowB2B.executeB2BTestFlow()
+//   .then(() => console.log('✅ Fluxo de Teste B2B E2E inicializado com sucesso em todos os módulos!'))
+//   .catch((err) => console.warn('⚠️ Aviso ao inicializar fluxo de teste B2B:', err?.message || err));
 
 // Handler para APIs antigas (ES modules) - conversão dinâmica
 const handleLegacyAPI = (apiPath) => {
