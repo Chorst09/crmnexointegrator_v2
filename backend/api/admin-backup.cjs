@@ -427,7 +427,7 @@ const buildRestorePlaceholder = (index, columnType) => {
     case 'user-defined': {
       if (udtName) {
         const cleanUdt = udtName.replace(/[^a-zA-Z0-9_]/g, '');
-        return `${placeholder}::${cleanUdt}`;
+        return `${placeholder}::\"${cleanUdt}\"`;
       }
       return placeholder;
     }
