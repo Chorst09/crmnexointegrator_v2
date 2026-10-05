@@ -628,11 +628,51 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
   const cacheKey = `arquivos_${cleanCnpj}_${cleanAno}_${cleanSeq}`;
   const now = Date.now();
   const cached = arquivosCache.get(cacheKey);
-  if (cached && (now - cached.timestamp < ARQUIVOS_CACHE_TTL) && Array.isArray(cached.data) && cached.data.length > 0) {
+  if (cached && (now - cached.timestamp < ARQUIVOS_CACHE_TTL) && Array.isArray(cached.data) && cached.data.length > 0 && cached.hasRealFiles) {
     return cached.data;
   }
 
-  // 1. Consultar metadados reais da contratação no PNCP para obter dados e links oficiais
+  let filesList = [];
+
+  // 1. Tenta consultar anexos diretos no repositório de arquivos do PNCP com prioridade
+  try {
+    const pUrl = `https://pncp.gov.br/api/pncp/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos`;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const response = await fetch(pUrl, {
+      headers: { Accept: 'application/json', 'User-Agent': nextUA() },
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    if (response.ok) {
+      const pData = await response.json();
+      if (Array.isArray(pData) && pData.length > 0) {
+        pData.forEach((arq, idx) => {
+          const docSeq = arq.sequencialDocumento || (idx + 1);
+          filesList.push({
+            sequencialDocumento: docSeq,
+            titulo: arq.titulo || `Anexo_Oficial_${docSeq}.pdf`,
+            tipoDocumentoNome: arq.tipoDocumentoNome || arq.tipoDocumentoDescricao || 'Anexo PNCP',
+            url: arq.url || arq.uri || `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}`,
+            uri: arq.url || arq.uri || `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}`,
+            tamanhoArquivo: arq.tamanhoArquivo || null,
+            dataPublicacaoPncp: arq.dataPublicacaoPncp,
+            origem: 'PNCP_OFICIAL'
+          });
+        });
+      }
+    }
+  } catch (err) {
+    console.warn(`[getArquivosForEdital] Consulta PNCP arquivos (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, err.message);
+  }
+
+  // Se encontrou arquivos oficiais no PNCP, armazena no cache e retorna imediatamente!
+  if (filesList.length > 0) {
+    arquivosCache.set(cacheKey, { data: filesList, timestamp: now, hasRealFiles: true });
+    return filesList;
+  }
+
+  // 2. Se o PNCP não tem arquivos diretos anexados, consulta os metadados da contratação (linkSistemaOrigem)
   let compraInfo = null;
   try {
     const cUrl = `https://pncp.gov.br/api/consulta/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}`;
@@ -647,9 +687,7 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
     console.warn(`[getArquivosForEdital] Aviso ao consultar compraInfo (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, e.message);
   }
 
-  let filesList = [];
-
-  // 2. Extração de arquivos reais quando o certame vem do Portal de Compras Públicas
+  // 3. Extração de arquivos reais do Portal de Compras Públicas se for o sistema de origem
   if (compraInfo?.linkSistemaOrigem) {
     const lso = compraInfo.linkSistemaOrigem.toLowerCase();
     if (lso.includes('portaldecompraspublicas.com.br')) {
@@ -686,83 +724,12 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
     }
   }
 
-  // 3. Tenta consultar anexos diretos no repositório de arquivos do PNCP se disponível
-  try {
-    const pUrl = `https://pncp.gov.br/api/pncp/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos`;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 7000);
-    const response = await fetch(pUrl, {
-      headers: { Accept: 'application/json', 'User-Agent': nextUA() },
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-    if (response.ok) {
-      const pData = await response.json();
-      if (Array.isArray(pData) && pData.length > 0) {
-        pData.forEach((arq, idx) => {
-          const docSeq = arq.sequencialDocumento || (idx + 1);
-          filesList.push({
-            sequencialDocumento: docSeq,
-            titulo: arq.titulo || `Anexo_Oficial_${docSeq}.pdf`,
-            tipoDocumentoNome: arq.tipoDocumentoNome || 'Anexo PNCP',
-            url: arq.url || arq.uri || `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}`,
-            uri: arq.url || arq.uri || `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}`,
-            tamanhoArquivo: arq.tamanhoArquivo || null,
-            dataPublicacaoPncp: arq.dataPublicacaoPncp,
-            origem: 'PNCP_OFICIAL'
-          });
-        });
-      }
-    }
-  } catch (err) {
-    console.warn(`[getArquivosForEdital] Consulta PNCP arquivos (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, err.message);
+  if (filesList.length > 0) {
+    arquivosCache.set(cacheKey, { data: filesList, timestamp: now, hasRealFiles: true });
+    return filesList;
   }
 
-  // 4. Se o PNCP não retornou anexos ou a consulta falhou/expirou, fornece a lista completa de documentos autênticos para download imediato
-  if (filesList.length === 0) {
-    const numEdital = `${cleanSeq}_${cleanAno}`;
-    filesList = [
-      {
-        sequencialDocumento: 1,
-        titulo: `Edital_de_Licitacao_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Edital de Licitação',
-        url: `/api/b2g-licitacoes/documento-gerado/${cleanCnpj}/${cleanAno}/${cleanSeq}/edital?titulo=Edital_de_Licitacao_${numEdital}.pdf`,
-        uri: `/api/b2g-licitacoes/documento-gerado/${cleanCnpj}/${cleanAno}/${cleanSeq}/edital?titulo=Edital_de_Licitacao_${numEdital}.pdf`,
-        tamanhoArquivo: 1420580,
-        origem: 'DOCUMENTO_VERIFICADO'
-      },
-      {
-        sequencialDocumento: 2,
-        titulo: `Termo_de_Referencia_TR_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Termo de Referência (TR)',
-        url: `/api/b2g-licitacoes/documento-gerado/${cleanCnpj}/${cleanAno}/${cleanSeq}/tr?titulo=Termo_de_Referencia_TR_${numEdital}.pdf`,
-        uri: `/api/b2g-licitacoes/documento-gerado/${cleanCnpj}/${cleanAno}/${cleanSeq}/tr?titulo=Termo_de_Referencia_TR_${numEdital}.pdf`,
-        tamanhoArquivo: 895400,
-        origem: 'DOCUMENTO_VERIFICADO'
-      },
-      {
-        sequencialDocumento: 3,
-        titulo: `Estudo_Tecnico_Preliminar_ETP_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Estudo Técnico Preliminar (ETP)',
-        url: `/api/b2g-licitacoes/documento-gerado/${cleanCnpj}/${cleanAno}/${cleanSeq}/etp?titulo=Estudo_Tecnico_Preliminar_ETP_${numEdital}.pdf`,
-        uri: `/api/b2g-licitacoes/documento-gerado/${cleanCnpj}/${cleanAno}/${cleanSeq}/etp?titulo=Estudo_Tecnico_Preliminar_ETP_${numEdital}.pdf`,
-        tamanhoArquivo: 620100,
-        origem: 'DOCUMENTO_VERIFICADO'
-      },
-      {
-        sequencialDocumento: 4,
-        titulo: `Minuta_de_Contrato_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Minuta Contratual',
-        url: `/api/b2g-licitacoes/documento-gerado/${cleanCnpj}/${cleanAno}/${cleanSeq}/minuta?titulo=Minuta_de_Contrato_${numEdital}.pdf`,
-        uri: `/api/b2g-licitacoes/documento-gerado/${cleanCnpj}/${cleanAno}/${cleanSeq}/minuta?titulo=Minuta_de_Contrato_${numEdital}.pdf`,
-        tamanhoArquivo: 412300,
-        origem: 'DOCUMENTO_VERIFICADO'
-      }
-    ];
-  }
-
-  arquivosCache.set(cacheKey, { data: filesList, timestamp: now });
-  return filesList;
+  return [];
 };
 
 // ── GET /arquivos/:cnpj/:ano/:seq — arquivos de uma licitação ─────────────────

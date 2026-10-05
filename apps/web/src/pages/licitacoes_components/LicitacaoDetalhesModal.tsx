@@ -106,48 +106,7 @@ export function LicitacaoDetalhesModal({
     }
     if (!sequencial) sequencial = 1;
 
-    // Arquivos oficiais garantidos para disponibilização instantânea
-    const numEdital = `${sequencial}_${ano}`;
-    const baseFiles = [
-      {
-        sequencialDocumento: 1,
-        titulo: `Edital_de_Licitacao_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Edital de Licitação',
-        url: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/edital?titulo=Edital_de_Licitacao_${numEdital}.pdf`,
-        uri: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/edital?titulo=Edital_de_Licitacao_${numEdital}.pdf`,
-        tamanhoArquivo: 1420580,
-        origem: 'DOCUMENTO_VERIFICADO'
-      },
-      {
-        sequencialDocumento: 2,
-        titulo: `Termo_de_Referencia_TR_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Termo de Referência (TR)',
-        url: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/tr?titulo=Termo_de_Referencia_TR_${numEdital}.pdf`,
-        uri: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/tr?titulo=Termo_de_Referencia_TR_${numEdital}.pdf`,
-        tamanhoArquivo: 895400,
-        origem: 'DOCUMENTO_VERIFICADO'
-      },
-      {
-        sequencialDocumento: 3,
-        titulo: `Estudo_Tecnico_Preliminar_ETP_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Estudo Técnico Preliminar (ETP)',
-        url: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/etp?titulo=Estudo_Tecnico_Preliminar_ETP_${numEdital}.pdf`,
-        uri: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/etp?titulo=Estudo_Tecnico_Preliminar_ETP_${numEdital}.pdf`,
-        tamanhoArquivo: 620100,
-        origem: 'DOCUMENTO_VERIFICADO'
-      },
-      {
-        sequencialDocumento: 4,
-        titulo: `Minuta_de_Contrato_${numEdital}.pdf`,
-        tipoDocumentoNome: 'Minuta Contratual',
-        url: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/minuta?titulo=Minuta_de_Contrato_${numEdital}.pdf`,
-        uri: `/api/b2g-licitacoes/documento-gerado/${cnpj}/${ano}/${sequencial}/minuta?titulo=Minuta_de_Contrato_${numEdital}.pdf`,
-        tamanhoArquivo: 412300,
-        origem: 'DOCUMENTO_VERIFICADO'
-      }
-    ];
-
-    setArquivos(baseFiles);
+    setArquivos([]);
     setSearchingPncp(true);
 
     const targetCnpj = cnpj || '76417005000186';
@@ -159,10 +118,13 @@ export function LicitacaoDetalhesModal({
       .then((data) => {
         if (Array.isArray(data) && data.length > 0) {
           setArquivos(data);
+        } else {
+          setArquivos([]);
         }
       })
       .catch((err) => {
         console.warn('Erro ao consultar arquivos do certame:', err);
+        setArquivos([]);
       })
       .finally(() => setSearchingPncp(false));
   }, [licitacao]);
@@ -440,7 +402,13 @@ export function LicitacaoDetalhesModal({
               </div>
             </div>
             
-            {arquivos.length > 0 ? (
+            {searchingPncp ? (
+              <div className="border border-[#07323e] rounded-xl p-8 bg-[#011419] text-center">
+                <div className="w-7 h-7 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin mx-auto mb-3"></div>
+                <p className="text-sm font-semibold text-slate-100">Buscando documentos e anexos oficiais no PNCP...</p>
+                <p className="text-xs text-slate-400 mt-1">Localizando arquivos originais de edital, termos de referência e minutas contratuais.</p>
+              </div>
+            ) : arquivos.length > 0 ? (
               <div className="border border-[#07323e] rounded-xl overflow-hidden shadow-sm divide-y divide-slate-800/80">
                 {arquivos.map((arq, idx) => {
                   const fileUrl = arq.url || arq.uri;
