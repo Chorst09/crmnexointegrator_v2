@@ -468,10 +468,17 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
                       <button
                         type="button"
                         onClick={() => {
-                          // Fechar modal da oportunidade
-                          if (onNavigate) onNavigate();
-                          // Navegar usando window.location para forçar navegação completa
-                          window.location.href = `/kickoff?meetingId=${m.id}`;
+                          console.log('🚀 Abrindo reunião:', m.id);
+                          // Fechar modal da oportunidade PRIMEIRO
+                          if (onNavigate) {
+                            console.log('✅ Fechando modal...');
+                            onNavigate();
+                          }
+                          // Delay pequeno para garantir que o modal fecha
+                          setTimeout(() => {
+                            console.log('🔄 Navegando para /kickoff...');
+                            window.location.href = `/kickoff?meetingId=${m.id}`;
+                          }, 50);
                         }}
                         className="shrink-0 rounded-lg border border-cyan-600 bg-cyan-600/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-600/20 transition-colors"
                       >
