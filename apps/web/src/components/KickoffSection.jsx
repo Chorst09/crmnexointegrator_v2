@@ -46,7 +46,6 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
   const [creating, setCreating] = useState(false);
   const [showNewForm, setShowNewForm] = useState(false);
   const [feedback, setFeedback] = useState('');
-  const [expandedMeeting, setExpandedMeeting] = useState(null);
   const [editingMeeting, setEditingMeeting] = useState(null);
   const [deleting, setDeleting] = useState(null);
 
@@ -155,7 +154,6 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
         throw new Error(err.error || 'Erro ao excluir reunião');
       }
       setMeetings(prev => prev.filter(m => m.id !== meetingId));
-      setExpandedMeeting(null);
     } catch (err) {
       alert(err.message || 'Erro ao excluir reunião.');
     } finally {
@@ -174,7 +172,6 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
       meetingLink: meeting.meetingLink || '',
       notes: meeting.notes || ''
     });
-    setExpandedMeeting(null);
   };
 
   const handleUpdateMeeting = async (e) => {
@@ -471,58 +468,33 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
                       <button
                         type="button"
                         onClick={() => {
-                          setExpandedMeeting(expandedMeeting === m.id ? null : m.id);
+                          if (onNavigate) onNavigate();
+                          navigate(`/kickoff?meetingId=${m.id}`);
                         }}
-                        className="shrink-0 rounded-lg border border-slate-600 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800 transition-colors"
+                        className="shrink-0 rounded-lg border border-cyan-600 bg-cyan-600/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-600/20 transition-colors"
                       >
-                        {expandedMeeting === m.id ? '✕ Fechar' : 'Ver detalhes →'}
+                        Abrir reunião →
                       </button>
                     </div>
 
-                    {/* Detalhes expandidos */}
-                    {expandedMeeting === m.id && (
-                      <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-3">
-                        <div className="grid grid-cols-2 gap-3 text-sm">
-                          <div>
-                            <span className="text-[var(--crm-muted)] text-xs">Plataforma:</span>
-                            <p className="text-[var(--crm-ink)] font-medium">{m.platform || '—'}</p>
-                          </div>
-                          {m.meetingLink && (
-                            <div className="col-span-2">
-                              <span className="text-[var(--crm-muted)] text-xs">Link da reunião:</span>
-                              <a href={m.meetingLink} target="_blank" rel="noopener noreferrer" className="block text-cyan-400 hover:text-cyan-300 underline break-all">
-                                {m.meetingLink}
-                              </a>
-                            </div>
-                          )}
-                          {m.notes && (
-                            <div className="col-span-2">
-                              <span className="text-[var(--crm-muted)] text-xs">Observações:</span>
-                              <p className="text-[var(--crm-ink)] mt-1">{m.notes}</p>
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Botões de ação */}
-                        <div className="pt-3 border-t border-cyan-500/20 flex justify-end gap-2">
-                          <button
-                            type="button"
-                            onClick={() => handleDelete(m.id)}
-                            disabled={deleting === m.id}
-                            className="rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
-                          >
-                            {deleting === m.id ? 'Excluindo...' : 'Excluir'}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleEdit(m)}
-                            className="rounded-lg bg-yellow-600 hover:bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition-colors"
-                          >
-                            Editar
-                          </button>
-                        </div>
-                      </div>
-                    )}
+                    {/* Botões de ação rápida */}
+                    <div className="flex items-center gap-2 px-4 pb-3">
+                      <button
+                        type="button"
+                        onClick={() => handleEdit(m)}
+                        className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 px-3 py-1.5 text-xs font-semibold text-yellow-300 hover:bg-yellow-500/20 transition-colors"
+                      >
+                        ✏️ Editar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDelete(m.id)}
+                        disabled={deleting === m.id}
+                        className="rounded-lg border border-red-500/50 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
+                      >
+                        {deleting === m.id ? 'Excluindo...' : '🗑️ Excluir'}
+                      </button>
+                    </div>
                   </>
                 )}
               </div>
