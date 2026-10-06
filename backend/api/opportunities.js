@@ -437,6 +437,11 @@ export default async function handler(req) {
           lossReason,
           stageDecisionDetails,
           notes: body.notes,
+          // Campos de contato do cliente
+          contactName: body.contactName || null,
+          contactFullName: body.contactFullName || null,
+          contactEmail: body.contactEmail || null,
+          contactPhone: body.contactPhone || null,
           companyId: body.companyId,
           ownerId: resolvedOwnerId,
           tenantCompanyId,
@@ -445,7 +450,8 @@ export default async function handler(req) {
               productId: p.productId,
               quantity: p.quantity || 1,
               unitPrice: p.unitPrice,
-              discount: p.discount || 0
+              discount: p.discount || 0,
+              notes: p.notes || null
             }))
           } : undefined
         },
@@ -596,6 +602,12 @@ export default async function handler(req) {
     }
     if (stageDecisionDetails !== undefined) updateData.stageDecisionDetails = stageDecisionDetails;
     if (body.notes !== undefined) updateData.notes = body.notes;
+
+    // Campos de contato do cliente (nullable, seguros para registros legados)
+    if (body.contactName !== undefined) updateData.contactName = body.contactName || null;
+    if (body.contactFullName !== undefined) updateData.contactFullName = body.contactFullName || null;
+    if (body.contactEmail !== undefined) updateData.contactEmail = body.contactEmail || null;
+    if (body.contactPhone !== undefined) updateData.contactPhone = body.contactPhone || null;
     
     // Se mudou para WON ou LOST, definir data de fechamento
     if (body.stage === 'WON' || body.stage === 'LOST') {
@@ -628,6 +640,34 @@ export default async function handler(req) {
         await syncWonOpportunityCommission(tx, updated);
       } else if (body.stage && body.stage !== 'WON') {
         await cancelOpenOpportunityCommission(tx, updated.id);
+      }
+
+      // Sincronizar produtos se fornecidos no body
+      if (Array.isArray(body.products)) {
+        // Remove todos os produtos antigos e recria com os novos
+        await tx.opportunityProduct.deleteMany({ where: { opportunityId: updated.id } });
+        if (body.products.length > 0) {
+          await tx.opportunityProduct.createMany({
+            data: body.products.map((p) => ({
+              opportunityId: updated.id,
+              productId: p.productId,
+              quantity: Number(p.quantity) || 1,
+              unitPrice: Number(p.unitPrice) || 0,
+              discount: Number(p.discount) || 0,
+              notes: p.notes || null
+            }))
+          });
+        }
+        // Recarregar com produtos atualizados
+        return tx.opportunity.findUnique({
+          where: { id: updated.id },
+          include: {
+            company: true,
+            owner: { select: { id: true, name: true, email: true } },
+            products: { include: { product: true } },
+            project: { select: { id: true, number: true, name: true, status: true } }
+          }
+        });
       }
 
       return updated;

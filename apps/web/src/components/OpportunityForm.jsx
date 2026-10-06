@@ -102,6 +102,7 @@ export default function OpportunityForm({
   selectedOpportunity,
   companies,
   users,
+  products: availableProducts,
   stages,
   stageLabels,
   modalInputClass,
@@ -117,6 +118,45 @@ export default function OpportunityForm({
 }) {
   const [activeTab, setActiveTab] = useState('identificacao');
   const [b2gForm, setB2gForm] = useState(() => ({ ...DEFAULT_B2G }));
+
+  // Produtos selecionados (lista dinâmica)
+  const [productItems, setProductItems] = useState(() => {
+    const existing = selectedOpportunity?.products || formData?.products || [];
+    return existing.map(p => ({
+      _key: p.id || String(Math.random()),
+      productId: p.productId || p.product?.id || '',
+      quantity: p.quantity || 1,
+      unitPrice: p.unitPrice || 0,
+      discount: p.discount || 0,
+      notes: p.notes || ''
+    }));
+  });
+
+  // Sincronizar productItems → formData.products
+  useEffect(() => {
+    setFormData(prev => ({ ...prev, products: productItems }));
+  }, [productItems]);
+
+  // Máscara de telefone: (00) 00000-0000
+  const applyPhoneMask = (value) => {
+    const digits = String(value || '').replace(/\D/g, '').slice(0, 11);
+    if (digits.length <= 2) return digits.length ? `(${digits}` : '';
+    if (digits.length <= 7) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+    if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+    return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+  };
+
+  const addProductItem = () => {
+    setProductItems(prev => [...prev, { _key: String(Date.now()), productId: '', quantity: 1, unitPrice: 0, discount: 0, notes: '' }]);
+  };
+
+  const removeProductItem = (key) => {
+    setProductItems(prev => prev.filter(p => p._key !== key));
+  };
+
+  const updateProductItem = (key, field, value) => {
+    setProductItems(prev => prev.map(p => p._key === key ? { ...p, [field]: value } : p));
+  };
 
   const parsedB2GDescription = useMemo(
     () => parseB2GDescription(selectedOpportunity?.description),
@@ -441,6 +481,178 @@ export default function OpportunityForm({
           <div className="sm:col-span-2">
             <label className={labelCls}>Acompanhamento</label>
             <textarea className={inputCls} rows={4} value={formData.notes || ''} onChange={e => setFormData(p => ({ ...p, notes: e.target.value }))} placeholder="Anotações sobre o acompanhamento da oportunidade..." />
+          </div>
+
+          {/* ── Contato do Cliente ─────────────────────────────────────────── */}
+          <div className="sm:col-span-2">
+            <div className="rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4 space-y-3">
+              <h3 className="text-sm font-semibold text-[var(--crm-text)]">Contato do Cliente</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className={labelCls}>Contato (apelido/cargo)</label>
+                  <input
+                    className={inputCls}
+                    value={formData.contactName || ''}
+                    onChange={e => setFormData(p => ({ ...p, contactName: e.target.value }))}
+                    placeholder="Ex: Diretor de TI, João"
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Nome Completo</label>
+                  <input
+                    className={inputCls}
+                    value={formData.contactFullName || ''}
+                    onChange={e => setFormData(p => ({ ...p, contactFullName: e.target.value }))}
+                    placeholder="Nome completo do contato"
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>E-mail</label>
+                  <input
+                    type="email"
+                    className={inputCls}
+                    value={formData.contactEmail || ''}
+                    onChange={e => setFormData(p => ({ ...p, contactEmail: e.target.value }))}
+                    placeholder="contato@empresa.com"
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Telefone</label>
+                  <input
+                    type="tel"
+                    className={inputCls}
+                    value={formData.contactPhone || ''}
+                    onChange={e => setFormData(p => ({ ...p, contactPhone: applyPhoneMask(e.target.value) }))}
+                    placeholder="(00) 00000-0000"
+                    maxLength={15}
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Produtos ──────────────────────────────────────────────────── */}
+          <div className="sm:col-span-2">
+            <div className="rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold text-[var(--crm-text)]">Produtos</h3>
+                <button
+                  type="button"
+                  onClick={addProductItem}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+                >
+                  + Adicionar Produto
+                </button>
+              </div>
+
+              {productItems.length === 0 ? (
+                <p className="text-xs text-[var(--crm-muted)] py-2">Nenhum produto adicionado. Clique em "Adicionar Produto" para incluir.</p>
+              ) : (
+                <div className="space-y-2">
+                  {productItems.map((item) => {
+                    const selectedProduct = (availableProducts || []).find(p => p.id === item.productId);
+                    return (
+                      <div key={item._key} className="grid grid-cols-12 gap-2 items-start rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface-2,var(--crm-surface))] p-3">
+                        {/* Produto */}
+                        <div className="col-span-12 sm:col-span-4">
+                          <label className={labelCls}>Produto *</label>
+                          <select
+                            className={inputCls}
+                            value={item.productId}
+                            onChange={e => {
+                              const prod = (availableProducts || []).find(p => p.id === e.target.value);
+                              updateProductItem(item._key, 'productId', e.target.value);
+                              if (prod?.price) updateProductItem(item._key, 'unitPrice', prod.price);
+                            }}
+                          >
+                            <option value="">Selecione...</option>
+                            {(availableProducts || []).map(p => (
+                              <option key={p.id} value={p.id}>{p.name}</option>
+                            ))}
+                          </select>
+                        </div>
+                        {/* Qtd */}
+                        <div className="col-span-4 sm:col-span-2">
+                          <label className={labelCls}>Qtd</label>
+                          <input
+                            type="number"
+                            min={1}
+                            className={inputCls}
+                            value={item.quantity}
+                            onChange={e => updateProductItem(item._key, 'quantity', e.target.value)}
+                          />
+                        </div>
+                        {/* Preço Unit. */}
+                        <div className="col-span-4 sm:col-span-2">
+                          <label className={labelCls}>Preço Unit.</label>
+                          <input
+                            type="number"
+                            min={0}
+                            step="0.01"
+                            className={inputCls}
+                            value={item.unitPrice}
+                            onChange={e => updateProductItem(item._key, 'unitPrice', e.target.value)}
+                          />
+                        </div>
+                        {/* Desconto % */}
+                        <div className="col-span-4 sm:col-span-2">
+                          <label className={labelCls}>Desc. (%)</label>
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            step="0.1"
+                            className={inputCls}
+                            value={item.discount}
+                            onChange={e => updateProductItem(item._key, 'discount', e.target.value)}
+                          />
+                        </div>
+                        {/* Subtotal + remover */}
+                        <div className="col-span-12 sm:col-span-2 flex flex-col justify-between">
+                          <label className={labelCls}>Subtotal</label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-semibold text-emerald-400">
+                              {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                                Number(item.quantity || 0) * Number(item.unitPrice || 0) * (1 - Number(item.discount || 0) / 100)
+                              )}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeProductItem(item._key)}
+                              className="ml-auto rounded p-1 text-rose-400 hover:bg-rose-500/15 transition-colors"
+                              title="Remover produto"
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        </div>
+                        {/* Observação */}
+                        <div className="col-span-12">
+                          <label className={labelCls}>Obs. (opcional)</label>
+                          <input
+                            className={inputCls}
+                            value={item.notes}
+                            onChange={e => updateProductItem(item._key, 'notes', e.target.value)}
+                            placeholder="Especificações, versão, variante..."
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+
+                  {/* Total Geral */}
+                  <div className="flex justify-end pt-1 border-t border-[var(--crm-border)]">
+                    <span className="text-sm font-bold text-[var(--crm-ink)]">
+                      Total: {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
+                        productItems.reduce((sum, item) =>
+                          sum + Number(item.quantity || 0) * Number(item.unitPrice || 0) * (1 - Number(item.discount || 0) / 100), 0
+                        )
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 

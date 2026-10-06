@@ -38,6 +38,7 @@ import CloseOpportunityModal from '../components/CloseOpportunityModal';
 import OpportunityAttentionPoints from '../components/OpportunityAttentionPoints';
 import OpportunityLearnings from '../components/OpportunityLearnings';
 import B2BTestFlowModal from '../components/B2BTestFlowModal';
+import KickoffSection from '../components/KickoffSection';
 import {
   isCompanyInClientType,
   isOpportunityInClientType,
@@ -214,8 +215,15 @@ export default function Oportunidades() {
     source: 'MANUAL',
     expectedCloseDate: '',
     companyId: '',
-    ownerId: ''
+    ownerId: '',
+    contactName: '',
+    contactFullName: '',
+    contactEmail: '',
+    contactPhone: '',
+    products: []
   });
+
+  const [products, setProducts] = useState([]);
 
   const createEmptyFormData = (overrides = {}) => ({
     title: '',
@@ -231,6 +239,11 @@ export default function Oportunidades() {
     expectedCloseDate: '',
     companyId: '',
     ownerId: '',
+    contactName: '',
+    contactFullName: '',
+    contactEmail: '',
+    contactPhone: '',
+    products: [],
     ...overrides
   });
 
@@ -294,9 +307,10 @@ export default function Oportunidades() {
 
   const fetchDependencies = async () => {
     try {
-      const [companiesRes, usersRes] = await Promise.all([
+      const [companiesRes, usersRes, productsRes] = await Promise.all([
         fetch(scopedCompaniesUrl, { headers: getAuthHeaders() }),
-        fetch(API_ENDPOINTS.users, { headers: getAuthHeaders() })
+        fetch(API_ENDPOINTS.users, { headers: getAuthHeaders() }),
+        fetch(buildApiUrl('/products'), { headers: getAuthHeaders() })
       ]);
       
       if (companiesRes.ok) {
@@ -311,6 +325,11 @@ export default function Oportunidades() {
           ? usersData.filter((user) => canOwnOpportunityForClientType(user, pipelineClientType))
           : [];
         setUsers(assignableUsers);
+      }
+
+      if (productsRes.ok) {
+        const productsData = await productsRes.json();
+        setProducts(Array.isArray(productsData) ? productsData : []);
       }
     } catch (error) {
       console.error('Erro ao carregar dependências:', error);
@@ -540,6 +559,23 @@ export default function Oportunidades() {
         b2gStage: selectedOpportunity ? (selectedOpportunity.b2gStage || payloadFormData.b2gStage || null) : (payloadFormData.b2gStage || null),
         lossReason: payloadFormData.lossReason || null,
         notes: payloadFormData.notes || null,
+        // Campos de contato do cliente
+        contactName: payloadFormData.contactName || null,
+        contactFullName: payloadFormData.contactFullName || null,
+        contactEmail: payloadFormData.contactEmail || null,
+        contactPhone: payloadFormData.contactPhone || null,
+        // Produtos (array limpo de _key antes de enviar)
+        products: Array.isArray(payloadFormData.products)
+          ? payloadFormData.products
+              .filter(p => p.productId)
+              .map(p => ({
+                productId: p.productId,
+                quantity: Number(p.quantity) || 1,
+                unitPrice: Number(p.unitPrice) || 0,
+                discount: Number(p.discount) || 0,
+                notes: p.notes || null
+              }))
+          : []
       };
 
       const response = await fetch(url, {
@@ -608,7 +644,19 @@ export default function Oportunidades() {
       expectedCloseDate: opportunity.expectedCloseDate ? opportunity.expectedCloseDate.split('T')[0] : '',
       companyId: opportunity.companyId,
       ownerId: opportunity.ownerId,
-      notes: opportunity.notes || ''
+      notes: opportunity.notes || '',
+      contactName: opportunity.contactName || '',
+      contactFullName: opportunity.contactFullName || '',
+      contactEmail: opportunity.contactEmail || '',
+      contactPhone: opportunity.contactPhone || '',
+      products: (opportunity.products || []).map(p => ({
+        _key: p.id || String(Math.random()),
+        productId: p.productId || p.product?.id || '',
+        quantity: p.quantity || 1,
+        unitPrice: p.unitPrice || 0,
+        discount: p.discount || 0,
+        notes: p.notes || ''
+      }))
     });
     setShowModal(true);
   };
@@ -1339,6 +1387,7 @@ export default function Oportunidades() {
             selectedOpportunity={selectedOpportunity}
             companies={companies}
             users={users}
+            products={products}
             stages={stages}
             stageLabels={stageLabels}
             modalInputClass={modalInputClass}
@@ -1501,6 +1550,89 @@ export default function Oportunidades() {
             )}
 
             {renderStageDecisionDetails(selectedOpportunity.stageDecisionDetails)}
+
+            {/* ── Contato do Cliente ─────────────────────────────────────── */}
+            {(selectedOpportunity.contactName || selectedOpportunity.contactFullName || selectedOpportunity.contactEmail || selectedOpportunity.contactPhone) && (
+              <div className="rounded-xl border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.65)] p-5">
+                <h3 className="text-lg font-semibold text-[var(--crm-ink)] mb-3">Contato do Cliente</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {selectedOpportunity.contactName && (
+                    <div className="crm-panel-muted rounded-xl p-3">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-[var(--crm-muted)] mb-1">Contato</div>
+                      <div className="text-sm font-medium text-[var(--crm-ink)]">{selectedOpportunity.contactName}</div>
+                    </div>
+                  )}
+                  {selectedOpportunity.contactFullName && (
+                    <div className="crm-panel-muted rounded-xl p-3">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-[var(--crm-muted)] mb-1">Nome Completo</div>
+                      <div className="text-sm font-medium text-[var(--crm-ink)]">{selectedOpportunity.contactFullName}</div>
+                    </div>
+                  )}
+                  {selectedOpportunity.contactEmail && (
+                    <div className="crm-panel-muted rounded-xl p-3">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-[var(--crm-muted)] mb-1">E-mail</div>
+                      <a href={`mailto:${selectedOpportunity.contactEmail}`} className="text-sm font-medium text-cyan-400 hover:underline">{selectedOpportunity.contactEmail}</a>
+                    </div>
+                  )}
+                  {selectedOpportunity.contactPhone && (
+                    <div className="crm-panel-muted rounded-xl p-3">
+                      <div className="text-xs font-semibold uppercase tracking-wider text-[var(--crm-muted)] mb-1">Telefone</div>
+                      <a href={`tel:${selectedOpportunity.contactPhone}`} className="text-sm font-medium text-cyan-400 hover:underline">{selectedOpportunity.contactPhone}</a>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── Produtos ───────────────────────────────────────────────── */}
+            {selectedOpportunity.products && selectedOpportunity.products.length > 0 && (
+              <div className="rounded-xl border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.65)] p-5">
+                <h3 className="text-lg font-semibold text-[var(--crm-ink)] mb-3">Produtos</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-[color:var(--crm-border)] text-xs uppercase tracking-wider text-[var(--crm-muted)]">
+                        <th className="text-left py-2 pr-4">Produto</th>
+                        <th className="text-right py-2 pr-4">Qtd</th>
+                        <th className="text-right py-2 pr-4">Preço Unit.</th>
+                        <th className="text-right py-2 pr-4">Desc.</th>
+                        <th className="text-right py-2">Subtotal</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-[color:var(--crm-border)]">
+                      {selectedOpportunity.products.map((p) => {
+                        const subtotal = Number(p.quantity || 0) * Number(p.unitPrice || 0) * (1 - Number(p.discount || 0) / 100);
+                        return (
+                          <tr key={p.id} className="text-[var(--crm-ink)]">
+                            <td className="py-2.5 pr-4">
+                              <div className="font-medium">{p.product?.name || '—'}</div>
+                              {p.notes && <div className="text-xs text-[var(--crm-muted)]">{p.notes}</div>}
+                            </td>
+                            <td className="py-2.5 pr-4 text-right tabular-nums">{p.quantity}</td>
+                            <td className="py-2.5 pr-4 text-right tabular-nums">{formatCurrency(p.unitPrice)}</td>
+                            <td className="py-2.5 pr-4 text-right tabular-nums">{p.discount > 0 ? `${p.discount}%` : '—'}</td>
+                            <td className="py-2.5 text-right tabular-nums font-semibold text-emerald-400">{formatCurrency(subtotal)}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                    <tfoot>
+                      <tr className="border-t border-[color:var(--crm-border)]">
+                        <td colSpan={4} className="py-2.5 text-right text-xs font-semibold uppercase tracking-wider text-[var(--crm-muted)]">Total</td>
+                        <td className="py-2.5 text-right font-bold text-emerald-300">
+                          {formatCurrency(selectedOpportunity.products.reduce((sum, p) =>
+                            sum + Number(p.quantity || 0) * Number(p.unitPrice || 0) * (1 - Number(p.discount || 0) / 100), 0
+                          ))}
+                        </td>
+                      </tr>
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {/* ── Reuniões de Kickoff ─────────────────────────────────────── */}
+            <KickoffSection opportunityId={selectedOpportunity.id} />
 
             <div className="rounded-xl border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.65)] p-5">
               <div className="flex items-center justify-between gap-3 mb-4">
