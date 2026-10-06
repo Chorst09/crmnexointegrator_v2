@@ -38,7 +38,7 @@ const fmtDate = (v) => v ? new Date(v).toLocaleDateString('pt-BR') : '—';
 
 // ── component ─────────────────────────────────────────────────────────────────
 
-export default function KickoffSection({ opportunityId }) {
+export default function KickoffSection({ opportunityId, onNavigate }) {
   const navigate = useNavigate();
   const [meetings, setMeetings] = useState([]);
   const [templates, setTemplates] = useState([]);
@@ -155,7 +155,10 @@ export default function KickoffSection({ opportunityId }) {
           {meetings.length > 0 && (
             <button
               type="button"
-              onClick={() => navigate(`/kickoff?opportunityId=${opportunityId}`)}
+              onClick={() => {
+                if (onNavigate) onNavigate();
+                navigate(`/kickoff?opportunityId=${opportunityId}`);
+              }}
               className="inline-flex items-center gap-1.5 rounded-lg border border-slate-600 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition-colors"
             >
               Ver no Kickoff →
@@ -304,7 +307,10 @@ export default function KickoffSection({ opportunityId }) {
               </div>
               <button
                 type="button"
-                onClick={() => navigate(`/kickoff?meetingId=${m.id}`)}
+                onClick={() => {
+                  if (onNavigate) onNavigate();
+                  navigate(`/kickoff?meetingId=${m.id}`);
+                }}
                 className="shrink-0 rounded-lg border border-slate-600 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800 transition-colors"
               >
                 Abrir →

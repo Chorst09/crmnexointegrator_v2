@@ -1632,7 +1632,13 @@ export default function Oportunidades() {
             )}
 
             {/* ── Reuniões de Kickoff ─────────────────────────────────────── */}
-            <KickoffSection opportunityId={selectedOpportunity.id} />
+            <KickoffSection 
+              opportunityId={selectedOpportunity.id}
+              onNavigate={() => {
+                setShowDetailsModal(false);
+                setSelectedOpportunity(null);
+              }}
+            />
 
             <div className="rounded-xl border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.65)] p-5">
               <div className="flex items-center justify-between gap-3 mb-4">
