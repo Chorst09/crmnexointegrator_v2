@@ -468,8 +468,7 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
                       <button
                         type="button"
                         onClick={() => {
-                          if (onNavigate) onNavigate();
-                          navigate(`/kickoff?meetingId=${m.id}`);
+                          window.open(`/kickoff?meetingId=${m.id}`, '_blank');
                         }}
                         className="shrink-0 rounded-lg border border-cyan-600 bg-cyan-600/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-600/20 transition-colors"
                       >
