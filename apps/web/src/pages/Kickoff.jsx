@@ -97,6 +97,8 @@ const safeMeetingForNotes = (meeting) => ({
   participants: Array.isArray(meeting?.participants) ? meeting.participants : [],
 });
 
+const asList = (value) => (Array.isArray(value) ? value : []);
+
 const MINUTES_TEMPLATES = {
   INTERNAL: {
     title: 'Ata de Kickoff Interno',
@@ -1987,7 +1989,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, full
                   <div className="border border-gray-200 dark:border-[color:var(--crm-border)] rounded-xl p-3 text-center">
                     <MessageSquare className="w-5 h-5 text-orange-500 mx-auto mb-1" />
                     <p className="text-lg font-bold text-gray-900 dark:text-slate-100">
-                      {meeting.actionItems?.filter((a) => a.status !== 'CONCLUIDO' && a.status !== 'CANCELADO').length || 0}
+                      {asList(meeting.actionItems).filter((a) => a.status !== 'CONCLUIDO' && a.status !== 'CANCELADO').length || 0}
                     </p>
                     <p className="text-xs text-gray-500 dark:text-slate-400">Ações abertas</p>
                   </div>
@@ -1999,7 +2001,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, full
           {/* Pauta */}
           {activeTab === 'agenda' && (
             <div className="space-y-3">
-              {meeting.agendaItems?.map((item, index) => (
+              {asList(meeting.agendaItems).map((item, index) => (
                 <div key={item.id} className="bg-gray-50 dark:bg-[var(--crm-surface-2)] rounded-xl p-4">
                   <div className="flex items-start gap-3">
                     <span className="w-7 h-7 bg-indigo-100 dark:bg-indigo-500/15 rounded-lg flex items-center justify-center text-xs font-bold text-indigo-700 dark:text-indigo-300 flex-shrink-0">
@@ -2057,7 +2059,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, full
                   </div>
                 </div>
               ))}
-              {(!meeting.agendaItems || meeting.agendaItems.length === 0) && (
+              {asList(meeting.agendaItems).length === 0 && (
                 <p className="text-sm text-gray-400 dark:text-slate-500 text-center py-6">Nenhum item de pauta definido</p>
               )}
 
@@ -2118,7 +2120,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, full
                 <span className="text-sm font-semibold text-gray-700 dark:text-slate-300">{checklistProgress}%</span>
               </div>
               <div className="space-y-2">
-                {meeting.checklistItems?.map((item) => (
+                {asList(meeting.checklistItems).map((item) => (
                   <div key={item.id} className="flex items-center gap-3 bg-gray-50 dark:bg-[var(--crm-surface-2)] rounded-xl p-3 cursor-pointer hover:bg-gray-100 dark:hover:bg-white/10 transition-colors" onClick={() => toggleChecklist(item)}>
                     <button className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${
                       item.isCompleted ? 'bg-green-600 border-green-600' : 'border-gray-300 dark:border-[color:var(--crm-border)] bg-white dark:bg-[var(--crm-surface)]'
@@ -2136,7 +2138,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, full
                     </button>
                   </div>
                 ))}
-                {(!meeting.checklistItems || meeting.checklistItems.length === 0) && (
+                {asList(meeting.checklistItems).length === 0 && (
                   <p className="text-sm text-gray-400 dark:text-slate-500 text-center py-6">Nenhum item de checklist</p>
                 )}
               </div>
@@ -2462,7 +2464,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, full
                 )}
 
                 <div className="space-y-2">
-                  {meeting.actionItems?.map((item) => (
+                  {asList(meeting.actionItems).map((item) => (
                     <div key={item.id} className="bg-gray-50 dark:bg-[var(--crm-surface-2)] rounded-xl p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex-1">
@@ -2525,7 +2527,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, full
                       </div>
                     </div>
                   ))}
-                  {(!meeting.actionItems || meeting.actionItems.length === 0) && (
+                  {asList(meeting.actionItems).length === 0 && (
                     <p className="text-sm text-gray-400 dark:text-slate-500 text-center py-6">Nenhuma ação pós-reunião definida</p>
                   )}
                 </div>
@@ -2536,7 +2538,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, full
           {/* Histórico */}
           {activeTab === 'history' && (
             <div className="space-y-4">
-              {meeting.history?.map((event) => (
+              {asList(meeting.history).map((event) => (
                 <div key={event.id} className="flex gap-3">
                   <div className="w-8 h-8 bg-indigo-100 dark:bg-indigo-500/15 rounded-full flex items-center justify-center flex-shrink-0">
                     <History className="w-4 h-4 text-indigo-600 dark:text-indigo-300" />
@@ -2553,7 +2555,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, full
                   </div>
                 </div>
               ))}
-              {(!meeting.history || meeting.history.length === 0) && (
+              {asList(meeting.history).length === 0 && (
                 <p className="text-sm text-gray-400 dark:text-slate-500 text-center py-6">Nenhum evento no histórico</p>
               )}
             </div>
