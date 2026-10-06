@@ -905,8 +905,8 @@ router.get('/summary', async (_req, res) => {
 
 router.get('/routine-status', async (_req, res) => {
   try {
-    const backupDir = '/var/backups/crmnexointegrator_v2';
-    const logFile = '/var/log/crmnexointegrator_v2-backup.log';
+    const backupDir = '/root/backups/nexoscrm-3026';
+    const logFile = '/var/log/nexoscrm-3026-backup.log';
     let files = [];
     let logSnippet = '';
 
@@ -927,29 +927,29 @@ router.get('/routine-status', async (_req, res) => {
       }
       files.sort((a, b) => new Date(b.modifiedAt) - new Date(a.modifiedAt));
     } catch (e) {
-      // Directory may not exist in local dev
+      // Diretório pode não existir em dev local
     }
 
     try {
       const logContent = await fs.readFile(logFile, 'utf-8');
       const lines = logContent.trim().split('\n');
-      logSnippet = lines.slice(-15).join('\n');
+      logSnippet = lines.slice(-20).join('\n');
     } catch (e) {
       logSnippet = 'Log ainda não gerado ou aguardando primeiro ciclo do cron.';
     }
 
     res.json({
       active: true,
-      schedule: 'Segunda a Sexta às 17:00 (America/Sao_Paulo)',
-      cronExpression: '0 17 * * 1-5',
+      schedule: 'Diário às 02:30 (America/Sao_Paulo)',
+      cronExpression: '30 2 * * *',
       database: 'nexoscrm',
       databasePort: 5433,
-      domain: 'nexosv2.chorstconsult.com.br',
-      retentionDays: 30,
+      domain: 'nexos.chorstconsult.com.br',
+      retentionDays: 14,
       backupDir,
       logFile,
-      backupScript: '/var/www/crmnexointegrator_v2/scripts/backup-crmnexointegrator_v2.sh',
-      restoreScript: '/var/www/crmnexointegrator_v2/scripts/restore-crmnexointegrator_v2.sh',
+      backupScript: '/root/backups/backup-nexoscrm-3026.sh',
+      restoreScript: null,
       totalFiles: files.length,
       files,
       latestBackup: files[0] || null,
