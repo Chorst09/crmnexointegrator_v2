@@ -1753,8 +1753,8 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh }) =>
 
   const inputClass = "w-full px-3 py-2 border border-gray-300 dark:border-[color:var(--crm-border)] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm";
   const phase = PHASE_MAP[meeting.phase];
-  const completedChecklist = meeting.checklistItems?.filter((c) => c.isCompleted).length || 0;
-  const totalChecklist = meeting.checklistItems?.length || 0;
+  const completedChecklist = Array.isArray(meeting.checklistItems) ? meeting.checklistItems.filter((c) => c.isCompleted).length : 0;
+  const totalChecklist = Array.isArray(meeting.checklistItems) ? meeting.checklistItems.length : 0;
   const checklistProgress = totalChecklist > 0 ? Math.round((completedChecklist / totalChecklist) * 100) : 0;
 
   const TABS = [
