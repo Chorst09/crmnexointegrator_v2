@@ -467,18 +467,16 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
                       </div>
                       <button
                         type="button"
-                        onClick={() => {
-                          console.log('🚀 Abrindo reunião:', m.id);
-                          // Fechar modal da oportunidade PRIMEIRO
-                          if (onNavigate) {
-                            console.log('✅ Fechando modal...');
-                            onNavigate();
-                          }
-                          // Delay pequeno para garantir que o modal fecha
-                          setTimeout(() => {
-                            console.log('🔄 Navegando para /kickoff...');
-                            window.location.href = `/kickoff?meetingId=${m.id}`;
-                          }, 50);
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          
+                          const meetingId = m.id;
+                          console.log('🚀 Iniciando navegação para reunião:', meetingId);
+                          
+                          // SOLUÇÃO DEFINITIVA: Navegar imediatamente sem esperar fechar modal
+                          // O window.location.href vai recarregar a página inteira, fechando tudo
+                          window.location.href = `/kickoff?meetingId=${meetingId}`;
                         }}
                         className="shrink-0 rounded-lg border border-cyan-600 bg-cyan-600/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-600/20 transition-colors"
                       >

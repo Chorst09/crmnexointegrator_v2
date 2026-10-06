@@ -1,4 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useSearchParams } from 'react-router-dom';
 import {
   Rocket,
@@ -80,12 +81,21 @@ const formatMeetingDate = (value) => {
 };
 
 const participantNames = (meeting, role) => {
-  const names = (meeting.participants || [])
+  const list = meeting.participants;
+  // Defensivo: participants pode vir como _count (número), objeto Prisma sem array, ou undefined
+  if (!Array.isArray(list)) return '[participantes]';
+  const names = list
     .filter((participant) => !role || participant.role === role)
     .map((participant) => participant.user?.name || participant.contact?.name)
     .filter(Boolean);
   return names.length ? names.join(', ') : '[participantes]';
 };
+
+// Garante que o meeting passado para buildNotes sempre tem participants como array
+const safeMeetingForNotes = (meeting) => ({
+  ...meeting,
+  participants: Array.isArray(meeting?.participants) ? meeting.participants : [],
+});
 
 const MINUTES_TEMPLATES = {
   INTERNAL: {
@@ -300,7 +310,7 @@ const serializeMinutesDocuments = (documents) => JSON.stringify({
 const buildMinutesPdfHtml = ({ meeting, document }) => {
   const generatedAt = new Date().toLocaleString('pt-BR');
   const fileName = `${safeFileName(document.title)}.pdf`;
-  const participants = (meeting.participants || [])
+  const participants = (Array.isArray(meeting.participants) ? meeting.participants : [])
     .map((participant) => participant.user?.name || participant.contact?.name)
     .filter(Boolean)
     .join(', ');
@@ -375,7 +385,7 @@ const buildMinutesPdfHtml = ({ meeting, document }) => {
 };
 
 const Kickoff = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const companyIdFilter = searchParams.get('companyId') || '';
   const meetingIdParam = searchParams.get('meetingId') || '';
   const [meetings, setMeetings] = useState([]);
@@ -463,10 +473,24 @@ const Kickoff = () => {
     }
   };
 
+  const openedFromParamRef = useRef('');
+
   useEffect(() => {
-    if (!meetingIdParam || detailMeeting?.id === meetingIdParam) return;
+    if (!meetingIdParam || openedFromParamRef.current === meetingIdParam) return;
+    openedFromParamRef.current = meetingIdParam;
     openDetail({ id: meetingIdParam });
-  }, [meetingIdParam, detailMeeting?.id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [meetingIdParam]);
+
+  const closeDetail = () => {
+    setDetailMeeting(null);
+    openedFromParamRef.current = '';
+    if (meetingIdParam) {
+      const next = new URLSearchParams(searchParams);
+      next.delete('meetingId');
+      setSearchParams(next, { replace: true });
+    }
+  };
 
   const openEdit = (meeting) => {
     setEditingMeeting(meeting);
@@ -786,9 +810,10 @@ const Kickoff = () => {
       {detailMeeting && (
         <KickoffDetailModal
           meeting={detailMeeting}
-          onClose={() => setDetailMeeting(null)}
+          onClose={closeDetail}
           onMeetingChange={setDetailMeeting}
           onRefresh={fetchData}
+          fullscreen={Boolean(meetingIdParam)}
         />
       )}
     </div>
@@ -886,13 +911,13 @@ const KickoffFormModal = ({ onClose, onSaved, meeting, initialContext = null }) 
     templateId: meeting?.templateId || ''
   });
   const [participants, setParticipants] = useState(
-    meeting?.participants?.map((p) => ({ userId: p.userId, contactId: p.contactId, role: p.role, isRequired: p.isRequired })) || []
+    Array.isArray(meeting?.participants) ? meeting.participants.map((p) => ({ userId: p.userId, contactId: p.contactId, role: p.role, isRequired: p.isRequired })) : []
   );
   const [agendaItems, setAgendaItems] = useState(
-    meeting?.agendaItems?.map((a) => ({ title: a.title, description: a.description, durationMinutes: a.durationMinutes })) || []
+    Array.isArray(meeting?.agendaItems) ? meeting.agendaItems.map((a) => ({ title: a.title, description: a.description, durationMinutes: a.durationMinutes })) : []
   );
   const [checklistItems, setChecklistItems] = useState(
-    meeting?.checklistItems?.map((c) => c.title) || []
+    Array.isArray(meeting?.checklistItems) ? meeting.checklistItems.map((c) => c.title) : []
   );
 
   const [opportunities, setOpportunities] = useState([]);
@@ -900,10 +925,10 @@ const KickoffFormModal = ({ onClose, onSaved, meeting, initialContext = null }) 
   const [templates, setTemplates] = useState([]);
   const [preview, setPreview] = useState(null);
   const [selectedInternal, setSelectedInternal] = useState(
-    meeting?.participants?.filter((p) => p.userId).map((p) => p.userId) || []
+    Array.isArray(meeting?.participants) ? meeting.participants.filter((p) => p.userId).map((p) => p.userId) : []
   );
   const [selectedExternal, setSelectedExternal] = useState(
-    meeting?.participants?.filter((p) => p.contactId).map((p) => p.contactId) || []
+    Array.isArray(meeting?.participants) ? meeting.participants.filter((p) => p.contactId).map((p) => p.contactId) : []
   );
   const [saving, setSaving] = useState(false);
 
@@ -1081,8 +1106,8 @@ const KickoffFormModal = ({ onClose, onSaved, meeting, initialContext = null }) 
 
   const inputClass = "w-full px-3 py-2 border border-gray-300 dark:border-[color:var(--crm-border)] rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent";
 
-  return (
-    <div className="fixed inset-y-0 left-0 right-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-3 lg:left-[312px] lg:p-6">
+  return createPortal(
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-3 lg:p-6">
       <div className="bg-white dark:bg-[var(--crm-surface)] rounded-xl shadow-2xl w-full max-w-3xl max-h-[92vh] flex flex-col">
         <div className="flex justify-between items-center p-6 border-b border-gray-200 dark:border-[color:var(--crm-border)] flex-shrink-0">
           <h2 className="text-xl font-bold text-gray-900 dark:text-slate-100">
@@ -1432,12 +1457,13 @@ const KickoffFormModal = ({ onClose, onSaved, meeting, initialContext = null }) 
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 
 // ===== MODAL DETALHES =====
-const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh }) => {
+const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, fullscreen = false }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [actionForm, setActionForm] = useState({ title: '', description: '', priority: 'MEDIUM', dueDate: '', assigneeId: '' });
   const [users, setUsers] = useState([]);
@@ -1633,14 +1659,26 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh }) =>
   };
 
   const openMinutesEditorFromTemplate = (templateKey) => {
+    console.log('🎯 Usar modelo clicado:', templateKey);
+    console.log('📋 Templates disponíveis:', Object.keys(MINUTES_TEMPLATES));
+    console.log('📄 Meeting:', meeting);
+    
     const template = MINUTES_TEMPLATES[templateKey];
-    if (!template) return;
+    if (!template) {
+      console.error('❌ Template não encontrado:', templateKey);
+      return;
+    }
+    
+    console.log('✅ Template encontrado:', template.title);
+    
     setMinutesEditor({
       id: null,
       templateKey,
       title: template.title,
-      content: template.buildNotes(meeting)
+      content: template.buildNotes(safeMeetingForNotes(meeting))
     });
+    
+    console.log('✅ Editor de ata aberto');
   };
 
   const editMinutesDocument = (document) => {
@@ -1766,9 +1804,17 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh }) =>
     { id: 'history', label: 'Histórico', icon: History }
   ];
 
-  return (
-    <div className="fixed inset-y-0 left-0 right-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-3 lg:left-[312px] lg:p-6">
-      <div className="bg-white dark:bg-[var(--crm-surface)] rounded-xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col">
+  return createPortal(
+    <div className={
+      fullscreen
+        ? 'fixed inset-0 z-[60] flex flex-col bg-white dark:bg-[var(--crm-surface)]'
+        : 'fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-3 lg:p-6'
+    }>
+      <div className={
+        fullscreen
+          ? 'flex h-full w-full min-h-0 flex-col overflow-hidden'
+          : 'bg-white dark:bg-[var(--crm-surface)] rounded-xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col'
+      }>
         {/* Header */}
         <div className="p-6 border-b border-gray-200 dark:border-[color:var(--crm-border)] flex-shrink-0">
           <div className="flex justify-between items-start">
@@ -2113,7 +2159,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh }) =>
           {activeTab === 'participants' && (
             <div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {meeting.participants?.map((participant) => {
+                {Array.isArray(meeting.participants) && meeting.participants.map((participant) => {
                   const isInternal = participant.userId;
                   const name = isInternal ? participant.user?.name : participant.contact?.name;
                   const detail = isInternal ? participant.user?.email : `${participant.contact?.position || 'Contato'} • ${participant.contact?.email || participant.contact?.phone || ''}`;
@@ -2177,7 +2223,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh }) =>
                       <option value="">Contato do cliente...</option>
                       {(() => {
                         const existingContactIds = new Set(
-                          (meeting.participants || []).map((p) => p.contactId).filter(Boolean)
+                          (Array.isArray(meeting.participants) ? meeting.participants : []).map((p) => p.contactId).filter(Boolean)
                         );
                         return contacts
                           .filter((c) => !existingContactIds.has(c.id))
@@ -2523,7 +2569,11 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh }) =>
       </div>
 
       {minutesEditor && (
-        <div className="fixed inset-y-0 left-0 right-0 z-[70] flex items-center justify-center bg-black/60 p-3 backdrop-blur-sm lg:left-[312px] lg:p-6">
+        <div className={
+          fullscreen
+            ? 'fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-3 backdrop-blur-sm lg:p-6'
+            : 'fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-3 backdrop-blur-sm lg:p-6'
+        }>
           <div className="flex h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-2xl bg-white shadow-2xl dark:bg-[var(--crm-surface)]">
             <div className="flex flex-shrink-0 items-start justify-between gap-4 border-b border-gray-200 p-5 dark:border-[color:var(--crm-border)]">
               <div className="min-w-0">
@@ -2566,7 +2616,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh }) =>
                         ...prev,
                         templateKey,
                         title: template && (!prev.title || prev.title === 'Ata da Reunião') ? template.title : prev.title,
-                        content: template && !prev.content?.trim() ? template.buildNotes(meeting) : prev.content
+                        content: template && !prev.content?.trim() ? template.buildNotes(safeMeetingForNotes(meeting)) : prev.content
                       }));
                     }}
                     className={inputClass}
@@ -2617,7 +2667,8 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh }) =>
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   );
 };
 
