@@ -2190,14 +2190,10 @@ export default function B2GEditais() {
   }, [analyzedNotices.length, nonConformTRCount]);
 
   const dashboardSourceOpportunities = useMemo(() => {
-    const periodDays = Math.max(Number(dashboardPeriod) || 30, 1);
-    const cutoff = Date.now() - periodDays * 24 * 60 * 60 * 1000;
-
-    return opportunities.filter((item) => {
-      const timestamp = toTimestamp(item?.createdAt || item?.updatedAt);
-      return timestamp <= 0 || timestamp >= cutoff;
-    });
-  }, [dashboardPeriod, opportunities]);
+    // Sem filtro de data — KPIs e funil refletem o pipeline COMPLETO.
+    // O seletor de período (dashboardPeriod) fica disponível para uso futuro em gráficos de tendência.
+    return opportunities;
+  }, [opportunities]);
 
   const dashboardOpportunities = useMemo(() => {
     return dashboardSourceOpportunities.map((item) => {

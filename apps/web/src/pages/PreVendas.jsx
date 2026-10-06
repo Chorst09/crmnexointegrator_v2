@@ -299,6 +299,7 @@ export default function PreVendas() {
   const [activitiesLoading, setActivitiesLoading] = useState(false);
   const [registroLoading, setRegistroLoading] = useState(false);
   const [registroOportunidades, setRegistroOportunidades] = useState([]);
+  const [registroOrigemFilter, setRegistroOrigemFilter] = useState('ALL');
   const [cadastrosLoading, setCadastrosLoading] = useState(false);
   const [distribuidores, setDistribuidores] = useState([]);
   const [fornecedores, setFornecedores] = useState([]);
@@ -689,22 +690,29 @@ export default function PreVendas() {
     return { received, sent, pending, completed };
   }, [activities]);
 
+  const registroFiltrado = useMemo(() => {
+    if (registroOrigemFilter === 'ALL') return registroOportunidades;
+    return registroOportunidades.filter(
+      (item) => String(item?.origem || 'B2B').toUpperCase() === registroOrigemFilter
+    );
+  }, [registroOportunidades, registroOrigemFilter]);
+
   const registroStats = useMemo(() => {
-    const total = registroOportunidades.length;
-    const abertas = registroOportunidades.filter((item) =>
+    const total = registroFiltrado.length;
+    const abertas = registroFiltrado.filter((item) =>
       ['ABERTA', 'EM_ANALISE', 'EM_COTACAO', 'PRECIFICADA'].includes(String(item?.status || '').toUpperCase())
     ).length;
-    const ganhas = registroOportunidades.filter((item) => String(item?.status || '').toUpperCase() === 'GANHA').length;
-    const valorPotencial = registroOportunidades.reduce((acc, item) => acc + Number(item?.valorEstimado || 0), 0);
-    const b2g = registroOportunidades.filter((item) => String(item?.origem || '').toUpperCase() === 'B2G').length;
+    const ganhas = registroFiltrado.filter((item) => String(item?.status || '').toUpperCase() === 'GANHA').length;
+    const valorPotencial = registroFiltrado.reduce((acc, item) => acc + Number(item?.valorEstimado || 0), 0);
+    const b2g = registroFiltrado.filter((item) => String(item?.origem || '').toUpperCase() === 'B2G').length;
     return { total, abertas, ganhas, valorPotencial, b2g };
-  }, [registroOportunidades]);
+  }, [registroFiltrado]);
 
   const registroExpiring = useMemo(() => {
     const now = new Date();
     const days = (n) => new Date(now.getTime() + n * 24 * 60 * 60 * 1000);
     const buckets = { expired: [], within7: [], within15: [], within30: [] };
-    registroOportunidades.forEach((item) => {
+    registroFiltrado.forEach((item) => {
       if (!item.dataValidade) return;
       const val = new Date(item.dataValidade);
       if (!Number.isFinite(val.getTime())) return;
@@ -714,7 +722,7 @@ export default function PreVendas() {
       if (val <= days(30)) { buckets.within30.push(item); return; }
     });
     return buckets;
-  }, [registroOportunidades]);
+  }, [registroFiltrado]);
 
   const pocStats = useMemo(() => {
     const finalStatuses = new Set(['APROVADA', 'DESCARTADA']);
@@ -776,7 +784,7 @@ export default function PreVendas() {
       PERDIDA: 'Perdida'
     };
     const counts = statusOrder.map((status) =>
-      registroOportunidades.filter((item) => String(item?.status || '').toUpperCase() === status).length
+      registroFiltrado.filter((item) => String(item?.status || '').toUpperCase() === status).length
     );
 
     return {
@@ -799,7 +807,7 @@ export default function PreVendas() {
         }
       ]
     };
-  }, [registroOportunidades]);
+  }, [registroFiltrado]);
 
   const registroOrigemChartData = useMemo(() => {
     const origemOrder = ['B2B', 'B2G', 'COMERCIAL', 'PRE_VENDAS', 'OUTROS'];
@@ -813,12 +821,12 @@ export default function PreVendas() {
 
     const counts = origemOrder.map((origem) => {
       if (origem === 'OUTROS') {
-        return registroOportunidades.filter((item) => {
+        return registroFiltrado.filter((item) => {
           const normalized = String(item?.origem || '').toUpperCase();
           return !['B2B', 'B2G', 'COMERCIAL', 'PRE_VENDAS'].includes(normalized);
         }).length;
       }
-      return registroOportunidades.filter((item) => String(item?.origem || '').toUpperCase() === origem).length;
+      return registroFiltrado.filter((item) => String(item?.origem || '').toUpperCase() === origem).length;
     });
 
     return {
@@ -832,7 +840,7 @@ export default function PreVendas() {
         }
       ]
     };
-  }, [registroOportunidades]);
+  }, [registroFiltrado]);
 
   const registroModalidadeChartData = useMemo(() => {
     const labels = ['Venda', 'Locação', 'Serviços', 'Projeto', 'Outros'];
@@ -840,14 +848,14 @@ export default function PreVendas() {
 
     const sums = modalities.map((modality) => {
       if (modality === 'OUTROS') {
-        return registroOportunidades
+        return registroFiltrado
           .filter((item) => {
             const normalized = String(item?.modalidade || '').toUpperCase();
             return !['VENDA', 'LOCACAO', 'SERVICOS', 'PROJETO'].includes(normalized);
           })
           .reduce((acc, item) => acc + Number(item?.valorEstimado || 0), 0);
       }
-      return registroOportunidades
+      return registroFiltrado
         .filter((item) => String(item?.modalidade || '').toUpperCase() === modality)
         .reduce((acc, item) => acc + Number(item?.valorEstimado || 0), 0);
     });
@@ -865,7 +873,7 @@ export default function PreVendas() {
         }
       ]
     };
-  }, [registroOportunidades]);
+  }, [registroFiltrado]);
 
   const registroEvolucaoChartData = useMemo(() => {
     const buckets = Array.from({ length: 6 }).map((_, index) => {
@@ -878,7 +886,7 @@ export default function PreVendas() {
     });
 
     const grouped = new Map(buckets.map((item) => [item.key, { total: 0, value: 0 }]));
-    registroOportunidades.forEach((item) => {
+    registroFiltrado.forEach((item) => {
       const createdAt = item?.createdAt ? new Date(item.createdAt) : null;
       if (!createdAt || Number.isNaN(createdAt.getTime())) return;
       const key = `${createdAt.getFullYear()}-${String(createdAt.getMonth() + 1).padStart(2, '0')}`;
@@ -911,7 +919,7 @@ export default function PreVendas() {
         }
       ]
     };
-  }, [registroOportunidades]);
+  }, [registroFiltrado]);
 
   const filteredSolicitacoes = solicitacoes.filter((solicitacao) => {
     const term = searchTerm.toLowerCase();
@@ -1686,6 +1694,36 @@ export default function PreVendas() {
               <DashboardKPICard title="Em Aberto" value={registroStats.abertas} subtitle="Aguardando execução/comercial" icon={Clock} colorTheme="cyan" size="compact" />
               <DashboardKPICard title="Ganhas" value={registroStats.ganhas} subtitle="Oportunidades convertidas" icon={CheckCircle} colorTheme="green" size="compact" />
               <DashboardKPICard title="Valor Potencial" value={`R$ ${registroStats.valorPotencial.toLocaleString('pt-BR', { maximumFractionDigits: 0 })}`} subtitle={`${registroStats.b2g} item(ns) origem B2G`} icon={DollarSign} colorTheme="yellow" size="compact" />
+            </div>
+
+            {/* Filtro por Origem: B2B / B2G */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold text-slate-400 shrink-0">Filtrar por Origem:</span>
+              {[
+                { value: 'ALL',       label: 'Todas',       color: null },
+                { value: 'B2B',       label: 'B2B Privado', color: 'orange' },
+                { value: 'B2G',       label: 'B2G Governo', color: 'green' },
+                { value: 'COMERCIAL', label: 'Comercial',   color: 'sky' },
+                { value: 'PRE_VENDAS',label: 'Pré-Vendas',  color: 'purple' }
+              ].map((opt) => {
+                const isSelected = registroOrigemFilter === opt.value;
+                const count = opt.value === 'ALL'
+                  ? registroOportunidades.length
+                  : registroOportunidades.filter((i) => String(i?.origem || 'B2B').toUpperCase() === opt.value).length;
+                const activeMap = { orange: 'bg-orange-500 border-orange-500 text-white', green: 'bg-emerald-500 border-emerald-500 text-white', sky: 'bg-sky-500 border-sky-500 text-white', purple: 'bg-purple-500 border-purple-500 text-white' };
+                const inactiveMap = { orange: 'border-orange-500/40 text-orange-300 hover:bg-orange-500/15', green: 'border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/15', sky: 'border-sky-500/40 text-sky-300 hover:bg-sky-500/15', purple: 'border-purple-500/40 text-purple-300 hover:bg-purple-500/15' };
+                const cls = opt.value === 'ALL'
+                  ? (isSelected ? 'bg-slate-100 border-slate-100 text-slate-900' : 'border-slate-600 text-slate-300 hover:bg-slate-700/50')
+                  : (isSelected ? activeMap[opt.color] : inactiveMap[opt.color]);
+                return (
+                  <button key={opt.value} type="button" onClick={() => setRegistroOrigemFilter(opt.value)}
+                    className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition-colors ${cls}`}
+                  >
+                    {opt.label}
+                    <span className="rounded-full bg-black/20 px-1.5 py-0.5 text-[10px] font-bold tabular-nums">{count}</span>
+                  </button>
+                );
+              })}
             </div>
 
             {registroLoading ? (

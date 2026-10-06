@@ -898,8 +898,9 @@ export default function DashboardGeral() {
     const opportunitiesB2BRange = opportunitiesB2B.filter((item) => inRange(item.createdAt || item.updatedAt));
     const opportunitiesB2GRange = opportunitiesB2G.filter((item) => inRange(item.createdAt || item.updatedAt));
     const b2gNoticesRange = b2gNotices.filter((item) => inRange(item.createdAt || item.updatedAt));
-    const preSalesRange = preSales.filter((item) => inRange(item.createdAt || item.updatedAt));
-    const preSalesPocsRange = preSalesPocs.filter((item) => inRange(item.createdAt || item.updatedAt || item.dueDate));
+    // Sem filtro de data — o backend já retorna os registros relevantes; evita double-filter que zeraria os dados
+    const preSalesRange = preSales;
+    const preSalesPocsRange = preSalesPocs;
     const activitiesRange = activities.filter((item) => inRange(item.createdAt || item.updatedAt || item.dueDate));
     const proposalsRange = proposals.filter((item) => inRange(item.createdAt || item.updatedAt || item.sentAt));
     const contractsRange = contracts.filter((item) => inRange(item.createdAt || item.updatedAt || item.startDate));
@@ -932,6 +933,13 @@ export default function DashboardGeral() {
     const activePocStatuses = new Set(['PLANEJAMENTO', 'EM_ANDAMENTO', 'VALIDACAO']);
     const finalPocStatuses = new Set(['APROVADA', 'DESCARTADA']);
     const activePreSalesPocs = preSalesPocsRange.filter((item) => activePocStatuses.has(String(item.status || '').toUpperCase()));
+
+    // Registro de Oportunidades Pré-Vendas (prevendasOportunidades)
+    const regOppOpenStatuses = new Set(['ABERTA', 'EM_ANALISE', 'EM_COTACAO', 'PRECIFICADA']);
+    const regOppTotal = prevendasOportunidades.length;
+    const regOppAbertos = prevendasOportunidades.filter((item) => regOppOpenStatuses.has(String(item.status || '').toUpperCase())).length;
+    const regOppGanhos = prevendasOportunidades.filter((item) => String(item.status || '').toUpperCase() === 'GANHA').length;
+    const regOppValor = prevendasOportunidades.reduce((acc, item) => acc + Number(item.valorEstimado || 0), 0);
     const approvedPreSalesPocs = preSalesPocsRange.filter((item) => String(item.status || '').toUpperCase() === 'APROVADA');
     const blockedPreSalesPocs = preSalesPocsRange.filter((item) => String(item.status || '').toUpperCase() === 'BLOQUEADA');
     const overduePreSalesPocs = preSalesPocsRange.filter((item) => {
@@ -1151,6 +1159,10 @@ export default function DashboardGeral() {
       approvedPreSalesPocs,
       blockedPreSalesPocs,
       overduePreSalesPocs,
+      regOppTotal,
+      regOppAbertos,
+      regOppGanhos,
+      regOppValor,
       b2bRevenue,
       b2bStageBreakdown,
       b2gRevenue,
@@ -1553,6 +1565,10 @@ export default function DashboardGeral() {
     approvedPreSalesPocs,
     blockedPreSalesPocs,
     overduePreSalesPocs,
+    regOppTotal,
+    regOppAbertos,
+    regOppGanhos,
+    regOppValor,
     b2bRevenue,
     b2bStageBreakdown,
     b2gRevenue,
@@ -1623,6 +1639,10 @@ export default function DashboardGeral() {
       route: '/pre-vendas',
       badge: `${pendingPreSales.length} pendentes`,
       kpis: [
+        { label: 'Registro Opps', value: formatNumber(regOppTotal) },
+        { label: 'Em Aberto', value: formatNumber(regOppAbertos) },
+        { label: 'Ganhas', value: formatNumber(regOppGanhos) },
+        { label: 'Valor Potencial', value: formatCurrency(regOppValor) },
         { label: 'Solicitações', value: formatNumber(preSalesRange.length) },
         { label: 'POCs', value: formatNumber(preSalesPocsRange.length) },
         { label: 'Aprovadas', value: formatNumber(approvedPreSalesPocs.length) }

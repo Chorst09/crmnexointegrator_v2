@@ -224,6 +224,45 @@ export default function Atividades() {
   const [empresas, setEmpresas] = useState([]);
   const [oportunidades, setOportunidades] = useState([]);
   const [usuarios, setUsuarios] = useState([]);
+
+  // Busca de empresa e oportunidade no modal
+  const [empresaSearch, setEmpresaSearch] = useState('');
+  const [empresaDropdownOpen, setEmpresaDropdownOpen] = useState(false);
+  const [oportunidadeSearch, setOportunidadeSearch] = useState('');
+  const [oportunidadeDropdownOpen, setOportunidadeDropdownOpen] = useState(false);
+
+  // Retorna o nome da empresa selecionada (para exibir no input)
+  const empresaSelecionadaNome = useMemo(
+    () => empresas.find((e) => e.id === formData.companyId)?.name || '',
+    [empresas, formData.companyId]
+  );
+  // Retorna o título da oportunidade selecionada
+  const oportunidadeSelecionadaTitulo = useMemo(
+    () => oportunidades.find((o) => o.id === formData.opportunityId)?.title || '',
+    [oportunidades, formData.opportunityId]
+  );
+
+  // Empresas filtradas pela busca
+  const empresasFiltradas = useMemo(() => {
+    const term = empresaSearch.trim().toLowerCase();
+    if (!term) return empresas.slice(0, 10);
+    return empresas
+      .filter((e) => (e.name || '').toLowerCase().includes(term))
+      .slice(0, 10);
+  }, [empresas, empresaSearch]);
+
+  // Oportunidades filtradas: por empresa selecionada (se houver) E pelo texto de busca
+  const oportunidadesFiltradas = useMemo(() => {
+    const term = oportunidadeSearch.trim().toLowerCase();
+    let lista = oportunidades;
+    if (formData.companyId) {
+      lista = lista.filter((o) => o.companyId === formData.companyId || o.company?.id === formData.companyId);
+    }
+    if (term) {
+      lista = lista.filter((o) => (o.title || '').toLowerCase().includes(term));
+    }
+    return lista.slice(0, 10);
+  }, [oportunidades, oportunidadeSearch, formData.companyId]);
   const canDeleteActivities = useMemo(() => ['ADMIN', 'MASTER'].includes(getCurrentUserRole()), []);
   const isPreSales = useMemo(() => getCurrentUserRole() === 'PRE_VENDAS', []);
   const canViewAuditLogs = useMemo(() => ['PRE_VENDAS', 'ADMIN', 'MASTER', 'GESTOR'].includes(getCurrentUserRole()), []);
@@ -521,6 +560,8 @@ export default function Atividades() {
       sourceArea: 'B2B',
       targetArea: 'B2B'
     });
+    setEmpresaSearch('');
+    setOportunidadeSearch('');
   };
 
   const closeModal = () => {
@@ -2046,30 +2087,154 @@ export default function Atividades() {
 
             <div className="sm:col-span-2">
               <label className="block text-sm font-semibold text-[var(--crm-ink)] mb-2">Empresa</label>
-              <select
-                value={formData.companyId}
-                onChange={(e) => setFormData((p) => ({ ...p, companyId: e.target.value }))}
-                className="crm-input"
-              >
-                <option value="">Selecionar empresa</option>
-                {empresas.map((empresa) => (
-                  <option key={empresa.id} value={empresa.id}>{empresa.name}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--crm-muted)]" />
+                    <input
+                      type="text"
+                      value={formData.companyId ? empresaSelecionadaNome : empresaSearch}
+                      readOnly={Boolean(formData.companyId)}
+                      placeholder="Digite para buscar empresa..."
+                      className="crm-input pl-9 pr-8"
+                      onFocus={() => { if (!formData.companyId) setEmpresaDropdownOpen(true); }}
+                      onChange={(e) => {
+                        setEmpresaSearch(e.target.value);
+                        setEmpresaDropdownOpen(true);
+                      }}
+                      onBlur={() => setTimeout(() => setEmpresaDropdownOpen(false), 150)}
+                    />
+                    {formData.companyId && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((p) => ({ ...p, companyId: '', opportunityId: '' }));
+                          setEmpresaSearch('');
+                          setOportunidadeSearch('');
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-[var(--crm-muted)] hover:text-[var(--crm-ink)]"
+                        title="Limpar empresa"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  {!formData.companyId && (
+                    <button
+                      type="button"
+                      onClick={() => setEmpresaDropdownOpen((v) => !v)}
+                      className="crm-btn crm-btn-secondary px-3 shrink-0"
+                      title="Buscar empresa"
+                    >
+                      <Search className="h-4 w-4" />
+                      <span className="ml-1.5 text-xs">Buscar</span>
+                    </button>
+                  )}
+                </div>
+                {empresaDropdownOpen && !formData.companyId && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] shadow-xl">
+                    {empresasFiltradas.length > 0 ? (
+                      empresasFiltradas.map((empresa) => (
+                        <button
+                          key={empresa.id}
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            setFormData((p) => ({ ...p, companyId: empresa.id, opportunityId: '' }));
+                            setEmpresaSearch('');
+                            setOportunidadeSearch('');
+                            setEmpresaDropdownOpen(false);
+                          }}
+                          className="w-full px-4 py-2.5 text-left text-sm hover:bg-[color:var(--crm-surface-2)] transition-colors"
+                        >
+                          <span className="font-semibold text-[var(--crm-ink)]">{empresa.name}</span>
+                          {empresa.clientType && (
+                            <span className="ml-2 text-xs text-[var(--crm-muted)]">{empresa.clientType}</span>
+                          )}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-sm text-[var(--crm-muted)]">Nenhuma empresa encontrada</div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="sm:col-span-2">
               <label className="block text-sm font-semibold text-[var(--crm-ink)] mb-2">Oportunidade (opcional)</label>
-              <select
-                value={formData.opportunityId}
-                onChange={(e) => setFormData((p) => ({ ...p, opportunityId: e.target.value }))}
-                className="crm-input"
-              >
-                <option value="">Selecionar oportunidade</option>
-                {oportunidades.map((o) => (
-                  <option key={o.id} value={o.id}>{o.title}</option>
-                ))}
-              </select>
+              <div className="relative">
+                <div className="flex gap-2">
+                  <div className="relative flex-1">
+                    <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--crm-muted)]" />
+                    <input
+                      type="text"
+                      value={formData.opportunityId ? oportunidadeSelecionadaTitulo : oportunidadeSearch}
+                      readOnly={Boolean(formData.opportunityId)}
+                      placeholder={formData.companyId ? 'Buscar oportunidades desta empresa...' : 'Buscar oportunidade...'}
+                      className="crm-input pl-9 pr-8"
+                      onFocus={() => { if (!formData.opportunityId) setOportunidadeDropdownOpen(true); }}
+                      onChange={(e) => {
+                        setOportunidadeSearch(e.target.value);
+                        setOportunidadeDropdownOpen(true);
+                      }}
+                      onBlur={() => setTimeout(() => setOportunidadeDropdownOpen(false), 150)}
+                    />
+                    {formData.opportunityId && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormData((p) => ({ ...p, opportunityId: '' }));
+                          setOportunidadeSearch('');
+                        }}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-0.5 text-[var(--crm-muted)] hover:text-[var(--crm-ink)]"
+                        title="Limpar oportunidade"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  {!formData.opportunityId && (
+                    <button
+                      type="button"
+                      onClick={() => setOportunidadeDropdownOpen((v) => !v)}
+                      className="crm-btn crm-btn-secondary px-3 shrink-0"
+                      title="Buscar oportunidade"
+                    >
+                      <Search className="h-4 w-4" />
+                      <span className="ml-1.5 text-xs">Buscar</span>
+                    </button>
+                  )}
+                </div>
+                {oportunidadeDropdownOpen && !formData.opportunityId && (
+                  <div className="absolute left-0 right-0 top-full z-50 mt-1 max-h-60 overflow-y-auto rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] shadow-xl">
+                    {oportunidadesFiltradas.length > 0 ? (
+                      oportunidadesFiltradas.map((op) => (
+                        <button
+                          key={op.id}
+                          type="button"
+                          onMouseDown={(e) => e.preventDefault()}
+                          onClick={() => {
+                            setFormData((p) => ({ ...p, opportunityId: op.id, companyId: p.companyId || op.companyId || op.company?.id || '' }));
+                            setOportunidadeSearch('');
+                            setOportunidadeDropdownOpen(false);
+                          }}
+                          className="w-full px-4 py-2.5 text-left text-sm hover:bg-[color:var(--crm-surface-2)] transition-colors"
+                        >
+                          <div className="font-semibold text-[var(--crm-ink)] truncate">{op.title}</div>
+                          {op.company?.name && (
+                            <div className="text-xs text-[var(--crm-muted)] mt-0.5">{op.company.name}</div>
+                          )}
+                        </button>
+                      ))
+                    ) : (
+                      <div className="px-4 py-3 text-sm text-[var(--crm-muted)]">
+                        {formData.companyId ? 'Nenhuma oportunidade para esta empresa' : 'Nenhuma oportunidade encontrada'}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

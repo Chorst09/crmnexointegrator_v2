@@ -476,8 +476,13 @@ export default async function handler(req) {
 
         const b2bOpportunityFilter = { b2gStage: null };
 
-        const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' }, ...dateFilter });
+        // baseWhere: sem filtro de data — KPIs e funil refletem o pipeline COMPLETO
+        const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' } });
         if (ownerId) baseWhere.ownerId = ownerId;
+
+        // chartsWhere: com filtro de data — usado apenas em gráficos de tendência (origem, performance)
+        const baseWhereWithDate = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' }, ...dateFilter });
+        if (ownerId) baseWhereWithDate.ownerId = ownerId;
 
         // Mapear temperatura para faixas de probabilidade
         const temperatureRange = {
@@ -496,7 +501,14 @@ export default async function handler(req) {
           };
         }
 
-        const chartsWhere = { ...whereClause };
+        // chartsWhere aplica período para gráficos de tendência (origem de leads, performance por vendedor)
+        const chartsWhere = { ...baseWhereWithDate };
+        if (tempFilter && temperatureRange[tempFilter]) {
+          chartsWhere.probability = {
+            gte: temperatureRange[tempFilter].gte,
+            lte: temperatureRange[tempFilter].lte
+          };
+        }
 
         const temperatureCountWhere = { ...baseWhere };
         const monthlyRevenueWhere = withOpportunityTenant({

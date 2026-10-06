@@ -380,6 +380,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedFabricanteFilter, setSelectedFabricanteFilter] = useState('ALL');
   const [selectedStatusFilter, setSelectedStatusFilter] = useState('ALL');
+  const [selectedOrigemFilter, setSelectedOrigemFilter] = useState('ALL');
 
   const [registry, setRegistry] = useState(defaultRegistry);
   const [pipelineOpportunities, setPipelineOpportunities] = useState([]);
@@ -537,6 +538,10 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       if (selectedStatusFilter !== 'ALL') {
         filtered = filtered.filter((item) => String(item.status || 'ABERTA').toUpperCase() === selectedStatusFilter);
       }
+
+      if (selectedOrigemFilter !== 'ALL') {
+        filtered = filtered.filter((item) => String(item.origem || 'B2B').toUpperCase() === selectedOrigemFilter);
+      }
     }
 
     if (!term) return filtered;
@@ -604,7 +609,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         .toLowerCase()
         .includes(term);
     });
-  }, [currentTab, registry, searchTerm, selectedFabricanteFilter, selectedStatusFilter, fornMap]);
+  }, [currentTab, registry, searchTerm, selectedFabricanteFilter, selectedStatusFilter, selectedOrigemFilter, fornMap]);
 
   const closeModal = () => {
     setModalOpen(false);
@@ -2642,12 +2647,26 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                   <option value="PERDIDA">Perdida</option>
                 </select>
 
-                {(selectedFabricanteFilter !== 'ALL' || selectedStatusFilter !== 'ALL' || searchTerm) && (
+                {/* SELECT ORIGEM B2B / B2G */}
+                <select
+                  value={selectedOrigemFilter}
+                  onChange={(e) => setSelectedOrigemFilter(e.target.value)}
+                  className="rounded-lg border border-slate-600/50 bg-slate-900/90 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                >
+                  <option value="ALL">Todas as Origens</option>
+                  <option value="B2B">B2B Privado</option>
+                  <option value="B2G">B2G Governo</option>
+                  <option value="COMERCIAL">Comercial</option>
+                  <option value="PRE_VENDAS">Pré-Vendas</option>
+                </select>
+
+                {(selectedFabricanteFilter !== 'ALL' || selectedStatusFilter !== 'ALL' || selectedOrigemFilter !== 'ALL' || searchTerm) && (
                   <button
                     type="button"
                     onClick={() => {
                       setSelectedFabricanteFilter('ALL');
                       setSelectedStatusFilter('ALL');
+                      setSelectedOrigemFilter('ALL');
                       setSearchTerm('');
                     }}
                     className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-2.5 py-1.5 text-xs font-medium text-rose-200 hover:bg-rose-500/20 transition-colors"
@@ -2695,6 +2714,47 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                         {f.count}
                       </span>
                     )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+
+          {/* CHIPS RÁPIDOS DE FILTRO POR ORIGEM (B2B / B2G) */}
+          {currentTab === TAB_KEYS.OPORTUNIDADES && (
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-800/80">
+              <span className="text-xs font-semibold text-slate-400 flex items-center gap-1 mr-1">
+                <Filter className="h-3 w-3 text-emerald-400" /> Filtrar por Origem:
+              </span>
+              {[
+                { value: 'ALL', label: 'Todas', count: (registry.oportunidades || []).length },
+                { value: 'B2B', label: 'B2B Privado', color: 'orange' },
+                { value: 'B2G', label: 'B2G Governo', color: 'green' },
+                { value: 'COMERCIAL', label: 'Comercial', color: 'sky' },
+                { value: 'PRE_VENDAS', label: 'Pré-Vendas', color: 'purple' }
+              ].map((opt) => {
+                const isSelected = selectedOrigemFilter === opt.value;
+                const count = opt.count !== undefined
+                  ? opt.count
+                  : (registry.oportunidades || []).filter((item) => String(item.origem || 'B2B').toUpperCase() === opt.value).length;
+                const colorMap = {
+                  orange: isSelected ? 'bg-orange-500 text-white shadow-orange-500/40' : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:border-orange-500/50 hover:text-orange-200',
+                  green: isSelected ? 'bg-emerald-500 text-white shadow-emerald-500/40' : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-200',
+                  sky: isSelected ? 'bg-sky-500 text-white shadow-sky-500/40' : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:border-sky-500/50 hover:text-sky-200',
+                  purple: isSelected ? 'bg-purple-500 text-white shadow-purple-500/40' : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:border-purple-500/50 hover:text-purple-200'
+                };
+                const cls = opt.value === 'ALL'
+                  ? (isSelected ? 'bg-sky-500 text-white shadow-sm shadow-sky-500/40 font-bold' : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:bg-slate-800 hover:text-white')
+                  : colorMap[opt.color];
+                return (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setSelectedOrigemFilter(isSelected && opt.value !== 'ALL' ? 'ALL' : opt.value)}
+                    className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all flex items-center gap-1.5 ${cls}`}
+                  >
+                    <span>{opt.label}</span>
+                    <span className="rounded-full bg-slate-800/90 px-1.5 py-0.5 text-[10px] text-slate-300">{count}</span>
                   </button>
                 );
               })}
