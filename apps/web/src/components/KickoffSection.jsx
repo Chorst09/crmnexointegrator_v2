@@ -153,18 +153,6 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          {meetings.length > 0 && (
-            <button
-              type="button"
-              onClick={() => {
-                if (onNavigate) onNavigate();
-                navigate(`/kickoff?opportunityId=${opportunityId}`);
-              }}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-600 px-3 py-1.5 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition-colors"
-            >
-              Ver no Kickoff →
-            </button>
-          )}
           <button
             type="button"
             onClick={() => { setShowNewForm(v => !v); setFeedback(''); }}
@@ -340,18 +328,6 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
                         <p className="text-[var(--crm-ink)] mt-1">{m.notes}</p>
                       </div>
                     )}
-                  </div>
-                  <div className="pt-2 border-t border-cyan-500/20 flex justify-end">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (onNavigate) onNavigate();
-                        navigate(`/kickoff?meetingId=${m.id}`);
-                      }}
-                      className="rounded-lg bg-cyan-600 hover:bg-cyan-500 px-4 py-2 text-sm font-semibold text-white transition-colors"
-                    >
-                      Abrir página completa →
-                    </button>
                   </div>
                 </div>
               )}
