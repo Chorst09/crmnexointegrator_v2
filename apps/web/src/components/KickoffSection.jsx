@@ -47,6 +47,8 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
   const [showNewForm, setShowNewForm] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [expandedMeeting, setExpandedMeeting] = useState(null);
+  const [editingMeeting, setEditingMeeting] = useState(null);
+  const [deleting, setDeleting] = useState(null);
 
   const [newForm, setNewForm] = useState({
     title: '',
@@ -136,6 +138,76 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
       setFeedback(err.message || 'Erro ao criar reunião.');
     } finally {
       setCreating(false);
+    }
+  };
+
+  const handleDelete = async (meetingId) => {
+    if (!confirm('Deseja realmente excluir esta reunião?')) return;
+    
+    setDeleting(meetingId);
+    try {
+      const res = await fetch(buildApiUrl(`/kickoff/meetings/${meetingId}`), {
+        method: 'DELETE',
+        headers: getAuthHeaders()
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Erro ao excluir reunião');
+      }
+      setMeetings(prev => prev.filter(m => m.id !== meetingId));
+      setExpandedMeeting(null);
+    } catch (err) {
+      alert(err.message || 'Erro ao excluir reunião.');
+    } finally {
+      setDeleting(null);
+    }
+  };
+
+  const handleEdit = (meeting) => {
+    setEditingMeeting({
+      id: meeting.id,
+      title: meeting.title || '',
+      phase: meeting.phase || 'ALINHAMENTO_INTERNO',
+      scheduledDate: meeting.scheduledDate ? meeting.scheduledDate.split('T')[0] : '',
+      startTime: meeting.startTime || '',
+      platform: meeting.platform || 'MEET',
+      meetingLink: meeting.meetingLink || '',
+      notes: meeting.notes || ''
+    });
+    setExpandedMeeting(null);
+  };
+
+  const handleUpdateMeeting = async (e) => {
+    e.preventDefault();
+    if (!editingMeeting.title.trim() || !editingMeeting.scheduledDate) {
+      alert('Título e data são obrigatórios.');
+      return;
+    }
+    
+    try {
+      const payload = {
+        title: editingMeeting.title.trim(),
+        phase: editingMeeting.phase,
+        scheduledDate: editingMeeting.scheduledDate,
+        startTime: editingMeeting.startTime || undefined,
+        platform: editingMeeting.platform,
+        meetingLink: editingMeeting.meetingLink || undefined,
+        notes: editingMeeting.notes || undefined
+      };
+      const res = await fetch(buildApiUrl(`/kickoff/meetings/${editingMeeting.id}`), {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Erro ao atualizar reunião');
+      }
+      const updated = await res.json();
+      setMeetings(prev => prev.map(m => m.id === updated.id ? updated : m));
+      setEditingMeeting(null);
+    } catch (err) {
+      alert(err.message || 'Erro ao atualizar reunião.');
     }
   };
 
@@ -278,61 +350,184 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
         </div>
       ) : (
         <div className="space-y-2">
-          {meetings.map((m) => (
-            <div key={m.id} className="space-y-2">
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.7)] px-4 py-3">
-                <div className="min-w-0">
-                  <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                    <span className="text-sm font-semibold text-[var(--crm-ink)] truncate">{m.title}</span>
-                    <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${STATUS_STYLES[m.status] || ''}`}>
-                      {STATUS_LABELS[m.status] || m.status}
-                    </span>
-                  </div>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--crm-muted)]">
-                    <span>{PHASE_LABELS[m.phase] || m.phase}</span>
-                    <span>•</span>
-                    <span>{fmtDate(m.scheduledDate)}{m.startTime ? ` às ${m.startTime}` : ''}</span>
-                    {m.owner?.name && <><span>•</span><span>{m.owner.name}</span></>}
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setExpandedMeeting(expandedMeeting === m.id ? null : m.id);
-                  }}
-                  className="shrink-0 rounded-lg border border-slate-600 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800 transition-colors"
-                >
-                  {expandedMeeting === m.id ? '✕ Fechar' : 'Ver detalhes →'}
-                </button>
-              </div>
-
-              {/* Detalhes expandidos */}
-              {expandedMeeting === m.id && (
-                <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-3">
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <span className="text-[var(--crm-muted)] text-xs">Plataforma:</span>
-                      <p className="text-[var(--crm-ink)] font-medium">{m.platform || '—'}</p>
+          {meetings.map((m) => {
+            const isEditing = editingMeeting && editingMeeting.id === m.id;
+            
+            return (
+              <div key={m.id} className="space-y-2">
+                {isEditing ? (
+                  /* Formulário de Edição */
+                  <form onSubmit={handleUpdateMeeting} className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4 space-y-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-semibold text-yellow-300">Editando Reunião</h4>
                     </div>
-                    {m.meetingLink && (
-                      <div className="col-span-2">
-                        <span className="text-[var(--crm-muted)] text-xs">Link da reunião:</span>
-                        <a href={m.meetingLink} target="_blank" rel="noopener noreferrer" className="block text-cyan-400 hover:text-cyan-300 underline break-all">
-                          {m.meetingLink}
-                        </a>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="sm:col-span-2">
+                        <label className={labelCls}>Título *</label>
+                        <input
+                          className={inputCls}
+                          required
+                          value={editingMeeting.title}
+                          onChange={e => setEditingMeeting(p => ({ ...p, title: e.target.value }))}
+                        />
+                      </div>
+
+                      <div>
+                        <label className={labelCls}>Fase</label>
+                        <select
+                          className={inputCls}
+                          value={editingMeeting.phase}
+                          onChange={e => setEditingMeeting(p => ({ ...p, phase: e.target.value }))}
+                        >
+                          {Object.entries(PHASE_LABELS).map(([v, l]) => (
+                            <option key={v} value={v}>{l}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className={labelCls}>Data *</label>
+                        <input
+                          type="date"
+                          className={inputCls}
+                          required
+                          value={editingMeeting.scheduledDate}
+                          onChange={e => setEditingMeeting(p => ({ ...p, scheduledDate: e.target.value }))}
+                        />
+                      </div>
+
+                      <div>
+                        <label className={labelCls}>Horário</label>
+                        <input
+                          type="time"
+                          className={inputCls}
+                          value={editingMeeting.startTime}
+                          onChange={e => setEditingMeeting(p => ({ ...p, startTime: e.target.value }))}
+                        />
+                      </div>
+
+                      <div>
+                        <label className={labelCls}>Plataforma</label>
+                        <select
+                          className={inputCls}
+                          value={editingMeeting.platform}
+                          onChange={e => setEditingMeeting(p => ({ ...p, platform: e.target.value }))}
+                        >
+                          {['MEET', 'TEAMS', 'ZOOM', 'PRESENCIAL', 'TELEFONE', 'OUTRO'].map(pl => (
+                            <option key={pl} value={pl}>{pl === 'MEET' ? 'Google Meet' : pl === 'TEAMS' ? 'Microsoft Teams' : pl.charAt(0) + pl.slice(1).toLowerCase()}</option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className={labelCls}>Link da Reunião</label>
+                        <input
+                          className={inputCls}
+                          value={editingMeeting.meetingLink}
+                          onChange={e => setEditingMeeting(p => ({ ...p, meetingLink: e.target.value }))}
+                          placeholder="https://meet.google.com/..."
+                        />
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className={labelCls}>Observações</label>
+                        <textarea
+                          className={inputCls}
+                          rows={3}
+                          value={editingMeeting.notes}
+                          onChange={e => setEditingMeeting(p => ({ ...p, notes: e.target.value }))}
+                          placeholder="Observações sobre a reunião..."
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-end gap-2">
+                      <button type="button" onClick={() => setEditingMeeting(null)} className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800">
+                        Cancelar
+                      </button>
+                      <button type="submit" className="rounded-lg bg-yellow-600 hover:bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition-colors">
+                        Salvar Alterações
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.7)] px-4 py-3">
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                          <span className="text-sm font-semibold text-[var(--crm-ink)] truncate">{m.title}</span>
+                          <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${STATUS_STYLES[m.status] || ''}`}>
+                            {STATUS_LABELS[m.status] || m.status}
+                          </span>
+                        </div>
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--crm-muted)]">
+                          <span>{PHASE_LABELS[m.phase] || m.phase}</span>
+                          <span>•</span>
+                          <span>{fmtDate(m.scheduledDate)}{m.startTime ? ` às ${m.startTime}` : ''}</span>
+                          {m.owner?.name && <><span>•</span><span>{m.owner.name}</span></>}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setExpandedMeeting(expandedMeeting === m.id ? null : m.id);
+                        }}
+                        className="shrink-0 rounded-lg border border-slate-600 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800 transition-colors"
+                      >
+                        {expandedMeeting === m.id ? '✕ Fechar' : 'Ver detalhes →'}
+                      </button>
+                    </div>
+
+                    {/* Detalhes expandidos */}
+                    {expandedMeeting === m.id && (
+                      <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-3">
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                          <div>
+                            <span className="text-[var(--crm-muted)] text-xs">Plataforma:</span>
+                            <p className="text-[var(--crm-ink)] font-medium">{m.platform || '—'}</p>
+                          </div>
+                          {m.meetingLink && (
+                            <div className="col-span-2">
+                              <span className="text-[var(--crm-muted)] text-xs">Link da reunião:</span>
+                              <a href={m.meetingLink} target="_blank" rel="noopener noreferrer" className="block text-cyan-400 hover:text-cyan-300 underline break-all">
+                                {m.meetingLink}
+                              </a>
+                            </div>
+                          )}
+                          {m.notes && (
+                            <div className="col-span-2">
+                              <span className="text-[var(--crm-muted)] text-xs">Observações:</span>
+                              <p className="text-[var(--crm-ink)] mt-1">{m.notes}</p>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Botões de ação */}
+                        <div className="pt-3 border-t border-cyan-500/20 flex justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(m.id)}
+                            disabled={deleting === m.id}
+                            className="rounded-lg border border-red-500/50 bg-red-500/10 px-4 py-2 text-sm font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
+                          >
+                            {deleting === m.id ? 'Excluindo...' : 'Excluir'}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleEdit(m)}
+                            className="rounded-lg bg-yellow-600 hover:bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition-colors"
+                          >
+                            Editar
+                          </button>
+                        </div>
                       </div>
                     )}
-                    {m.notes && (
-                      <div className="col-span-2">
-                        <span className="text-[var(--crm-muted)] text-xs">Observações:</span>
-                        <p className="text-[var(--crm-ink)] mt-1">{m.notes}</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
+                  </>
+                )}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>
