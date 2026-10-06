@@ -46,6 +46,7 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
   const [creating, setCreating] = useState(false);
   const [showNewForm, setShowNewForm] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [expandedMeeting, setExpandedMeeting] = useState(null);
 
   const [newForm, setNewForm] = useState({
     title: '',
@@ -290,31 +291,70 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
       ) : (
         <div className="space-y-2">
           {meetings.map((m) => (
-            <div key={m.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.7)] px-4 py-3">
-              <div className="min-w-0">
-                <div className="flex flex-wrap items-center gap-2 mb-0.5">
-                  <span className="text-sm font-semibold text-[var(--crm-ink)] truncate">{m.title}</span>
-                  <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${STATUS_STYLES[m.status] || ''}`}>
-                    {STATUS_LABELS[m.status] || m.status}
-                  </span>
+            <div key={m.id} className="space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.7)] px-4 py-3">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-0.5">
+                    <span className="text-sm font-semibold text-[var(--crm-ink)] truncate">{m.title}</span>
+                    <span className={`rounded-full border px-2 py-0.5 text-[11px] font-semibold ${STATUS_STYLES[m.status] || ''}`}>
+                      {STATUS_LABELS[m.status] || m.status}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--crm-muted)]">
+                    <span>{PHASE_LABELS[m.phase] || m.phase}</span>
+                    <span>•</span>
+                    <span>{fmtDate(m.scheduledDate)}{m.startTime ? ` às ${m.startTime}` : ''}</span>
+                    {m.owner?.name && <><span>•</span><span>{m.owner.name}</span></>}
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--crm-muted)]">
-                  <span>{PHASE_LABELS[m.phase] || m.phase}</span>
-                  <span>•</span>
-                  <span>{fmtDate(m.scheduledDate)}{m.startTime ? ` às ${m.startTime}` : ''}</span>
-                  {m.owner?.name && <><span>•</span><span>{m.owner.name}</span></>}
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setExpandedMeeting(expandedMeeting === m.id ? null : m.id);
+                  }}
+                  className="shrink-0 rounded-lg border border-slate-600 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800 transition-colors"
+                >
+                  {expandedMeeting === m.id ? '✕ Fechar' : 'Ver detalhes →'}
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (onNavigate) onNavigate();
-                  navigate(`/kickoff?meetingId=${m.id}`);
-                }}
-                className="shrink-0 rounded-lg border border-slate-600 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-800 transition-colors"
-              >
-                Abrir →
-              </button>
+
+              {/* Detalhes expandidos */}
+              {expandedMeeting === m.id && (
+                <div className="rounded-xl border border-cyan-500/30 bg-cyan-500/5 p-4 space-y-3">
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <span className="text-[var(--crm-muted)] text-xs">Plataforma:</span>
+                      <p className="text-[var(--crm-ink)] font-medium">{m.platform || '—'}</p>
+                    </div>
+                    {m.meetingLink && (
+                      <div className="col-span-2">
+                        <span className="text-[var(--crm-muted)] text-xs">Link da reunião:</span>
+                        <a href={m.meetingLink} target="_blank" rel="noopener noreferrer" className="block text-cyan-400 hover:text-cyan-300 underline break-all">
+                          {m.meetingLink}
+                        </a>
+                      </div>
+                    )}
+                    {m.notes && (
+                      <div className="col-span-2">
+                        <span className="text-[var(--crm-muted)] text-xs">Observações:</span>
+                        <p className="text-[var(--crm-ink)] mt-1">{m.notes}</p>
+                      </div>
+                    )}
+                  </div>
+                  <div className="pt-2 border-t border-cyan-500/20 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (onNavigate) onNavigate();
+                        navigate(`/kickoff?meetingId=${m.id}`);
+                      }}
+                      className="rounded-lg bg-cyan-600 hover:bg-cyan-500 px-4 py-2 text-sm font-semibold text-white transition-colors"
+                    >
+                      Abrir página completa →
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
