@@ -1014,7 +1014,10 @@ router.post('/gerenciadas', async (req, res) => {
     }
 
     const numControle = String(
-      lic.numeroControlePNCP || lic.id || lic.numero_controle_pncp || ''
+      lic.numeroControlePNCP || lic.numero_controle_pncp ||
+      // formato retornado pelo /search (id já é o numero de controle PNCP quando tem o padrão CNPJ-seq/ano)
+      (lic.id && /^\d{14,}-\d+-\d+\/\d{4}$/.test(String(lic.id)) ? lic.id : '') ||
+      lic.id || ''
     ).trim() || null;
 
     // Verificar duplicata
@@ -1029,17 +1032,17 @@ router.post('/gerenciadas', async (req, res) => {
 
     const orgao    = String(lic.orgao || lic.orgaoEntidade?.razaoSocial || '').slice(0, 500);
     const uf       = String(lic.uf || lic.unidadeOrgao?.ufSigla || '').slice(0, 2);
-    const cidade   = String(lic.cidade || lic.unidadeOrgao?.municipioNome || '').slice(0, 300);
+    const cidade   = String(lic.cidade || lic.municipio || lic.unidadeOrgao?.municipioNome || '').slice(0, 300);
     const modal    = String(lic.modalidade || lic.modalidadeNome || '').slice(0, 200);
-    const objeto   = String(lic.objeto_resumo || lic.objetoCompra || '').slice(0, 2000);
-    const valor    = parseFloat(lic.valor_estimado || lic.valorTotalEstimado || 0);
-    const situacao = String(lic.situacao || lic.situacaoCompraNome || '').slice(0, 200);
-    const link     = String(lic.linkSistemaOrigem || lic.linkProcessoEletronico || '').slice(0, 1000);
+    const objeto   = String(lic.titulo || lic.objeto_resumo || lic.objetoCompra || '').slice(0, 2000);
+    const valor    = parseFloat(lic.valor || lic.valor_estimado || lic.valorTotalEstimado || 0);
+    const situacao = String(lic.situacao || lic.status || lic.situacaoCompraNome || '').slice(0, 200);
+    const link     = String(lic.link || lic.linkSistemaOrigem || lic.linkProcessoEletronico || '').slice(0, 1000);
 
-    const dtAbertura = lic.data_abertura
-      ? new Date(lic.data_abertura) : null;
-    const dtEnc = lic.data_encerramento || lic.dataEncerramentoProposta
-      ? new Date(lic.data_encerramento || lic.dataEncerramentoProposta) : null;
+    const dtAbertura = lic.data_abertura || lic.dataAbertura
+      ? new Date(lic.data_abertura || lic.dataAbertura) : null;
+    const dtEnc = lic.data_encerramento || lic.dataEncerramento || lic.dataEncerramentoProposta
+      ? new Date(lic.data_encerramento || lic.dataEncerramento || lic.dataEncerramentoProposta) : null;
 
     const crypto = require('crypto');
     const rowId = crypto.randomUUID();
@@ -1764,6 +1767,185 @@ router.delete(['/analise-tr/ficha/:id', '/ficha/:id'], requireRole(USER_ALLOWED_
       details: err.message 
     });
   }
+});
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// DOWNLOAD DE ANEXOS — persistência em disco + endpoint público
+// ═══════════════════════════════════════════════════════════════════════════════
+
+const fs = require('fs');
+const path = require('path');
+const { pipeline: streamPipeline } = require('stream/promises');
+const { Readable: NodeReadable } = require('stream');
+
+// Diretório para armazenar anexos baixados (dentro do projeto, fora do webroot)
+const ATTACHMENTS_DIR = path.resolve(__dirname, '../../attachments/editais');
+if (!fs.existsSync(ATTACHMENTS_DIR)) {
+  fs.mkdirSync(ATTACHMENTS_DIR, { recursive: true });
+}
+
+/**
+ * downloadAndPersistFile — Baixa um arquivo remoto e persiste em disco.
+ *
+ * @param {string} remoteUrl   — URL original do arquivo (PNCP ou portal)
+ * @param {string} localPath   — Caminho absoluto onde salvar
+ * @param {number} [timeoutMs] — Timeout em ms (padrão 30s)
+ * @returns {{ size: number, contentType: string }} — tamanho e MIME do arquivo salvo
+ */
+async function downloadAndPersistFile(remoteUrl, localPath, timeoutMs = 30000) {
+  const dir = path.dirname(localPath);
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+  const controller = new AbortController();
+  const tid = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const res = await fetch(remoteUrl, {
+      headers: { 'User-Agent': nextUA(), Accept: '*/*' },
+      signal: controller.signal,
+    });
+    clearTimeout(tid);
+
+    if (!res.ok) throw new Error(`HTTP ${res.status} ao baixar ${remoteUrl}`);
+
+    const contentType = res.headers.get('content-type') || 'application/octet-stream';
+
+    // Usa stream nativo para não manter tudo na memória
+    if (res.body) {
+      const writeStream = fs.createWriteStream(localPath);
+      await streamPipeline(NodeReadable.fromWeb(res.body), writeStream);
+    } else {
+      const buf = Buffer.from(await res.arrayBuffer());
+      fs.writeFileSync(localPath, buf);
+    }
+
+    const { size } = fs.statSync(localPath);
+    return { size, contentType };
+  } catch (err) {
+    clearTimeout(tid);
+    // Remove arquivo parcialmente escrito
+    if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
+    throw err;
+  }
+}
+
+/**
+ * resolveLocalPath — Gera caminho local padronizado para um arquivo de edital.
+ * Formato: attachments/editais/{cnpj}/{ano}/{seq}/{docSeq}.{ext}
+ */
+function resolveLocalPath(cnpj, ano, seq, docSeq, filename) {
+  const safeFilename = String(filename || `doc_${docSeq}`)
+    .replace(/[^\w.\-]/g, '_')
+    .replace(/_{2,}/g, '_');
+  const ext = safeFilename.includes('.') ? '' : '.pdf';
+  return path.join(ATTACHMENTS_DIR, String(cnpj), String(ano), String(seq), `${docSeq}_${safeFilename}${ext}`);
+}
+
+// ── GET /arquivos/:cnpj/:ano/:seq/download/:docSeq — download com persistência ──
+//
+// Este endpoint:
+//   1. Consulta o arquivo pelo índice docSeq via getArquivosForEdital
+//   2. Se já existe no disco, serve diretamente (cache)
+//   3. Caso contrário, baixa via downloadAndPersistFile e serve o binário
+//
+router.get('/arquivos/:cnpj/:ano/:seq/download/:docSeq', async (req, res) => {
+  const { cnpj, ano, seq, docSeq } = req.params;
+  const cleanCnpj = String(cnpj).replace(/\D/g, '');
+  const cleanAno = parseInt(ano, 10);
+  const cleanSeq = parseInt(seq, 10);
+  const cleanDocSeq = parseInt(docSeq, 10) || 1;
+
+  if (!cleanCnpj || isNaN(cleanAno) || isNaN(cleanSeq)) {
+    return res.status(400).json({ error: 'Parâmetros cnpj, ano e seq são obrigatórios e devem ser numéricos.' });
+  }
+
+  try {
+    // 1. Obtém a lista de arquivos reais do PNCP
+    const arquivos = await getArquivosForEdital(cleanCnpj, cleanAno, cleanSeq);
+    const arq = arquivos.find(a => Number(a.sequencialDocumento) === cleanDocSeq) || arquivos[0];
+
+    if (!arq) {
+      return res.status(404).json({ error: 'Arquivo não encontrado para este edital.' });
+    }
+
+    const fileUrl = arq.url || arq.uri;
+    if (!fileUrl || !/^https?:\/\//i.test(fileUrl)) {
+      return res.status(422).json({ error: 'URL do arquivo inválida ou ausente.', url: fileUrl });
+    }
+
+    const localPath = resolveLocalPath(cleanCnpj, cleanAno, cleanSeq, cleanDocSeq, arq.titulo);
+
+    // 2. Serve do cache se já existe no disco
+    if (fs.existsSync(localPath)) {
+      const ext = path.extname(localPath).toLowerCase();
+      const mimeMap = { '.pdf': 'application/pdf', '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', '.zip': 'application/zip' };
+      const mime = mimeMap[ext] || 'application/octet-stream';
+      const filename = path.basename(localPath);
+      res.setHeader('Content-Type', mime);
+      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      res.setHeader('X-Served-From', 'disk-cache');
+      return fs.createReadStream(localPath).pipe(res);
+    }
+
+    // 3. Baixa, persiste e serve
+    console.log(`[download-persist] Baixando ${fileUrl} → ${localPath}`);
+    const { size, contentType } = await downloadAndPersistFile(fileUrl, localPath);
+    console.log(`[download-persist] Salvo: ${localPath} (${size} bytes, ${contentType})`);
+
+    const filename = path.basename(localPath);
+    res.setHeader('Content-Type', contentType.includes('text/html') ? 'application/octet-stream' : contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', String(size));
+    res.setHeader('X-Served-From', 'fresh-download');
+    res.setHeader('X-Original-Url', fileUrl);
+    return fs.createReadStream(localPath).pipe(res);
+
+  } catch (err) {
+    console.error('[download-persist] Erro:', err.message);
+    // Fallback seguro: redireciona para a URL original
+    try {
+      const arquivos = await getArquivosForEdital(cleanCnpj, cleanAno, cleanSeq);
+      const arq = arquivos.find(a => Number(a.sequencialDocumento) === cleanDocSeq) || arquivos[0];
+      if (arq?.url) return res.redirect(302, arq.url);
+    } catch (_) {}
+    return res.status(502).json({ error: 'Erro ao baixar o arquivo.', detail: err.message });
+  }
+});
+
+// ── GET /api/editais/:id/download — endpoint público de download por ID de licitação ──
+//
+// Recebe o numeroControlePNCP (ex: "91984492000152-1-000006/2026") como :id
+// e serve o primeiro documento encontrado ou redireciona para o PNCP.
+//
+router.get('/editais/:id/download', async (req, res) => {
+  const numControle = decodeURIComponent(req.params.id || '').trim();
+  if (!numControle) return res.status(400).json({ error: 'ID da licitação é obrigatório.' });
+
+  // Extrai cnpj, ano e sequencial do número de controle PNCP (ex: CNPJ-1-SEQUENCIAL/ANO)
+  const match = numControle.match(/^(\d{14,})[^\/]*\/(\d{4})/) || numControle.match(/^(\d{8,14})-\d+-(\d+)\/(\d{4})/);
+  let cnpj, ano, seqStr;
+
+  if (match) {
+    cnpj = match[1].replace(/\D/g, '');
+    // Formato: CNPJ-1-SEQ/ANO
+    const partes = numControle.split('-');
+    if (partes.length >= 3) {
+      seqStr = partes[2].split('/')[0].replace(/\D/g, '');
+      ano = numControle.match(/\/(\d{4})/)?.[1];
+    }
+  }
+
+  if (!cnpj || !ano || !seqStr) {
+    // Sem dados suficientes: redireciona para busca no PNCP
+    return res.redirect(302, `https://pncp.gov.br/app/editais?q=${encodeURIComponent(numControle)}`);
+  }
+
+  const cleanAno = parseInt(ano, 10);
+  const cleanSeq = parseInt(seqStr, 10) || 1;
+  const cleanDocSeq = parseInt(req.query.docSeq || '1', 10);
+
+  // Delega para o endpoint de download com persistência
+  return res.redirect(307, `/api/b2g-licitacoes/arquivos/${cnpj}/${cleanAno}/${cleanSeq}/download/${cleanDocSeq}`);
 });
 
 module.exports = router;

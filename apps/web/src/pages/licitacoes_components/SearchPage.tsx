@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Filter, AlertCircle, Calendar, DollarSign, MapPin, Building2, ExternalLink, X, FileText, Download, Briefcase, CheckCircle2, Clock, AlertTriangle, ShieldCheck, ArrowUpDown, RefreshCw, Layers } from 'lucide-react';
+import { Search, Filter, AlertCircle, Calendar, DollarSign, MapPin, Building2, ExternalLink, X, FileText, Download, Briefcase, CheckCircle2, Clock, AlertTriangle, ShieldCheck, ArrowUpDown, RefreshCw, Layers, Settings } from 'lucide-react';
 import { Licitacao } from './types';
 import { cn } from './utils';
 import { LicitacaoDetalhesModal } from './LicitacaoDetalhesModal';
+import { ACTIVE_SOURCES_KEY, SOURCES_CATALOG } from './PipelineMonitor';
+
+const ALL_SOURCE_IDS = SOURCES_CATALOG.map(s => s.id);
 
 // Helper para headers de autenticação
 const getAuthHeaders = () => {
@@ -13,7 +16,19 @@ const getAuthHeaders = () => {
   };
 };
 
-export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciadas?: () => void }) {
+// Lê as fontes ativas do localStorage (gerenciado pelo PipelineMonitor)
+const readFontesAtivas = (): Set<string> => {
+  try {
+    const saved = localStorage.getItem(ACTIVE_SOURCES_KEY);
+    if (saved) {
+      const arr = JSON.parse(saved);
+      return new Set(Array.isArray(arr) ? arr : ALL_SOURCE_IDS);
+    }
+  } catch (_) {}
+  return new Set(ALL_SOURCE_IDS);
+};
+
+export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { onNavigateToGerenciadas?: () => void; onNavigateToPipeline?: () => void }) {
   const [licitacoes, setLicitacoes] = useState<Licitacao[]>([]);
   const [totalDisponivel, setTotalDisponivel] = useState<number>(0);
   const [loading, setLoading] = useState(true);
@@ -23,7 +38,8 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUf, setSelectedUf] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
-  const [selectedFonte, setSelectedFonte] = useState<string>('');
+  // Fontes ativas — lidas do localStorage gerenciado pelo PipelineMonitor (Configurações)
+  const [fontesAtivas, setFontesAtivas] = useState<Set<string>>(readFontesAtivas);
   const [onlyActive, setOnlyActive] = useState(true);
   const [source, setSource] = useState<'pncp' | 'mock'>('mock');
   const [sortBy, setSortBy] = useState<'recente' | 'maior_valor' | 'menor_valor' | 'abertura_proxima'>('recente');
@@ -64,6 +80,19 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
     }, 4500);
   };
 
+  // Sincroniza fontes ativas quando o localStorage muda (ex: usuário volta de Configurações)
+  useEffect(() => {
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === ACTIVE_SOURCES_KEY) {
+        setFontesAtivas(readFontesAtivas());
+      }
+    };
+    window.addEventListener('storage', onStorage);
+    // Re-lê ao montar (caso tenha mudado enquanto estava em outra tela)
+    setFontesAtivas(readFontesAtivas());
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
   useEffect(() => {
     let active = true;
     const fetchManagedIds = async () => {
@@ -100,25 +129,53 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
 
   useEffect(() => {
     fetchLicitacoes();
-  }, [ocultarEncerrados, dataBuscaReferencia, selectedUf]);
+    // fontesAtivas é serializado em string para comparação estável no useEffect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [ocultarEncerrados, dataBuscaReferencia, selectedUf, Array.from(fontesAtivas).sort().join(',')]);
 
   const fetchLicitacoes = async () => {
     setLoading(true);
     try {
-      const start = dataInicial.replace(/-/g, '');
-      const end = dataFinal.replace(/-/g, '');
-      const ufParam = selectedUf ? `&uf=${selectedUf}` : '';
-      const cidadeParam = selectedCity ? `&cidade=${encodeURIComponent(selectedCity)}` : '';
-      const termoParam = searchTerm ? `&termo=${encodeURIComponent(searchTerm)}` : '';
-      const response = await fetch(`/api/b2g-licitacoes/buscar?dataInicial=${start}&dataFinal=${end}&ocultarEncerrados=${ocultarEncerrados}&dataReferencia=${dataBuscaReferencia}${ufParam}${cidadeParam}${termoParam}`, {
+      // Se nenhuma fonte está ativa, retorna vazio imediatamente sem bater no backend
+      if (fontesAtivas.size === 0) {
+        setLicitacoes([]);
+        setTotalDisponivel(0);
+        setLoading(false);
+        return;
+      }
+
+      const fontesParam = Array.from(fontesAtivas).join(',');
+      // Janela de busca: publicados nos últimos 30 dias — garante capturar editais
+      // com prazo de propostas ainda vigente (mínimo legal de 8 dias após publicação)
+      const dataInicioEfetivo = dataInicial || getPastDaysISO(30);
+      const params = new URLSearchParams({
+        objeto: searchTerm,
+        uf: selectedUf,
+        cidade: selectedCity,
+        fontes: fontesParam,
+        pagina: '1',
+        tamanhoPagina: '40',
+        ordem: sortBy === 'recente' ? 'data_desc' : sortBy === 'maior_valor' ? 'valor_desc' : sortBy === 'menor_valor' ? 'valor_asc' : 'abertura_asc',
+        apenasVigentes: ocultarEncerrados ? 'true' : 'false',
+        dataInicio: dataInicioEfetivo,
+        dataFim: dataFinal || getTodayISO(),
+      });
+
+      const response = await fetch(`/api/b2g-search/search?${params.toString()}`, {
         headers: getAuthHeaders()
       });
       const json = await response.json();
-      setSource(json.source);
-      setLicitacoes(json.data || []);
-      if (json.totalDisponivel) {
-        setTotalDisponivel(json.totalDisponivel);
+
+      // Se o backend informou que não há fontes ativas, respeita
+      if (json.info) {
+        setLicitacoes([]);
+        setTotalDisponivel(0);
+        return;
       }
+
+      setSource(json.data?.length > 0 ? 'pncp' : 'mock');
+      setLicitacoes(json.data || []);
+      setTotalDisponivel(json.total || (json.data?.length ?? 0));
     } catch (error) {
       console.error("Failed to fetch licitações:", error);
     } finally {
@@ -126,17 +183,18 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
     }
   };
 
-  const getOrgaoName = (lic: Licitacao) => lic.orgao || lic.orgaoEntidade?.razaoSocial || 'Órgão não especificado';
+  const getOrgaoName = (lic: Licitacao) => lic.orgao || (lic as any).orgao || lic.orgaoEntidade?.razaoSocial || 'Órgão não especificado';
   const getUf = (lic: Licitacao) => lic.uf || lic.unidadeOrgao?.ufSigla || 'BR';
-  const getCidade = (lic: Licitacao) => lic.cidade || lic.unidadeOrgao?.municipioNome || '';
-  const getObjeto = (lic: Licitacao) => lic.objeto_resumo || lic.objetoCompra || 'Sem descrição';
-  const getData = (lic: Licitacao) => lic.data_abertura || lic.dataEncerramentoProposta || lic.dataHoraAberturaSessaoPublica || lic.dataAtualizacao || new Date().toISOString();
-  const getValor = (lic: Licitacao) => lic.valor_estimado || lic.valorTotalEstimado || 0;
-  const getSituacao = (lic: Licitacao) => lic.situacao || lic.situacaoCompraNome || 'Desconhecida';
+  const getCidade = (lic: Licitacao) => lic.cidade || (lic as any).municipio || lic.unidadeOrgao?.municipioNome || '';
+  const getObjeto = (lic: Licitacao) => (lic as any).titulo || lic.objeto_resumo || lic.objetoCompra || 'Sem descrição';
+  const getData = (lic: Licitacao) => lic.data_abertura || (lic as any).dataEncerramento || lic.dataEncerramentoProposta || lic.dataHoraAberturaSessaoPublica || lic.dataAtualizacao || new Date().toISOString();
+  const getValor = (lic: Licitacao) => (lic as any).valor || lic.valor_estimado || lic.valorTotalEstimado || 0;
+  const getSituacao = (lic: Licitacao) => lic.situacao || (lic as any).status || lic.situacaoCompraNome || 'Desconhecida';
 
   // Obter prazo limite para envio de propostas ou início da sessão pública
   const getPrazoLimiteDate = (lic: Licitacao): Date | null => {
     const dtStr = lic.dataEncerramentoProposta || 
+                  (lic as any).dataEncerramento ||       // formato do /search
                   (lic as any).data_encerramento || 
                   lic.dataHoraAberturaSessaoPublica;
     if (dtStr) {
@@ -177,7 +235,6 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
     // 2. Prazo limite de envio de propostas
     const limite = getPrazoLimiteDate(lic);
     if (limite && !isNaN(limite.getTime())) {
-      // Se o prazo para envio de propostas já terminou, o edital expirou
       return limite.getTime() >= targetThreshold;
     }
 
@@ -187,8 +244,9 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
       return inicio.getTime() >= targetThreshold;
     }
 
-    // 4. Se não tem nenhuma data limite no futuro confirmada, descarta para não exibir expirados
-    return false;
+    // 4. Sem nenhuma data verificável — aceita se veio do backend com apenasVigentes=true
+    // (fontes como DOU não têm dataEncerramento mas já foram pré-filtradas pelo backend)
+    return ocultarEncerrados ? true : false;
   };
 
   const formatAbertura = (lic: Licitacao) => {
@@ -256,17 +314,7 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
     const matchesActive = onlyActive ? isAtivo(lic) : true;
     const matchesTemporal = isAberturaValida(lic);
 
-    const matchesFonte = !selectedFonte || (() => {
-      const obj = normalizeStr(getObjeto(lic));
-      const org = normalizeStr(getOrgaoName(lic));
-      const mod = normalizeStr(lic.modalidade || '');
-      if (selectedFonte === 'dispensas') return mod.includes('dispensa') || obj.includes('dispensa');
-      if (selectedFonte === 'atas') return mod.includes('registro de preco') || obj.includes('ata') || obj.includes('srp');
-      if (selectedFonte === 'tribunais') return org.includes('tribunal') || org.includes('tj') || org.includes('trf') || org.includes('trt') || org.includes('tce');
-      if (selectedFonte === 'universidades') return org.includes('universidade') || org.includes('uf') || org.includes('ifpr') || org.includes('faculdade');
-      if (selectedFonte === 'compraspr') return getUf(lic) === 'PR' || org.includes('parana') || org.includes('curitiba');
-      return true;
-    })();
+    const matchesFonte = true; // filtro de fontes agora é feito no backend via fontesAtivas
     
     const matchesKeywords = !filterByKeywords || activeKeywords.length === 0 || activeKeywords.some(kw => {
         const kwNormalized = normalizeStr(kw);
@@ -375,45 +423,46 @@ export function SearchPage({ onNavigateToGerenciadas }: { onNavigateToGerenciada
       </header>
 
       <div className="p-8 flex-1 overflow-y-auto">
-        {/* FONTES GOVERNAMENTAIS MONITORADAS */}
-        <div className="bg-[#021820]/90 border border-[#083d4c] rounded-2xl p-4 mb-6 shadow-lg">
-          <div className="flex items-center gap-2 mb-3">
-            <Layers className="w-4 h-4 text-cyan-400" />
-            <span className="text-xs font-black uppercase tracking-wider text-white">
-              FONTES GOVERNAMENTAIS MONITORADAS
-            </span>
-            <span className="text-xs text-slate-400">
-              (Clique para filtrar ou priorizar)
-            </span>
+        {/* FONTES ATIVAS — resumo + link para configurações */}
+        <div className="bg-[#021820]/90 border border-[#083d4c] rounded-2xl px-4 py-3 mb-6 shadow-lg flex items-center justify-between gap-4 flex-wrap">
+          <div className="flex items-center gap-3 flex-wrap">
+            <div className="flex items-center gap-1.5">
+              <Layers className="w-4 h-4 text-cyan-400" />
+              <span className="text-xs font-black uppercase tracking-wider text-white">
+                Fontes Ativas:
+              </span>
+            </div>
+            {fontesAtivas.size === 0 ? (
+              <span className="text-xs text-amber-400 font-semibold flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5" /> Nenhuma fonte selecionada — sem resultados
+              </span>
+            ) : (
+              <div className="flex flex-wrap gap-1.5">
+                {SOURCES_CATALOG.filter(s => fontesAtivas.has(s.id)).map(s => (
+                  <span
+                    key={s.id}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#011d26] border border-[#07323e] text-slate-300"
+                  >
+                    <span>{s.icon}</span>
+                    <span>{s.shortName}</span>
+                  </span>
+                ))}
+                {fontesAtivas.size < SOURCES_CATALOG.length && (
+                  <span className="text-[11px] text-slate-500 self-center ml-1">
+                    ({SOURCES_CATALOG.length - fontesAtivas.size} desativadas)
+                  </span>
+                )}
+              </div>
+            )}
           </div>
-          <div className="flex flex-wrap gap-2">
-            {[
-              { id: 'pncp', label: 'PNCP', icon: '🏛️', bg: 'bg-sky-950/80 border-sky-700/70 text-sky-200 hover:border-sky-400' },
-              { id: 'comprasgov', label: 'Compras.gov', icon: '🇧🇷', bg: 'bg-emerald-950/80 border-emerald-700/70 text-emerald-200 hover:border-emerald-400' },
-              { id: 'dispensas', label: 'Dispensas', icon: '📄', bg: 'bg-purple-950/80 border-purple-700/70 text-purple-200 hover:border-purple-400' },
-              { id: 'compraspr', label: 'Compras Paraná', icon: '🏢', bg: 'bg-cyan-950/80 border-cyan-700/70 text-cyan-200 hover:border-cyan-400' },
-              { id: 'tribunais', label: 'Tribunais', icon: '⚖️', bg: 'bg-indigo-950/80 border-indigo-700/70 text-indigo-200 hover:border-indigo-400' },
-              { id: 'universidades', label: 'Universidades', icon: '🎓', bg: 'bg-teal-950/80 border-teal-700/70 text-teal-200 hover:border-teal-400' },
-              { id: 'atas', label: 'Atas SRP', icon: '📋', bg: 'bg-blue-950/80 border-blue-700/70 text-blue-200 hover:border-blue-400' },
-              { id: 'dou', label: 'DOU', icon: '📰', bg: 'bg-slate-800/90 border-slate-600 text-slate-200 hover:border-slate-400' }
-            ].map(f => {
-              const isSelected = selectedFonte === f.id;
-              return (
-                <button
-                  key={f.id}
-                  onClick={() => setSelectedFonte(isSelected ? '' : f.id)}
-                  className={cn(
-                    "flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold border transition-all cursor-pointer",
-                    f.bg,
-                    isSelected ? "ring-2 ring-cyan-400 brightness-125" : "opacity-90 hover:opacity-100"
-                  )}
-                >
-                  <span>{f.icon}</span>
-                  <span>{f.label}</span>
-                </button>
-              );
-            })}
-          </div>
+          {/* Botão de atalho para configurações */}
+          <button
+            onClick={onNavigateToPipeline}
+            className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-cyan-300 transition-colors whitespace-nowrap cursor-pointer"
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>Gerenciar fontes em <strong className="text-cyan-400">Configurações</strong></span>
+          </button>
         </div>
 
         <div className="flex flex-col gap-4 mb-6">

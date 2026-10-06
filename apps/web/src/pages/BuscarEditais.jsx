@@ -188,7 +188,7 @@ export default function BuscarEditais() {
           {currentView === 'analytics' && (
             <AnalyticsDashboard onNavigate={(view) => setCurrentView(view)} />
           )}
-          {currentView === 'search' && <SearchPage />}
+          {currentView === 'search' && <SearchPage onNavigateToPipeline={() => setCurrentView('pipeline')} />}
           {currentView === 'analise' && (
             <AnaliseEditaisPage 
               onNavigateToSearch={() => setCurrentView('search')} 

@@ -243,6 +243,8 @@ try {
   const b2gLicitacoesRouter = require('../apps/api/api/b2g-licitacoes.cjs');
   app.use('/api/b2g-licitacoes', b2gLicitacoesRouter);
   app.use('/api/analise-tr', b2gLicitacoesRouter);
+  // Atalho público para download de edital por ID de controle PNCP
+  app.use('/api/editais', b2gLicitacoesRouter);
   app.get('/api/proxy-download', (req, res) => {
     const query = req.originalUrl.includes('?') ? req.originalUrl.slice(req.originalUrl.indexOf('?')) : '';
     res.redirect(307, '/api/b2g-licitacoes/proxy-download' + query);

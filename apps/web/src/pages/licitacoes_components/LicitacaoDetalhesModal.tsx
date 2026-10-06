@@ -133,14 +133,15 @@ export function LicitacaoDetalhesModal({
 
   const getOrgaoName = (lic: Licitacao) => lic.orgao || lic.orgaoEntidade?.razaoSocial || 'Órgão não especificado';
   const getUf = (lic: Licitacao) => lic.uf || lic.unidadeOrgao?.ufSigla || 'BR';
-  const getCidade = (lic: Licitacao) => lic.cidade || lic.unidadeOrgao?.municipioNome || '';
-  const getObjeto = (lic: Licitacao) => lic.objeto_resumo || lic.objetoCompra || 'Sem descrição';
-  const getData = (lic: Licitacao) => lic.data_abertura || lic.dataEncerramentoProposta || lic.dataHoraAberturaSessaoPublica || lic.dataAtualizacao || new Date().toISOString();
-  const getValor = (lic: Licitacao) => lic.valor_estimado || lic.valorTotalEstimado || 0;
-  const getSituacao = (lic: Licitacao) => lic.situacao || lic.situacaoCompraNome || 'Divulgada no PNCP';
+  const getCidade = (lic: Licitacao) => lic.cidade || (lic as any).municipio || lic.unidadeOrgao?.municipioNome || '';
+  const getObjeto = (lic: Licitacao) => (lic as any).titulo || lic.objeto_resumo || lic.objetoCompra || 'Sem descrição';
+  const getData = (lic: Licitacao) => lic.data_abertura || (lic as any).dataEncerramento || lic.dataEncerramentoProposta || lic.dataHoraAberturaSessaoPublica || lic.dataAtualizacao || new Date().toISOString();
+  const getValor = (lic: Licitacao) => (lic as any).valor || lic.valor_estimado || lic.valorTotalEstimado || 0;
+  const getSituacao = (lic: Licitacao) => lic.situacao || (lic as any).status || lic.situacaoCompraNome || 'Divulgada no PNCP';
 
   const getPrazoLimiteDate = (lic: Licitacao): Date | null => {
     const dtStr = lic.dataEncerramentoProposta || 
+                  (lic as any).dataEncerramento ||       // formato do /search
                   (lic as any).data_encerramento || 
                   lic.dataHoraAberturaSessaoPublica;
     if (dtStr) {
@@ -211,7 +212,7 @@ export function LicitacaoDetalhesModal({
     return !/(encerrad|cancelad|revogad|suspens|anulad|fracassad|desert|homologad|adjudicad)/i.test(sit);
   };
 
-  const handleRealDownload = (url: string, title: string) => {
+  const handleRealDownload = (url: string, title: string, arqMeta?: any) => {
     try {
       if (!url) return;
       // Se a URL é um link externo web (página HTML de acompanhamento), abre diretamente em nova aba
@@ -222,9 +223,25 @@ export function LicitacaoDetalhesModal({
 
       setDownloadingUrl(url);
       const safeTitle = title.toLowerCase().endsWith('.pdf') ? title : `${title}.pdf`;
-      let downloadEndpoint = url;
-      if (!url.startsWith('/api/b2g-licitacoes/documento-gerado/')) {
+
+      // Para arquivos do PNCP oficial com sequencial, usa o endpoint de download
+      // com persistência em disco (cache server-side + stream direto)
+      const docSeq = arqMeta?.sequencialDocumento;
+      const cnpj = licitacao.orgaoEntidade?.cnpj?.replace(/\D/g, '') ||
+                   String(licitacao.numeroControlePNCP || '').split('-')[0].replace(/\D/g, '');
+      const ano = licitacao.anoCompra ||
+                  (licitacao.numeroControlePNCP ? String(licitacao.numeroControlePNCP).match(/\/(\d{4})/)?.[1] : null);
+      const seq = licitacao.sequencialCompra;
+
+      let downloadEndpoint: string;
+
+      if (arqMeta?.origem === 'PNCP_OFICIAL' && cnpj && ano && seq && docSeq) {
+        // Rota com persistência em disco — cache server-side automático
+        downloadEndpoint = `/api/b2g-licitacoes/arquivos/${cnpj}/${ano}/${seq}/download/${docSeq}`;
+      } else if (!url.startsWith('/api/b2g-licitacoes/documento-gerado/')) {
         downloadEndpoint = `/api/b2g-licitacoes/proxy-download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(safeTitle)}`;
+      } else {
+        downloadEndpoint = url;
       }
       
       const a = document.createElement('a');
@@ -443,7 +460,7 @@ export function LicitacaoDetalhesModal({
                           </a>
                         )}
                         <button 
-                          onClick={() => handleRealDownload(fileUrl, arq.titulo)}
+                          onClick={() => handleRealDownload(fileUrl, arq.titulo, arq)}
                           disabled={isDownloadingThis}
                           className="flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 rounded-lg transition-all shadow-sm shadow-[#00171d] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
