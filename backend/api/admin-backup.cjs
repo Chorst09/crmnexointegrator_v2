@@ -1000,6 +1000,45 @@ router.get('/export', async (req, res) => {
       ]
     };
 
+    // ── Gera modulesSummary agrupando tabelas por módulo funcional ────────────
+    // Exibido no painel de backup da UI (log de tabelas incluídas)
+    const MODULE_MAP = [
+      { module: 'AUTENTICAÇÃO & USUÁRIOS',    tables: ['User','TenantCompany','LicensePlan','user_sessions','profiles','users'] },
+      { module: 'EMPRESAS & CONTATOS',         tables: ['Company','CompanyDocument','CompanyLicense','Contact','contacts','clientes'] },
+      { module: 'OPORTUNIDADES & CRM',         tables: ['Opportunity','OpportunityAttentionPoint','OpportunityLearning','OpportunityProduct','oportunidades','oportunidades_parceiro','oportunidade_historico','oportunidade_parceiro_historico','oportunidade_fornecedores'] },
+      { module: 'PRODUTOS & PREÇOS',           tables: ['Product','ProductPrice','PriceTable','products','product_configs'] },
+      { module: 'PROPOSTAS',                   tables: ['Proposal','ProposalItem','ProposalTemplate','proposals','proposal_items','proposal_logs','calculations'] },
+      { module: 'PRÉ-VENDAS',                  tables: ['PreSalesRequest','PreSalesItem','PreSalesApproval','PreSalesPoc','PreSalesPocFollowUp'] },
+      { module: 'PROJETOS',                    tables: ['Project','ProjectPhase','ProjectTask','ProjectTeam','ProjectMilestone','ProjectRisk','ProjectIssue','ProjectBilling','ProjectAttachment','ProjectAcceptance','ProjectTimelog','ProjectChangeRequest','ProjectB2BConfig','ProjectB2GConfig'] },
+      { module: 'KICKOFF',                     tables: ['KickoffMeeting','KickoffParticipant','KickoffAgendaItem','KickoffChecklistItem','KickoffActionItem','KickoffHistory','KickoffTemplate'] },
+      { module: 'CONTRATOS',                   tables: ['Contract','ContractAttachment','Commission','commission_seller','commission_channel_director','commission_channel_seller','commission_channel_indicator','commission_channel_influencer'] },
+      { module: 'ATIVIDADES & HISTÓRICO',      tables: ['Activity','atividades','audit_logs','webhook_logs'] },
+      { module: 'SIMULADOR',                   tables: ['SimulatorProposal','simulator_licitacao','calculations'] },
+      { module: 'B2G LICITAÇÕES',              tables: ['BidNotice','BidNoticeHistory','SavedAnalysis','gerenciadas_licitacao','alertas_licitacao','editais_analisados','licitacoes_pncp'] },
+      { module: 'WORKFLOW & AUTOMAÇÃO',        tables: ['Workflow','WorkflowExecution','AdvancedWorkflow','AutomationRule','ApprovalWorkflow','ApprovalRequest','ApprovalStep','approval_workflows','approval_steps'] },
+      { module: 'NOTIFICAÇÕES & SUPORTE',      tables: ['Notification','SupportTicket','TicketResponse','NPSSurvey','ChurnAlert','notificacoes'] },
+      { module: 'PARCEIROS & FORNECEDORES',    tables: ['Region','partners','fornecedores','teams','integrations'] },
+      { module: 'CONFIGURAÇÕES DO SISTEMA',    tables: ['SystemSetting','Integration','IntegrationLog','GoogleToken','branding_configs','system_configs','system_metrics','document_templates'] },
+      { module: 'VENDAS & METAS',              tables: ['SalesTarget','TeamBonus','TeamBonusDistribution','CustomerOnboarding','OnboardingStep','CrossSellRule','UpSellRule','Competitor','CompetitorComparison'] },
+      { module: 'FILTROS TI & B2G',            tables: ['categorias_filtro_ti','palavras_chave_ti','palavras_chave_customizadas','historico_buscas_ti','site_surveys'] },
+    ];
+
+    const allTableNames = new Set(database.tableNames);
+    const modulesSummary = {
+      totalTables: database.tableNames.length,
+      totalRows: database.totalRows,
+      modules: MODULE_MAP.map(({ module, tables }) => {
+        const matchedTables = tables.filter(t => allTableNames.has(t));
+        const totalRows = matchedTables.reduce((sum, t) => {
+          const entry = database.tables[t];
+          return sum + (entry?.count || (Array.isArray(entry?.rows) ? entry.rows.length : 0));
+        }, 0);
+        return { module, tableCount: matchedTables.length, totalRows, tables: matchedTables };
+      }).filter(m => m.tableCount > 0)
+    };
+    backup.modulesSummary = modulesSummary;
+    // ─────────────────────────────────────────────────────────────────────────
+
     const body = JSON.stringify(backup, jsonReplacer, 2);
     const filename = `nexoscrm-backup-completo-${generatedAt.slice(0, 19).replace(/[:T]/g, '-')}.json`;
 
