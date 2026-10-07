@@ -250,12 +250,6 @@ model Opportunity {
   contactFullName String?
   contactEmail    String?
   contactPhone    String?
-  source          LeadSource?
-  expectedCloseDate DateTime?
-  actualCloseDate DateTime?
-  lossReason      String?
-  stageDecisionDetails Json?
-  notes           String?
   
   // Relacionamentos
   companyId String
@@ -2076,4 +2070,3 @@ model AuditLog {
   @@index([createdAt])
   @@map("audit_logs")
 }
-
