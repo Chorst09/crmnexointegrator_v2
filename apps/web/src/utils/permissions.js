@@ -86,7 +86,7 @@ export const ROLE_ACCESS_POLICY = {
     dashboard: false,
     leads: true,
     opportunities: true,
-    publicOpportunities: false,
+    publicOpportunities: true,
     ownOpportunitiesOnly: true,
     accessSimulador: true,
     simuladorViewPricing: false,
@@ -95,14 +95,14 @@ export const ROLE_ACCESS_POLICY = {
     manufacturerRegistry: true,
     documentation: true,
     strategicReports: true,
-    management: false,
+    management: true,
     automation: false,
     administration: false,
     accessB2B: true,
-    accessB2G: false,
+    accessB2G: true,
     accessPreSales: false,
     accessSimulador: true,
-    accessManagement: false,
+    accessManagement: true,
     accessAutomation: false
   },
   [ROLES.SELLER]: {
@@ -110,11 +110,11 @@ export const ROLE_ACCESS_POLICY = {
     leads: true,
     opportunities: true,
     publicOpportunities: true,
-    ownOpportunitiesOnly: false,
+    ownOpportunitiesOnly: true,
     accessSimulador: true,
-    simuladorViewPricing: true,
-    simuladorViewCommissions: true,
-    simuladorViewDRE: true,
+    simuladorViewPricing: false,
+    simuladorViewCommissions: false,
+    simuladorViewDRE: false,
     manufacturerRegistry: true,
     documentation: true,
     strategicReports: true,
@@ -207,7 +207,7 @@ export const toCanonicalRole = (role, userOrEmail) => {
   const raw = String(role || '').trim().toUpperCase();
   if (!raw) return ROLES.USER;
   if (raw === 'PRE-VENDAS' || raw === 'PREVENDAS') return ROLES.PRE_SALES;
-  if (raw === 'SELLER' || raw === 'VENDEDOR') return ROLES.SELLER;
+  if (raw === 'SELLER' || raw === 'VENDEDOR') return ROLES.USER;
   if (raw === 'USUARIO') return ROLES.USER;
   if (raw === ROLES.MANAGER || raw === ROLES.DIRECTOR || raw === 'GERENTE') return ROLES.ADMIN;
   if (raw === ROLES.MASTER || raw === ROLES.ADMIN || raw === ROLES.USER || raw === ROLES.PRE_SALES || raw === ROLES.SELLER) return raw;
@@ -225,8 +225,8 @@ export const roleLabel = (role) => {
     [ROLES.ADMIN]: 'Admin',
     [ROLES.MANAGER]: 'Gestor',
     [ROLES.DIRECTOR]: 'Diretoria',
-    [ROLES.SELLER]: 'Vendedor',
-    [ROLES.USER]: 'Vendedor / Usuário',
+    [ROLES.SELLER]: 'Usuário',
+    [ROLES.USER]: 'Usuário',
     [ROLES.PRE_SALES]: 'Pré-Vendas'
   };
 

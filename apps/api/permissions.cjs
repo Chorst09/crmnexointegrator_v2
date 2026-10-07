@@ -3,8 +3,8 @@ const ROLE_ACCESS_DEFAULTS = {
   ADMIN: { accessB2B: true, accessB2G: true, accessPreSales: true, accessManagement: true, accessAutomation: true },
   MANAGER: { accessB2B: true, accessB2G: true, accessPreSales: true, accessManagement: true, accessAutomation: true },
   DIRECTOR: { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: true, accessAutomation: false },
-  SELLER: { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: false, accessAutomation: false },
-  USER: { accessB2B: true, accessB2G: false, accessPreSales: false, accessManagement: false, accessAutomation: false },
+  SELLER: { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: true, accessAutomation: false },
+  USER: { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: true, accessAutomation: false },
   PRE_SALES: { accessB2B: false, accessB2G: false, accessPreSales: true, accessManagement: false, accessAutomation: false }
 };
 
@@ -60,7 +60,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     administracaoUsuarios: false,
     billing: false,
     integrations: false,
-    gestao: false,
+    gestao: true,
     automacoes: false
   },
   PRE_SALES: {
@@ -78,7 +78,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     administracaoUsuarios: false,
     billing: false,
     integrations: false,
-    gestao: false,
+    gestao: true,
     automacoes: false
   },
   MANAGER: {

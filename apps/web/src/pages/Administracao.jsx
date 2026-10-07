@@ -54,7 +54,7 @@ const normalizeRole = (value, userOrEmail) => {
   if (email === 'admin@crm.com' || email === 'chorstconsult@gmail.com') return 'MASTER';
   const raw = String(value || '').trim().toUpperCase();
   if (raw === 'PRE-VENDAS' || raw === 'PREVENDAS') return 'PRE_SALES';
-  if (raw === 'SELLER' || raw === 'VENDEDOR') return 'SELLER';
+  if (raw === 'SELLER' || raw === 'VENDEDOR') return 'USER';
   if (raw === 'USUARIO') return 'USER';
   if (raw === 'MANAGER' || raw === 'DIRECTOR' || raw === 'GERENTE') return 'ADMIN';
   return raw || 'USER';
@@ -67,7 +67,6 @@ const roleLabel = (value) => {
     ADMIN: 'Admin',
     MANAGER: 'Manager',
     DIRECTOR: 'Diretor',
-    SELLER: 'Vendedor',
     USER: 'Usuário',
     PRE_SALES: 'Pre-Vendas'
   };
@@ -88,8 +87,8 @@ const resolveAccessByRole = (role, currentAccess) => {
     MANAGER: { accessB2B: true, accessB2G: true, accessPreSales: true, accessSimulador: true, accessManagement: true, accessAutomation: true },
     DIRECTOR: { accessB2B: true, accessB2G: true, accessPreSales: false, accessSimulador: true, accessManagement: true, accessAutomation: false },
     PRE_SALES: { accessB2B: false, accessB2G: false, accessPreSales: true, accessSimulador: true, accessManagement: false, accessAutomation: false },
-    SELLER: { accessB2B: true, accessB2G: true, accessPreSales: false, accessSimulador: true, accessManagement: false, accessAutomation: false },
-    USER: { accessB2B: true, accessB2G: false, accessPreSales: false, accessSimulador: true, accessManagement: false, accessAutomation: false }
+    SELLER: { accessB2B: true, accessB2G: true, accessPreSales: false, accessSimulador: true, accessManagement: true, accessAutomation: false },
+    USER: { accessB2B: true, accessB2G: true, accessPreSales: false, accessSimulador: true, accessManagement: true, accessAutomation: false }
   }[normalizedRole] || { accessB2B: true, accessB2G: false, accessPreSales: false, accessSimulador: true, accessManagement: false, accessAutomation: false };
 
   const accessB2B = currentAccess.accessB2B !== undefined ? Boolean(currentAccess.accessB2B) : defaults.accessB2B;
@@ -115,7 +114,7 @@ const normalizeCompanyModuleAccess = (company) => {
   const accessB2G = company.accessB2G !== undefined ? Boolean(company.accessB2G) : false;
   const accessPreSales = company.accessPreSales !== undefined ? Boolean(company.accessPreSales) : false;
   const accessSimulador = company.accessSimulador !== undefined ? Boolean(company.accessSimulador) : true;
-  const accessManagement = company.accessManagement !== undefined ? Boolean(company.accessManagement) : false;
+  const accessManagement = company.accessManagement !== undefined ? Boolean(company.accessManagement) : true;
   const accessAutomation = company.accessAutomation !== undefined ? Boolean(company.accessAutomation) : false;
   return {
     accessB2B,
@@ -175,8 +174,8 @@ const SETTINGS_TABS = [
   { id: 'licenciamento', label: 'Administração de Licenças', icon: '🛡️', masterOnly: true, adminRouteOnly: true }
 ];
 
-const ROLE_POLICY_VISIBLE_ROLES = ['SELLER', 'USER', 'PRE_SALES', 'ADMIN', 'MASTER'];
-const ROLE_POLICY_EDITABLE_ROLES = ['SELLER', 'USER', 'PRE_SALES', 'ADMIN'];
+const ROLE_POLICY_VISIBLE_ROLES = ['USER', 'PRE_SALES', 'ADMIN', 'MASTER'];
+const ROLE_POLICY_EDITABLE_ROLES = ['USER', 'PRE_SALES', 'ADMIN'];
 
 const ROLE_POLICY_ACCESS_KEYS = MODULE_ACCESS_ITEMS.map((item) => item.key);
 const buildRolePolicyDraft = (role, company) => {
@@ -361,7 +360,7 @@ export default function Administracao() {
     accessB2B: true,
     accessB2G: true,
     accessPreSales: false,
-    accessManagement: false,
+    accessManagement: true,
     accessAutomation: false,
     isCompanyOwner: false
   });
@@ -498,7 +497,7 @@ export default function Administracao() {
     [isAdministrationRoute, isAdminSession, isMasterSession]
   );
   const rolePolicyVisibleRoles = useMemo(
-    () => (isMasterSession ? ROLE_POLICY_VISIBLE_ROLES : ['SELLER', 'USER', 'PRE_SALES', 'ADMIN']),
+    () => (isMasterSession ? ROLE_POLICY_VISIBLE_ROLES : ['USER', 'PRE_SALES', 'ADMIN']),
     [isMasterSession]
   );
   const validTabIds = useMemo(() => new Set(availableTabs.map((tab) => tab.id)), [availableTabs]);
@@ -809,9 +808,9 @@ export default function Administracao() {
   };
 
   const openNewUser = () => {
-    const userRolePolicy = rolePolicyDrafts.SELLER || rolePolicyDrafts.USER || buildRolePolicyDraft('SELLER', contractedCompany);
+    const userRolePolicy = rolePolicyDrafts.USER || buildRolePolicyDraft('USER', contractedCompany);
     const defaultAccess = isMasterSession
-      ? resolveAccessByRole('SELLER', userRolePolicy.moduleAccess)
+      ? resolveAccessByRole('USER', userRolePolicy.moduleAccess)
       : constrainAccessToCompanyModules(userRolePolicy.moduleAccess, contractedCompany);
 
     setEditingUser(null);
@@ -819,7 +818,7 @@ export default function Administracao() {
       name: '',
       email: '',
       password: '',
-      role: 'SELLER',
+      role: 'USER',
       tenantCompanyId: isMasterSession ? '' : contractedCompany?.id || '',
       regionId: '',
       quota: '',
@@ -1996,7 +1995,7 @@ export default function Administracao() {
 
   const openCreateCompanyUser = (company) => {
     const defaultAccess = constrainAccessToCompanyModules(
-      { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: false, accessAutomation: false },
+      { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: true, accessAutomation: false },
       company
     );
     setTargetCompanyForUser(company);
@@ -4103,8 +4102,7 @@ export default function Administracao() {
                 onChange={(e) => handleUserRoleChange(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
-                <option value="SELLER">Vendedor (Comercial)</option>
-                <option value="USER">Usuário Padrão</option>
+                <option value="USER">Usuário</option>
                 <option value="PRE_SALES">Pré-Vendas</option>
                 <option value="ADMIN">Administrador</option>
                 {isMasterSession && <option value="MASTER">Master</option>}
@@ -4659,7 +4657,7 @@ export default function Administracao() {
               onChange={(e) => handleCompanyUserRoleChange(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
             >
-              <option value="USER">User (B2B/B2G)</option>
+              <option value="USER">Usuário</option>
               <option value="PRE_SALES">Pre-Vendas</option>
               {isMasterSession && <option value="ADMIN">Admin</option>}
             </select>
