@@ -2,10 +2,18 @@
 
 const express = require('express');
 const { prisma } = require('../lib/prisma.cjs');
+const { authenticateToken } = require('../lib/auth.cjs');
 const router = express.Router();
 
+const ensureAuthenticated = (req, res, next) => {
+  if (req.user?.id || req.user?.userId) return next();
+  return authenticateToken(req, res, next);
+};
+
+const getRequestUserId = (req) => req.user?.id || req.user?.userId;
+
 // GET /api/opportunity-followups/:opportunityId
-router.get('/:opportunityId', async (req, res) => {
+router.get('/:opportunityId', ensureAuthenticated, async (req, res) => {
   const { opportunityId } = req.params;
   try {
     const followUps = await prisma.opportunityFollowUp.findMany({
@@ -23,12 +31,15 @@ router.get('/:opportunityId', async (req, res) => {
 });
 
 // POST /api/opportunity-followups
-router.post('/', async (req, res) => {
-  const user = req.user;
+router.post('/', ensureAuthenticated, async (req, res) => {
+  const userId = getRequestUserId(req);
   const { opportunityId, type, content } = req.body;
 
   if (!opportunityId || !content) {
     return res.status(400).json({ error: 'Os campos opportunityId e content são obrigatórios' });
+  }
+  if (!userId) {
+    return res.status(401).json({ error: 'Usuário não autenticado' });
   }
 
   const VALID_TYPES = ['NOTE', 'CALL', 'EMAIL', 'MEETING', 'WHATSAPP'];
@@ -48,7 +59,7 @@ router.post('/', async (req, res) => {
     const followUp = await prisma.opportunityFollowUp.create({
       data: {
         opportunityId,
-        userId: user.id,
+        userId,
         type: normalizedType,
         content: String(content).trim()
       },
@@ -65,9 +76,13 @@ router.post('/', async (req, res) => {
 });
 
 // DELETE /api/opportunity-followups/:id
-router.delete('/:id', async (req, res) => {
-  const user = req.user;
+router.delete('/:id', ensureAuthenticated, async (req, res) => {
+  const userId = getRequestUserId(req);
   const { id } = req.params;
+
+  if (!userId) {
+    return res.status(401).json({ error: 'Usuário não autenticado' });
+  }
 
   try {
     const followUp = await prisma.opportunityFollowUp.findUnique({
@@ -78,9 +93,9 @@ router.delete('/:id', async (req, res) => {
       return res.status(404).json({ error: 'Acompanhamento não encontrado' });
     }
 
-    const role = String(user.role || '').toUpperCase();
+    const role = String(req.user?.actualRole || req.user?.role || '').toUpperCase();
     const isAdminOrMaster = ['ADMIN', 'MASTER'].includes(role);
-    const isOwner = followUp.userId === user.id;
+    const isOwner = followUp.userId === userId;
 
     if (!isOwner && !isAdminOrMaster) {
       return res.status(403).json({ error: 'Você só pode remover seus próprios acompanhamentos' });

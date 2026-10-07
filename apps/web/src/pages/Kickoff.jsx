@@ -26,7 +26,8 @@ import {
   MessageSquare,
   Link as LinkIcon,
   UserPlus,
-  Download
+  Download,
+  Mail
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
@@ -310,13 +311,62 @@ const serializeMinutesDocuments = (documents) => JSON.stringify({
   documents
 });
 
+const splitMinutesSections = (content) => {
+  const lines = String(content || '').split(/\r?\n/);
+  const sections = [];
+  let current = { title: 'Resumo', lines: [] };
+
+  lines.forEach((line) => {
+    const trimmed = line.trim();
+    const match = trimmed.match(/^(\d+)\.\s+(.+)$/);
+    if (match) {
+      if (current.title || current.lines.some(Boolean)) sections.push(current);
+      current = { title: `${match[1]}. ${match[2]}`, lines: [] };
+      return;
+    }
+    current.lines.push(line);
+  });
+
+  if (current.title || current.lines.some(Boolean)) sections.push(current);
+  return sections.filter((section) => section.lines.some((line) => line.trim()) || section.title !== 'Resumo');
+};
+
+const renderStructuredMinutesHtml = (content) => {
+  const sections = splitMinutesSections(content);
+  if (!sections.length) return '<p class="empty">Sem conteudo registrado.</p>';
+
+  return sections.map((section) => {
+    const body = section.lines
+      .join('\n')
+      .trim()
+      .split(/\n{2,}/)
+      .map((block) => {
+        const rows = block.split(/\n/).map((line) => line.trim()).filter(Boolean);
+        const isList = rows.length > 0 && rows.every((line) => /^[-•]\s+/.test(line));
+        if (isList) {
+          return `<ul>${rows.map((line) => `<li>${escapeHtml(line.replace(/^[-•]\s+/, ''))}</li>`).join('')}</ul>`;
+        }
+        return `<p>${rows.map(escapeHtml).join('<br>')}</p>`;
+      })
+      .join('');
+
+    return `<section class="minutes-section"><h2>${escapeHtml(section.title)}</h2>${body}</section>`;
+  }).join('');
+};
+
 const buildMinutesPdfHtml = ({ meeting, document }) => {
   const generatedAt = new Date().toLocaleString('pt-BR');
   const fileName = `${safeFileName(document.title)}.pdf`;
+  const template = MINUTES_TEMPLATES[document.templateKey];
+  const templateLabel = template?.title || document.templateKey || 'Ata de Kickoff';
   const participants = (Array.isArray(meeting.participants) ? meeting.participants : [])
     .map((participant) => participant.user?.name || participant.contact?.name)
     .filter(Boolean)
     .join(', ');
+  const mailSubject = encodeURIComponent(`${document.title} - ${meeting.company?.name || meeting.title || 'Kickoff'}`);
+  const mailBody = encodeURIComponent(
+    `Olá,\n\nSegue ata de kickoff para validação.\n\nReunião: ${meeting.title || '-'}\nCliente: ${meeting.company?.name || '-'}\nData: ${formatMeetingDate(meeting.scheduledDate)}\n\nAnexe o PDF salvo nesta visualização antes de enviar.\n`
+  );
 
   return `<!doctype html>
 <html lang="pt-BR">
@@ -330,17 +380,24 @@ const buildMinutesPdfHtml = ({ meeting, document }) => {
     .toolbar { position: sticky; top: 0; z-index: 10; display: flex; justify-content: space-between; gap: 12px; align-items: center; padding: 12px 18px; background: #111827; color: #f8fafc; box-shadow: 0 4px 18px rgba(15,23,42,.18); }
     .toolbar strong { font-size: 14px; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    button { border: 0; border-radius: 6px; padding: 9px 12px; font-weight: 800; cursor: pointer; }
+    button, .button { border: 0; border-radius: 6px; padding: 9px 12px; font-weight: 800; cursor: pointer; text-decoration: none; font-size: 13px; display: inline-flex; align-items: center; }
     .primary { background: #4f46e5; color: #fff; }
     .secondary { background: #263345; color: #fff; }
+    .email { background: #16a34a; color: #fff; }
     .page { width: 210mm; min-height: 297mm; margin: 18px auto; padding: 18mm; background: #fff; box-shadow: 0 20px 45px rgba(15,23,42,.2); }
     .hero { border-bottom: 4px solid #4f46e5; padding-bottom: 18px; margin-bottom: 18px; }
     .eyebrow { color: #4f46e5; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
     h1 { margin: 6px 0 8px; font-size: 30px; line-height: 1.1; color: #0f172a; }
+    h2 { margin: 0 0 8px; font-size: 15px; color: #1e293b; }
     .meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px 18px; margin-top: 14px; font-size: 12px; }
     .meta div { border-bottom: 1px solid #eef2f7; padding-bottom: 7px; }
     .meta span { display: block; color: #64748b; font-size: 10px; font-weight: 800; text-transform: uppercase; }
-    .content { white-space: pre-wrap; font-size: 12.5px; line-height: 1.65; }
+    .minutes-section { break-inside: avoid; border: 1px solid #e2e8f0; border-left: 4px solid #4f46e5; border-radius: 8px; padding: 12px 14px; margin: 0 0 12px; background: #fbfdff; }
+    .minutes-section p { margin: 0 0 8px; font-size: 12.5px; line-height: 1.65; }
+    .minutes-section p:last-child { margin-bottom: 0; }
+    ul { margin: 0; padding-left: 18px; }
+    li { margin: 4px 0; font-size: 12.5px; line-height: 1.55; }
+    .empty { color: #64748b; font-style: italic; }
     .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #dbe3ee; display: flex; justify-content: space-between; color: #64748b; font-size: 10px; }
     @page { size: A4; margin: 10mm; }
     @media print {
@@ -354,6 +411,7 @@ const buildMinutesPdfHtml = ({ meeting, document }) => {
   <div class="toolbar">
     <strong>Visualizacao PDF - ${escapeHtml(document.title)}</strong>
     <div class="actions">
+      <a class="button email" href="mailto:?subject=${mailSubject}&body=${mailBody}">Enviar por e-mail</a>
       <button class="secondary" onclick="window.close()">Fechar</button>
       <button class="primary" onclick="window.print()">Imprimir / Salvar PDF</button>
     </div>
@@ -374,10 +432,11 @@ const buildMinutesPdfHtml = ({ meeting, document }) => {
       </div>
       <div class="meta">
         <div><span>Participantes</span>${escapeHtml(participants || '-')}</div>
+        <div><span>Modelo</span>${escapeHtml(templateLabel)}</div>
         <div><span>Arquivo sugerido</span>${escapeHtml(fileName)}</div>
       </div>
     </section>
-    <section class="content">${escapeHtml(document.content || '')}</section>
+    ${renderStructuredMinutesHtml(document.content)}
     <div class="footer">
       <span>Nexos Integrator - Gestao de Kickoff</span>
       <span>${escapeHtml(fileName)}</span>
@@ -385,6 +444,31 @@ const buildMinutesPdfHtml = ({ meeting, document }) => {
   </main>
 </body>
 </html>`;
+};
+
+const buildMinutesEmailHref = ({ meeting, document }) => {
+  const subject = encodeURIComponent(`${document.title} - ${meeting.company?.name || meeting.title || 'Kickoff'}`);
+  const body = encodeURIComponent([
+    'Olá,',
+    '',
+    'Segue abaixo a ata de kickoff para validação.',
+    '',
+    `Reunião: ${meeting.title || '-'}`,
+    `Cliente: ${meeting.company?.name || '-'}`,
+    `Data: ${formatMeetingDate(meeting.scheduledDate)}`,
+    '',
+    document.content || '',
+    '',
+    'Atenciosamente,'
+  ].join('\n'));
+
+  return `mailto:?subject=${subject}&body=${body}`;
+};
+
+const getMinutesTemplateKeyForMeeting = (meeting) => {
+  if (meeting?.phase === 'ALINHAMENTO_INTERNO') return 'INTERNAL';
+  if (meeting?.phase === 'ALINHAMENTO_EXTERNO') return 'EXTERNAL';
+  return 'EXTERNAL';
 };
 
 const Kickoff = () => {
@@ -403,6 +487,7 @@ const Kickoff = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState(null);
   const [detailMeeting, setDetailMeeting] = useState(null);
+  const [detailInitialTab, setDetailInitialTab] = useState('overview');
   const [projectKickoffContext, setProjectKickoffContext] = useState(null);
   const currentUser = useMemo(() => {
     try {
@@ -473,11 +558,12 @@ const Kickoff = () => {
   const getPhaseMeetings = (phaseId) =>
     filteredMeetings.filter((m) => m.phase === phaseId);
 
-  const openDetail = async (meeting) => {
+  const openDetail = async (meeting, initialTab = 'overview') => {
     try {
       const res = await fetch(buildApiUrl(`/kickoff/meetings/${meeting.id}`), { headers: getAuthHeaders() });
       if (res.ok) {
         const data = await res.json();
+        setDetailInitialTab(initialTab);
         setDetailMeeting(data);
       }
     } catch (error) {
@@ -490,12 +576,13 @@ const Kickoff = () => {
   useEffect(() => {
     if (!meetingIdParam || openedFromParamRef.current === meetingIdParam) return;
     openedFromParamRef.current = meetingIdParam;
-    openDetail({ id: meetingIdParam });
+    openDetail({ id: meetingIdParam }, 'overview');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetingIdParam]);
 
   const closeDetail = () => {
     setDetailMeeting(null);
+    setDetailInitialTab('overview');
     openedFromParamRef.current = '';
     if (meetingIdParam) {
       const next = new URLSearchParams(searchParams);
@@ -822,6 +909,10 @@ const Kickoff = () => {
           }}
           meeting={editingMeeting}
           initialContext={!editingMeeting ? projectKickoffContext : null}
+          onOpenMinutes={async (meetingToOpen) => {
+            setShowCreateModal(false);
+            await openDetail(meetingToOpen, 'minutes');
+          }}
         />
       )}
 
@@ -842,6 +933,7 @@ const Kickoff = () => {
           }}
           canDelete={canDeleteMeetings}
           fullscreen={Boolean(meetingIdParam)}
+          initialTab={detailInitialTab}
         />
       )}
     </div>
@@ -939,7 +1031,7 @@ const kickoffDescriptionFromContext = (context) => {
   ].filter(Boolean).join('\n\n');
 };
 
-const KickoffFormModal = ({ onClose, onSaved, meeting, initialContext = null }) => {
+const KickoffFormModal = ({ onClose, onSaved, meeting, initialContext = null, onOpenMinutes }) => {
   const [formData, setFormData] = useState({
     title: meeting?.title || kickoffTitleFromContext(initialContext),
     description: meeting?.description || kickoffDescriptionFromContext(initialContext),
@@ -1481,6 +1573,15 @@ const KickoffFormModal = ({ onClose, onSaved, meeting, initialContext = null }) 
         </form>
 
         <div className="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-[color:var(--crm-border)] flex-shrink-0">
+          {meeting && (
+            <button
+              type="button"
+              onClick={() => onOpenMinutes?.(meeting)}
+              className="mr-auto inline-flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-semibold text-indigo-700 transition-colors hover:bg-indigo-100 dark:border-indigo-500/25 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20"
+            >
+              <FileText className="h-4 w-4" /> Ata & Modelos
+            </button>
+          )}
           <button
             type="button"
             onClick={onClose}
@@ -1513,9 +1614,10 @@ const KickoffDetailModal = ({
   onEdit,
   onDelete,
   canDelete = false,
-  fullscreen = false
+  fullscreen = false,
+  initialTab = 'overview'
 }) => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(initialTab);
   const [actionForm, setActionForm] = useState({ title: '', description: '', priority: 'MEDIUM', dueDate: '', assigneeId: '' });
   const [users, setUsers] = useState([]);
   const [contacts, setContacts] = useState([]);
@@ -1530,6 +1632,10 @@ const KickoffDetailModal = ({
   const [minutesDocuments, setMinutesDocuments] = useState(() => parseMinutesDocuments(meeting.meetingNotes));
   const [minutesEditor, setMinutesEditor] = useState(null);
   const [savingMinutes, setSavingMinutes] = useState(false);
+
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab, meeting.id]);
 
   useEffect(() => {
     setMinutesDocuments(parseMinutesDocuments(meeting.meetingNotes));
@@ -1710,26 +1816,17 @@ const KickoffDetailModal = ({
   };
 
   const openMinutesEditorFromTemplate = (templateKey) => {
-    console.log('🎯 Usar modelo clicado:', templateKey);
-    console.log('📋 Templates disponíveis:', Object.keys(MINUTES_TEMPLATES));
-    console.log('📄 Meeting:', meeting);
-    
     const template = MINUTES_TEMPLATES[templateKey];
     if (!template) {
-      console.error('❌ Template não encontrado:', templateKey);
       return;
     }
-    
-    console.log('✅ Template encontrado:', template.title);
-    
+
     setMinutesEditor({
       id: null,
       templateKey,
       title: template.title,
       content: template.buildNotes(safeMeetingForNotes(meeting))
     });
-    
-    console.log('✅ Editor de ata aberto');
   };
 
   const editMinutesDocument = (document) => {
@@ -1741,7 +1838,7 @@ const KickoffDetailModal = ({
     });
   };
 
-  const saveMinutesDocument = async () => {
+  const saveMinutesDocument = async ({ previewAfterSave = false } = {}) => {
     if (!minutesEditor?.title?.trim()) {
       alert('Informe o título da ATA.');
       return;
@@ -1768,6 +1865,9 @@ const KickoffDetailModal = ({
     try {
       await persistMinutesDocuments(nextDocuments);
       setMinutesEditor(null);
+      if (previewAfterSave) {
+        previewMinutesPdf(document);
+      }
     } catch (error) {
       console.error('Erro ao salvar ATA:', error);
       alert(error.message || 'Erro ao salvar ATA');
@@ -1796,6 +1896,10 @@ const KickoffDetailModal = ({
     previewWindow.document.write(buildMinutesPdfHtml({ meeting, document }));
     previewWindow.document.close();
     previewWindow.focus();
+  };
+
+  const sendMinutesEmail = (document) => {
+    window.location.href = buildMinutesEmailHref({ meeting, document });
   };
 
   const applyActionTemplate = (action) => {
@@ -2421,6 +2525,13 @@ const KickoffDetailModal = ({
                             </button>
                             <button
                               type="button"
+                              onClick={() => sendMinutesEmail(document)}
+                              className="inline-flex items-center gap-1.5 rounded-lg border border-green-200 bg-green-50 px-3 py-1.5 text-xs font-medium text-green-700 transition-colors hover:bg-green-100 dark:border-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-300 dark:hover:bg-emerald-500/20"
+                            >
+                              <Mail className="w-3.5 h-3.5" /> Enviar por e-mail
+                            </button>
+                            <button
+                              type="button"
                               onClick={() => editMinutesDocument(document)}
                               className="inline-flex items-center gap-1.5 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-700 transition-colors hover:bg-indigo-100 dark:border-indigo-500/25 dark:bg-indigo-500/10 dark:text-indigo-300 dark:hover:bg-indigo-500/20"
                             >
@@ -2450,11 +2561,11 @@ const KickoffDetailModal = ({
                 <div className="mt-2 flex justify-end">
                   <button
                     type="button"
-                    onClick={() => minutesDocuments[0] ? previewMinutesPdf(minutesDocuments[0]) : openMinutesEditorFromTemplate('EXTERNAL')}
+                    onClick={() => minutesDocuments[0] ? previewMinutesPdf(minutesDocuments[0]) : openMinutesEditorFromTemplate(getMinutesTemplateKeyForMeeting(meeting))}
                     className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800 dark:bg-slate-200 dark:text-slate-950 dark:hover:bg-white"
                   >
                     {minutesDocuments[0] ? <Eye className="w-4 h-4" /> : <FileText className="w-4 h-4" />}
-                    {minutesDocuments[0] ? 'Visualizar última ATA em PDF' : 'Criar ATA com modelo'}
+                    {minutesDocuments[0] ? 'Visualizar última ATA em PDF' : 'Criar ATA com modelo sugerido'}
                   </button>
                 </div>
               </div>
@@ -2694,7 +2805,9 @@ const KickoffDetailModal = ({
                   >
                     <option value="CUSTOM">Sem modelo</option>
                     {Object.entries(MINUTES_TEMPLATES).map(([key, template]) => (
-                      <option key={key} value={key}>{template.title}</option>
+                      <option key={key} value={key}>
+                        {template.title}{key === getMinutesTemplateKeyForMeeting(meeting) ? ' (sugerido para esta reunião)' : ''}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -2727,12 +2840,21 @@ const KickoffDetailModal = ({
               </button>
               <button
                 type="button"
-                onClick={saveMinutesDocument}
+                onClick={() => saveMinutesDocument()}
                 disabled={savingMinutes}
                 className="inline-flex items-center gap-2 rounded-lg bg-indigo-600 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-50"
               >
                 {savingMinutes && <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>}
                 <FileText className="h-4 w-4" /> Salvar ATA
+              </button>
+              <button
+                type="button"
+                onClick={() => saveMinutesDocument({ previewAfterSave: true })}
+                disabled={savingMinutes}
+                className="inline-flex items-center gap-2 rounded-lg bg-gray-900 px-5 py-2 text-sm font-semibold text-white transition-colors hover:bg-gray-800 disabled:opacity-50 dark:bg-slate-200 dark:text-slate-950 dark:hover:bg-white"
+              >
+                {savingMinutes && <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>}
+                <Eye className="h-4 w-4" /> Salvar e visualizar PDF
               </button>
             </div>
           </div>

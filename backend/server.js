@@ -271,6 +271,14 @@ try {
   console.warn('⚠️ Aviso ao carregar opportunity-followups:', e.message);
 }
 
+// Pontos de atenção e aprendizados de oportunidades
+try {
+  app.use('/api/opportunity-attention-points', require('../apps/api/api/attention-points.cjs'));
+  app.use('/api/opportunity-learnings', require('../apps/api/api/learnings.cjs'));
+} catch (e) {
+  console.warn('⚠️ Aviso ao carregar rotas de aprendizados/pontos de atenção:', e.message);
+}
+
 // Geração de PDF
 try {
   app.use('/api/pdf-generator', require('../apps/api/api/pdf-generator.cjs'));
