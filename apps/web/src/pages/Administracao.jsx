@@ -443,6 +443,8 @@ export default function Administracao() {
   const [backupLoading, setBackupLoading] = useState(false);
   const [restoreLoading, setRestoreLoading] = useState(false);
   const [backupResult, setBackupResult] = useState('');
+  const [backupModulesSummary, setBackupModulesSummary] = useState(null);
+  const [restoreModulesSummary, setRestoreModulesSummary] = useState(null);
   const [restoreFile, setRestoreFile] = useState(null);
   const [showRestoreModal, setShowRestoreModal] = useState(false);
   const [restoreFileInfo, setRestoreFileInfo] = useState(null);
@@ -1104,6 +1106,7 @@ export default function Administracao() {
       setBackupLoading(true);
       setError(null);
       setBackupResult('');
+      setBackupModulesSummary(null);
 
       const res = await fetch(buildApiUrl('/admin/backup/export'), {
         headers: getAuthHeaders()
@@ -1114,12 +1117,23 @@ export default function Administracao() {
         throw new Error(data?.error || `Erro ao exportar backup completo: ${res.status}`);
       }
 
-      const blob = await res.blob();
+      // Ler como texto para extrair modulesSummary antes de fazer o download
+      const text = await res.text();
+      let modulesSummary = null;
+      try {
+        const parsed = JSON.parse(text);
+        modulesSummary = parsed?.modulesSummary || null;
+      } catch { /* blob inválido, ignora */ }
+
+      // Gerar nome do arquivo
       const disposition = res.headers.get('content-disposition') || '';
       const filenameMatch = disposition.match(/filename="?([^"]+)"?/i);
       const filename =
         filenameMatch?.[1] ||
         `nexoscrm-backup-completo-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.json`;
+
+      // Disparar download do arquivo
+      const blob = new Blob([text], { type: 'application/json' });
       const href = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = href;
@@ -1129,6 +1143,7 @@ export default function Administracao() {
       a.remove();
       URL.revokeObjectURL(href);
 
+      setBackupModulesSummary(modulesSummary);
       setBackupResult('Backup completo exportado com sucesso.');
     } catch (e2) {
       console.error(e2);
@@ -1321,6 +1336,8 @@ export default function Administracao() {
 
         if (restoreRes.ok) {
           setRestoreFile(null);
+          const mods = restoreData?.modulesSummary;
+          setRestoreModulesSummary(mods || null);
           setBackupResult(
             `Backup restaurado com sucesso: ${restoreData?.database?.tableCount || 0} tabela(s), ${restoreData?.database?.totalRows || 0} registro(s), ${restoreData?.uploads?.restoredFiles || 0} arquivo(s) de upload.`
           );
@@ -2638,7 +2655,7 @@ export default function Administracao() {
                       </span>
                     </div>
                     <p className="text-sm text-slate-300">
-                      Cópia de segurança programada do banco PostgreSQL nativo com integridade estrutural validada e retenção de 30 dias.
+                      Cópia de segurança programada do banco PostgreSQL nativo com integridade estrutural validada e retenção de 14 dias.
                     </p>
                   </div>
 
@@ -2659,23 +2676,23 @@ export default function Administracao() {
                     <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
                       <span>⏰</span> Agendamento
                     </div>
-                    <div className="text-sm font-bold text-white">Seg a Sex às 17h00</div>
-                    <div className="text-xs text-cyan-400 font-mono">0 17 * * 1-5 (BRT -03)</div>
+                    <div className="text-sm font-bold text-white">Diário às 02h30</div>
+                    <div className="text-xs text-cyan-400 font-mono">30 2 * * * (BRT -03)</div>
                   </div>
 
                   <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
                     <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
                       <span>🗄️</span> Banco de Dados
                     </div>
-                    <div className="text-sm font-bold text-white">crmnexointegrator_v2</div>
-                    <div className="text-xs text-slate-400">PostgreSQL 16 (100 Tabelas)</div>
+                    <div className="text-sm font-bold text-white">nexoscrm</div>
+                    <div className="text-xs text-slate-400">PostgreSQL (porta 5433 · 126 Tabelas)</div>
                   </div>
 
                   <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
                     <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
                       <span>📅</span> Política de Retenção
                     </div>
-                    <div className="text-sm font-bold text-white">30 Dias de Histórico</div>
+                    <div className="text-sm font-bold text-white">14 Dias de Histórico</div>
                     <div className="text-xs text-slate-400">Limpeza e rotação automática</div>
                   </div>
 
@@ -2693,17 +2710,17 @@ export default function Administracao() {
                   <div className="flex items-center gap-2 text-slate-300">
                     <span className="font-semibold text-slate-400">🌐 Domínio Produção:</span>
                     <a
-                      href="https://nexosv2.chorstconsult.com.br"
+                      href="https://nexos.chorstconsult.com.br"
                       target="_blank"
                       rel="noreferrer"
                       className="text-cyan-400 underline font-mono hover:text-cyan-300"
                     >
-                      https://nexosv2.chorstconsult.com.br
+                      https://nexos.chorstconsult.com.br
                     </a>
                   </div>
                   <div className="flex items-center gap-2 text-slate-300 font-mono text-[11px]">
                     <span className="font-semibold text-slate-400">📁 Armazenamento:</span>
-                    <span className="text-slate-300 bg-slate-800 px-2 py-0.5 rounded">/var/backups/crmnexointegrator_v2/</span>
+                    <span className="text-slate-300 bg-slate-800 px-2 py-0.5 rounded">/root/backups/nexoscrm-3026/</span>
                   </div>
                 </div>
               </div>
@@ -2718,7 +2735,7 @@ export default function Administracao() {
                     </h3>
                   </div>
                   <span className="text-xs text-slate-400">
-                    Retidos em <code className="text-cyan-300">/var/backups/crmnexointegrator_v2/</code>
+                    Retidos em <code className="text-cyan-300">/root/backups/nexoscrm-3026/</code>
                   </span>
                 </div>
 
@@ -2784,10 +2801,10 @@ export default function Administracao() {
                       <span>🧪</span> 1. Testar Restauração em Sandbox (Sem Risco)
                     </div>
                     <p className="text-slate-300 leading-relaxed">
-                      Cria uma base temporária, restaura as 100 tabelas, confere contagens de clientes e editais e depois remove a base de teste:
+                      Cria uma base temporária, restaura as 126 tabelas, confere contagens de clientes e editais e depois remove a base de teste:
                     </p>
                     <pre className="p-2.5 rounded bg-slate-900 text-emerald-400 font-mono text-[11px] overflow-x-auto border border-slate-800">
-                      /var/www/crmnexointegrator_v2/scripts/restore-crmnexointegrator_v2.sh --test &lt;caminho_do_dump&gt;
+                      /root/backups/backup-nexoscrm-3026.sh --test &lt;caminho_do_dump&gt;
                     </pre>
                   </div>
 
@@ -2800,7 +2817,7 @@ export default function Administracao() {
                       Gera um snapshot de segurança prévio, para a aplicação temporariamente, restaura a base e reaplica as permissões:
                     </p>
                     <pre className="p-2.5 rounded bg-slate-900 text-cyan-300 font-mono text-[11px] overflow-x-auto border border-slate-800">
-                      /var/www/crmnexointegrator_v2/scripts/restore-crmnexointegrator_v2.sh --live &lt;caminho_do_dump&gt;
+                      /root/backups/backup-nexoscrm-3026.sh --live &lt;caminho_do_dump&gt;
                     </pre>
                   </div>
 
@@ -2810,10 +2827,10 @@ export default function Administracao() {
                       <span>📋</span> 3. Acompanhamento dos Logs da Rotina
                     </div>
                     <p className="text-slate-300 leading-relaxed">
-                      Para acompanhar a execução do agendamento das 17h00 em tempo real na VPS:
+                      Para acompanhar a execução do agendamento das 02h30 em tempo real na VPS:
                     </p>
                     <pre className="p-2.5 rounded bg-slate-900 text-slate-300 font-mono text-[11px] overflow-x-auto border border-slate-800">
-                      tail -f /var/log/crmnexointegrator_v2-backup.log
+                      tail -f /var/log/nexoscrm-3026-backup.log
                     </pre>
                   </div>
 
@@ -2826,7 +2843,7 @@ export default function Administracao() {
                       Para disparar um backup sob demanda pelo terminal a qualquer momento:
                     </p>
                     <pre className="p-2.5 rounded bg-slate-900 text-slate-300 font-mono text-[11px] overflow-x-auto border border-slate-800">
-                      /var/www/crmnexointegrator_v2/scripts/backup-crmnexointegrator_v2.sh
+                      /root/backups/backup-nexoscrm-3026.sh
                     </pre>
                   </div>
                 </div>
@@ -2838,7 +2855,7 @@ export default function Administracao() {
                       <span className="font-semibold text-slate-300 flex items-center gap-1.5">
                         <span>📟</span> Últimas Linhas do Log de Execução no Servidor:
                       </span>
-                      <span className="font-mono text-[11px]">/var/log/crmnexointegrator_v2-backup.log</span>
+                      <span className="font-mono text-[11px]">/var/log/nexoscrm-3026-backup.log</span>
                     </div>
                     <pre className="p-3 rounded-xl bg-black/80 text-emerald-400 font-mono text-[11px] overflow-x-auto border border-slate-800 leading-relaxed max-h-48 overflow-y-auto">
                       {routineStatus.lastLogSnippet}
@@ -2882,7 +2899,52 @@ export default function Administracao() {
               <p className="text-xs text-gray-500 dark:text-slate-300">
                 Admin e Master podem restaurar backups completos pelo arquivo exportado. A operação substitui as tabelas do banco e exige confirmação antes de iniciar.
               </p>
-              {backupResult && <div className="text-sm text-emerald-600 dark:text-emerald-300">{backupResult}</div>}
+              {backupResult && (
+                <div className="mt-3 space-y-3">
+                  <div className="text-sm text-emerald-600 dark:text-emerald-300 font-medium">{backupResult}</div>
+
+                  {/* Resumo de módulos do backup */}
+                  {(backupModulesSummary || restoreModulesSummary) && (() => {
+                    const summary = backupModulesSummary || restoreModulesSummary;
+                    const isRestore = !!restoreModulesSummary;
+                    return (
+                      <div className="rounded-xl border border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/40 p-4 text-xs space-y-2">
+                        <div className="flex items-center justify-between font-bold text-emerald-700 dark:text-emerald-300 text-sm mb-1">
+                          <span>📦 Módulos {isRestore ? 'restaurados' : 'incluídos no backup'}</span>
+                          <span className="text-emerald-600 dark:text-emerald-400">
+                            {summary.totalTables} tabelas · {(summary.totalRows || 0).toLocaleString('pt-BR')} registros
+                          </span>
+                        </div>
+                        <div className="divide-y divide-emerald-100 dark:divide-emerald-900">
+                          {(summary.modules || []).map((mod) => (
+                            <div key={mod.module} className="py-1.5 flex items-start gap-2">
+                              <span className={`mt-0.5 text-base leading-none ${mod.totalRows > 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
+                                {mod.totalRows > 0 ? '✓' : '○'}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2">
+                                  <span className="font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide text-[11px]">
+                                    {mod.module}
+                                  </span>
+                                  <span className="text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                    {mod.tableCount} tab · {(mod.totalRows || 0).toLocaleString('pt-BR')} reg
+                                  </span>
+                                </div>
+                                {mod.tables?.length > 0 && (
+                                  <div className="text-slate-400 dark:text-slate-500 truncate mt-0.5">
+                                    {mod.tables.slice(0, 6).join(', ')}
+                                    {mod.tables.length > 6 && ` +${mod.tables.length - 6} mais`}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              )}
             </div>
           )}
         </div>
