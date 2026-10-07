@@ -319,7 +319,7 @@ export default function App() {
           <Route
             path="kickoff"
             element={
-              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.USER]}>
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER, ROLES.USER]}>
                 <Kickoff />
               </RoleGuard>
             }

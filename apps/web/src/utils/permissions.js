@@ -118,14 +118,14 @@ export const ROLE_ACCESS_POLICY = {
     manufacturerRegistry: true,
     documentation: true,
     strategicReports: true,
-    management: false,
+    management: true,
     automation: false,
     administration: false,
     accessB2B: true,
     accessB2G: true,
     accessPreSales: false,
     accessSimulador: true,
-    accessManagement: false,
+    accessManagement: true,
     accessAutomation: false
   },
   [ROLES.PRE_SALES]: {
