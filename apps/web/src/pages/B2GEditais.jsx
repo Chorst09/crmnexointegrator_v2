@@ -7707,7 +7707,7 @@ export default function B2GEditais() {
             </div>
             <button
               type="button"
-              onClick={() => navigate('/atividades?openForm=1&sourceArea=B2G&targetArea=PRE_VENDAS&type=SOLICITACAO_ORCAMENTO')}
+              onClick={() => navigate('/b2g-atividades?openForm=1&sourceArea=B2G&targetArea=PRE_VENDAS&type=SOLICITACAO_ORCAMENTO')}
               className="crm-btn crm-btn-primary h-10 px-4"
             >
               <Plus className="h-4 w-4" />

@@ -173,6 +173,27 @@ const enforceRolePolicies = (req, res, next) => {
     return res.status(403).json({ error: 'Acesso negado' });
   }
 
+  if (role === 'PRE_SALES') {
+    const allowedPreSalesPrefixes = [
+      '/pre-vendas',
+      '/pre-sales-pocs',
+      '/solicitacoes',
+      '/activities-simple',
+      '/prevendas-cadastros',
+      '/companies',
+      '/opportunities',
+      '/products',
+      '/users',
+      '/settings',
+      '/audit-logs'
+    ];
+    const allowed = allowedPreSalesPrefixes.some((prefix) => p.startsWith(prefix));
+    if (!allowed) {
+      return res.status(403).json({ error: 'Acesso negado' });
+    }
+    return next();
+  }
+
   const isPreSalesPath =
     p.startsWith('/pre-vendas') ||
     p.startsWith('/solicitacoes') ||
@@ -219,22 +240,6 @@ const enforceRolePolicies = (req, res, next) => {
   const isB2BPath = isB2BPathPrefixes.some((prefix) => p.startsWith(prefix));
   if (isB2BPath && requestedClientType !== 'B2G' && !canAccessModule(req.user, 'B2B')) {
     return res.status(403).json({ error: 'Acesso negado' });
-  }
-
-  if (role === 'PRE_SALES') {
-    const allowedPreSalesPrefixes = [
-      '/pre-vendas',
-      '/pre-sales-pocs',
-      '/solicitacoes',
-      '/activities-simple',
-      '/prevendas-cadastros',
-      '/settings',
-      '/users'
-    ];
-    const allowed = allowedPreSalesPrefixes.some((prefix) => p.startsWith(prefix));
-    if (!allowed) {
-      return res.status(403).json({ error: 'Acesso negado' });
-    }
   }
 
   return next();

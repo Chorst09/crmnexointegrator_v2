@@ -278,7 +278,7 @@ export default function App() {
             path="b2g-atividades"
             element={
               <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER, ROLES.USER]}>
-                <B2GRouteScreen />
+                <Atividades />
               </RoleGuard>
             }
           />

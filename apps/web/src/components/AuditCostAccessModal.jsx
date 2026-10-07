@@ -57,7 +57,7 @@ export default function AuditCostAccessModal({ isOpen, onClose }) {
 
   const stats = useMemo(() => {
     const total = logs.length;
-    const preVendasCount = logs.filter((l) => (l.userRole || '').toUpperCase() === 'PRE_VENDAS').length;
+    const preVendasCount = logs.filter((l) => ['PRE_SALES', 'PRE_VENDAS'].includes((l.userRole || '').toUpperCase())).length;
     const adminCount = logs.filter((l) => ['ADMIN', 'MASTER'].includes((l.userRole || '').toUpperCase())).length;
     return { total, preVendasCount, adminCount };
   }, [logs]);

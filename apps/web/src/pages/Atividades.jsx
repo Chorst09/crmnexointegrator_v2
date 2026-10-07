@@ -191,6 +191,8 @@ const getCurrentUserRole = () => {
   }
 };
 
+const isPreSalesRole = (role) => ['PRE_SALES', 'PRE_VENDAS'].includes(String(role || '').trim().toUpperCase());
+
 export default function Atividades() {
   const navigate = useNavigate();
   const [atividades, setAtividades] = useState([]);
@@ -264,8 +266,11 @@ export default function Atividades() {
     return lista.slice(0, 10);
   }, [oportunidades, oportunidadeSearch, formData.companyId]);
   const canDeleteActivities = useMemo(() => ['ADMIN', 'MASTER'].includes(getCurrentUserRole()), []);
-  const isPreSales = useMemo(() => getCurrentUserRole() === 'PRE_VENDAS', []);
-  const canViewAuditLogs = useMemo(() => ['PRE_VENDAS', 'ADMIN', 'MASTER', 'GESTOR'].includes(getCurrentUserRole()), []);
+  const isPreSales = useMemo(() => isPreSalesRole(getCurrentUserRole()), []);
+  const canViewAuditLogs = useMemo(() => {
+    const role = getCurrentUserRole();
+    return isPreSalesRole(role) || ['ADMIN', 'MASTER', 'GESTOR'].includes(role);
+  }, []);
   const [isAuditModalOpen, setIsAuditModalOpen] = useState(false);
   const [proposalSuccessToast, setProposalSuccessToast] = useState(null);
 

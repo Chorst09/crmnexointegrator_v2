@@ -4,6 +4,8 @@ const { prisma } = require('../lib/prisma.cjs');
 
 const router = express.Router();
 
+const isPreSalesRole = (role) => ['PRE_SALES', 'PRE_VENDAS'].includes(String(role || '').trim().toUpperCase());
+
 // Fallback in-memory audit logs store to guarantee corporate zero-loss auditing
 const fallbackAuditLogs = [
   {
@@ -103,7 +105,7 @@ router.post('/', authenticateToken, async (req, res) => {
     const user = req.user || {};
 
     const role = (user.role || user.actualRole || '').toUpperCase();
-    const isTechnicalOrAdmin = ['PRE_VENDAS', 'ADMIN', 'MASTER', 'GESTOR', 'TECNICO', 'ENGENHARIA'].includes(role);
+    const isTechnicalOrAdmin = isPreSalesRole(role) || ['ADMIN', 'MASTER', 'GESTOR', 'TECNICO', 'ENGENHARIA'].includes(role);
 
     if (!isTechnicalOrAdmin) {
       return res.status(403).json({
@@ -147,7 +149,7 @@ router.get('/', authenticateToken, async (req, res) => {
   try {
     const user = req.user || {};
     const role = (user.role || user.actualRole || '').toUpperCase();
-    const isAuthorized = ['PRE_VENDAS', 'ADMIN', 'MASTER', 'GESTOR'].includes(role);
+    const isAuthorized = isPreSalesRole(role) || ['ADMIN', 'MASTER', 'GESTOR'].includes(role);
 
     if (!isAuthorized) {
       return res.status(403).json({

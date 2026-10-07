@@ -198,7 +198,8 @@ router.get('/', async (req, res) => {
 
         // Se houver preSalesRequest mas flow não tiver items, enriquece o flow
         let enhancedFlow = parsed.flow || {};
-        const isPreSalesUser = req.user?.role === 'PRE_VENDAS' || req.user?.actualRole === 'PRE_VENDAS';
+        const isPreSalesUser = ['PRE_SALES', 'PRE_VENDAS'].includes(req.user?.role) ||
+          ['PRE_SALES', 'PRE_VENDAS'].includes(req.user?.actualRole);
 
         if (preSalesRequest) {
           const items = Array.isArray(preSalesRequest.items) ? preSalesRequest.items.map((i) => {

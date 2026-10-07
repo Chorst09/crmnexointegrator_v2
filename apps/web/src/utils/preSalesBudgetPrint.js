@@ -239,7 +239,7 @@ export const openPreSalesBudgetPdf = (item, options = {}) => {
     try {
       const user = JSON.parse(localStorage.getItem('user') || '{}');
       const role = String(user.actualRole || user.role || '').trim().toUpperCase();
-      if (role !== 'PRE_VENDAS') {
+      if (!['PRE_SALES', 'PRE_VENDAS'].includes(role)) {
         hideCosts = true;
       }
     } catch {

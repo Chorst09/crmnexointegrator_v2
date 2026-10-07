@@ -938,7 +938,7 @@ const KickoffFormModal = ({ onClose, onSaved, meeting, initialContext = null }) 
     const loadOptions = async () => {
       const [oppRes, usersRes] = await Promise.all([
         fetch(buildApiUrl('/opportunities'), { headers: getAuthHeaders() }),
-        fetch(buildApiUrl('/auth/users'), { headers: getAuthHeaders() })
+        fetch(buildApiUrl('/users'), { headers: getAuthHeaders() })
       ]);
       if (oppRes.ok) {
         const data = await oppRes.json();
@@ -1488,7 +1488,7 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, full
 
   useEffect(() => {
     const loadUsers = async () => {
-      const res = await fetch(buildApiUrl('/auth/users'), { headers: getAuthHeaders() });
+      const res = await fetch(buildApiUrl('/users'), { headers: getAuthHeaders() });
       if (res.ok) {
         const data = await res.json();
         setUsers(Array.isArray(data) ? data : data.users || []);
