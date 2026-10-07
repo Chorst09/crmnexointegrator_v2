@@ -34,6 +34,7 @@ import AnimatedStats from '../components/AnimatedStats';
 import ModernTable from '../components/ModernTable';
 import GradientCard from '../components/GradientCard';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
+import { ROLES, toCanonicalRole } from '../utils/permissions';
 
 const PHASES = [
   { id: 'ENTENDIMENTO_OPORTUNIDADE', label: 'Entendimento da Oportunidade', short: 'Entendimento', icon: '🔍', color: 'blue', order: 1 },
@@ -403,6 +404,15 @@ const Kickoff = () => {
   const [editingMeeting, setEditingMeeting] = useState(null);
   const [detailMeeting, setDetailMeeting] = useState(null);
   const [projectKickoffContext, setProjectKickoffContext] = useState(null);
+  const currentUser = useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('user') || 'null');
+    } catch {
+      return null;
+    }
+  }, []);
+  const currentRole = toCanonicalRole(currentUser?.role, currentUser);
+  const canDeleteMeetings = currentRole === ROLES.ADMIN || currentRole === ROLES.MASTER;
 
   const fetchData = async () => {
     try {
@@ -508,10 +518,15 @@ const Kickoff = () => {
       });
       if (res.ok) {
         await fetchData();
+        return true;
       }
+      const err = await res.json().catch(() => ({}));
+      alert(err.error || 'Erro ao excluir reunião');
     } catch (error) {
       console.error('Erro ao excluir reunião:', error);
+      alert('Erro ao excluir reunião');
     }
+    return false;
   };
 
   if (loading && meetings.length === 0) {
@@ -676,6 +691,8 @@ const Kickoff = () => {
                       meeting={meeting}
                       onView={() => openDetail(meeting)}
                       onEdit={() => openEdit(meeting)}
+                      onDelete={() => handleDelete(meeting)}
+                      canDelete={canDeleteMeetings}
                     />
                   ))}
                   {phaseMeetings.length === 0 && (
@@ -782,7 +799,7 @@ const Kickoff = () => {
               ]}
               onView={(item) => openDetail(item)}
               onEdit={(item) => openEdit(item)}
-              onDelete={(item) => handleDelete(item)}
+              onDelete={canDeleteMeetings ? (item) => handleDelete(item) : undefined}
               emptyState={
                 <div>
                   <Rocket className="w-16 h-16 text-gray-300 dark:text-slate-600 mx-auto mb-4" />
@@ -815,6 +832,15 @@ const Kickoff = () => {
           onClose={closeDetail}
           onMeetingChange={setDetailMeeting}
           onRefresh={fetchData}
+          onEdit={(meeting) => {
+            setDetailMeeting(null);
+            openEdit(meeting);
+          }}
+          onDelete={async (meeting) => {
+            const deleted = await handleDelete(meeting);
+            if (deleted) closeDetail();
+          }}
+          canDelete={canDeleteMeetings}
           fullscreen={Boolean(meetingIdParam)}
         />
       )}
@@ -823,7 +849,7 @@ const Kickoff = () => {
 };
 
 // ===== CARD DO PIPELINE =====
-const MeetingCard = ({ meeting, onView, onEdit }) => {
+const MeetingCard = ({ meeting, onView, onEdit, onDelete, canDelete = false }) => {
   const phase = PHASE_MAP[meeting.phase];
 
   return (
@@ -835,16 +861,30 @@ const MeetingCard = ({ meeting, onView, onEdit }) => {
         <span className={`inline-flex px-2 py-0.5 text-[10px] font-semibold rounded-full ${STATUS[meeting.status]?.color}`}>
           {STATUS[meeting.status]?.label}
         </span>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onEdit();
-          }}
-          className="text-gray-300 dark:text-slate-600 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors opacity-0 group-hover:opacity-100"
-          title="Editar"
-        >
-          <Edit className="w-4 h-4" />
-        </button>
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit();
+            }}
+            className="text-gray-300 dark:text-slate-600 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors"
+            title="Editar"
+          >
+            <Edit className="w-4 h-4" />
+          </button>
+          {canDelete && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
+              className="text-gray-300 dark:text-slate-600 hover:text-red-600 dark:hover:text-red-300 transition-colors"
+              title="Excluir"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+        </div>
       </div>
 
       <h4 className="text-sm font-semibold text-gray-900 dark:text-slate-100 mb-1 line-clamp-2">{meeting.title}</h4>
@@ -1465,7 +1505,16 @@ const KickoffFormModal = ({ onClose, onSaved, meeting, initialContext = null }) 
 };
 
 // ===== MODAL DETALHES =====
-const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, fullscreen = false }) => {
+const KickoffDetailModal = ({
+  meeting,
+  onClose,
+  onMeetingChange,
+  onRefresh,
+  onEdit,
+  onDelete,
+  canDelete = false,
+  fullscreen = false
+}) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [actionForm, setActionForm] = useState({ title: '', description: '', priority: 'MEDIUM', dueDate: '', assigneeId: '' });
   const [users, setUsers] = useState([]);
@@ -1866,9 +1915,29 @@ const KickoffDetailModal = ({ meeting, onClose, onMeetingChange, onRefresh, full
                 </div>
               </div>
             </div>
-            <button onClick={onClose} className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-400 transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10">
-              <X className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => onEdit?.(meeting)}
+                className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg text-indigo-700 dark:text-indigo-200 bg-indigo-50 dark:bg-indigo-500/15 hover:bg-indigo-100 dark:hover:bg-indigo-500/25 transition-colors"
+                title="Editar reunião"
+              >
+                <Edit className="w-4 h-4" />
+                Editar
+              </button>
+              {canDelete && (
+                <button
+                  onClick={() => onDelete?.(meeting)}
+                  className="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium rounded-lg text-red-700 dark:text-red-200 bg-red-50 dark:bg-red-500/15 hover:bg-red-100 dark:hover:bg-red-500/25 transition-colors"
+                  title="Excluir reunião"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Excluir
+                </button>
+              )}
+              <button onClick={onClose} className="text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-400 transition-colors p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-white/10">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Ações de status */}

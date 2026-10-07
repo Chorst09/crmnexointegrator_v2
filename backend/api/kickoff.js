@@ -1,6 +1,6 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
-const { authenticateToken } = require('../lib/auth');
+const { authenticateToken, requireRole } = require('../lib/auth');
 const { getTenantCompanyId, mergeRelationWhere } = require('../lib/tenantScope.cjs');
 
 const router = express.Router();
@@ -612,7 +612,7 @@ router.put('/meetings/:id/notes', authenticateToken, async (req, res) => {
 });
 
 // DELETE /api/kickoff/meetings/:id
-router.delete('/meetings/:id', authenticateToken, async (req, res) => {
+router.delete('/meetings/:id', authenticateToken, requireRole(['ADMIN', 'MASTER']), async (req, res) => {
   try {
     const { id } = req.params;
 
