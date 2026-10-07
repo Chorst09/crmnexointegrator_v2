@@ -1436,10 +1436,10 @@ model GerenciadaLicitacao {
   addedAt             DateTime @default(now()) @map("added_at")
   updatedAt           DateTime @updatedAt @map("updated_at")
 
-  @@index(["user_id"])
-  @@index(["tenant_company_id"])
-  @@index(["numero_controle_pncp"])
-  @@index(["status_fase"])
+  @@index([userId])
+  @@index([tenantCompanyId])
+  @@index([numeroControlePncp])
+  @@index([statusFase])
   @@map("gerenciadas_licitacao")
 }
 
@@ -1456,9 +1456,9 @@ model AlertaLicitacao {
   ativo           Boolean  @default(true)
   createdAt       DateTime @default(now()) @map("created_at")
 
-  @@index(["user_id"])
-  @@index(["tenant_company_id"])
-  @@index(["ativo"])
+  @@index([userId])
+  @@index([tenantCompanyId])
+  @@index([ativo])
   @@map("alertas_licitacao")
 }
 
@@ -1479,8 +1479,8 @@ model EditalAnalisado {
   updatedAt           DateTime  @updatedAt @map("updated_at")
 
   @@unique([numeroControlePncp, userId])
-  @@index(["user_id"])
-  @@index(["tenant_company_id"])
+  @@index([userId])
+  @@index([tenantCompanyId])
   @@map("editais_analisados")
 }
 
