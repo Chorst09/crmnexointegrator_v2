@@ -1634,6 +1634,7 @@ export default function Oportunidades() {
             {/* ── Reuniões de Kickoff ─────────────────────────────────────── */}
             <KickoffSection 
               opportunityId={selectedOpportunity.id}
+              kickoffRoute="/b2b-kickoff"
               onNavigate={() => {
                 setShowDetailsModal(false);
                 setSelectedOpportunity(null);

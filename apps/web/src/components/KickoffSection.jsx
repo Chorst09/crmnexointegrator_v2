@@ -4,7 +4,6 @@
  * dos modelos "Kickoff Interno" e "Kickoff Externo".
  */
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { buildApiUrl } from '../config/api';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
@@ -38,8 +37,7 @@ const fmtDate = (v) => v ? new Date(v).toLocaleDateString('pt-BR') : '—';
 
 // ── component ─────────────────────────────────────────────────────────────────
 
-export default function KickoffSection({ opportunityId, onNavigate }) {
-  const navigate = useNavigate();
+export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute = '/kickoff' }) {
   const [meetings, setMeetings] = useState([]);
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -474,9 +472,10 @@ export default function KickoffSection({ opportunityId, onNavigate }) {
                           const meetingId = m.id;
                           console.log('🚀 Iniciando navegação para reunião:', meetingId);
                           
-                          // SOLUÇÃO DEFINITIVA: Navegar imediatamente sem esperar fechar modal
-                          // O window.location.href vai recarregar a página inteira, fechando tudo
-                          window.location.href = `/kickoff?meetingId=${meetingId}`;
+                          onNavigate?.();
+
+                          // Navega pela rota do módulo de origem para respeitar as permissões do vendedor.
+                          window.location.href = `${kickoffRoute}?meetingId=${encodeURIComponent(meetingId)}`;
                         }}
                         className="shrink-0 rounded-lg border border-cyan-600 bg-cyan-600/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-600/20 transition-colors"
                       >

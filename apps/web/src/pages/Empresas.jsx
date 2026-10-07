@@ -567,14 +567,17 @@ export default function Empresas({ clientType = 'B2B' }) {
 
   const openKickoffFromCompany = (meetingId) => {
     const companyId = viewingCompany?.id;
+    const kickoffRoute = normalizeClientType(viewingCompany?.clientType, pageClientType) === 'B2G'
+      ? '/b2g-kickoff'
+      : '/b2b-kickoff';
     closeViewModal();
 
     if (meetingId) {
-      navigate(`/kickoff?meetingId=${encodeURIComponent(meetingId)}`);
+      navigate(`${kickoffRoute}?meetingId=${encodeURIComponent(meetingId)}`);
       return;
     }
 
-    navigate(companyId ? `/kickoff?companyId=${encodeURIComponent(companyId)}` : '/kickoff');
+    navigate(companyId ? `${kickoffRoute}?companyId=${encodeURIComponent(companyId)}` : kickoffRoute);
   };
 
   const handleViewDocUpload = async () => {
