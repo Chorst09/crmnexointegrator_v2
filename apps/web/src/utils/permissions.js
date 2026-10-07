@@ -300,6 +300,14 @@ export const moduleFromPath = (pathname = '') => {
     return 'SIMULADOR';
   }
 
+  if (path.startsWith('/b2b-kickoff')) {
+    return 'B2B';
+  }
+
+  if (path.startsWith('/b2g-kickoff')) {
+    return 'B2G';
+  }
+
   if (
     path.startsWith('/pre-vendas') ||
     path.startsWith('/solicitacoes') ||

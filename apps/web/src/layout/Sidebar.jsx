@@ -147,6 +147,7 @@ export default function Sidebar({
         { path: '/leads', label: 'Lead', icon: ContactRound, accent: 'from-lime-300/95 via-emerald-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30', description: 'Gestao de leads' },
         { path: '/oportunidades', label: 'Oportunidades', icon: Radar, accent: 'from-orange-300/95 via-amber-400/90 to-cyan-400/85 text-slate-950 shadow-orange-500/30', description: 'Funil e negociacoes' },
         { path: '/atividades', label: 'Atividades', icon: CalendarCheck2, accent: 'from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30', description: 'Tarefas e agenda' },
+        { path: '/b2b-kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: 'from-rose-300/95 via-orange-400/90 to-amber-300/90 text-slate-950 shadow-orange-500/30', description: 'Reuniões estratégicas do projeto' },
         { path: '/simuladores', label: 'Simuladores', icon: Calculator, accent: 'from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-white shadow-fuchsia-500/25', description: 'Dashboard, Precificação e Propostas' },
         { path: '/propostas', label: 'Propostas', icon: FileSignature, accent: 'from-amber-200/95 via-orange-400/90 to-rose-400/85 text-slate-950 shadow-orange-500/30', description: 'Cotas e propostas' },
         { path: '/templates-propostas', label: 'Templates', icon: Palette, accent: 'from-fuchsia-300/95 via-rose-400/85 to-orange-300/90 text-white shadow-rose-500/25', description: 'Templates de proposta' },
@@ -164,6 +165,7 @@ export default function Sidebar({
         { path: '/b2g-buscar-editais', label: 'Buscar Editais', icon: Search, accent: 'from-sky-300/95 via-cyan-400/85 to-emerald-300/90 text-slate-950 shadow-cyan-500/30', description: 'Licitações Core Platform - Busca avançada e inteligência PNCP' },
         { path: '/b2g-leads', label: 'Leads', icon: UsersRound, accent: 'from-lime-300/95 via-emerald-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30', description: 'Órgãos e contas no radar' },
         { path: '/b2g-oportunidades', label: 'Oportunidades', icon: Gavel, accent: 'from-orange-300/95 via-amber-400/90 to-yellow-300/85 text-slate-950 shadow-orange-500/30', description: 'Pipeline de licitações' },
+        { path: '/b2g-kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: 'from-rose-300/95 via-orange-400/90 to-amber-300/90 text-slate-950 shadow-orange-500/30', description: 'Reuniões estratégicas do projeto' },
         { path: '/b2g-atas', label: 'Atas de Registro de Preços', icon: Archive, accent: 'from-yellow-200/95 via-amber-400/90 to-orange-400/85 text-slate-950 shadow-amber-500/30', description: 'Controle de atas RP' },
         { path: '/b2g-atividades', label: 'Atividades', icon: Workflow, accent: 'from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30', description: 'Agenda operacional B2G' },
         { path: '/b2g-documentacao', label: 'Documentação', icon: BookOpenCheck, accent: 'from-blue-200/95 via-cyan-400/85 to-teal-300/90 text-slate-950 shadow-cyan-500/30', description: 'Checklist documental' },
@@ -305,7 +307,7 @@ export default function Sidebar({
         // Logic for USER and SELLER roles.
         if (role === ROLES.USER || role === ROLES.SELLER) {
           if (section.id === 'vendas' && access.accessB2B) {
-            const allowedPaths = ['/dashboard', '/empresas', '/oportunidades', '/atividades', '/leads'];
+            const allowedPaths = ['/dashboard', '/empresas', '/oportunidades', '/atividades', '/leads', '/b2b-kickoff'];
             // Add simuladores if user has access to simulador
             if (access.accessSimulador) {
               allowedPaths.push('/simuladores');

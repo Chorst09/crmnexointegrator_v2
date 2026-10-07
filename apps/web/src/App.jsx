@@ -325,6 +325,24 @@ export default function App() {
             }
           />
 
+          {/* Gestão de Kickoff acessível diretamente de B2B e B2G para vendedores */}
+          <Route
+            path="b2b-kickoff"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER, ROLES.USER]}>
+                <Kickoff />
+              </RoleGuard>
+            }
+          />
+          <Route
+            path="b2g-kickoff"
+            element={
+              <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.SELLER, ROLES.USER]}>
+                <Kickoff />
+              </RoleGuard>
+            }
+          />
+
           <Route
             path="projetos/:id"
             element={
