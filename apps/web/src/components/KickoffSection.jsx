@@ -5,6 +5,7 @@
  */
 import { useState, useEffect, useCallback } from 'react';
 import { buildApiUrl } from '../config/api';
+import { ROLES, toCanonicalRole } from '../utils/permissions';
 
 // ── helpers ──────────────────────────────────────────────────────────────────
 
@@ -35,6 +36,19 @@ const STATUS_LABELS = {
 
 const fmtDate = (v) => v ? new Date(v).toLocaleDateString('pt-BR') : '—';
 
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user') || '{}');
+  } catch {
+    return {};
+  }
+};
+
+const canDeleteKickoffMeetings = (user) => {
+  const role = toCanonicalRole(user?.role, user);
+  return role === ROLES.ADMIN || role === ROLES.MASTER;
+};
+
 // ── component ─────────────────────────────────────────────────────────────────
 
 export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute = '/kickoff' }) {
@@ -46,6 +60,8 @@ export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute
   const [feedback, setFeedback] = useState('');
   const [editingMeeting, setEditingMeeting] = useState(null);
   const [deleting, setDeleting] = useState(null);
+  const [currentUser] = useState(() => getStoredUser());
+  const canDeleteMeetings = canDeleteKickoffMeetings(currentUser);
 
   const [newForm, setNewForm] = useState({
     title: '',
@@ -492,14 +508,16 @@ export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute
                       >
                         ✏️ Editar
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(m.id)}
-                        disabled={deleting === m.id}
-                        className="rounded-lg border border-red-500/50 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
-                      >
-                        {deleting === m.id ? 'Excluindo...' : '🗑️ Excluir'}
-                      </button>
+                      {canDeleteMeetings && (
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(m.id)}
+                          disabled={deleting === m.id}
+                          className="rounded-lg border border-red-500/50 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
+                        >
+                          {deleting === m.id ? 'Excluindo...' : '🗑️ Excluir'}
+                        </button>
+                      )}
                     </div>
                   </>
                 )}
