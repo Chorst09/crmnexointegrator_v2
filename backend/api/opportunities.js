@@ -16,6 +16,13 @@ const parsePathIdFromUrl = (urlValue) => {
 const resolveOpportunityId = (req, body) =>
   body?.id || req.query?.id || parsePathIdFromUrl(req.url);
 
+const parseDateInput = (value) => {
+  if (value === undefined) return undefined;
+  if (value === null || value === '') return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
 const normalizeClientType = (value) => {
   const normalized = String(value || '').trim().toUpperCase();
   return normalized === 'B2B' || normalized === 'B2G' ? normalized : null;
@@ -416,6 +423,16 @@ export default async function handler(req) {
     const lossReason = body.lossReason !== undefined
       ? (body.lossReason || null)
       : resolveStageDecisionLossReason(stageDecisionDetails);
+    const initialStage = body.stage || 'LEAD';
+    const now = new Date();
+    const leadEntryDate = parseDateInput(body.leadEntryDate) || now;
+    const closingDate = parseDateInput(body.actualCloseDate) || now;
+    const customerTurnDate = initialStage === 'WON'
+      ? (parseDateInput(body.customerTurnDate) || closingDate)
+      : parseDateInput(body.customerTurnDate);
+    const exitDate = initialStage === 'LOST'
+      ? (parseDateInput(body.exitDate) || closingDate)
+      : parseDateInput(body.exitDate);
     
     const createOpportunityWithNumber = async (number) => prisma.$transaction(async (tx) => {
       const created = await tx.opportunity.create({
@@ -429,11 +446,14 @@ export default async function handler(req) {
           description: body.description,
           value: body.value,
           probability: body.probability || 50,
-          stage: body.stage || 'LEAD',
+          stage: initialStage,
           b2gStage: clientType === 'B2G' ? (body.b2gStage || 'ANALISE') : (body.b2gStage || null),
           source: body.source,
+          leadEntryDate,
           expectedCloseDate: body.expectedCloseDate ? new Date(body.expectedCloseDate) : null,
-          actualCloseDate: ['WON', 'LOST'].includes(body.stage) ? new Date() : null,
+          actualCloseDate: ['WON', 'LOST'].includes(initialStage) ? closingDate : null,
+          customerTurnDate,
+          exitDate,
           lossReason,
           stageDecisionDetails,
           notes: body.notes,
@@ -513,6 +533,10 @@ export default async function handler(req) {
         tenantCompanyId: true,
         number: true,
         stage: true,
+        leadEntryDate: true,
+        actualCloseDate: true,
+        customerTurnDate: true,
+        exitDate: true,
         b2gStage: true,
         lossReason: true,
         stageDecisionDetails: true,
@@ -559,6 +583,12 @@ export default async function handler(req) {
     if (body.expectedCloseDate !== undefined) {
       updateData.expectedCloseDate = body.expectedCloseDate ? new Date(body.expectedCloseDate) : null;
     }
+    if (body.leadEntryDate !== undefined) {
+      const parsedLeadEntryDate = parseDateInput(body.leadEntryDate);
+      if (parsedLeadEntryDate) updateData.leadEntryDate = parsedLeadEntryDate;
+    }
+    if (body.customerTurnDate !== undefined) updateData.customerTurnDate = parseDateInput(body.customerTurnDate);
+    if (body.exitDate !== undefined) updateData.exitDate = parseDateInput(body.exitDate);
     if (body.source !== undefined) updateData.source = body.source || null;
     if (body.companyId !== undefined && body.companyId) {
       if (getTenantCompanyId(req.user)) {
@@ -609,11 +639,20 @@ export default async function handler(req) {
     if (body.contactEmail !== undefined) updateData.contactEmail = body.contactEmail || null;
     if (body.contactPhone !== undefined) updateData.contactPhone = body.contactPhone || null;
     
-    // Se mudou para WON ou LOST, definir data de fechamento
+    // Se mudou para WON ou LOST, definir data de fechamento e data de virada/saída.
     if (body.stage === 'WON' || body.stage === 'LOST') {
-      updateData.actualCloseDate = new Date();
+      const closingDate = parseDateInput(body.actualCloseDate) || new Date();
+      updateData.actualCloseDate = closingDate;
+      if (body.stage === 'WON' && body.customerTurnDate === undefined) {
+        updateData.customerTurnDate = existing.customerTurnDate || closingDate;
+      }
+      if (body.stage === 'LOST' && body.exitDate === undefined) {
+        updateData.exitDate = existing.exitDate || closingDate;
+      }
     } else if (body.stage && stageDecisionDetails === null) {
       updateData.actualCloseDate = null;
+      updateData.customerTurnDate = null;
+      updateData.exitDate = null;
     }
     
     const opportunity = await prisma.$transaction(async (tx) => {

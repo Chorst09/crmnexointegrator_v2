@@ -114,8 +114,11 @@ model Opportunity {
   probability       Int       @default(50)
   stage             OpportunityStage @default(LEAD)
   source            String?
+  leadEntryDate     DateTime  @default(now())
   expectedCloseDate DateTime?
   actualCloseDate   DateTime?
+  customerTurnDate  DateTime?
+  exitDate          DateTime?
   lossReason        String?
   companyId         String
   ownerId           String

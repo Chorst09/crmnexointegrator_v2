@@ -20,6 +20,13 @@ const parsePathIdFromUrl = (urlValue) => {
 const resolveOpportunityId = (req, body) =>
   body?.id || req.query?.id || parsePathIdFromUrl(req.url);
 
+const parseDateInput = (value) => {
+  if (value === undefined) return undefined;
+  if (value === null || value === '') return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
 const normalizeClientType = (value) => {
   const normalized = String(value || '').trim().toUpperCase();
   return normalized === 'B2B' || normalized === 'B2G' ? normalized : null;
@@ -82,8 +89,11 @@ const normalizeOpportunity = (item) => {
     probability: Number(item.probability ?? item.PROBABILITY ?? 50),
     stage: item.stage ?? item.STAGE ?? 'LEAD',
     source: item.source ?? item.SOURCE ?? 'MANUAL',
+    leadEntryDate: item.leadEntryDate ?? item.LEADENTRYDATE ?? item.createdAt ?? item.CREATEDAT ?? null,
     expectedCloseDate: item.expectedCloseDate ?? item.EXPECTEDCLOSEDATE ?? null,
     actualCloseDate: item.actualCloseDate ?? item.ACTUALCLOSEDATE ?? null,
+    customerTurnDate: item.customerTurnDate ?? item.CUSTOMERTURNDATE ?? (item.stage === 'WON' ? (item.actualCloseDate ?? item.ACTUALCLOSEDATE ?? null) : null),
+    exitDate: item.exitDate ?? item.EXITDATE ?? (item.stage === 'LOST' ? (item.actualCloseDate ?? item.ACTUALCLOSEDATE ?? null) : null),
     lossReason: item.lossReason ?? item.LOSSREASON ?? null,
     companyId: item.companyId ?? item.COMPANYID ?? company?.id ?? null,
     ownerId: item.ownerId ?? item.OWNERID ?? owner?.id ?? null,
@@ -408,6 +418,16 @@ export default async function handler(req) {
     const lossReason = body.lossReason !== undefined
       ? (body.lossReason || null)
       : resolveStageDecisionLossReason(stageDecisionDetails);
+    const initialStage = body.stage || 'LEAD';
+    const now = new Date();
+    const leadEntryDate = parseDateInput(body.leadEntryDate) || now;
+    const closingDate = parseDateInput(body.actualCloseDate) || now;
+    const customerTurnDate = initialStage === 'WON'
+      ? (parseDateInput(body.customerTurnDate) || closingDate)
+      : parseDateInput(body.customerTurnDate);
+    const exitDate = initialStage === 'LOST'
+      ? (parseDateInput(body.exitDate) || closingDate)
+      : parseDateInput(body.exitDate);
     
     const opportunity = await prisma.$transaction(async (tx) => {
       // Garantir que companyId seja um ID válido no banco para não falhar a FK
@@ -487,11 +507,14 @@ export default async function handler(req) {
           description: body.description,
           value: body.value,
           probability: body.probability || 50,
-          stage: body.stage || 'LEAD',
+          stage: initialStage,
           b2gStage: clientType === 'B2G' ? (body.b2gStage || 'ANALISE') : (body.b2gStage || null),
           source: body.source,
+          leadEntryDate,
           expectedCloseDate: body.expectedCloseDate ? new Date(body.expectedCloseDate) : null,
-          actualCloseDate: ['WON', 'LOST'].includes(body.stage) ? new Date() : null,
+          actualCloseDate: ['WON', 'LOST'].includes(initialStage) ? closingDate : null,
+          customerTurnDate,
+          exitDate,
           lossReason,
           stageDecisionDetails,
           notes: body.notes,
@@ -552,6 +575,7 @@ export default async function handler(req) {
         select: {
           ownerId: true,
           number: true,
+          stage: true,
           b2gStage: true,
           source: true,
           description: true,
@@ -596,6 +620,12 @@ export default async function handler(req) {
     if (body.probability !== undefined) updateData.probability = body.probability;
     if (body.b2gStage !== undefined) updateData.b2gStage = body.b2gStage || null;
     if (body.expectedCloseDate) updateData.expectedCloseDate = new Date(body.expectedCloseDate);
+    if (body.leadEntryDate !== undefined) {
+      const parsedLeadEntryDate = parseDateInput(body.leadEntryDate);
+      if (parsedLeadEntryDate) updateData.leadEntryDate = parsedLeadEntryDate;
+    }
+    if (body.customerTurnDate !== undefined) updateData.customerTurnDate = parseDateInput(body.customerTurnDate);
+    if (body.exitDate !== undefined) updateData.exitDate = parseDateInput(body.exitDate);
     if (body.lossReason !== undefined) {
       updateData.lossReason = body.lossReason || null;
     } else if (stageDecisionDetails !== undefined) {
@@ -605,11 +635,20 @@ export default async function handler(req) {
     if (stageDecisionDetails !== undefined) updateData.stageDecisionDetails = stageDecisionDetails;
     if (body.notes !== undefined) updateData.notes = body.notes;
     
-    // Se mudou para WON ou LOST, definir data de fechamento
+    // Se mudou para WON ou LOST, definir data de fechamento e data de virada/saída.
     if (body.stage === 'WON' || body.stage === 'LOST') {
-      updateData.actualCloseDate = new Date();
+      const closingDate = parseDateInput(body.actualCloseDate) || new Date();
+      updateData.actualCloseDate = closingDate;
+      if (body.stage === 'WON' && body.customerTurnDate === undefined) {
+        updateData.customerTurnDate = closingDate;
+      }
+      if (body.stage === 'LOST' && body.exitDate === undefined) {
+        updateData.exitDate = closingDate;
+      }
     } else if (body.stage && stageDecisionDetails === null) {
       updateData.actualCloseDate = null;
+      updateData.customerTurnDate = null;
+      updateData.exitDate = null;
     }
     
     const opportunity = await prisma.$transaction(async (tx) => {

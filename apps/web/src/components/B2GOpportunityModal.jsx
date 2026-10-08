@@ -53,6 +53,13 @@ const formatMoneyInput = (value) => {
   return parsed > 0 ? parsed.toFixed(2) : '';
 };
 
+const toDateInputValue = (value) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toISOString().slice(0, 10);
+};
+
 const calculateB2GFinancials = (form) => {
   const monthlyValue = parseMoneyInput(form.estimatedMonthlyValue);
   const oneTimeValue = parseMoneyInput(form.estimatedOneTimeValue);
@@ -485,11 +492,18 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
               <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 p-5 space-y-3">
                 <h2 className="text-lg font-bold text-white">Prazos Importantes</h2>
                 {[
+                  { label: 'Entrada do Lead', value: formatDate(opportunity.leadEntryDate || opportunity.createdAt) },
                   { label: 'Publicação', value: formatDate(b2g.publicationDate) },
                   { label: 'Abertura', value: formatDate(b2g.openingDate) },
                   { label: 'Impugnação', value: formatDate(b2g.challengeDeadline) },
                   { label: 'Entrega de Proposta', value: formatDate(b2g.proposalDeadline) },
                   { label: 'Vigência Estimada', value: formatDate(b2g.estimatedValidity) },
+                  ...(opportunity.stage === 'WON'
+                    ? [{ label: 'Virada para Cliente', value: formatDate(opportunity.customerTurnDate || opportunity.actualCloseDate) }]
+                    : []),
+                  ...(opportunity.stage === 'LOST'
+                    ? [{ label: 'Saída', value: formatDate(opportunity.exitDate || opportunity.actualCloseDate) }]
+                    : []),
                 ].map(item => (
                   <div key={item.label} className="flex justify-between items-center py-2 border-b border-dashed border-slate-700/50 last:border-0">
                     <span className="text-sm text-slate-400">{item.label}</span>
@@ -617,6 +631,7 @@ const EMPTY_FORM = {
   contractType:'Contrato', contractTermMonths:'12', readjustmentClause:false,
   guaranteePercentage:'', publicationDate:'', openingDate:'',
   challengeDeadline:'', proposalDeadline:'', estimatedValidity:'',
+  leadEntryDate:'', customerTurnDate:'', exitDate:'',
   currentPhase:'Análise', commercialLead:'', technicalLead:'',
   partner:'', manufacturer:'', competitionLevel:'medio',
   mainCompetitors:'', strategyDescription:'', winProbability:'50',
@@ -676,6 +691,9 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
           challengeDeadline: b2g.challengeDeadline || '',
           proposalDeadline: b2g.proposalDeadline || '',
           estimatedValidity: b2g.estimatedValidity || '',
+          leadEntryDate: toDateInputValue(opportunity.leadEntryDate || opportunity.createdAt),
+          customerTurnDate: toDateInputValue(opportunity.customerTurnDate || (opportunity.stage === 'WON' ? opportunity.actualCloseDate : null)),
+          exitDate: toDateInputValue(opportunity.exitDate || (opportunity.stage === 'LOST' ? opportunity.actualCloseDate : null)),
           currentPhase: b2g.currentPhase || b2g.faseAtual || 'Análise',
           technicalLead: b2g.technicalLead || '',
           partner: b2g.partner || '',
@@ -698,7 +716,7 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
           legalNotes: b2g.legalNotes || ''
         });
       } else {
-        setForm({ ...EMPTY_FORM, commercialLead: user.name || '' });
+        setForm({ ...EMPTY_FORM, leadEntryDate: toDateInputValue(new Date()), commercialLead: user.name || '' });
       }
     } else if (opportunity) {
       const b2g = parseB2GData(opportunity.description);
@@ -730,10 +748,13 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
         guaranteePercentage: b2g.guaranteePercentage || '',
         publicationDate: b2g.publicationDate || '',
         openingDate: b2g.openingDate || '',
-        challengeDeadline: b2g.challengeDeadline || '',
-        proposalDeadline: b2g.proposalDeadline || '',
-        estimatedValidity: b2g.estimatedValidity || '',
-        currentPhase: b2g.currentPhase || b2g.faseAtual || 'Análise',
+          challengeDeadline: b2g.challengeDeadline || '',
+          proposalDeadline: b2g.proposalDeadline || '',
+          estimatedValidity: b2g.estimatedValidity || '',
+          leadEntryDate: toDateInputValue(opportunity.leadEntryDate || opportunity.createdAt),
+          customerTurnDate: toDateInputValue(opportunity.customerTurnDate || (opportunity.stage === 'WON' ? opportunity.actualCloseDate : null)),
+          exitDate: toDateInputValue(opportunity.exitDate || (opportunity.stage === 'LOST' ? opportunity.actualCloseDate : null)),
+          currentPhase: b2g.currentPhase || b2g.faseAtual || 'Análise',
         commercialLead: b2g.commercialLead || '',
         technicalLead: b2g.technicalLead || '',
         partner: b2g.partner || '',
@@ -863,6 +884,9 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
         probability: parseMoneyInput(form.winProbability) || 50,
         stage: isCreateMode ? 'QUALIFICATION' : preservedPipelineStage,
         source: 'MANUAL',
+        leadEntryDate: form.leadEntryDate || null,
+        customerTurnDate: form.customerTurnDate || null,
+        exitDate: form.exitDate || null,
         companyId: (companyId && !String(companyId).startsWith('virtual-')) ? companyId : undefined,
         companyName: form.agency,
         agency: form.agency,
@@ -1091,18 +1115,26 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
               <div><h3 className="text-lg font-bold text-white">Prazos e Fase Atual</h3>
                 <p className="text-xs text-slate-400">Datas importantes do processo licitatório.</p></div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><label className={labelCls}>Entrada do Lead</label>
+                  <input type="date" className={inputCls} value={form.leadEntryDate} onChange={e => set('leadEntryDate', e.target.value)} /></div>
                 <div><label className={labelCls}>Data de Publicação</label>
                   <input type="date" className={inputCls} value={form.publicationDate} onChange={e => set('publicationDate', e.target.value)} /></div>
                 <div><label className={labelCls}>Data de Abertura</label>
                   <input type="date" className={inputCls} value={form.openingDate} onChange={e => set('openingDate', e.target.value)} /></div>
-                <div><label className={labelCls}>Prazo de Impugnação</label>
-                  <input type="date" className={inputCls} value={form.challengeDeadline} onChange={e => set('challengeDeadline', e.target.value)} /></div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><label className={labelCls}>Prazo de Impugnação</label>
+                  <input type="date" className={inputCls} value={form.challengeDeadline} onChange={e => set('challengeDeadline', e.target.value)} /></div>
                 <div><label className={labelCls}>Entrega de Proposta</label>
                   <input type="date" className={inputCls} value={form.proposalDeadline} onChange={e => set('proposalDeadline', e.target.value)} /></div>
                 <div><label className={labelCls}>Vigência Estimada</label>
                   <input type="date" className={inputCls} value={form.estimatedValidity} onChange={e => set('estimatedValidity', e.target.value)} /></div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div><label className={labelCls}>Virada para Cliente</label>
+                  <input type="date" className={inputCls} value={form.customerTurnDate} onChange={e => set('customerTurnDate', e.target.value)} /></div>
+                <div><label className={labelCls}>Saída</label>
+                  <input type="date" className={inputCls} value={form.exitDate} onChange={e => set('exitDate', e.target.value)} /></div>
                 <div><label className={labelCls}>Fase Atual</label>
                   <select className={selectCls} value={form.currentPhase} onChange={e => set('currentPhase', e.target.value)}>
                     {PHASES.map(p => <option key={p} value={p}>{p}</option>)}

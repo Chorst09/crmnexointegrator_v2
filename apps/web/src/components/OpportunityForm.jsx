@@ -456,9 +456,28 @@ export default function OpportunityForm({
           </div>
 
           <div>
+            <label className={labelCls}>Data de Entrada do Lead</label>
+            <input type="date" className={inputCls} value={formData.leadEntryDate || ''} onChange={e => setFormData(p => ({ ...p, leadEntryDate: e.target.value }))} />
+          </div>
+
+          <div>
             <label className={labelCls}>Data de Fechamento Esperada</label>
             <input type="date" className={inputCls} value={formData.expectedCloseDate || ''} onChange={e => setFormData(p => ({ ...p, expectedCloseDate: e.target.value }))} />
           </div>
+
+          {formData.stage === 'WON' && (
+            <div>
+              <label className={labelCls}>Data de Virada para Cliente</label>
+              <input type="date" className={inputCls} value={formData.customerTurnDate || ''} onChange={e => setFormData(p => ({ ...p, customerTurnDate: e.target.value }))} />
+            </div>
+          )}
+
+          {formData.stage === 'LOST' && (
+            <div>
+              <label className={labelCls}>Data de Saída</label>
+              <input type="date" className={inputCls} value={formData.exitDate || ''} onChange={e => setFormData(p => ({ ...p, exitDate: e.target.value }))} />
+            </div>
+          )}
 
           <div>
             <label className={labelCls}>Responsável</label>
@@ -918,6 +937,10 @@ export default function OpportunityForm({
         <div className={sectionCls}>
           <div className={gridCls}>
             <div>
+              <label className={labelCls}>Data de Entrada do Lead</label>
+              <input type="date" className={inputCls} value={formData.leadEntryDate || ''} onChange={e => setFormData(p => ({ ...p, leadEntryDate: e.target.value }))} />
+            </div>
+            <div>
               <label className={labelCls}>Publicação</label>
               <input type="date" className={inputCls} value={b2gForm.dataPublicacao} onChange={e => setB2g('dataPublicacao', e.target.value)} />
             </div>
@@ -937,6 +960,18 @@ export default function OpportunityForm({
               <label className={labelCls}>Validade Estimada</label>
               <input type="date" className={inputCls} value={b2gForm.validadeEstimada} onChange={e => setB2g('validadeEstimada', e.target.value)} />
             </div>
+            {formData.stage === 'WON' && (
+              <div>
+                <label className={labelCls}>Data de Virada para Cliente</label>
+                <input type="date" className={inputCls} value={formData.customerTurnDate || ''} onChange={e => setFormData(p => ({ ...p, customerTurnDate: e.target.value }))} />
+              </div>
+            )}
+            {formData.stage === 'LOST' && (
+              <div>
+                <label className={labelCls}>Data de Saída</label>
+                <input type="date" className={inputCls} value={formData.exitDate || ''} onChange={e => setFormData(p => ({ ...p, exitDate: e.target.value }))} />
+              </div>
+            )}
             <div>
               <label className={labelCls}>Fase Atual</label>
               <select className={inputCls} value={b2gForm.faseAtual} onChange={e => setB2g('faseAtual', e.target.value)}>

@@ -79,6 +79,20 @@ const projectTypeLabels = {
   MONTHLY: "Projeto mensal"
 };
 
+const toDateInputValue = (value) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toISOString().slice(0, 10);
+};
+
+const formatDateBR = (value) => {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('pt-BR');
+};
+
 const parseStageDecisionDetails = (details) => {
   if (!details) return null;
   if (typeof details === 'object') return details;
@@ -213,7 +227,10 @@ export default function Oportunidades() {
     probability: 50,
     stage: 'LEAD',
     source: 'MANUAL',
+    leadEntryDate: toDateInputValue(new Date()),
     expectedCloseDate: '',
+    customerTurnDate: '',
+    exitDate: '',
     companyId: '',
     ownerId: '',
     contactName: '',
@@ -236,7 +253,10 @@ export default function Oportunidades() {
     probability: 50,
     stage: 'LEAD',
     source: 'MANUAL',
+    leadEntryDate: toDateInputValue(new Date()),
     expectedCloseDate: '',
+    customerTurnDate: '',
+    exitDate: '',
     companyId: '',
     ownerId: '',
     contactName: '',
@@ -277,6 +297,11 @@ export default function Oportunidades() {
             stage: opp.stage ?? opp.STAGE ?? 'LEAD',
             value: Number(opp.value ?? opp.VALUE ?? 0),
             probability: Number(opp.probability ?? opp.PROBABILITY ?? 50),
+            leadEntryDate: opp.leadEntryDate ?? opp.LEADENTRYDATE ?? opp.createdAt ?? opp.CREATEDAT ?? null,
+            expectedCloseDate: opp.expectedCloseDate ?? opp.EXPECTEDCLOSEDATE ?? null,
+            actualCloseDate: opp.actualCloseDate ?? opp.ACTUALCLOSEDATE ?? null,
+            customerTurnDate: opp.customerTurnDate ?? opp.CUSTOMERTURNDATE ?? ((opp.stage ?? opp.STAGE) === 'WON' ? (opp.actualCloseDate ?? opp.ACTUALCLOSEDATE ?? null) : null),
+            exitDate: opp.exitDate ?? opp.EXITDATE ?? ((opp.stage ?? opp.STAGE) === 'LOST' ? (opp.actualCloseDate ?? opp.ACTUALCLOSEDATE ?? null) : null),
             ownerId: opp.ownerId ?? opp.OWNERID ?? rawOwner?.id ?? rawOwner?.ID ?? '',
             companyId: opp.companyId ?? opp.COMPANYID ?? rawComp?.id ?? rawComp?.ID ?? '',
             number: opp.number ?? opp.NUMBER ?? '',
@@ -399,7 +424,10 @@ export default function Oportunidades() {
           probability: opp.probability || 50,
           stage: opp.stage,
           source: opp.source || 'MANUAL',
-          expectedCloseDate: opp.expectedCloseDate ? opp.expectedCloseDate.split('T')[0] : '',
+          leadEntryDate: toDateInputValue(opp.leadEntryDate || opp.createdAt),
+          expectedCloseDate: toDateInputValue(opp.expectedCloseDate),
+          customerTurnDate: toDateInputValue(opp.customerTurnDate || (opp.stage === 'WON' ? opp.actualCloseDate : null)),
+          exitDate: toDateInputValue(opp.exitDate || (opp.stage === 'LOST' ? opp.actualCloseDate : null)),
           companyId: opp.companyId,
           ownerId: opp.ownerId
         });
@@ -548,12 +576,15 @@ export default function Oportunidades() {
         probability: Number.isFinite(parsedProbability) ? Math.min(100, Math.max(0, parsedProbability)) : 50,
         stage: payloadFormData.stage || selectedOpportunity?.stage || 'LEAD',
         source: payloadFormData.source || null,
+        leadEntryDate: payloadFormData.leadEntryDate || null,
         expectedCloseDate: (() => {
           const v = payloadFormData.expectedCloseDate || '';
           if (!v) return null;
           const d = new Date(v);
           return isNaN(d.getTime()) ? null : v;
         })(),
+        customerTurnDate: payloadFormData.customerTurnDate || null,
+        exitDate: payloadFormData.exitDate || null,
         companyId: payloadFormData.companyId || '',
         ownerId: resolvedOwnerId,
         b2gStage: selectedOpportunity ? (selectedOpportunity.b2gStage || payloadFormData.b2gStage || null) : (payloadFormData.b2gStage || null),
@@ -641,7 +672,10 @@ export default function Oportunidades() {
       probability: opportunity.probability || 50,
       stage: opportunity.stage,
       source: opportunity.source || 'MANUAL',
-      expectedCloseDate: opportunity.expectedCloseDate ? opportunity.expectedCloseDate.split('T')[0] : '',
+      leadEntryDate: toDateInputValue(opportunity.leadEntryDate || opportunity.createdAt),
+      expectedCloseDate: toDateInputValue(opportunity.expectedCloseDate),
+      customerTurnDate: toDateInputValue(opportunity.customerTurnDate || (opportunity.stage === 'WON' ? opportunity.actualCloseDate : null)),
+      exitDate: toDateInputValue(opportunity.exitDate || (opportunity.stage === 'LOST' ? opportunity.actualCloseDate : null)),
       companyId: opportunity.companyId,
       ownerId: opportunity.ownerId,
       notes: opportunity.notes || '',
@@ -1238,7 +1272,25 @@ export default function Oportunidades() {
                         {opp.expectedCloseDate && (
                           <div className="flex items-center gap-1.5 text-xs text-[var(--crm-muted)]">
                             <Calendar className="w-3 h-3 shrink-0" />
-                            <span>{new Date(opp.expectedCloseDate).toLocaleDateString('pt-BR')}</span>
+                            <span>Prevista: {formatDateBR(opp.expectedCloseDate)}</span>
+                          </div>
+                        )}
+                        {opp.leadEntryDate && (
+                          <div className="flex items-center gap-1.5 text-xs text-[var(--crm-muted)]">
+                            <Calendar className="w-3 h-3 shrink-0" />
+                            <span>Entrada: {formatDateBR(opp.leadEntryDate)}</span>
+                          </div>
+                        )}
+                        {stage === 'WON' && (opp.customerTurnDate || opp.actualCloseDate) && (
+                          <div className="flex items-center gap-1.5 text-xs text-emerald-300">
+                            <Calendar className="w-3 h-3 shrink-0" />
+                            <span>Virada: {formatDateBR(opp.customerTurnDate || opp.actualCloseDate)}</span>
+                          </div>
+                        )}
+                        {stage === 'LOST' && (opp.exitDate || opp.actualCloseDate) && (
+                          <div className="flex items-center gap-1.5 text-xs text-red-300">
+                            <Calendar className="w-3 h-3 shrink-0" />
+                            <span>Saída: {formatDateBR(opp.exitDate || opp.actualCloseDate)}</span>
                           </div>
                         )}
                       </div>
@@ -1311,7 +1363,7 @@ export default function Oportunidades() {
                 <th className="text-left p-4 font-semibold text-[var(--crm-ink)]">Projeto</th>
                 <th className="text-left p-4 font-semibold text-[var(--crm-ink)]">Valor</th>
                 <th className="text-left p-4 font-semibold text-[var(--crm-ink)]">Status</th>
-                <th className="text-left p-4 font-semibold text-[var(--crm-ink)]">Data Fechamento</th>
+                <th className="text-left p-4 font-semibold text-[var(--crm-ink)]">Data Virada/Saída</th>
                 <th className="text-left p-4 font-semibold text-[var(--crm-ink)]">Motivo</th>
                 <th className="text-left p-4 font-semibold text-[var(--crm-ink)]">Acompanhamentos</th>
                 <th className="text-left p-4 font-semibold text-[var(--crm-ink)]">Responsável</th>
@@ -1328,7 +1380,7 @@ export default function Oportunidades() {
               ) : (
                 filteredOpportunities
                   .filter(o => o.stage === 'WON' || o.stage === 'LOST')
-                  .sort((a, b) => new Date(b.actualCloseDate || b.expectedCloseDate || 0) - new Date(a.actualCloseDate || a.expectedCloseDate || 0))
+                  .sort((a, b) => new Date((b.stage === 'WON' ? b.customerTurnDate : b.exitDate) || b.actualCloseDate || b.expectedCloseDate || 0) - new Date((a.stage === 'WON' ? a.customerTurnDate : a.exitDate) || a.actualCloseDate || a.expectedCloseDate || 0))
                   .map(opp => (
                     <tr
                       key={opp.id}
@@ -1350,9 +1402,7 @@ export default function Oportunidades() {
                         </span>
                       </td>
                       <td className="p-4 text-[var(--crm-muted)]">
-                        {opp.actualCloseDate
-                          ? new Date(opp.actualCloseDate).toLocaleDateString('pt-BR')
-                          : new Date(opp.expectedCloseDate).toLocaleDateString('pt-BR')}
+                        {formatDateBR((opp.stage === 'WON' ? opp.customerTurnDate : opp.exitDate) || opp.actualCloseDate || opp.expectedCloseDate) || '—'}
                       </td>
                       <td className="p-4 text-[var(--crm-muted)] min-w-[260px] max-w-[360px]">
                         {renderStageDecisionSummary(opp) || (opp.stage === 'LOST' ? (opp.lossReason || '—') : '—')}
@@ -1509,6 +1559,42 @@ export default function Oportunidades() {
                       <Calendar className="w-4 h-4 text-[rgb(var(--crm-accent-rgb))] mr-2" />
                       <span className="text-[var(--crm-ink)] font-medium">
                         {new Date(selectedOpportunity.expectedCloseDate).toLocaleDateString('pt-BR')}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {selectedOpportunity.leadEntryDate && (
+                  <div className="crm-panel-muted rounded-xl p-4">
+                    <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_0.9)] mb-2">Data de Entrada do Lead</h3>
+                    <div className="flex items-center">
+                      <Calendar className="w-4 h-4 text-[rgb(var(--crm-accent-rgb))] mr-2" />
+                      <span className="text-[var(--crm-ink)] font-medium">
+                        {formatDateBR(selectedOpportunity.leadEntryDate)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {selectedOpportunity.stage === 'WON' && (selectedOpportunity.customerTurnDate || selectedOpportunity.actualCloseDate) && (
+                  <div className="crm-panel-muted rounded-xl p-4">
+                    <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_0.9)] mb-2">Data de Virada para Cliente</h3>
+                    <div className="flex items-center">
+                      <Calendar className="w-4 h-4 text-emerald-300 mr-2" />
+                      <span className="text-[var(--crm-ink)] font-medium">
+                        {formatDateBR(selectedOpportunity.customerTurnDate || selectedOpportunity.actualCloseDate)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {selectedOpportunity.stage === 'LOST' && (selectedOpportunity.exitDate || selectedOpportunity.actualCloseDate) && (
+                  <div className="crm-panel-muted rounded-xl p-4">
+                    <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_0.9)] mb-2">Data de Saída</h3>
+                    <div className="flex items-center">
+                      <Calendar className="w-4 h-4 text-red-300 mr-2" />
+                      <span className="text-[var(--crm-ink)] font-medium">
+                        {formatDateBR(selectedOpportunity.exitDate || selectedOpportunity.actualCloseDate)}
                       </span>
                     </div>
                   </div>
