@@ -304,9 +304,16 @@ BEGIN
   IF v_owner IS NULL THEN
     SELECT "id" INTO v_owner
     FROM "User"
-    WHERE ({sql(record['accountManagerName'])} IS NULL OR lower("name") = lower({sql(record['accountManagerName'])}))
+    WHERE ({sql(record['accountManagerName'])} IS NULL
+      OR lower("name") = lower({sql(record['accountManagerName'])})
+      OR lower("name") LIKE lower({sql(record['accountManagerName'])}) || '%'
+      OR lower({sql(record['accountManagerName'])}) LIKE lower("name") || '%')
       AND (v_tenant IS NULL OR "tenantCompanyId" IS NULL OR "tenantCompanyId" = v_tenant)
-    ORDER BY CASE WHEN lower("name") = lower({sql(record['accountManagerName'])}) THEN 0 ELSE 1 END, "createdAt"
+    ORDER BY CASE
+      WHEN lower("name") = lower({sql(record['accountManagerName'])}) THEN 0
+      WHEN lower("name") LIKE lower({sql(record['accountManagerName'])}) || '%' THEN 1
+      ELSE 2
+    END, "createdAt"
     LIMIT 1;
   END IF;
 
