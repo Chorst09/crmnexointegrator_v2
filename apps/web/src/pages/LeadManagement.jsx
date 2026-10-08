@@ -15,6 +15,7 @@ import {
   Trash2,
   CheckCircle2,
   ThumbsDown,
+  Calendar,
   X
 } from 'lucide-react';
 
@@ -39,9 +40,27 @@ const COMPANY_SIZE_OPTIONS = [
   { value: 'ENTERPRISE', label: 'Enterprise' }
 ];
 
+const toDateInputValue = (value = new Date()) => {
+  if (!value) return '';
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
+
+const formatDateBR = (value) => {
+  if (!value) return '-';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '-';
+  return date.toLocaleDateString('pt-BR');
+};
+
 const MANUAL_LEAD_INITIAL_STATE = {
   name: '',
   document: '',
+  leadEntryDate: toDateInputValue(),
   segment: '',
   size: '',
   website: '',
@@ -168,6 +187,7 @@ export default function LeadManagement() {
           address: manualLeadForm.address.trim() || null,
           city: manualLeadForm.city.trim() || null,
           state: manualLeadForm.state.trim().toUpperCase() || null,
+          leadEntryDate: manualLeadForm.leadEntryDate || null,
           status: 'LEAD',
           clientType: leadClientType,
           autoDistribute: manualLeadForm.autoDistribute,
@@ -530,6 +550,15 @@ export default function LeadManagement() {
               />
             </div>
             <div>
+              <label className="block text-sm font-semibold text-[var(--crm-ink)] mb-1.5">Data de Entrada do Lead</label>
+              <input
+                type="date"
+                value={manualLeadForm.leadEntryDate}
+                onChange={(e) => updateManualLeadField('leadEntryDate', e.target.value)}
+                className="crm-input"
+              />
+            </div>
+            <div>
               <label className="block text-sm font-semibold text-[var(--crm-ink)] mb-1.5">Segmento</label>
               <input
                 type="text"
@@ -680,6 +709,7 @@ export default function LeadManagement() {
               <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-[var(--crm-muted)] md:grid-cols-2">
                 <div>Contatos: {selectedLead.contacts?.length || 0}</div>
                 <div>Oportunidades: {selectedLead.opportunities?.length || 0}</div>
+                <div>Entrada do Lead: {formatDateBR(selectedLead.leadEntryDate || selectedLead.createdAt)}</div>
                 <div>Cidade/UF: {[selectedLead.city, selectedLead.state].filter(Boolean).join('/') || '-'}</div>
                 <div>CNPJ: {selectedLead.document || '-'}</div>
               </div>
@@ -997,6 +1027,10 @@ export default function LeadManagement() {
                         <Users className="w-4 h-4" />
                         {company.contacts?.length || 0} contatos
                       </span>
+                      <span className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        Entrada: {formatDateBR(company.leadEntryDate || company.createdAt)}
+                      </span>
                       {company.status === 'LEAD' && (
                         <span className="font-bold text-[rgb(var(--crm-accent-rgb)_/_0.95)]">
                           Clique para converter ou No Go
@@ -1227,6 +1261,10 @@ export default function LeadManagement() {
                       <div className="text-base font-semibold text-gray-900 dark:text-gray-100">{company.name}</div>
                       <div className="text-sm text-gray-600 dark:text-slate-200 mt-1">
                         Score {company.leadScore} • {company.segment || 'Sem segmento'}
+                      </div>
+                      <div className="mt-1 flex items-center gap-1 text-xs text-gray-600 dark:text-slate-200">
+                        <Calendar className="h-3.5 w-3.5" />
+                        Entrada: {formatDateBR(company.leadEntryDate || company.createdAt)}
                       </div>
                       <div className="mt-1 text-xs font-bold text-[rgb(var(--crm-accent-rgb)_/_0.95)]">
                         Clique para converter ou registrar No Go

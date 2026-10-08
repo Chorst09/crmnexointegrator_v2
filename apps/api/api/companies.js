@@ -17,6 +17,12 @@ const resolveCompanyId = (req, body) => {
   return body?.id || req.query?.id || parsePathIdFromUrl(req.url);
 };
 
+const parseDateInput = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
 const normalizeContacts = (contacts) => {
   if (!Array.isArray(contacts)) return [];
 
@@ -176,6 +182,7 @@ export default async function handler(req) {
         regionId: c.regionId ?? c.REGIONID ?? null,
         leadScore: c.leadScore ?? c.LEADSCORE ?? 50,
         churnRisk: c.churnRisk ?? c.CHURNRISK ?? 0,
+        leadEntryDate: c.leadEntryDate ?? c.LEADENTRYDATE ?? c.createdAt ?? c.CREATEDAT ?? null,
         createdAt: c.createdAt ?? c.CREATEDAT ?? null,
         updatedAt: c.updatedAt ?? c.UPDATEDAT ?? null,
         contacts: c.contacts ?? c.CONTACTS ?? [],
@@ -209,6 +216,7 @@ export default async function handler(req) {
         state: body.state,
         status: normalizeCompanyStatus(body.status, 'LEAD'),
         leadScore: Number.isFinite(Number(body.leadScore)) ? Number(body.leadScore) : undefined,
+        leadEntryDate: parseDateInput(body.leadEntryDate) || new Date(),
         regionId,
         tenantCompanyId: tenantId,
         contacts: contactsToCreate.length > 0
@@ -295,6 +303,7 @@ export default async function handler(req) {
           state: body.state,
           status: body.status !== undefined ? normalizeCompanyStatus(body.status) : undefined,
           leadScore: body.leadScore,
+          leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined,
           tenantCompanyId: isMasterUser && body.tenantCompanyId !== undefined ? body.tenantCompanyId : undefined
         },
         include: {

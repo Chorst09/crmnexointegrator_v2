@@ -491,6 +491,7 @@ export async function createOpportunityForLead(
       `Projeto ${company.name}`
     );
     const resolvedProjectClientType = normalizeProjectClientType(projectClientType);
+    const leadEntryDate = company.leadEntryDate || company.createdAt || new Date();
 
     const opportunity = await prisma.opportunity.create({
       data: {
@@ -501,6 +502,7 @@ export async function createOpportunityForLead(
         value: 0, // Será atualizado pelo vendedor
         probability: 25, // Probabilidade inicial baixa
         stage: 'LEAD',
+        leadEntryDate,
         source: 'MANUAL', // Pode ser ajustado conforme a origem
         companyId,
         ownerId: assignedSeller.id

@@ -104,6 +104,7 @@ model Company {
   accessAutomation Boolean @default(false)
   tenantCompanyId String?
   tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+  leadEntryDate DateTime @default(now())
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   

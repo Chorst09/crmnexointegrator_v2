@@ -17,6 +17,12 @@ const parsePathIdFromUrl = (urlValue) => {
 const resolveCompanyId = (req, body) =>
   body?.id || req.query?.id || parsePathIdFromUrl(req.url);
 
+const parseDateInput = (value) => {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
 const normalizeClientType = (value, fallback = 'B2B') => {
   const raw = String(value || '').trim().toUpperCase();
   return raw === 'B2G' ? 'B2G' : raw === 'B2B' ? 'B2B' : fallback;
@@ -150,6 +156,7 @@ export default async function handler(req) {
         tenantCompanyId,
         status: normalizeCompanyStatus(body.status, 'LEAD'),
         leadScore: Number.isFinite(Number(body.leadScore)) ? Number(body.leadScore) : undefined,
+        leadEntryDate: parseDateInput(body.leadEntryDate) || new Date(),
         contacts: body.contacts ? {
           create: body.contacts.map(contact => ({
             name: contact.name,
@@ -221,7 +228,8 @@ export default async function handler(req) {
         city: body.city,
         state: body.state,
         status: body.status !== undefined ? normalizeCompanyStatus(body.status) : undefined,
-        leadScore: body.leadScore
+        leadScore: body.leadScore,
+        leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined
       },
       include: {
         contacts: true,
