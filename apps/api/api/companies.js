@@ -171,6 +171,7 @@ export default async function handler(req) {
         name: c.name ?? c.NAME ?? 'Empresa Sem Nome',
         document: c.document ?? c.DOCUMENT ?? '',
         segment: c.segment ?? c.SEGMENT ?? '',
+        subsegment: c.subsegment ?? c.SUBSEGMENT ?? '',
         clientType: c.clientType ?? c.CLIENTTYPE ?? 'B2B',
         status: c.status ?? c.STATUS ?? 'ACTIVE',
         size: c.size ?? c.SIZE ?? 'MEDIUM',
@@ -183,6 +184,7 @@ export default async function handler(req) {
         leadScore: c.leadScore ?? c.LEADSCORE ?? 50,
         churnRisk: c.churnRisk ?? c.CHURNRISK ?? 0,
         leadEntryDate: c.leadEntryDate ?? c.LEADENTRYDATE ?? c.createdAt ?? c.CREATEDAT ?? null,
+        accountManagerName: c.accountManagerName ?? c.ACCOUNTMANAGERNAME ?? '',
         createdAt: c.createdAt ?? c.CREATEDAT ?? null,
         updatedAt: c.updatedAt ?? c.UPDATEDAT ?? null,
         contacts: c.contacts ?? c.CONTACTS ?? [],
@@ -207,6 +209,7 @@ export default async function handler(req) {
         name: body.name,
         document: body.document,
         segment: body.segment,
+        subsegment: body.subsegment,
         clientType: body.clientType === 'B2G' ? 'B2G' : body.clientType === 'B2B' ? 'B2B' : undefined,
         ...normalizeModuleAccess(body),
         size: body.size,
@@ -217,6 +220,7 @@ export default async function handler(req) {
         status: normalizeCompanyStatus(body.status, 'LEAD'),
         leadScore: Number.isFinite(Number(body.leadScore)) ? Number(body.leadScore) : undefined,
         leadEntryDate: parseDateInput(body.leadEntryDate) || new Date(),
+        accountManagerName: body.accountManagerName || null,
         regionId,
         tenantCompanyId: tenantId,
         contacts: contactsToCreate.length > 0
@@ -294,6 +298,7 @@ export default async function handler(req) {
           name: body.name,
           document: body.document,
           segment: body.segment,
+          subsegment: body.subsegment,
           clientType: body.clientType === 'B2G' ? 'B2G' : body.clientType === 'B2B' ? 'B2B' : undefined,
           ...normalizeModuleAccess(body, existingCompany),
           size: body.size,
@@ -304,6 +309,7 @@ export default async function handler(req) {
           status: body.status !== undefined ? normalizeCompanyStatus(body.status) : undefined,
           leadScore: body.leadScore,
           leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined,
+          accountManagerName: body.accountManagerName !== undefined ? body.accountManagerName || null : undefined,
           tenantCompanyId: isMasterUser && body.tenantCompanyId !== undefined ? body.tenantCompanyId : undefined
         },
         include: {

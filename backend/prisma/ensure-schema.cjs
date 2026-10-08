@@ -176,6 +176,9 @@ async function main() {
       ADD COLUMN IF NOT EXISTS "accessPreSales" BOOLEAN NOT NULL DEFAULT false,
       ADD COLUMN IF NOT EXISTS "accessManagement" BOOLEAN NOT NULL DEFAULT false,
       ADD COLUMN IF NOT EXISTS "accessAutomation" BOOLEAN NOT NULL DEFAULT false,
+      ADD COLUMN IF NOT EXISTS "subsegment" TEXT,
+      ADD COLUMN IF NOT EXISTS "leadEntryDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS "accountManagerName" TEXT,
       ADD COLUMN IF NOT EXISTS "tenantCompanyId" TEXT;
   `);
 
@@ -205,9 +208,24 @@ async function main() {
       ADD COLUMN IF NOT EXISTS "number" TEXT,
       ADD COLUMN IF NOT EXISTS "projectName" TEXT,
       ADD COLUMN IF NOT EXISTS "projectClientType" TEXT,
+      ADD COLUMN IF NOT EXISTS "negotiationType" TEXT,
+      ADD COLUMN IF NOT EXISTS "projectClassification" TEXT,
+      ADD COLUMN IF NOT EXISTS "projectTower" TEXT,
+      ADD COLUMN IF NOT EXISTS "projectDetail" TEXT,
+      ADD COLUMN IF NOT EXISTS "manufacturer" TEXT,
+      ADD COLUMN IF NOT EXISTS "licenseCount" INTEGER,
+      ADD COLUMN IF NOT EXISTS "contractMonths" INTEGER,
+      ADD COLUMN IF NOT EXISTS "monthlyValue" DOUBLE PRECISION,
+      ADD COLUMN IF NOT EXISTS "installationFee" DOUBLE PRECISION,
+      ADD COLUMN IF NOT EXISTS "leadSourceDetail" TEXT,
+      ADD COLUMN IF NOT EXISTS "importSource" TEXT,
+      ADD COLUMN IF NOT EXISTS "importSourceRow" INTEGER,
       ADD COLUMN IF NOT EXISTS "b2gStage" TEXT,
       ADD COLUMN IF NOT EXISTS "projectType" TEXT NOT NULL DEFAULT 'SINGLE',
       ADD COLUMN IF NOT EXISTS "projectMonths" INTEGER,
+      ADD COLUMN IF NOT EXISTS "leadEntryDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      ADD COLUMN IF NOT EXISTS "customerTurnDate" TIMESTAMP(3),
+      ADD COLUMN IF NOT EXISTS "exitDate" TIMESTAMP(3),
       ADD COLUMN IF NOT EXISTS "stageDecisionDetails" JSONB,
       ADD COLUMN IF NOT EXISTS "tenantCompanyId" TEXT;
   `);
@@ -231,6 +249,11 @@ async function main() {
   await prisma.$executeRawUnsafe(`
     CREATE INDEX IF NOT EXISTS "Opportunity_tenantCompanyId_idx"
       ON "Opportunity"("tenantCompanyId");
+  `);
+
+  await prisma.$executeRawUnsafe(`
+    CREATE INDEX IF NOT EXISTS "Opportunity_importSource_importSourceRow_idx"
+      ON "Opportunity"("importSource", "importSourceRow");
   `);
 
   await prisma.$executeRawUnsafe(`

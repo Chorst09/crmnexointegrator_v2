@@ -220,6 +220,16 @@ export default function Oportunidades() {
     title: '',
     projectName: '',
     projectClientType: 'NEW_CLIENT',
+    negotiationType: '',
+    projectClassification: '',
+    projectTower: '',
+    projectDetail: '',
+    manufacturer: '',
+    licenseCount: '',
+    contractMonths: '',
+    monthlyValue: '',
+    installationFee: '',
+    leadSourceDetail: '',
     projectType: 'SINGLE',
     projectMonths: '12',
     description: '',
@@ -246,6 +256,16 @@ export default function Oportunidades() {
     title: '',
     projectName: '',
     projectClientType: '',
+    negotiationType: '',
+    projectClassification: '',
+    projectTower: '',
+    projectDetail: '',
+    manufacturer: '',
+    licenseCount: '',
+    contractMonths: '',
+    monthlyValue: '',
+    installationFee: '',
+    leadSourceDetail: '',
     projectType: 'SINGLE',
     projectMonths: '12',
     description: '',
@@ -567,6 +587,16 @@ export default function Oportunidades() {
         title: payloadFormData.title || '',
         projectName: payloadFormData.projectName || payloadFormData.title || '',
         projectClientType: payloadFormData.projectClientType || null,
+        negotiationType: payloadFormData.negotiationType || null,
+        projectClassification: payloadFormData.projectClassification || null,
+        projectTower: payloadFormData.projectTower || null,
+        projectDetail: payloadFormData.projectDetail || null,
+        manufacturer: payloadFormData.manufacturer || null,
+        licenseCount: payloadFormData.licenseCount || null,
+        contractMonths: payloadFormData.contractMonths || null,
+        monthlyValue: payloadFormData.monthlyValue || null,
+        installationFee: payloadFormData.installationFee || null,
+        leadSourceDetail: payloadFormData.leadSourceDetail || null,
         projectType: payloadFormData.projectType || 'SINGLE',
         projectMonths: payloadFormData.projectType === 'MONTHLY' ? Number(payloadFormData.projectMonths || 12) : null,
         description: typeof payloadFormData.description === 'string'
@@ -665,6 +695,16 @@ export default function Oportunidades() {
       title: opportunity.title,
       projectName: opportunity.projectName || opportunity.title || '',
       projectClientType: opportunity.projectClientType || 'NEW_CLIENT',
+      negotiationType: opportunity.negotiationType || '',
+      projectClassification: opportunity.projectClassification || '',
+      projectTower: opportunity.projectTower || '',
+      projectDetail: opportunity.projectDetail || '',
+      manufacturer: opportunity.manufacturer || '',
+      licenseCount: opportunity.licenseCount ?? '',
+      contractMonths: opportunity.contractMonths ?? '',
+      monthlyValue: opportunity.monthlyValue ?? '',
+      installationFee: opportunity.installationFee ?? '',
+      leadSourceDetail: opportunity.leadSourceDetail || '',
       projectType: opportunity.projectType || 'SINGLE',
       projectMonths: opportunity.projectMonths ? String(opportunity.projectMonths) : '12',
       description: opportunity.description || '',
@@ -1549,6 +1589,39 @@ export default function Oportunidades() {
                   <div className="crm-panel-muted rounded-xl p-4">
                     <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_0.9)] mb-2">Origem</h3>
                     <span className="text-[var(--crm-ink)] font-medium">{selectedOpportunity.source}</span>
+                  </div>
+                )}
+
+                {(selectedOpportunity.negotiationType || selectedOpportunity.leadSourceDetail || selectedOpportunity.projectClassification || selectedOpportunity.projectTower || selectedOpportunity.projectDetail || selectedOpportunity.manufacturer) && (
+                  <div className="crm-panel-muted rounded-xl p-4 md:col-span-2">
+                    <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_0.9)] mb-3">Dados Comerciais B2B</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                      {[
+                        ['Tipo de negociação', selectedOpportunity.negotiationType],
+                        ['Entrada/Origem', selectedOpportunity.leadSourceDetail],
+                        ['Classificação', selectedOpportunity.projectClassification],
+                        ['Torre', selectedOpportunity.projectTower],
+                        ['Detalhe', selectedOpportunity.projectDetail],
+                        ['Fabricante', selectedOpportunity.manufacturer]
+                      ].filter(([, value]) => value).map(([label, value]) => (
+                        <div key={label}>
+                          <div className="text-xs font-semibold text-[var(--crm-muted)]">{label}</div>
+                          <div className="font-medium text-[var(--crm-ink)]">{value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {(selectedOpportunity.contractMonths || selectedOpportunity.monthlyValue || selectedOpportunity.installationFee || selectedOpportunity.licenseCount) && (
+                  <div className="crm-panel-muted rounded-xl p-4 md:col-span-2">
+                    <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_0.9)] mb-3">Valores do Contrato</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-sm">
+                      {selectedOpportunity.contractMonths && <div><div className="text-xs font-semibold text-[var(--crm-muted)]">Meses</div><div className="font-medium text-[var(--crm-ink)]">{selectedOpportunity.contractMonths}</div></div>}
+                      {selectedOpportunity.monthlyValue && <div><div className="text-xs font-semibold text-[var(--crm-muted)]">Valor mensal</div><div className="font-medium text-[var(--crm-ink)]">{formatCurrency(selectedOpportunity.monthlyValue)}</div></div>}
+                      {selectedOpportunity.installationFee && <div><div className="text-xs font-semibold text-[var(--crm-muted)]">Instalação</div><div className="font-medium text-[var(--crm-ink)]">{formatCurrency(selectedOpportunity.installationFee)}</div></div>}
+                      {selectedOpportunity.licenseCount && <div><div className="text-xs font-semibold text-[var(--crm-muted)]">Licenças</div><div className="font-medium text-[var(--crm-ink)]">{selectedOpportunity.licenseCount}</div></div>}
+                    </div>
                   </div>
                 )}
 

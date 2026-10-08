@@ -430,6 +430,54 @@ export default function OpportunityForm({
             <textarea className={inputCls} rows={3} value={formData.description || ''} onChange={e => setFormData(p => ({ ...p, description: e.target.value }))} />
           </div>
 
+          <div className="sm:col-span-2">
+            <div className="rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+              <h3 className="mb-3 text-sm font-semibold text-[var(--crm-text)]">Dados Comerciais B2B</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                  <label className={labelCls}>Tipo de Negociação</label>
+                  <input className={inputCls} value={formData.negotiationType || ''} onChange={e => setFormData(p => ({ ...p, negotiationType: e.target.value }))} placeholder="Nova Venda, Up Selling..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Entrada/Origem</label>
+                  <input className={inputCls} value={formData.leadSourceDetail || ''} onChange={e => setFormData(p => ({ ...p, leadSourceDetail: e.target.value }))} placeholder="SDR, Gerente de Contas..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Classificação</label>
+                  <input className={inputCls} value={formData.projectClassification || ''} onChange={e => setFormData(p => ({ ...p, projectClassification: e.target.value }))} placeholder="Serviço, Produto..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Torre</label>
+                  <input className={inputCls} value={formData.projectTower || ''} onChange={e => setFormData(p => ({ ...p, projectTower: e.target.value }))} placeholder="Conectividade, DataCenter..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Detalhe</label>
+                  <input className={inputCls} value={formData.projectDetail || ''} onChange={e => setFormData(p => ({ ...p, projectDetail: e.target.value }))} placeholder="Rádio, Double..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Fabricante</label>
+                  <input className={inputCls} value={formData.manufacturer || ''} onChange={e => setFormData(p => ({ ...p, manufacturer: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={labelCls}>Licenças</label>
+                  <input type="number" min={0} className={inputCls} value={formData.licenseCount || ''} onChange={e => setFormData(p => ({ ...p, licenseCount: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={labelCls}>Meses de Contrato</label>
+                  <input type="number" min={0} className={inputCls} value={formData.contractMonths || ''} onChange={e => setFormData(p => ({ ...p, contractMonths: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={labelCls}>Valor Mensal (R$)</label>
+                  <input type="number" min={0} step="0.01" className={inputCls} value={formData.monthlyValue || ''} onChange={e => setFormData(p => ({ ...p, monthlyValue: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={labelCls}>Taxa de Instalação (R$)</label>
+                  <input type="number" min={0} step="0.01" className={inputCls} value={formData.installationFee || ''} onChange={e => setFormData(p => ({ ...p, installationFee: e.target.value }))} />
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div>
             <label className={labelCls}>Valor (R$)</label>
             <input type="number" className={inputCls} value={formData.value || ''} onChange={e => setFormData(p => ({ ...p, value: e.target.value }))} />

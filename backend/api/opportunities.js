@@ -441,6 +441,18 @@ export default async function handler(req) {
           title: body.title,
           projectName: body.projectName || body.title,
           projectClientType: body.projectClientType || null,
+          negotiationType: body.negotiationType || null,
+          projectClassification: body.projectClassification || null,
+          projectTower: body.projectTower || null,
+          projectDetail: body.projectDetail || null,
+          manufacturer: body.manufacturer || null,
+          licenseCount: body.licenseCount !== undefined && body.licenseCount !== null && body.licenseCount !== '' ? Number(body.licenseCount) : null,
+          contractMonths: body.contractMonths !== undefined && body.contractMonths !== null && body.contractMonths !== '' ? Number(body.contractMonths) : null,
+          monthlyValue: body.monthlyValue !== undefined && body.monthlyValue !== null && body.monthlyValue !== '' ? Number(body.monthlyValue) : null,
+          installationFee: body.installationFee !== undefined && body.installationFee !== null && body.installationFee !== '' ? Number(body.installationFee) : null,
+          leadSourceDetail: body.leadSourceDetail || null,
+          importSource: body.importSource || null,
+          importSourceRow: body.importSourceRow !== undefined && body.importSourceRow !== null && body.importSourceRow !== '' ? Number(body.importSourceRow) : null,
           projectType,
           projectMonths,
           description: body.description,
@@ -571,6 +583,18 @@ export default async function handler(req) {
     if (body.title !== undefined) updateData.title = body.title;
     if (body.projectName !== undefined) updateData.projectName = body.projectName || body.title || null;
     if (body.projectClientType !== undefined) updateData.projectClientType = body.projectClientType || null;
+    if (body.negotiationType !== undefined) updateData.negotiationType = body.negotiationType || null;
+    if (body.projectClassification !== undefined) updateData.projectClassification = body.projectClassification || null;
+    if (body.projectTower !== undefined) updateData.projectTower = body.projectTower || null;
+    if (body.projectDetail !== undefined) updateData.projectDetail = body.projectDetail || null;
+    if (body.manufacturer !== undefined) updateData.manufacturer = body.manufacturer || null;
+    if (body.licenseCount !== undefined) updateData.licenseCount = body.licenseCount === null || body.licenseCount === '' ? null : Number(body.licenseCount);
+    if (body.contractMonths !== undefined) updateData.contractMonths = body.contractMonths === null || body.contractMonths === '' ? null : Number(body.contractMonths);
+    if (body.monthlyValue !== undefined) updateData.monthlyValue = body.monthlyValue === null || body.monthlyValue === '' ? null : Number(body.monthlyValue);
+    if (body.installationFee !== undefined) updateData.installationFee = body.installationFee === null || body.installationFee === '' ? null : Number(body.installationFee);
+    if (body.leadSourceDetail !== undefined) updateData.leadSourceDetail = body.leadSourceDetail || null;
+    if (body.importSource !== undefined) updateData.importSource = body.importSource || null;
+    if (body.importSourceRow !== undefined) updateData.importSourceRow = body.importSourceRow === null || body.importSourceRow === '' ? null : Number(body.importSourceRow);
     if (body.projectType !== undefined) {
       updateData.projectType = normalizeProjectType(body.projectType);
       updateData.projectMonths = normalizeProjectMonths(updateData.projectType, body.projectMonths);

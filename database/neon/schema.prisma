@@ -48,6 +48,7 @@ model Company {
   name       String
   document   String      @unique
   segment    String?
+  subsegment String?
   size       CompanySize @default(SMALL)
   website    String?
   logo       String?
@@ -60,6 +61,7 @@ model Company {
   leadScore  Int         @default(0)
   churnRisk  Float       @default(0)
   leadEntryDate DateTime @default(now())
+  accountManagerName String?
   createdAt  DateTime    @default(now())
   updatedAt  DateTime    @updatedAt
 
@@ -111,6 +113,20 @@ model Opportunity {
   id                String    @id @default(cuid())
   title             String
   description       String?
+  projectName       String?
+  projectClientType String?
+  negotiationType   String?
+  projectClassification String?
+  projectTower      String?
+  projectDetail     String?
+  manufacturer      String?
+  licenseCount      Int?
+  contractMonths    Int?
+  monthlyValue      Float?
+  installationFee   Float?
+  leadSourceDetail  String?
+  importSource      String?
+  importSourceRow   Int?
   value             Float
   probability       Int       @default(50)
   stage             OpportunityStage @default(LEAD)

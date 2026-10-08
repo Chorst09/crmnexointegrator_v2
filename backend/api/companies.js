@@ -146,6 +146,7 @@ export default async function handler(req) {
         name: body.name,
         document: body.document,
         segment: body.segment,
+        subsegment: body.subsegment,
         clientType: normalizeClientType(body.clientType),
         ...normalizeModuleAccess(body),
         size: body.size,
@@ -157,6 +158,7 @@ export default async function handler(req) {
         status: normalizeCompanyStatus(body.status, 'LEAD'),
         leadScore: Number.isFinite(Number(body.leadScore)) ? Number(body.leadScore) : undefined,
         leadEntryDate: parseDateInput(body.leadEntryDate) || new Date(),
+        accountManagerName: body.accountManagerName || null,
         contacts: body.contacts ? {
           create: body.contacts.map(contact => ({
             name: contact.name,
@@ -220,6 +222,7 @@ export default async function handler(req) {
         name: body.name,
         document: body.document,
         segment: body.segment,
+        subsegment: body.subsegment,
         clientType: body.clientType ? normalizeClientType(body.clientType) : undefined,
         ...normalizeModuleAccess(body, existingCompany),
         size: body.size,
@@ -229,7 +232,8 @@ export default async function handler(req) {
         state: body.state,
         status: body.status !== undefined ? normalizeCompanyStatus(body.status) : undefined,
         leadScore: body.leadScore,
-        leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined
+        leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined,
+        accountManagerName: body.accountManagerName !== undefined ? body.accountManagerName || null : undefined
       },
       include: {
         contacts: true,

@@ -75,6 +75,7 @@ model Company {
   name        String
   document    String?
   segment     String?
+  subsegment  String?
   clientType  ClientType @default(B2B)
   size        CompanySize?
   website     String?
@@ -96,6 +97,7 @@ model Company {
   tenantCompanyId String?
   tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
   leadEntryDate DateTime @default(now())
+  accountManagerName String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
@@ -232,6 +234,18 @@ model Opportunity {
   title           String
   projectName     String?
   projectClientType String?
+  negotiationType String?
+  projectClassification String?
+  projectTower    String?
+  projectDetail   String?
+  manufacturer    String?
+  licenseCount    Int?
+  contractMonths  Int?
+  monthlyValue    Float?
+  installationFee Float?
+  leadSourceDetail String?
+  importSource    String?
+  importSourceRow Int?
   b2gStage        String?
   projectType     String   @default("SINGLE")
   projectMonths   Int?
