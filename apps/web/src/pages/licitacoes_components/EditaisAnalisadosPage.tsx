@@ -24,19 +24,13 @@ import {
   ChevronDown,
   ChevronUp,
   PlusCircle,
-  Tag
+  Tag,
+  Target
 } from 'lucide-react';
 import { FichaTecnicaEditalTR, MatrizItemAnalise } from './types';
 import { formatarMoeda, gerarPdfFichaTecnica } from './utils/pdfGenerator';
 import { PdfViewerModal } from './PdfViewerModal';
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
-  return {
-    'Content-Type': 'application/json',
-    ...(token && { 'Authorization': `Bearer ${token}` })
-  };
-};
+import { buildApiUrl, getAuthHeaders } from '../../config/api';
 
 interface EditaisAnalisadosPageProps {
   onOpenInWorkbench?: (ficha: FichaTecnicaEditalTR) => void;
@@ -66,6 +60,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
+  const [convertingId, setConvertingId] = useState<string | null>(null);
 
   const showNotification = (msg: string) => {
     setNotification(msg);
@@ -191,6 +186,44 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
       showNotification(`Download do PDF da Ficha Técnica iniciado com sucesso.`);
     } catch (e) {
       console.error('Erro ao baixar PDF:', e);
+    }
+  };
+
+  const handleConverterOportunidadeB2G = async (ficha: FichaTecnicaEditalTR) => {
+    const fichaKey = ficha.id_licitacao;
+    try {
+      setConvertingId(fichaKey);
+
+      const headers = getAuthHeaders();
+      if (!headers.Authorization) {
+        throw new Error('Sessão expirada. Faça login novamente para converter em oportunidade B2G.');
+      }
+
+      const res = await fetch(buildApiUrl(`/analise-tr/ficha/${encodeURIComponent(ficha.id || ficha.id_licitacao)}/converter-oportunidade`), {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ ficha })
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.error || data?.message || `Erro ${res.status} ao converter em oportunidade B2G.`);
+      }
+
+      const opportunityId = data?.opportunityId || data?.oportunidadeId || data?.id || data?.opportunity?.id;
+      setFichas(prev => prev.map(item => item.id_licitacao === fichaKey
+        ? { ...item, convertido_oportunidade: true, oportunidade_id: opportunityId }
+        : item
+      ));
+      showNotification('Oportunidade B2G criada com sucesso. Abrindo pipeline...');
+      setTimeout(() => {
+        window.location.href = `/b2g-oportunidades?clientType=B2G${opportunityId ? `&opportunityId=${encodeURIComponent(opportunityId)}&mode=view` : ''}`;
+      }, 700);
+    } catch (e) {
+      console.error('Erro ao converter edital analisado em oportunidade B2G:', e);
+      showNotification(e instanceof Error ? e.message : 'Erro ao converter edital em oportunidade B2G.');
+    } finally {
+      setConvertingId(null);
     }
   };
 
@@ -527,6 +560,8 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
               const temAmostra = Boolean(ficha.pontos_de_atencao_risco?.exigencia_amostra_poc);
               const vistoriaObrigatoria = ficha.pontos_de_atencao_risco?.regras_vistoria?.obrigatoria;
               const isDeletingThis = deleteConfirmId === ficha.id_licitacao;
+              const isConvertingThis = convertingId === ficha.id_licitacao;
+              const convertedOpportunityId = ficha.oportunidade_id;
 
               return (
                 <div
@@ -915,6 +950,29 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                           >
                             <FileSearch className="w-3.5 h-3.5" />
                             Abrir na Bancada
+                          </button>
+
+                          <button
+                            onClick={() => convertedOpportunityId
+                              ? window.location.href = `/b2g-oportunidades?clientType=B2G&opportunityId=${encodeURIComponent(convertedOpportunityId)}&mode=view`
+                              : handleConverterOportunidadeB2G(ficha)
+                            }
+                            disabled={isConvertingThis}
+                            className={`px-3.5 py-1.5 text-white rounded-lg font-semibold transition-colors flex items-center gap-1.5 shadow-xs disabled:opacity-70 disabled:cursor-wait ${
+                              convertedOpportunityId
+                                ? 'bg-emerald-600 hover:bg-emerald-700'
+                                : 'bg-cyan-600 hover:bg-cyan-700'
+                            }`}
+                            title={convertedOpportunityId ? 'Abrir oportunidade B2G criada a partir deste edital' : 'Criar uma oportunidade no pipeline B2G a partir desta ficha técnica'}
+                          >
+                            {isConvertingThis ? (
+                              <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                            ) : convertedOpportunityId ? (
+                              <CheckCircle2 className="w-3.5 h-3.5" />
+                            ) : (
+                              <Target className="w-3.5 h-3.5" />
+                            )}
+                            {isConvertingThis ? 'Convertendo...' : convertedOpportunityId ? 'Oportunidade B2G' : 'Converter em Oportunidade B2G'}
                           </button>
 
                           <button

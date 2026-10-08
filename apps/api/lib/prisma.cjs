@@ -86,12 +86,6 @@ async function ensureB2GTablesExist() {
       );
     `);
 
-    // Tenta flexibilizar userId se a tabela já existia como UUID
-    try {
-      await realPrisma.$executeRawUnsafe(`ALTER TABLE "editais_analisados" ALTER COLUMN "id" TYPE VARCHAR(255);`);
-      await realPrisma.$executeRawUnsafe(`ALTER TABLE "editais_analisados" ALTER COLUMN "userId" TYPE VARCHAR(255);`);
-    } catch (_) {}
-
     await realPrisma.$executeRawUnsafe(`
       CREATE TABLE IF NOT EXISTS "SimulatorProposal" (
         "id" VARCHAR(255) PRIMARY KEY,

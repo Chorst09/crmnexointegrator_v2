@@ -122,7 +122,26 @@ export const API_ENDPOINTS = {
 
 // Headers padrão com autenticação
 export const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
+  const readStoredUserToken = () => {
+    try {
+      const raw = localStorage.getItem('user') || sessionStorage.getItem('user');
+      if (!raw) return '';
+      const user = JSON.parse(raw);
+      return user?.token || user?.accessToken || user?.jwt || '';
+    } catch {
+      return '';
+    }
+  };
+
+  const token =
+    localStorage.getItem('token') ||
+    sessionStorage.getItem('token') ||
+    localStorage.getItem('authToken') ||
+    sessionStorage.getItem('authToken') ||
+    localStorage.getItem('accessToken') ||
+    sessionStorage.getItem('accessToken') ||
+    readStoredUserToken();
+
   return {
     'Content-Type': 'application/json',
     ...(token && { 'Authorization': `Bearer ${token}` })

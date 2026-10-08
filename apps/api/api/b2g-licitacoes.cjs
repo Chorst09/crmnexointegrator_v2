@@ -20,12 +20,20 @@
 'use strict';
 
 const express = require('express');
+const crypto = require('crypto');
 const router  = express.Router();
 const { prisma } = require('../lib/prisma.cjs');
-const { requireRole } = require('../lib/auth.cjs');
+const { authenticateToken, requireRole } = require('../lib/auth.cjs');
 const { REPOSITORY_LICITACOES } = require('./editaisRepository.cjs');
 
 const USER_ALLOWED_ROLES = ['ADMIN', 'DIRECTOR', 'MANAGER', 'SELLER', 'PRE_SALES', 'USER', 'COMMERCIAL', 'MASTER'];
+
+const ensureAuthenticated = (req, res, next) => {
+  if (req.user) return next();
+  return authenticateToken(req, res, next);
+};
+
+const requireAuthenticatedRole = (roles) => [ensureAuthenticated, requireRole(roles)];
 
 const formatFichaResponse = (row) => {
   if (!row) return null;
@@ -38,6 +46,8 @@ const formatFichaResponse = (row) => {
   return {
     ...parsed,
     id: row.id,
+    convertido_oportunidade: Boolean(row.convertido_oportunidade || row.convertidoOportunidade),
+    oportunidade_id: row.oportunidade_id || row.oportunidadeId || null,
     id_licitacao: row.numeroControlePNCP || parsed.id_licitacao || row.id,
     orgao_comprador: row.orgao || parsed.orgao_comprador || parsed.orgao_nome || parsed.orgao || 'Órgão Licitante',
     orgao_nome: row.orgao || parsed.orgao_nome || parsed.orgao_comprador || parsed.orgao || 'Órgão Licitante',
@@ -115,6 +125,69 @@ const getUserId  = (req) => req.user?.id || req.user?.userId || null;
 const canManage  = (req) => ['MASTER','ADMIN','MANAGER','DIRECTOR','SELLER','USER','USER_B2B'].includes(
   String(req.user?.actualRole || req.user?.role || '').toUpperCase()
 );
+
+const getPrismaModelFields = (modelName) => {
+  const runtimeFields = prisma?._runtimeDataModel?.models?.[modelName]?.fields;
+  if (Array.isArray(runtimeFields)) return new Set(runtimeFields.map((field) => field.name));
+
+  const dmmfFields = prisma?._dmmf?.modelMap?.[modelName]?.fields;
+  if (Array.isArray(dmmfFields)) return new Set(dmmfFields.map((field) => field.name));
+
+  return new Set();
+};
+
+const prismaModelHasField = (modelName, fieldName) => {
+  const fields = getPrismaModelFields(modelName);
+  return fields.size === 0 || fields.has(fieldName);
+};
+
+const generateOpportunityNumber = async (clientType = 'B2G') => {
+  const type = String(clientType || 'B2G').toUpperCase() === 'B2B' ? 'B2B' : 'B2G';
+  const year = new Date().getFullYear();
+  const prefix = `${type}-${year}-`;
+  const latest = await prisma.opportunity.findFirst({
+    where: { number: { startsWith: prefix } },
+    orderBy: { number: 'desc' },
+    select: { number: true }
+  });
+  const latestSequence = Number(String(latest?.number || '').slice(prefix.length)) || 0;
+  return `${prefix}${String(latestSequence + 1).padStart(5, '0')}`;
+};
+
+const buildFichaB2GDescription = (ficha) => {
+  const risco = ficha.pontos_de_atencao_risco || {};
+  const vistoria = risco.regras_vistoria || {};
+  return {
+    source: 'EDITAL_ANALISADO',
+    sourceFichaId: ficha.id || null,
+    processNumber: ficha.id_licitacao,
+    agency: ficha.orgao_comprador,
+    projectName: `Licitação ${ficha.id_licitacao}`,
+    customerRelationship: 'NEW_CLIENT',
+    modality: ficha.modalidade_contratacao || 'Pregão Eletrônico',
+    type: ficha.modalidade_contratacao || 'Eletrônico',
+    objectSummary: ficha.resumo_executivo || `Licitação ${ficha.id_licitacao}`,
+    objectDetailed: ficha.resumo_executivo || '',
+    estimatedValue: Number(ficha.valor_estimado_total || 0),
+    contractType: 'Contrato',
+    contractTermMonths: Number(String(ficha.prazos_e_locais?.vigencia_contrato || '').match(/\d+/)?.[0] || 12),
+    openingDate: ficha.data_abertura || null,
+    proposalDeadline: ficha.data_limite_proposta || null,
+    challengeDeadline: ficha.data_fim_esclarecimento || null,
+    currentPhase: 'Análise',
+    winProbability: 50,
+    decision: 'PENDING',
+    samplesRequired: Boolean(risco.exigencia_amostra_poc || risco.exigencia_amostra),
+    technicalVisitMandatory: Boolean(vistoria.obrigatoria),
+    judgmentType: ficha.criterio_julgamento || 'Menor Preço',
+    riskLevel: (risco.exigencia_amostra_poc || risco.exigencia_amostra || vistoria.obrigatoria) ? 'medio' : 'baixo',
+    legalNotes: [
+      risco.exigencia_amostra_poc || risco.exigencia_amostra,
+      risco.garantia_contratual,
+      vistoria.detalhes_e_prazo
+    ].filter(Boolean).join('\n')
+  };
+};
 
 const PNCP_BASE = 'https://pncp.gov.br/api/consulta/v1';
 
@@ -1050,9 +1123,9 @@ router.post('/gerenciadas', async (req, res) => {
       `INSERT INTO gerenciadas_licitacao
          (id, "userId", "tenantCompanyId", numero_controle_pncp, numero_compra,
           orgao, uf, cidade, modalidade, objeto_resumo,
-          data_abertura, data_Campanha, data_encerramento, valor_estimado, situacao,
+          data_abertura, data_encerramento, valor_estimado, situacao,
           link_sistema_origem, status_fase, payload_completo)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, null, $12, $13, $14, $15, $16, $17::jsonb)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::timestamp, $12::timestamp, $13, $14, $15, $16, $17::jsonb)
        RETURNING *`,
       rowId,
       userId, tenantId || null,
@@ -1248,7 +1321,7 @@ router.post('/editais-analisados', async (req, res) => {
         `INSERT INTO editais_analisados (
           id, "numeroControlePNCP", orgao, objeto, valor_estimado, data_abertura, 
           "analysisData", "userId", "tenantCompanyId", created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, NOW(), NOW())
+        ) VALUES ($1, $2, $3, $4, $5, $6::timestamp, $7::jsonb, $8, $9, NOW(), NOW())
         RETURNING *`,
         rowId,
         numeroControlePNCP,
@@ -1315,57 +1388,176 @@ router.delete('/editais-analisados/:id', async (req, res) => {
   }
 });
 
-// POST /editais-analisados/:id/converter-oportunidade — cria card no pipeline B2B
-router.post('/editais-analisados/:id/converter-oportunidade', async (req, res) => {
+// POST /editais-analisados/:id/converter-oportunidade — cria oportunidade no pipeline B2G
+router.post([
+  '/editais-analisados/:id/converter-oportunidade',
+  '/analise-tr/ficha/:id/converter-oportunidade',
+  '/ficha/:id/converter-oportunidade'
+], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
   try {
     const userId = getUserId(req);
     const tenantId = getTenant(req);
 
-    // Busca análise
-    const [analise] = await prisma.$queryRawUnsafe(
+    const rows = await prisma.$queryRawUnsafe(
       `SELECT * FROM editais_analisados
-       WHERE id = $1::uuid
-         AND ("userId"::text = $2::text OR "tenantCompanyId" = $3)`,
+       WHERE (id::text = $1::text OR "numeroControlePNCP" = $1)
+         AND ("userId"::text = $2::text OR "tenantCompanyId" = $3)
+       LIMIT 1`,
       req.params.id, userId, tenantId || ''
     );
+    let analise = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+
+    if (!analise && req.body?.ficha && typeof req.body.ficha === 'object') {
+      const fichaPayload = req.body.ficha;
+      const numeroControlePNCP = fichaPayload.id_licitacao || fichaPayload.numeroControlePNCP || req.params.id;
+      if (numeroControlePNCP) {
+        const rowId = crypto.randomUUID();
+        const dataAbertura = fichaPayload.data_abertura && !Number.isNaN(new Date(fichaPayload.data_abertura).getTime())
+          ? new Date(fichaPayload.data_abertura).toISOString()
+          : new Date().toISOString();
+
+        analise = {
+          id: rowId,
+          numeroControlePNCP,
+          orgao: fichaPayload.orgao_comprador || fichaPayload.orgao_nome || fichaPayload.orgao || 'Órgão Público',
+          objeto: fichaPayload.objeto_licitacao || fichaPayload.objeto_resumido || fichaPayload.resumo_executivo || `Licitação ${numeroControlePNCP}`,
+          valor_estimado: Number(fichaPayload.valor_estimado_total || fichaPayload.valor_estimado || 0),
+          data_abertura: dataAbertura,
+          analysisData: fichaPayload,
+          userId,
+          tenantCompanyId: tenantId || null
+        };
+
+        try {
+          const insertedRows = await prisma.$queryRawUnsafe(
+            `INSERT INTO editais_analisados (
+              id, "numeroControlePNCP", orgao, objeto, valor_estimado, data_abertura,
+              "analysisData", "userId", "tenantCompanyId", created_at, updated_at
+            ) VALUES ($1, $2, $3, $4, $5, $6::timestamp, $7::jsonb, $8, $9, NOW(), NOW())
+            RETURNING *`,
+            rowId,
+            numeroControlePNCP,
+            analise.orgao,
+            analise.objeto,
+            analise.valor_estimado,
+            dataAbertura,
+            JSON.stringify(fichaPayload),
+            String(userId || ''),
+            tenantId || null
+          );
+          if (Array.isArray(insertedRows) && insertedRows[0]?.id) {
+            analise = insertedRows[0];
+          }
+        } catch (persistErr) {
+          console.warn('[converter-oportunidade] não foi possível persistir ficha recebida no payload:', persistErr.message);
+        }
+      }
+    }
 
     if (!analise) {
       return res.status(404).json({ error: 'Análise não encontrada' });
     }
 
-    // Cria oportunidade no pipeline B2B
-    const [oportunidade] = await prisma.$queryRawUnsafe(
-      `INSERT INTO oportunidades (
-        title, company_name, deal_value, stage, source, notes, 
-        "userId", "companyId", created_at, updated_at
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW())
-      RETURNING *`,
-      `Licitação: ${analise.objeto?.slice(0, 80) || 'Sem título'}`,
-      analise.orgao || 'Órgão Público',
-      analise.valor_estimado || 0,
-      'lead', // stage inicial
-      'b2g-licitacao',
-      `Convertido de edital analisado.\nNúmero PNCP: ${analise.numeroControlePNCP || 'N/A'}\nData abertura: ${analise.data_abertura || 'N/A'}`,
-      userId,
-      tenantId || null
-    );
+    const existingOpportunityId = analise.oportunidade_id || analise.oportunidadeId || null;
+    if (existingOpportunityId) {
+      const existingOpportunity = await prisma.opportunity.findUnique({
+        where: { id: String(existingOpportunityId) },
+        include: { company: true, owner: { select: { id: true, name: true, email: true } } }
+      }).catch(() => null);
+      if (existingOpportunity) {
+        return res.json({
+          success: true,
+          message: 'Edital já convertido em oportunidade B2G',
+          opportunityId: existingOpportunity.id,
+          opportunity: existingOpportunity,
+          alreadyConverted: true
+        });
+      }
+    }
 
-    // Marca análise como convertida
+    const ficha = formatFichaResponse(analise);
+    const ownerId = userId;
+    if (!ownerId) {
+      return res.status(400).json({ error: 'Usuário inválido para conversão de oportunidade' });
+    }
+
+    const agencyName = ficha.orgao_comprador || analise.orgao || 'Órgão Público';
+    let company = await prisma.company.findFirst({
+      where: {
+        name: { equals: agencyName, mode: 'insensitive' },
+        ...(tenantId ? { tenantCompanyId: tenantId } : {})
+      }
+    });
+
+    if (!company) {
+      const companyData = {
+        name: agencyName,
+        segment: 'B2G GOVERNO',
+        status: 'PROSPECT',
+        tenantCompanyId: tenantId || null
+      };
+      if (prismaModelHasField('Company', 'clientType')) {
+        companyData.clientType = 'B2G';
+      }
+      company = await prisma.company.create({ data: companyData });
+    }
+
+    const title = `Licitação ${ficha.id_licitacao} - ${agencyName}`.slice(0, 220);
+    const opportunityData = {
+      number: await generateOpportunityNumber('B2G'),
+      title,
+      description: JSON.stringify(buildFichaB2GDescription(ficha)),
+      value: Number(ficha.valor_estimado_total || 0),
+      probability: 50,
+      stage: 'DIAGNOSIS',
+      source: 'MANUAL',
+      expectedCloseDate: ficha.data_limite_proposta && !Number.isNaN(new Date(ficha.data_limite_proposta).getTime())
+        ? new Date(ficha.data_limite_proposta)
+        : null,
+      notes: `Convertida a partir de Editais Analisados.\nProcesso: ${ficha.id_licitacao}\nItens mapeados: ${ficha.matriz_itens?.length || 0}`,
+      companyId: company.id,
+      ownerId,
+      tenantCompanyId: tenantId || null
+    };
+    if (prismaModelHasField('Opportunity', 'projectName')) {
+      opportunityData.projectName = title;
+    }
+    if (prismaModelHasField('Opportunity', 'projectClientType')) {
+      opportunityData.projectClientType = 'NEW_CLIENT';
+    }
+    if (prismaModelHasField('Opportunity', 'b2gStage')) {
+      opportunityData.b2gStage = 'ANALISE';
+    }
+
+    const opportunity = await prisma.opportunity.create({
+      data: opportunityData,
+      include: {
+        company: true,
+        owner: { select: { id: true, name: true, email: true } },
+        products: { include: { product: true } }
+      }
+    });
+
     await prisma.$executeRawUnsafe(
       `UPDATE editais_analisados 
        SET convertido_oportunidade = true, oportunidade_id = $1::uuid, updated_at = NOW()
-       WHERE id = $2::uuid`,
-      oportunidade.id, req.params.id
-    );
+       WHERE id::text = $2::text`,
+      opportunity.id, analise.id
+    ).catch((updateErr) => {
+      console.warn('[converter-oportunidade] oportunidade criada, mas ficha não foi marcada como convertida:', updateErr.message);
+    });
 
     res.json({ 
-      message: 'Oportunidade criada com sucesso', 
-      oportunidadeId: oportunidade.id,
-      oportunidade 
+      success: true,
+      message: 'Oportunidade B2G criada com sucesso', 
+      opportunityId: opportunity.id,
+      oportunidadeId: opportunity.id,
+      opportunity,
+      oportunidade: opportunity
     });
   } catch (err) {
     console.error('[converter-oportunidade] erro:', err);
-    res.status(500).json({ error: 'Erro ao converter em oportunidade', detail: err.message });
+    res.status(500).json({ error: 'Erro ao converter em oportunidade B2G', detail: err.message });
   }
 });
 
@@ -1378,7 +1570,7 @@ router.post('/editais-analisados/:id/converter-oportunidade', async (req, res) =
  * Processa arquivo PDF/DOCX e retorna ficha técnica
  * (wrapper de compatibilidade com licitacoes_codigo_fonte)
  */
-router.post(['/analise-tr/processar-arquivo', '/processar-arquivo'], requireRole(USER_ALLOWED_ROLES), async (req, res) => {
+router.post(['/analise-tr/processar-arquivo', '/processar-arquivo'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
   try {
     const { files, orgao, modalidade, id_licitacao } = req.body;
     
@@ -1530,7 +1722,7 @@ router.post(['/analise-tr/processar-arquivo', '/processar-arquivo'], requireRole
  * Salva ou atualiza Ficha Técnica de Edital Analisado
  * (endpoint compatível com licitacoes_codigo_fonte/AnaliseEditaisPage.tsx)
  */
-router.post(['/analise-tr/salvar-ficha', '/salvar-ficha'], requireRole(USER_ALLOWED_ROLES), async (req, res) => {
+router.post(['/analise-tr/salvar-ficha', '/salvar-ficha'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
   try {
     const ficha = req.body;
     const userId = getUserId(req);
@@ -1592,7 +1784,7 @@ router.post(['/analise-tr/salvar-ficha', '/salvar-ficha'], requireRole(USER_ALLO
         await prisma.$executeRawUnsafe(
           `UPDATE editais_analisados
            SET orgao = $1, objeto = $2, valor_estimado = $3, 
-               data_abertura = $4, "analysisData" = $5::jsonb, 
+               data_abertura = $4::timestamp, "analysisData" = $5::jsonb, 
                updated_at = NOW()
            WHERE id = $6`,
           savePayload.orgao,
@@ -1636,7 +1828,7 @@ router.post(['/analise-tr/salvar-ficha', '/salvar-ficha'], requireRole(USER_ALLO
         `INSERT INTO editais_analisados (
           id, "numeroControlePNCP", orgao, objeto, valor_estimado, data_abertura,
           "analysisData", "userId", "tenantCompanyId", created_at, updated_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, NOW(), NOW())
+        ) VALUES ($1, $2, $3, $4, $5, $6::timestamp, $7::jsonb, $8, $9, NOW(), NOW())
         RETURNING *`,
         rowId,
         savePayload.numeroControlePNCP,
@@ -1678,7 +1870,7 @@ router.post(['/analise-tr/salvar-ficha', '/salvar-ficha'], requireRole(USER_ALLO
  * GET /api/analise-tr/fichas
  * Lista todas as fichas técnicas salvas (compatível com licitacoes_codigo_fonte)
  */
-router.get(['/analise-tr/fichas', '/fichas'], requireRole(USER_ALLOWED_ROLES), async (req, res) => {
+router.get(['/analise-tr/fichas', '/fichas'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
   try {
     const userId = getUserId(req);
     const tenantId = getTenant(req);
@@ -1704,7 +1896,7 @@ router.get(['/analise-tr/fichas', '/fichas'], requireRole(USER_ALLOWED_ROLES), a
  * GET /api/analise-tr/ficha/:id
  * Obtém detalhes de uma ficha técnica específica
  */
-router.get(['/analise-tr/ficha/:id', '/ficha/:id'], requireRole(USER_ALLOWED_ROLES), async (req, res) => {
+router.get(['/analise-tr/ficha/:id', '/ficha/:id'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
   try {
     const userId = getUserId(req);
     const tenantId = getTenant(req);
@@ -1733,7 +1925,7 @@ router.get(['/analise-tr/ficha/:id', '/ficha/:id'], requireRole(USER_ALLOWED_ROL
  * DELETE /api/analise-tr/ficha/:id
  * Excluir Edital Analisado
  */
-router.delete(['/analise-tr/ficha/:id', '/ficha/:id'], requireRole(USER_ALLOWED_ROLES), async (req, res) => {
+router.delete(['/analise-tr/ficha/:id', '/ficha/:id'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
   try {
     const userId = getUserId(req);
     const tenantId = getTenant(req);

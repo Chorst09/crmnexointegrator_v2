@@ -118,6 +118,7 @@ export interface PontosDeAtencaoRisco {
 }
 
 export interface FichaTecnicaEditalTR {
+  id?: string;
   id_licitacao: string;
   orgao_comprador: string;
   resumo_executivo: string;
@@ -134,4 +135,6 @@ export interface FichaTecnicaEditalTR {
   pontos_de_atencao_risco: PontosDeAtencaoRisco;
   matriz_itens: MatrizItemAnalise[];
   tags_classificacao?: string[];
+  convertido_oportunidade?: boolean;
+  oportunidade_id?: string;
 }
