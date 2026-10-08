@@ -6,13 +6,16 @@ WORKDIR /app
 RUN apk add --no-cache openssl
 
 # Copiar arquivos de dependências
-COPY package*.json ./
+COPY backend/package*.json ./
 
 # Instalar dependências de produção
 RUN npm ci --only=production
 
-# Copiar código fonte
-COPY . .
+# Copiar código fonte do backend e os módulos legados usados por server.js
+COPY backend/ ./
+COPY apps/api/api /apps/api/api
+COPY apps/api/lib /apps/api/lib
+COPY apps/api/public /apps/api/public
 
 # A imagem de produção deve usar as variáveis injetadas pelo Docker Compose.
 # Arquivos .env locais podem sobrescrever DATABASE_URL durante comandos Prisma.
