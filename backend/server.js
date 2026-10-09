@@ -52,10 +52,11 @@ app.use('/api/', limiter);
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: 50,
   message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  skipSuccessfulRequests: true
 });
 app.use('/api/auth/login', authLimiter);
 
