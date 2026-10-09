@@ -83,3 +83,8 @@ SimuladoresDoublev2.zip
 .codex-backups/
 .backups/
 BACKUP/
+
+# Backups de banco de dados (arquivos grandes, não versionar)
+BACKUPS/*.dump
+BACKUPS/*.sql
+BACKUPS/*.sql.gz
