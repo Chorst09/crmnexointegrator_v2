@@ -17,6 +17,10 @@ process.on('uncaughtException', (error) => {
   console.error('🔴 UNCAUGHT EXCEPTION (capturado para evitar crash):');
   console.error('   Mensagem:', error.message);
   console.error('   Stack:', error.stack);
+
+  if (error.code === 'EADDRINUSE') {
+    process.exit(1);
+  }
 });
 
 const { authenticateToken } = require('./lib/auth');

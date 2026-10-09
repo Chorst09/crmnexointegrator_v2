@@ -24,13 +24,23 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 // Graceful shutdown
-const disconnectPrisma = async () => {
-  console.log('🔄 Desconectando Prisma...');
-  await prisma.$disconnect();
-  console.log('✅ Prisma desconectado');
+let isShuttingDown = false;
+const disconnectPrisma = async (signal) => {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
+
+  try {
+    console.log('🔄 Desconectando Prisma...');
+    await prisma.$disconnect();
+    console.log('✅ Prisma desconectado');
+    process.exit(0);
+  } catch (error) {
+    console.error(`Erro ao desconectar Prisma após ${signal}:`, error);
+    process.exit(1);
+  }
 };
 
-process.on('SIGTERM', disconnectPrisma);
-process.on('SIGINT', disconnectPrisma);
+process.once('SIGTERM', () => disconnectPrisma('SIGTERM'));
+process.once('SIGINT', () => disconnectPrisma('SIGINT'));
 
 module.exports = { prisma };
