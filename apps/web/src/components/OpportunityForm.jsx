@@ -527,6 +527,19 @@ export default function OpportunityForm({
             </div>
           )}
 
+          {formData.stage === 'LOST' && (
+            <div className="sm:col-span-2">
+              <label className={labelCls}>Motivo da Perda</label>
+              <textarea
+                className={inputCls}
+                rows={3}
+                value={formData.lossReason || ''}
+                onChange={e => setFormData(p => ({ ...p, lossReason: e.target.value }))}
+                placeholder="Informe o motivo da perda..."
+              />
+            </div>
+          )}
+
           <div>
             <label className={labelCls}>Responsável</label>
             <select className={inputCls} value={formData.ownerId || ''} onChange={e => setFormData(p => ({ ...p, ownerId: e.target.value }))}>
