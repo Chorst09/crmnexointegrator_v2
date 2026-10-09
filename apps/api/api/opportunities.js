@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { updateCompanyLeadScore } from '../lib/leadScoring.js';
 import { syncCompanyStatusWithOpportunityPipeline } from '../lib/companyStatus.js';
+import { validateCustomerOwnership } from '../lib/customerOwnershipValidator.js';
 import {
   normalizeProjectClientType,
   normalizeProjectName
@@ -419,6 +420,16 @@ export default async function handler(req) {
     if (!resolvedOwnerId) {
       return new Response('ownerId é obrigatório', { status: 400 });
     }
+    const owner = await prisma.user.findUnique({
+      where: { id: resolvedOwnerId },
+      select: { id: true, name: true, email: true, role: true, accessB2B: true, accessB2G: true, tenantCompanyId: true }
+    });
+    if (!owner) {
+      return Response.json({ error: 'Responsável não encontrado' }, { status: 400 });
+    }
+    if (!canAccessClientType(owner, clientType)) {
+      return Response.json({ error: `Responsável sem acesso ao módulo ${clientType}` }, { status: 400 });
+    }
 
     const projectType = normalizeProjectType(body.projectType);
     const projectMonths = normalizeProjectMonths(projectType, body.projectMonths);
@@ -441,7 +452,9 @@ export default async function handler(req) {
       ? (parseDateInput(body.exitDate) || closingDate)
       : parseDateInput(body.exitDate);
     
-    const opportunity = await prisma.$transaction(async (tx) => {
+    let opportunity;
+    try {
+      opportunity = await prisma.$transaction(async (tx) => {
       // Garantir que companyId seja um ID válido no banco para não falhar a FK
       let resolvedCompanyId = body.companyId;
       const agencyName = (
@@ -506,6 +519,22 @@ export default async function handler(req) {
       }
 
       resolvedCompanyId = targetCompany.id;
+      const ownershipDecision = await validateCustomerOwnership(tx, {
+        tenantCompanyId: req.user?.tenantCompanyId || null,
+        requesterId: resolvedOwnerId,
+        requesterName: owner.name || owner.email || '',
+        companyId: resolvedCompanyId,
+        companyName: targetCompany.name || body.companyName || body.company?.name || '',
+        document: targetCompany.document || body.document || body.company?.document || '',
+        website: targetCompany.website || body.website || body.company?.website || '',
+        clientType
+      });
+      if (!ownershipDecision.permitido) {
+        const error = new Error(ownershipDecision.mensagem);
+        error.status = 409;
+        error.payload = ownershipDecision;
+        throw error;
+      }
 
       const number = body.number || await generateOpportunityNumber(tx, clientType);
       const created = await tx.opportunity.create({
@@ -542,6 +571,10 @@ export default async function handler(req) {
           lossReason,
           stageDecisionDetails,
           notes: body.notes,
+          contactName: body.contactName || null,
+          contactFullName: body.contactFullName || null,
+          contactEmail: body.contactEmail || null,
+          contactPhone: body.contactPhone || null,
           companyId: resolvedCompanyId,
           ownerId: resolvedOwnerId,
           tenantCompanyId: req.user?.tenantCompanyId || null,
@@ -571,8 +604,14 @@ export default async function handler(req) {
         await syncWonOpportunityCommission(tx, created);
       }
 
-      return created;
-    });
+        return created;
+      });
+    } catch (error) {
+      if (error?.status && error?.payload) {
+        return Response.json(error.payload, { status: error.status });
+      }
+      throw error;
+    }
     
     // Atualizar lead score da empresa
     try {
@@ -670,6 +709,10 @@ export default async function handler(req) {
     }
     if (stageDecisionDetails !== undefined) updateData.stageDecisionDetails = stageDecisionDetails;
     if (body.notes !== undefined) updateData.notes = body.notes;
+    if (body.contactName !== undefined) updateData.contactName = body.contactName || null;
+    if (body.contactFullName !== undefined) updateData.contactFullName = body.contactFullName || null;
+    if (body.contactEmail !== undefined) updateData.contactEmail = body.contactEmail || null;
+    if (body.contactPhone !== undefined) updateData.contactPhone = body.contactPhone || null;
     
     // Se mudou para WON ou LOST, definir data de fechamento e data de virada/saída.
     if (body.stage === 'WON' || body.stage === 'LOST') {

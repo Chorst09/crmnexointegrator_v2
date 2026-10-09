@@ -2,6 +2,7 @@ import { prisma } from '../lib/prisma.js';
 import { updateCompanyLeadScore } from '../lib/leadScoring.js';
 import { createOpportunityForLead, DISTRIBUTION_STRATEGIES } from '../lib/leadDistribution.js';
 import { getTenantCompanyId, isTenantRecordVisible, forbiddenTenantResponse, tenantScopedWhere } from '../lib/tenantScope.js';
+import { validateCustomerOwnership } from '../lib/customerOwnershipValidator.js';
 
 const parsePathIdFromUrl = (urlValue) => {
   if (!urlValue) return null;
@@ -141,6 +142,21 @@ export default async function handler(req) {
     const body = await req.json();
     const autoDistribute = body.autoDistribute !== false;
     const tenantCompanyId = getTenantCompanyId(req.user) || body.tenantCompanyId || null;
+    const requesterId = req.user?.userId || req.user?.id || null;
+    const requesterName = req.user?.name || req.user?.email || '';
+    const ownershipDecision = await validateCustomerOwnership(prisma, {
+      tenantCompanyId,
+      requesterId,
+      requesterName,
+      companyName: body.name,
+      document: body.document,
+      website: body.website,
+      clientType: normalizeClientType(body.clientType)
+    });
+    if (!ownershipDecision.permitido) {
+      return Response.json(ownershipDecision, { status: 409 });
+    }
+
     const company = await prisma.company.create({
       data: {
         name: body.name,

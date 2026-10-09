@@ -202,6 +202,10 @@ model Opportunity {
   lossReason      String?
   stageDecisionDetails Json?
   notes           String?
+  contactName     String?
+  contactFullName String?
+  contactEmail    String?
+  contactPhone    String?
   
   // Relacionamentos
   companyId String
@@ -229,6 +233,7 @@ model Opportunity {
 
   @@index([b2gStage])
   @@index([tenantCompanyId])
+  @@index([importSource, importSourceRow])
 }
 
 // === PONTOS DE ATENÇÃO ===

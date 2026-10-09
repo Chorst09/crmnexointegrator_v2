@@ -1,6 +1,7 @@
 import { prisma } from "../lib/prisma.js";
 import { updateCompanyLeadScore } from '../lib/leadScoring.js';
 import { getTenantCompanyId, isTenantRecordVisible, forbiddenTenantResponse, tenantScopedWhere } from '../lib/tenantScope.js';
+import { validateCustomerOwnership } from '../lib/customerOwnershipValidator.js';
 
 const parsePathIdFromUrl = (urlValue) => {
   if (!urlValue) return null;
@@ -397,6 +398,8 @@ export default async function handler(req) {
       where: { id: resolvedOwnerId },
       select: {
         id: true,
+        name: true,
+        email: true,
         role: true,
         accessB2B: true,
         accessB2G: true,
@@ -411,6 +414,24 @@ export default async function handler(req) {
     }
     if (!canOwnOpportunityForClientType(owner, clientType)) {
       return Response.json({ error: `Responsável sem acesso ao módulo ${clientType}` }, { status: 400 });
+    }
+
+    const ownershipCompany = await prisma.company.findUnique({
+      where: { id: body.companyId },
+      select: { id: true, name: true, document: true, website: true }
+    });
+    const ownershipDecision = await validateCustomerOwnership(prisma, {
+      tenantCompanyId,
+      requesterId: resolvedOwnerId,
+      requesterName: owner.name || owner.email || '',
+      companyId: body.companyId,
+      companyName: ownershipCompany?.name || body.companyName || body.company?.name || '',
+      document: ownershipCompany?.document || body.document || body.company?.document || '',
+      website: ownershipCompany?.website || body.website || body.company?.website || '',
+      clientType
+    });
+    if (!ownershipDecision.permitido) {
+      return Response.json(ownershipDecision, { status: 409 });
     }
 
     const projectType = normalizeProjectType(body.projectType);

@@ -279,20 +279,42 @@ def title_for(record):
     return f"{record['companyName']} - {detail}"
 
 
-def generate_sql(records, tenant_company_id=None, owner_id=None):
+def parse_owner_email_map(value):
+    mapping = {}
+    for item in value or []:
+        if "=" not in item:
+            raise ValueError(f"Mapeamento inválido: {item}. Use Nome=email.")
+        key, email = item.split("=", 1)
+        mapping[clean(key)] = clean(email).lower()
+    return mapping
+
+
+def generate_sql(records, tenant_company_id=None, owner_id=None, strict_owners=False, owner_email_map=None, default_owner_email=None):
     lines = [
         "BEGIN;",
         'CREATE EXTENSION IF NOT EXISTS "pgcrypto";',
     ]
     tenant_expr = sql(tenant_company_id) if tenant_company_id else '(SELECT CASE WHEN COUNT(*) = 1 THEN MAX("id") ELSE NULL END FROM "TenantCompany")'
     owner_expr = sql(owner_id) if owner_id else "NULL"
+    owner_email_map = owner_email_map or {}
     for record in records:
+        mapped_owner_email = owner_email_map.get(record["accountManagerName"]) or (clean(default_owner_email).lower() if not record["accountManagerName"] else "")
         title = title_for(record)
         description_bits = [
             f"Importado da linha {record['row']} da base Double.",
             f"Área responsável original: {record['responsibleArea']}" if record["responsibleArea"] else "",
         ]
         description = " ".join(part for part in description_bits if part)
+        owner_fallback_sql = "" if strict_owners else """  IF v_owner IS NULL THEN
+    SELECT "id" INTO v_owner
+    FROM "User"
+    WHERE "role"::text IN ('SELLER', 'ADMIN', 'MASTER', 'USER')
+      AND (v_tenant IS NULL OR "tenantCompanyId" IS NULL OR "tenantCompanyId" = v_tenant)
+    ORDER BY "createdAt"
+    LIMIT 1;
+  END IF;
+
+"""
         lines.append(f"""
 DO $$
 DECLARE
@@ -300,8 +322,19 @@ DECLARE
   v_owner TEXT := {owner_expr};
   v_company TEXT;
   v_opportunity TEXT;
+  v_sequence INTEGER;
+  v_number TEXT;
 BEGIN
-  IF v_owner IS NULL THEN
+  IF v_owner IS NULL AND {sql(mapped_owner_email)} IS NOT NULL THEN
+    SELECT "id" INTO v_owner
+    FROM "User"
+    WHERE lower("email") = lower({sql(mapped_owner_email)})
+      AND (v_tenant IS NULL OR "tenantCompanyId" IS NULL OR "tenantCompanyId" = v_tenant)
+    ORDER BY "createdAt"
+    LIMIT 1;
+  END IF;
+
+  IF v_owner IS NULL AND {sql(record['accountManagerName'])} IS NOT NULL THEN
     SELECT "id" INTO v_owner
     FROM "User"
     WHERE ({sql(record['accountManagerName'])} IS NULL
@@ -317,18 +350,9 @@ BEGIN
     LIMIT 1;
   END IF;
 
+{owner_fallback_sql}
   IF v_owner IS NULL THEN
-    SELECT "id" INTO v_owner
-    FROM "User"
-    WHERE "role"::text IN ('SELLER', 'ADMIN', 'MASTER', 'USER')
-      AND (v_tenant IS NULL OR "tenantCompanyId" IS NULL OR "tenantCompanyId" = v_tenant)
-    ORDER BY "createdAt"
-    LIMIT 1;
-  END IF;
-
-  IF v_owner IS NULL THEN
-    RAISE NOTICE 'Linha {record['row']} ignorada: nenhum usuário responsável encontrado.';
-    RETURN;
+    RAISE EXCEPTION 'Linha {record['row']} sem usuário responsável correspondente para gerente "%".', {sql(record['accountManagerName'] or '(vazio)')};
   END IF;
 
   SELECT "id" INTO v_company
@@ -382,9 +406,16 @@ BEGIN
   WHERE "importSource" = {sql(SOURCE_NAME)} AND "importSourceRow" = {record['row']}
   LIMIT 1;
 
+  SELECT COALESCE(MAX((substring("number" from ('^B2B-' || EXTRACT(YEAR FROM CURRENT_DATE)::int || '-([0-9]+)$')))::int), 0) + 1
+    INTO v_sequence
+  FROM "Opportunity"
+  WHERE "number" ~ ('^B2B-' || EXTRACT(YEAR FROM CURRENT_DATE)::int || '-[0-9]+$');
+
+  v_number := 'B2B-' || EXTRACT(YEAR FROM CURRENT_DATE)::int || '-' || lpad(v_sequence::text, 5, '0');
+
   IF v_opportunity IS NULL THEN
     INSERT INTO "Opportunity" (
-      "id", "title", "projectName", "projectClientType", "negotiationType", "projectClassification",
+      "id", "number", "title", "projectName", "projectClientType", "negotiationType", "projectClassification",
       "projectTower", "projectDetail", "manufacturer", "licenseCount", "contractMonths", "monthlyValue",
       "installationFee", "leadSourceDetail", "description", "value", "probability", "stage", "source",
       "leadEntryDate", "expectedCloseDate", "actualCloseDate", "customerTurnDate", "exitDate", "lossReason",
@@ -392,7 +423,7 @@ BEGIN
       "tenantCompanyId", "importSource", "importSourceRow", "createdAt", "updatedAt"
     )
     VALUES (
-      gen_random_uuid()::text, {sql(title)}, {sql(record['projectDetail'] or record['projectTower'] or title)}, {sql(record['projectClientType'])},
+      gen_random_uuid()::text, v_number, {sql(title)}, {sql(record['projectDetail'] or record['projectTower'] or title)}, {sql(record['projectClientType'])},
       {sql(record['negotiationType'])}, {sql(record['projectClassification'])}, {sql(record['projectTower'])}, {sql(record['projectDetail'])},
       {sql(record['manufacturer'])}, {sql_num(record['licenseCount'])}, {sql_num(record['contractMonths'])}, {sql_num(record['monthlyValue'])},
       {sql_num(record['installationFee'])}, {sql(record['leadSourceDetail'])}, {sql(description)}, {sql_num(record['value'])}, {record['probability']},
@@ -405,6 +436,7 @@ BEGIN
   ELSE
     UPDATE "Opportunity"
     SET
+      "number" = COALESCE("number", v_number),
       "title" = {sql(title)},
       "projectName" = {sql(record['projectDetail'] or record['projectTower'] or title)},
       "projectClientType" = {sql(record['projectClientType'])},
@@ -451,6 +483,9 @@ def main():
     parser.add_argument("--summary-out", type=Path, help="Salva o resumo em JSON.")
     parser.add_argument("--tenant-company-id")
     parser.add_argument("--owner-id")
+    parser.add_argument("--strict-owners", action="store_true", help="Falha a importação se o gerente da planilha não existir como usuário.")
+    parser.add_argument("--owner-email-map", action="append", default=[], help="Mapeia gerente da planilha para e-mail do usuário. Ex: Silvana=silvana@empresa.com")
+    parser.add_argument("--default-owner-email", help="E-mail do usuário para linhas sem gerente.")
     args = parser.parse_args()
 
     records, warnings = build_records(args.xlsx)
@@ -472,8 +507,19 @@ def main():
 
     if args.summary_out:
         args.summary_out.write_text(json.dumps(printable, ensure_ascii=False, indent=2), encoding="utf-8")
+    owner_email_map = parse_owner_email_map(args.owner_email_map)
     if args.sql_out:
-        args.sql_out.write_text(generate_sql(records, args.tenant_company_id, args.owner_id), encoding="utf-8")
+        args.sql_out.write_text(
+            generate_sql(
+                records,
+                args.tenant_company_id,
+                args.owner_id,
+                args.strict_owners,
+                owner_email_map,
+                args.default_owner_email,
+            ),
+            encoding="utf-8",
+        )
         print(f"SQL gerado em {args.sql_out}")
 
 

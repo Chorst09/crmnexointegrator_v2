@@ -657,7 +657,7 @@ export default function Oportunidades() {
           if (errText) {
             try {
               const errData = JSON.parse(errText);
-              errMsg = errData.error || errData.message || errText;
+              errMsg = errData.mensagem || errData.error || errData.message || errText;
             } catch (_) {
               errMsg = errText;
             }

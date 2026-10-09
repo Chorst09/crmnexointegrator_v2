@@ -483,7 +483,7 @@ export default function Empresas({ clientType = 'B2B' }) {
           savedCompany = await response.json();
         } else {
           const errorData = await response.json().catch(() => ({}));
-          alert(errorData.error || 'Erro ao atualizar empresa');
+          alert(errorData.mensagem || errorData.error || errorData.message || 'Erro ao atualizar empresa');
         }
       } else {
         const response = await fetch(API_ENDPOINTS.companies, {
@@ -496,7 +496,7 @@ export default function Empresas({ clientType = 'B2B' }) {
           savedCompany = await response.json();
         } else {
           const errorData = await response.json().catch(() => ({}));
-          alert(errorData.error || 'Erro ao criar empresa');
+          alert(errorData.mensagem || errorData.error || errorData.message || 'Erro ao criar empresa');
         }
       }
       if (success) {
@@ -600,7 +600,7 @@ export default function Empresas({ clientType = 'B2B' }) {
     const errorData = await response.json().catch(() => ({}));
     return {
       ok: false,
-      message: errorData.error || 'Erro ao excluir empresa'
+      message: errorData.mensagem || errorData.error || errorData.message || 'Erro ao excluir empresa'
     };
   };
 
