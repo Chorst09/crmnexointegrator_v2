@@ -131,6 +131,7 @@ app.post('/', (req, res) => {
 
 // Servir arquivos estáticos (uploads)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../apps/api/uploads')));
 
 // Rotas da API (novas - CommonJS)
 app.use('/api/auth', authRoutes);
@@ -141,7 +142,7 @@ app.use('/api/proposals', proposalsRoutes);
 app.use('/api/simulator/proposals', simulatorProposalsRoutes);
 app.use('/api/proposal-templates', require('./api/proposal-templates'));
 app.use('/api/products', productsRoutes);
-app.use('/api/settings', require('./api/settings'));
+app.use('/api/settings', authenticateToken, require('../apps/api/api/settings.cjs'));
 app.use('/api/projetos', require('./api/projetos.cjs'));
 app.use('/api/audit-logs', require('./api/audit-logs.cjs'));
 app.use('/api/checkout', require('./api/checkout.cjs'));
