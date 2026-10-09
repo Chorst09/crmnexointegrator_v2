@@ -1,6 +1,12 @@
 import { prisma } from '../lib/prisma.js';
 import { getTenantCompanyId } from '../lib/tenantScope.js';
 
+// Roles que podem ver dados de toda a equipe no dashboard B2B
+const canSeeAllOpportunitiesDash = (user = {}) =>
+  ['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(
+    String(user?.actualRole || user?.role || '').trim().toUpperCase()
+  );
+
 const GENERAL_DASHBOARD_DAYS = 180;
 
 const toNumber = (value) => {
@@ -477,7 +483,13 @@ export default async function handler(req) {
         const b2bOpportunityFilter = { b2gStage: null };
 
         const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' }, ...dateFilter });
-        if (ownerId) baseWhere.ownerId = ownerId;
+
+        // Restrição por ownerId: SELLER e USER só veem suas próprias oportunidades
+        const effectiveOwnerId = canSeeAllOpportunitiesDash(req.user)
+          ? (ownerId || null)                        // admin/manager: usa o filtro passado (se houver)
+          : (req.user?.userId || req.user?.id);      // seller/user: força o próprio id
+
+        if (effectiveOwnerId) baseWhere.ownerId = effectiveOwnerId;
 
         // Mapear temperatura para faixas de probabilidade
         const temperatureRange = {
@@ -505,7 +517,7 @@ export default async function handler(req) {
           company: { clientType: 'B2B' },
           updatedAt: { gte: revenueStartDate }
         });
-        if (ownerId) monthlyRevenueWhere.ownerId = ownerId;
+        if (effectiveOwnerId) monthlyRevenueWhere.ownerId = effectiveOwnerId;
         if (tempFilter && temperatureRange[tempFilter]) {
           monthlyRevenueWhere.probability = {
             gte: temperatureRange[tempFilter].gte,

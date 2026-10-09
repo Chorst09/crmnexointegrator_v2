@@ -209,6 +209,15 @@ export default function Dashboard() {
   const [filteredOpportunities, setFilteredOpportunities] = useState([]);
   const [isTestModalOpen, setIsTestModalOpen] = useState(false);
 
+  // Verificar role do usuário logado
+  const currentUser = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem('user') || '{}'); } catch { return {}; }
+  }, []);
+  const currentUserRole = String(currentUser?.role || '').trim().toUpperCase();
+  const canSeeAllOpps = ['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(currentUserRole);
+  // SELLER/USER só veem as próprias oportunidades — ownerId é fixo e não pode ser alterado
+  const restrictedOwnerId = canSeeAllOpps ? null : (currentUser?.id || currentUser?.userId || '');
+
   const temperatureOptions = [
     { value: '', label: 'Todas as Temperaturas' },
     { value: '0', label: '0%' },
@@ -256,7 +265,10 @@ export default function Dashboard() {
       const params = new URLSearchParams();
       params.set('type', 'b2b');
       params.set('period', period);
-      if (ownerId) params.set('ownerId', ownerId);
+      // Para SELLER/USER, o backend já restringe automaticamente pelo req.user
+      // mas também enviamos o ownerId como reforço de segurança no frontend
+      const effectiveOwnerId = restrictedOwnerId || ownerId;
+      if (effectiveOwnerId) params.set('ownerId', effectiveOwnerId);
       if (temperature) params.set('temperature', temperature);
 
       const res = await fetch(`/api/dashboard?${params.toString()}`, { headers, cache: 'no-store' });
@@ -739,10 +751,12 @@ export default function Dashboard() {
               <select value={timeRange} onChange={(event) => setTimeRange(event.target.value)} aria-label="Período">
                 {PERIOD_OPTIONS.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
               </select>
-              <select value={selectedOwnerId} onChange={(event) => setSelectedOwnerId(event.target.value)} aria-label="Gerente">
-                <option value="">Todos os gerentes</option>
-                {users.map((user) => <option key={user.id} value={user.id}>{user.name || user.email}</option>)}
-              </select>
+              {canSeeAllOpps && (
+                <select value={selectedOwnerId} onChange={(event) => setSelectedOwnerId(event.target.value)} aria-label="Gerente">
+                  <option value="">Todos os gerentes</option>
+                  {users.map((user) => <option key={user.id} value={user.id}>{user.name || user.email}</option>)}
+                </select>
+              )}
               <select value={selectedTemperature} onChange={(event) => setSelectedTemperature(event.target.value)} aria-label="Temperatura">
                 {temperatureOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
               </select>
@@ -1062,16 +1076,22 @@ export default function Dashboard() {
 
             <div className="flex items-center gap-2">
               <label className="text-[10px] text-[#aac6e4]">Gerente de Contas</label>
-              <select
-                value={selectedOwnerId}
-                onChange={(e) => setSelectedOwnerId(e.target.value)}
-                className="rounded-lg border border-[#74b9f353] bg-[#0b2243]/90 px-2.5 py-1.5 text-xs text-[#d9edff] focus:outline-none focus:border-[#8fd1ff]"
-              >
-                <option value="">Todos os gerentes</option>
-                {users.map((user) => (
-                  <option key={user.id} value={user.id}>{user.name}</option>
-                ))}
-              </select>
+              {canSeeAllOpps ? (
+                <select
+                  value={selectedOwnerId}
+                  onChange={(e) => setSelectedOwnerId(e.target.value)}
+                  className="rounded-lg border border-[#74b9f353] bg-[#0b2243]/90 px-2.5 py-1.5 text-xs text-[#d9edff] focus:outline-none focus:border-[#8fd1ff]"
+                >
+                  <option value="">Todos os gerentes</option>
+                  {users.map((user) => (
+                    <option key={user.id} value={user.id}>{user.name}</option>
+                  ))}
+                </select>
+              ) : (
+                <span className="rounded-lg border border-[#74b9f353] bg-[#0b2243]/90 px-2.5 py-1.5 text-xs text-[#8fd1ff]">
+                  {currentUser?.name || 'Minhas oportunidades'}
+                </span>
+              )}
             </div>
 
             <div className="flex items-center gap-2">
