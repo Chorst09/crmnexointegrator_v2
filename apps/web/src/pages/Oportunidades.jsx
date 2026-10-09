@@ -26,7 +26,9 @@ import {
   MessageCircle,
   StickyNote,
   FolderKanban,
-  Rocket
+  Rocket,
+  List,
+  LayoutGrid
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
@@ -128,6 +130,7 @@ export default function Oportunidades() {
   const [stageFilter, setStageFilter] = useState('');
   const [sellerFilter, setSellerFilter] = useState('');
   const [viewMode, setViewMode] = useState('pipeline'); // 'pipeline' | 'historico'
+  const [pipelineLayout, setPipelineLayout] = useState('kanban'); // 'kanban' | 'list'
   const [pendingCloseOpportunity, setPendingCloseOpportunity] = useState(null);
   const [followUpText, setFollowUpText] = useState('');
   const [followUpSubmitting, setFollowUpSubmitting] = useState(false);
@@ -135,6 +138,9 @@ export default function Oportunidades() {
   const [followUpType, setFollowUpType] = useState('NOTE'); // NOTE, CALL, EMAIL, MEETING, WHATSAPP
   const [followUps, setFollowUps] = useState([]);
   const [loadingFollowUps, setLoadingFollowUps] = useState(false);
+  const [lossReasonDraft, setLossReasonDraft] = useState('');
+  const [lossReasonSaving, setLossReasonSaving] = useState(false);
+  const [lossReasonError, setLossReasonError] = useState('');
   const [searchParams] = useSearchParams();
 
   const requestedClientType = normalizeClientType(searchParams.get('clientType'));
@@ -241,6 +247,7 @@ export default function Oportunidades() {
     expectedCloseDate: '',
     customerTurnDate: '',
     exitDate: '',
+    lossReason: '',
     companyId: '',
     ownerId: '',
     contactName: '',
@@ -277,6 +284,7 @@ export default function Oportunidades() {
     expectedCloseDate: '',
     customerTurnDate: '',
     exitDate: '',
+    lossReason: '',
     companyId: '',
     ownerId: '',
     contactName: '',
@@ -448,6 +456,7 @@ export default function Oportunidades() {
           expectedCloseDate: toDateInputValue(opp.expectedCloseDate),
           customerTurnDate: toDateInputValue(opp.customerTurnDate || (opp.stage === 'WON' ? opp.actualCloseDate : null)),
           exitDate: toDateInputValue(opp.exitDate || (opp.stage === 'LOST' ? opp.actualCloseDate : null)),
+          lossReason: opp.lossReason || '',
           companyId: opp.companyId,
           ownerId: opp.ownerId
         });
@@ -455,6 +464,8 @@ export default function Oportunidades() {
         setShowModal(true);
       } else {
         setSelectedOpportunity(opp);
+        setLossReasonDraft(opp.lossReason || '');
+        setLossReasonError('');
         setShowDetailsModal(true);
       }
       lastOpenedOpportunityId.current = requestKey;
@@ -716,6 +727,7 @@ export default function Oportunidades() {
       expectedCloseDate: toDateInputValue(opportunity.expectedCloseDate),
       customerTurnDate: toDateInputValue(opportunity.customerTurnDate || (opportunity.stage === 'WON' ? opportunity.actualCloseDate : null)),
       exitDate: toDateInputValue(opportunity.exitDate || (opportunity.stage === 'LOST' ? opportunity.actualCloseDate : null)),
+      lossReason: opportunity.lossReason || '',
       companyId: opportunity.companyId,
       ownerId: opportunity.ownerId,
       notes: opportunity.notes || '',
@@ -790,6 +802,8 @@ export default function Oportunidades() {
 
   const handleViewDetails = async (opportunity) => {
     setSelectedOpportunity(opportunity);
+    setLossReasonDraft(opportunity?.lossReason || '');
+    setLossReasonError('');
     setFollowUpText('');
     setFollowUpError('');
     setFollowUpType('NOTE');
@@ -797,6 +811,56 @@ export default function Oportunidades() {
     
     // Carregar follow-ups
     await fetchFollowUps(opportunity.id);
+  };
+
+  const handleSaveLossReason = async () => {
+    if (!selectedOpportunity?.id) return;
+
+    const nextLossReason = lossReasonDraft.trim();
+    const currentDecisionDetails = parseStageDecisionDetails(selectedOpportunity.stageDecisionDetails);
+    const nextStageDecisionDetails = currentDecisionDetails
+      ? {
+          ...currentDecisionDetails,
+          ...(currentDecisionDetails.decision === 'LOST' ? { reason: nextLossReason, lossReason: nextLossReason } : {})
+        }
+      : undefined;
+
+    setLossReasonSaving(true);
+    setLossReasonError('');
+
+    try {
+      const response = await fetch(buildScopedOpportunityByIdUrl(selectedOpportunity.id), {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          lossReason: nextLossReason || null,
+          ...(nextStageDecisionDetails !== undefined ? { stageDecisionDetails: nextStageDecisionDetails } : {})
+        })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData?.error || errorData?.message || 'Erro ao salvar motivo da perda.');
+      }
+
+      const updatedOpportunity = await response.json().catch(() => null);
+      const localUpdate = (opportunity) => ({
+        ...opportunity,
+        ...(updatedOpportunity || {}),
+        lossReason: nextLossReason || null,
+        ...(nextStageDecisionDetails !== undefined ? { stageDecisionDetails: nextStageDecisionDetails } : {})
+      });
+
+      setSelectedOpportunity((prev) => (prev?.id === selectedOpportunity.id ? localUpdate(prev) : prev));
+      setOpportunities((prev) => prev.map((opportunity) => (
+        opportunity.id === selectedOpportunity.id ? localUpdate(opportunity) : opportunity
+      )));
+    } catch (error) {
+      console.error('Erro ao salvar motivo da perda:', error);
+      setLossReasonError(error.message || 'Erro ao salvar motivo da perda.');
+    } finally {
+      setLossReasonSaving(false);
+    }
   };
 
   const fetchFollowUps = async (opportunityId) => {
@@ -993,21 +1057,45 @@ export default function Oportunidades() {
     return 'Avançar';
   };
 
+  const normalizeSearchText = (value) => String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim();
+
+  const getOpportunityCompanyName = (opportunity) =>
+    opportunity?.company?.name || opportunity?.company?.NAME || opportunity?.companyName || opportunity?.COMPANYNAME || '';
+
+  const getOpportunityProjectName = (opportunity) =>
+    opportunity?.projectName || opportunity?.PROJECTNAME || opportunity?.title || opportunity?.TITLE || '';
+
   // Filtrar oportunidades
   const filteredOpportunities = Array.isArray(opportunities) ? opportunities.filter(opp => {
     if (!opp) return false;
-    const term = (searchTerm || '').trim().toLowerCase();
-    const title = String(opp.title || opp.TITLE || '').toLowerCase();
-    const projectName = String(opp.projectName || opp.PROJECTNAME || '').toLowerCase();
-    const companyName = String(opp.company?.name || opp.company?.NAME || '').toLowerCase();
-    const ownerName = String(opp.owner?.name || opp.owner?.NAME || '').toLowerCase();
-    const matchesSearch = !term || title.includes(term) || projectName.includes(term) || companyName.includes(term) || ownerName.includes(term);
+    const term = normalizeSearchText(searchTerm);
+    const searchableText = [
+      getOpportunityCompanyName(opp),
+      getOpportunityProjectName(opp),
+      opp.title,
+      opp.TITLE,
+      opp.number,
+      opp.NUMBER
+    ].map(normalizeSearchText).join(' ');
+    const matchesSearch = !term || searchableText.includes(term);
     const stage = opp.stage || opp.STAGE;
     const matchesStage = !stageFilter || stage === stageFilter;
     const oppOwnerId = opp.ownerId || opp.OWNERID || opp.owner?.id || opp.owner?.ID;
     const matchesSeller = !sellerFilter || oppOwnerId === sellerFilter;
     return matchesSearch && matchesStage && matchesSeller;
   }) : [];
+
+  const sortedFilteredOpportunities = [...filteredOpportunities].sort((a, b) => {
+    const stageDiff = stages.indexOf(a.stage) - stages.indexOf(b.stage);
+    if (stageDiff !== 0) return stageDiff;
+    const aDate = new Date(a.leadEntryDate || a.createdAt || 0).getTime();
+    const bDate = new Date(b.leadEntryDate || b.createdAt || 0).getTime();
+    return bDate - aDate;
+  });
 
   const filteredStats = buildStats(filteredOpportunities);
 
@@ -1131,53 +1219,80 @@ export default function Oportunidades() {
 
       {viewMode === 'pipeline' ? (
       <>
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="flex flex-col md:flex-row gap-4 items-center">
-          <div className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[var(--crm-muted)] w-4 h-4" />
-              <input
-                type="text"
-                placeholder="Buscar oportunidades..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="crm-input pl-10"
-              />
-            </div>
+      <div className="rounded-3xl border border-[color:var(--crm-border)] bg-[var(--crm-surface)] p-5 shadow-sm">
+        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center">
+          <div className="relative">
+            <Search className="absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-[var(--crm-muted)]" />
+            <input
+              type="search"
+              placeholder="Buscar por cliente ou nome do projeto..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="crm-input h-16 rounded-2xl pl-14 text-lg"
+              aria-label="Buscar por cliente ou nome do projeto"
+            />
           </div>
-          
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-[var(--crm-muted)]" />
+
+          <label className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-[var(--crm-muted)]" />
             <select
               value={stageFilter}
               onChange={(e) => setStageFilter(e.target.value)}
-              className="crm-input w-auto min-w-[220px]"
+              className="crm-input h-12 w-full min-w-[220px] lg:w-auto"
+              aria-label="Filtrar por etapa"
             >
               <option value="">Todas as etapas</option>
               {stages.map(stage => (
                 <option key={stage} value={stage}>{stageLabels[stage]}</option>
               ))}
             </select>
-          </div>
+          </label>
 
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-[var(--crm-muted)]" />
+          <label className="flex items-center gap-2">
+            <User className="h-4 w-4 text-[var(--crm-muted)]" />
             <select
               value={sellerFilter}
               onChange={(e) => setSellerFilter(e.target.value)}
-              className="crm-input w-auto min-w-[220px]"
+              className="crm-input h-12 w-full min-w-[220px] lg:w-auto"
+              aria-label="Filtrar por vendedor"
             >
               <option value="">Todos os vendedores</option>
               {users.map((user) => (
                 <option key={user.id} value={user.id}>{user.name}</option>
               ))}
             </select>
-          </div>
+          </label>
         </div>
       </div>
 
-      {/* Kanban de oportunidades */}
+      <div className="flex w-fit gap-1.5 rounded-2xl border border-[color:var(--crm-border)] bg-[var(--crm-surface)] p-2 shadow-sm">
+        <button
+          type="button"
+          onClick={() => setPipelineLayout('list')}
+          className={`flex min-w-[120px] items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-all ${
+            pipelineLayout === 'list'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'text-[var(--crm-muted)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)] hover:text-[var(--crm-ink)]'
+          }`}
+        >
+          <List className="h-5 w-5" />
+          Lista
+        </button>
+        <button
+          type="button"
+          onClick={() => setPipelineLayout('kanban')}
+          className={`flex min-w-[120px] items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-all ${
+            pipelineLayout === 'kanban'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'text-[var(--crm-muted)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)] hover:text-[var(--crm-ink)]'
+          }`}
+        >
+          <LayoutGrid className="h-5 w-5" />
+          Kanban
+        </button>
+      </div>
+
+      {pipelineLayout === 'kanban' ? (
       <div className="flex gap-4 overflow-x-auto pb-4">
         {stages.map(stage => (
           <div
@@ -1391,6 +1506,117 @@ export default function Oportunidades() {
           </div>
         ))}
       </div>
+      ) : (
+      <div className="overflow-hidden rounded-2xl border border-[color:var(--crm-border)] bg-[var(--crm-surface)] shadow-sm">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1040px] text-sm">
+            <thead>
+              <tr className="border-b border-[color:var(--crm-border)] bg-[rgb(var(--crm-accent-rgb)_/_0.06)]">
+                <th className="p-4 text-left font-semibold text-[var(--crm-ink)]">Cliente</th>
+                <th className="p-4 text-left font-semibold text-[var(--crm-ink)]">Projeto</th>
+                <th className="p-4 text-left font-semibold text-[var(--crm-ink)]">Etapa</th>
+                <th className="p-4 text-left font-semibold text-[var(--crm-ink)]">Valor</th>
+                <th className="p-4 text-left font-semibold text-[var(--crm-ink)]">Prob.</th>
+                <th className="p-4 text-left font-semibold text-[var(--crm-ink)]">Responsável</th>
+                <th className="p-4 text-left font-semibold text-[var(--crm-ink)]">Entrada</th>
+                <th className="p-4 text-right font-semibold text-[var(--crm-ink)]">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {sortedFilteredOpportunities.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className="py-12 text-center text-[var(--crm-muted)]">
+                    <Target className="mx-auto mb-2 h-12 w-12 opacity-40" />
+                    <p>Nenhuma oportunidade encontrada.</p>
+                  </td>
+                </tr>
+              ) : (
+                sortedFilteredOpportunities.map((opp) => {
+                  const stage = opp.stage || 'LEAD';
+                  const nextStage = getNextStage(stage);
+                  return (
+                    <tr
+                      key={opp.id}
+                      onClick={() => handleViewDetails(opp)}
+                      className="cursor-pointer border-b border-[color:var(--crm-border)] transition-colors hover:bg-[rgb(var(--crm-accent-rgb)_/_0.04)]"
+                    >
+                      <td className="p-4">
+                        <div className="font-bold text-[var(--crm-ink)]">{getOpportunityCompanyName(opp) || 'Cliente não informado'}</div>
+                        {opp.number && (
+                          <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[rgb(var(--crm-accent-rgb))]">{opp.number}</div>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <div className="max-w-[280px] font-medium text-[var(--crm-ink)]">{getOpportunityProjectName(opp) || 'Projeto não informado'}</div>
+                        {opp.title && opp.projectName && opp.title !== opp.projectName && (
+                          <div className="mt-1 max-w-[280px] truncate text-xs text-[var(--crm-muted)]">{opp.title}</div>
+                        )}
+                      </td>
+                      <td className="p-4">
+                        <span
+                          className="inline-flex rounded-full px-2.5 py-1 text-xs font-bold"
+                          style={{
+                            backgroundColor: `${stageColors[stage] || '#94a3b8'}22`,
+                            color: stageColors[stage] || '#94a3b8'
+                          }}
+                        >
+                          {stageLabels[stage] || stage}
+                        </span>
+                      </td>
+                      <td className="p-4 font-extrabold text-emerald-400">{formatCurrency(opp.value)}</td>
+                      <td className="p-4 text-[var(--crm-muted)]">{opp.probability || 0}%</td>
+                      <td className="p-4 text-[var(--crm-muted)]">{opp.owner?.name || 'N/I'}</td>
+                      <td className="p-4 text-[var(--crm-muted)]">{formatDateBR(opp.leadEntryDate || opp.createdAt) || '—'}</td>
+                      <td className="p-4">
+                        <div className="flex justify-end gap-2">
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handleEdit(opp); }}
+                            className="rounded-xl border border-[color:var(--crm-border)] p-2 text-[var(--crm-muted)] transition-colors hover:bg-[var(--crm-bg)] hover:text-[var(--crm-accent)]"
+                            title="Editar"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </button>
+                          {stage !== 'WON' && stage !== 'LOST' && nextStage && (
+                            <button
+                              type="button"
+                              onClick={(e) => { e.stopPropagation(); requestMoveOpportunity(opp, nextStage); }}
+                              className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-blue-500"
+                            >
+                              {getAdvanceLabel(stage)}
+                            </button>
+                          )}
+                          {stage !== 'WON' && stage !== 'LOST' && (
+                            <>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); requestMoveOpportunity(opp, 'WON'); }}
+                                className="rounded-xl bg-emerald-600 p-2 text-white transition-colors hover:bg-emerald-500"
+                                title="Marcar como Ganha"
+                              >
+                                <Check className="h-4 w-4" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => { e.stopPropagation(); requestMoveOpportunity(opp, 'LOST'); }}
+                                className="rounded-xl bg-red-600 p-2 text-white transition-colors hover:bg-red-500"
+                                title="Marcar como Perdida"
+                              >
+                                <X className="h-4 w-4" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      )}
       </>
       ) : (
       /* ── Histórico (Ganhas / Perdidas) ── */
@@ -1501,6 +1727,8 @@ export default function Oportunidades() {
           onClose={() => {
             setShowDetailsModal(false);
             setSelectedOpportunity(null);
+            setLossReasonDraft('');
+            setLossReasonError('');
             setFollowUpText('');
             setFollowUpError('');
           }}
@@ -1701,10 +1929,30 @@ export default function Oportunidades() {
               </div>
             )}
 
-            {selectedOpportunity.lossReason && (
+            {selectedOpportunity.stage === 'LOST' && (
               <div className="rounded-xl border border-red-400/40 bg-red-500/10 p-4">
-                <h3 className="text-sm font-semibold text-red-200 mb-2">Motivo da Perda</h3>
-                <p className="text-red-100/90">{selectedOpportunity.lossReason}</p>
+                <div className="mb-3 flex items-center justify-between gap-3">
+                  <h3 className="text-sm font-semibold text-red-200">Motivo da Perda</h3>
+                  <button
+                    type="button"
+                    onClick={handleSaveLossReason}
+                    disabled={lossReasonSaving}
+                    className="inline-flex items-center gap-2 rounded-lg border border-red-300/35 bg-red-400/15 px-3 py-1.5 text-xs font-semibold text-red-50 transition hover:bg-red-400/25 disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Check className="h-3.5 w-3.5" />
+                    {lossReasonSaving ? 'Salvando...' : 'Salvar'}
+                  </button>
+                </div>
+                <textarea
+                  className="w-full rounded-lg border border-red-300/35 bg-red-950/25 px-3 py-2 text-sm text-red-50 placeholder:text-red-100/45 focus:outline-none focus:ring-2 focus:ring-red-300/50"
+                  rows={3}
+                  value={lossReasonDraft}
+                  onChange={(event) => setLossReasonDraft(event.target.value)}
+                  placeholder="Informe o motivo da perda..."
+                />
+                {lossReasonError && (
+                  <p className="mt-2 text-xs font-medium text-red-100">{lossReasonError}</p>
+                )}
               </div>
             )}
 
