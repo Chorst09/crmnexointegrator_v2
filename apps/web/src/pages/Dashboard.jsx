@@ -786,8 +786,8 @@ export default function Dashboard() {
           temperatureColor={pipelineTemperatureColor}
           temperatureLevels={referenceStageLevels}
           performanceChart={{
-            title: 'Performance por Origem',
-            subtitle: 'Oportunidades geradas por canal',
+            title: 'Performance por Entrada/Origem',
+            subtitle: 'Oportunidades por SDR, Gerente de Contas e Pré-Vendas',
             labels: charts.opportunitiesBySource.map((row) => row.source || 'Não informado'),
             values: charts.opportunitiesBySource.map((row) => Number(row.count || 0)),
             colors: ['#ff7a00', '#f6b40b', '#22c55e', '#18c8df', '#1f7fe5', '#ef4444'],

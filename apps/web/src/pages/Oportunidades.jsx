@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { buildApiUrl, API_ENDPOINTS } from '../config/api';
+import { buildApiUrl, API_BASE_URL, API_ENDPOINTS } from '../config/api';
 import { 
   Plus, 
   Target, 
@@ -28,7 +28,9 @@ import {
   FolderKanban,
   Rocket,
   List,
-  LayoutGrid
+  LayoutGrid,
+  ImagePlus,
+  Paperclip
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
@@ -49,6 +51,7 @@ import {
 import { createOrUpdateCommercialProposalFromOpportunity } from '../lib/commercial-proposal-drafts';
 
 const stages = ["LEAD", "QUALIFICATION", "DIAGNOSIS", "PROPOSAL", "NEGOTIATION", "WON", "LOST"];
+const MAX_FOLLOW_UP_PRINTS = 5;
 
 const stageLabels = {
   LEAD: "Lead",
@@ -73,12 +76,35 @@ const stageColors = {
 const projectClientTypeLabels = {
   NEW_CLIENT: "Cliente Novo",
   BASE_CLIENT: "Cliente da Base",
-  RENEWAL: "Renovação"
+  RENEWAL: "Renovações"
 };
 
 const projectTypeLabels = {
   SINGLE: "Projeto pontual",
   MONTHLY: "Projeto mensal"
+};
+
+const parseFollowUpAttachments = (attachments) => {
+  if (!attachments) return [];
+  if (Array.isArray(attachments)) return attachments;
+  try {
+    const parsed = JSON.parse(attachments);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
+
+const resolveUploadUrl = (url) => {
+  if (!url) return '';
+  if (/^https?:\/\//i.test(url)) return url;
+  const cleanPath = String(url).startsWith('/') ? String(url) : `/${String(url)}`;
+
+  if (/^https?:\/\//i.test(API_BASE_URL)) {
+    return `${API_BASE_URL.replace(/\/api\/?$/i, '')}${cleanPath}`;
+  }
+
+  return cleanPath;
 };
 
 const toDateInputValue = (value) => {
@@ -123,6 +149,26 @@ const canOwnOpportunityForClientType = (user, clientType = 'B2B') => {
   return user.accessB2B !== false || role === 'SELLER' || role === 'USER_B2B';
 };
 
+const normalizeNegotiationType = (value) => {
+  const text = String(value || '').trim();
+  const normalized = normalizeText(text);
+
+  if (!normalized) return '';
+  if (normalized === 'new_client' || normalized.includes('cliente novo') || normalized.includes('nova venda')) return 'Cliente Novo';
+  if (normalized === 'base_client' || normalized.includes('cliente da base')) return 'Cliente da Base';
+  if (normalized === 'renewal' || normalized.includes('renov')) return 'Renovações';
+  if (normalized.includes('up selling') || normalized.includes('upselling') || normalized.includes('up-sell')) return 'Up Selling';
+  return text;
+};
+
+const projectClientTypeFromNegotiation = (value) => {
+  const normalized = normalizeNegotiationType(value);
+  if (normalized === 'Cliente Novo') return 'NEW_CLIENT';
+  if (normalized === 'Renovações') return 'RENEWAL';
+  if (normalized === 'Cliente da Base' || normalized === 'Up Selling') return 'BASE_CLIENT';
+  return '';
+};
+
 export default function Oportunidades() {
   const navigate = useNavigate();
   const [opportunities, setOpportunities] = useState([]);
@@ -144,6 +190,9 @@ export default function Oportunidades() {
   const [followUpError, setFollowUpError] = useState('');
   const [followUpType, setFollowUpType] = useState('NOTE'); // NOTE, CALL, EMAIL, MEETING, WHATSAPP
   const [followUps, setFollowUps] = useState([]);
+  const [followUpPrints, setFollowUpPrints] = useState([]);
+  const [followUpPrintPreviews, setFollowUpPrintPreviews] = useState([]);
+  const followUpPrintPreviewRef = useRef([]);
   const [loadingFollowUps, setLoadingFollowUps] = useState(false);
   const [lossReasonDraft, setLossReasonDraft] = useState('');
   const [lossReasonSaving, setLossReasonSaving] = useState(false);
@@ -232,7 +281,7 @@ export default function Oportunidades() {
   const [formData, setFormData] = useState({
     title: '',
     projectName: '',
-    projectClientType: 'NEW_CLIENT',
+    projectClientType: '',
     negotiationType: '',
     projectClassification: '',
     projectTower: '',
@@ -308,6 +357,12 @@ export default function Oportunidades() {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`
     };
+  };
+
+  const getUploadAuthHeaders = () => {
+    const headers = getAuthHeaders();
+    delete headers['Content-Type'];
+    return headers;
   };
 
   const fetchOpportunities = async () => {
@@ -421,6 +476,18 @@ export default function Oportunidades() {
   }, [pipelineClientType]);
 
   useEffect(() => {
+    followUpPrintPreviewRef.current = followUpPrintPreviews;
+  }, [followUpPrintPreviews]);
+
+  useEffect(() => {
+    return () => {
+      followUpPrintPreviewRef.current.forEach((item) => {
+        if (item?.url) URL.revokeObjectURL(item.url);
+      });
+    };
+  }, []);
+
+  useEffect(() => {
     const shouldOpen = searchParams.get('newOpportunity') === '1';
     if (!shouldOpen) return;
     const companyId = searchParams.get('companyId') || '';
@@ -430,7 +497,8 @@ export default function Oportunidades() {
     lastCompanyReturnKey.current = key;
     setSelectedOpportunity(null);
     setFormData(createEmptyFormData({
-      projectClientType: companyId ? 'BASE_CLIENT' : '',
+      projectClientType: companyId ? 'NEW_CLIENT' : '',
+      negotiationType: companyId ? 'Cliente Novo' : '',
       companyId
     }));
     setShowDetailsModal(false);
@@ -451,7 +519,13 @@ export default function Oportunidades() {
         setFormData({
           title: opp.title,
           projectName: opp.projectName || opp.title || '',
-          projectClientType: opp.projectClientType || 'NEW_CLIENT',
+          projectClientType: projectClientTypeFromNegotiation(opp.negotiationType || opp.projectClientType) || opp.projectClientType || '',
+          negotiationType: normalizeNegotiationType(opp.negotiationType || opp.projectClientType) || '',
+          projectClassification: opp.projectClassification || '',
+          projectTower: opp.projectTower || '',
+          projectDetail: opp.projectDetail || '',
+          manufacturer: opp.manufacturer || '',
+          leadSourceDetail: opp.leadSourceDetail || '',
           projectType: opp.projectType || 'SINGLE',
           projectMonths: opp.projectMonths ? String(opp.projectMonths) : '12',
           description: opp.description || '',
@@ -568,12 +642,15 @@ export default function Oportunidades() {
     console.log('[handleSubmit] selectedOpportunity:', selectedOpportunity?.id);
 
     const selectedCompany = companies.find((item) => item.id === payloadFormData.companyId);
-    if (pipelineClientType === 'B2B' && payloadFormData.projectClientType === 'NEW_CLIENT' && !payloadFormData.companyId) {
+    const normalizedNegotiationType = normalizeNegotiationType(payloadFormData.negotiationType || payloadFormData.projectClientType);
+    const normalizedProjectClientType = projectClientTypeFromNegotiation(normalizedNegotiationType) || payloadFormData.projectClientType || '';
+
+    if (pipelineClientType === 'B2B' && normalizedProjectClientType === 'NEW_CLIENT' && !payloadFormData.companyId) {
       alert('Cadastre a empresa antes de criar uma oportunidade para cliente novo.');
       navigate('/empresas?openForm=1&returnTo=/oportunidades%3FnewOpportunity%3D1');
       return;
     }
-    if (pipelineClientType === 'B2B' && ['BASE_CLIENT', 'RENEWAL'].includes(payloadFormData.projectClientType) && !payloadFormData.companyId) {
+    if (pipelineClientType === 'B2B' && ['BASE_CLIENT', 'RENEWAL'].includes(normalizedProjectClientType) && !payloadFormData.companyId) {
       alert('Selecione a empresa cadastrada para cliente da base ou renovação.');
       return;
     }
@@ -604,8 +681,8 @@ export default function Oportunidades() {
         clientType: pipelineClientType,
         title: payloadFormData.title || '',
         projectName: payloadFormData.projectName || payloadFormData.title || '',
-        projectClientType: payloadFormData.projectClientType || null,
-        negotiationType: payloadFormData.negotiationType || null,
+        projectClientType: normalizedProjectClientType || null,
+        negotiationType: normalizedNegotiationType || null,
         projectClassification: payloadFormData.projectClassification || null,
         projectTower: payloadFormData.projectTower || null,
         projectDetail: payloadFormData.projectDetail || null,
@@ -712,8 +789,8 @@ export default function Oportunidades() {
     setFormData({
       title: opportunity.title,
       projectName: opportunity.projectName || opportunity.title || '',
-      projectClientType: opportunity.projectClientType || 'NEW_CLIENT',
-      negotiationType: opportunity.negotiationType || '',
+      projectClientType: projectClientTypeFromNegotiation(opportunity.negotiationType || opportunity.projectClientType) || opportunity.projectClientType || '',
+      negotiationType: normalizeNegotiationType(opportunity.negotiationType || opportunity.projectClientType) || '',
       projectClassification: opportunity.projectClassification || '',
       projectTower: opportunity.projectTower || '',
       projectDetail: opportunity.projectDetail || '',
@@ -890,8 +967,8 @@ export default function Oportunidades() {
 
   const handleAddOpportunityFollowUp = async () => {
     const description = followUpText.trim();
-    if (!selectedOpportunity?.id || !description) {
-      setFollowUpError('Informe o acompanhamento antes de salvar.');
+    if (!selectedOpportunity?.id || (!description && followUpPrints.length === 0)) {
+      setFollowUpError('Informe o acompanhamento ou anexe ao menos um print.');
       return;
     }
 
@@ -899,14 +976,18 @@ export default function Oportunidades() {
     setFollowUpError('');
 
     try {
+      const formData = new FormData();
+      formData.append('opportunityId', selectedOpportunity.id);
+      formData.append('type', followUpType);
+      formData.append('content', description);
+      followUpPrints.forEach((file) => {
+        formData.append('attachments', file);
+      });
+
       const response = await fetch(buildApiUrl('/opportunity-followups'), {
         method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          opportunityId: selectedOpportunity.id,
-          type: followUpType,
-          content: description
-        })
+        headers: getUploadAuthHeaders(),
+        body: formData
       });
 
       if (!response.ok) {
@@ -917,6 +998,9 @@ export default function Oportunidades() {
       const createdFollowUp = await response.json();
       setFollowUps([createdFollowUp, ...followUps]);
       setFollowUpText('');
+      followUpPrintPreviews.forEach((item) => URL.revokeObjectURL(item.url));
+      setFollowUpPrints([]);
+      setFollowUpPrintPreviews([]);
       setFollowUpType('NOTE');
     } catch (error) {
       console.error('Erro ao salvar acompanhamento:', error);
@@ -944,10 +1028,54 @@ export default function Oportunidades() {
     }
   };
 
+  const handleFollowUpPrintsChange = (event) => {
+    const files = Array.from(event.target.files || []);
+    if (!files.length) return;
+
+    const validFiles = files.filter((file) => file.type.startsWith('image/'));
+    const availableSlots = Math.max(0, MAX_FOLLOW_UP_PRINTS - followUpPrints.length);
+    const acceptedFiles = validFiles.slice(0, availableSlots);
+
+    setFollowUpPrints((current) => [...current, ...acceptedFiles]);
+    setFollowUpPrintPreviews((current) => [
+      ...current,
+      ...acceptedFiles.map((file) => ({
+        name: file.name,
+        url: URL.createObjectURL(file)
+      }))
+    ]);
+    if (followUpError) setFollowUpError('');
+    event.target.value = '';
+
+    if (validFiles.length !== files.length) {
+      setFollowUpError('Alguns arquivos foram ignorados. Envie apenas imagens.');
+    } else if (followUpPrints.length + validFiles.length > MAX_FOLLOW_UP_PRINTS) {
+      setFollowUpError(`É possível anexar até ${MAX_FOLLOW_UP_PRINTS} prints por acompanhamento.`);
+    }
+  };
+
+  const removeFollowUpPrint = (index) => {
+    setFollowUpPrintPreviews((current) => {
+      const target = current[index];
+      if (target?.url) URL.revokeObjectURL(target.url);
+      return current.filter((_, itemIndex) => itemIndex !== index);
+    });
+    setFollowUpPrints((current) => current.filter((_, itemIndex) => itemIndex !== index));
+  };
+
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL'
+    }).format(value || 0);
+  };
+
+  const formatCompactCurrency = (value) => {
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      notation: 'compact',
+      maximumFractionDigits: 1
     }).format(value || 0);
   };
 
@@ -1151,7 +1279,7 @@ export default function Oportunidades() {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 xl:gap-5">
         <AnimatedStats
           title="Total de Oportunidades"
           value={filteredStats.total}
@@ -1159,15 +1287,18 @@ export default function Oportunidades() {
           icon={Target}
           color="blue"
           trend={{ direction: 'up', value: '+12% este mês' }}
+          size="compact"
         />
         
         <AnimatedStats
           title="Valor Total"
-          value={formatCurrency(filteredStats.totalValue)}
-          subtitle="Oportunidades abertas e históricas"
+          value={formatCompactCurrency(filteredStats.totalValue)}
+          valueTitle={formatCurrency(filteredStats.totalValue)}
+          subtitle="Pipeline aberto e histórico"
           icon={DollarSign}
           color="green"
           trend={{ direction: 'up', value: '+18% este mês' }}
+          size="compact"
         />
         
         <AnimatedStats
@@ -1177,15 +1308,18 @@ export default function Oportunidades() {
           icon={TrendingUp}
           color="purple"
           trend={{ direction: 'up', value: '+2.3% este mês' }}
+          size="compact"
         />
         
         <AnimatedStats
           title="Ticket Médio"
-          value={formatCurrency(filteredStats.avgValue)}
-          subtitle="Valor médio por oportunidade"
+          value={formatCompactCurrency(filteredStats.avgValue)}
+          valueTitle={formatCurrency(filteredStats.avgValue)}
+          subtitle="Média por oportunidade"
           icon={BarChart3}
           color="orange"
           trend={{ direction: 'up', value: '+8.5% este mês' }}
+          size="compact"
         />
       </div>
 
@@ -1401,10 +1535,10 @@ export default function Oportunidades() {
 
                       {/* Infos */}
                       <div className="space-y-1.5 mb-3">
-                        {opp.projectClientType && (
+                        {(opp.negotiationType || opp.projectClientType) && (
                           <div className="flex items-center gap-1.5 text-xs text-[var(--crm-muted)]">
                             <BarChart3 className="w-3 h-3 shrink-0" />
-                            <span>{projectClientTypeLabels[opp.projectClientType] || opp.projectClientType}</span>
+                            <span>{opp.negotiationType || projectClientTypeLabels[opp.projectClientType] || opp.projectClientType}</span>
                           </div>
                         )}
                         <div className="flex items-center gap-1.5 text-xs text-[var(--crm-muted)]">
@@ -1565,7 +1699,7 @@ export default function Oportunidades() {
                       </td>
                       <td className="p-4 font-semibold text-emerald-400">{formatCurrency(opp.value)}</td>
                       <td className="p-4 text-[var(--crm-muted)]">
-                        <div>{projectClientTypeLabels[opp.projectClientType] || opp.projectClientType || 'N/I'}</div>
+                        <div>{opp.negotiationType || projectClientTypeLabels[opp.projectClientType] || opp.projectClientType || 'N/I'}</div>
                         <div className="mt-1 text-xs">{projectTypeLabels[opp.projectType] || 'Projeto pontual'}</div>
                       </td>
                       <td className="p-4 text-[var(--crm-muted)]">{opp.probability ? `${opp.probability}%` : '—'}</td>
@@ -1854,7 +1988,7 @@ export default function Oportunidades() {
                         ['Entrada/Origem', selectedOpportunity.leadSourceDetail],
                         ['Classificação', selectedOpportunity.projectClassification],
                         ['Torre', selectedOpportunity.projectTower],
-                        ['Detalhe', selectedOpportunity.projectDetail],
+                        ['Produto/Serviço', selectedOpportunity.projectDetail],
                         ['Fabricante', selectedOpportunity.manufacturer]
                       ].filter(([, value]) => value).map(([label, value]) => (
                         <div key={label}>
@@ -2123,6 +2257,51 @@ export default function Oportunidades() {
                   rows={4}
                 />
 
+                <div className="rounded-xl border border-dashed border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.45)] p-3">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-2 text-sm text-[var(--crm-muted)]">
+                      <Paperclip className="h-4 w-4 text-cyan-300" />
+                      <span>Prints de conversa do WhatsApp</span>
+                    </div>
+                    <label className="crm-btn crm-btn-secondary min-h-0 cursor-pointer px-3 py-2 text-xs">
+                      <ImagePlus className="h-4 w-4" />
+                      Anexar prints
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
+                        multiple
+                        className="hidden"
+                        onChange={handleFollowUpPrintsChange}
+                      />
+                    </label>
+                  </div>
+
+                  {followUpPrints.length > 0 && (
+                    <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+                      {followUpPrintPreviews.map((file, index) => (
+                        <div key={`${file.name}-${index}`} className="group relative overflow-hidden rounded-xl border border-cyan-300/20 bg-slate-950/35">
+                          <img
+                            src={file.url}
+                            alt={`Print ${index + 1}`}
+                            className="h-24 w-full object-cover"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeFollowUpPrint(index)}
+                            className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-slate-950/85 text-red-200 opacity-90 transition hover:bg-red-500 hover:text-white"
+                            title="Remover print"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                          <div className="truncate px-2 py-1.5 text-[10px] text-slate-300" title={file.name}>
+                            {file.name}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {followUpError && (
                   <p className="text-sm font-semibold text-red-300">{followUpError}</p>
                 )}
@@ -2131,7 +2310,7 @@ export default function Oportunidades() {
                   <button
                     type="button"
                     onClick={handleAddOpportunityFollowUp}
-                    disabled={followUpSubmitting || !followUpText.trim()}
+                    disabled={followUpSubmitting || (!followUpText.trim() && followUpPrints.length === 0)}
                     className="crm-btn min-w-[190px] text-white border border-cyan-300/45 bg-[linear-gradient(135deg,#2563eb_0%,#0891b2_100%)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Send className="h-4 w-4" />
@@ -2148,6 +2327,7 @@ export default function Oportunidades() {
                 ) : followUps && followUps.length > 0 ? (
                 <div className="space-y-3">
                   {followUps.map(followUp => {
+                    const attachments = parseFollowUpAttachments(followUp.attachments);
                     const typeIcons = {
                       NOTE: StickyNote,
                       CALL: Phone,
@@ -2195,6 +2375,33 @@ export default function Oportunidades() {
                             <div className="text-sm text-[var(--crm-ink)] whitespace-pre-wrap">
                               {followUp.content}
                             </div>
+                            {attachments.length > 0 && (
+                              <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+                                {attachments.map((attachment, index) => {
+                                  const imageUrl = resolveUploadUrl(attachment.url);
+                                  return (
+                                    <a
+                                      key={`${attachment.url || attachment.filename || index}`}
+                                      href={imageUrl}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                      className="group/print overflow-hidden rounded-xl border border-cyan-300/20 bg-slate-950/40 transition hover:border-cyan-300/55"
+                                      title={attachment.name || `Print ${index + 1}`}
+                                    >
+                                      <img
+                                        src={imageUrl}
+                                        alt={attachment.name || `Print de WhatsApp ${index + 1}`}
+                                        className="h-28 w-full object-cover transition duration-200 group-hover/print:scale-[1.03]"
+                                      />
+                                      <div className="flex items-center gap-1.5 px-2 py-1.5 text-[10px] font-medium text-slate-300">
+                                        <ImagePlus className="h-3 w-3 text-cyan-300" />
+                                        <span className="truncate">{attachment.name || `Print ${index + 1}`}</span>
+                                      </div>
+                                    </a>
+                                  );
+                                })}
+                              </div>
+                            )}
                           </div>
                           {(isAdmin || followUp.userId === userId) && (
                             <button

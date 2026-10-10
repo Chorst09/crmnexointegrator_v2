@@ -8,13 +8,14 @@ const PageHeader = ({
   breadcrumbs = [],
   gradient = 'blue'
 }) => {
+  const standardHeaderGradient = 'from-[#06111a] via-[#082735] to-[#0b3a46]';
   const gradients = {
-    blue: 'from-blue-600 via-blue-700 to-blue-800',
-    green: 'from-green-600 via-green-700 to-green-800',
-    purple: 'from-purple-600 via-purple-700 to-purple-800',
-    orange: 'from-orange-600 via-orange-700 to-orange-800',
-    red: 'from-red-600 via-red-700 to-red-800',
-    indigo: 'from-indigo-600 via-indigo-700 to-indigo-800'
+    blue: standardHeaderGradient,
+    green: standardHeaderGradient,
+    purple: standardHeaderGradient,
+    orange: standardHeaderGradient,
+    red: standardHeaderGradient,
+    indigo: standardHeaderGradient
   };
 
   return (
@@ -89,8 +90,8 @@ const PageHeader = ({
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
+      <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-300/5 rounded-full -translate-y-32 translate-x-32"></div>
+      <div className="absolute bottom-0 left-0 w-48 h-48 bg-cyan-300/5 rounded-full translate-y-24 -translate-x-24"></div>
     </div>
   );
 };
