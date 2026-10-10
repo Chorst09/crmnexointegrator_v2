@@ -784,7 +784,11 @@ export default function Oportunidades() {
     navigate('/empresas?openForm=1&returnTo=/oportunidades%3FnewOpportunity%3D1');
   };
 
-  const handleEdit = (opportunity) => {
+  const handleEdit = (opportunity, event) => {
+    event?.preventDefault?.();
+    event?.stopPropagation?.();
+    if (!opportunity) return;
+    setShowDetailsModal(false);
     setSelectedOpportunity(opportunity);
     setFormData({
       title: opportunity.title,
@@ -1518,7 +1522,11 @@ export default function Oportunidades() {
                           </div>
                         </div>
                         <button
-                          onClick={(e) => { e.stopPropagation(); handleEdit(opp); }}
+                          type="button"
+                          draggable={false}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onDragStart={(e) => e.preventDefault()}
+                          onClick={(e) => handleEdit(opp, e)}
                           className="opacity-0 group-hover:opacity-100 shrink-0 p-1 rounded-lg text-[var(--crm-muted)] hover:text-[var(--crm-accent)] hover:bg-[var(--crm-bg)] transition-all"
                           title="Editar"
                         >
@@ -1709,7 +1717,7 @@ export default function Oportunidades() {
                         <div className="flex items-center justify-end gap-1.5">
                           <button
                             type="button"
-                            onClick={(event) => { event.stopPropagation(); handleEdit(opp); }}
+                            onClick={(event) => handleEdit(opp, event)}
                             className="rounded-lg p-2 text-[var(--crm-muted)] transition-colors hover:bg-[var(--crm-bg)] hover:text-[var(--crm-accent)]"
                             title="Editar"
                           >
@@ -2451,10 +2459,8 @@ export default function Oportunidades() {
               </button>
 
               <button
-                onClick={() => {
-                  handleEdit(selectedOpportunity);
-                  setShowDetailsModal(false);
-                }}
+                type="button"
+                onClick={(event) => handleEdit(selectedOpportunity, event)}
                 className={modalSubmitButtonClass}
               >
                 <Edit className="w-4 h-4" />

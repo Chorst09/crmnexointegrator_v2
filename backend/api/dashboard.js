@@ -493,22 +493,21 @@ export default async function handler(req) {
           return Number.isFinite(num) ? num : 6;
         };
         const periodMonths = parsePeriod(period);
-        const dateFilter = periodMonths
-          ? { createdAt: { gte: new Date(Date.now() - periodMonths * 30 * 24 * 60 * 60 * 1000) } }
-          : {};
-
         const monthsBack = periodMonths || 6;
         const revenueStartDate = new Date(Date.now() - monthsBack * 30 * 24 * 60 * 60 * 1000);
 
         const b2bOpportunityFilter = { b2gStage: null };
 
-        // baseWhere: sem filtro de data — KPIs e funil refletem o pipeline COMPLETO
+        // KPIs, funil, origem e lista devem refletir o pipeline B2B existente.
+        // O período selecionado fica reservado para gráficos de tendência/receita.
         const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' } });
-        if (ownerId) baseWhere.ownerId = ownerId;
 
-        // chartsWhere: com filtro de data — usado apenas em gráficos de tendência (origem, performance)
-        const baseWhereWithDate = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' }, ...dateFilter });
-        if (ownerId) baseWhereWithDate.ownerId = ownerId;
+        // Restrição por ownerId: SELLER e USER só veem suas próprias oportunidades
+        const effectiveOwnerId = canSeeAllOpportunitiesDash(req.user)
+          ? (ownerId || null)
+          : (req.user?.userId || req.user?.id);
+
+        if (effectiveOwnerId) baseWhere.ownerId = effectiveOwnerId;
 
         // Mapear temperatura para faixas de probabilidade
         const temperatureRange = {
@@ -527,14 +526,7 @@ export default async function handler(req) {
           };
         }
 
-        // chartsWhere aplica período para gráficos de tendência (origem de leads, performance por vendedor)
-        const chartsWhere = { ...baseWhereWithDate };
-        if (tempFilter && temperatureRange[tempFilter]) {
-          chartsWhere.probability = {
-            gte: temperatureRange[tempFilter].gte,
-            lte: temperatureRange[tempFilter].lte
-          };
-        }
+        const chartsWhere = { ...whereClause };
 
         const temperatureCountWhere = { ...baseWhere };
         const monthlyRevenueWhere = withOpportunityTenant({
@@ -543,7 +535,7 @@ export default async function handler(req) {
           company: { clientType: 'B2B' },
           updatedAt: { gte: revenueStartDate }
         });
-        if (ownerId) monthlyRevenueWhere.ownerId = ownerId;
+        if (effectiveOwnerId) monthlyRevenueWhere.ownerId = effectiveOwnerId;
         if (tempFilter && temperatureRange[tempFilter]) {
           monthlyRevenueWhere.probability = {
             gte: temperatureRange[tempFilter].gte,

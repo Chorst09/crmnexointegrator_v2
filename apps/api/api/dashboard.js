@@ -499,16 +499,14 @@ export default async function handler(req) {
           return Number.isFinite(num) ? num : 6;
         };
         const periodMonths = parsePeriod(period);
-        const dateFilter = periodMonths
-          ? { createdAt: { gte: new Date(Date.now() - periodMonths * 30 * 24 * 60 * 60 * 1000) } }
-          : {};
-
         const monthsBack = periodMonths || 6;
         const revenueStartDate = new Date(Date.now() - monthsBack * 30 * 24 * 60 * 60 * 1000);
 
         const b2bOpportunityFilter = { b2gStage: null };
 
-        const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' }, ...dateFilter });
+        // KPIs, funil, origem e lista devem refletir o pipeline B2B existente.
+        // O período selecionado fica reservado para gráficos de tendência/receita.
+        const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' } });
 
         // Restrição por ownerId: SELLER e USER só veem suas próprias oportunidades
         const effectiveOwnerId = canSeeAllOpportunitiesDash(req.user)
