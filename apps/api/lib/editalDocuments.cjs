@@ -121,7 +121,9 @@ function createDocumentResolver({ getPncpFiles, getAtaFiles, fetchImpl = global.
       let url;
       try { url = new URL(raw); } catch { return; }
       if (url.hostname === 'pncp.gov.br' && !isFileUrl(raw) && !/\/arquivos\/\d+/.test(url.pathname)) return;
-      if (originPromises.has(raw) || originPromises.size >= 6) return;
+      const cnetId = url.hostname === 'cnetmobile.estaleiro.serpro.gov.br' && url.searchParams.get('compra');
+      const originKey = /^\d{17}$/.test(cnetId || '') ? `comprasgov:${cnetId}` : url.href;
+      if (originPromises.has(originKey) || originPromises.size >= 6) return;
       linksOrigem.add(raw);
       fontesConsultadas.add(url.hostname);
       const task = (async () => {
@@ -142,7 +144,7 @@ function createDocumentResolver({ getPncpFiles, getAtaFiles, fetchImpl = global.
           }
         } catch (error) { diagnosticos.push({ fonte: new URL(raw).hostname, mensagem: error.message }); }
       })();
-      originPromises.set(raw, task);
+      originPromises.set(originKey, task);
       await task;
     };
     try {
@@ -194,7 +196,7 @@ function createDocumentResolver({ getPncpFiles, getAtaFiles, fetchImpl = global.
       const unique = new Map();
       for (const doc of documentos) if (!unique.has(doc.url || doc.uri)) unique.set(doc.url || doc.uri, doc);
       const checked = await Promise.allSettled(Array.from(unique.values()).slice(0, 100).map(async doc => { await assertPublic(doc.url || doc.uri); return doc; }));
-      return { documentos: checked.filter(result => result.status === 'fulfilled').map(result => result.value), diagnosticos, linksOrigem: Array.from(linksOrigem), fontesConsultadas: Array.from(fontesConsultadas) };
+      return { documentos: checked.filter(result => result.status === 'fulfilled').map(result => result.value), diagnosticos: Array.from(new Map(diagnosticos.map(item => [`${item.fonte}:${item.mensagem}`, item])).values()), linksOrigem: Array.from(linksOrigem), fontesConsultadas: Array.from(fontesConsultadas) };
     } finally { clearTimeout(timer); }
   };
 }

@@ -757,6 +757,8 @@ const getPncpFiles = async (cnpj, ano, seq, { signal, sequencialAta } = {}) => {
   return [];
 };
 
+const { createFileCache, inspectFile } = require('../lib/editalFileCache.cjs');
+const documentFileCache = createFileCache(require('node:path').resolve(__dirname, '../../attachments/editais'));
 const { createDocumentResolver } = require('../lib/editalDocuments.cjs');
 const resolveEditalDocuments = createDocumentResolver({ getPncpFiles, getAtaFiles: (ata, options) => getPncpFiles(ata.cnpj, ata.ano, ata.seq, { ...options, sequencialAta: ata.ata }) });
 
@@ -765,6 +767,8 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
   if (!/^\d{14}$/.test(String(cnpj)) || !/^\d{4}$/.test(String(ano)) || !/^\d+$/.test(String(seq)) || Number(seq) <= 0) {
     throw Object.assign(new Error('Informe o CNPJ, ano e sequencial PNCP válidos do edital.'), { status: 400 });
   }
+  const cached = documentFileCache.list({ cnpj, ano, seq });
+  if (cached.length) return cached.map(({ localPath, filename, ...doc }) => doc);
   const result = await resolveEditalDocuments({ cnpjOrgao: cnpj, anoCompra: ano, sequencialCompra: seq });
   if (result.documentos.length) return result.documentos;
   if (result.diagnosticos.length) throw Object.assign(new Error('Não foi possível recuperar anexos públicos. Consulte a fonte oficial ou tente novamente.'), { status: 502 });
@@ -773,12 +777,25 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
 
 router.post('/documentos/resolver', async (req, res) => {
   try {
+    const { compraFromNotice } = require('../lib/editalDocuments.cjs');
+    const compra = compraFromNotice(req.body || {});
+    const cached = compra ? documentFileCache.list(compra) : [];
+    if (cached.length) return res.json({ documentos: cached.map(({ localPath, filename, ...doc }) => doc), diagnosticos: [], linksOrigem: [], fontesConsultadas: ['Arquivos preservados no CRM'], cache: true });
     const result = await resolveEditalDocuments(req.body || {});
     return res.json(result);
   } catch (error) {
     console.error('Erro ao resolver documentos do edital:', error.message);
     return res.status(502).json({ error: 'Não foi possível consultar os documentos nas fontes oficiais.' });
   }
+});
+
+// Serve exclusivamente arquivos válidos associados à referência, sem consultar a origem.
+router.get('/documentos/cache/:cnpj/:ano/:seq/:filename', (req, res) => {
+  const doc = documentFileCache.list(req.params).find(doc => doc.filename === req.params.filename);
+  if (!doc) return res.status(404).json({ error: 'Documento preservado não encontrado.' });
+  res.setHeader('Content-Type', doc.contentType);
+  res.setHeader('X-Served-From', 'disk-cache');
+  return res.download(doc.localPath, doc.filename);
 });
 
 // ── GET /arquivos/:cnpj/:ano/:seq — arquivos de uma licitação ─────────────────
@@ -1963,6 +1980,7 @@ if (!fs.existsSync(ATTACHMENTS_DIR)) {
 async function downloadAndPersistFile(remoteUrl, localPath, timeoutMs = 30000) {
   const dir = path.dirname(localPath);
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+  const partialPath = path.join(dir, `.${path.basename(localPath)}.${require('node:crypto').randomUUID()}.part`);
 
   const controller = new AbortController();
   const tid = setTimeout(() => controller.abort(), timeoutMs);
@@ -1972,29 +1990,34 @@ async function downloadAndPersistFile(remoteUrl, localPath, timeoutMs = 30000) {
       headers: { 'User-Agent': nextUA(), Accept: '*/*' },
       signal: controller.signal,
     });
-    clearTimeout(tid);
-
     if (!res.ok) throw new Error(`HTTP ${res.status} ao baixar ${remoteUrl}`);
 
-    const contentType = res.headers.get('content-type') || 'application/octet-stream';
-
+    if (res.status === 204 || /text\/html|application\/json/i.test(res.headers.get('content-type') || '')) throw new Error('A fonte retornou uma página ou CAPTCHA, sem arquivo.');
     // Usa stream nativo para não manter tudo na memória
     if (res.body) {
-      const writeStream = fs.createWriteStream(localPath);
-      await streamPipeline(NodeReadable.fromWeb(res.body), writeStream);
+      const writeStream = fs.createWriteStream(partialPath);
+      let received = 0;
+      const limit = new (require('node:stream').Transform)({ transform(chunk, encoding, callback) {
+        received += chunk.length;
+        callback(received > 100 * 1024 * 1024 ? new Error('Documento excede o limite de 100 MB.') : null, chunk);
+      } });
+      await streamPipeline(NodeReadable.fromWeb(res.body), limit, writeStream);
     } else {
       const buf = Buffer.from(await res.arrayBuffer());
-      fs.writeFileSync(localPath, buf);
+      fs.writeFileSync(partialPath, buf);
     }
 
-    const { size } = fs.statSync(localPath);
-    return { size, contentType };
+    const { size } = fs.statSync(partialPath);
+    const verifiedType = inspectFile(partialPath);
+    if (!size || !verifiedType) throw new Error('O arquivo recebido está vazio, incompleto ou não é um documento válido.');
+    fs.renameSync(partialPath, localPath);
+    return { size, contentType: verifiedType };
   } catch (err) {
     clearTimeout(tid);
     // Remove arquivo parcialmente escrito
-    if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
+    if (fs.existsSync(partialPath)) fs.unlinkSync(partialPath);
     throw err;
-  }
+  } finally { clearTimeout(tid); }
 }
 
 /**
@@ -2028,6 +2051,12 @@ router.get('/arquivos/:cnpj/:ano/:seq/download/:docSeq', async (req, res) => {
   }
 
   try {
+    const cached = documentFileCache.list({ cnpj: cleanCnpj, ano: cleanAno, seq: cleanSeq }).find(doc => doc.sequencialDocumento === cleanDocSeq);
+    if (cached) {
+      res.setHeader('Content-Type', cached.contentType);
+      res.setHeader('X-Served-From', 'disk-cache');
+      return res.download(cached.localPath, cached.filename);
+    }
     // 1. Obtém a lista de arquivos reais do PNCP
     const arquivos = await getArquivosForEdital(cleanCnpj, cleanAno, cleanSeq);
     const arq = arquivos.find(a => Number(a.sequencialDocumento) === cleanDocSeq);
@@ -2058,6 +2087,7 @@ router.get('/arquivos/:cnpj/:ano/:seq/download/:docSeq', async (req, res) => {
     // 3. Baixa, persiste e serve
     console.log(`[download-persist] Baixando ${fileUrl} → ${localPath}`);
     const { size, contentType } = await downloadAndPersistFile(fileUrl, localPath);
+    documentFileCache.metadata(localPath, arq);
     console.log(`[download-persist] Salvo: ${localPath} (${size} bytes, ${contentType})`);
 
     const filename = path.basename(localPath);

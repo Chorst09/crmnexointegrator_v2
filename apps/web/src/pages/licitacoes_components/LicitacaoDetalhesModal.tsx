@@ -187,6 +187,8 @@ export function LicitacaoDetalhesModal({
       let endpoint: string;
       if (arqMeta?.origem === 'PNCP_OFICIAL' && compra && arqMeta.sequencialDocumento) {
         endpoint = buildApiUrl(`/b2g-licitacoes/arquivos/${compra.cnpj}/${compra.ano}/${compra.sequencial}/download/${arqMeta.sequencialDocumento}`);
+      } else if (arqMeta?.origem === 'CACHE_LOCAL' && url.startsWith('/api/b2g-licitacoes/documentos/cache/')) {
+        endpoint = buildApiUrl(url.replace(/^\/api/, ''));
       } else if (url.startsWith('/api/b2g-licitacoes/documento-gerado/')) {
         endpoint = url;
       } else {

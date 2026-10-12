@@ -106,7 +106,7 @@ test('legacy file route helper shares origin fallback instead of returning PNCP 
     if (String(url).includes('/orgaos/')) return new Response(JSON.stringify({ linkSistemaOrigem: 'https://portal.gov.br/edital.pdf' }));
     return new Response('%PDF-1.7', { headers: { 'content-type': 'application/pdf' } });
   };
-  const ctx = { fetch: fetchImpl, AbortSignal, AbortController, setTimeout, clearTimeout, console: { warn: () => {} }, nextUA: () => 'Test', require: () => ({ createDocumentResolver: options => createDocumentResolver({ ...options, fetchImpl, lookup: async () => [{ address: '203.0.113.1' }] }) }) };
+  const ctx = { fetch: fetchImpl, AbortSignal, AbortController, setTimeout, clearTimeout, console: { warn: () => {} }, __dirname: path.resolve(__dirname, '../../apps/api/api'), nextUA: () => 'Test', require: name => name === '../lib/editalDocuments.cjs' ? ({ createDocumentResolver: options => createDocumentResolver({ ...options, fetchImpl, lookup: async () => [{ address: '203.0.113.1' }] }) }) : name === '../lib/editalFileCache.cjs' ? require('../../apps/api/lib/editalFileCache.cjs') : require(name) };
   vm.createContext(ctx);
   vm.runInContext(source.slice(start, end) + '\nglobalThis.getFiles = getArquivosForEdital;', ctx);
   const docs = await ctx.getFiles('12345678000199', '2026', '1');
