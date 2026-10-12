@@ -15,6 +15,7 @@ import { Licitacao } from './types';
 import { cn } from './utils';
 import { resolvePncpCompra } from './pncpDocuments';
 import { buildApiUrl } from '../../config/api';
+import { prepareDocumentDownload } from './documentDownload.mjs';
 
 export interface LicitacaoDetalhesModalProps {
   licitacao: Licitacao | null;
@@ -199,12 +200,10 @@ export function LicitacaoDetalhesModal({
         const data = await response.json().catch(() => ({}));
         throw new Error(data?.error || 'Não foi possível baixar o documento. Tente novamente.');
       }
-      const blob = await response.blob();
-      if (!blob.size || /text\/html|application\/json/i.test(blob.type)) {
-        throw new Error('O serviço retornou uma página em vez do arquivo. Use Abrir para consultar a origem.');
-      }
-      const extension = /pdf/i.test(blob.type) ? '.pdf' : /zip/i.test(blob.type) ? '.zip' : '';
-      const filename = /\.[a-z0-9]{2,5}$/i.test(safeTitle) ? safeTitle : `${safeTitle}${extension}`;
+      const { blob, filename } = await prepareDocumentDownload(await response.blob(), {
+        title: safeTitle,
+        contentDisposition: response.headers.get('content-disposition')
+      });
       const objectUrl = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = objectUrl;
