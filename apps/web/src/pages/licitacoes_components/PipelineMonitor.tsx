@@ -8,6 +8,7 @@ import { cn } from './utils';
 
 // ─── Chave de storage compartilhada com SearchPage ───────────────────────────
 export const ACTIVE_SOURCES_KEY = 'pipeline_active_sources_v2';
+export const ACTIVE_SOURCES_EVENT = 'pipeline-active-sources-changed';
 
 // ─── Catálogo canônico das 10 fontes ─────────────────────────────────────────
 export const SOURCES_CATALOG = [
@@ -59,7 +60,7 @@ export const SOURCES_CATALOG = [
     icon: '⚡',
     color: 'yellow',
     descricao: 'Licitações com disputa aberta ou em andamento no Compras.gov.br',
-    endpoint: 'https://pncp.gov.br/api/consulta/v1/contratacoes/proposta',
+    endpoint: 'https://dadosabertos.compras.gov.br/modulo-contratacoes/1_consultarContratacoes_PNCP_14133',
   },
   {
     id: 'contratacoes-14133',
@@ -69,7 +70,7 @@ export const SOURCES_CATALOG = [
     icon: '⚖️',
     color: 'purple',
     descricao: 'Dispensas eletrônicas e contratações diretas sob a Nova Lei de Licitações',
-    endpoint: 'https://pncp.gov.br/api/consulta/v1',
+    endpoint: 'https://dadosabertos.compras.gov.br/modulo-contratacoes/1_consultarContratacoes_PNCP_14133',
   },
   {
     id: 'atas-srp',
@@ -79,7 +80,7 @@ export const SOURCES_CATALOG = [
     icon: '📋',
     color: 'blue',
     descricao: 'Atas SRP publicadas no PNCP — Sistema de Registro de Preços',
-    endpoint: 'https://pncp.gov.br/api/consulta/v1',
+    endpoint: 'https://dadosabertos.compras.gov.br/modulo-arp/1_consultarARP',
   },
   {
     id: 'pregoes-siasg',
@@ -139,7 +140,7 @@ const STATUS_CONFIG = {
   running: { label: 'Executando',   icon: Activity,     cls: 'bg-cyan-950/60 text-cyan-300 border-cyan-800',          dot: 'bg-cyan-400 animate-ping' },
   partial: { label: 'Parcial',      icon: AlertCircle,  cls: 'bg-amber-950/60 text-amber-300 border-amber-800',       dot: 'bg-amber-400' },
   error:   { label: 'Erro',         icon: AlertCircle,  cls: 'bg-red-950/60 text-red-300 border-red-800',             dot: 'bg-red-400' },
-  idle:    { label: 'Inativo',      icon: Clock,        cls: 'bg-slate-800/60 text-slate-400 border-slate-700',       dot: 'bg-slate-500' },
+  idle:    { label: 'Aguardando busca',      icon: Clock,        cls: 'bg-slate-800/60 text-slate-400 border-slate-700',       dot: 'bg-slate-500' },
   paused:  { label: 'Pausado',      icon: Pause,        cls: 'bg-slate-800/60 text-slate-400 border-slate-700',       dot: 'bg-slate-600' },
 };
 
@@ -185,6 +186,7 @@ export function PipelineMonitor() {
   const persistSources = (next: Set<string>) => {
     try {
       localStorage.setItem(ACTIVE_SOURCES_KEY, JSON.stringify(Array.from(next)));
+      window.dispatchEvent(new Event(ACTIVE_SOURCES_EVENT));
     } catch (_) {}
   };
 

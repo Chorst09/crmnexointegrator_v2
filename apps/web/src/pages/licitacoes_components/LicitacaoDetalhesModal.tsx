@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import { Licitacao } from './types';
 import { cn } from './utils';
+import { resolvePncpCompra } from './pncpDocuments';
+import { buildApiUrl } from '../../config/api';
 
 export interface LicitacaoDetalhesModalProps {
   licitacao: Licitacao | null;
@@ -45,89 +47,45 @@ export function LicitacaoDetalhesModal({
   const [arquivos, setArquivos] = useState<any[]>([]);
   const [searchingPncp, setSearchingPncp] = useState(false);
   const [downloadingUrl, setDownloadingUrl] = useState<string | null>(null);
+  const [arquivosError, setArquivosError] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
+  const [documentDiagnostics, setDocumentDiagnostics] = useState<any[]>([]);
+  const [originLinks, setOriginLinks] = useState<string[]>([]);
 
   useEffect(() => {
-    if (!licitacao) {
-      setArquivos([]);
-      return;
-    }
-
-    const numControle = String(
-      licitacao.numeroControlePNCP ||
-      (licitacao as any).numero_controle_pncp ||
-      (licitacao.id && String(licitacao.id).includes('-') ? licitacao.id : '')
-    ).trim();
-
-    // CNPJ: extrai os 14 dígitos reais do órgão licitante
-    let cnpj = licitacao.orgaoEntidade?.cnpj?.replace(/\D/g, '') || '';
-    if (!cnpj && numControle.includes('-')) {
-      const part = numControle.split('-')[0].replace(/\D/g, '');
-      if (part.length >= 8) cnpj = part;
-    }
-    if (!cnpj && (licitacao as any).cnpj) {
-      cnpj = String((licitacao as any).cnpj).replace(/\D/g, '');
-    }
-    if (!cnpj && licitacao.id && /^\d{14}$/.test(String(licitacao.id).trim())) {
-      cnpj = String(licitacao.id).trim();
-    }
-    if (!cnpj) cnpj = '76417005000186';
-
-    // Ano da compra
-    let ano = licitacao.anoCompra;
-    if (!ano && numControle.includes('/')) {
-      const rawAno = parseInt(numControle.split('/')[1].replace(/\D/g, ''), 10);
-      if (!isNaN(rawAno) && rawAno > 1990) ano = rawAno;
-    }
-    if (!ano && licitacao.data_abertura) {
-      const d = new Date(licitacao.data_abertura);
-      if (!isNaN(d.getFullYear()) && d.getFullYear() > 1990) ano = d.getFullYear();
-    }
-    if (!ano) ano = new Date().getFullYear();
-
-    // Sequencial da compra
-    let sequencial = licitacao.sequencialCompra;
-    if (!sequencial && numControle.includes('-')) {
-      const parts = numControle.split('-');
-      if (parts.length >= 3) {
-        const rawSeq = parseInt(parts[2].split('/')[0].replace(/\D/g, ''), 10);
-        if (!isNaN(rawSeq) && rawSeq > 0) sequencial = rawSeq;
-      }
-    }
-    if (!sequencial && (licitacao as any).numeroCompra) {
-      const rawComp = parseInt(String((licitacao as any).numeroCompra).replace(/\D/g, ''), 10);
-      if (!isNaN(rawComp) && rawComp > 0) sequencial = rawComp;
-    }
-    if (!sequencial && (licitacao as any).processo) {
-      const rawProc = parseInt(String((licitacao as any).processo).replace(/\D/g, ''), 10);
-      if (!isNaN(rawProc) && rawProc > 0) sequencial = rawProc;
-    }
-    if (!sequencial && licitacao.id && !isNaN(Number(licitacao.id))) {
-      sequencial = Number(licitacao.id);
-    }
-    if (!sequencial) sequencial = 1;
-
+    const controller = new AbortController();
     setArquivos([]);
+    setArquivosError('');
+    setDocumentDiagnostics([]);
+    setOriginLinks([]);
+    setSearchingPncp(false);
+    if (!licitacao) return;
     setSearchingPncp(true);
-
-    const targetCnpj = cnpj || '76417005000186';
-    fetch(`/api/b2g-licitacoes/arquivos/${targetCnpj}/${ano}/${sequencial}`)
-      .then((res) => {
-        if (!res.ok) return null;
-        return res.json();
-      })
-      .then((data) => {
-        if (Array.isArray(data) && data.length > 0) {
-          setArquivos(data);
-        } else {
-          setArquivos([]);
+    const load = async () => {
+      try {
+        const response = await fetch(buildApiUrl('/b2g-licitacoes/documentos/resolver'), {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(licitacao),
+          signal: controller.signal
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data?.error || 'Não foi possível consultar os documentos nas fontes oficiais.');
+        if (!Array.isArray(data.documentos)) throw new Error('Resposta inválida ao consultar documentos do edital.');
+        if (!controller.signal.aborted) {
+          setArquivos(data.documentos);
+          setDocumentDiagnostics(data.diagnosticos || []);
+          setOriginLinks(data.linksOrigem || []);
         }
-      })
-      .catch((err) => {
-        console.warn('Erro ao consultar arquivos do certame:', err);
-        setArquivos([]);
-      })
-      .finally(() => setSearchingPncp(false));
-  }, [licitacao]);
+      } catch (error: any) {
+        if (!controller.signal.aborted) setArquivosError(error.message || 'Falha na consulta às fontes oficiais. Tente novamente.');
+      } finally {
+        if (!controller.signal.aborted) setSearchingPncp(false);
+      }
+    };
+    load();
+    return () => controller.abort();
+  }, [licitacao, retryCount]);
 
   if (!licitacao) return null;
 
@@ -135,7 +93,7 @@ export function LicitacaoDetalhesModal({
   const getUf = (lic: Licitacao) => lic.uf || lic.unidadeOrgao?.ufSigla || 'BR';
   const getCidade = (lic: Licitacao) => lic.cidade || (lic as any).municipio || lic.unidadeOrgao?.municipioNome || '';
   const getObjeto = (lic: Licitacao) => (lic as any).titulo || lic.objeto_resumo || lic.objetoCompra || 'Sem descrição';
-  const getData = (lic: Licitacao) => lic.data_abertura || (lic as any).dataEncerramento || lic.dataEncerramentoProposta || lic.dataHoraAberturaSessaoPublica || lic.dataAtualizacao || new Date().toISOString();
+  const getData = (lic: Licitacao) => (lic as any).dataPublicacao || lic.dataAtualizacao || lic.data_abertura || (lic as any).dataEncerramento || lic.dataEncerramentoProposta || lic.dataHoraAberturaSessaoPublica || lic.dataAtualizacao || new Date().toISOString();
   const getValor = (lic: Licitacao) => (lic as any).valor || lic.valor_estimado || lic.valorTotalEstimado || 0;
   const getSituacao = (lic: Licitacao) => lic.situacao || (lic as any).status || lic.situacaoCompraNome || 'Divulgada no PNCP';
 
@@ -212,52 +170,47 @@ export function LicitacaoDetalhesModal({
     return !/(encerrad|cancelad|revogad|suspens|anulad|fracassad|desert|homologad|adjudicad)/i.test(sit);
   };
 
-  const handleRealDownload = (url: string, title: string, arqMeta?: any) => {
+  const handleRealDownload = async (url: string, title: string, arqMeta?: any) => {
+    if (!url || downloadingUrl) return;
+    if (!arqMeta && /^https?:\/\//i.test(url) && !url.includes('/arquivos/') && !/\.(pdf|zip|docx?|xlsx?)(?:[?#]|$)/i.test(url)) {
+      window.open(url, '_blank', 'noopener,noreferrer');
+      return;
+    }
+    setDownloadingUrl(url);
+    setArquivosError('');
     try {
-      if (!url) return;
-      // Se a URL é um link externo web (página HTML de acompanhamento), abre diretamente em nova aba
-      if (/^https?:\/\//i.test(url) && !url.includes('/download/') && !/\.(pdf|zip|docx?|xlsx?)$/i.test(url)) {
-        window.open(url, '_blank', 'noopener,noreferrer');
-        return;
-      }
-
-      setDownloadingUrl(url);
-      const safeTitle = title.toLowerCase().endsWith('.pdf') ? title : `${title}.pdf`;
-
-      // Para arquivos do PNCP oficial com sequencial, usa o endpoint de download
-      // com persistência em disco (cache server-side + stream direto)
-      const docSeq = arqMeta?.sequencialDocumento;
-      const cnpj = licitacao.orgaoEntidade?.cnpj?.replace(/\D/g, '') ||
-                   String(licitacao.numeroControlePNCP || '').split('-')[0].replace(/\D/g, '');
-      const ano = licitacao.anoCompra ||
-                  (licitacao.numeroControlePNCP ? String(licitacao.numeroControlePNCP).match(/\/(\d{4})/)?.[1] : null);
-      const seq = licitacao.sequencialCompra;
-
-      let downloadEndpoint: string;
-
-      if (arqMeta?.origem === 'PNCP_OFICIAL' && cnpj && ano && seq && docSeq) {
-        // Rota com persistência em disco — cache server-side automático
-        downloadEndpoint = `/api/b2g-licitacoes/arquivos/${cnpj}/${ano}/${seq}/download/${docSeq}`;
-      } else if (!url.startsWith('/api/b2g-licitacoes/documento-gerado/')) {
-        downloadEndpoint = `/api/b2g-licitacoes/proxy-download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(safeTitle)}`;
+      const compra = resolvePncpCompra(licitacao);
+      const safeTitle = String(title || 'Documento').replace(/[\/\\]/g, '_');
+      let endpoint: string;
+      if (arqMeta?.origem === 'PNCP_OFICIAL' && compra && arqMeta.sequencialDocumento) {
+        endpoint = buildApiUrl(`/b2g-licitacoes/arquivos/${compra.cnpj}/${compra.ano}/${compra.sequencial}/download/${arqMeta.sequencialDocumento}`);
+      } else if (url.startsWith('/api/b2g-licitacoes/documento-gerado/')) {
+        endpoint = url;
       } else {
-        downloadEndpoint = url;
+        endpoint = buildApiUrl(`/b2g-licitacoes/proxy-download?url=${encodeURIComponent(url)}&filename=${encodeURIComponent(safeTitle)}`);
       }
-      
-      const a = document.createElement('a');
-      a.href = downloadEndpoint;
-      a.setAttribute('download', safeTitle);
-      document.body.appendChild(a);
-      a.click();
-      
-      setTimeout(() => {
-        if (document.body.contains(a)) {
-          document.body.removeChild(a);
-        }
-        setDownloadingUrl(null);
-      }, 2000);
-    } catch (err) {
-      console.error('Erro no download:', err);
+      const response = await fetch(endpoint, { headers: getAuthHeaders() });
+      if (!response.ok) {
+        const data = await response.json().catch(() => ({}));
+        throw new Error(data?.error || 'Não foi possível baixar o documento. Tente novamente.');
+      }
+      const blob = await response.blob();
+      if (!blob.size || /text\/html|application\/json/i.test(blob.type)) {
+        throw new Error('O serviço retornou uma página em vez do arquivo. Use Abrir para consultar a origem.');
+      }
+      const extension = /pdf/i.test(blob.type) ? '.pdf' : /zip/i.test(blob.type) ? '.zip' : '';
+      const filename = /\.[a-z0-9]{2,5}$/i.test(safeTitle) ? safeTitle : `${safeTitle}${extension}`;
+      const objectUrl = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = objectUrl;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      setTimeout(() => URL.revokeObjectURL(objectUrl), 60000);
+    } catch (error: any) {
+      setArquivosError(error.message || 'Erro ao baixar o documento.');
+    } finally {
       setDownloadingUrl(null);
     }
   };
@@ -267,13 +220,14 @@ export function LicitacaoDetalhesModal({
   const isManagedNow = isManaged || addSuccess;
 
   // Links oficiais
-  const cnpjRaw = licitacao.orgaoEntidade?.cnpj?.replace(/\D/g, '') || (numControle ? String(numControle).split('-')[0].replace(/\D/g, '') : null);
-  const anoRaw = licitacao.anoCompra || (numControle && String(numControle).includes('/') ? String(numControle).split('/')[1] : null);
-  const seqRaw = licitacao.sequencialCompra || (numControle && String(numControle).includes('-') ? String(numControle).split('-')[2]?.split('/')[0] : null);
-
-  const origemLink = licitacao.linkSistemaOrigem || licitacao.linkProcessoEletronico || null;
-  const pncpPageLink = (cnpjRaw && anoRaw && seqRaw) 
-    ? `https://pncp.gov.br/app/editais/${cnpjRaw}/${anoRaw}/${seqRaw}` 
+  const compra = resolvePncpCompra(licitacao);
+  const cnpjRaw = compra?.cnpj;
+  const anoRaw = compra?.ano;
+  const seqRaw = compra?.sequencial;
+  const origemLink = licitacao.linkSistemaOrigem || licitacao.linkProcessoEletronico ||
+    (licitacao.link && !licitacao.link.includes('pncp.gov.br') ? licitacao.link : null);
+  const pncpPageLink = compra
+    ? `https://pncp.gov.br/app/editais/${compra.cnpj}/${compra.ano}/${compra.sequencial}`
     : (licitacao.pncpPageLink || null);
 
   return (
@@ -409,20 +363,33 @@ export function LicitacaoDetalhesModal({
                 {searchingPncp && (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-cyan-950/60 text-cyan-300 border border-cyan-800">
                     <div className="w-3 h-3 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin"></div>
-                    Sincronizando PNCP...
+                    Consultando fontes...
                   </span>
                 )}
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950/60 text-emerald-300 border border-emerald-800">
+                {arquivos.length > 0 && <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-950/60 text-emerald-300 border border-emerald-800">
                   <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                  Download Acelerado & Verificado
-                </span>
+                  Documentos disponíveis
+                </span>}
               </div>
             </div>
             
+            {arquivosError && !searchingPncp && (
+              <div role="alert" className="mb-3 rounded-xl border border-amber-700/60 bg-amber-950/30 p-4">
+                <p className="text-sm text-amber-200">{arquivosError}</p>
+                <button type="button" onClick={() => setRetryCount((count) => count + 1)} className="mt-2 text-sm font-semibold text-cyan-300 hover:underline">Tentar novamente</button>
+              </div>
+            )}
+            {documentDiagnostics.length > 0 && !searchingPncp && (
+              <details className="mb-3 rounded-xl border border-amber-800/50 p-3 text-sm text-amber-200">
+                <summary className="cursor-pointer">Diagnóstico das fontes de documentos</summary>
+                <ul className="mt-2 space-y-1">{documentDiagnostics.map((entry, i) => <li key={i}>{entry.fonte}: {entry.mensagem}</li>)}</ul>
+                <button type="button" onClick={() => setRetryCount(count => count + 1)} className="mt-2 font-semibold text-cyan-300">Tentar novamente</button>
+              </details>
+            )}
             {searchingPncp ? (
               <div className="border border-[#07323e] rounded-xl p-8 bg-[#011419] text-center">
                 <div className="w-7 h-7 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin mx-auto mb-3"></div>
-                <p className="text-sm font-semibold text-slate-100">Buscando documentos e anexos oficiais no PNCP...</p>
+                <p className="text-sm font-semibold text-slate-100">Buscando documentos no PNCP e nos sistemas de origem...</p>
                 <p className="text-xs text-slate-400 mt-1">Localizando arquivos originais de edital, termos de referência e minutas contratuais.</p>
               </div>
             ) : arquivos.length > 0 ? (
@@ -461,7 +428,7 @@ export function LicitacaoDetalhesModal({
                         )}
                         <button 
                           onClick={() => handleRealDownload(fileUrl, arq.titulo, arq)}
-                          disabled={isDownloadingThis}
+                          disabled={Boolean(downloadingUrl) || !fileUrl}
                           className="flex items-center px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 rounded-lg transition-all shadow-sm shadow-[#00171d] disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
                         >
                           {isDownloadingThis ? (
@@ -489,7 +456,9 @@ export function LicitacaoDetalhesModal({
                 <p className="text-xs text-slate-300 mt-1 max-w-lg mx-auto">
                   {origemLink
                     ? "Este órgão licitante disponibiliza o edital na íntegra, termo de referência e anexos para download diretamente através do seu sistema eletrônico oficial de contratação."
-                    : "Os documentos oficiais estão registrados no Portal Nacional de Contratações Públicas (PNCP) e nos sistemas eletrônicos do órgão licitante."
+                    : arquivosError
+                      ? "Consulte a página oficial enquanto a busca de documentos estiver indisponível."
+                      : "Nenhum arquivo pôde ser recuperado automaticamente nas fontes consultadas. Confira o diagnóstico ou acesse o sistema de origem."
                   }
                 </p>
                 <div className="flex flex-wrap items-center justify-center gap-3 mt-4">
@@ -525,10 +494,16 @@ export function LicitacaoDetalhesModal({
               </div>
             )}
             
+            {originLinks.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-2">{originLinks.map(link => (
+                <a key={link} href={link} target="_blank" rel="noopener noreferrer" className="text-xs text-cyan-300 hover:underline">Acessar origem: {new URL(link).hostname}</a>
+              ))}</div>
+            )}
+
             <div className="mt-3 flex items-center justify-between text-xs text-slate-400 bg-slate-900/40 px-3 py-2 rounded-lg border border-slate-800">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                Proteção ativa: Validação de integridade binária e cache instantâneo para evitar arquivos corrompidos.
+                Documentos consultados nas fontes oficiais. Em caso de indisponibilidade, tente novamente ou acesse o PNCP.
               </span>
               {pncpPageLink && (
                 <a

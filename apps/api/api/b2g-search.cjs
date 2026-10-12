@@ -2,17 +2,35 @@
  * B2G Search API - Busca de Editais e Licitações
  * Agrega múltiplas fontes públicas gratuitas
  *
- * Fontes:
- * 1. PNCP - Portal Nacional de Contratações Públicas (API oficial)
- * 2. ComprasNet - Portal de Compras do Governo Federal
- * 3. Imprensa Nacional (DOU) - avisos, editais e contratações da Seção 3
+ * Fontes (10 workers):
+ * 1.  pncp               — Portal Nacional de Contratações Públicas (API oficial)
+ * 2.  comprasnet         — Portal de Compras do Governo Federal (SIASG legado)
+ * 3.  dou               — Imprensa Nacional (DOU Seção 3)
+ * 4.  curitiba-ecompras  — e-Compras Curitiba (Playwright/HTTP scraper)
+ * 5.  transparencia-curitiba — Portal de Transparência de Curitiba
+ * 6.  transparencia-federal  — Portal da Transparência Federal
+ * 7.  contratacoes-14133 — Contratações Lei 14.133 (PNCP dados abertos)
+ * 8.  atas-srp           — Atas de Registro de Preços (PNCP dados abertos)
+ * 9.  pregoes-siasg      — Pregões SIASG / compras.gov.br
+ * 10. comprasgov-disputas — Compras.gov.br Disputas em andamento
  */
 
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+const { AsyncLocalStorage } = require('node:async_hooks');
+const sourceScope = new AsyncLocalStorage();
+const upstreamFetch = global.fetch;
+const fetch = (url, options = {}) => {
+  const signal = sourceScope.getStore()?.signal;
+  return upstreamFetch(url, { ...options, ...(signal ? { signal: options.signal ? AbortSignal.any([signal, options.signal]) : signal } : {}) });
+};
 
-const JWT_SECRET = String(process.env.JWT_SECRET || '').trim();
+const JWT_SECRET = (() => {
+  const secret = String(process.env.JWT_SECRET || '').trim();
+  if (!secret) throw new Error('JWT_SECRET precisa estar configurado');
+  return secret;
+})();
 
 // Middleware de autenticação simples
 const auth = (req, res, next) => {
@@ -36,10 +54,12 @@ const diasAtras = (dias) => {
   return d.toISOString().slice(0, 10).replaceAll('-', '');
 };
 
-const toISODate = (yyyymmdd) => {
-  if (!yyyymmdd || String(yyyymmdd).length < 8) return null;
-  const s = String(yyyymmdd).replaceAll('-', '');
-  return `${s.slice(0, 4)}-${s.slice(4, 6)}-${s.slice(6, 8)}`;
+const toISODate = (value) => {
+  if (!value) return null;
+  const text = String(value).trim();
+  if (/^\d{4}-\d{2}-\d{2}/.test(text)) return text;
+  if (!/^\d{8}$/.test(text)) return null;
+  return `${text.slice(0, 4)}-${text.slice(4, 6)}-${text.slice(6, 8)}`;
 };
 
 const formatCurrency = (value) => {
@@ -63,6 +83,7 @@ async function fetchWithRetry(url, options = {}, { timeoutMs = 45000, retries = 
       return res;
     } catch (err) {
       lastErr = err;
+      if (sourceScope.getStore()?.signal.aborted) throw err;
       if (attempt < retries) {
         await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
       }
@@ -401,7 +422,7 @@ async function buscarPNCPPublicacao({ objeto, uf, pagina = 1, tamanhoPagina = 20
   const dataI = dataInicio ? String(dataInicio).replaceAll('-', '') : diasAtras(30);
   const dataF = dataFim ? String(dataFim).replaceAll('-', '') : hoje();
   const limit = clampNumber(tamanhoPagina, 10, 50, 20);
-  const page = clampNumber(pagina, 10, 500, 10);
+  const page = clampNumber(pagina, 1, 500, 1);
   const startedAt = Date.now();
 
   const normalize = (items, label) => items
@@ -423,6 +444,11 @@ async function buscarPNCPPublicacao({ objeto, uf, pagina = 1, tamanhoPagina = 20
       numero: item.numeroCompra || '',
       ano: item.anoCompra || '',
       numeroControlePNCP: item.numeroControlePNCP || '',
+      anoCompra: item.anoCompra,
+      sequencialCompra: item.sequencialCompra,
+      linkSistemaOrigem: item.linkSistemaOrigem || '',
+      linkProcessoEletronico: item.linkProcessoEletronico || '',
+      documentos: item.documentos || item.arquivos || [],
       link: item.linkSistemaOrigem || `https://pncp.gov.br/app/editais/${item.orgaoEntidade?.cnpj}/${item.anoCompra}/${item.sequencialCompra}`,
       status: item.situacaoCompraNome || 'Publicado',
       situacaoCodigo: item.codigoSituacaoCompra
@@ -494,6 +520,11 @@ async function buscarPNCPProposta({ objeto, uf, pagina = 1, tamanhoPagina = 20, 
         numero: item.numeroCompra || '',
         ano: item.anoCompra || '',
         numeroControlePNCP: item.numeroControlePNCP || '',
+      anoCompra: item.anoCompra,
+      sequencialCompra: item.sequencialCompra,
+      linkSistemaOrigem: item.linkSistemaOrigem || '',
+      linkProcessoEletronico: item.linkProcessoEletronico || '',
+      documentos: item.documentos || item.arquivos || [],
         link: item.linkSistemaOrigem || `https://pncp.gov.br/app/editais/${item.orgaoEntidade?.cnpj}/${item.anoCompra}/${item.sequencialCompra}`,
         status: 'Em proposta',
         situacaoCodigo: item.codigoSituacaoCompra
@@ -540,6 +571,11 @@ const normalizeDadosAbertosPNCP = (item, { objeto, uf }) => {
     numero: item.numeroCompra || '',
     ano: item.anoCompraPncp || '',
     numeroControlePNCP: item.numeroControlePNCP || '',
+    idCompra: item.idCompra,
+    sequencialCompra: item.sequencialCompraPncp,
+    anoCompra: item.anoCompraPncp,
+    linkSistemaOrigem: item.linkSistemaOrigem || (item.idCompra ? `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=${item.idCompra}` : ''),
+    documentos: item.documentos || item.arquivos || [],
     link: pncpLink(item.orgaoEntidadeCnpj, item.anoCompraPncp, item.sequencialCompraPncp),
     status: item.situacaoCompraNomePncp || 'Divulgada no PNCP',
     situacaoCodigo: item.situacaoCompraIdPncp
@@ -603,22 +639,39 @@ async function buscarPNCPDadosAbertos({ objeto, uf, pagina = 1, tamanhoPagina = 
   return { resultados, errors };
 }
 
-async function buscarPNCPAgregado({ objeto, uf, pagina = 1, tamanhoPagina = 20, dataInicio, dataFim, incluirPropostas = true }) {
-  const publicacoes = await buscarPNCPPublicacao({ objeto, uf, pagina, tamanhoPagina, dataInicio, dataFim });
-  const resultados = [...(publicacoes.resultados || [])];
-  const errors = [...(publicacoes.errors || [])];
+async function buscarPNCPAgregado({ objeto, uf, pagina = 1, tamanhoPagina = 20, dataInicio, dataFim, incluirPropostas = true, apenasVigentes = false }) {
+  const resultados = [];
+  const errors = [];
   const limit = clampNumber(tamanhoPagina, 10, 50, 20);
 
+  // Quando apenasVigentes=true, prioriza o endpoint /proposta que filtra por
+  // dataEncerramentoProposta >= hoje — garante apenas editais com prazo futuro.
+  if (apenasVigentes || incluirPropostas) {
+    // Usa janela de 60 dias para capturar editais publicados há mais tempo mas ainda vigentes
+    const dataInicioPropostas = dataInicio || diasAtras(60);
+    const propostas = await buscarPNCPProposta({ objeto, uf, pagina, tamanhoPagina: limit, dataInicio: dataInicioPropostas, dataFim });
+    resultados.push(...(propostas.resultados || []));
+    errors.push(...(propostas.errors || []));
+  }
+
+  // Complementa com publicações recentes se ainda não atingiu o limite
+  if (resultados.length < limit) {
+    const publicacoes = await buscarPNCPPublicacao({ objeto, uf, pagina, tamanhoPagina: limit - resultados.length, dataInicio, dataFim });
+    // Adiciona apenas os que não foram já incluídos
+    const existingIds = new Set(resultados.map(r => r.numeroControlePNCP || r.id));
+    for (const item of (publicacoes.resultados || [])) {
+      if (!existingIds.has(item.numeroControlePNCP || item.id)) {
+        resultados.push(item);
+      }
+    }
+    errors.push(...(publicacoes.errors || []));
+  }
+
+  // Se ainda vazio, tenta dados abertos como último recurso
   if (resultados.length === 0) {
     const dadosAbertos = await buscarPNCPDadosAbertos({ objeto, uf, pagina, tamanhoPagina: limit, dataInicio, dataFim });
     resultados.push(...(dadosAbertos.resultados || []));
     errors.push(...(dadosAbertos.errors || []));
-  }
-
-  if (incluirPropostas && resultados.length === 0 && errors.length === 0) {
-    const propostas = await buscarPNCPProposta({ objeto, uf, pagina, tamanhoPagina: limit - resultados.length, dataInicio, dataFim });
-    resultados.push(...(propostas.resultados || []));
-    errors.push(...(propostas.errors || []));
   }
 
   return { resultados, errors };
@@ -663,7 +716,8 @@ async function buscarComprasNet({ objeto, uf, pagina = 1, tamanhoPagina = 20, da
       errors.push(`ComprasNet legado: HTTP ${res.status}`);
     } else {
       const data = await safeJson(res);
-      const items = Array.isArray(data?.resultado) ? data.resultado : [];
+      if (!Array.isArray(data?.resultado)) throw new Error('Resposta inválida da fonte: lista resultado ausente.');
+      const items = data.resultado;
 
       for (const item of items) {
         const itemUf = extractUfFromAddress(item.endereco_entrega_edital) || uf || '';
@@ -677,6 +731,10 @@ async function buscarComprasNet({ objeto, uf, pagina = 1, tamanhoPagina = 20, da
           titulo: item.objeto || 'Sem descrição',
           orgao: item.nome_orgao || `UASG ${item.uasg || ''}`.trim(),
           cnpjOrgao: '',
+          idCompra: item.id_compra,
+          codigoUasg: item.uasg,
+          documentos: item.documentos || item.arquivos || [],
+          linkSistemaOrigem: item.linkSistemaOrigem || (item.id_compra ? `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=${item.id_compra}` : ''),
           modalidade: item.nome_modalidade || '',
           uf: itemUf,
           municipio: extractMunicipioFromAddress(item.endereco_entrega_edital),
@@ -686,7 +744,7 @@ async function buscarComprasNet({ objeto, uf, pagina = 1, tamanhoPagina = 20, da
           dataEncerramento: null,
           numero: String(item.numero_aviso || ''),
           ano: String(item.id_compra || '').slice(-4),
-          link: item.linkSistemaOrigem || `https://www.gov.br/compras/pt-br/acesso-a-informacao/consulta-licitacoes`,
+          link: item.linkSistemaOrigem || (item.id_compra ? `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=${item.id_compra}` : 'https://www.gov.br/compras/pt-br/acesso-a-informacao/consulta-licitacoes'),
           status: item.situacao_aviso || 'Publicado'
         });
       }
@@ -902,10 +960,10 @@ async function buscarCuritibaECompras({ objeto, uf, cidade, tamanhoPagina = 20, 
     return {
       resultados: transparencia.resultados.slice(0, limit).map(item => ({
         ...item,
-        fonte: 'e-Compras Curitiba',
-        fonteLogo: '🏙️'
+        fonte: item.fonte,
+        fonteLogo: item.fonteLogo || '🏙️'
       })),
-      errors: []
+      errors: diagnostics
     };
   }
 
@@ -914,10 +972,10 @@ async function buscarCuritibaECompras({ objeto, uf, cidade, tamanhoPagina = 20, 
     return {
       resultados: fallback.resultados.slice(0, limit).map(item => ({
         ...item,
-        fonte: 'e-Compras Curitiba',
-        fonteLogo: '🏙️'
+        fonte: item.fonte,
+        fonteLogo: item.fonteLogo || '🏙️'
       })),
-      errors: []
+      errors: diagnostics
     };
   }
 
@@ -953,7 +1011,7 @@ async function buscarPNCPCuritibaFallback({ objeto, dataInicio, dataFim, tamanho
           url.searchParams.set('dataFinal', dataF);
           url.searchParams.set('uf', 'PR');
           url.searchParams.set('codigoModalidadeContratacao', modCode);
-          url.searchParams.set('pagina', Math.max(10, pagina));
+          url.searchParams.set('pagina', Math.max(1, pagina));
           url.searchParams.set('tamanhoPagina', requestSize);
 
           const items = await fetchPNCPItems(url, `e-Compras Curitiba PNCP pagina ${pagina} (modalidade ${modCode})`, { timeoutMs: 8000 });
@@ -1153,6 +1211,11 @@ async function buscarPortalTransparenciaFederalFallback({ objeto, uf, dataInicio
             numero: item.numeroCompra || '',
             ano: item.anoCompraPncp || '',
             numeroControlePNCP: item.numeroControlePNCP || '',
+      anoCompra: item.anoCompra,
+      sequencialCompra: item.sequencialCompra,
+      linkSistemaOrigem: item.linkSistemaOrigem || '',
+      linkProcessoEletronico: item.linkProcessoEletronico || '',
+      documentos: item.documentos || item.arquivos || [],
             link: pncpLink(item.orgaoEntidadeCnpj, item.anoCompraPncp, item.sequencialCompraPncp),
             status: item.situacaoCompraNomePncp || 'Divulgada no PNCP'
           });
@@ -1175,7 +1238,8 @@ async function buscarPortalTransparenciaFederal({ objeto, uf, dataInicio, dataFi
   const orgao = String(codigoOrgao || process.env.PORTAL_TRANSPARENCIA_CODIGO_ORGAO || '').trim();
 
   if (!token) {
-    return buscarPortalTransparenciaFederalFallback({ objeto, uf, dataInicio, dataFim, tamanhoPagina });
+    const fallback = await buscarPortalTransparenciaFederalFallback({ objeto, uf, dataInicio, dataFim, tamanhoPagina });
+    return { ...fallback, errors: ['Portal da Transparência: chave de API não configurada; consultada a fonte pública alternativa.', ...(fallback.errors || [])] };
   }
 
   if (!orgao) {
@@ -1250,13 +1314,18 @@ async function buscarPortalTransparenciaFederal({ objeto, uf, dataInicio, dataFi
 // ─── Deduplicação ─────────────────────────────────────────────────────────────
 
 function deduplicar(items) {
-  const seen = new Set();
-  return items.filter(item => {
-    const key = String(item.id || `${item.titulo?.slice(0, 40)}-${item.orgao?.slice(0, 20)}`);
-    if (seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
+  const merged = new Map();
+  for (const item of items) {
+    const key = String(item.numeroControlePNCP || item.id || `${item.titulo}-${item.orgao}`);
+    const previous = merged.get(key);
+    if (!previous) { merged.set(key, { ...item, origens: item.origens || [] }); continue; }
+    const origins = [...(previous.origens || []), ...(item.origens || [])];
+    previous.origens = Array.from(new Map(origins.map(origin => [`${origin.id}:${origin.url}`, origin])).values());
+    previous.documentos = [...(previous.documentos || []), ...(item.documentos || [])];
+    if (!previous.linkSistemaOrigem && item.linkSistemaOrigem) previous.linkSistemaOrigem = item.linkSistemaOrigem;
+    if (!previous.linkProcessoEletronico && item.linkProcessoEletronico) previous.linkProcessoEletronico = item.linkProcessoEletronico;
+  }
+  return Array.from(merged.values());
 }
 
 // ─── Ordenação ────────────────────────────────────────────────────────────────
@@ -1284,44 +1353,7 @@ function ordenar(items, ordem = 'data_desc') {
 
 router.get('/fontes', auth, (req, res) => {
   res.json({
-    fontes: [
-      {
-        id: 'pncp',
-        nome: 'PNCP',
-        descricao: 'Portal Nacional de Contratações Públicas',
-        logo: '🏛️',
-        tipo: 'federal',
-        status: 'ativo',
-        url: 'https://pncp.gov.br'
-      },
-      {
-        id: 'comprasnet',
-        nome: 'ComprasNet',
-        descricao: 'Portal de Compras do Governo Federal (SIASG)',
-        logo: '🇧🇷',
-        tipo: 'federal',
-        status: 'ativo',
-        url: 'https://comprasnet.gov.br'
-      },
-      {
-        id: 'dou',
-        nome: 'Imprensa Nacional (DOU)',
-        descricao: 'Avisos, editais e contratações da Seção 3 do Diário Oficial da União',
-        logo: '📰',
-        tipo: 'federal',
-        status: 'ativo',
-        url: 'https://www.in.gov.br'
-      },
-      {
-        id: 'curitiba-ecompras',
-        nome: 'e-Compras Curitiba',
-        descricao: 'Portal de Compras Eletrônicas do Município de Curitiba',
-        logo: '🏙️',
-        tipo: 'municipal',
-        status: 'ativo',
-        url: CURITIBA_ECOMPRAS_URL
-      }
-    ]
+    fontes: WORKER_CATALOG.map(worker => ({ ...worker, status: 'disponivel' }))
   });
 });
 
@@ -1403,6 +1435,174 @@ router.get('/curitiba-ecompras', auth, async (req, res) => {
 
 // ─── GET /api/b2g-search/search ───────────────────────────────────────────────
 
+// Catálogo completo dos 10 workers disponíveis.
+// Usado tanto pelo endpoint /workers quanto pelo /search para normalizar IDs.
+const WORKER_CATALOG = [
+  { id: 'pncp',                  nome: 'PNCP Oficial',               tipo: 'API',      logo: '🏛️',  descricao: 'Portal Nacional de Contratações Públicas — modalidades oficiais' },
+  { id: 'comprasnet',            nome: 'ComprasNet / Compras.gov.br', tipo: 'API',      logo: '🇧🇷',  descricao: 'Portal de Compras do Governo Federal (SIASG legado)' },
+  { id: 'transparencia-federal', nome: 'Transparência Federal',       tipo: 'API',      logo: '🔎',  descricao: 'Portal da Transparência Federal — contratos e licitações' },
+  { id: 'dou',                   nome: 'Imprensa Nacional (DOU)',     tipo: 'RSS/API',  logo: '📰',  descricao: 'Avisos, editais e contratações da Seção 3 do Diário Oficial da União' },
+  { id: 'curitiba-ecompras',     nome: 'e-Compras Curitiba',         tipo: 'Scraper',  logo: '🏙️',  descricao: 'Portal de Compras Eletrônicas do Município de Curitiba' },
+  { id: 'transparencia-curitiba',nome: 'Transparência Curitiba',     tipo: 'Scraper',  logo: '🏢',  descricao: 'Portal de Transparência da Prefeitura de Curitiba' },
+  { id: 'contratacoes-14133',    nome: 'Contratações Lei 14.133',    tipo: 'API',      logo: '⚖️',  descricao: 'Contratações diretas e dispensas eletrônicas via PNCP (Lei 14.133/2021)' },
+  { id: 'atas-srp',              nome: 'Atas de Registro de Preços', tipo: 'API',      logo: '📋',  descricao: 'Atas de Registro de Preços — módulo ARP do Compras.gov.br' },
+  { id: 'pregoes-siasg',         nome: 'Pregões SIASG',              tipo: 'API',      logo: '🔧',  descricao: 'Pregões eletrônicos publicados no SIASG / compras.gov.br' },
+  { id: 'comprasgov-disputas',   nome: 'Compras.gov Disputas',       tipo: 'API',      logo: '⚡',  descricao: 'Compras.gov.br — licitações com disputa aberta ou em andamento' },
+];
+
+// ─── Worker: Contratações Lei 14.133 (dispensas eletrônicas + diretas) ─────────
+
+async function buscarContratacoes14133(params) {
+  const result = await buscarPNCPDadosAbertos({ ...params, modalidades: [8, 9, 12] });
+  return { ...result, resultados: result.resultados.map(item => ({ ...item, fonte: 'Contratações Lei 14.133', fonteLogo: '⚖️' })) };
+}
+
+// ─── Worker: Atas de Registro de Preços (modalidade 9 — SRP) ─────────────────
+
+async function buscarAtasSRP({ objeto, uf, pagina = 1, tamanhoPagina = 20, dataInicio, dataFim }) {
+  const url = new URL('https://dadosabertos.compras.gov.br/modulo-arp/1_consultarARP');
+  url.searchParams.set('pagina', String(Math.max(1, Number(pagina))));
+  url.searchParams.set('tamanhoPagina', String(clampNumber(tamanhoPagina, 10, 500, 40)));
+  url.searchParams.set('dataVigenciaInicialMin', toDadosAbertosDate(dataInicio, diasAtras(60)));
+  url.searchParams.set('dataVigenciaInicialMax', toDadosAbertosDate(dataFim, hoje()));
+  const response = await fetch(url, { headers: PNCP_HEADERS, signal: AbortSignal.timeout(12000) });
+  if (!response.ok) throw new Error(`Atas SRP HTTP ${response.status}`);
+  const payload = await response.json();
+  const items = Array.isArray(payload.resultado) ? payload.resultado : [];
+  return { resultados: items.filter(item => matchObjeto(item.objeto || item.objetoCompra || item.objetoAta, objeto))
+    .filter(item => !uf || !item.unidadeOrgaoUfSigla || item.unidadeOrgaoUfSigla === uf.toUpperCase())
+    .map(item => ({
+      ...item, id: `arp-${item.numeroControlePncpAta || item.idAta || item.numeroAtaRegistroPreco || item.id}`,
+      fonte: 'Atas de Registro de Preços', fonteLogo: '📋', isSRP: true,
+      titulo: item.objeto || item.objetoCompra || item.objetoAta || 'Ata de Registro de Preços',
+      orgao: item.nomeUnidadeGerenciadora || item.orgaoEntidadeRazaoSocial || item.nomeOrgao || '',
+      uf: item.unidadeOrgaoUfSigla || '',
+      numeroControlePNCP: item.numeroControlePNCPCompra || item.numeroControlePncpCompra || '',
+      valor: formatCurrency(item.valorTotal || item.valorTotalEstimado),
+      dataPublicacao: item.dataAssinatura || item.dataVigenciaInicial,
+      dataEncerramento: item.dataVigenciaFinal,
+      link: item.linkAtaPNCP || item.linkCompraPNCP || item.linkSistemaOrigem || 'https://www.gov.br/compras/pt-br/atas-de-registro-de-precos',
+      status: 'Ata de Registro de Preços'
+    })), errors: [] };
+}
+
+// ─── Worker: Pregões SIASG (compras.gov.br — dados abertos) ──────────────────
+
+async function buscarPregoesSIASG({ objeto, uf, pagina = 1, tamanhoPagina = 20, dataInicio, dataFim }) {
+  // Reutiliza ComprasNet legado mas normaliza como fonte SIASG
+  const resultados = [];
+  const errors = [];
+
+  try {
+    const url = new URL('https://dadosabertos.compras.gov.br/modulo-legado/1_consultarLicitacao');
+    url.searchParams.set('data_publicacao_inicial', toISODate(dataInicio || diasAtras(30)) || toISODate(diasAtras(30)));
+    url.searchParams.set('data_publicacao_final', toISODate(dataFim || hoje()) || toISODate(hoje()));
+    url.searchParams.set('pagina', String(Math.max(1, Math.min(Number(pagina) || 1, 500))));
+    url.searchParams.set('tamanhoPagina', String(Math.max(10, Math.min(Number(tamanhoPagina) || 20, 500))));
+    url.searchParams.set('modalidade', '5'); // Pregão = modalidade 5 no SIASG
+
+    const res = await fetch(url.toString(), {
+      headers: { Accept: 'application/json', 'User-Agent': 'NexosCRM/2.0' },
+      signal: AbortSignal.timeout(15000)
+    });
+
+    if (!res.ok) {
+      errors.push(`Pregões SIASG: HTTP ${res.status}`);
+    } else {
+      const data = await safeJson(res);
+      if (!Array.isArray(data?.resultado)) throw new Error('Resposta inválida da fonte: lista resultado ausente.');
+      const items = data.resultado;
+      const limit = clampNumber(tamanhoPagina, 10, 50, 20);
+
+      for (const item of items) {
+        const itemUf = extractUfFromAddress(item.endereco_entrega_edital) || uf || '';
+        if (uf && itemUf !== uf.toUpperCase()) continue;
+        if (!matchObjeto(`${item.objeto} ${item.informacoes_gerais}`, objeto)) continue;
+
+        resultados.push({
+          id: `siasg-${item.id_compra || item.identificador || Math.random()}`,
+          fonte: 'Pregões SIASG',
+          fonteLogo: '🔧',
+          titulo: item.objeto || 'Sem descrição',
+          orgao: item.nome_orgao || `UASG ${item.uasg || ''}`.trim(),
+          cnpjOrgao: '',
+          idCompra: item.id_compra,
+          codigoUasg: item.uasg,
+          documentos: item.documentos || item.arquivos || [],
+          linkSistemaOrigem: item.linkSistemaOrigem || (item.id_compra ? `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=${item.id_compra}` : ''),
+          modalidade: item.nome_modalidade || 'Pregão Eletrônico',
+          uf: itemUf,
+          municipio: extractMunicipioFromAddress(item.endereco_entrega_edital),
+          valor: formatCurrency(item.valor_estimado_total || item.valor_homologado_total),
+          dataPublicacao: item.data_publicacao || null,
+          dataAbertura: toISODate(item.data_abertura_proposta) || item.data_abertura_proposta || null,
+          dataEncerramento: null,
+          numero: String(item.numero_aviso || item.id_compra || ''),
+          ano: String(item.id_compra || '').slice(-4),
+          link: item.linkSistemaOrigem || (item.id_compra ? `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=${item.id_compra}` : 'https://www.gov.br/compras/pt-br'),
+          status: item.situacao_aviso || 'Publicado'
+        });
+        if (resultados.length >= limit) break;
+      }
+    }
+  } catch (err) {
+    errors.push(`Pregões SIASG: ${err.message}`);
+  }
+  return { resultados, errors };
+}
+
+// ─── Worker: Compras.gov.br Disputas em andamento ────────────────────────────
+
+async function buscarComprasGovDisputas(params) {
+  const result = await buscarPNCPDadosAbertos({ ...params, modalidades: [6] });
+  return { ...result, resultados: result.resultados.filter(item => item.dataEncerramento && new Date(item.dataEncerramento).getTime() >= Date.now())
+    .map(item => ({ ...item, fonte: 'Compras.gov Disputas', fonteLogo: '⚡' })) };
+}
+
+// ─── Rastreamento de status dos workers em memória ───────────────────────────
+
+const workerStatus = new Map();
+
+const setWorkerStatus = (id, updates) => {
+  const prev = workerStatus.get(id) || { id, status: 'idle', lastRunAt: null, lastError: null, totalResults: 0 };
+  workerStatus.set(id, { ...prev, ...updates, updatedAt: new Date().toISOString() });
+};
+
+const wrapWorker = async (id, fn, ...args) => {
+  const controller = new AbortController();
+  const timeoutMs = Math.max(1000, Math.min(Number(process.env.B2G_SOURCE_TIMEOUT_MS) || 22000, 22000));
+  let timer;
+  setWorkerStatus(id, { status: 'running' });
+  try {
+    const timeout = new Promise((_, reject) => {
+      timer = setTimeout(() => { controller.abort(); reject(new Error('Tempo limite de consulta desta fonte excedido.')); }, timeoutMs);
+    });
+    const result = await Promise.race([sourceScope.run({ signal: controller.signal }, () => fn(...args)), timeout]);
+    const resultados = (result.resultados || []).map(item => ({ ...item, sourceId: id,
+      origens: [{ id, nome: item.fonte || id, url: item.linkSistemaOrigem || item.link || '' }] }));
+    const status = result.errors?.length ? (resultados.length ? 'partial' : 'error') : 'ok';
+    const snapshot = { id, status, lastRunAt: new Date().toISOString(), lastError: result.errors?.[0] || null, totalResults: resultados.length };
+    setWorkerStatus(id, snapshot);
+    return { ...result, resultados, fonteStatus: snapshot };
+  } catch (err) {
+    const snapshot = { id, status: 'error', lastRunAt: new Date().toISOString(), lastError: err.message, totalResults: 0 };
+    setWorkerStatus(id, snapshot);
+    return { resultados: [], errors: [`${id}: ${err.message}`], fonteStatus: snapshot };
+  } finally { clearTimeout(timer); }
+};
+
+// ─── GET /api/b2g-search/workers ─────────────────────────────────────────────
+
+router.get('/workers', auth, (req, res) => {
+  const catalog = WORKER_CATALOG.map(w => ({
+    ...w,
+    ...(workerStatus.get(w.id) || { status: 'idle', lastRunAt: null, lastError: null, totalResults: 0 }),
+  }));
+  res.json({ workers: catalog, timestamp: new Date().toISOString() });
+});
+
+// ─── GET /api/b2g-search/search ───────────────────────────────────────────────
+
 router.get('/search', auth, async (req, res) => {
   const {
     objeto = '',
@@ -1411,7 +1611,7 @@ router.get('/search', auth, async (req, res) => {
     tamanhoPagina = 20,
     dataInicio = '',
     dataFim = '',
-    fontes = 'pncp,comprasnet',
+    fontes = '',
     ordem = 'data_desc',
     incluirPropostas = 'true',
     apenasVigentes = 'false',
@@ -1420,70 +1620,77 @@ router.get('/search', auth, async (req, res) => {
     termos = ''
   } = req.query;
 
-  const fontesAtivas = String(fontes).toLowerCase().split(',').map(f => f.trim());
+  // Fontes explicitamente enviadas. Se string vazia ou "none", retorna sem resultados.
+  const fontesRaw = String(fontes).trim().toLowerCase();
+  if (!fontesRaw || fontesRaw === 'none') {
+    return res.json({
+      data: [], total: 0, pagina: Number(pagina), fontes: {},
+      info: 'Nenhuma fonte selecionada. Ative ao menos uma fonte para buscar editais.',
+      timestamp: new Date().toISOString()
+    });
+  }
+
+  const fontesAtivas = new Set(fontesRaw.split(',').map(f => f.trim()).filter(Boolean));
 
   try {
     const promises = [];
+    const params = { objeto, uf, pagina: Number(pagina), tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim };
 
-    if (fontesAtivas.includes('pncp')) {
-      promises.push(
-        buscarPNCPAgregado({
-          objeto,
-          uf,
-          pagina: Number(pagina),
-          tamanhoPagina: Number(tamanhoPagina),
-          dataInicio,
-          dataFim,
-          incluirPropostas: incluirPropostas === 'true'
-        })
-          .catch(err => ({ resultados: [], errors: [`PNCP: ${err.message}`] }))
-      );
+    if (fontesAtivas.has('pncp')) {
+      promises.push(wrapWorker('pncp', buscarPNCPAgregado, {
+        ...params,
+        incluirPropostas: incluirPropostas === 'true',
+        apenasVigentes: apenasVigentes === 'true'
+      }));
     }
 
-    if (fontesAtivas.includes('comprasnet')) {
-      promises.push(
-        buscarComprasNet({ objeto, uf, pagina: Number(pagina), tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim })
-          .catch(err => ({ resultados: [], errors: [`ComprasNet: ${err.message}`] }))
-      );
+    if (fontesAtivas.has('comprasnet')) {
+      promises.push(wrapWorker('comprasnet', buscarComprasNet, params));
     }
 
-    if (fontesAtivas.includes('dou')) {
-      promises.push(
-        buscarDOU({ objeto, termos, tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim })
-          .catch(err => ({ resultados: [], errors: [`Imprensa Nacional (DOU): ${err.message}`] }))
-      );
+    if (fontesAtivas.has('dou')) {
+      promises.push(wrapWorker('dou', buscarDOU, { objeto, termos, tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim }));
     }
 
-    if (fontesAtivas.includes('transparencia-curitiba')) {
-      promises.push(
-        buscarTransparenciaCuritiba({ objeto, uf, cidade, tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim })
-          .catch(err => ({ resultados: [], errors: [`Transparência Curitiba: ${err.message}`] }))
-      );
+    if (fontesAtivas.has('transparencia-curitiba')) {
+      promises.push(wrapWorker('transparencia-curitiba', buscarTransparenciaCuritiba, { objeto, uf, cidade, tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim }));
     }
 
-    if (fontesAtivas.includes('transparencia-federal')) {
-      promises.push(
-        buscarPortalTransparenciaFederal({ objeto, uf, dataInicio, dataFim, tamanhoPagina: Number(tamanhoPagina), codigoOrgao })
-          .catch(err => ({ resultados: [], errors: [`Portal Transparência Federal: ${err.message}`] }))
-      );
+    if (fontesAtivas.has('transparencia-federal')) {
+      promises.push(wrapWorker('transparencia-federal', buscarPortalTransparenciaFederal, { objeto, uf, dataInicio, dataFim, tamanhoPagina: Number(tamanhoPagina), codigoOrgao }));
     }
 
-    if (fontesAtivas.includes('curitiba-ecompras') || fontesAtivas.includes('curitiba') || fontesAtivas.includes('ecompras')) {
-      promises.push(
-        buscarCuritibaECompras({ objeto, uf, cidade, pagina: Number(pagina), tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim })
-          .catch(err => ({ resultados: [], errors: [`e-Compras Curitiba: ${err.message}`] }))
-      );
+    if (fontesAtivas.has('curitiba-ecompras') || fontesAtivas.has('curitiba') || fontesAtivas.has('ecompras')) {
+      promises.push(wrapWorker('curitiba-ecompras', buscarCuritibaECompras, { objeto, uf, cidade, pagina: Number(pagina), tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim }));
+    }
+
+    if (fontesAtivas.has('contratacoes-14133')) {
+      promises.push(wrapWorker('contratacoes-14133', buscarContratacoes14133, params));
+    }
+
+    if (fontesAtivas.has('atas-srp')) {
+      promises.push(wrapWorker('atas-srp', buscarAtasSRP, params));
+    }
+
+    if (fontesAtivas.has('pregoes-siasg')) {
+      promises.push(wrapWorker('pregoes-siasg', buscarPregoesSIASG, params));
+    }
+
+    if (fontesAtivas.has('comprasgov-disputas')) {
+      promises.push(wrapWorker('comprasgov-disputas', buscarComprasGovDisputas, params));
     }
 
     const settled = await Promise.allSettled(promises);
 
     const todosResultados = [];
     const todosErros = [];
+    const statusFontes = [];
 
     for (const r of settled) {
       if (r.status === 'fulfilled') {
         todosResultados.push(...(r.value.resultados || []));
         todosErros.push(...(r.value.errors || []));
+        if (r.value.fonteStatus) statusFontes.push({ ...r.value.fonteStatus, nome: WORKER_CATALOG.find(w => w.id === r.value.fonteStatus.id)?.nome || r.value.fonteStatus.id });
       } else {
         todosErros.push(r.reason?.message || 'Erro desconhecido');
       }
@@ -1498,7 +1705,9 @@ router.get('/search', auth, async (req, res) => {
     // Estatísticas por fonte
     const porFonte = {};
     for (const item of filtrados) {
-      porFonte[item.fonte] = (porFonte[item.fonte] || 0) + 1;
+      for (const fonte of new Set((item.origens?.length ? item.origens : [{ nome: item.fonte }]).map(origin => origin.nome))) {
+        porFonte[fonte] = (porFonte[fonte] || 0) + 1;
+      }
     }
 
     res.json({
@@ -1506,6 +1715,8 @@ router.get('/search', auth, async (req, res) => {
       total: ordenados.length,
       pagina: Number(pagina),
       fontes: porFonte,
+      statusFontes,
+      fontesConsultadas: statusFontes.map(source => source.id),
       erros: todosErros.length > 0 ? todosErros : undefined,
       timestamp: new Date().toISOString()
     });

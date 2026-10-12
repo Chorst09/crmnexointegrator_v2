@@ -689,13 +689,13 @@ const arquivosCache = new Map();
 const ARQUIVOS_CACHE_TTL = 15 * 60 * 1000;
 
 // ── Helper compartilhado para obter lista de arquivos reais e canais oficiais do certame ──
-const getArquivosForEdital = async (cnpj, ano, seq) => {
+const getPncpFiles = async (cnpj, ano, seq, { signal } = {}) => {
   const cleanCnpj = String(cnpj || '').replace(/\D/g, '');
   const cleanAno = parseInt(String(ano || ''), 10);
   const cleanSeq = parseInt(String(seq || ''), 10);
 
-  if (!cleanCnpj || isNaN(cleanAno) || isNaN(cleanSeq)) {
-    return [];
+  if (!/^\d{14}$/.test(cleanCnpj) || !/^\d{4}$/.test(String(ano)) || !/^\d+$/.test(String(seq)) || cleanSeq <= 0) {
+    throw Object.assign(new Error('Informe o CNPJ, ano e sequencial PNCP válidos do edital.'), { status: 400 });
   }
 
   const cacheKey = `arquivos_${cleanCnpj}_${cleanAno}_${cleanSeq}`;
@@ -707,36 +707,42 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
 
   let filesList = [];
 
-  // 1. Tenta consultar anexos diretos no repositório de arquivos do PNCP com prioridade
-  try {
-    const pUrl = `https://pncp.gov.br/api/pncp/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos`;
+  // O PNCP possui dois caminhos públicos; o segundo permite recuperar falhas do gateway.
+  let pncpResponded = false;
+  for (const base of ['https://pncp.gov.br/pncp-api/v1', 'https://pncp.gov.br/api/pncp/v1']) {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
-    const response = await fetch(pUrl, {
-      headers: { Accept: 'application/json', 'User-Agent': nextUA() },
-      signal: controller.signal
-    });
-    clearTimeout(timeoutId);
-    if (response.ok) {
-      const pData = await response.json();
-      if (Array.isArray(pData) && pData.length > 0) {
-        pData.forEach((arq, idx) => {
-          const docSeq = arq.sequencialDocumento || (idx + 1);
-          filesList.push({
-            sequencialDocumento: docSeq,
-            titulo: arq.titulo || `Anexo_Oficial_${docSeq}.pdf`,
-            tipoDocumentoNome: arq.tipoDocumentoNome || arq.tipoDocumentoDescricao || 'Anexo PNCP',
-            url: arq.url || arq.uri || `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}`,
-            uri: arq.url || arq.uri || `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}`,
-            tamanhoArquivo: arq.tamanhoArquivo || null,
-            dataPublicacaoPncp: arq.dataPublicacaoPncp,
-            origem: 'PNCP_OFICIAL'
-          });
-        });
-      }
+    const timeoutId = setTimeout(() => controller.abort(), 6000);
+    try {
+      const response = await fetch(`${base}/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos`, {
+        headers: { Accept: 'application/json', 'User-Agent': nextUA() },
+        signal: signal ? AbortSignal.any([signal, controller.signal]) : controller.signal
+      });
+      if (!response.ok) throw new Error(`PNCP HTTP ${response.status}`);
+      const data = response.status === 204 ? [] : await response.json();
+      const pData = Array.isArray(data) ? data : data?.data;
+      if (!Array.isArray(pData)) throw new Error('Resposta de anexos PNCP inválida');
+      pncpResponded = true;
+      filesList = pData.map((arq) => {
+        const docSeq = arq.sequencialDocumento;
+        const url = arq.url || arq.uri || (docSeq
+          ? `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}`
+          : null);
+        return {
+          sequencialDocumento: docSeq,
+          titulo: arq.titulo || arq.nomeArquivo || `Anexo_Oficial_${docSeq || 'PNCP'}`,
+          tipoDocumentoNome: arq.tipoDocumentoNome || arq.tipoDocumentoDescricao || 'Anexo PNCP',
+          url, uri: url,
+          tamanhoArquivo: arq.tamanhoArquivo || null,
+          dataPublicacaoPncp: arq.dataPublicacaoPncp,
+          origem: 'PNCP_OFICIAL'
+        };
+      }).filter((arq) => arq.url);
+      break;
+    } catch (error) {
+      console.warn(`[getArquivosForEdital] ${base} (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, error.message);
+    } finally {
+      clearTimeout(timeoutId);
     }
-  } catch (err) {
-    console.warn(`[getArquivosForEdital] Consulta PNCP arquivos (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, err.message);
   }
 
   // Se encontrou arquivos oficiais no PNCP, armazena no cache e retorna imediatamente!
@@ -745,65 +751,35 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
     return filesList;
   }
 
-  // 2. Se o PNCP não tem arquivos diretos anexados, consulta os metadados da contratação (linkSistemaOrigem)
-  let compraInfo = null;
-  try {
-    const cUrl = `https://pncp.gov.br/api/consulta/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}`;
-    const cRes = await fetch(cUrl, {
-      headers: { Accept: 'application/json', 'User-Agent': nextUA() },
-      signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 5000); return c.signal; })()
-    });
-    if (cRes.ok) {
-      compraInfo = await cRes.json();
-    }
-  } catch (e) {
-    console.warn(`[getArquivosForEdital] Aviso ao consultar compraInfo (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, e.message);
+  if (!pncpResponded) {
+    throw Object.assign(new Error('O serviço de documentos do PNCP está temporariamente indisponível. Tente novamente ou consulte a página oficial do edital.'), { status: 502 });
   }
-
-  // 3. Extração de arquivos reais do Portal de Compras Públicas se for o sistema de origem
-  if (compraInfo?.linkSistemaOrigem) {
-    const lso = compraInfo.linkSistemaOrigem.toLowerCase();
-    if (lso.includes('portaldecompraspublicas.com.br')) {
-      try {
-        const pcpRes = await fetch(compraInfo.linkSistemaOrigem, {
-          headers: { 'User-Agent': nextUA(), Accept: 'text/html' },
-          signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 4000); return c.signal; })()
-        });
-        if (pcpRes.ok) {
-          const html = await pcpRes.text();
-          const regex = /"nome":"([^"]+)","url":"([^"]+)","tipo":"([^"]+)"/g;
-          let m;
-          let docIdx = 1;
-          while ((m = regex.exec(html)) !== null) {
-            const nome = m[1].replace(/\\u002F/g, '/');
-            const fileUrl = m[2].replace(/\\u002F/g, '/').replace(/\\\\u002F/g, '/');
-            const tipo = m[3] || 'Edital e Anexos';
-            filesList.push({
-              sequencialDocumento: docIdx++,
-              titulo: nome,
-              tipoDocumentoNome: tipo,
-              url: fileUrl,
-              uri: fileUrl,
-              tamanhoArquivo: null,
-              dataPublicacaoPncp: compraInfo.dataPublicacaoPncp,
-              origem: 'SISTEMA_ORIGEM',
-              descricao: `Documento autêntico baixado diretamente do Portal de Compras Públicas (${tipo}).`
-            });
-          }
-        }
-      } catch (errPcp) {
-        console.warn('[getArquivosForEdital] Aviso ao consultar anexos no Portal de Compras Públicas:', errPcp.message);
-      }
-    }
-  }
-
-  if (filesList.length > 0) {
-    arquivosCache.set(cacheKey, { data: filesList, timestamp: now, hasRealFiles: true });
-    return filesList;
-  }
-
   return [];
 };
+
+const { createDocumentResolver } = require('../lib/editalDocuments.cjs');
+const resolveEditalDocuments = createDocumentResolver({ getPncpFiles });
+
+// As rotas antigas também recuperam anexos públicos do sistema de origem.
+const getArquivosForEdital = async (cnpj, ano, seq) => {
+  if (!/^\d{14}$/.test(String(cnpj)) || !/^\d{4}$/.test(String(ano)) || !/^\d+$/.test(String(seq)) || Number(seq) <= 0) {
+    throw Object.assign(new Error('Informe o CNPJ, ano e sequencial PNCP válidos do edital.'), { status: 400 });
+  }
+  const result = await resolveEditalDocuments({ cnpjOrgao: cnpj, anoCompra: ano, sequencialCompra: seq });
+  if (result.documentos.length) return result.documentos;
+  if (result.diagnosticos.length) throw Object.assign(new Error('Não foi possível recuperar anexos públicos. Consulte a fonte oficial ou tente novamente.'), { status: 502 });
+  return [];
+};
+
+router.post('/documentos/resolver', async (req, res) => {
+  try {
+    const result = await resolveEditalDocuments(req.body || {});
+    return res.json(result);
+  } catch (error) {
+    console.error('Erro ao resolver documentos do edital:', error.message);
+    return res.status(502).json({ error: 'Não foi possível consultar os documentos nas fontes oficiais.' });
+  }
+});
 
 // ── GET /arquivos/:cnpj/:ano/:seq — arquivos de uma licitação ─────────────────
 router.get(['/arquivos/:cnpj/:ano/:seq', '/arquivos/:cnpj/:ano/:seq/'], async (req, res) => {
@@ -812,8 +788,8 @@ router.get(['/arquivos/:cnpj/:ano/:seq', '/arquivos/:cnpj/:ano/:seq/'], async (r
     const list = await getArquivosForEdital(cnpj, ano, seq);
     res.json(list);
   } catch (err) {
-    console.error('Erro /arquivos/:cnpj/:ano/:seq:', err);
-    res.json([]);
+    console.error('Erro /arquivos/:cnpj/:ano/:seq:', err.message);
+    res.status(err.status || 502).json({ error: err.message || 'Falha ao consultar anexos no PNCP.' });
   }
 });
 
@@ -829,8 +805,8 @@ router.get(['/pncp-arquivos', '/pncp-arquivos/'], async (req, res) => {
     const list = await getArquivosForEdital(cnpj, ano, seq);
     res.json(list);
   } catch (err) {
-    console.error('Erro /pncp-arquivos:', err);
-    res.json([]);
+    console.error('Erro /pncp-arquivos:', err.message);
+    res.status(err.status || 502).json({ error: err.message || 'Falha ao consultar anexos no PNCP.' });
   }
 });
 
@@ -2054,7 +2030,7 @@ router.get('/arquivos/:cnpj/:ano/:seq/download/:docSeq', async (req, res) => {
   try {
     // 1. Obtém a lista de arquivos reais do PNCP
     const arquivos = await getArquivosForEdital(cleanCnpj, cleanAno, cleanSeq);
-    const arq = arquivos.find(a => Number(a.sequencialDocumento) === cleanDocSeq) || arquivos[0];
+    const arq = arquivos.find(a => Number(a.sequencialDocumento) === cleanDocSeq);
 
     if (!arq) {
       return res.status(404).json({ error: 'Arquivo não encontrado para este edital.' });
@@ -2094,13 +2070,10 @@ router.get('/arquivos/:cnpj/:ano/:seq/download/:docSeq', async (req, res) => {
 
   } catch (err) {
     console.error('[download-persist] Erro:', err.message);
-    // Fallback seguro: redireciona para a URL original
-    try {
-      const arquivos = await getArquivosForEdital(cleanCnpj, cleanAno, cleanSeq);
-      const arq = arquivos.find(a => Number(a.sequencialDocumento) === cleanDocSeq) || arquivos[0];
-      if (arq?.url) return res.redirect(302, arq.url);
-    } catch (_) {}
-    return res.status(502).json({ error: 'Erro ao baixar o arquivo.', detail: err.message });
+    // Evita repetir toda a consulta em falhas do PNCP e exceder o timeout do CRM.
+    return res.status(err.status || 502).json({
+      error: err.status ? err.message : 'Erro ao baixar o arquivo. Tente novamente ou abra o documento na fonte oficial.'
+    });
   }
 });
 

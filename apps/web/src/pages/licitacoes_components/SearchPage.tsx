@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Search, Filter, AlertCircle, Calendar, DollarSign, MapPin, Building2, ExternalLink, X, FileText, Download, Briefcase, CheckCircle2, Clock, AlertTriangle, ShieldCheck, ArrowUpDown, RefreshCw, Layers, Settings } from 'lucide-react';
 import { Licitacao } from './types';
 import { cn } from './utils';
 import { LicitacaoDetalhesModal } from './LicitacaoDetalhesModal';
-import { ACTIVE_SOURCES_KEY, SOURCES_CATALOG } from './PipelineMonitor';
+import { ACTIVE_SOURCES_KEY, ACTIVE_SOURCES_EVENT, SOURCES_CATALOG } from './PipelineMonitor';
 
 const ALL_SOURCE_IDS = SOURCES_CATALOG.map(s => s.id);
 
@@ -32,6 +32,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   const [licitacoes, setLicitacoes] = useState<Licitacao[]>([]);
   const [totalDisponivel, setTotalDisponivel] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const searchController = useRef<AbortController | null>(null);
   const getTodayISO = () => new Date().toISOString().split('T')[0];
   const getPastDaysISO = (days: number) => new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
 
@@ -41,7 +42,8 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   // Fontes ativas — lidas do localStorage gerenciado pelo PipelineMonitor (Configurações)
   const [fontesAtivas, setFontesAtivas] = useState<Set<string>>(readFontesAtivas);
   const [onlyActive, setOnlyActive] = useState(true);
-  const [source, setSource] = useState<'pncp' | 'mock'>('mock');
+  const [statusFontes, setStatusFontes] = useState<any[]>([]);
+  const [searchErrors, setSearchErrors] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<'recente' | 'maior_valor' | 'menor_valor' | 'abertura_proxima'>('recente');
   
   // Regra de Validade Temporal: Não trazer editais com prazo expirado
@@ -87,10 +89,16 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
         setFontesAtivas(readFontesAtivas());
       }
     };
+    const refreshSources = () => setFontesAtivas(readFontesAtivas());
     window.addEventListener('storage', onStorage);
+    window.addEventListener(ACTIVE_SOURCES_EVENT, refreshSources);
     // Re-lê ao montar (caso tenha mudado enquanto estava em outra tela)
     setFontesAtivas(readFontesAtivas());
-    return () => window.removeEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener('storage', onStorage);
+      window.removeEventListener(ACTIVE_SOURCES_EVENT, refreshSources);
+      searchController.current?.abort();
+    };
   }, []);
 
   useEffect(() => {
@@ -134,12 +142,18 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   }, [ocultarEncerrados, dataBuscaReferencia, selectedUf, Array.from(fontesAtivas).sort().join(',')]);
 
   const fetchLicitacoes = async () => {
+    searchController.current?.abort();
+    const controller = new AbortController();
+    searchController.current = controller;
     setLoading(true);
+    setSearchErrors([]);
+    setStatusFontes([]);
     try {
       // Se nenhuma fonte está ativa, retorna vazio imediatamente sem bater no backend
       if (fontesAtivas.size === 0) {
         setLicitacoes([]);
         setTotalDisponivel(0);
+        setStatusFontes([]);
         setLoading(false);
         return;
       }
@@ -162,9 +176,11 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
       });
 
       const response = await fetch(`/api/b2g-search/search?${params.toString()}`, {
+        signal: controller.signal,
         headers: getAuthHeaders()
       });
       const json = await response.json();
+      if (controller.signal.aborted) return;
 
       // Se o backend informou que não há fontes ativas, respeita
       if (json.info) {
@@ -173,13 +189,19 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
         return;
       }
 
-      setSource(json.data?.length > 0 ? 'pncp' : 'mock');
+      if (!response.ok) throw new Error(json.error || 'Erro ao consultar as fontes.');
+      setStatusFontes(json.statusFontes || []);
+      setSearchErrors(json.erros || []);
       setLicitacoes(json.data || []);
       setTotalDisponivel(json.total || (json.data?.length ?? 0));
     } catch (error) {
+      if (controller.signal.aborted) return;
+      setLicitacoes([]);
+      setTotalDisponivel(0);
       console.error("Failed to fetch licitações:", error);
+      setSearchErrors([error instanceof Error ? error.message : 'Falha na consulta às fontes.']);
     } finally {
-      setLoading(false);
+      if (!controller.signal.aborted) setLoading(false);
     }
   };
 
@@ -187,7 +209,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   const getUf = (lic: Licitacao) => lic.uf || lic.unidadeOrgao?.ufSigla || 'BR';
   const getCidade = (lic: Licitacao) => lic.cidade || (lic as any).municipio || lic.unidadeOrgao?.municipioNome || '';
   const getObjeto = (lic: Licitacao) => (lic as any).titulo || lic.objeto_resumo || lic.objetoCompra || 'Sem descrição';
-  const getData = (lic: Licitacao) => lic.data_abertura || (lic as any).dataEncerramento || lic.dataEncerramentoProposta || lic.dataHoraAberturaSessaoPublica || lic.dataAtualizacao || new Date().toISOString();
+  const getData = (lic: Licitacao) => (lic as any).dataPublicacao || lic.dataAtualizacao || lic.data_abertura || (lic as any).dataEncerramento || lic.dataEncerramentoProposta || lic.dataHoraAberturaSessaoPublica || lic.dataAtualizacao || new Date().toISOString();
   const getValor = (lic: Licitacao) => (lic as any).valor || lic.valor_estimado || lic.valorTotalEstimado || 0;
   const getSituacao = (lic: Licitacao) => lic.situacao || (lic as any).status || lic.situacaoCompraNome || 'Desconhecida';
 
@@ -418,7 +440,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
           </span>
         </div>
         <p className="text-sm text-slate-300 mt-2 max-w-5xl leading-relaxed">
-          Varredura unificada em tempo real: PNCP Oficial (Pregões, Dispensas, Concorrências), Compras.gov.br (SIASG), Compras Paraná, BEC-SP, Portal de Compras Públicas e DOU.
+          Busca nas fontes ativas de PNCP, Compras.gov.br, SIASG, DOU, atas, contratações diretas e portais de transparência.
         </p>
       </header>
 
@@ -568,7 +590,26 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
             </label>
           </div>
 
-          {/* Painel da Regra de Validade Temporal (Filtro por Data de Abertura) */}
+          {statusFontes.length > 0 && !loading && (
+        <div className="rounded-xl border border-[#07323e] bg-[#011419] p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-slate-100">Fontes consultadas ({statusFontes.length})</h3>
+          <div className="flex flex-wrap gap-2">
+            {statusFontes.map((status) => (
+              <span key={status.id} title={status.lastError || 'Consulta concluída'} className={`rounded-lg border px-3 py-1.5 text-xs ${status.status === 'error' ? 'border-rose-800 text-rose-300' : status.status === 'partial' ? 'border-amber-800 text-amber-300' : 'border-emerald-800 text-emerald-300'}`}>
+                {status.nome}: {status.totalResults} resultado(s){status.status === 'error' ? ' — falha' : status.status === 'partial' ? ' — parcial' : ''}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+      {searchErrors.length > 0 && !loading && (
+        <details className="rounded-xl border border-amber-800/60 bg-amber-950/20 p-4 text-sm text-amber-200">
+          <summary className="cursor-pointer font-semibold">Algumas fontes não concluíram a consulta ({searchErrors.length})</summary>
+          <ul className="mt-2 list-disc pl-5 space-y-1">{searchErrors.map((error, i) => <li key={i}>{error}</li>)}</ul>
+        </details>
+      )}
+
+      {/* Painel da Regra de Validade Temporal (Filtro por Data de Abertura) */}
           <div className="bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div className={cn(
@@ -800,6 +841,11 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                           <MapPin className="w-3 h-3 mr-1" />
                           {getCidade(lic) ? `${getCidade(lic)} - ${getUf(lic)}` : getUf(lic)}
                         </span>
+                      </div>
+                      <div className="mb-2 flex flex-wrap gap-1.5">
+                        {Array.from(new Set(((lic as any).origens?.length ? (lic as any).origens : [{ nome: (lic as any).fonte || 'Fonte oficial' }]).map((origin: any) => origin.nome))).map((name: any) => (
+                          <span key={name} className="rounded-md border border-cyan-800/60 px-2 py-0.5 text-xs text-cyan-300">{name}</span>
+                        ))}
                       </div>
                       <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 line-clamp-2 leading-tight">
                         {getObjeto(lic)}
