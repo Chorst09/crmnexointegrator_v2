@@ -470,7 +470,7 @@ async function buscarPNCPPublicacao({ objeto, uf, pagina = 1, tamanhoPagina = 20
 
   const consultas = objeto?.trim() || uf
     ? [6, 8, 9, 4, 5].map(modCode => ({ modCode }))
-    : DADOS_ABERTOS_PNCP_MODALIDADES.pncp.map(modCode => ({ modCode }));
+    : [6, 8, 4, 9, 5].map(modCode => ({ modCode }));
 
   for (const consulta of consultas) {
     if (resultados.length >= limit || Date.now() - startedAt > 17000) break;
@@ -572,6 +572,7 @@ const normalizeDadosAbertosPNCP = (item, { objeto, uf }) => {
     ano: item.anoCompraPncp || '',
     numeroControlePNCP: item.numeroControlePNCP || '',
     idCompra: item.idCompra,
+    srp: item.srp,
     sequencialCompra: item.sequencialCompraPncp,
     anoCompra: item.anoCompraPncp,
     linkSistemaOrigem: item.linkSistemaOrigem || (item.idCompra ? `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=${item.idCompra}` : ''),
@@ -621,7 +622,8 @@ async function buscarPNCPDadosAbertos({ objeto, uf, pagina = 1, tamanhoPagina = 
         }
 
         const payload = await safeJson(res);
-        const items = Array.isArray(payload?.resultado) ? payload.resultado : [];
+        if (!Array.isArray(payload?.resultado)) throw new Error('Resposta inválida da fonte: lista resultado ausente.');
+        const items = payload.resultado;
         if (items.length === 0) break;
 
         for (const item of items) {
@@ -1187,7 +1189,8 @@ async function buscarPortalTransparenciaFederalFallback({ objeto, uf, dataInicio
         }
 
         const payload = await safeJson(res);
-        const items = Array.isArray(payload?.resultado) ? payload.resultado : [];
+        if (!Array.isArray(payload?.resultado)) throw new Error('Resposta inválida da fonte: lista resultado ausente.');
+        const items = payload.resultado;
         if (items.length === 0) break;
 
         for (const item of items) {
@@ -1196,7 +1199,7 @@ async function buscarPortalTransparenciaFederalFallback({ objeto, uf, dataInicio
 
           resultados.push({
             id: item.numeroControlePNCP || `transparencia-federal-${item.idCompra || item.anoCompraPncp || ''}-${item.numeroCompra || ''}`,
-            fonte: 'Portal Transparência Federal',
+            fonte: 'Compras.gov.br (alternativa à Transparência Federal)',
             fonteLogo: '🔎',
             titulo: item.objetoCompra || 'Licitação federal',
             orgao: item.orgaoEntidadeRazaoSocial || item.unidadeOrgaoNomeUnidade || '',
@@ -1322,6 +1325,9 @@ function deduplicar(items) {
     const origins = [...(previous.origens || []), ...(item.origens || [])];
     previous.origens = Array.from(new Map(origins.map(origin => [`${origin.id}:${origin.url}`, origin])).values());
     previous.documentos = [...(previous.documentos || []), ...(item.documentos || [])];
+    for (const field of ['idCompra', 'linkAtaPNCP', 'linkCompraPNCP', 'numeroControlePncpAta']) {
+      if (!previous[field] && item[field]) previous[field] = item[field];
+    }
     if (!previous.linkSistemaOrigem && item.linkSistemaOrigem) previous.linkSistemaOrigem = item.linkSistemaOrigem;
     if (!previous.linkProcessoEletronico && item.linkProcessoEletronico) previous.linkProcessoEletronico = item.linkProcessoEletronico;
   }
@@ -1453,7 +1459,7 @@ const WORKER_CATALOG = [
 // ─── Worker: Contratações Lei 14.133 (dispensas eletrônicas + diretas) ─────────
 
 async function buscarContratacoes14133(params) {
-  const result = await buscarPNCPDadosAbertos({ ...params, modalidades: [8, 9, 12] });
+  const result = await buscarPNCPDadosAbertos({ ...params, modalidades: DADOS_ABERTOS_PNCP_MODALIDADES.contratacoes14133 });
   return { ...result, resultados: result.resultados.map(item => ({ ...item, fonte: 'Contratações Lei 14.133', fonteLogo: '⚖️' })) };
 }
 
@@ -1554,7 +1560,7 @@ async function buscarPregoesSIASG({ objeto, uf, pagina = 1, tamanhoPagina = 20, 
 // ─── Worker: Compras.gov.br Disputas em andamento ────────────────────────────
 
 async function buscarComprasGovDisputas(params) {
-  const result = await buscarPNCPDadosAbertos({ ...params, modalidades: [6] });
+  const result = await buscarPNCPDadosAbertos({ ...params, modalidades: DADOS_ABERTOS_PNCP_MODALIDADES.pregoes });
   return { ...result, resultados: result.resultados.filter(item => item.dataEncerramento && new Date(item.dataEncerramento).getTime() >= Date.now())
     .map(item => ({ ...item, fonte: 'Compras.gov Disputas', fonteLogo: '⚡' })) };
 }

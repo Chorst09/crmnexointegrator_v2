@@ -51,6 +51,7 @@ export function LicitacaoDetalhesModal({
   const [retryCount, setRetryCount] = useState(0);
   const [documentDiagnostics, setDocumentDiagnostics] = useState<any[]>([]);
   const [originLinks, setOriginLinks] = useState<string[]>([]);
+  const [documentSources, setDocumentSources] = useState<string[]>([]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -58,6 +59,7 @@ export function LicitacaoDetalhesModal({
     setArquivosError('');
     setDocumentDiagnostics([]);
     setOriginLinks([]);
+    setDocumentSources([]);
     setSearchingPncp(false);
     if (!licitacao) return;
     setSearchingPncp(true);
@@ -76,6 +78,7 @@ export function LicitacaoDetalhesModal({
           setArquivos(data.documentos);
           setDocumentDiagnostics(data.diagnosticos || []);
           setOriginLinks(data.linksOrigem || []);
+          setDocumentSources(data.fontesConsultadas || []);
         }
       } catch (error: any) {
         if (!controller.signal.aborted) setArquivosError(error.message || 'Falha na consulta às fontes oficiais. Tente novamente.');
@@ -225,7 +228,7 @@ export function LicitacaoDetalhesModal({
   const anoRaw = compra?.ano;
   const seqRaw = compra?.sequencial;
   const origemLink = licitacao.linkSistemaOrigem || licitacao.linkProcessoEletronico ||
-    (licitacao.link && !licitacao.link.includes('pncp.gov.br') ? licitacao.link : null);
+    (licitacao.link && !licitacao.link.includes('pncp.gov.br') ? licitacao.link : null) || originLinks.find(link => !link.includes('pncp.gov.br'));
   const pncpPageLink = compra
     ? `https://pncp.gov.br/app/editais/${compra.cnpj}/${compra.ano}/${compra.sequencial}`
     : (licitacao.pncpPageLink || null);
@@ -246,7 +249,7 @@ export function LicitacaoDetalhesModal({
               )}>
                 {getSituacao(licitacao)}
               </span>
-              
+              <span className="text-xs text-cyan-300">Origem: {Array.from(new Set(((licitacao as any).origens?.length ? (licitacao as any).origens : [{ nome: (licitacao as any).fonte || 'Fonte oficial' }]).map((origin: any) => origin.nome))).join(' • ')}</span>
               <span className={cn(
                 "text-xs font-semibold px-2.5 py-1 rounded-md flex items-center gap-1",
                 status.type === 'expired' ? "bg-rose-100 dark:bg-rose-950/80 text-rose-800 dark:text-rose-300" : "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300"
@@ -503,7 +506,7 @@ export function LicitacaoDetalhesModal({
             <div className="mt-3 flex items-center justify-between text-xs text-slate-400 bg-slate-900/40 px-3 py-2 rounded-lg border border-slate-800">
               <span className="flex items-center gap-1.5">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                Documentos consultados nas fontes oficiais. Em caso de indisponibilidade, tente novamente ou acesse o PNCP.
+                {arquivos.length ? `${arquivos.length} documento(s) disponível(is) nas fontes oficiais.` : 'Nenhum arquivo recuperado. Consulte o diagnóstico e os links de origem.'}
               </span>
               {pncpPageLink && (
                 <a

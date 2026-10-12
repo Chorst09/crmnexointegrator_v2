@@ -689,7 +689,7 @@ const arquivosCache = new Map();
 const ARQUIVOS_CACHE_TTL = 15 * 60 * 1000;
 
 // ── Helper compartilhado para obter lista de arquivos reais e canais oficiais do certame ──
-const getPncpFiles = async (cnpj, ano, seq, { signal } = {}) => {
+const getPncpFiles = async (cnpj, ano, seq, { signal, sequencialAta } = {}) => {
   const cleanCnpj = String(cnpj || '').replace(/\D/g, '');
   const cleanAno = parseInt(String(ano || ''), 10);
   const cleanSeq = parseInt(String(seq || ''), 10);
@@ -698,7 +698,7 @@ const getPncpFiles = async (cnpj, ano, seq, { signal } = {}) => {
     throw Object.assign(new Error('Informe o CNPJ, ano e sequencial PNCP válidos do edital.'), { status: 400 });
   }
 
-  const cacheKey = `arquivos_${cleanCnpj}_${cleanAno}_${cleanSeq}`;
+  const cacheKey = `arquivos_${cleanCnpj}_${cleanAno}_${cleanSeq}_${sequencialAta || "compra"}`;
   const now = Date.now();
   const cached = arquivosCache.get(cacheKey);
   if (cached && (now - cached.timestamp < ARQUIVOS_CACHE_TTL) && Array.isArray(cached.data) && cached.data.length > 0 && cached.hasRealFiles) {
@@ -709,11 +709,11 @@ const getPncpFiles = async (cnpj, ano, seq, { signal } = {}) => {
 
   // O PNCP possui dois caminhos públicos; o segundo permite recuperar falhas do gateway.
   let pncpResponded = false;
-  for (const base of ['https://pncp.gov.br/pncp-api/v1', 'https://pncp.gov.br/api/pncp/v1']) {
+  for (const base of ['https://pncp.gov.br/api/pncp/v1', 'https://pncp.gov.br/pncp-api/v1']) {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 6000);
     try {
-      const response = await fetch(`${base}/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos`, {
+      const response = await fetch(`${base}/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}${sequencialAta ? `/atas/${sequencialAta}` : ''}/arquivos`, {
         headers: { Accept: 'application/json', 'User-Agent': nextUA() },
         signal: signal ? AbortSignal.any([signal, controller.signal]) : controller.signal
       });
@@ -725,7 +725,7 @@ const getPncpFiles = async (cnpj, ano, seq, { signal } = {}) => {
       filesList = pData.map((arq) => {
         const docSeq = arq.sequencialDocumento;
         const url = arq.url || arq.uri || (docSeq
-          ? `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}`
+          ? `https://pncp.gov.br/api/pncp/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}${sequencialAta ? `/atas/${sequencialAta}` : ''}/arquivos/${docSeq}`
           : null);
         return {
           sequencialDocumento: docSeq,
@@ -734,7 +734,7 @@ const getPncpFiles = async (cnpj, ano, seq, { signal } = {}) => {
           url, uri: url,
           tamanhoArquivo: arq.tamanhoArquivo || null,
           dataPublicacaoPncp: arq.dataPublicacaoPncp,
-          origem: 'PNCP_OFICIAL'
+          origem: sequencialAta ? 'PNCP_ATA' : 'PNCP_OFICIAL'
         };
       }).filter((arq) => arq.url);
       break;
@@ -758,7 +758,7 @@ const getPncpFiles = async (cnpj, ano, seq, { signal } = {}) => {
 };
 
 const { createDocumentResolver } = require('../lib/editalDocuments.cjs');
-const resolveEditalDocuments = createDocumentResolver({ getPncpFiles });
+const resolveEditalDocuments = createDocumentResolver({ getPncpFiles, getAtaFiles: (ata, options) => getPncpFiles(ata.cnpj, ata.ano, ata.seq, { ...options, sequencialAta: ata.ata }) });
 
 // As rotas antigas também recuperam anexos públicos do sistema de origem.
 const getArquivosForEdital = async (cnpj, ano, seq) => {
