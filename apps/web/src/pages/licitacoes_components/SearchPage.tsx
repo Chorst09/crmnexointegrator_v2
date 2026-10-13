@@ -824,6 +824,42 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                       <span className="text-xs text-slate-400 mr-1">Prazo:</span>
                       <strong className="text-xs text-slate-800 dark:text-slate-100">{formatAbertura(lic)}</strong>
                     </div>
+
+                    {/* Botões de Download de PDF */}
+                    {(lic.documentos && lic.documentos.length > 0) || lic.pdfUrl ? (
+                      <div className="flex items-center gap-1.5">
+                        {lic.pdfUrl ? (
+                          <a
+                            href={lic.pdfUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 px-2 py-1 rounded-md bg-rose-950/60 hover:bg-rose-900/70 text-rose-300 border border-rose-800/70 text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                            title="Download do PDF do edital"
+                          >
+                            <Download className="w-3 h-3" />
+                            <span>PDF</span>
+                          </a>
+                        ) : null}
+                        {lic.documentos && lic.documentos.slice(0, 2).map((doc, idx) => (
+                          <a
+                            key={idx}
+                            href={doc.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-1 px-2 py-1 rounded-md bg-rose-950/60 hover:bg-rose-900/70 text-rose-300 border border-rose-800/70 text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                            title={doc.titulo || 'Download PDF'}
+                          >
+                            <Download className="w-3 h-3" />
+                            <span className="truncate max-w-[80px]">{doc.titulo?.substring(0, 15) || `Doc ${idx + 1}`}</span>
+                          </a>
+                        ))}
+                        {lic.documentos && lic.documentos.length > 2 && (
+                          <span className="text-xs text-slate-400 px-1">
+                            +{lic.documentos.length - 2}
+                          </span>
+                        )}
+                      </div>
+                    ) : null}
                     
                     <div className="ml-auto flex items-center gap-2">
                       {isCardManaged ? (

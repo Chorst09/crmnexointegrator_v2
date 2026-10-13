@@ -78,9 +78,10 @@ const AI_ANALYSIS_REQUEST_TIMEOUT = parseInt(process.env.AI_ANALYSIS_REQUEST_TIM
 app.use((req, res, next) => {
   if (req.path === '/health') return next();
   const isBackupRoute = req.path.startsWith('/api/admin/backup');
+  const isDownloadRoute = req.path.startsWith('/api/b2g-licitacoes/proxy-download') || /^\/api\/b2g-licitacoes\/arquivos\/[^/]+\/[^/]+\/[^/]+\/download\//.test(req.path);
   const requestTimeout = req.path.startsWith('/api/ai-analysis/')
     ? AI_ANALYSIS_REQUEST_TIMEOUT
-    : (isBackupRoute ? 600000 : REQUEST_TIMEOUT);
+    : (isBackupRoute ? 600000 : (isDownloadRoute ? 120000 : REQUEST_TIMEOUT));
   res.setTimeout(requestTimeout, () => {
     console.error(`⏰ Request timeout (${requestTimeout}ms): ${req.method} ${req.path}`);
     if (!res.headersSent) {
@@ -241,10 +242,13 @@ app.use('/api/licensing', require('./api/licensing.cjs'));
 
 // B2G - Busca de Licitações e Editais
 app.use('/api/b2g-search', require('./api/b2g-search'));
+app.use('/api/b2g/pdf', require('./api/b2g-pdf-proxy')); // Proxy para download de PDFs
 app.use('/api/bll-proxy', require('./api/bll-proxy'));
 app.use('/api/comprasnet-proxy', require('./api/comprasnet-proxy'));
 
 // B2G Licitações & Editais (PNCP em tempo real, gerenciadas, alertas, arquivos e TR)
+// Anexos funcionam mesmo quando os módulos legados não estão disponíveis no Docker.
+app.use('/api/b2g-licitacoes', require('./api/b2g-documents'));
 try {
   const b2gLicitacoesRouter = require('../apps/api/api/b2g-licitacoes.cjs');
   app.use('/api/b2g-licitacoes', b2gLicitacoesRouter);

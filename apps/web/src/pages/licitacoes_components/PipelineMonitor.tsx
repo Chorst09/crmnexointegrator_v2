@@ -171,8 +171,38 @@ export function PipelineMonitor() {
         return new Set(Array.isArray(arr) ? arr : ALL_SOURCE_IDS);
       }
     } catch (_) {}
+    // Por padrão, todas as fontes ativas
     return new Set(ALL_SOURCE_IDS);
   });
+
+  // Garantir que todas as fontes estejam ativas na inicialização (fix automático)
+  useEffect(() => {
+    const ensureAllSourcesActive = () => {
+      try {
+        const saved = localStorage.getItem(ACTIVE_SOURCES_KEY);
+        if (!saved) {
+          // Se não existe, cria com todas ativas
+          localStorage.setItem(ACTIVE_SOURCES_KEY, JSON.stringify(ALL_SOURCE_IDS));
+          setActiveSources(new Set(ALL_SOURCE_IDS));
+          console.log('[PipelineMonitor] ✅ Todas as 10 fontes ativadas automaticamente');
+        } else {
+          const arr = JSON.parse(saved);
+          const current = new Set(Array.isArray(arr) ? arr : []);
+          // Verifica se alguma fonte está faltando
+          const missing = ALL_SOURCE_IDS.filter(id => !current.has(id));
+          if (missing.length > 0) {
+            const updated = new Set([...Array.from(current), ...missing]);
+            localStorage.setItem(ACTIVE_SOURCES_KEY, JSON.stringify(Array.from(updated)));
+            setActiveSources(updated);
+            console.log(`[PipelineMonitor] ✅ ${missing.length} fontes faltantes foram ativadas: ${missing.join(', ')}`);
+          }
+        }
+      } catch (e) {
+        console.warn('[PipelineMonitor] Erro ao garantir fontes ativas:', e);
+      }
+    };
+    ensureAllSourcesActive();
+  }, []);
 
   // Status dos workers vindos do backend
   const [workerStatuses, setWorkerStatuses] = useState<Map<string, WorkerStatus>>(new Map());

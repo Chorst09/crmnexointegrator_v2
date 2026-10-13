@@ -3,15 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { ArrowRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { buildApiUrl, getCRMAuthHeaders } from '@/config/api';
+import { normalizeText, normalizeComparable } from '../../../lib/text-utils';
 
 type SimulatorProposal = Record<string, any>;
-
-const normalizeText = (value: unknown) =>
-  String(value || '')
-    .trim()
-    .replace(/\s+/g, ' ');
-
-const normalizeComparable = (value: unknown) => normalizeText(value).toLowerCase();
 
 const extractClientName = (proposal: SimulatorProposal) =>
   normalizeText(

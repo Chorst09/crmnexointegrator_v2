@@ -22,6 +22,17 @@ export interface UnidadeOrgao {
   codigoUnidade?: string;
 }
 
+export interface DocumentoPDF {
+  titulo: string;
+  url: string;
+  uri?: string;
+  tipo?: string;
+  tamanho?: number;
+  sequencialDocumento?: number;
+  tipoDocumentoNome?: string;
+  origem?: string;
+}
+
 export interface Licitacao {
   id: string;
   orgao?: string;
@@ -43,6 +54,10 @@ export interface Licitacao {
   anoCompra?: number;
   sequencialCompra?: number;
   numeroControlePNCP?: string;
+  numero_controle_pncp?: string;
+  cnpjOrgao?: string;
+  ano?: number | string;
+  pncpPageLink?: string;
   linkSistemaOrigem?: string;
   linkProcessoEletronico?: string;
   link?: string;
@@ -55,6 +70,8 @@ export interface Licitacao {
   faseGerenciada?: string;
   notasGerenciada?: string;
   fonte?: string;
+  documentos?: DocumentoPDF[];
+  pdfUrl?: string;
 }
 
 export interface LicitacaoGerenciada extends Licitacao {
