@@ -30,6 +30,12 @@ const canBeResponsibleSeller = (user = {}) => {
 };
 
 const getCurrentSeller = (company) => {
+  // Prioridade 1: accountManager definido diretamente na empresa
+  if (company?.accountManager?.id) {
+    return company.accountManager;
+  }
+
+  // Prioridade 2: dono da oportunidade mais recente
   const opportunityOwner = (company?.opportunities || [])
     .map((opportunity) => opportunity.owner)
     .find((owner) => owner?.id && canBeResponsibleSeller(owner));
@@ -90,6 +96,7 @@ export const validateCustomerOwnership = async (tx, {
   requesterId,
   requesterName = '',
   companyId = null,
+  excludeCompanyId = null,
   companyName = '',
   document = '',
   website = '',
@@ -115,6 +122,8 @@ export const validateCustomerOwnership = async (tx, {
   const companies = await tx.company.findMany({
     where: {
       ...(tenantCompanyId ? { tenantCompanyId } : {}),
+      // Excluir a própria empresa da busca (uso na edição para evitar falso positivo)
+      ...(excludeCompanyId ? { id: { not: excludeCompanyId } } : {}),
       clientType: 'B2B'
     },
     select: {
@@ -122,6 +131,16 @@ export const validateCustomerOwnership = async (tx, {
       name: true,
       document: true,
       website: true,
+      accountManagerId: true,
+      accountManager: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          accessB2B: true
+        }
+      },
       opportunities: {
         orderBy: { createdAt: 'desc' },
         take: 5,

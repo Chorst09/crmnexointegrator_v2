@@ -65,6 +65,7 @@ model User {
   projectTimelogs     ProjectTimelog[]
   phasesAssigned      ProjectPhase[]       @relation("PhaseAssignee")
   phasesAccountable   ProjectPhase[]       @relation("PhaseAccountable")
+  managedCompanies    Company[]            @relation("CompanyAccountManager")
 
   @@index([tenantCompanyId])
   @@index([role])
@@ -101,6 +102,8 @@ model Company {
   accountManagerEmail    String?
   accountManagerPhone    String?
   accountManagerPosition String?
+  accountManagerId   String?
+  accountManager     User?    @relation("CompanyAccountManager", fields: [accountManagerId], references: [id], onDelete: SetNull)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
