@@ -473,9 +473,9 @@ router.get('/buscar', async (req, res) => {
   }
 });
 
-const { jsPDF } = require('jspdf');
-
 function generateAuthenticPDF({ tipo, cnpj, ano, seq, titulo, lic }) {
+  // A exportação de resumo não deve impedir o registro das rotas de anexos.
+  const { jsPDF } = require('jspdf');
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
   const cleanCnpj = String(cnpj || '').replace(/\D/g, '');
   const cleanAno = parseInt(String(ano || ''), 10) || new Date().getFullYear();
@@ -691,11 +691,11 @@ const ARQUIVOS_CACHE_TTL = 15 * 60 * 1000;
 // ── Helper compartilhado para obter lista de arquivos reais e canais oficiais do certame ──
 const getArquivosForEdital = async (cnpj, ano, seq) => {
   const cleanCnpj = String(cnpj || '').replace(/\D/g, '');
-  const cleanAno = parseInt(String(ano || ''), 10);
-  const cleanSeq = parseInt(String(seq || ''), 10);
+  const cleanAno = Number(ano);
+  const cleanSeq = Number(seq);
 
-  if (!cleanCnpj || isNaN(cleanAno) || isNaN(cleanSeq)) {
-    return [];
+  if (!/^\d{14}$/.test(cleanCnpj) || !Number.isInteger(cleanAno) || cleanAno < 2000 || cleanAno > 9999 || !Number.isSafeInteger(cleanSeq) || cleanSeq <= 0) {
+    throw Object.assign(new Error('CNPJ, ano ou sequencial PNCP inválido.'), { status: 400 });
   }
 
   const cacheKey = `arquivos_${cleanCnpj}_${cleanAno}_${cleanSeq}`;
@@ -706,36 +706,41 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
   }
 
   let filesList = [];
+  let pncpError = null;
 
   // 1. Tenta consultar anexos diretos no repositório de arquivos do PNCP com prioridade
   try {
     const pUrl = `https://pncp.gov.br/api/pncp/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos`;
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
     const response = await fetch(pUrl, {
       headers: { Accept: 'application/json', 'User-Agent': nextUA() },
-      signal: controller.signal
+      signal: AbortSignal.timeout(10000)
     });
-    clearTimeout(timeoutId);
-    if (response.ok) {
+    if (response.status !== 204 && response.ok) {
       const pData = await response.json();
-      if (Array.isArray(pData) && pData.length > 0) {
-        pData.forEach((arq, idx) => {
-          const docSeq = arq.sequencialDocumento || (idx + 1);
+      if (!Array.isArray(pData)) throw new Error('PNCP retornou uma lista de anexos inválida.');
+      if (pData.length > 0) {
+        pData.filter(arq => arq.statusAtivo !== false).forEach(arq => {
+          const originalUrl = arq.url || arq.uri;
+          const docSeq = Number(arq.sequencialDocumento || originalUrl?.match(/\/arquivos\/(\d+)(?:[?#]|$)/)?.[1]) || null;
+          const fileUrl = originalUrl || (docSeq ? `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}` : null);
+          if (!fileUrl || !/^https?:\/\//i.test(fileUrl)) return;
           filesList.push({
             sequencialDocumento: docSeq,
-            titulo: arq.titulo || `Anexo_Oficial_${docSeq}.pdf`,
+            titulo: arq.titulo || `Anexo_Oficial_${docSeq || filesList.length + 1}`,
             tipoDocumentoNome: arq.tipoDocumentoNome || arq.tipoDocumentoDescricao || 'Anexo PNCP',
-            url: arq.url || arq.uri || `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}`,
-            uri: arq.url || arq.uri || `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}`,
+            url: fileUrl,
+            uri: fileUrl,
             tamanhoArquivo: arq.tamanhoArquivo || null,
             dataPublicacaoPncp: arq.dataPublicacaoPncp,
             origem: 'PNCP_OFICIAL'
           });
         });
       }
+    } else if (response.status !== 204 && response.status !== 404) {
+      throw new Error(`PNCP HTTP ${response.status} ao consultar anexos.`);
     }
   } catch (err) {
+    pncpError = err;
     console.warn(`[getArquivosForEdital] Consulta PNCP arquivos (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, err.message);
   }
 
@@ -748,10 +753,10 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
   // 2. Se o PNCP não tem arquivos diretos anexados, consulta os metadados da contratação (linkSistemaOrigem)
   let compraInfo = null;
   try {
-    const cUrl = `https://pncp.gov.br/api/consulta/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}`;
+    const cUrl = `https://pncp.gov.br/api/pncp/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}`;
     const cRes = await fetch(cUrl, {
       headers: { Accept: 'application/json', 'User-Agent': nextUA() },
-      signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 5000); return c.signal; })()
+      signal: AbortSignal.timeout(5000)
     });
     if (cRes.ok) {
       compraInfo = await cRes.json();
@@ -767,7 +772,7 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
       try {
         const pcpRes = await fetch(compraInfo.linkSistemaOrigem, {
           headers: { 'User-Agent': nextUA(), Accept: 'text/html' },
-          signal: (() => { const c = new AbortController(); setTimeout(() => c.abort(), 4000); return c.signal; })()
+          signal: AbortSignal.timeout(4000)
         });
         if (pcpRes.ok) {
           const html = await pcpRes.text();
@@ -802,6 +807,7 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
     return filesList;
   }
 
+  if (pncpError) throw Object.assign(new Error('Não foi possível consultar os anexos no PNCP.'), { status: 502, cause: pncpError });
   return [];
 };
 
@@ -813,7 +819,7 @@ router.get(['/arquivos/:cnpj/:ano/:seq', '/arquivos/:cnpj/:ano/:seq/'], async (r
     res.json(list);
   } catch (err) {
     console.error('Erro /arquivos/:cnpj/:ano/:seq:', err);
-    res.json([]);
+    res.status(err.status || 502).json({ error: err.message });
   }
 });
 
@@ -830,7 +836,7 @@ router.get(['/pncp-arquivos', '/pncp-arquivos/'], async (req, res) => {
     res.json(list);
   } catch (err) {
     console.error('Erro /pncp-arquivos:', err);
-    res.json([]);
+    res.status(err.status || 502).json({ error: err.message });
   }
 });
 
@@ -1971,7 +1977,7 @@ const { pipeline: streamPipeline } = require('stream/promises');
 const { Readable: NodeReadable } = require('stream');
 
 // Diretório para armazenar anexos baixados (dentro do projeto, fora do webroot)
-const ATTACHMENTS_DIR = path.resolve(__dirname, '../../attachments/editais');
+const ATTACHMENTS_DIR = process.env.EDITAIS_ATTACHMENTS_DIR || path.resolve(__dirname, '../../attachments/editais');
 if (!fs.existsSync(ATTACHMENTS_DIR)) {
   fs.mkdirSync(ATTACHMENTS_DIR, { recursive: true });
 }
@@ -1990,34 +1996,37 @@ async function downloadAndPersistFile(remoteUrl, localPath, timeoutMs = 30000) {
 
   const controller = new AbortController();
   const tid = setTimeout(() => controller.abort(), timeoutMs);
+  const temporaryPath = `${localPath}.${crypto.randomUUID()}.tmp`;
 
   try {
     const res = await fetch(remoteUrl, {
       headers: { 'User-Agent': nextUA(), Accept: '*/*' },
       signal: controller.signal,
     });
-    clearTimeout(tid);
-
     if (!res.ok) throw new Error(`HTTP ${res.status} ao baixar ${remoteUrl}`);
 
     const contentType = res.headers.get('content-type') || 'application/octet-stream';
+    if (/text\/html|application\/json/i.test(contentType)) throw new Error('O PNCP retornou uma página ou erro em vez do arquivo.');
 
     // Usa stream nativo para não manter tudo na memória
     if (res.body) {
-      const writeStream = fs.createWriteStream(localPath);
-      await streamPipeline(NodeReadable.fromWeb(res.body), writeStream);
+      const writeStream = fs.createWriteStream(temporaryPath);
+      await streamPipeline(NodeReadable.fromWeb(res.body), writeStream, { signal: controller.signal });
     } else {
       const buf = Buffer.from(await res.arrayBuffer());
-      fs.writeFileSync(localPath, buf);
+      fs.writeFileSync(temporaryPath, buf);
     }
 
-    const { size } = fs.statSync(localPath);
+    const { size } = fs.statSync(temporaryPath);
+    if (!size) throw new Error('O arquivo retornado pelo PNCP está vazio.');
+    fs.renameSync(temporaryPath, localPath);
     return { size, contentType };
   } catch (err) {
-    clearTimeout(tid);
     // Remove arquivo parcialmente escrito
-    if (fs.existsSync(localPath)) fs.unlinkSync(localPath);
+    if (fs.existsSync(temporaryPath)) fs.unlinkSync(temporaryPath);
     throw err;
+  } finally {
+    clearTimeout(tid);
   }
 }
 
@@ -2029,8 +2038,13 @@ function resolveLocalPath(cnpj, ano, seq, docSeq, filename) {
   const safeFilename = String(filename || `doc_${docSeq}`)
     .replace(/[^\w.\-]/g, '_')
     .replace(/_{2,}/g, '_');
-  const ext = safeFilename.includes('.') ? '' : '.pdf';
-  return path.join(ATTACHMENTS_DIR, String(cnpj), String(ano), String(seq), `${docSeq}_${safeFilename}${ext}`);
+  return path.join(ATTACHMENTS_DIR, String(cnpj), String(ano), String(seq), `${docSeq}_${safeFilename}`);
+}
+
+function setAttachmentFilename(res, filename) {
+  const clean = String(filename).replace(/["\/\\\r\n]/g, '_');
+  const ascii = clean.replace(/[^\x20-\x7E]/g, '_');
+  res.setHeader('Content-Disposition', `attachment; filename="${ascii}"; filename*=UTF-8''${encodeURIComponent(clean)}`);
 }
 
 // ── GET /arquivos/:cnpj/:ano/:seq/download/:docSeq — download com persistência ──
@@ -2043,18 +2057,18 @@ function resolveLocalPath(cnpj, ano, seq, docSeq, filename) {
 router.get('/arquivos/:cnpj/:ano/:seq/download/:docSeq', async (req, res) => {
   const { cnpj, ano, seq, docSeq } = req.params;
   const cleanCnpj = String(cnpj).replace(/\D/g, '');
-  const cleanAno = parseInt(ano, 10);
-  const cleanSeq = parseInt(seq, 10);
-  const cleanDocSeq = parseInt(docSeq, 10) || 1;
+  const cleanAno = Number(ano);
+  const cleanSeq = Number(seq);
+  const cleanDocSeq = Number(docSeq);
 
-  if (!cleanCnpj || isNaN(cleanAno) || isNaN(cleanSeq)) {
-    return res.status(400).json({ error: 'Parâmetros cnpj, ano e seq são obrigatórios e devem ser numéricos.' });
+  if (!/^\d{14}$/.test(cleanCnpj) || !Number.isInteger(cleanAno) || cleanAno < 2000 || cleanAno > 9999 || !Number.isSafeInteger(cleanSeq) || cleanSeq <= 0 || !Number.isSafeInteger(cleanDocSeq) || cleanDocSeq <= 0) {
+    return res.status(400).json({ error: 'CNPJ, ano, sequencial da compra ou do documento inválido.' });
   }
 
   try {
     // 1. Obtém a lista de arquivos reais do PNCP
     const arquivos = await getArquivosForEdital(cleanCnpj, cleanAno, cleanSeq);
-    const arq = arquivos.find(a => Number(a.sequencialDocumento) === cleanDocSeq) || arquivos[0];
+    const arq = arquivos.find(a => Number(a.sequencialDocumento) === cleanDocSeq);
 
     if (!arq) {
       return res.status(404).json({ error: 'Arquivo não encontrado para este edital.' });
@@ -2072,9 +2086,8 @@ router.get('/arquivos/:cnpj/:ano/:seq/download/:docSeq', async (req, res) => {
       const ext = path.extname(localPath).toLowerCase();
       const mimeMap = { '.pdf': 'application/pdf', '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', '.xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', '.zip': 'application/zip' };
       const mime = mimeMap[ext] || 'application/octet-stream';
-      const filename = path.basename(localPath);
       res.setHeader('Content-Type', mime);
-      res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+      setAttachmentFilename(res, arq.titulo);
       res.setHeader('X-Served-From', 'disk-cache');
       return fs.createReadStream(localPath).pipe(res);
     }
@@ -2084,9 +2097,8 @@ router.get('/arquivos/:cnpj/:ano/:seq/download/:docSeq', async (req, res) => {
     const { size, contentType } = await downloadAndPersistFile(fileUrl, localPath);
     console.log(`[download-persist] Salvo: ${localPath} (${size} bytes, ${contentType})`);
 
-    const filename = path.basename(localPath);
-    res.setHeader('Content-Type', contentType.includes('text/html') ? 'application/octet-stream' : contentType);
-    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Type', contentType);
+    setAttachmentFilename(res, arq.titulo);
     res.setHeader('Content-Length', String(size));
     res.setHeader('X-Served-From', 'fresh-download');
     res.setHeader('X-Original-Url', fileUrl);
@@ -2097,7 +2109,7 @@ router.get('/arquivos/:cnpj/:ano/:seq/download/:docSeq', async (req, res) => {
     // Fallback seguro: redireciona para a URL original
     try {
       const arquivos = await getArquivosForEdital(cleanCnpj, cleanAno, cleanSeq);
-      const arq = arquivos.find(a => Number(a.sequencialDocumento) === cleanDocSeq) || arquivos[0];
+      const arq = arquivos.find(a => Number(a.sequencialDocumento) === cleanDocSeq);
       if (arq?.url) return res.redirect(302, arq.url);
     } catch (_) {}
     return res.status(502).json({ error: 'Erro ao baixar o arquivo.', detail: err.message });

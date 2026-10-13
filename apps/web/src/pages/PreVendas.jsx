@@ -171,16 +171,6 @@ const partnerTone = {
   }
 };
 
-const normalizeTextList = (...values) => {
-  const source = values.find((value) => {
-    if (Array.isArray(value)) return value.length > 0;
-    return String(value || '').trim();
-  });
-  if (!source) return '';
-  if (Array.isArray(source)) return source.filter(Boolean).join(', ');
-  return String(source).split(/[;,]/).map((item) => item.trim()).filter(Boolean).join(', ');
-};
-
 const PartnerRegistryCard = ({ item, type = 'distributor' }) => {
   const tone = partnerTone[type] || partnerTone.distributor;
   const Icon = tone.Icon;

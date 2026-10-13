@@ -1,6 +1,6 @@
-export const COMMERCIAL_PROPOSALS_STORAGE_KEY = 'proposta-comercial-double-drafts-v1';
+import { normalizeText } from './text-utils';
 
-const normalizeText = (value) => String(value || '').trim().replace(/\s+/g, ' ');
+export const COMMERCIAL_PROPOSALS_STORAGE_KEY = 'proposta-comercial-double-drafts-v1';
 
 export const getCommercialProposalNumber = (proposal) =>
   normalizeText(proposal?.proposalNumber || proposal?.number || proposal?.draft?.proposalNumber || proposal?.draft?.number);
