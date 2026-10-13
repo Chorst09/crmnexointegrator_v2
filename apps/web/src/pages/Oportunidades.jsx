@@ -151,7 +151,7 @@ const canOwnOpportunityForClientType = (user, clientType = 'B2B') => {
 
 const normalizeNegotiationType = (value) => {
   const text = String(value || '').trim();
-  const normalized = normalizeText(text);
+  const normalized = normalizeSearchText(text);
 
   if (!normalized) return '';
   if (normalized === 'new_client' || normalized.includes('cliente novo') || normalized.includes('nova venda')) return 'Cliente Novo';
