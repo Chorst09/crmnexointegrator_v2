@@ -10,7 +10,7 @@ const ids = ['pncp','comprasnet','dou','curitiba-ecompras','transparencia-curiti
 function searchHarness(fetchImpl = global.fetch) {
   const routes = new Map();
   const router = { get: (url, ...handlers) => routes.set(url, handlers.at(-1)) };
-  const ctx = { require: name => name === 'express' ? { Router: () => router } : name === 'jsonwebtoken' ? {} : require(name),
+  const ctx = { require: name => name === 'express' ? { Router: () => router } : name === 'jsonwebtoken' ? {} : name === '../lib/douNotice.cjs' ? require('../../apps/api/lib/douNotice.cjs') : require(name),
     module: { exports: {} }, process: { env: { JWT_SECRET:'test-only', B2G_SOURCE_TIMEOUT_MS:'1000' } },
     URL, URLSearchParams, AbortSignal, AbortController, global: { fetch: fetchImpl }, setTimeout, clearTimeout, console };
   vm.createContext(ctx);
@@ -385,4 +385,23 @@ test('Curitiba supports ASP.NET asynchronous postbacks and updated hidden fields
   assert.equal(posts[1].fields.get('__VIEWSTATE'), 'fresh-state');
   assert.equal(posts[1].fields.get('__EVENTVALIDATION'), 'fresh-validation');
   assert.equal(body.data[0].valor, 1234.56);
+});
+
+test('DOU search enriches values and purchase references even when PNCP is not selected as a search source', async () => {
+  const { routes } = searchHarness(async value => {
+    const url = new URL(value);
+    if (url.hostname === 'www.in.gov.br' && url.pathname.includes('/consulta/')) return new Response('<script id="BuscaDouPortlet_params">'+JSON.stringify({ jsonArray: [{ classPK: 'dou-real', title: 'AVISO DE LICITAÇÃO', pubDate: '13/10/2026', urlTitle: 'aviso-real', content: 'Pregão Eletrônico nº 65/2026. UASG: 389461. Objeto: Microsoft Office365. Abertura: 27/10/2026 às 09:00.' }] })+'</script>');
+    if (url.hostname === 'www.in.gov.br') return new Response('<div class="texto-dou">Pregão Eletrônico nº 65/2026. UASG: 389461. Objeto: Microsoft Office365. Abertura: 27/10/2026 às 09:00.</div>');
+    if (url.pathname.includes('1.1_consultarContratacoes')) return new Response(JSON.stringify({ resultado: [] }));
+    if (url.pathname.includes('1_consultarUasg')) return new Response(JSON.stringify({ resultado: [{ codigoUasg: '389461', cnpjCpfOrgao: '60975075000110' }] }));
+    if (url.pathname.includes('/contratacoes/publicacao')) return new Response(JSON.stringify({ data: [{ numeroControlePNCP: '60975075000110-1-000123/2026', numeroCompra: '65', anoCompra: 2026, modalidadeId: 6, valorTotalEstimado: 2982984.84, orgaoEntidade: { cnpj: '60975075000110' }, unidadeOrgao: { codigoUnidade: '389461', ufSigla: 'SP' } }], totalPaginas: 1 }));
+    throw Error('Unexpected request: '+url);
+  });
+  const { body } = await invoke(routes.get('/search'), { fontes: 'dou', objeto: 'Office365', dataInicio: '2026-10-06', dataFim: '2026-10-13' });
+  assert.equal(body.data.length, 1);
+  assert.equal(body.data[0].valor, 2982984.84);
+  assert.equal(body.data[0].fonte, 'Imprensa Nacional (DOU)');
+  assert.equal(body.data[0].sequencialCompra, 123);
+  assert.equal(body.data[0].link, 'https://www.in.gov.br/web/dou/-/aviso-real');
+  assert.equal(body.data[0].dataPublicacao, '2026-10-13T00:00:00-03:00');
 });

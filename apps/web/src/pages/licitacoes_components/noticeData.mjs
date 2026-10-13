@@ -3,6 +3,7 @@ const closedStatus = /encerrad|cancelad|cancelamento|revogad|revoga[cç][aã]o|s
 export const getBrazilToday = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
 
 export function getNoticeValue(notice) {
+  if (notice.orcamentoSigiloso) return null;
   for (const value of [notice.valor, notice.valor_estimado, notice.valorTotalEstimado]) {
     if (value == null || typeof value === 'boolean') continue;
     let text = String(value).trim().replace(/^R\$\s*/i, '').replace(/\s/g, '');
@@ -15,6 +16,7 @@ export function getNoticeValue(notice) {
 }
 
 export function formatNoticeValue(notice) {
+  if (notice.orcamentoSigiloso) return 'Orçamento sigiloso';
   const value = getNoticeValue(notice);
   return value == null ? 'Não informado' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
 }

@@ -38,7 +38,7 @@ const getAuthHeaders = () => {
 };
 
 export function LicitacaoDetalhesModal({
-  licitacao,
+  licitacao: aviso,
   onClose,
   onAddToManaged,
   isManaged = false,
@@ -54,6 +54,8 @@ export function LicitacaoDetalhesModal({
   const [documentDiagnostics, setDocumentDiagnostics] = useState<any[]>([]);
   const [originLinks, setOriginLinks] = useState<string[]>([]);
   const [documentSources, setDocumentSources] = useState<string[]>([]);
+  const [dadosComplementares, setDadosComplementares] = useState<Partial<Licitacao>>({});
+  const licitacao = aviso ? { ...aviso, ...dadosComplementares } : null;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -63,14 +65,15 @@ export function LicitacaoDetalhesModal({
     setOriginLinks([]);
     setDocumentSources([]);
     setSearchingPncp(false);
-    if (!licitacao) return;
+    setDadosComplementares({});
+    if (!aviso) return;
     setSearchingPncp(true);
     const load = async () => {
       try {
         const response = await fetch(buildApiUrl('/b2g-licitacoes/documentos/resolver'), {
           method: 'POST',
           headers: getAuthHeaders(),
-          body: JSON.stringify(licitacao),
+          body: JSON.stringify(aviso),
           signal: controller.signal
         });
         const data = await response.json();
@@ -81,6 +84,7 @@ export function LicitacaoDetalhesModal({
           setDocumentDiagnostics(data.diagnosticos || []);
           setOriginLinks(data.linksOrigem || []);
           setDocumentSources(data.fontesConsultadas || []);
+          setDadosComplementares(data.dadosComplementares || {});
         }
       } catch (error: any) {
         if (!controller.signal.aborted) setArquivosError(error.message || 'Falha na consulta às fontes oficiais. Tente novamente.');
@@ -90,7 +94,7 @@ export function LicitacaoDetalhesModal({
     };
     load();
     return () => controller.abort();
-  }, [licitacao, retryCount]);
+  }, [aviso, retryCount]);
 
   if (!licitacao) return null;
 
@@ -218,6 +222,7 @@ export function LicitacaoDetalhesModal({
   const pncpPageLink = compra
     ? `https://pncp.gov.br/app/editais/${compra.cnpj}/${compra.ano}/${compra.sequencial}`
     : (licitacao.pncpPageLink || null);
+  const origemDou = /^https:\/\/(?:www\.)?in\.gov\.br\//i.test(origemLink || '');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-sm" onClick={onClose}>
@@ -301,6 +306,8 @@ export function LicitacaoDetalhesModal({
                   <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                     {formatNoticeValue(licitacao)}
                   </span>
+                  {(licitacao as any).fonteValor && <span className="text-xs text-slate-400 block mt-1">{(licitacao as any).fonteValor}</span>}
+                  {(licitacao as any).motivoValorNaoInformado && <span className="text-xs text-slate-400 block mt-1">{(licitacao as any).motivoValorNaoInformado}</span>}
                 </div>
                 <div>
                   <span className="text-xs text-slate-400 block mb-1">Prazo Limite para Envio de Propostas</span>
@@ -334,7 +341,7 @@ export function LicitacaoDetalhesModal({
                       rel="noopener noreferrer"
                       className="text-sm font-medium text-cyan-400 hover:text-cyan-300 hover:underline flex items-center gap-1"
                     >
-                      Acessar Processo Eletrônico <ExternalLink className="w-3.5 h-3.5" />
+                      {origemDou ? 'Consultar publicação no DOU' : 'Acessar Processo Eletrônico'} <ExternalLink className="w-3.5 h-3.5" />
                     </a>
                   </div>
                 )}
@@ -443,9 +450,7 @@ export function LicitacaoDetalhesModal({
                   Documentação e Edital Oficial
                 </p>
                 <p className="text-xs text-slate-300 mt-1 max-w-lg mx-auto">
-                  {origemLink
-                    ? "Este órgão licitante disponibiliza o edital na íntegra, termo de referência e anexos para download diretamente através do seu sistema eletrônico oficial de contratação."
-                    : arquivosError
+                  {arquivosError
                       ? "Consulte a página oficial enquanto a busca de documentos estiver indisponível."
                       : "Nenhum arquivo pôde ser recuperado automaticamente nas fontes consultadas. Confira o diagnóstico ou acesse o sistema de origem."
                   }
@@ -458,7 +463,7 @@ export function LicitacaoDetalhesModal({
                       rel="noopener noreferrer"
                       className="inline-flex items-center gap-1.5 px-5 py-2.5 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white rounded-lg text-xs font-semibold shadow transition-all cursor-pointer"
                     >
-                      <ExternalLink className="w-3.5 h-3.5" /> Acessar Sistema de Origem (Edital Completo)
+                      <ExternalLink className="w-3.5 h-3.5" /> {origemDou ? 'Consultar publicação no DOU' : 'Acessar Sistema de Origem'}
                     </a>
                   )}
                   {pncpPageLink && (

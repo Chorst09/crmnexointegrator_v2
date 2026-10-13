@@ -1,6 +1,7 @@
 'use strict';
 const dns = require('node:dns').promises;
 const net = require('node:net');
+const { createDouEnricher, isDouNotice, douArticle } = require('./douNotice.cjs');
 
 const decode = value => String(value || '').replace(/&amp;/g, '&').replace(/&#(?:x2f|47);/gi, '/').replace(/\\u002f/gi, '/').replace(/\\\//g, '/');
 const isPrivateIp = ip => /^(?:127\.|10\.|0\.|169\.254\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.|::1$|::$|f[cd][0-9a-f]{2}:|fe[89ab][0-9a-f]:|::ffff:)/i.test(ip);
@@ -73,6 +74,7 @@ function extractDocuments(text, baseUrl) {
 }
 
 function createDocumentResolver({ getPncpFiles, getAtaFiles, fetchImpl = global.fetch, lookup = dns.lookup } = {}) {
+  const enrichDouNotice = createDouEnricher({ fetchImpl });
   const assertPublic = async value => {
     const url = new URL(value);
     if (!/^https?:$/.test(url.protocol) || url.username || url.password || (url.port && !['80', '443'].includes(url.port))) throw new Error('Endereço de origem inválido.');
@@ -111,10 +113,31 @@ function createDocumentResolver({ getPncpFiles, getAtaFiles, fetchImpl = global.
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 22000);
     const documentos = [], diagnosticos = [], linksOrigem = new Set();
+    const fontesConsultadas = new Set();
+    const avisoDou = isDouNotice(notice);
+    let dadosComplementares = {};
+    let publicacaoDou;
+    if (avisoDou) {
+      try {
+        let article = '';
+        if (!compraFromNotice(notice) && /^https:\/\/(?:www\.)?in\.gov\.br\/web\/dou\/\-\//i.test(notice.link || '')) {
+          fontesConsultadas.add('DOU — publicação completa');
+          try {
+            publicacaoDou = await read(notice.link, controller.signal);
+            article = douArticle(publicacaoDou.text);
+            documentos.push(...extractDocuments(article, publicacaoDou.url));
+          } catch (error) { diagnosticos.push({ fonte: 'DOU — publicação completa', mensagem: error.message }); }
+        }
+        const enrichment = await enrichDouNotice(notice, { article, signal: controller.signal });
+        dadosComplementares = enrichment.dados;
+        if (dadosComplementares.numeroControlePNCP) fontesConsultadas.add('DOU → contratação PNCP confirmada');
+        diagnosticos.push(...enrichment.diagnosticos);
+        notice = { ...notice, ...dadosComplementares, resumo: notice.resumo || article };
+      } catch (error) { diagnosticos.push({ fonte: 'DOU — contratação vinculada', mensagem: error.message }); }
+    }
     const atas = atasFromNotice(notice);
     const ata = atas[0];
     const compra = compraFromNotice(notice) || ata;
-    const fontesConsultadas = new Set();
     const originPromises = new Map();
     const readOrigin = async raw => {
       if (!raw || !/^https?:\/\//i.test(raw)) return;
@@ -128,7 +151,7 @@ function createDocumentResolver({ getPncpFiles, getAtaFiles, fetchImpl = global.
       fontesConsultadas.add(url.hostname);
       const task = (async () => {
         try {
-          const result = await read(raw, controller.signal);
+          const result = publicacaoDou && raw === notice.link ? publicacaoDou : await read(raw, controller.signal);
           if (result.binary) documentos.push({ titulo: decodeURIComponent(new URL(result.url).pathname.split('/').pop()) || 'Edital e anexos', url: result.url, uri: result.url, origem: 'SISTEMA_ORIGEM', tipoDocumentoNome: /pdf/i.test(result.type) ? 'PDF' : 'Documento oficial' });
           else {
             // O portal Compras.gov é uma SPA; seus documentos não estão no HTML.
@@ -140,7 +163,9 @@ function createDocumentResolver({ getPncpFiles, getAtaFiles, fetchImpl = global.
             }
             const found = extractDocuments(result.text, result.url);
             documentos.push(...found);
-            if (!found.length) diagnosticos.push({ fonte: new URL(raw).hostname, mensagem: /captcha/i.test(result.text) ? 'O portal exige verificação humana. Abra o sistema de origem para acessar os arquivos.' : 'A página de origem não expôs links públicos de documentos.' });
+            if (!found.length) diagnosticos.push({ fonte: new URL(raw).hostname, mensagem: /captcha/i.test(result.text) ? 'O portal exige verificação humana. Abra o sistema de origem para acessar os arquivos.'
+              : /could(?:&#x20;|\s)+not(?:&#x20;|\s)+open|unexpected system exception|erro 503|service unavailable/i.test(result.text) ? 'O portal de origem está indisponível ou não permite esta consulta automática. Tente novamente ou acesse a área pública do portal.'
+              : 'A página de origem não expôs links públicos de documentos.' });
           }
         } catch (error) { diagnosticos.push({ fonte: new URL(raw).hostname, mensagem: error.message }); }
       })();
@@ -196,7 +221,7 @@ function createDocumentResolver({ getPncpFiles, getAtaFiles, fetchImpl = global.
       const unique = new Map();
       for (const doc of documentos) if (!unique.has(doc.url || doc.uri)) unique.set(doc.url || doc.uri, doc);
       const checked = await Promise.allSettled(Array.from(unique.values()).slice(0, 100).map(async doc => { await assertPublic(doc.url || doc.uri); return doc; }));
-      return { documentos: checked.filter(result => result.status === 'fulfilled').map(result => result.value), diagnosticos: Array.from(new Map(diagnosticos.map(item => [`${item.fonte}:${item.mensagem}`, item])).values()), linksOrigem: Array.from(linksOrigem), fontesConsultadas: Array.from(fontesConsultadas) };
+      return { documentos: checked.filter(result => result.status === 'fulfilled').map(result => result.value), diagnosticos: Array.from(new Map(diagnosticos.map(item => [`${item.fonte}:${item.mensagem}`, item])).values()), linksOrigem: Array.from(linksOrigem), fontesConsultadas: Array.from(fontesConsultadas), ...(avisoDou ? { dadosComplementares } : {}) };
     } finally { clearTimeout(timer); }
   };
 }

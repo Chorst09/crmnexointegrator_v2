@@ -25,6 +25,8 @@ const fetch = (url, options = {}) => {
   const signal = sourceScope.getStore()?.signal;
   return upstreamFetch(url, { ...options, ...(signal ? { signal: options.signal ? AbortSignal.any([signal, options.signal]) : signal } : {}) });
 };
+const { createDouEnricher } = require('../lib/douNotice.cjs');
+const enrichDouNotice = createDouEnricher({ fetchImpl: fetch });
 
 const JWT_SECRET = (() => {
   const secret = String(process.env.JWT_SECRET || '').trim();
@@ -75,7 +77,10 @@ const formatCurrency = (value) => {
 const recordSourceResults = (items) => {
   const scope = sourceScope.getStore();
   if (!scope || scope.signal.aborted) return;
-  for (const item of items) scope.partialResults.set(String(item.numeroControlePNCP || item.id), item);
+  for (const item of items) {
+    if (item.numeroControlePNCP && item.id) scope.partialResults.delete(String(item.id));
+    scope.partialResults.set(String(item.numeroControlePNCP || item.id), item);
+  }
 };
 
 const safeJson = async (res) => {
@@ -458,6 +463,7 @@ async function buscarDOU({ objeto, termos = '', uf = '', cidade = '', dataInicio
           const publicationDate = normalizeDateText(item.pubDate) || item.pubDate || null;
           if (!isWithinDateRange(publicationDate, dataInicio, dataFim)) return null;
           let fullContent = content;
+          let articleHtml = '';
           const link = item.urlTitle ? `https://www.in.gov.br/web/dou/-/${item.urlTitle}` : DOU_SEARCH_URL;
           let location = extractDouLocation(item, `${title} ${content}`);
           if (item.urlTitle && (!uf || !location.uf || location.uf === String(uf).toUpperCase())
@@ -468,6 +474,7 @@ async function buscarDOU({ objeto, termos = '', uf = '', cidade = '', dataInicio
               const detailHtml = await detail.text();
               const article = detailHtml.match(/<(?:div|article)[^>]*class=["'][^"']*texto-dou[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|article)>/i)?.[1];
               if (!article) throw new Error('conteúdo da publicação não encontrado');
+              articleHtml = article;
               fullContent = cleanHtmlText(article);
               location = extractDouLocation(item, `${title} ${fullContent}`);
             } catch (err) {
@@ -494,6 +501,10 @@ async function buscarDOU({ objeto, termos = '', uf = '', cidade = '', dataInicio
             status: CLOSED_STATUS_PATTERN.test(title) || /homologa[cç][aã]o|adjudica[cç][aã]o|resultado de julgamento/i.test(title) ? `Encerrado — ${title}` : 'Publicado no DOU',
             resumo: fullContent
           };
+          recordSourceResults([notice]);
+          const enrichment = await enrichDouNotice(notice, { article: articleHtml, signal: sourceScope.getStore()?.signal });
+          Object.assign(notice, enrichment.dados);
+          errors.push(...enrichment.diagnosticos.map(item => `${item.fonte}: ${item.mensagem}`));
           recordSourceResults([notice]);
           return notice;
         });
