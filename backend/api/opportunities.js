@@ -428,7 +428,8 @@ export default async function handler(req) {
       companyName: ownershipCompany?.name || body.companyName || body.company?.name || '',
       document: ownershipCompany?.document || body.document || body.company?.document || '',
       website: ownershipCompany?.website || body.website || body.company?.website || '',
-      clientType
+      clientType,
+      context: 'oportunidade'
     });
     if (!ownershipDecision.permitido) {
       return Response.json(ownershipDecision, { status: 409 });
