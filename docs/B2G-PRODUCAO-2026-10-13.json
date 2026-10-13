@@ -1,0 +1,226 @@
+{
+  "modo": "Consultas autenticadas somente de leitura autorizadas pelo usuário",
+  "dominio": "https://nexosv2.chorstconsult.com.br",
+  "publicacaoAlterada": false,
+  "consultaCaptura": {
+    "uf": "PR",
+    "dataInicio": "2026-10-06",
+    "dataFim": "2026-10-13",
+    "fontes": [
+      "comprasnet",
+      "dou",
+      "transparencia-curitiba",
+      "transparencia-federal",
+      "curitiba-ecompras",
+      "contratacoes-14133",
+      "atas-srp",
+      "pregoes-siasg",
+      "comprasgov-disputas"
+    ],
+    "timestamp": "2026-10-13T12:18:47.889Z",
+    "totalAPI": 24,
+    "registrosComUfPR": 2,
+    "registrosSemUf": 22,
+    "statusFontes": [
+      {
+        "id": "comprasnet",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:46.779Z",
+        "lastError": null,
+        "totalResults": 0,
+        "nome": "ComprasNet / Compras.gov.br"
+      },
+      {
+        "id": "dou",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:46.646Z",
+        "lastError": null,
+        "totalResults": 19,
+        "nome": "Imprensa Nacional (DOU)"
+      },
+      {
+        "id": "transparencia-curitiba",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:47.411Z",
+        "lastError": null,
+        "totalResults": 2,
+        "nome": "Transparência Curitiba"
+      },
+      {
+        "id": "transparencia-federal",
+        "status": "error",
+        "lastRunAt": "2026-10-13T12:18:46.490Z",
+        "lastError": "Portal da Transparência: chave de API não configurada; consultada a fonte pública alternativa.",
+        "totalResults": 0,
+        "nome": "Transparência Federal"
+      },
+      {
+        "id": "curitiba-ecompras",
+        "status": "partial",
+        "lastRunAt": "2026-10-13T12:18:47.889Z",
+        "lastError": "Portal e-Compras bloqueou acesso programático.",
+        "totalResults": 2,
+        "nome": "e-Compras Curitiba"
+      },
+      {
+        "id": "contratacoes-14133",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:46.764Z",
+        "lastError": null,
+        "totalResults": 0,
+        "nome": "Contratações Lei 14.133"
+      },
+      {
+        "id": "atas-srp",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:47.108Z",
+        "lastError": null,
+        "totalResults": 3,
+        "nome": "Atas de Registro de Preços"
+      },
+      {
+        "id": "pregoes-siasg",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:46.338Z",
+        "lastError": null,
+        "totalResults": 0,
+        "nome": "Pregões SIASG"
+      },
+      {
+        "id": "comprasgov-disputas",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:46.310Z",
+        "lastError": null,
+        "totalResults": 0,
+        "nome": "Compras.gov Disputas"
+      }
+    ],
+    "erros": [
+      "Portal da Transparência: chave de API não configurada; consultada a fonte pública alternativa.",
+      "Portal e-Compras bloqueou acesso programático."
+    ],
+    "amostraCamposMunicipais": [
+      {
+        "id": "transparencia-curitiba-ds-1-2026-08-01-2026-companhia-de-habita-o-popular-de-curitiba",
+        "numero": "DS 1/2026",
+        "protocoloRecebido": "08/01/2026",
+        "situacaoRecebida": "01-283294/2025",
+        "publicacao": null,
+        "abertura": null,
+        "prazo": null,
+        "valor": 0
+      },
+      {
+        "id": "transparencia-curitiba-ds-1-2026-09-01-2026-instituto-municipal-de-turismo",
+        "numero": "DS 1/2026",
+        "protocoloRecebido": "09/01/2026",
+        "situacaoRecebida": "01-298887/2025",
+        "publicacao": null,
+        "abertura": null,
+        "prazo": null,
+        "valor": 183896.76
+      }
+    ]
+  },
+  "consultaPNCP": {
+    "timestamp": "2026-10-13T12:20:30.291Z",
+    "total": 40,
+    "anterioresAoPeriodo": 34,
+    "posterioresAoPeriodo": 0,
+    "statusFontes": [
+      {
+        "id": "pncp",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:20:30.291Z",
+        "lastError": null,
+        "totalResults": 40,
+        "nome": "PNCP Oficial"
+      }
+    ]
+  },
+  "workersAposConsultas": {
+    "timestamp": "2026-10-13T12:20:31.607Z",
+    "workers": [
+      {
+        "id": "pncp",
+        "nome": "PNCP Oficial",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:20:30.291Z",
+        "lastError": null,
+        "totalResults": 40
+      },
+      {
+        "id": "comprasnet",
+        "nome": "ComprasNet / Compras.gov.br",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:46.779Z",
+        "lastError": null,
+        "totalResults": 0
+      },
+      {
+        "id": "transparencia-federal",
+        "nome": "Transparência Federal",
+        "status": "error",
+        "lastRunAt": "2026-10-13T12:18:46.490Z",
+        "lastError": "Portal da Transparência: chave de API não configurada; consultada a fonte pública alternativa.",
+        "totalResults": 0
+      },
+      {
+        "id": "dou",
+        "nome": "Imprensa Nacional (DOU)",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:46.646Z",
+        "lastError": null,
+        "totalResults": 19
+      },
+      {
+        "id": "curitiba-ecompras",
+        "nome": "e-Compras Curitiba",
+        "status": "partial",
+        "lastRunAt": "2026-10-13T12:18:47.889Z",
+        "lastError": "Portal e-Compras bloqueou acesso programático.",
+        "totalResults": 2
+      },
+      {
+        "id": "transparencia-curitiba",
+        "nome": "Transparência Curitiba",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:47.411Z",
+        "lastError": null,
+        "totalResults": 2
+      },
+      {
+        "id": "contratacoes-14133",
+        "nome": "Contratações Lei 14.133",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:46.764Z",
+        "lastError": null,
+        "totalResults": 0
+      },
+      {
+        "id": "atas-srp",
+        "nome": "Atas de Registro de Preços",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:47.108Z",
+        "lastError": null,
+        "totalResults": 3
+      },
+      {
+        "id": "pregoes-siasg",
+        "nome": "Pregões SIASG",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:46.338Z",
+        "lastError": null,
+        "totalResults": 0
+      },
+      {
+        "id": "comprasgov-disputas",
+        "nome": "Compras.gov Disputas",
+        "status": "ok",
+        "lastRunAt": "2026-10-13T12:18:46.310Z",
+        "lastError": null,
+        "totalResults": 0
+      }
+    ]
+  }
+}

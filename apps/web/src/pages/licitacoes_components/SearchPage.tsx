@@ -4,6 +4,7 @@ import { Licitacao } from './types';
 import { cn } from './utils';
 import { LicitacaoDetalhesModal } from './LicitacaoDetalhesModal';
 import { ACTIVE_SOURCES_KEY, ACTIVE_SOURCES_EVENT, SOURCES_CATALOG } from './PipelineMonitor';
+import { getBrazilToday, formatNoticeValue, getNoticeDeadline, isNoticeActive, isNoticeCurrent, compareNoticeValues } from './noticeData.mjs';
 
 const ALL_SOURCE_IDS = SOURCES_CATALOG.map(s => s.id);
 
@@ -33,7 +34,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   const [totalDisponivel, setTotalDisponivel] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const searchController = useRef<AbortController | null>(null);
-  const getTodayISO = () => new Date().toISOString().split('T')[0];
+  const getTodayISO = getBrazilToday;
   const getPastDaysISO = (days: number) => new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
 
   const [searchTerm, setSearchTerm] = useState('');
@@ -44,6 +45,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   const [onlyActive, setOnlyActive] = useState(true);
   const [statusFontes, setStatusFontes] = useState<any[]>([]);
   const [searchErrors, setSearchErrors] = useState<string[]>([]);
+  const [diagnosticoFiltros, setDiagnosticoFiltros] = useState<any>(null);
   const [sortBy, setSortBy] = useState<'recente' | 'maior_valor' | 'menor_valor' | 'abertura_proxima'>('recente');
   
   // Regra de Validade Temporal: Não trazer editais com prazo expirado
@@ -148,6 +150,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
     setLoading(true);
     setSearchErrors([]);
     setStatusFontes([]);
+    setDiagnosticoFiltros(null);
     try {
       // Se nenhuma fonte está ativa, retorna vazio imediatamente sem bater no backend
       if (fontesAtivas.size === 0) {
@@ -171,6 +174,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
         tamanhoPagina: '40',
         ordem: sortBy === 'recente' ? 'data_desc' : sortBy === 'maior_valor' ? 'valor_desc' : sortBy === 'menor_valor' ? 'valor_asc' : 'abertura_asc',
         apenasVigentes: ocultarEncerrados ? 'true' : 'false',
+        dataReferencia: dataBuscaReferencia,
         dataInicio: dataInicioEfetivo,
         dataFim: dataFinal || getTodayISO(),
       });
@@ -191,6 +195,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
       if (!response.ok) throw new Error(json.error || 'Erro ao consultar as fontes.');
       setStatusFontes(json.statusFontes || []);
+      setDiagnosticoFiltros(json.diagnosticoFiltros || null);
       setSearchErrors(json.erros || []);
       setLicitacoes(json.data || []);
       setTotalDisponivel(json.total || (json.data?.length ?? 0));
@@ -206,31 +211,14 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   };
 
   const getOrgaoName = (lic: Licitacao) => lic.orgao || (lic as any).orgao || lic.orgaoEntidade?.razaoSocial || 'Órgão não especificado';
-  const getUf = (lic: Licitacao) => lic.uf || lic.unidadeOrgao?.ufSigla || 'BR';
+  const getUf = (lic: Licitacao) => lic.uf || lic.unidadeOrgao?.ufSigla || 'UF não informada';
   const getCidade = (lic: Licitacao) => lic.cidade || (lic as any).municipio || lic.unidadeOrgao?.municipioNome || '';
   const getObjeto = (lic: Licitacao) => (lic as any).titulo || lic.objeto_resumo || lic.objetoCompra || 'Sem descrição';
   const getData = (lic: Licitacao) => (lic as any).dataPublicacao || lic.dataAtualizacao || lic.data_abertura || (lic as any).dataEncerramento || lic.dataEncerramentoProposta || lic.dataHoraAberturaSessaoPublica || lic.dataAtualizacao || new Date().toISOString();
-  const getValor = (lic: Licitacao) => (lic as any).valor || lic.valor_estimado || lic.valorTotalEstimado || 0;
   const getSituacao = (lic: Licitacao) => lic.situacao || (lic as any).status || lic.situacaoCompraNome || 'Desconhecida';
 
   // Obter prazo limite para envio de propostas ou início da sessão pública
-  const getPrazoLimiteDate = (lic: Licitacao): Date | null => {
-    const dtStr = lic.dataEncerramentoProposta || 
-                  (lic as any).dataEncerramento ||       // formato do /search
-                  (lic as any).data_encerramento || 
-                  lic.dataHoraAberturaSessaoPublica;
-    if (dtStr) {
-      const d = new Date(dtStr);
-      if (!isNaN(d.getTime())) return d;
-    }
-    // Fallback se não há data de encerramento explícita: verificar dataHoraAberturaSessaoPublica ou data_abertura
-    const dtFall = lic.dataHoraAberturaSessaoPublica || lic.data_abertura || lic.dataAberturaProposta;
-    if (dtFall) {
-      const d = new Date(dtFall);
-      if (!isNaN(d.getTime())) return d;
-    }
-    return null;
-  };
+  const getPrazoLimiteDate = getNoticeDeadline;
 
   const getInicioPropostaDate = (lic: Licitacao): Date | null => {
     const dtStr = lic.dataAberturaProposta || lic.data_abertura;
@@ -240,36 +228,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   };
 
   // Regra de Validade Temporal: Somente considerar editais válidos que ainda NÃO expiraram
-  const isAberturaValida = (lic: Licitacao) => {
-    if (!ocultarEncerrados) return true;
-
-    // 1. Status explicitamente finalizado/cancelado
-    const status = String(lic.situacao || lic.situacaoCompraNome || '').toLowerCase();
-    if (/(encerrad|cancelad|revogad|suspens|anulad|fracassad|desert|homologad|adjudicad|concluid)/i.test(status)) {
-      return false;
-    }
-
-    const now = Date.now();
-    const [ano, mes, dia] = dataBuscaReferencia.split('-').map(Number);
-    const refDate = new Date(ano, mes - 1, dia, 0, 0, 0, 0);
-    const targetThreshold = (dataBuscaReferencia === getTodayISO()) ? now : refDate.getTime();
-
-    // 2. Prazo limite de envio de propostas
-    const limite = getPrazoLimiteDate(lic);
-    if (limite && !isNaN(limite.getTime())) {
-      return limite.getTime() >= targetThreshold;
-    }
-
-    // 3. Se não tem prazo de encerramento explícito, verifica se o certame tem abertura futura
-    const inicio = getInicioPropostaDate(lic);
-    if (inicio && !isNaN(inicio.getTime())) {
-      return inicio.getTime() >= targetThreshold;
-    }
-
-    // 4. Sem nenhuma data verificável — aceita se veio do backend com apenasVigentes=true
-    // (fontes como DOU não têm dataEncerramento mas já foram pré-filtradas pelo backend)
-    return ocultarEncerrados ? true : false;
-  };
+  const isAberturaValida = (lic: Licitacao) => !ocultarEncerrados || isNoticeCurrent(lic, dataBuscaReferencia);
 
   const formatAbertura = (lic: Licitacao) => {
     const d = getPrazoLimiteDate(lic);
@@ -314,15 +273,12 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
   const normalizeStr = (str: string) => str ? str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase() : '';
 
-  const isAtivo = (lic: Licitacao) => {
-    const status = getSituacao(lic).toLowerCase();
-    return !status.includes('revogada') && !status.includes('anulada') && !status.includes('encerrada') && !status.includes('suspensa');
-  };
+  const isAtivo = isNoticeActive;
   
   const [filterByKeywords, setFilterByKeywords] = useState(false);
 
   // Total de editais descartados pela regra de abertura anterior à busca
-  const totalExcluidosPassados = licitacoes.filter(lic => !isAberturaValida(lic)).length;
+  const totalExcluidosPassados = (diagnosticoFiltros?.excluidos?.encerrados || 0) + licitacoes.filter(lic => !isAberturaValida(lic)).length;
 
   const filteredLicitacoes = licitacoes.filter(lic => {
     const searchNormalized = normalizeStr(searchTerm);
@@ -330,7 +286,8 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
     
     const matchesSearch = searchNormalized === '' || 
                           normalizeStr(getObjeto(lic)).includes(searchNormalized) || 
-                          normalizeStr(getOrgaoName(lic)).includes(searchNormalized);
+                          normalizeStr(getOrgaoName(lic)).includes(searchNormalized) ||
+                          normalizeStr((lic as any).resumo || '').includes(searchNormalized);
     const matchesUf = selectedUf ? getUf(lic) === selectedUf : true;
     const matchesCity = cityNormalized === '' || normalizeStr(getCidade(lic)).includes(cityNormalized);
     const matchesActive = onlyActive ? isAtivo(lic) : true;
@@ -340,7 +297,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
     
     const matchesKeywords = !filterByKeywords || activeKeywords.length === 0 || activeKeywords.some(kw => {
         const kwNormalized = normalizeStr(kw);
-        const obj = normalizeStr(getObjeto(lic));
+        const obj = normalizeStr(`${getObjeto(lic)} ${(lic as any).resumo || ''}`);
         if (obj.includes(kwNormalized)) return true;
         if (lic.itens && Array.isArray(lic.itens) && lic.itens.some(it => normalizeStr(it.descricao).includes(kwNormalized))) {
           return true;
@@ -353,10 +310,10 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
   const sortedLicitacoes = [...filteredLicitacoes].sort((a, b) => {
     if (sortBy === 'maior_valor') {
-      return getValor(b) - getValor(a);
+      return compareNoticeValues(a, b, true);
     }
     if (sortBy === 'menor_valor') {
-      return getValor(a) - getValor(b);
+      return compareNoticeValues(a, b);
     }
     if (sortBy === 'abertura_proxima') {
       const da = getPrazoLimiteDate(a)?.getTime() || Infinity;
@@ -364,8 +321,8 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
       return da - db;
     }
     // 'recente' padrão: ordena pela data mais recente do certame
-    const da = getPrazoLimiteDate(a)?.getTime() || new Date(getData(a)).getTime() || 0;
-    const db = getPrazoLimiteDate(b)?.getTime() || new Date(getData(b)).getTime() || 0;
+    const da = new Date(getData(a)).getTime() || 0;
+    const db = new Date(getData(b)).getTime() || 0;
     return db - da;
   });
 
@@ -595,11 +552,22 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
           <h3 className="text-sm font-semibold text-slate-100">Fontes consultadas ({statusFontes.length})</h3>
           <div className="flex flex-wrap gap-2">
             {statusFontes.map((status) => (
-              <span key={status.id} title={status.lastError || 'Consulta concluída'} className={`rounded-lg border px-3 py-1.5 text-xs ${status.status === 'error' ? 'border-rose-800 text-rose-300' : status.status === 'partial' ? 'border-amber-800 text-amber-300' : 'border-emerald-800 text-emerald-300'}`}>
-                {status.nome}: {status.totalResults} resultado(s){status.status === 'error' ? ' — falha' : status.status === 'partial' ? ' — parcial' : ''}
+              <span key={status.id} title={status.lastError || 'A contagem exibida considera os filtros desta tela; fontes podem compartilhar o mesmo edital.'} className={`rounded-lg border px-3 py-1.5 text-xs ${status.status === 'error' ? 'border-rose-800 text-rose-300' : status.status === 'partial' ? 'border-amber-800 text-amber-300' : 'border-emerald-800 text-emerald-300'}`}>
+                {status.nome}: {filteredLicitacoes.filter(lic => (lic as any).sourceId === status.id || (lic as any).origens?.some((origin: any) => origin.id === status.id)).length} exibido(s) / {status.totalResults} coletado(s){status.status === 'error' ? ' — falha' : status.status === 'partial' ? ' — parcial' : ''}
               </span>
             ))}
           </div>
+          {diagnosticoFiltros && (
+            <p className="text-xs text-slate-400">
+              {diagnosticoFiltros.coletados} registros coletados; {diagnosticoFiltros.unicos} após remover duplicatas; {filteredLicitacoes.length} exibidos com os filtros atuais.
+              {diagnosticoFiltros.excluidos?.uf > 0 && ` ${diagnosticoFiltros.excluidos.uf} fora da UF selecionada.`}
+              {diagnosticoFiltros.excluidos?.semUf > 0 && ` ${diagnosticoFiltros.excluidos.semUf} sem UF confirmada ficaram fora do filtro de estado.`}
+              {diagnosticoFiltros.excluidos?.cidade > 0 && ` ${diagnosticoFiltros.excluidos.cidade} fora da cidade selecionada.`}
+              {diagnosticoFiltros.excluidos?.semCidade > 0 && ` ${diagnosticoFiltros.excluidos.semCidade} sem cidade confirmada ficaram fora do filtro de cidade.`}
+              {diagnosticoFiltros.excluidos?.periodo > 0 && ` ${diagnosticoFiltros.excluidos.periodo} fora do período de publicação.`}
+              {diagnosticoFiltros.excluidos?.encerrados > 0 && ` ${diagnosticoFiltros.excluidos.encerrados} com prazo expirado ou situação encerrada.`}
+            </p>
+          )}
         </div>
       )}
       {searchErrors.length > 0 && !loading && (
@@ -727,11 +695,11 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
             <div className="flex items-center gap-2.5">
               <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
               <p className="text-xs">
-                <strong>{totalExcluidosPassados} edital(is) com abertura anterior a {new Date(`${dataBuscaReferencia}T00:00:00`).toLocaleDateString('pt-BR')}</strong> foram omitidos desta busca por já terem ocorrido.
+                <strong>{totalExcluidosPassados} edital(is) com prazo expirado ou situação encerrada</strong> foram omitidos pela regra de validade.
               </p>
             </div>
             <button
-              onClick={() => setOcultarEncerrados(false)}
+              onClick={() => { setOcultarEncerrados(false); setOnlyActive(false); }}
               className="text-xs text-amber-800 dark:text-amber-300 font-semibold underline hover:text-amber-950 dark:hover:text-amber-100 whitespace-nowrap cursor-pointer"
             >
               Exibir editais passados
@@ -757,7 +725,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
             </p>
             {ocultarEncerrados && totalExcluidosPassados > 0 && (
               <button
-                onClick={() => setOcultarEncerrados(false)}
+                onClick={() => { setOcultarEncerrados(false); setOnlyActive(false); }}
                 className="mt-4 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition-colors inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <Clock className="w-3.5 h-3.5" /> Desativar filtro e ver editais passados
@@ -777,7 +745,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                 </div>
                 {totalDisponivel > 0 && (
                   <span className="text-xs text-slate-400 hidden md:inline border-l border-[#07323e] pl-3">
-                    Base com {totalDisponivel} certames catalogados
+                    {totalDisponivel} resultados recebidos nesta consulta
                   </span>
                 )}
                 {filterByKeywords && (
@@ -854,7 +822,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                     <div className="text-right flex-shrink-0 ml-4">
                       <p className="text-sm font-medium text-slate-400 mb-1">Valor Estimado</p>
                       <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                        {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(getValor(lic))}
+                        {formatNoticeValue(lic)}
                       </p>
                     </div>
                   </div>

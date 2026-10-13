@@ -16,6 +16,7 @@ import { cn } from './utils';
 import { resolvePncpCompra } from './pncpDocuments';
 import { buildApiUrl } from '../../config/api';
 import { prepareDocumentDownload } from './documentDownload.mjs';
+import { formatNoticeValue, getNoticeDeadline } from './noticeData.mjs';
 
 export interface LicitacaoDetalhesModalProps {
   licitacao: Licitacao | null;
@@ -98,25 +99,9 @@ export function LicitacaoDetalhesModal({
   const getCidade = (lic: Licitacao) => lic.cidade || (lic as any).municipio || lic.unidadeOrgao?.municipioNome || '';
   const getObjeto = (lic: Licitacao) => (lic as any).titulo || lic.objeto_resumo || lic.objetoCompra || 'Sem descrição';
   const getData = (lic: Licitacao) => (lic as any).dataPublicacao || lic.dataAtualizacao || lic.data_abertura || (lic as any).dataEncerramento || lic.dataEncerramentoProposta || lic.dataHoraAberturaSessaoPublica || lic.dataAtualizacao || new Date().toISOString();
-  const getValor = (lic: Licitacao) => (lic as any).valor || lic.valor_estimado || lic.valorTotalEstimado || 0;
   const getSituacao = (lic: Licitacao) => lic.situacao || (lic as any).status || lic.situacaoCompraNome || 'Divulgada no PNCP';
 
-  const getPrazoLimiteDate = (lic: Licitacao): Date | null => {
-    const dtStr = lic.dataEncerramentoProposta || 
-                  (lic as any).dataEncerramento ||       // formato do /search
-                  (lic as any).data_encerramento || 
-                  lic.dataHoraAberturaSessaoPublica;
-    if (dtStr) {
-      const d = new Date(dtStr);
-      if (!isNaN(d.getTime())) return d;
-    }
-    const dtFall = lic.dataHoraAberturaSessaoPublica || lic.data_abertura || lic.dataAberturaProposta;
-    if (dtFall) {
-      const d = new Date(dtFall);
-      if (!isNaN(d.getTime())) return d;
-    }
-    return null;
-  };
+  const getPrazoLimiteDate = getNoticeDeadline;
 
   const getInicioPropostaDate = (lic: Licitacao): Date | null => {
     const dtStr = lic.dataAberturaProposta || lic.data_abertura;
@@ -314,7 +299,7 @@ export function LicitacaoDetalhesModal({
                 <div>
                   <span className="text-xs text-slate-400 block mb-1">Valor Estimado</span>
                   <span className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
-                    {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(getValor(licitacao))}
+                    {formatNoticeValue(licitacao)}
                   </span>
                 </div>
                 <div>

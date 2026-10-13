@@ -6,7 +6,7 @@
  * 1.  pncp               — Portal Nacional de Contratações Públicas (API oficial)
  * 2.  comprasnet         — Portal de Compras do Governo Federal (SIASG legado)
  * 3.  dou               — Imprensa Nacional (DOU Seção 3)
- * 4.  curitiba-ecompras  — e-Compras Curitiba (Playwright/HTTP scraper)
+ * 4.  curitiba-ecompras  — e-Compras Curitiba (HTTP/HTML com fallback PNCP)
  * 5.  transparencia-curitiba — Portal de Transparência de Curitiba
  * 6.  transparencia-federal  — Portal da Transparência Federal
  * 7.  contratacoes-14133 — Contratações Lei 14.133 (PNCP dados abertos)
@@ -63,8 +63,19 @@ const toISODate = (value) => {
 };
 
 const formatCurrency = (value) => {
-  if (!value || isNaN(Number(value))) return null;
-  return Number(value);
+  if (value == null || typeof value === 'boolean') return null;
+  let text = String(value).trim().replace(/^R\$\s*/i, '').replace(/\s/g, '');
+  if (!/^\d[\d.,]*$/.test(text)) return null;
+  if (text.includes(',')) text = text.replace(/\./g, '').replace(',', '.');
+  const number = Number(text);
+  return Number.isFinite(number) && number > 0 ? number : null;
+};
+
+// Preserva páginas já obtidas caso uma consulta posterior exceda o prazo do worker.
+const recordSourceResults = (items) => {
+  const scope = sourceScope.getStore();
+  if (!scope || scope.signal.aborted) return;
+  for (const item of items) scope.partialResults.set(String(item.numeroControlePNCP || item.id), item);
 };
 
 const safeJson = async (res) => {
@@ -156,6 +167,7 @@ async function fetchPNCPItems(url, label, { timeoutMs = 9000 } = {}) {
     if (!res.ok) {
       throw new Error(`PNCP HTTP ${res.status}.`);
     }
+    if (res.status === 204) return [];
 
     const contentType = res.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
@@ -167,7 +179,8 @@ async function fetchPNCPItems(url, label, { timeoutMs = 9000 } = {}) {
     }
 
     const data = await safeJson(res);
-    const items = Array.isArray(data?.data) ? data.data : [];
+    if (!Array.isArray(data?.data)) throw new Error('PNCP retornou uma resposta sem lista de contratações.');
+    const items = data.data;
     setPNCPCache(cacheKey, items);
     return items;
   } catch (err) {
@@ -211,7 +224,7 @@ const normalizeDateText = (value) => {
   const match = text.match(/(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?/);
   if (!match) return null;
   const [, dd, mm, yyyy, hh = '00', min = '00', ss = '00'] = match;
-  return `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}`;
+  return `${yyyy}-${mm}-${dd}T${hh}:${min}:${ss}-03:00`;
 };
 
 const isWithinDateRange = (dateValue, dataInicio, dataFim) => {
@@ -219,17 +232,17 @@ const isWithinDateRange = (dateValue, dataInicio, dataFim) => {
   const ts = new Date(dateValue).getTime();
   if (!Number.isFinite(ts)) return true;
   if (dataInicio) {
-    const startTs = new Date(`${String(dataInicio).slice(0, 10)}T00:00:00`).getTime();
+    const startTs = new Date(`${toISODate(dataInicio)?.slice(0, 10)}T00:00:00-03:00`).getTime();
     if (Number.isFinite(startTs) && ts < startTs) return false;
   }
   if (dataFim) {
-    const endTs = new Date(`${String(dataFim).slice(0, 10)}T23:59:59`).getTime();
+    const endTs = new Date(`${toISODate(dataFim)?.slice(0, 10)}T23:59:59-03:00`).getTime();
     if (Number.isFinite(endTs) && ts > endTs) return false;
   }
   return true;
 };
 
-const CLOSED_STATUS_PATTERN = /(encerrad|cancelad|revogad|suspens|anulad|fracassad|desert|homologad|adjudicad)/i;
+const CLOSED_STATUS_PATTERN = /(encerrad|cancelad|cancelamento|revogad|revoga[cç][aã]o|suspens|anulad|fracassad|desert|homologad|adjudicad|conclu[ií]d|exclu[ií]d|confirmado vencedor|autoriza[cç][aã]o de fornecimento gerada|aviso de resultado)/i;
 
 const parseDateTime = (value, endOfDay = false) => {
   if (!value) return null;
@@ -238,38 +251,38 @@ const parseDateTime = (value, endOfDay = false) => {
   const brMatch = text.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?/);
   if (brMatch) {
     const iso = `${brMatch[3]}-${brMatch[2]}-${brMatch[1]}T${brMatch[4] || (endOfDay ? '23' : '00')}:${brMatch[5] || (endOfDay ? '59' : '00')}:${brMatch[6] || (endOfDay ? '59' : '00')}`;
-    const date = new Date(iso);
+    const date = new Date(`${iso}-03:00`);
     return Number.isFinite(date.getTime()) ? date : null;
   }
   if (/^\d{4}-\d{2}-\d{2}$/.test(text) && text.length === 10) {
-    const [year, month, day] = text.split('-').map(Number);
-    const date = new Date(year, month - 1, day, endOfDay ? 23 : 0, endOfDay ? 59 : 0, endOfDay ? 59 : 0);
+    const date = new Date(`${text}T${endOfDay ? '23:59:59' : '00:00:00'}-03:00`);
     return Number.isFinite(date.getTime()) ? date : null;
   }
-  const date = new Date(text);
+  const date = new Date(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?$/.test(text) ? `${text}-03:00` : text);
   return Number.isFinite(date.getTime()) ? date : null;
 };
 
-const isEditalVigente = (item) => {
+const isEditalVigente = (item, referenceTime = Date.now()) => {
   if (!item) return false;
 
   // 1. Se tem status explicitamente encerrado, rejeitar
-  const status = String(item?.status || '').trim().toLowerCase();
+  const status = String(item?.status || item?.situacao || item?.situacaoCompraNome || '').trim().toLowerCase();
   if (CLOSED_STATUS_PATTERN.test(status)) return false;
 
   // 2. Se tem data de encerramento, ela decide
-  const encerramento = parseDateTime(item?.dataEncerramento || item?.dataPrazo || item?.prazo, true);
-  if (encerramento) return encerramento.getTime() >= Date.now();
+  const encerramento = parseDateTime(item?.dataEncerramento || item?.dataEncerramentoProposta || item?.dataPrazo || item?.prazo, true);
+  if (encerramento) return encerramento.getTime() >= referenceTime;
 
-  // 3. Se tem data de abertura futura, é vigente
-  const abertura = parseDateTime(item?.dataAbertura || item?.dataAberturaProposta, false);
-  if (abertura && abertura.getTime() >= Date.now()) return true;
+  // A sessão pública pode encerrar a participação. O início do recebimento de
+  // propostas, sozinho, não significa que o edital expirou.
+  const sessao = parseDateTime(item?.dataSessao || item?.dataHoraAberturaSessaoPublica, true);
+  if (sessao) return sessao.getTime() >= referenceTime;
 
   // 4. Se tem data de publicação muito antiga (mais de 1 ano), rejeitar
   const publicacao = parseDateTime(item?.dataPublicacao, false);
   if (publicacao) {
     const UM_ANO = 365 * 24 * 60 * 60 * 1000;
-    if (publicacao.getTime() < Date.now() - UM_ANO) return false;
+    if (publicacao.getTime() < referenceTime - UM_ANO) return false;
   }
 
   // 5. Se chegou aqui, considerar vigente (padrão permissivo)
@@ -302,13 +315,7 @@ const toBRDate = (value) => {
   return String(value);
 };
 
-const parseBRMoney = (value) => {
-  const raw = cleanHtmlText(value).replace(/[^\d,.-]/g, '');
-  if (!raw) return null;
-  const normalized = raw.replace(/\./g, '').replace(',', '.');
-  const number = Number(normalized);
-  return Number.isFinite(number) ? number : null;
-};
+const parseBRMoney = (value) => formatCurrency(cleanHtmlText(value));
 
 const firstText = (...values) => {
   for (const value of values) {
@@ -334,17 +341,76 @@ const splitSearchTerms = (value) => String(value || '')
   .filter((term) => term.length >= 3)
   .filter((term, index, terms) => terms.findIndex((other) => other.toLocaleLowerCase('pt-BR') === term.toLocaleLowerCase('pt-BR')) === index);
 
-const extractDouDeadline = (content, publicationDate) => {
-  const publicationTs = parseDateTime(publicationDate)?.getTime();
-  const dates = [...String(content || '').matchAll(/\b(\d{2}\/\d{2}\/\d{4})\b/g)]
-    .map((match) => parseDateTime(match[1], true))
-    .filter(Boolean)
-    .filter((date) => !publicationTs || (date.getTime() >= publicationTs && date.getTime() <= publicationTs + (370 * 24 * 60 * 60 * 1000)));
-  return dates[0]?.toISOString() || null;
+const UF_NAMES = {
+  AC: 'Acre', AL: 'Alagoas', AP: 'Amapá', AM: 'Amazonas', BA: 'Bahia', CE: 'Ceará',
+  DF: 'Distrito Federal', ES: 'Espírito Santo', GO: 'Goiás', MA: 'Maranhão', MT: 'Mato Grosso',
+  MS: 'Mato Grosso do Sul', MG: 'Minas Gerais', PA: 'Pará', PB: 'Paraíba', PR: 'Paraná',
+  PE: 'Pernambuco', PI: 'Piauí', RJ: 'Rio de Janeiro', RN: 'Rio Grande do Norte',
+  RS: 'Rio Grande do Sul', RO: 'Rondônia', RR: 'Roraima', SC: 'Santa Catarina', SP: 'São Paulo',
+  SE: 'Sergipe', TO: 'Tocantins'
+};
+const normalizeSearchText = value => cleanHtmlText(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+const extractDouLocation = (item, text) => {
+  const explicitUf = String(item.uf || item.ufSigla || '').toUpperCase();
+  const municipio = firstText(item.municipio, item.cidade);
+  if (UF_NAMES[explicitUf]) return { uf: explicitUf, municipio };
+  const hierarchy = cleanHtmlText(Array.isArray(item.hierarchyList) ? item.hierarchyList.join(' / ') : item.hierarchyStr || '');
+  const inferUf = value => {
+    const normalized = normalizeSearchText(value);
+    const declaredState = Object.entries(UF_NAMES).find(([, name]) => new RegExp(`estado\\s+(?:do|de|da)\\s+${normalizeSearchText(name)}(?=\\s*/|\\s*[-–]|$)`).test(normalized));
+    if (declaredState) return declaredState[0];
+    const matches = new Set();
+    for (const [uf, name] of Object.entries(UF_NAMES)) {
+      const nameMatches = uf === 'PA' ? /\bpará\b/i.test(value) || /estado\s+(?:do|de)\s+para\b/.test(normalized) : new RegExp(`\\b${normalizeSearchText(name)}\\b`).test(normalized);
+      if (nameMatches
+        || new RegExp(`(?:/|[-–]\\s*|\\()${uf}\\b|\\b${uf}\\)`, 'i').test(value)) matches.add(uf);
+    }
+    // Evita confundir Mato Grosso do Sul com Mato Grosso.
+    if (matches.has('MS')) matches.delete('MT');
+    return matches.size === 1 ? [...matches][0] : '';
+  };
+  const uf = inferUf(hierarchy) || inferUf(text);
+  const cityMatch = `${hierarchy} ${text}`.match(/(?:prefeitura|munic[ií]pio|c[aâ]mara)(?:\s+municipal)?\s+(?:de|do|da)\s+([^,;.\n/]+?)(?=\s*[-–/(]|\s+(?:aviso|secretaria|estado|preg[aã]o)\b|$)/i);
+  return { uf, municipio: municipio || cityMatch?.[1]?.trim() || '' };
 };
 
+const extractDouDeadline = (content) => {
+  // Datas de publicação, assinatura e contratos não são prazos de participação.
+  const text = cleanHtmlText(content);
+  const matches = [...text.matchAll(/\b(\d{2}\/\d{2}\/\d{4})\b/g)];
+  for (const match of matches) {
+    const context = text.slice(Math.max(0, match.index - 140), match.index);
+    if (!/(?:abertura|sess[aã]o|recebimento\s+(?:das?\s+)?propostas|entrega\s+(?:das?\s+)?propostas|propostas\s+at[eé])[^.;]*$/i.test(context)) continue;
+    if (/(?:a partir de|in[ií]cio d[oa] recebimento)[^.;]*$/i.test(context)) continue;
+    const after = text.slice(match.index + match[0].length, match.index + match[0].length + 60);
+    const time = after.match(/(?:[aà]s|[aà])\s*(\d{1,2})(?::|h)(\d{2})?/i);
+    const date = parseDateTime(`${match[1]}${time ? ` ${time[1].padStart(2, '0')}:${time[2] || '00'}` : ''}`, !time);
+    if (date) return date.toISOString();
+  }
+  return null;
+};
+
+const extractDouValue = content => {
+  const match = cleanHtmlText(content).match(/valor\s+(?:(?:total|global|estimado|m[aá]ximo|da\s+contrata[cç][aã]o|de\s+refer[eê]ncia)\s*)+[^.;]{0,80}?R\$\s*([\d.]+(?:,\d{2})?)/i);
+  return match ? parseBRMoney(match[1]) : null;
+};
+
+async function mapWithConcurrency(items, concurrency, fn) {
+  let next = 0;
+  const results = new Array(items.length);
+  await Promise.all(Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+    while (next < items.length) {
+      if (sourceScope.getStore()?.signal.aborted) break;
+      const index = next++;
+      results[index] = await fn(items[index]);
+    }
+  }));
+  return results.filter(Boolean);
+}
+
 // A busca do DOU retorna os resultados dentro de um script JSON da página oficial.
-async function buscarDOU({ objeto, termos = '', dataInicio, dataFim, tamanhoPagina = 20 }) {
+async function buscarDOU({ objeto, termos = '', uf = '', cidade = '', dataInicio, dataFim, tamanhoPagina = 20 }) {
   const resultados = [];
   const errors = [];
   const limit = clampNumber(tamanhoPagina, 10, 100, 20);
@@ -358,55 +424,89 @@ async function buscarDOU({ objeto, termos = '', dataInicio, dataFim, tamanhoPagi
     if (resultados.length >= limit) break;
     try {
       const url = new URL(DOU_SEARCH_URL);
-      url.searchParams.set('q', query);
+      // O portal combina palavras soltas por OR. Consultar a localização primeiro
+      // evita que resultados nacionais ocupem toda a primeira página.
+      url.searchParams.set('q', cidade || UF_NAMES[String(uf).toUpperCase()] || query);
       url.searchParams.set('s', 'do3');
       url.searchParams.set('exactDate', 'personalizado');
       url.searchParams.set('sortType', '0');
-      url.searchParams.set('delta', String(Math.min(100, Math.max(20, limit))));
+      url.searchParams.set('delta', String(limit <= 20 ? 20 : limit <= 50 ? 50 : 100));
       url.searchParams.set('publishFrom', toBRDate(start).replaceAll('/', '-'));
       url.searchParams.set('publishTo', toBRDate(end).replaceAll('/', '-'));
 
-      const res = await fetchWithRetry(url.toString(), {
-        headers: {
-          Accept: 'text/html,application/xhtml+xml',
-          'Accept-Language': 'pt-BR,pt;q=0.9',
-          'User-Agent': 'Mozilla/5.0 (compatible; NexosCRM/2.0)'
-        }
-      }, { timeoutMs: 18000, retries: 1 });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      for (let page = 1; page <= 4 && resultados.length < limit; page++) {
+        const res = await fetchWithRetry(url.toString(), {
+          headers: {
+            Accept: 'text/html,application/xhtml+xml',
+            'Accept-Language': 'pt-BR,pt;q=0.9',
+            'User-Agent': 'Mozilla/5.0 (compatible; NexosCRM/2.0)'
+          }
+        }, { timeoutMs: 18000, retries: 1 });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
-      const html = await res.text();
-      const jsonText = html.match(/<script[^>]+id=["'][^"']*BuscaDouPortlet_params["'][^>]*>\s*({[\s\S]*?})\s*<\/script>/i)?.[1];
-      const items = jsonText ? JSON.parse(jsonText).jsonArray : [];
-      if (!Array.isArray(items)) throw new Error('resposta sem resultados estruturados');
+        const html = await res.text();
+        const jsonText = html.match(/<script[^>]+id=["'][^"']*BuscaDouPortlet_params["'][^>]*>\s*({[\s\S]*?})\s*<\/script>/i)?.[1];
+        if (!jsonText) throw new Error('resposta sem resultados estruturados');
+        const items = JSON.parse(jsonText).jsonArray;
+        if (!Array.isArray(items)) throw new Error('resposta sem resultados estruturados');
 
-      for (const item of items) {
-        const title = cleanHtmlText(item.title || 'Publicação no DOU');
-        const content = cleanHtmlText(item.content || '');
-        const publicationDate = normalizeDateText(item.pubDate) || item.pubDate || null;
-        if (!matchObjeto(`${title} ${content}`, query)) continue;
-        if (!isWithinDateRange(publicationDate, dataInicio, dataFim)) continue;
-
-        resultados.push({
-          id: `dou-${item.classPK || sourceId(item.urlTitle, title, item.pubDate)}`,
-          fonte: 'Imprensa Nacional (DOU)',
-          fonteLogo: '📰',
-          titulo: title,
-          orgao: Array.isArray(item.hierarchyList) ? item.hierarchyList.join(' / ') : cleanHtmlText(item.hierarchyStr || ''),
-          modalidade: cleanHtmlText(item.artType || 'Publicação DOU'),
-          uf: '',
-          municipio: '',
-          valor: null,
-          dataPublicacao: publicationDate,
-          dataAbertura: null,
-          dataEncerramento: extractDouDeadline(content, publicationDate),
-          numero: title.match(/\bN[ºo.]?\s*([\d./-]+)/i)?.[1] || '',
-          ano: String(item.pubDate || '').match(/\b(20\d{2})\b/)?.[1] || '',
-          link: item.urlTitle ? `https://www.in.gov.br/web/dou/-/${item.urlTitle}` : DOU_SEARCH_URL,
-          status: 'Publicado no DOU',
-          resumo: content
+        const notices = await mapWithConcurrency(items, 4, async item => {
+          const title = cleanHtmlText(item.title || 'Publicação no DOU');
+          const content = cleanHtmlText(item.content || '');
+          if (!objeto?.trim() && terms.length === 0 && (!/aviso|edital|chamada|chamamento|leil[aã]o/i.test(title)
+            || !/licita[cç][aã]o|preg[aã]o|concorr[eê]ncia|dispensa|chamamento p[uú]blico|chamada p[uú]blica|leil[aã]o/i.test(`${title} ${content}`))) return null;
+          const publicationDate = normalizeDateText(item.pubDate) || item.pubDate || null;
+          if (!isWithinDateRange(publicationDate, dataInicio, dataFim)) return null;
+          let fullContent = content;
+          const link = item.urlTitle ? `https://www.in.gov.br/web/dou/-/${item.urlTitle}` : DOU_SEARCH_URL;
+          let location = extractDouLocation(item, `${title} ${content}`);
+          if (item.urlTitle && (!uf || !location.uf || location.uf === String(uf).toUpperCase())
+            && ((uf && !location.uf) || (cidade && !location.municipio) || !extractDouDeadline(content) || !extractDouValue(content))) {
+            try {
+              const detail = await fetchWithRetry(link, { headers: { Accept: 'text/html', 'User-Agent': PNCP_HEADERS['User-Agent'] } }, { timeoutMs: 4000, retries: 0 });
+              if (!detail.ok) throw new Error(`HTTP ${detail.status}`);
+              const detailHtml = await detail.text();
+              const article = detailHtml.match(/<(?:div|article)[^>]*class=["'][^"']*texto-dou[^"']*["'][^>]*>([\s\S]*?)<\/(?:div|article)>/i)?.[1];
+              if (!article) throw new Error('conteúdo da publicação não encontrado');
+              fullContent = cleanHtmlText(article);
+              location = extractDouLocation(item, `${title} ${fullContent}`);
+            } catch (err) {
+              errors.push(`DOU: não foi possível completar os dados de ${item.classPK || title}: ${err.message}`);
+            }
+          }
+          if ((objeto?.trim() || terms.length) && !matchObjeto(`${title} ${fullContent}`, query)) return null;
+          const notice = {
+            id: `dou-${item.classPK || sourceId(item.urlTitle, title, item.pubDate)}`,
+            fonte: 'Imprensa Nacional (DOU)',
+            fonteLogo: '📰',
+            titulo: fullContent.match(/\bobjeto\s*:\s*([\s\S]+?)(?=\s+(?:total de itens|edital\s*:|entrega das propostas|abertura|valor estimado)|$)/i)?.[1]?.trim() || title,
+            tituloPublicacao: title,
+            orgao: Array.isArray(item.hierarchyList) ? item.hierarchyList.join(' / ') : cleanHtmlText(item.hierarchyStr || ''),
+            modalidade: fullContent.match(/\b(?:preg[aã]o(?:\s+eletr[oô]nico)?|concorr[eê]ncia(?:\s+eletr[oô]nica)?|dispensa(?:\s+eletr[oô]nica)?|leil[aã]o)\b/i)?.[0] || cleanHtmlText(item.artType || 'Publicação DOU'),
+            ...location,
+            valor: extractDouValue(fullContent),
+            dataPublicacao: publicationDate,
+            dataAbertura: null,
+            dataEncerramento: extractDouDeadline(fullContent),
+            numero: `${title} ${fullContent}`.match(/\bN[º°o.]?\s*([\d./-]+)/i)?.[1] || '',
+            ano: String(item.pubDate || '').match(/\b(20\d{2})\b/)?.[1] || '',
+            link,
+            status: CLOSED_STATUS_PATTERN.test(title) || /homologa[cç][aã]o|adjudica[cç][aã]o|resultado de julgamento/i.test(title) ? `Encerrado — ${title}` : 'Publicado no DOU',
+            resumo: fullContent
+          };
+          recordSourceResults([notice]);
+          return notice;
         });
-        if (resultados.length >= limit) break;
+        resultados.push(...notices.slice(0, limit - resultados.length));
+        const totalPages = Number(html.match(/totalPages\s*:\s*(\d+)/)?.[1]) || 1;
+        const currentPage = Number(html.match(/currentPage\s*:\s*(\d+)/)?.[1]) || page;
+        const last = items.at(-1);
+        if (currentPage >= totalPages || !last) break;
+        url.searchParams.set('currentPage', String(currentPage));
+        url.searchParams.set('newPage', String(currentPage + 1));
+        url.searchParams.set('id', String(last.classPK));
+        url.searchParams.set('score', String(last.score));
+        url.searchParams.set('displayDate', String(last.displayDateSortable));
       }
     } catch (err) {
       errors.push(`Imprensa Nacional (DOU): ${err.message || 'falha na consulta'}`);
@@ -475,7 +575,8 @@ async function buscarPNCPPublicacao({ objeto, uf, pagina = 1, tamanhoPagina = 20
   for (const consulta of consultas) {
     if (resultados.length >= limit || Date.now() - startedAt > 17000) break;
     try {
-      resultados.push(...await fetchPublicacao(consulta));
+      resultados.push(...(await fetchPublicacao(consulta)).slice(0, limit - resultados.length));
+      recordSourceResults(resultados);
     } catch (err) {
       errors.push(err.message);
     }
@@ -502,6 +603,7 @@ async function buscarPNCPProposta({ objeto, uf, pagina = 1, tamanhoPagina = 20, 
 
     for (const item of items) {
       if (!matchObjeto(`${item.objetoCompra} ${item.informacaoComplementar}`, objeto)) continue;
+      if (!isWithinDateRange(item.dataPublicacaoPncp, dataInicio, dataFim)) continue;
 
       resultados.push({
         id: `pncp-prop-${item.numeroControlePNCP || item.anoCompra + item.numeroCompra + item.orgaoEntidade?.cnpj}`,
@@ -530,6 +632,7 @@ async function buscarPNCPProposta({ objeto, uf, pagina = 1, tamanhoPagina = 20, 
         situacaoCodigo: item.codigoSituacaoCompra
       });
     }
+    recordSourceResults(resultados);
   } catch (err) {
     errors.push(`PNCP Proposta: ${err.message}`);
   }
@@ -631,6 +734,7 @@ async function buscarPNCPDadosAbertos({ objeto, uf, pagina = 1, tamanhoPagina = 
           if (normalized) resultados.push(normalized);
           if (resultados.length >= limit) break;
         }
+        recordSourceResults(resultados);
       } catch (err) {
         if (page === 1) errors.push(`PNCP Dados Abertos modalidade ${codigoModalidade}: ${err.message || 'falha na consulta'}`);
         break;
@@ -698,6 +802,28 @@ const extractMunicipioFromAddress = (address) => {
   return parts[parts.length - 1].trim();
 };
 
+const uasgLocationCache = new Map();
+async function getUasgLocation(code) {
+  if (!/^\d{1,10}$/.test(String(code || ''))) return { uf: '', municipio: '' };
+  const key = String(Number(code));
+  const cached = uasgLocationCache.get(key);
+  if (cached && Date.now() - cached.createdAt < 3600000) return cached.location;
+  const url = new URL('https://dadosabertos.compras.gov.br/modulo-uasg/1_consultarUasg');
+  url.searchParams.set('codigoUasg', String(code));
+  url.searchParams.set('statusUasg', 'true');
+  const res = await fetchWithRetry(url, { headers: PNCP_HEADERS }, { timeoutMs: 4000, retries: 0 });
+  if (!res.ok) throw new Error(`Cadastro UASG HTTP ${res.status}`);
+  const data = await safeJson(res);
+  if (!Array.isArray(data?.resultado)) throw new Error('Cadastro UASG retornou resposta inválida.');
+  const item = data.resultado.find(item => Number(item.codigoUasg) === Number(code));
+  const location = { uf: String(item?.siglaUf || '').toUpperCase(), municipio: item?.nomeMunicipioIbge || '' };
+  if (location.uf) {
+    uasgLocationCache.set(key, { location, createdAt: Date.now() });
+    if (uasgLocationCache.size > 500) uasgLocationCache.delete(uasgLocationCache.keys().next().value);
+  }
+  return location;
+}
+
 async function buscarComprasNet({ objeto, uf, pagina = 1, tamanhoPagina = 20, dataInicio, dataFim }) {
   const resultados = [];
   const errors = [];
@@ -722,8 +848,12 @@ async function buscarComprasNet({ objeto, uf, pagina = 1, tamanhoPagina = 20, da
       const items = data.resultado;
 
       for (const item of items) {
-        const itemUf = extractUfFromAddress(item.endereco_entrega_edital) || uf || '';
-        if (uf && itemUf !== uf) continue;
+        let location = { uf: extractUfFromAddress(item.endereco_entrega_edital), municipio: extractMunicipioFromAddress(item.endereco_entrega_edital) };
+        if (uf && !location.uf) {
+          try { location = await getUasgLocation(item.uasg); } catch (err) { errors.push(`ComprasNet: ${err.message}`); }
+        }
+        const itemUf = location.uf;
+        if (uf && itemUf && itemUf !== String(uf).toUpperCase()) continue;
         if (!matchObjeto(`${item.objeto} ${item.informacoes_gerais}`, objeto)) continue;
 
         resultados.push({
@@ -739,7 +869,7 @@ async function buscarComprasNet({ objeto, uf, pagina = 1, tamanhoPagina = 20, da
           linkSistemaOrigem: item.linkSistemaOrigem || (item.id_compra ? `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=${item.id_compra}` : ''),
           modalidade: item.nome_modalidade || '',
           uf: itemUf,
-          municipio: extractMunicipioFromAddress(item.endereco_entrega_edital),
+          municipio: location.municipio,
           valor: formatCurrency(item.valor_estimado_total || item.valor_homologado_total),
           dataPublicacao: item.data_publicacao || null,
           dataAbertura: toISODate(item.data_abertura_proposta) || item.data_abertura_proposta || null,
@@ -749,6 +879,7 @@ async function buscarComprasNet({ objeto, uf, pagina = 1, tamanhoPagina = 20, da
           link: item.linkSistemaOrigem || (item.id_compra ? `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=${item.id_compra}` : 'https://www.gov.br/compras/pt-br/acesso-a-informacao/consulta-licitacoes'),
           status: item.situacao_aviso || 'Publicado'
         });
+        recordSourceResults(resultados);
       }
     }
   } catch (err) {
@@ -994,7 +1125,7 @@ async function buscarCuritibaECompras({ objeto, uf, cidade, tamanhoPagina = 20, 
 // ─── e-Compras Curitiba - Fallback via PNCP ──────────────────────────────────
 // Quando o portal de Curitiba bloqueia acesso programático (Akamai 403),
 // busca no PNCP as publicações cujo órgão esteja no município de Curitiba/PR.
-async function buscarPNCPCuritibaFallback({ objeto, dataInicio, dataFim, tamanhoPagina = 20 }) {
+async function buscarPNCPCuritibaFallback({ objeto, dataInicio, dataFim, tamanhoPagina = 20, fonte = 'e-Compras Curitiba (PNCP)' }) {
   const resultados = [];
   const errors = [];
   try {
@@ -1025,7 +1156,7 @@ async function buscarPNCPCuritibaFallback({ objeto, dataInicio, dataFim, tamanho
 
             resultados.push({
               id: item.numeroControlePNCP || `pncp-curitiba-${item.anoCompra}-${item.numeroCompra}-${item.orgaoEntidade?.cnpj}`,
-              fonte: 'e-Compras Curitiba (PNCP)',
+              fonte,
               fonteLogo: '🏙️',
               titulo: item.objetoCompra || 'Sem descrição',
               orgao: item.orgaoEntidade?.razaoSocial || item.unidadeOrgao?.nomeUnidade || '',
@@ -1045,6 +1176,7 @@ async function buscarPNCPCuritibaFallback({ objeto, dataInicio, dataFim, tamanho
 
             if (resultados.length >= limit) break;
           }
+          recordSourceResults(resultados);
         } catch (err) {
           errors.push(`e-Compras Curitiba (PNCP página ${pagina}, modalidade ${modCode}): ${err.message}`);
           break;
@@ -1059,6 +1191,69 @@ async function buscarPNCPCuritibaFallback({ objeto, dataInicio, dataFim, tamanho
 
 // ─── Transparência Curitiba - Licitações e contratações ──────────────────────
 
+const curitibaFormFields = (html) => {
+  const fields = new URLSearchParams();
+  for (const match of html.matchAll(/<input\b[^>]*>/gi)) {
+    const tag = match[0];
+    const name = tag.match(/\bname=["']([^"']+)["']/i)?.[1];
+    if (!name || /type=["'](?:checkbox|radio|submit|button)["']/i.test(tag)) continue;
+    fields.set(decodeHtmlEntities(name), decodeHtmlEntities(tag.match(/\bvalue=["']([^"']*)["']/i)?.[1] || ''));
+  }
+  for (const match of html.matchAll(/<select\b[^>]*name=["']([^"']+)["'][^>]*>([\s\S]*?)<\/select>/gi)) {
+    const options = [...match[2].matchAll(/<option\b([^>]*)>/gi)];
+    const selected = options.find(option => /\bselected\b/i.test(option[1])) || options[0];
+    fields.set(decodeHtmlEntities(match[1]), decodeHtmlEntities(selected?.[1].match(/\bvalue=["']([^"']*)["']/i)?.[1] || ''));
+  }
+  return fields;
+};
+
+const parseTransparenciaCuritiba = (html) => {
+  const table = html.match(/<table[^>]*id=["']cphMasterPrincipal_gdvLicitacao["'][\s\S]*?<\/table>/i)?.[0];
+  if (!table) {
+    if (/nenhum registro|n[aã]o (?:foram )?encontrad/i.test(cleanHtmlText(html))) return [];
+    throw new Error('Tabela de licitações ausente na resposta do portal.');
+  }
+  return [...table.matchAll(/<tr\b[^>]*class=["'][^"']*grid_(?:Row|AlternatingRow)[^"']*["'][^>]*>([\s\S]*?)<\/tr>/gi)].map(([, rowHtml]) => {
+    const cells = [...rowHtml.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/gi)].map(cell => cleanHtmlText(cell[1]));
+    if (cells.length !== 10) throw new Error(`Estrutura da tabela mudou: ${cells.length} colunas, esperadas 10.`);
+    const [numero, modalidade, orgao, titulo, valorText, local, publicacaoText, aberturaText, protocolo, status] = cells;
+    const abertura = normalizeDateText(aberturaText);
+    return {
+      id: `transparencia-curitiba-${sourceId(numero, protocolo, orgao)}`,
+      fonte: 'Transparência Curitiba', fonteLogo: '🏙️', titulo: titulo || 'Licitação sem descrição',
+      orgao, modalidade, uf: 'PR', municipio: 'Curitiba', valor: parseBRMoney(valorText),
+      dataPublicacao: normalizeDateText(publicacaoText),
+      dataAbertura: abertura,
+      dataSessao: abertura && !/\d{2}:\d{2}/.test(aberturaText) ? abertura.slice(0, 10) : abertura,
+      dataEncerramento: null, numero, ano: numero.match(/\b(20\d{2})\b/)?.[1] || '',
+      protocolo, link: TRANSPARENCIA_CURITIBA_URL, status, local
+    };
+  });
+};
+
+const parseCuritibaAsyncResponse = (body, previousHtml) => {
+  if (!/^\d+\|/.test(body)) return body;
+  const fields = curitibaFormFields(previousHtml);
+  const panels = [];
+  let offset = 0;
+  while (offset < body.length) {
+    const lengthEnd = body.indexOf('|', offset);
+    const typeEnd = body.indexOf('|', lengthEnd + 1);
+    const idEnd = body.indexOf('|', typeEnd + 1);
+    const length = Number(body.slice(offset, lengthEnd));
+    if (lengthEnd < 0 || typeEnd < 0 || idEnd < 0 || !Number.isInteger(length) || length < 0 || body[idEnd + 1 + length] !== '|') throw new Error('Resposta assíncrona do portal inválida.');
+    const type = body.slice(lengthEnd + 1, typeEnd);
+    const id = body.slice(typeEnd + 1, idEnd);
+    const content = body.slice(idEnd + 1, idEnd + 1 + length);
+    offset = idEnd + length + 2;
+    if (type === 'updatePanel') panels.push(content);
+    if (type === 'hiddenField') fields.set(id, content);
+    if (type === 'error' || type === 'pageRedirect') throw new Error(`Consulta do portal: ${cleanHtmlText(content).slice(0, 180)}`);
+  }
+  const escapeAttribute = value => String(value).replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;');
+  return [...fields].map(([name, value]) => `<input name="${escapeAttribute(name)}" value="${escapeAttribute(value)}">`).join('') + panels.join('\n');
+};
+
 async function buscarTransparenciaCuritiba({ objeto, uf, cidade, dataInicio, dataFim, tamanhoPagina = 20 }) {
   const resultados = [];
   const errors = [];
@@ -1067,55 +1262,51 @@ async function buscarTransparenciaCuritiba({ objeto, uf, cidade, dataInicio, dat
   if (cidade && !String(cidade).toLowerCase().includes('curitiba')) return { resultados, errors };
 
   try {
-    const res = await fetchWithRetry(TRANSPARENCIA_CURITIBA_URL, {
-      headers: {
-        Accept: 'text/html,application/xhtml+xml',
-        'User-Agent': 'NexosCRM/2.0'
+    const headers = { Accept: 'text/html,application/xhtml+xml', 'User-Agent': 'NexosCRM/2.0' };
+    const cookies = new Map();
+    const readPage = async (fields) => {
+      const res = await fetchWithRetry(TRANSPARENCIA_CURITIBA_URL, {
+        headers: { ...headers, ...(fields ? { 'Content-Type': 'application/x-www-form-urlencoded' } : {}),
+          ...(fields?.get('__ASYNCPOST') === 'true' ? { 'X-MicrosoftAjax': 'Delta=true', 'X-Requested-With': 'XMLHttpRequest', Referer: TRANSPARENCIA_CURITIBA_URL } : {}),
+          ...(cookies.size ? { Cookie: [...cookies].map(([key, value]) => `${key}=${value}`).join('; ') } : {}) },
+        ...(fields ? { method: 'POST', body: fields.toString() } : {})
+      }, { timeoutMs: 6000, retries: 0 });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      for (const cookie of res.headers.getSetCookie?.() || []) {
+        const pair = cookie.split(';')[0]; const index = pair.indexOf('=');
+        if (index > 0) cookies.set(pair.slice(0, index), pair.slice(index + 1));
       }
-    }, { timeoutMs: 12000, retries: 0 });
-
-    if (!res.ok) {
-      return { resultados, errors: [`Transparência Curitiba: HTTP ${res.status}`] };
-    }
-
-    const html = await res.text();
-    const table = html.match(/<table[^>]*id=["']cphMasterPrincipal_gdvLicitacao["'][\s\S]*?<\/table>/i)?.[0] || '';
-    const rowRegex = /<tr\b[^>]*class=["'][^"']*grid_(?:Row|AlternatingRow)[^"']*["'][^>]*>([\s\S]*?)<\/tr>/gi;
-    const rows = [...table.matchAll(rowRegex)];
+      const body = await res.text();
+      return fields ? parseCuritibaAsyncResponse(body, html) : body;
+    };
+    let html = await readPage();
+    const postFields = (target) => {
+      const fields = curitibaFormFields(html);
+      if (!fields.has('__VIEWSTATE') || !fields.has('__EVENTVALIDATION')) throw new Error('Formulário de consulta ausente na resposta do portal.');
+      fields.set('__EVENTTARGET', target);
+      fields.set('__EVENTARGUMENT', '');
+      if (fields.has('ctl00$smaMasterPrincipal')) {
+        fields.set('ctl00$smaMasterPrincipal', `ctl00$cphMasterPrincipal$uplGrid|${target}`);
+        fields.set('__ASYNCPOST', 'true');
+      }
+      fields.set('ctl00$cphMasterPrincipal$txtAnoProcesso', '');
+      fields.set('ctl00$cphMasterPrincipal$txtDataInicial', toBRDate(dataInicio || diasAtras(30)));
+      fields.set('ctl00$cphMasterPrincipal$txtDataFinal', toBRDate(dataFim || hoje()));
+      fields.set('ctl00$cphMasterPrincipal$txtObjeto', objeto || '');
+      return fields;
+    };
+    html = await readPage(postFields('ctl00$cphMasterPrincipal$lnbPesquisar'));
     const limit = Math.max(10, Math.min(Number(tamanhoPagina) || 20, 100));
-
-    for (const [, rowHtml] of rows) {
-      const cells = [...rowHtml.matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/gi)].map((cell) => cleanHtmlText(cell[1]));
-      if (cells.length < 9) continue;
-
-      const [numero, modalidade, orgao, titulo, valorText, local, dataPublicacaoText, protocolo, status] = cells;
-      const dataPublicacao = normalizeDateText(dataPublicacaoText);
-
-      if (!matchObjeto(`${titulo} ${orgao} ${modalidade} ${protocolo}`, objeto)) continue;
-      if (!isWithinDateRange(dataPublicacao, dataInicio, dataFim)) continue;
-
-      resultados.push({
-        id: `transparencia-curitiba-${sourceId(numero, protocolo, orgao)}`,
-        fonte: 'Transparência Curitiba',
-        fonteLogo: '🏙️',
-        titulo: titulo || 'Licitação sem descrição',
-        orgao,
-        modalidade,
-        uf: 'PR',
-        municipio: 'Curitiba',
-        valor: parseBRMoney(valorText),
-        dataPublicacao,
-        dataAbertura: null,
-        dataEncerramento: null,
-        numero,
-        ano: String(numero).match(/\b(20\d{2})\b/)?.[1] || '',
-        protocolo,
-        link: TRANSPARENCIA_CURITIBA_URL,
-        status,
-        local
-      });
-
+    for (let page = 1; page <= 3; page++) {
+      const rows = parseTransparenciaCuritiba(html)
+        .filter(item => matchObjeto(`${item.titulo} ${item.orgao} ${item.modalidade} ${item.protocolo}`, objeto))
+        .filter(item => isWithinDateRange(item.dataPublicacao || item.dataSessao, dataInicio, dataFim));
+      resultados.push(...rows.slice(0, limit - resultados.length));
+      recordSourceResults(resultados);
       if (resultados.length >= limit) break;
+      const target = `ctl00$cphMasterPrincipal$ucPaginadorBaixo$${page + 1}_pg${page + 1}`;
+      if (page === 3 || !decodeHtmlEntities(html).includes(`__doPostBack('${target}'`)) break;
+      html = await readPage(postFields(target));
     }
 
     return { resultados, errors };
@@ -1138,7 +1329,7 @@ async function buscarTransparenciaCuritiba({ objeto, uf, cidade, dataInicio, dat
         if (municipio && !municipio.includes('curitiba')) continue;
         resultados.push({
           ...item,
-          fonte: 'Transparência Curitiba',
+          fonte: 'Transparência Curitiba (PNCP)',
           fonteLogo: '🏙️',
           id: `tc-${item.id}`
         });
@@ -1146,6 +1337,11 @@ async function buscarTransparenciaCuritiba({ objeto, uf, cidade, dataInicio, dat
       }
       errors.push(...(daResult.errors || []));
     } catch (_) {}
+    if (resultados.length === 0) {
+      const fallback = await buscarPNCPCuritibaFallback({ objeto, dataInicio, dataFim, tamanhoPagina, fonte: 'Transparência Curitiba (PNCP)' });
+      resultados.push(...fallback.resultados.map(item => ({ ...item, fonte: 'Transparência Curitiba (PNCP)' })));
+      errors.push(...fallback.errors);
+    }
   }
 
   return { resultados, errors };
@@ -1325,9 +1521,10 @@ function deduplicar(items) {
     const origins = [...(previous.origens || []), ...(item.origens || [])];
     previous.origens = Array.from(new Map(origins.map(origin => [`${origin.id}:${origin.url}`, origin])).values());
     previous.documentos = [...(previous.documentos || []), ...(item.documentos || [])];
-    for (const field of ['idCompra', 'linkAtaPNCP', 'linkCompraPNCP', 'numeroControlePncpAta']) {
+    for (const field of ['idCompra', 'linkAtaPNCP', 'linkCompraPNCP', 'numeroControlePncpAta', 'uf', 'municipio', 'dataEncerramento', 'dataSessao', 'dataPublicacao']) {
       if (!previous[field] && item[field]) previous[field] = item[field];
     }
+    if (formatCurrency(previous.valor) == null && formatCurrency(item.valor) != null) previous.valor = formatCurrency(item.valor);
     if (!previous.linkSistemaOrigem && item.linkSistemaOrigem) previous.linkSistemaOrigem = item.linkSistemaOrigem;
     if (!previous.linkProcessoEletronico && item.linkProcessoEletronico) previous.linkProcessoEletronico = item.linkProcessoEletronico;
   }
@@ -1344,9 +1541,11 @@ function ordenar(items, ordem = 'data_desc') {
       case 'data_asc':
         return new Date(a.dataPublicacao || 0) - new Date(b.dataPublicacao || 0);
       case 'valor_desc':
-        return (b.valor || 0) - (a.valor || 0);
+        if (a.valor == null || b.valor == null) return a.valor == null ? (b.valor == null ? 0 : 1) : -1;
+        return b.valor - a.valor;
       case 'valor_asc':
-        return (a.valor || 0) - (b.valor || 0);
+        if (a.valor == null || b.valor == null) return a.valor == null ? (b.valor == null ? 0 : 1) : -1;
+        return a.valor - b.valor;
       case 'abertura_asc':
         return new Date(a.dataAbertura || '9999') - new Date(b.dataAbertura || '9999');
       default:
@@ -1447,7 +1646,7 @@ const WORKER_CATALOG = [
   { id: 'pncp',                  nome: 'PNCP Oficial',               tipo: 'API',      logo: '🏛️',  descricao: 'Portal Nacional de Contratações Públicas — modalidades oficiais' },
   { id: 'comprasnet',            nome: 'ComprasNet / Compras.gov.br', tipo: 'API',      logo: '🇧🇷',  descricao: 'Portal de Compras do Governo Federal (SIASG legado)' },
   { id: 'transparencia-federal', nome: 'Transparência Federal',       tipo: 'API',      logo: '🔎',  descricao: 'Portal da Transparência Federal — contratos e licitações' },
-  { id: 'dou',                   nome: 'Imprensa Nacional (DOU)',     tipo: 'RSS/API',  logo: '📰',  descricao: 'Avisos, editais e contratações da Seção 3 do Diário Oficial da União' },
+  { id: 'dou',                   nome: 'Imprensa Nacional (DOU)',     tipo: 'HTTP/HTML', logo: '📰',  descricao: 'Avisos, editais e contratações da Seção 3 do Diário Oficial da União' },
   { id: 'curitiba-ecompras',     nome: 'e-Compras Curitiba',         tipo: 'Scraper',  logo: '🏙️',  descricao: 'Portal de Compras Eletrônicas do Município de Curitiba' },
   { id: 'transparencia-curitiba',nome: 'Transparência Curitiba',     tipo: 'Scraper',  logo: '🏢',  descricao: 'Portal de Transparência da Prefeitura de Curitiba' },
   { id: 'contratacoes-14133',    nome: 'Contratações Lei 14.133',    tipo: 'API',      logo: '⚖️',  descricao: 'Contratações diretas e dispensas eletrônicas via PNCP (Lei 14.133/2021)' },
@@ -1465,7 +1664,7 @@ async function buscarContratacoes14133(params) {
 
 // ─── Worker: Atas de Registro de Preços (modalidade 9 — SRP) ─────────────────
 
-async function buscarAtasSRP({ objeto, uf, pagina = 1, tamanhoPagina = 20, dataInicio, dataFim }) {
+async function buscarAtasSRP({ objeto, uf, cidade, pagina = 1, tamanhoPagina = 20, dataInicio, dataFim }) {
   const url = new URL('https://dadosabertos.compras.gov.br/modulo-arp/1_consultarARP');
   url.searchParams.set('pagina', String(Math.max(1, Number(pagina))));
   url.searchParams.set('tamanhoPagina', String(clampNumber(tamanhoPagina, 10, 500, 40)));
@@ -1474,22 +1673,31 @@ async function buscarAtasSRP({ objeto, uf, pagina = 1, tamanhoPagina = 20, dataI
   const response = await fetch(url, { headers: PNCP_HEADERS, signal: AbortSignal.timeout(12000) });
   if (!response.ok) throw new Error(`Atas SRP HTTP ${response.status}`);
   const payload = await response.json();
-  const items = Array.isArray(payload.resultado) ? payload.resultado : [];
-  return { resultados: items.filter(item => matchObjeto(item.objeto || item.objetoCompra || item.objetoAta, objeto))
-    .filter(item => !uf || !item.unidadeOrgaoUfSigla || item.unidadeOrgaoUfSigla === uf.toUpperCase())
-    .map(item => ({
+  if (!Array.isArray(payload?.resultado)) throw new Error('Atas SRP retornou resposta sem lista de atas.');
+  const errors = [];
+  const resultados = await mapWithConcurrency(payload.resultado.filter(item => matchObjeto(item.objeto || item.objetoCompra || item.objetoAta, objeto)), 4, async item => {
+    let location = { uf: item.unidadeOrgaoUfSigla || '', municipio: item.unidadeOrgaoMunicipioNome || '' };
+    if ((uf && !location.uf) || (cidade && !location.municipio)) {
+      try { location = await getUasgLocation(item.codigoUnidadeGerenciadora); }
+      catch (err) { errors.push(`Atas SRP: ${err.message}`); }
+    }
+    const notice = {
       ...item, id: `arp-${item.numeroControlePncpAta || item.idAta || item.numeroAtaRegistroPreco || item.id}`,
       fonte: 'Atas de Registro de Preços', fonteLogo: '📋', isSRP: true,
       titulo: item.objeto || item.objetoCompra || item.objetoAta || 'Ata de Registro de Preços',
       orgao: item.nomeUnidadeGerenciadora || item.orgaoEntidadeRazaoSocial || item.nomeOrgao || '',
-      uf: item.unidadeOrgaoUfSigla || '',
+      ...location,
       numeroControlePNCP: item.numeroControlePNCPCompra || item.numeroControlePncpCompra || '',
       valor: formatCurrency(item.valorTotal || item.valorTotalEstimado),
       dataPublicacao: item.dataAssinatura || item.dataVigenciaInicial,
       dataEncerramento: item.dataVigenciaFinal,
       link: item.linkAtaPNCP || item.linkCompraPNCP || item.linkSistemaOrigem || 'https://www.gov.br/compras/pt-br/atas-de-registro-de-precos',
-      status: 'Ata de Registro de Preços'
-    })), errors: [] };
+      status: item.ataExcluido ? 'Ata excluída' : item.statusAta || 'Ata de Registro de Preços'
+    };
+    recordSourceResults([notice]);
+    return notice;
+  });
+  return { resultados, errors };
 }
 
 // ─── Worker: Pregões SIASG (compras.gov.br — dados abertos) ──────────────────
@@ -1521,8 +1729,12 @@ async function buscarPregoesSIASG({ objeto, uf, pagina = 1, tamanhoPagina = 20, 
       const limit = clampNumber(tamanhoPagina, 10, 50, 20);
 
       for (const item of items) {
-        const itemUf = extractUfFromAddress(item.endereco_entrega_edital) || uf || '';
-        if (uf && itemUf !== uf.toUpperCase()) continue;
+        let location = { uf: extractUfFromAddress(item.endereco_entrega_edital), municipio: extractMunicipioFromAddress(item.endereco_entrega_edital) };
+        if (uf && !location.uf) {
+          try { location = await getUasgLocation(item.uasg); } catch (err) { errors.push(`Pregões SIASG: ${err.message}`); }
+        }
+        const itemUf = location.uf;
+        if (uf && itemUf && itemUf !== String(uf).toUpperCase()) continue;
         if (!matchObjeto(`${item.objeto} ${item.informacoes_gerais}`, objeto)) continue;
 
         resultados.push({
@@ -1538,7 +1750,7 @@ async function buscarPregoesSIASG({ objeto, uf, pagina = 1, tamanhoPagina = 20, 
           linkSistemaOrigem: item.linkSistemaOrigem || (item.id_compra ? `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=${item.id_compra}` : ''),
           modalidade: item.nome_modalidade || 'Pregão Eletrônico',
           uf: itemUf,
-          municipio: extractMunicipioFromAddress(item.endereco_entrega_edital),
+          municipio: location.municipio,
           valor: formatCurrency(item.valor_estimado_total || item.valor_homologado_total),
           dataPublicacao: item.data_publicacao || null,
           dataAbertura: toISODate(item.data_abertura_proposta) || item.data_abertura_proposta || null,
@@ -1548,6 +1760,7 @@ async function buscarPregoesSIASG({ objeto, uf, pagina = 1, tamanhoPagina = 20, 
           link: item.linkSistemaOrigem || (item.id_compra ? `https://cnetmobile.estaleiro.serpro.gov.br/comprasnet-web/public/compras/acompanhamento-compra?compra=${item.id_compra}` : 'https://www.gov.br/compras/pt-br'),
           status: item.situacao_aviso || 'Publicado'
         });
+        recordSourceResults(resultados);
         if (resultados.length >= limit) break;
       }
     }
@@ -1568,32 +1781,39 @@ async function buscarComprasGovDisputas(params) {
 // ─── Rastreamento de status dos workers em memória ───────────────────────────
 
 const workerStatus = new Map();
+let workerRunSequence = 0;
 
 const setWorkerStatus = (id, updates) => {
   const prev = workerStatus.get(id) || { id, status: 'idle', lastRunAt: null, lastError: null, totalResults: 0 };
+  if (updates.runId && prev.runId > updates.runId) return;
   workerStatus.set(id, { ...prev, ...updates, updatedAt: new Date().toISOString() });
 };
 
 const wrapWorker = async (id, fn, ...args) => {
   const controller = new AbortController();
+  const scope = { signal: controller.signal, partialResults: new Map() };
+  const startedAt = Date.now();
+  const runId = ++workerRunSequence;
   const timeoutMs = Math.max(1000, Math.min(Number(process.env.B2G_SOURCE_TIMEOUT_MS) || 22000, 22000));
   let timer;
-  setWorkerStatus(id, { status: 'running' });
+  setWorkerStatus(id, { status: 'running', runId, lastError: null });
   try {
     const timeout = new Promise((_, reject) => {
       timer = setTimeout(() => { controller.abort(); reject(new Error('Tempo limite de consulta desta fonte excedido.')); }, timeoutMs);
     });
-    const result = await Promise.race([sourceScope.run({ signal: controller.signal }, () => fn(...args)), timeout]);
+    const result = await Promise.race([sourceScope.run(scope, () => fn(...args)), timeout]);
     const resultados = (result.resultados || []).map(item => ({ ...item, sourceId: id,
       origens: [{ id, nome: item.fonte || id, url: item.linkSistemaOrigem || item.link || '' }] }));
     const status = result.errors?.length ? (resultados.length ? 'partial' : 'error') : 'ok';
-    const snapshot = { id, status, lastRunAt: new Date().toISOString(), lastError: result.errors?.[0] || null, totalResults: resultados.length };
+    const snapshot = { id, runId, status, lastRunAt: new Date().toISOString(), lastError: result.errors?.[0] || null, totalResults: resultados.length, durationMs: Date.now() - startedAt };
     setWorkerStatus(id, snapshot);
     return { ...result, resultados, fonteStatus: snapshot };
   } catch (err) {
-    const snapshot = { id, status: 'error', lastRunAt: new Date().toISOString(), lastError: err.message, totalResults: 0 };
+    const resultados = [...scope.partialResults.values()].map(item => ({ ...item, sourceId: id,
+      origens: [{ id, nome: item.fonte || id, url: item.linkSistemaOrigem || item.link || '' }] }));
+    const snapshot = { id, runId, status: resultados.length ? 'partial' : 'error', lastRunAt: new Date().toISOString(), lastError: err.message, totalResults: resultados.length, durationMs: Date.now() - startedAt };
     setWorkerStatus(id, snapshot);
-    return { resultados: [], errors: [`${id}: ${err.message}`], fonteStatus: snapshot };
+    return { resultados, errors: [`${id}: ${err.message}`], fonteStatus: snapshot };
   } finally { clearTimeout(timer); }
 };
 
@@ -1604,7 +1824,7 @@ router.get('/workers', auth, (req, res) => {
     ...w,
     ...(workerStatus.get(w.id) || { status: 'idle', lastRunAt: null, lastError: null, totalResults: 0 }),
   }));
-  res.json({ workers: catalog, timestamp: new Date().toISOString() });
+  res.json({ workers: catalog, executionMode: 'on-demand', statusStorage: 'process-memory', timestamp: new Date().toISOString() });
 });
 
 // ─── GET /api/b2g-search/search ───────────────────────────────────────────────
@@ -1623,7 +1843,8 @@ router.get('/search', auth, async (req, res) => {
     apenasVigentes = 'false',
     cidade = '',
     codigoOrgao = '',
-    termos = ''
+    termos = '',
+    dataReferencia = ''
   } = req.query;
 
   // Fontes explicitamente enviadas. Se string vazia ou "none", retorna sem resultados.
@@ -1640,7 +1861,7 @@ router.get('/search', auth, async (req, res) => {
 
   try {
     const promises = [];
-    const params = { objeto, uf, pagina: Number(pagina), tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim };
+    const params = { objeto, uf, cidade, pagina: Number(pagina), tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim };
 
     if (fontesAtivas.has('pncp')) {
       promises.push(wrapWorker('pncp', buscarPNCPAgregado, {
@@ -1655,7 +1876,7 @@ router.get('/search', auth, async (req, res) => {
     }
 
     if (fontesAtivas.has('dou')) {
-      promises.push(wrapWorker('dou', buscarDOU, { objeto, termos, tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim }));
+      promises.push(wrapWorker('dou', buscarDOU, { objeto, termos, uf, cidade, tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim }));
     }
 
     if (fontesAtivas.has('transparencia-curitiba')) {
@@ -1703,9 +1924,26 @@ router.get('/search', auth, async (req, res) => {
     }
 
     const deduplicados = deduplicar(todosResultados);
-    const filtrados = apenasVigentes === 'true'
-      ? deduplicados.filter(isEditalVigente)
-      : deduplicados;
+    const localToday = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
+    const referenceTime = dataReferencia && dataReferencia !== localToday ? (parseDateTime(dataReferencia)?.getTime() || Date.now()) : Date.now();
+    const motivos = new Map();
+    const filtrados = deduplicados.filter(item => {
+      let motivo;
+      if (uf && String(item.uf || '').toUpperCase() !== String(uf).toUpperCase()) motivo = item.uf ? 'uf' : 'semUf';
+      else if (cidade && !normalizeSearchText(item.municipio || item.cidade || '').includes(normalizeSearchText(cidade))) motivo = (item.municipio || item.cidade) ? 'cidade' : 'semCidade';
+      else if (!isWithinDateRange(item.dataPublicacao, dataInicio, dataFim)) motivo = 'periodo';
+      else if (apenasVigentes === 'true' && !isEditalVigente(item, referenceTime)) motivo = 'encerrados';
+      if (motivo) motivos.set(item, motivo);
+      return !motivo;
+    });
+    const diagnosticoFiltros = { coletados: todosResultados.length, unicos: deduplicados.length, exibidos: filtrados.length, excluidos: {} };
+    for (const motivo of motivos.values()) diagnosticoFiltros.excluidos[motivo] = (diagnosticoFiltros.excluidos[motivo] || 0) + 1;
+    for (const source of statusFontes) {
+      const fromSource = item => item.origens?.some(origin => origin.id === source.id);
+      source.returnedResults = filtrados.filter(fromSource).length;
+      source.filteredOut = {};
+      for (const [item, motivo] of motivos) if (fromSource(item)) source.filteredOut[motivo] = (source.filteredOut[motivo] || 0) + 1;
+    }
     const ordenados = ordenar(filtrados, ordem);
 
     // Estatísticas por fonte
@@ -1722,6 +1960,7 @@ router.get('/search', auth, async (req, res) => {
       pagina: Number(pagina),
       fontes: porFonte,
       statusFontes,
+      diagnosticoFiltros,
       fontesConsultadas: statusFontes.map(source => source.id),
       erros: todosErros.length > 0 ? todosErros : undefined,
       timestamp: new Date().toISOString()
