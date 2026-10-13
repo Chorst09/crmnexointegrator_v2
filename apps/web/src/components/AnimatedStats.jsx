@@ -12,7 +12,8 @@ const AnimatedStats = ({
   suffix = '',
   animate = true,
   onClick = null,
-  size = 'default'
+  size = 'default',
+  valueTitle = null
 }) => {
   const [displayValue, setDisplayValue] = useState(0);
 
@@ -80,6 +81,12 @@ const AnimatedStats = ({
 
   const classes = colorClasses[color] || colorClasses.blue;
   const compact = size === 'compact';
+  const formattedDisplayValue = typeof displayValue === 'number' ? displayValue.toLocaleString() : displayValue;
+  const valueText = `${prefix}${formattedDisplayValue ?? ''}${suffix}`;
+  const isLongValue = String(valueText).length > (compact ? 9 : 12);
+  const valueSizeClass = compact
+    ? (isLongValue ? 'text-[clamp(1.45rem,2vw,1.9rem)]' : 'text-2xl')
+    : (isLongValue ? 'text-[clamp(1.75rem,2.25vw,2.6rem)]' : 'text-3xl md:text-4xl');
 
   const getTrendIcon = () => {
     if (!trend) return null;
@@ -110,7 +117,7 @@ const AnimatedStats = ({
   return (
     <div 
       className={`
-        crm-panel group relative overflow-hidden ${compact ? 'p-4 min-h-[112px]' : 'p-6'}
+        crm-panel group relative overflow-hidden ${compact ? 'p-4 min-h-[132px]' : 'p-5 min-h-[148px]'}
         transition-all duration-300 hover:shadow-soft-xl hover:-translate-y-0.5
         ${onClick ? 'cursor-pointer' : ''}
       `}
@@ -122,28 +129,12 @@ const AnimatedStats = ({
       </div>
       <div className="absolute inset-0 crm-dotgrid opacity-10"></div>
 
-      <div className="relative z-10">
-        <div className="flex items-start justify-between">
-          <div className="min-w-0 flex-1 pr-3">
-            <p className={`${compact ? 'text-xs leading-snug' : 'text-sm'} font-semibold text-[var(--crm-muted)] mb-1`}>{title}</p>
-            <div className="flex items-baseline">
-              <p className={`${compact ? 'text-2xl leading-none break-words' : 'text-3xl'} font-bold ${classes.text} transition-all duration-300`}>
-                {prefix}{typeof displayValue === 'number' ? displayValue.toLocaleString() : displayValue}{suffix}
-              </p>
-            </div>
-            
-            {subtitle && (
-              <p className={`${compact ? 'text-[11px] leading-snug' : 'text-xs'} text-[var(--crm-muted)] mt-1`}>{subtitle}</p>
-            )}
-            
-            {trend && (
-              <div className={`inline-flex items-center gap-1 rounded-full font-medium ${compact ? 'mt-2 px-1.5 py-0.5 text-[10px]' : 'mt-2 px-2 py-1 text-xs'} ${getTrendColor()}`}>
-                {getTrendIcon()}
-                <span>{trend.value}</span>
-              </div>
-            )}
-          </div>
-          
+      <div className="relative z-10 flex h-full flex-col gap-3">
+        <div className="flex items-start justify-between gap-3">
+          <p className={`${compact ? 'text-[13px] leading-snug' : 'text-sm leading-snug'} max-w-[72%] font-bold text-[var(--crm-muted)]`}>
+            {title}
+          </p>
+
           <div className={`${compact ? 'p-2.5 rounded-xl' : 'p-3 rounded-2xl'} shrink-0 bg-gradient-to-br ${classes.light} border border-white/10 shadow-sm`}>
             {typeof Icon === 'string' ? (
               <span className={compact ? 'text-xl' : 'text-2xl'}>{Icon}</span>
@@ -152,6 +143,26 @@ const AnimatedStats = ({
             )}
           </div>
         </div>
+
+        <div className="min-w-0">
+          <p
+            className={`${valueSizeClass} max-w-full whitespace-nowrap font-extrabold leading-none tracking-normal ${classes.text} transition-all duration-300`}
+            title={valueTitle || valueText}
+          >
+            {valueText}
+          </p>
+          
+          {subtitle && (
+            <p className={`${compact ? 'mt-2 text-[12px] leading-snug' : 'mt-2 text-xs leading-snug'} text-[var(--crm-muted)]`}>{subtitle}</p>
+          )}
+        </div>
+        
+        {trend && (
+          <div className={`inline-flex w-fit items-center gap-1 rounded-full font-semibold ${compact ? 'mt-auto px-2 py-1 text-[11px]' : 'mt-auto px-2.5 py-1 text-xs'} ${getTrendColor()}`}>
+            {getTrendIcon()}
+            <span>{trend.value}</span>
+          </div>
+        )}
       </div>
 
       {/* Hover Effect */}

@@ -1,0 +1,262 @@
+{
+  "commit": "209d191",
+  "origem": "https://nexosv2.chorstconsult.com.br",
+  "metodo": {
+    "pagina": "/login",
+    "condicaoComparavel": "Chromium, perfil novo, latência adicional 150 ms, download 1,6 Mbps, upload 750 kbps, CPU 4x mais lenta",
+    "observacao": "Medições pontuais; não representam todas as redes ou dispositivos."
+  },
+  "antesControlado": {
+    "url": "https://nexosv2.chorstconsult.com.br/login",
+    "readyMs": 6840,
+    "navigation": [
+      {
+        "ttfb": 410.9000000022352,
+        "domInteractive": 1833.699999999255,
+        "domContentLoaded": 6688.400000002235,
+        "load": 6689.900000002235
+      }
+    ],
+    "paint": [
+      {
+        "name": "first-paint",
+        "ms": 2164
+      }
+    ],
+    "resources": [
+      {
+        "host": "nexosv2.chorstconsult.com.br",
+        "path": "/assets/index-B-N5R1nH.js",
+        "initiator": "script",
+        "ms": 5998.89999999851,
+        "transfer": 973958,
+        "decoded": 3280276,
+        "start": 458.4000000022352
+      },
+      {
+        "host": "sdk.mercadopago.com",
+        "path": "/js/v2",
+        "initiator": "script",
+        "ms": 1288.800000000745,
+        "transfer": 0,
+        "decoded": 0,
+        "start": 458.19999999925494
+      },
+      {
+        "host": "nexosv2.chorstconsult.com.br",
+        "path": "/assets/index-B-pDdGRY.css",
+        "initiator": "link",
+        "ms": 1280.7000000029802,
+        "transfer": 76296,
+        "decoded": 436275,
+        "start": 459.19999999925494
+      },
+      {
+        "host": "fonts.googleapis.com",
+        "path": "/css2",
+        "initiator": "css",
+        "ms": 275.19999999925494,
+        "transfer": 986,
+        "decoded": 8046,
+        "start": 1825.800000000745
+      }
+    ],
+    "failures": []
+  },
+  "depoisControlado": {
+    "url": "https://nexosv2.chorstconsult.com.br/login",
+    "readyMs": 1986,
+    "navigation": [
+      {
+        "ttfb": 422.3999999985099,
+        "domInteractive": 485,
+        "domContentLoaded": 1801.6000000014901,
+        "load": 0
+      }
+    ],
+    "paint": [
+      {
+        "name": "first-paint",
+        "ms": 1868
+      },
+      {
+        "name": "first-contentful-paint",
+        "ms": 1976
+      }
+    ],
+    "resources": [
+      {
+        "host": "nexosv2.chorstconsult.com.br",
+        "path": "/assets/index-Bku2hhyR.js",
+        "initiator": "script",
+        "ms": 1044.0999999977648,
+        "transfer": 82151,
+        "decoded": 221914,
+        "start": 462.30000000074506
+      },
+      {
+        "host": "nexosv2.chorstconsult.com.br",
+        "path": "/assets/index-C7fXVHEf.css",
+        "initiator": "link",
+        "ms": 864.3000000007451,
+        "transfer": 72380,
+        "decoded": 420341,
+        "start": 462.3999999985099
+      },
+      {
+        "host": "fonts.googleapis.com",
+        "path": "/css2",
+        "initiator": "css",
+        "ms": 438.3999999985099,
+        "transfer": 986,
+        "decoded": 8046,
+        "start": 1331.6000000014901
+      }
+    ],
+    "failures": []
+  },
+  "antesSemLimitacao": {
+    "url": "https://nexosv2.chorstconsult.com.br/login",
+    "readyMs": 1929,
+    "navigation": [
+      {
+        "ttfb": 868.3000000007451,
+        "domInteractive": 1136.4000000022352,
+        "domContentLoaded": 1874.5,
+        "load": 1874.800000000745
+      }
+    ],
+    "paint": [
+      {
+        "name": "first-paint",
+        "ms": 1596
+      }
+    ],
+    "resources": [
+      {
+        "host": "nexosv2.chorstconsult.com.br",
+        "path": "/assets/index-B-N5R1nH.js",
+        "initiator": "script",
+        "ms": 921.8999999985099,
+        "transfer": 973958,
+        "decoded": 3280276,
+        "start": 882.6000000014901
+      },
+      {
+        "host": "nexosv2.chorstconsult.com.br",
+        "path": "/assets/index-B-pDdGRY.css",
+        "initiator": "link",
+        "ms": 394.9000000022352,
+        "transfer": 76296,
+        "decoded": 436275,
+        "start": 883
+      },
+      {
+        "host": "fonts.googleapis.com",
+        "path": "/css2",
+        "initiator": "css",
+        "ms": 257,
+        "transfer": 986,
+        "decoded": 8046,
+        "start": 1279.6000000014901
+      },
+      {
+        "host": "sdk.mercadopago.com",
+        "path": "/js/v2",
+        "initiator": "script",
+        "ms": 213.39999999850988,
+        "transfer": 0,
+        "decoded": 0,
+        "start": 882.4000000022352
+      }
+    ],
+    "failures": []
+  },
+  "depoisSemLimitacao": {
+    "url": "https://nexosv2.chorstconsult.com.br/login",
+    "readyMs": 1087,
+    "navigation": [
+      {
+        "ttfb": 423,
+        "domInteractive": 433.0999999977648,
+        "domContentLoaded": 1027.8999999985099,
+        "load": 0
+      }
+    ],
+    "paint": [
+      {
+        "name": "first-paint",
+        "ms": 1076
+      }
+    ],
+    "resources": [
+      {
+        "host": "nexosv2.chorstconsult.com.br",
+        "path": "/assets/index-Bku2hhyR.js",
+        "initiator": "script",
+        "ms": 537.5,
+        "transfer": 82151,
+        "decoded": 221914,
+        "start": 427.79999999701977
+      },
+      {
+        "host": "nexosv2.chorstconsult.com.br",
+        "path": "/assets/index-C7fXVHEf.css",
+        "initiator": "link",
+        "ms": 404.3999999985099,
+        "transfer": 72380,
+        "decoded": 420341,
+        "start": 427.8999999985099
+      },
+      {
+        "host": "fonts.googleapis.com",
+        "path": "/css2",
+        "initiator": "css",
+        "ms": 187,
+        "transfer": 986,
+        "decoded": 8046,
+        "start": 833.2999999970198
+      }
+    ],
+    "failures": []
+  },
+  "confirmacaoDOU": {
+    "health": {
+      "status": "ok",
+      "database": "connected",
+      "timestamp": "2026-10-13T16:34:06.333Z",
+      "uptime": 100.802889139,
+      "environment": "production"
+    },
+    "results": [
+      {
+        "id": "dou-738027599",
+        "valor": 2982984.84,
+        "orcamentoSigiloso": false,
+        "controle": "60975075000110-1-000065/2026",
+        "documentos": [
+          {
+            "titulo": "SEI_1516331_Edital_de_Contratacao.pdf",
+            "url": "https://pncp.gov.br/pncp-api/v1/orgaos/60975075000110/compras/2026/65/arquivos/1"
+          }
+        ],
+        "downloadValidado": true,
+        "bytes": 438357
+      },
+      {
+        "id": "dou-738027300",
+        "valor": null,
+        "orcamentoSigiloso": true,
+        "controle": "23274194000119-1-000113/2026",
+        "documentos": [
+          {
+            "titulo": "Edital PE 910847 48.2026 - FORNECIMENTO DE REPARO VEDACAO E ACOPLAMENTO ELASTICO (2) (002).pdf",
+            "url": "https://pncp.gov.br/pncp-api/v1/orgaos/23274194000119/compras/2026/113/arquivos/1"
+          }
+        ],
+        "downloadValidado": true,
+        "bytes": 1257230
+      }
+    ]
+  }
+}

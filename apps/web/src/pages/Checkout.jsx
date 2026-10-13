@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { loadMercadoPago } from '../lib/loadMercadoPago.mjs';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { 
   CreditCard, 
@@ -171,12 +172,15 @@ export default function Checkout() {
   useEffect(() => {
     if (!preferenceId) return;
 
-    const timer = setTimeout(() => {
+    let cancelled = false;
+    const timer = setTimeout(async () => {
       const container = document.getElementById('wallet_container');
       if (!container) return;
       container.innerHTML = '';
 
       try {
+        await loadMercadoPago();
+        if (cancelled) return;
         const mpPublicKey = import.meta.env.VITE_MERCADO_PAGO_PUBLIC_KEY || 'TEST-ea423066-0567-48a7-800c-f1a39833ce5e';
         if (typeof window.MercadoPago === 'undefined') {
           setError('SDK do Mercado Pago não carregado. Atualize a página.');
@@ -193,12 +197,13 @@ export default function Checkout() {
           window.location.href = `https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=${preferenceId}`;
         }
       } catch (err) {
+        if (cancelled) return;
         console.error('Erro ao renderizar Wallet Brick:', err);
         window.location.href = `https://www.mercadopago.com.br/checkout/v1/redirect?pref_id=${preferenceId}`;
       }
     }, 300);
 
-    return () => clearTimeout(timer);
+    return () => { cancelled = true; clearTimeout(timer); };
   }, [preferenceId]);
 
   useEffect(() => {

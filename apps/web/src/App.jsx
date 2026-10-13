@@ -2,51 +2,51 @@ import { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import ScrollToTop from './components/ScrollToTop';
 import ErrorBoundary from './components/ErrorBoundary';
-import AppShell from './layout/AppShell';
-import DashboardGeral from './pages/DashboardGeral';
-import DashboardHome from './pages/DashboardHome';
-import Dashboard from './pages/Dashboard';
-import DashboardModernized from './pages/DashboardModernized';
-import Empresas from './pages/Empresas';
-import Oportunidades from './pages/Oportunidades';
-import AnaliseFinanceira from './pages/AnaliseFinanceira';
-import Comissoes from './pages/Comissoes';
-import Atividades from './pages/Atividades';
-import Simuladores from './pages/Simuladores';
-import Produtos from './pages/Produtos';
-import Propostas from './pages/Propostas';
-import TemplatesPropostas from './pages/TemplatesPropostas';
-import Contratos from './pages/Contratos';
-import PosVenda from './pages/PosVenda';
-import ProjetoDetalhe from './pages/ProjetoDetalhe';
-import Automacoes from './pages/Automacoes';
-import LeadManagement from './pages/LeadManagement';
-import PreVendas from './pages/PreVendas';
-import Calculadoras from './pages/Calculadoras';
-import RatearProdutos from './pages/RatearProdutos';
-import RateiosSalvos from './pages/RateiosSalvos';
-import GestaoPocs from './pages/GestaoPocs';
-import OrcamentosPrevendas from './pages/OrcamentosPrevendas';
-import PrevendasCadastros from './pages/PrevendasCadastros';
-import Relatorios from './pages/Relatorios';
-import Integracoes from './pages/Integracoes';
-import FuncionalidadesAvancadas from './pages/FuncionalidadesAvancadas';
-import MetasPerformance from './pages/MetasPerformance';
-import Kickoff from './pages/Kickoff';
-import VendedoresFixed from './pages/VendedoresFixed';
-import Solicitacoes from './pages/Solicitacoes';
-import Administracao from './pages/Administracao';
-import B2GEditais from './pages/B2GEditais';
-import B2GAnaliseEditaisTR from './pages/B2GAnaliseEditaisTR';
-import PortalBusca from './pages/PortalBusca';
-import BuscarEditais from './pages/BuscarEditais';
 import Login from './pages/Login';
-import Checkout from './pages/Checkout';
-import Setup from './pages/Setup';
 import ProtectedRoute from './components/ProtectedRoute';
 import RoleGuard from './components/RoleGuard';
 import { ROLES, getDefaultRouteForUser } from './utils/permissions';
 
+const AppShell = lazy(() => import('./layout/AppShell'));
+const DashboardGeral = lazy(() => import('./pages/DashboardGeral'));
+const DashboardHome = lazy(() => import('./pages/DashboardHome'));
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const DashboardModernized = lazy(() => import('./pages/DashboardModernized'));
+const Empresas = lazy(() => import('./pages/Empresas'));
+const Oportunidades = lazy(() => import('./pages/Oportunidades'));
+const AnaliseFinanceira = lazy(() => import('./pages/AnaliseFinanceira'));
+const Comissoes = lazy(() => import('./pages/Comissoes'));
+const Atividades = lazy(() => import('./pages/Atividades'));
+const Simuladores = lazy(() => import('./pages/Simuladores'));
+const Produtos = lazy(() => import('./pages/Produtos'));
+const Propostas = lazy(() => import('./pages/Propostas'));
+const TemplatesPropostas = lazy(() => import('./pages/TemplatesPropostas'));
+const Contratos = lazy(() => import('./pages/Contratos'));
+const PosVenda = lazy(() => import('./pages/PosVenda'));
+const ProjetoDetalhe = lazy(() => import('./pages/ProjetoDetalhe'));
+const Automacoes = lazy(() => import('./pages/Automacoes'));
+const LeadManagement = lazy(() => import('./pages/LeadManagement'));
+const PreVendas = lazy(() => import('./pages/PreVendas'));
+const Calculadoras = lazy(() => import('./pages/Calculadoras'));
+const RatearProdutos = lazy(() => import('./pages/RatearProdutos'));
+const RateiosSalvos = lazy(() => import('./pages/RateiosSalvos'));
+const GestaoPocs = lazy(() => import('./pages/GestaoPocs'));
+const OrcamentosPrevendas = lazy(() => import('./pages/OrcamentosPrevendas'));
+const PrevendasCadastros = lazy(() => import('./pages/PrevendasCadastros'));
+const Relatorios = lazy(() => import('./pages/Relatorios'));
+const Integracoes = lazy(() => import('./pages/Integracoes'));
+const FuncionalidadesAvancadas = lazy(() => import('./pages/FuncionalidadesAvancadas'));
+const MetasPerformance = lazy(() => import('./pages/MetasPerformance'));
+const Kickoff = lazy(() => import('./pages/Kickoff'));
+const VendedoresFixed = lazy(() => import('./pages/VendedoresFixed'));
+const Solicitacoes = lazy(() => import('./pages/Solicitacoes'));
+const Administracao = lazy(() => import('./pages/Administracao'));
+const B2GEditais = lazy(() => import('./pages/B2GEditais'));
+const B2GAnaliseEditaisTR = lazy(() => import('./pages/B2GAnaliseEditaisTR'));
+const PortalBusca = lazy(() => import('./pages/PortalBusca'));
+const BuscarEditais = lazy(() => import('./pages/BuscarEditais'));
+const Checkout = lazy(() => import('./pages/Checkout'));
+const Setup = lazy(() => import('./pages/Setup'));
 const Projetos = lazy(() => import('./pages/Projetos'));
 
 function B2GRouteScreen() {
@@ -109,6 +109,7 @@ export default function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ScrollToTop />
+      <Suspense fallback={<div role="status" className="min-h-screen grid place-items-center bg-[#0b1120] text-slate-300">Carregando módulo...</div>}>
       <Routes>
         <Route path="/" element={<DashboardHome />} />
         <Route path="/login" element={<Login />} />
@@ -582,6 +583,7 @@ export default function App() {
           <Route path="*" element={<DefaultRedirect />} />
         </Route>
       </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

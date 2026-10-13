@@ -8,6 +8,7 @@ import { cn } from './utils';
 
 // ─── Chave de storage compartilhada com SearchPage ───────────────────────────
 export const ACTIVE_SOURCES_KEY = 'pipeline_active_sources_v2';
+export const ACTIVE_SOURCES_EVENT = 'pipeline-active-sources-changed';
 
 // ─── Catálogo canônico das 10 fontes ─────────────────────────────────────────
 export const SOURCES_CATALOG = [
@@ -35,17 +36,17 @@ export const SOURCES_CATALOG = [
     id: 'transparencia-curitiba',
     name: 'Transparência Curitiba',
     shortName: 'Transp. Curitiba',
-    tipo: 'Playwright / Crawler',
+    tipo: 'HTTP / HTML',
     icon: '🏢',
     color: 'cyan',
     descricao: 'Portal de Transparência da Prefeitura de Curitiba — licitações municipais',
-    endpoint: 'https://www.curitiba.pr.gov.br',
+    endpoint: 'https://www.transparencia.curitiba.pr.gov.br/sgp/licitacoes.aspx',
   },
   {
     id: 'transparencia-federal',
-    name: 'Portal Transparência PR / Federal',
+    name: 'Portal Transparência Federal',
     shortName: 'Transp. Federal',
-    tipo: 'Playwright / API',
+    tipo: 'API / Fallback',
     icon: '🔎',
     color: 'teal',
     descricao: 'Contratos e licitações do Portal da Transparência do Governo Federal',
@@ -59,7 +60,7 @@ export const SOURCES_CATALOG = [
     icon: '⚡',
     color: 'yellow',
     descricao: 'Licitações com disputa aberta ou em andamento no Compras.gov.br',
-    endpoint: 'https://pncp.gov.br/api/consulta/v1/contratacoes/proposta',
+    endpoint: 'https://dadosabertos.compras.gov.br/modulo-contratacoes/1_consultarContratacoes_PNCP_14133',
   },
   {
     id: 'contratacoes-14133',
@@ -69,7 +70,7 @@ export const SOURCES_CATALOG = [
     icon: '⚖️',
     color: 'purple',
     descricao: 'Dispensas eletrônicas e contratações diretas sob a Nova Lei de Licitações',
-    endpoint: 'https://pncp.gov.br/api/consulta/v1',
+    endpoint: 'https://dadosabertos.compras.gov.br/modulo-contratacoes/1_consultarContratacoes_PNCP_14133',
   },
   {
     id: 'atas-srp',
@@ -79,7 +80,7 @@ export const SOURCES_CATALOG = [
     icon: '📋',
     color: 'blue',
     descricao: 'Atas SRP publicadas no PNCP — Sistema de Registro de Preços',
-    endpoint: 'https://pncp.gov.br/api/consulta/v1',
+    endpoint: 'https://dadosabertos.compras.gov.br/modulo-arp/1_consultarARP',
   },
   {
     id: 'pregoes-siasg',
@@ -95,7 +96,7 @@ export const SOURCES_CATALOG = [
     id: 'dou',
     name: 'Imprensa Nacional (DOU)',
     shortName: 'DOU',
-    tipo: 'Crawler / RSS / API',
+    tipo: 'HTTP / HTML',
     icon: '📰',
     color: 'slate',
     descricao: 'Avisos, editais e contratações da Seção 3 do Diário Oficial da União',
@@ -105,10 +106,10 @@ export const SOURCES_CATALOG = [
     id: 'curitiba-ecompras',
     name: 'e-Compras Curitiba',
     shortName: 'e-Compras CWB',
-    tipo: 'Playwright Scraper',
+    tipo: 'HTTP / HTML',
     icon: '🏙️',
     color: 'indigo',
-    descricao: 'Portal de Compras Eletrônicas do Município de Curitiba — scraping via Playwright',
+    descricao: 'Portal de Compras Eletrônicas do Município de Curitiba — consulta HTTP com fontes alternativas',
     endpoint: 'https://e-compras.curitiba.pr.gov.br',
   },
 ];
@@ -135,19 +136,19 @@ const COLOR_MAP: Record<string, { badge: string; ring: string; dot: string; card
 };
 
 const STATUS_CONFIG = {
-  ok:      { label: 'Ativo',        icon: CheckCircle2, cls: 'bg-emerald-950/60 text-emerald-300 border-emerald-800', dot: 'bg-emerald-400 animate-pulse' },
+  ok:      { label: 'Concluído',    icon: CheckCircle2, cls: 'bg-emerald-950/60 text-emerald-300 border-emerald-800', dot: 'bg-emerald-400' },
   running: { label: 'Executando',   icon: Activity,     cls: 'bg-cyan-950/60 text-cyan-300 border-cyan-800',          dot: 'bg-cyan-400 animate-ping' },
   partial: { label: 'Parcial',      icon: AlertCircle,  cls: 'bg-amber-950/60 text-amber-300 border-amber-800',       dot: 'bg-amber-400' },
   error:   { label: 'Erro',         icon: AlertCircle,  cls: 'bg-red-950/60 text-red-300 border-red-800',             dot: 'bg-red-400' },
-  idle:    { label: 'Inativo',      icon: Clock,        cls: 'bg-slate-800/60 text-slate-400 border-slate-700',       dot: 'bg-slate-500' },
+  idle:    { label: 'Aguardando busca',      icon: Clock,        cls: 'bg-slate-800/60 text-slate-400 border-slate-700',       dot: 'bg-slate-500' },
   paused:  { label: 'Pausado',      icon: Pause,        cls: 'bg-slate-800/60 text-slate-400 border-slate-700',       dot: 'bg-slate-600' },
 };
 
 const pipelineStages = [
-  { name: '1. Ingestão Híbrida',   desc: 'APIs públicas + Playwright SPA', icon: Server,      metrics: '10 fontes ativas' },
-  { name: '2. Extração & OCR',     desc: 'pdfplumber + Tesseract fallback', icon: Cpu,         metrics: '~1.1s / doc' },
-  { name: '3. NLP & Normalização', desc: 'Regex CNPJ + Lematização PT',     icon: Zap,         metrics: '~0.2s / doc' },
-  { name: '4. Indexação',          desc: 'Elasticsearch nested mapping',     icon: Database,    metrics: '~12ms latência' },
+  { name: '1. Consulta', desc: 'APIs e portais públicos selecionados', icon: Server, metrics: 'Execução a cada busca' },
+  { name: '2. Normalização', desc: 'Leitura de datas, valores e localização', icon: Cpu, metrics: 'Campos ausentes sinalizados' },
+  { name: '3. Deduplicação', desc: 'União de editais e suas fontes de origem', icon: Layers, metrics: 'Origens preservadas' },
+  { name: '4. Filtros', desc: 'UF, cidade, publicação e validade', icon: FileSearch, metrics: 'Contagem dos resultados exibidos' },
 ];
 
 interface WorkerStatus {
@@ -208,6 +209,7 @@ export function PipelineMonitor() {
   const [workerStatuses, setWorkerStatuses] = useState<Map<string, WorkerStatus>>(new Map());
   const [loadingStatuses, setLoadingStatuses] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+  const [statusError, setStatusError] = useState('');
 
   const [downloading, setDownloading] = useState(false);
 
@@ -215,6 +217,7 @@ export function PipelineMonitor() {
   const persistSources = (next: Set<string>) => {
     try {
       localStorage.setItem(ACTIVE_SOURCES_KEY, JSON.stringify(Array.from(next)));
+      window.dispatchEvent(new Event(ACTIVE_SOURCES_EVENT));
     } catch (_) {}
   };
 
@@ -242,17 +245,19 @@ export function PipelineMonitor() {
   // ── Busca status dos workers no backend ───────────────────────────────────
   const fetchWorkerStatuses = useCallback(async () => {
     setLoadingStatuses(true);
+    setStatusError('');
     try {
       const res = await fetch('/api/b2g-search/workers', { headers: getAuthHeaders() });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Falha ao consultar o status dos workers.');
       if (res.ok) {
-        const data = await res.json();
         const map = new Map<string, WorkerStatus>();
         (data.workers || []).forEach((w: WorkerStatus) => map.set(w.id, w));
         setWorkerStatuses(map);
         setLastRefresh(new Date());
       }
-    } catch (_) {
-      // Backend pode não estar rodando localmente — usa statuses mock
+    } catch (err) {
+      setStatusError(err instanceof Error ? err.message : 'Não foi possível atualizar o status dos workers.');
     } finally {
       setLoadingStatuses(false);
     }
@@ -324,7 +329,7 @@ export function PipelineMonitor() {
                 : 'bg-slate-800/60 text-slate-400 border-slate-700'
             )}>
               <div className={cn('w-2 h-2 rounded-full', okCount > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500')} />
-              {okCount > 0 ? `${okCount} worker${okCount > 1 ? 's' : ''} ativos` : 'Aguardando execução'}
+              {statusError ? 'Status indisponível' : okCount > 0 ? `${okCount} consulta(s) concluída(s) ou em execução` : 'Aguardando execução'}
             </div>
           </div>
         </div>
@@ -336,6 +341,7 @@ export function PipelineMonitor() {
       </header>
 
       <div className="p-8 space-y-10">
+        {statusError && <p role="alert" className="rounded-xl border border-amber-800 p-4 text-sm text-amber-200">{statusError} Os dados da última atualização podem estar desatualizados.</p>}
 
         {/* ── Seção 1: Fontes de Busca (Configuração) ── */}
         <section>
@@ -429,6 +435,7 @@ export function PipelineMonitor() {
             </span>
           </div>
 
+          <p className="mb-4 text-xs text-slate-400">Os workers executam quando uma busca é solicitada. O status representa a última execução neste processo da API e é reiniciado quando o servidor reinicia.</p>
           <div className="bg-[#011419] border border-[#07323e] rounded-xl overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -564,7 +571,7 @@ export function PipelineMonitor() {
             {[
               { label: 'Fontes Ativas', value: `${activeCount} / ${SOURCES_CATALOG.length}`, icon: Globe, color: 'text-cyan-400' },
               { label: 'Workers Registrados', value: String(SOURCES_CATALOG.length), icon: Server, color: 'text-emerald-400' },
-              { label: 'Workers Online', value: String(okCount), icon: Activity, color: okCount > 0 ? 'text-emerald-400' : 'text-slate-400' },
+              { label: 'Concluídos / Executando', value: String(okCount), icon: Activity, color: okCount > 0 ? 'text-emerald-400' : 'text-slate-400' },
               { label: 'Workers com Erro', value: String(Array.from(workerStatuses.values()).filter(w => w.status === 'error').length), icon: AlertCircle, color: 'text-red-400' },
             ].map((kpi, i) => {
               const Icon = kpi.icon;

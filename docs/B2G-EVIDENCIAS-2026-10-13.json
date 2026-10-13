@@ -1,0 +1,203 @@
+{
+  "modo": "Adaptadores locais consultando fontes governamentais públicas, sem credenciais de produção",
+  "publicado": false,
+  "consulta": {
+    "uf": "PR",
+    "dataInicio": "2026-10-06",
+    "dataFim": "2026-10-13",
+    "fontesAtivas": [
+      "pncp",
+      "comprasnet",
+      "dou",
+      "transparencia-curitiba",
+      "transparencia-federal",
+      "curitiba-ecompras",
+      "contratacoes-14133",
+      "atas-srp",
+      "pregoes-siasg",
+      "comprasgov-disputas"
+    ]
+  },
+  "timestamp": "2026-10-13T11:56:23.237Z",
+  "diagnosticoFiltros": {
+    "coletados": 101,
+    "unicos": 87,
+    "exibidos": 68,
+    "excluidos": {
+      "encerrados": 3,
+      "uf": 15,
+      "semUf": 1
+    }
+  },
+  "statusFontes": [
+    {
+      "id": "pncp",
+      "runId": 1,
+      "status": "ok",
+      "lastRunAt": "2026-10-13T11:56:13.295Z",
+      "lastError": null,
+      "totalResults": 40,
+      "durationMs": 1625,
+      "nome": "PNCP Oficial",
+      "returnedResults": 37,
+      "filteredOut": {
+        "encerrados": 3
+      }
+    },
+    {
+      "id": "comprasnet",
+      "runId": 2,
+      "status": "ok",
+      "lastRunAt": "2026-10-13T11:56:12.198Z",
+      "lastError": null,
+      "totalResults": 0,
+      "durationMs": 501,
+      "nome": "ComprasNet / Compras.gov.br",
+      "returnedResults": 0,
+      "filteredOut": {}
+    },
+    {
+      "id": "dou",
+      "runId": 3,
+      "status": "ok",
+      "lastRunAt": "2026-10-13T11:56:21.736Z",
+      "lastError": null,
+      "totalResults": 40,
+      "durationMs": 10039,
+      "nome": "Imprensa Nacional (DOU)",
+      "returnedResults": 27,
+      "filteredOut": {
+        "uf": 12,
+        "semUf": 1
+      }
+    },
+    {
+      "id": "transparencia-curitiba",
+      "runId": 4,
+      "status": "partial",
+      "lastRunAt": "2026-10-13T11:56:23.218Z",
+      "lastError": "Transparência Curitiba: Tabela de licitações ausente na resposta do portal.",
+      "totalResults": 11,
+      "durationMs": 11520,
+      "nome": "Transparência Curitiba",
+      "returnedResults": 10,
+      "filteredOut": {
+        "encerrados": 1
+      }
+    },
+    {
+      "id": "transparencia-federal",
+      "runId": 5,
+      "status": "error",
+      "lastRunAt": "2026-10-13T11:56:12.512Z",
+      "lastError": "Portal da Transparência: chave de API não configurada; consultada a fonte pública alternativa.",
+      "totalResults": 0,
+      "durationMs": 813,
+      "nome": "Transparência Federal",
+      "returnedResults": 0,
+      "filteredOut": {}
+    },
+    {
+      "id": "curitiba-ecompras",
+      "runId": 6,
+      "status": "partial",
+      "lastRunAt": "2026-10-13T11:56:23.170Z",
+      "lastError": "Portal e-Compras bloqueou acesso programático.",
+      "totalResults": 7,
+      "durationMs": 11471,
+      "nome": "e-Compras Curitiba",
+      "returnedResults": 6,
+      "filteredOut": {
+        "encerrados": 1
+      }
+    },
+    {
+      "id": "contratacoes-14133",
+      "runId": 7,
+      "status": "ok",
+      "lastRunAt": "2026-10-13T11:56:12.184Z",
+      "lastError": null,
+      "totalResults": 0,
+      "durationMs": 484,
+      "nome": "Contratações Lei 14.133",
+      "returnedResults": 0,
+      "filteredOut": {}
+    },
+    {
+      "id": "atas-srp",
+      "runId": 8,
+      "status": "ok",
+      "lastRunAt": "2026-10-13T11:56:13.295Z",
+      "lastError": null,
+      "totalResults": 3,
+      "durationMs": 1595,
+      "nome": "Atas de Registro de Preços",
+      "returnedResults": 0,
+      "filteredOut": {
+        "uf": 3
+      }
+    },
+    {
+      "id": "pregoes-siasg",
+      "runId": 9,
+      "status": "ok",
+      "lastRunAt": "2026-10-13T11:56:12.196Z",
+      "lastError": null,
+      "totalResults": 0,
+      "durationMs": 496,
+      "nome": "Pregões SIASG",
+      "returnedResults": 0,
+      "filteredOut": {}
+    },
+    {
+      "id": "comprasgov-disputas",
+      "runId": 10,
+      "status": "ok",
+      "lastRunAt": "2026-10-13T11:56:12.028Z",
+      "lastError": null,
+      "totalResults": 0,
+      "durationMs": 327,
+      "nome": "Compras.gov Disputas",
+      "returnedResults": 0,
+      "filteredOut": {}
+    }
+  ],
+  "erros": [
+    "Transparência Curitiba: Tabela de licitações ausente na resposta do portal.",
+    "e-Compras Curitiba (PNCP página 3, modalidade 6): e-Compras Curitiba PNCP pagina 3 (modalidade 6): PNCP temporariamente indisponivel; usando fallback oficial.",
+    "Portal da Transparência: chave de API não configurada; consultada a fonte pública alternativa.",
+    "Portal e-Compras bloqueou acesso programático."
+  ],
+  "qualidade": {
+    "comValorPositivo": 44,
+    "semValorPositivo": 24,
+    "semPrazoVerificavel": 21,
+    "douComValor": 4
+  },
+  "linksExemplo": [
+    {
+      "id": "dou-738018289",
+      "uf": "PR",
+      "municipio": "Mandirituba",
+      "valor": 28000,
+      "dataEncerramento": null,
+      "link": "https://www.in.gov.br/web/dou/-/aviso-de-licitacao-738018287"
+    },
+    {
+      "id": "dou-738018155",
+      "uf": "PR",
+      "municipio": "Rio Azul",
+      "valor": null,
+      "dataEncerramento": null,
+      "link": "https://www.in.gov.br/web/dou/-/aviso-de-retificacao-738018153"
+    },
+    {
+      "id": "dou-738006997",
+      "uf": "PR",
+      "municipio": "",
+      "valor": null,
+      "dataEncerramento": null,
+      "link": "https://www.in.gov.br/web/dou/-/aviso-de-licitacao-738006995"
+    }
+  ]
+}

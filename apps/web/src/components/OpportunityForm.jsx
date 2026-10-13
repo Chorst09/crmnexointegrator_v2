@@ -30,11 +30,34 @@ const FASE_OPTIONS = [
 ];
 
 const PROJECT_MONTH_OPTIONS = [12, 24, 36, 48, 60];
-const PROJECT_CLIENT_TYPE_OPTIONS = [
-  { value: 'NEW_CLIENT', label: 'Cliente Novo' },
-  { value: 'BASE_CLIENT', label: 'Cliente da Base' },
-  { value: 'RENEWAL', label: 'Renovação' }
-];
+const NEGOTIATION_TYPE_OPTIONS = ['Cliente Novo', 'Cliente da Base', 'Renovações', 'Up Selling'];
+const LEAD_SOURCE_DETAIL_OPTIONS = ['SDR', 'Gerente de Contas', 'Pré-Vendas'];
+const PROJECT_CLASSIFICATION_OPTIONS = ['Produto', 'Serviço'];
+const PROJECT_TOWER_OPTIONS = ['Conectividade', 'Datacenter', 'Equipamentos', 'Infraestrutura', 'Suporte', 'Telefonia'];
+const OTHER_OPTION_VALUE = '__OTHER__';
+
+const normalizeNegotiationType = (value) => {
+  const text = String(value || '').trim();
+  const normalized = text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+  if (!normalized) return '';
+  if (normalized === 'new_client' || normalized.includes('cliente novo') || normalized.includes('nova venda')) return 'Cliente Novo';
+  if (normalized === 'base_client' || normalized.includes('cliente da base')) return 'Cliente da Base';
+  if (normalized === 'renewal' || normalized.includes('renov')) return 'Renovações';
+  if (normalized.includes('up selling') || normalized.includes('upselling') || normalized.includes('up-sell')) return 'Up Selling';
+  return text;
+};
+
+const projectClientTypeFromNegotiation = (value) => {
+  const normalized = normalizeNegotiationType(value);
+  if (normalized === 'Cliente Novo') return 'NEW_CLIENT';
+  if (normalized === 'Renovações') return 'RENEWAL';
+  if (normalized === 'Cliente da Base' || normalized === 'Up Selling') return 'BASE_CLIENT';
+  return '';
+};
 
 const DEFAULT_B2G = {
   numeroEdital: '', uasgId: '', orgaoEntidade: '', esfera: 'Municipal',
@@ -118,6 +141,7 @@ export default function OpportunityForm({
 }) {
   const [activeTab, setActiveTab] = useState('identificacao');
   const [b2gForm, setB2gForm] = useState(() => ({ ...DEFAULT_B2G }));
+  const [customSelectFields, setCustomSelectFields] = useState({});
 
   // Produtos selecionados (lista dinâmica)
   const [productItems, setProductItems] = useState(() => {
@@ -321,21 +345,66 @@ export default function OpportunityForm({
   };
 
   const setB2g = (field, value) => setB2gForm(prev => ({ ...prev, [field]: value }));
-  const projectClientType = String(formData.projectClientType || '');
+  const negotiationType = normalizeNegotiationType(formData.negotiationType || formData.projectClientType || '');
+  const projectClientType = projectClientTypeFromNegotiation(negotiationType);
   const shouldSelectExistingCompany = projectClientType === 'BASE_CLIENT' || projectClientType === 'RENEWAL';
   const shouldCreateCompanyFirst = projectClientType === 'NEW_CLIENT' && !selectedOpportunity;
-  const handleProjectClientTypeChange = (value) => {
+  const handleNegotiationTypeChange = (value) => {
+    const normalizedValue = normalizeNegotiationType(value);
+    const nextProjectClientType = projectClientTypeFromNegotiation(normalizedValue);
     setFormData((prev) => ({
       ...prev,
-      projectClientType: value,
-      companyId: value === 'NEW_CLIENT' ? '' : prev.companyId
+      negotiationType: normalizedValue,
+      projectClientType: nextProjectClientType || null,
+      companyId: nextProjectClientType === 'NEW_CLIENT' ? '' : prev.companyId
     }));
-    if (value === 'BASE_CLIENT' || value === 'RENEWAL') {
+    if (nextProjectClientType === 'BASE_CLIENT' || nextProjectClientType === 'RENEWAL') {
       onRefreshCompanies?.();
     }
-    if (value === 'NEW_CLIENT' && !selectedOpportunity) {
+    if (nextProjectClientType === 'NEW_CLIENT' && !selectedOpportunity) {
       onCreateCompany?.();
     }
+  };
+
+  const renderSelectWithOther = ({ label, value, options, onChange, placeholder = 'Selecione...', required = false }) => {
+    const currentValue = String(value || '');
+    const usesOther = currentValue && !options.includes(currentValue);
+    const isCustomEntry = Boolean(customSelectFields[label]) || usesOther;
+
+    return (
+      <div>
+        <label className={labelCls}>{label}</label>
+        <select
+          className={inputCls}
+          value={isCustomEntry ? OTHER_OPTION_VALUE : currentValue}
+          onChange={e => {
+            if (e.target.value === OTHER_OPTION_VALUE) {
+              setCustomSelectFields(prev => ({ ...prev, [label]: true }));
+              onChange('');
+              return;
+            }
+            setCustomSelectFields(prev => ({ ...prev, [label]: false }));
+            onChange(e.target.value);
+          }}
+          required={required && !isCustomEntry}
+        >
+          <option value="">{placeholder}</option>
+          {options.map((option) => (
+            <option key={option} value={option}>{option}</option>
+          ))}
+          <option value={OTHER_OPTION_VALUE}>Outro / Digitar</option>
+        </select>
+        {isCustomEntry ? (
+          <input
+            className={`${inputCls} mt-2`}
+            value={usesOther ? currentValue : ''}
+            onChange={e => onChange(e.target.value)}
+            placeholder="Digite..."
+            required={required}
+          />
+        ) : null}
+      </div>
+    );
   };
 
   const inputCls = modalInputClass || 'w-full rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] text-[var(--crm-text)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500';
@@ -358,14 +427,61 @@ export default function OpportunityForm({
             <input className={inputCls} value={formData.projectName || ''} onChange={e => setFormData(p => ({ ...p, projectName: e.target.value }))} />
           </div>
 
-          <div>
-            <label className={labelCls}>Tipo de Cliente</label>
-            <select className={inputCls} value={formData.projectClientType || ''} onChange={e => handleProjectClientTypeChange(e.target.value)} required>
-              <option value="">Selecione...</option>
-              {PROJECT_CLIENT_TYPE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
+          <div className="sm:col-span-2">
+            <div className="rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+              <h3 className="mb-3 text-sm font-semibold text-[var(--crm-text)]">Dados Comerciais B2B</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {renderSelectWithOther({
+                  label: 'Tipo de Negociação',
+                  value: negotiationType,
+                  options: NEGOTIATION_TYPE_OPTIONS,
+                  onChange: handleNegotiationTypeChange,
+                  required: true
+                })}
+                {renderSelectWithOther({
+                  label: 'Entrada/Origem',
+                  value: formData.leadSourceDetail || '',
+                  options: LEAD_SOURCE_DETAIL_OPTIONS,
+                  onChange: value => setFormData(p => ({ ...p, leadSourceDetail: value }))
+                })}
+                {renderSelectWithOther({
+                  label: 'Classificação',
+                  value: formData.projectClassification || '',
+                  options: PROJECT_CLASSIFICATION_OPTIONS,
+                  onChange: value => setFormData(p => ({ ...p, projectClassification: value }))
+                })}
+                {renderSelectWithOther({
+                  label: 'Torre',
+                  value: formData.projectTower || '',
+                  options: PROJECT_TOWER_OPTIONS,
+                  onChange: value => setFormData(p => ({ ...p, projectTower: value }))
+                })}
+                <div>
+                  <label className={labelCls}>Produto/Serviço</label>
+                  <input className={inputCls} value={formData.projectDetail || ''} onChange={e => setFormData(p => ({ ...p, projectDetail: e.target.value }))} placeholder="Rádio, Double..." />
+                </div>
+                <div>
+                  <label className={labelCls}>Fabricante</label>
+                  <input className={inputCls} value={formData.manufacturer || ''} onChange={e => setFormData(p => ({ ...p, manufacturer: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={labelCls}>Licenças</label>
+                  <input type="number" min={0} className={inputCls} value={formData.licenseCount || ''} onChange={e => setFormData(p => ({ ...p, licenseCount: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={labelCls}>Meses de Contrato</label>
+                  <input type="number" min={0} className={inputCls} value={formData.contractMonths || ''} onChange={e => setFormData(p => ({ ...p, contractMonths: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={labelCls}>Valor Mensal (R$)</label>
+                  <input type="number" min={0} step="0.01" className={inputCls} value={formData.monthlyValue || ''} onChange={e => setFormData(p => ({ ...p, monthlyValue: e.target.value }))} />
+                </div>
+                <div>
+                  <label className={labelCls}>Taxa de Instalação (R$)</label>
+                  <input type="number" min={0} step="0.01" className={inputCls} value={formData.installationFee || ''} onChange={e => setFormData(p => ({ ...p, installationFee: e.target.value }))} />
+                </div>
+              </div>
+            </div>
           </div>
 
           {shouldSelectExistingCompany && (
@@ -430,54 +546,6 @@ export default function OpportunityForm({
             <textarea className={inputCls} rows={3} value={formData.description || ''} onChange={e => setFormData(p => ({ ...p, description: e.target.value }))} />
           </div>
 
-          <div className="sm:col-span-2">
-            <div className="rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
-              <h3 className="mb-3 text-sm font-semibold text-[var(--crm-text)]">Dados Comerciais B2B</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                <div>
-                  <label className={labelCls}>Tipo de Negociação</label>
-                  <input className={inputCls} value={formData.negotiationType || ''} onChange={e => setFormData(p => ({ ...p, negotiationType: e.target.value }))} placeholder="Nova Venda, Up Selling..." />
-                </div>
-                <div>
-                  <label className={labelCls}>Entrada/Origem</label>
-                  <input className={inputCls} value={formData.leadSourceDetail || ''} onChange={e => setFormData(p => ({ ...p, leadSourceDetail: e.target.value }))} placeholder="SDR, Gerente de Contas..." />
-                </div>
-                <div>
-                  <label className={labelCls}>Classificação</label>
-                  <input className={inputCls} value={formData.projectClassification || ''} onChange={e => setFormData(p => ({ ...p, projectClassification: e.target.value }))} placeholder="Serviço, Produto..." />
-                </div>
-                <div>
-                  <label className={labelCls}>Torre</label>
-                  <input className={inputCls} value={formData.projectTower || ''} onChange={e => setFormData(p => ({ ...p, projectTower: e.target.value }))} placeholder="Conectividade, DataCenter..." />
-                </div>
-                <div>
-                  <label className={labelCls}>Detalhe</label>
-                  <input className={inputCls} value={formData.projectDetail || ''} onChange={e => setFormData(p => ({ ...p, projectDetail: e.target.value }))} placeholder="Rádio, Double..." />
-                </div>
-                <div>
-                  <label className={labelCls}>Fabricante</label>
-                  <input className={inputCls} value={formData.manufacturer || ''} onChange={e => setFormData(p => ({ ...p, manufacturer: e.target.value }))} />
-                </div>
-                <div>
-                  <label className={labelCls}>Licenças</label>
-                  <input type="number" min={0} className={inputCls} value={formData.licenseCount || ''} onChange={e => setFormData(p => ({ ...p, licenseCount: e.target.value }))} />
-                </div>
-                <div>
-                  <label className={labelCls}>Meses de Contrato</label>
-                  <input type="number" min={0} className={inputCls} value={formData.contractMonths || ''} onChange={e => setFormData(p => ({ ...p, contractMonths: e.target.value }))} />
-                </div>
-                <div>
-                  <label className={labelCls}>Valor Mensal (R$)</label>
-                  <input type="number" min={0} step="0.01" className={inputCls} value={formData.monthlyValue || ''} onChange={e => setFormData(p => ({ ...p, monthlyValue: e.target.value }))} />
-                </div>
-                <div>
-                  <label className={labelCls}>Taxa de Instalação (R$)</label>
-                  <input type="number" min={0} step="0.01" className={inputCls} value={formData.installationFee || ''} onChange={e => setFormData(p => ({ ...p, installationFee: e.target.value }))} />
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div>
             <label className={labelCls}>Valor (R$)</label>
             <input type="number" className={inputCls} value={formData.value || ''} onChange={e => setFormData(p => ({ ...p, value: e.target.value }))} />
@@ -524,6 +592,19 @@ export default function OpportunityForm({
             <div>
               <label className={labelCls}>Data de Saída</label>
               <input type="date" className={inputCls} value={formData.exitDate || ''} onChange={e => setFormData(p => ({ ...p, exitDate: e.target.value }))} />
+            </div>
+          )}
+
+          {formData.stage === 'LOST' && (
+            <div className="sm:col-span-2">
+              <label className={labelCls}>Motivo da Perda</label>
+              <textarea
+                className={inputCls}
+                rows={3}
+                value={formData.lossReason || ''}
+                onChange={e => setFormData(p => ({ ...p, lossReason: e.target.value }))}
+                placeholder="Informe o motivo da perda..."
+              />
             </div>
           )}
 

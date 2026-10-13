@@ -55,6 +55,32 @@ const buildLeadStats = async (clientType, tenantCompanyId = null) => {
   };
 };
 
+const groupB2BCommercialField = async (where, field, outputKey = field) => {
+  const rows = await prisma.opportunity.findMany({
+    where,
+    select: {
+      [field]: true,
+      source: true
+    }
+  });
+
+  const grouped = new Map();
+  rows.forEach((row) => {
+    const rawValue = field === 'leadSourceDetail'
+      ? (row.leadSourceDetail || row.source || 'Não informado')
+      : (row[field] || 'Não informado');
+    const value = String(rawValue || 'Não informado').trim() || 'Não informado';
+    grouped.set(value, (grouped.get(value) || 0) + 1);
+  });
+
+  return [...grouped.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([value, count]) => ({
+      [outputKey]: value,
+      _count: { [outputKey]: count }
+    }));
+};
+
 const readPreSalesRegistry = async () => {
   const row = await prisma.systemSetting.findUnique({ where: { key: 'pre_sales_registry_v1' } });
   try {
@@ -473,16 +499,14 @@ export default async function handler(req) {
           return Number.isFinite(num) ? num : 6;
         };
         const periodMonths = parsePeriod(period);
-        const dateFilter = periodMonths
-          ? { createdAt: { gte: new Date(Date.now() - periodMonths * 30 * 24 * 60 * 60 * 1000) } }
-          : {};
-
         const monthsBack = periodMonths || 6;
         const revenueStartDate = new Date(Date.now() - monthsBack * 30 * 24 * 60 * 60 * 1000);
 
         const b2bOpportunityFilter = { b2gStage: null };
 
-        const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' }, ...dateFilter });
+        // KPIs, funil, origem e lista devem refletir o pipeline B2B existente.
+        // O período selecionado fica reservado para gráficos de tendência/receita.
+        const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' } });
 
         // Restrição por ownerId: SELLER e USER só veem suas próprias oportunidades
         const effectiveOwnerId = canSeeAllOpportunitiesDash(req.user)
@@ -562,11 +586,7 @@ export default async function handler(req) {
             _sum: { value: true },
             orderBy: { stage: 'asc' }
           }),
-          prisma.opportunity.groupBy({
-            by: ['source'],
-            where: { ...chartsWhere, source: { not: null } },
-            _count: { source: true }
-          }),
+          groupB2BCommercialField(chartsWhere, 'leadSourceDetail', 'source'),
           prisma.opportunity.groupBy({
             by: ['ownerId'],
             where: { ...chartsWhere, stage: 'WON' },

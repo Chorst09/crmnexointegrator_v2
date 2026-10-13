@@ -27,6 +27,7 @@ const initialFormData = (clientType = 'B2B') => ({
   state: '',
   status: 'LEAD',
   accountManagerName: '',
+  accountManagerId: null,
   contacts: [{ name: '', email: '', phone: '', position: '', isPrimary: true }],
   purchasesContact: { name: '', email: '', phone: '', position: 'Compras' }
 });
@@ -173,6 +174,18 @@ export default function Empresas({ clientType = 'B2B' }) {
   const [companyKickoffsLoading, setCompanyKickoffsLoading] = useState(false);
   const [companyKickoffsError, setCompanyKickoffsError] = useState('');
   const [formData, setFormData] = useState(() => initialFormData(pageClientType));
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    // Carregar lista de usuários para o dropdown de Gerente da Conta
+    fetch(buildApiUrl('/users'), { headers: getAuthHeaders() })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        const list = Array.isArray(data) ? data : (Array.isArray(data?.data) ? data.data : []);
+        setUsers(list);
+      })
+      .catch(() => setUsers([]));
+  }, []);
 
   const empresasArray = Array.isArray(empresas) ? empresas : [];
 
@@ -402,6 +415,7 @@ export default function Empresas({ clientType = 'B2B' }) {
       state: company?.state || '',
       status: company?.status || 'LEAD',
       accountManagerName: company?.accountManagerName || '',
+      accountManagerId: company?.accountManagerId || null,
       contacts,
       purchasesContact: {
         name: comprasContact?.name || '',
@@ -886,20 +900,6 @@ export default function Empresas({ clientType = 'B2B' }) {
               </select>
             </div>
 
-            <div>
-              <label className="block text-sm font-semibold text-[var(--crm-ink)] mb-2">
-                <User className="w-4 h-4 inline mr-1" />
-                Gerente da Conta
-              </label>
-              <input
-                type="text"
-                value={formData.accountManagerName || ''}
-                onChange={(e) => setFormData({ ...formData, accountManagerName: e.target.value })}
-                placeholder="Nome do vendedor responsável"
-                className="crm-input"
-              />
-            </div>
-
             <div className="sm:col-span-2">
               <label className="block text-sm font-semibold text-[var(--crm-ink)] mb-2">Website</label>
               <input
@@ -908,6 +908,35 @@ export default function Empresas({ clientType = 'B2B' }) {
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                 className="crm-input"
               />
+            </div>
+          </div>
+
+          <div className="crm-panel-muted p-4">
+            <div className="text-sm font-extrabold text-[var(--crm-ink)] flex items-center gap-2">
+              <User className="w-4 h-4 text-[var(--crm-accent)]" />
+              Gerente de Contas
+              <span className="text-xs font-normal text-[var(--crm-muted)]">(define o responsável — impede outro vendedor de cadastrar o mesmo cliente)</span>
+            </div>
+            <div className="mt-3">
+              <select
+                value={formData.accountManagerId || ''}
+                onChange={(e) => {
+                  const selected = users.find(u => u.id === e.target.value);
+                  setFormData({
+                    ...formData,
+                    accountManagerId: e.target.value || null,
+                    accountManagerName: selected ? selected.name : ''
+                  });
+                }}
+                className="crm-input"
+              >
+                <option value="">— Selecionar responsável —</option>
+                {users.map(u => (
+                  <option key={u.id} value={u.id}>
+                    {u.name} ({u.role === 'MASTER' ? 'MASTER' : u.role === 'ADMIN' ? 'ADMIN' : u.role === 'SELLER' ? 'SELLER' : u.role || 'USER'})
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 
@@ -1154,9 +1183,18 @@ export default function Empresas({ clientType = 'B2B' }) {
                         <div>
                           <div className="text-xs font-semibold text-[var(--crm-muted)] uppercase mb-1 flex items-center gap-1">
                             <User className="w-3 h-3" />
-                            Gerente da Conta
+                            Gerente de Contas
                           </div>
                           <div className="text-sm text-[var(--crm-ink)] font-medium">{viewingCompany.accountManagerName}</div>
+                          {viewingCompany.accountManagerPosition && (
+                            <div className="text-xs text-[var(--crm-muted)] mt-0.5">{viewingCompany.accountManagerPosition}</div>
+                          )}
+                          {viewingCompany.accountManagerEmail && (
+                            <div className="text-xs text-[var(--crm-muted)] mt-0.5">{viewingCompany.accountManagerEmail}</div>
+                          )}
+                          {viewingCompany.accountManagerPhone && (
+                            <div className="text-xs text-[var(--crm-muted)] mt-0.5">{viewingCompany.accountManagerPhone}</div>
+                          )}
                         </div>
                       )}
                       {viewingCompany.website && (
