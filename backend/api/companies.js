@@ -102,6 +102,9 @@ export default async function handler(req) {
               activities: true,
               contracts: true
             }
+          },
+          accountManager: {
+            select: { id: true, name: true, email: true }
           }
         }
       });
@@ -131,6 +134,9 @@ export default async function handler(req) {
             opportunities: true,
             activities: true
           }
+        },
+        accountManager: {
+          select: { id: true, name: true, email: true }
         }
       },
       orderBy: { createdAt: 'desc' }
@@ -187,7 +193,8 @@ export default async function handler(req) {
         } : undefined
       },
       include: {
-        contacts: true
+        contacts: true,
+        accountManager: { select: { id: true, name: true, email: true } }
       }
     });
     
@@ -255,7 +262,8 @@ export default async function handler(req) {
       },
       include: {
         contacts: true,
-        opportunities: true
+        opportunities: true,
+        accountManager: { select: { id: true, name: true, email: true } }
       }
     });
     
