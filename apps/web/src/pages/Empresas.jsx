@@ -26,6 +26,7 @@ const initialFormData = (clientType = 'B2B') => ({
   city: '',
   state: '',
   status: 'LEAD',
+  accountManagerName: '',
   contacts: [{ name: '', email: '', phone: '', position: '', isPrimary: true }],
   purchasesContact: { name: '', email: '', phone: '', position: 'Compras' }
 });
@@ -400,6 +401,7 @@ export default function Empresas({ clientType = 'B2B' }) {
       city: company?.city || '',
       state: company?.state || '',
       status: company?.status || 'LEAD',
+      accountManagerName: company?.accountManagerName || '',
       contacts,
       purchasesContact: {
         name: comprasContact?.name || '',
@@ -698,6 +700,15 @@ export default function Empresas({ clientType = 'B2B' }) {
       render: (item) => <SizePill size={item.size} />
     },
     {
+      key: 'accountManagerName',
+      label: 'Gerente da Conta',
+      render: (item) => (
+        <span className="text-sm text-[var(--crm-ink)]">
+          {item.accountManagerName || <span className="text-[var(--crm-muted)] italic text-xs">Não atribuído</span>}
+        </span>
+      )
+    },
+    {
       key: 'leadScore',
       label: 'Score',
       render: (item) => <ScorePill score={item.leadScore} />
@@ -873,6 +884,20 @@ export default function Empresas({ clientType = 'B2B' }) {
                 <option value="INACTIVE">Inativo</option>
                 <option value="CHURNED">Perdido</option>
               </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[var(--crm-ink)] mb-2">
+                <User className="w-4 h-4 inline mr-1" />
+                Gerente da Conta
+              </label>
+              <input
+                type="text"
+                value={formData.accountManagerName || ''}
+                onChange={(e) => setFormData({ ...formData, accountManagerName: e.target.value })}
+                placeholder="Nome do vendedor responsável"
+                className="crm-input"
+              />
             </div>
 
             <div className="sm:col-span-2">
@@ -1123,6 +1148,15 @@ export default function Empresas({ clientType = 'B2B' }) {
                         <div>
                           <div className="text-xs font-semibold text-[var(--crm-muted)] uppercase mb-1">{isGovernmentMode ? 'Esfera / Área' : 'Segmento'}</div>
                           <div className="text-sm text-[var(--crm-ink)] font-medium">{viewingCompany.segment}</div>
+                        </div>
+                      )}
+                      {viewingCompany.accountManagerName && (
+                        <div>
+                          <div className="text-xs font-semibold text-[var(--crm-muted)] uppercase mb-1 flex items-center gap-1">
+                            <User className="w-3 h-3" />
+                            Gerente da Conta
+                          </div>
+                          <div className="text-sm text-[var(--crm-ink)] font-medium">{viewingCompany.accountManagerName}</div>
                         </div>
                       )}
                       {viewingCompany.website && (

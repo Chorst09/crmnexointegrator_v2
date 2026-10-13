@@ -701,6 +701,7 @@ export default function Oportunidades() {
   };
 
   const handleEdit = (opportunity) => {
+    console.log('[DEBUG handleEdit] Iniciando edição:', opportunity);
     setSelectedOpportunity(opportunity);
     setFormData({
       title: opportunity.title,
@@ -744,6 +745,7 @@ export default function Oportunidades() {
         notes: p.notes || ''
       }))
     });
+    console.log('[DEBUG handleEdit] Abrindo modal, showModal:', true);
     setShowModal(true);
   };
 

@@ -175,6 +175,40 @@ const matchObjeto = (texto, objeto) => {
   return termos.length === 0 || termos.some(t => haystack.includes(t));
 };
 
+// ─── Buscar Documentos/PDFs do PNCP ──────────────────────────────────────────
+
+// A busca traz metadados; os anexos completos são consultados ao abrir o edital.
+// Páginas do processo não são arquivos e não devem ser rotuladas como edital completo.
+function extrairDocumentosDosDetalhes(item) {
+  const documentos = [];
+  const seen = new Set();
+  const addFile = (url, titulo, tipo) => {
+    if (typeof url !== 'string' || !/^https?:\/\//i.test(url) || !/\.(?:pdf|zip|docx?|xlsx?|odt|ods|rar)(?:[?#]|$)/i.test(url) || seen.has(url)) return;
+    seen.add(url);
+    documentos.push({ titulo, url, tipo });
+  };
+  addFile(item.linkEdital, 'Edital', 'Edital');
+  addFile(item.linkSistemaOrigem, 'Documento do sistema de origem', 'Documento');
+  addFile(item.linkProcessoEletronico, 'Documento do processo eletrônico', 'Documento');
+  const pdfLinks = String(item.informacaoComplementar || '').match(/https?:\/\/[^\s"<>]+\.pdf(?:\?[^\s"<>]*)?/gi) || [];
+  pdfLinks.forEach((url, idx) => addFile(url, `Anexo ${idx + 1}`, 'Anexo'));
+  return documentos;
+}
+
+/**
+ * Extrai link de PDF do edital a partir dos dados do PNCP
+ * Prioriza: linkEdital > linkSistemaOrigem com .pdf
+ */
+function extrairPdfUrlPNCP(item) {
+  if (item.linkEdital && /\.pdf/i.test(item.linkEdital)) {
+    return item.linkEdital;
+  }
+  if (item.linkSistemaOrigem && /\.pdf/i.test(item.linkSistemaOrigem)) {
+    return item.linkSistemaOrigem;
+  }
+  return null;
+}
+
 const decodeHtmlEntities = (value = '') => String(value)
   .replace(/&#(\d+);/g, (_, code) => String.fromCharCode(Number(code)))
   .replace(/&#x([0-9a-f]+);/gi, (_, code) => String.fromCharCode(parseInt(code, 16)))
@@ -415,29 +449,52 @@ async function buscarPNCPPublicacao({ objeto, uf, pagina = 1, tamanhoPagina = 20
   const page = clampNumber(pagina, 10, 500, 10);
   const startedAt = Date.now();
 
-  const normalize = (items, label) => items
-    .filter(item => matchObjeto(`${item.objetoCompra} ${item.informacaoComplementar} ${item.orgaoEntidade?.razaoSocial}`, objeto))
-    .map(item => ({
-      id: item.numeroControlePNCP || `pncp-${item.anoCompra}-${item.numeroCompra}-${item.orgaoEntidade?.cnpj}`,
-      fonte: 'PNCP',
-      fonteLogo: '🏛️',
-      titulo: item.objetoCompra || 'Sem descrição',
-      orgao: item.orgaoEntidade?.razaoSocial || item.unidadeOrgao?.nomeUnidade || '',
-      cnpjOrgao: item.orgaoEntidade?.cnpj || '',
-      modalidade: item.modalidadeNome || label || '',
-      uf: item.unidadeOrgao?.ufSigla || uf || '',
-      municipio: item.unidadeOrgao?.municipioNome || '',
-      valor: formatCurrency(item.valorTotalEstimado),
-      dataPublicacao: toISODate(item.dataPublicacaoPncp) || item.dataPublicacaoPncp,
-      dataAbertura: toISODate(item.dataAberturaProposta) || item.dataAberturaProposta,
-      dataEncerramento: toISODate(item.dataEncerramentoProposta) || item.dataEncerramentoProposta,
-      numero: item.numeroCompra || '',
-      ano: item.anoCompra || '',
-      numeroControlePNCP: item.numeroControlePNCP || '',
-      link: item.linkSistemaOrigem || `https://pncp.gov.br/app/editais/${item.orgaoEntidade?.cnpj}/${item.anoCompra}/${item.sequencialCompra}`,
-      status: item.situacaoCompraNome || 'Publicado',
-      situacaoCodigo: item.codigoSituacaoCompra
-    }));
+  const normalize = async (items, label) => {
+    const filtered = items.filter(item => 
+      matchObjeto(`${item.objetoCompra} ${item.informacaoComplementar} ${item.orgaoEntidade?.razaoSocial}`, objeto)
+    );
+    
+    const results = filtered.map(item => {
+      // LOG: Verificar estrutura do item antes de extrair
+      console.log('[DEBUG normalize buscarPNCPPublicacao] Item:', {
+        numeroControlePNCP: item.numeroControlePNCP,
+        linkSistemaOrigem: item.linkSistemaOrigem ? 'PRESENTE' : 'AUSENTE',
+        linkProcessoEletronico: item.linkProcessoEletronico ? 'PRESENTE' : 'AUSENTE',
+        informacaoComplementar: item.informacaoComplementar ? 'PRESENTE' : 'AUSENTE',
+        todasChaves: Object.keys(item).slice(0, 15).join(', ')
+      });
+      
+      // Extrair documentos diretamente dos dados disponíveis
+      const documentos = extrairDocumentosDosDetalhes(item);
+      console.log('[DEBUG normalize buscarPNCPPublicacao] Docs extraídos:', documentos.length);
+      
+      return {
+        id: item.numeroControlePNCP || `pncp-${item.anoCompra}-${item.numeroCompra}-${item.orgaoEntidade?.cnpj}`,
+        fonte: 'PNCP',
+        fonteLogo: '🏛️',
+        titulo: item.objetoCompra || 'Sem descrição',
+        orgao: item.orgaoEntidade?.razaoSocial || item.unidadeOrgao?.nomeUnidade || '',
+        cnpjOrgao: item.orgaoEntidade?.cnpj || '',
+        modalidade: item.modalidadeNome || label || '',
+        uf: item.unidadeOrgao?.ufSigla || uf || '',
+        municipio: item.unidadeOrgao?.municipioNome || '',
+        valor: formatCurrency(item.valorTotalEstimado),
+        dataPublicacao: toISODate(item.dataPublicacaoPncp) || item.dataPublicacaoPncp,
+        dataAbertura: toISODate(item.dataAberturaProposta) || item.dataAberturaProposta,
+        dataEncerramento: toISODate(item.dataEncerramentoProposta) || item.dataEncerramentoProposta,
+        numero: item.numeroCompra || '',
+        ano: item.anoCompra || '',
+        numeroControlePNCP: item.numeroControlePNCP || '',
+        link: item.linkSistemaOrigem || `https://pncp.gov.br/app/editais/${item.orgaoEntidade?.cnpj}/${item.anoCompra}/${item.sequencialCompra}`,
+        status: item.situacaoCompraNome || 'Publicado',
+        situacaoCodigo: item.codigoSituacaoCompra,
+        documentos: documentos,
+        pdfUrl: extrairPdfUrlPNCP(item)
+      };
+    });
+    
+    return results;
+  };
 
   const fetchPublicacao = async ({ modCode = '' } = {}) => {
     const url = new URL(`${PNCP_BASE}/contratacoes/publicacao`);
@@ -450,7 +507,7 @@ async function buscarPNCPPublicacao({ objeto, uf, pagina = 1, tamanhoPagina = 20
 
     const label = modCode ? `PNCP modalidade ${modCode}` : 'PNCP publicações';
     const items = await fetchPNCPItems(url, label, { timeoutMs: 8000 });
-    return normalize(items, label);
+    return await normalize(items, label);
   };
 
   const consultas = objeto?.trim() || uf
@@ -488,6 +545,19 @@ async function buscarPNCPProposta({ objeto, uf, pagina = 1, tamanhoPagina = 20, 
     for (const item of items) {
       if (!matchObjeto(`${item.objetoCompra} ${item.informacaoComplementar}`, objeto)) continue;
 
+      // LOG: Verificar estrutura do item antes de extrair
+      console.log('[DEBUG buscarPNCPProposta] Item recebido:', {
+        numeroControlePNCP: item.numeroControlePNCP,
+        linkSistemaOrigem: item.linkSistemaOrigem ? 'PRESENTE' : 'AUSENTE',
+        linkProcessoEletronico: item.linkProcessoEletronico ? 'PRESENTE' : 'AUSENTE',
+        informacaoComplementar: item.informacaoComplementar ? 'PRESENTE (length: ' + item.informacaoComplementar.length + ')' : 'AUSENTE',
+        todasChaves: Object.keys(item).join(', ')
+      });
+
+      // Extrair documentos diretamente dos dados disponíveis
+      const documentos = extrairDocumentosDosDetalhes(item);
+      console.log('[DEBUG buscarPNCPProposta] Documentos extraídos:', documentos.length);
+
       resultados.push({
         id: `pncp-prop-${item.numeroControlePNCP || item.anoCompra + item.numeroCompra + item.orgaoEntidade?.cnpj}`,
         fonte: 'PNCP',
@@ -507,7 +577,9 @@ async function buscarPNCPProposta({ objeto, uf, pagina = 1, tamanhoPagina = 20, 
         numeroControlePNCP: item.numeroControlePNCP || '',
         link: item.linkSistemaOrigem || `https://pncp.gov.br/app/editais/${item.orgaoEntidade?.cnpj}/${item.anoCompra}/${item.sequencialCompra}`,
         status: 'Em proposta',
-        situacaoCodigo: item.codigoSituacaoCompra
+        situacaoCodigo: item.codigoSituacaoCompra,
+        documentos: documentos,
+        pdfUrl: extrairPdfUrlPNCP(item)
       });
     }
   } catch (err) {
@@ -534,6 +606,9 @@ const normalizeDadosAbertosPNCP = (item, { objeto, uf }) => {
   const itemUf = item.unidadeOrgaoUfSigla || uf || '';
   if (uf && itemUf !== uf) return null;
 
+  // Extrair documentos diretamente dos dados disponíveis
+  const documentos = extrairDocumentosDosDetalhes(item);
+
   return {
     id: item.numeroControlePNCP || `pncp-da-${item.idCompra || item.anoCompraPncp || ''}-${item.numeroCompra || ''}`,
     fonte: 'PNCP',
@@ -553,7 +628,9 @@ const normalizeDadosAbertosPNCP = (item, { objeto, uf }) => {
     numeroControlePNCP: item.numeroControlePNCP || '',
     link: pncpLink(item.orgaoEntidadeCnpj, item.anoCompraPncp, item.sequencialCompraPncp),
     status: item.situacaoCompraNomePncp || 'Divulgada no PNCP',
-    situacaoCodigo: item.situacaoCompraIdPncp
+    situacaoCodigo: item.situacaoCompraIdPncp,
+    documentos: documentos,
+    pdfUrl: extrairPdfUrlPNCP(item)
   };
 };
 
@@ -1807,6 +1884,17 @@ router.get('/search', auth, async (req, res) => {
     for (const item of filtrados) {
       porFonte[item.fonte] = (porFonte[item.fonte] || 0) + 1;
     }
+
+    // LOG: Verificar se documentos estão nos resultados
+    const amostra = ordenados.slice(0, 2);
+    console.log('[SEARCH RESPONSE] Amostra de resultados:', amostra.map(item => ({
+      id: item.id,
+      fonte: item.fonte,
+      titulo: item.titulo?.substring(0, 50),
+      temDocumentos: !!item.documentos,
+      qtdDocumentos: item.documentos?.length || 0,
+      documentos: item.documentos
+    })));
 
     res.json({
       data: ordenados,
