@@ -1,5 +1,11 @@
 import { prisma } from '../lib/prisma.js';
+import { buildB2BDashboardAnalytics } from '../lib/b2bDashboardAnalytics.js';
 import { getTenantCompanyId } from '../lib/tenantScope.js';
+
+const canSeeAllOpportunitiesDash = (user = {}) =>
+  ['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(
+    String(user?.actualRole || user?.role || '').trim().toUpperCase()
+  );
 
 const GENERAL_DASHBOARD_DAYS = 180;
 
@@ -478,214 +484,53 @@ export default async function handler(req) {
       }
 
       if (type === 'b2b') {
-        // Dashboard B2B com filtros
-        const parsePeriod = (p) => {
-          if (!p) return 6;
-          const num = parseInt(p);
-          if (p.endsWith('d')) {
-            const days = Number.isFinite(num) ? num : 30;
-            return Math.max(1, Math.round(days / 30));
-          }
-          if (p === 'month') return 1;
-          if (p === 'quarter') return 3;
-          if (p === 'year') return 12;
-          if (p === 'custom') return 6;
-          return Number.isFinite(num) ? num : 6;
-        };
-        const periodMonths = parsePeriod(period);
-        const monthsBack = periodMonths || 6;
-        const revenueStartDate = new Date(Date.now() - monthsBack * 30 * 24 * 60 * 60 * 1000);
-
+        if (req.user?.accessB2B === false) {
+          return Response.json({ error: 'Acesso ao módulo B2B não permitido' }, { status: 403 });
+        }
         const b2bOpportunityFilter = { b2gStage: null };
-
-        // KPIs, funil, origem e lista devem refletir o pipeline B2B existente.
-        // O período selecionado fica reservado para gráficos de tendência/receita.
         const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' } });
-
-        // Restrição por ownerId: SELLER e USER só veem suas próprias oportunidades
+        if (!tenantCompanyId && String(req.user?.actualRole || req.user?.role || '').toUpperCase() !== 'MASTER') {
+          baseWhere.tenantCompanyId = null;
+        }
         const effectiveOwnerId = canSeeAllOpportunitiesDash(req.user)
           ? (ownerId || null)
           : (req.user?.userId || req.user?.id);
-
+        if (!canSeeAllOpportunitiesDash(req.user) && !effectiveOwnerId) {
+          return Response.json({ error: 'Usuário não identificado' }, { status: 403 });
+        }
         if (effectiveOwnerId) baseWhere.ownerId = effectiveOwnerId;
-
-        // Mapear temperatura para faixas de probabilidade
         const temperatureRange = {
-          '0': { gte: 0, lte: 0 },
-          '25': { gte: 1, lte: 25 },
-          '50': { gte: 26, lte: 50 },
-          '75': { gte: 51, lte: 75 },
-          '100': { gte: 76, lte: 100 }
+          '0': { gte: 0, lte: 0 }, '25': { gte: 1, lte: 25 },
+          '50': { gte: 26, lte: 50 }, '75': { gte: 51, lte: 75 }, '100': { gte: 76, lte: 100 }
         };
-
         const whereClause = { ...baseWhere };
-        if (tempFilter && temperatureRange[tempFilter]) {
-          whereClause.probability = {
-            gte: temperatureRange[tempFilter].gte,
-            lte: temperatureRange[tempFilter].lte
-          };
-        }
+        if (temperatureRange[tempFilter]) whereClause.probability = temperatureRange[tempFilter];
 
-        const chartsWhere = { ...whereClause };
-
-        const temperatureCountWhere = { ...baseWhere };
-        const monthlyRevenueWhere = withOpportunityTenant({
-          ...b2bOpportunityFilter,
-          stage: 'WON',
-          company: { clientType: 'B2B' },
-          updatedAt: { gte: revenueStartDate }
-        });
-        if (effectiveOwnerId) monthlyRevenueWhere.ownerId = effectiveOwnerId;
-        if (tempFilter && temperatureRange[tempFilter]) {
-          monthlyRevenueWhere.probability = {
-            gte: temperatureRange[tempFilter].gte,
-            lte: temperatureRange[tempFilter].lte
-          };
-        }
-
-        const [
-          totalCompanies,
-          totalOpportunities,
-          wonOpportunities,
-          lostOpportunities,
-          pipelineAgg,
-          wonAgg,
-          avgTicketAgg,
-          funnelData,
-          leadSources,
-          sellerPerformance,
-          opportunities,
-          monthlyRevenue
-        ] = await Promise.all([
-          prisma.company.count({ where: withCompanyTenant({ clientType: 'B2B' }) }),
-          prisma.opportunity.count({ where: { ...whereClause } }),
-          prisma.opportunity.count({ where: { ...whereClause, stage: 'WON' } }),
-          prisma.opportunity.count({ where: { ...whereClause, stage: 'LOST' } }),
-          prisma.opportunity.aggregate({
-            where: { ...whereClause, stage: { notIn: ['WON', 'LOST'] } },
-            _sum: { value: true }
-          }),
-          prisma.opportunity.aggregate({
-            where: { ...whereClause, stage: 'WON' },
-            _sum: { value: true }
-          }),
-          prisma.opportunity.aggregate({
-            where: { ...whereClause, stage: 'WON' },
-            _avg: { value: true }
-          }),
-          prisma.opportunity.groupBy({
-            by: ['stage'],
-            where: { ...chartsWhere },
-            _count: { stage: true },
-            _sum: { value: true },
-            orderBy: { stage: 'asc' }
-          }),
-          groupB2BCommercialField(chartsWhere, 'leadSourceDetail', 'source'),
-          prisma.opportunity.groupBy({
-            by: ['ownerId'],
-            where: { ...chartsWhere, stage: 'WON' },
-            _count: { ownerId: true },
-            _sum: { value: true }
-          }),
+        // Read the complete, scoped portfolio; every chart uses this same set.
+        // Period filters affect entry/closure history, never the current portfolio.
+        const [opportunities, probabilities] = await Promise.all([
           prisma.opportunity.findMany({
             where: whereClause,
-            include: { company: true, owner: true },
-            orderBy: { updatedAt: 'desc' },
-            take: 200
-          }),
-          prisma.opportunity.findMany({
-            where: monthlyRevenueWhere,
             select: {
-              updatedAt: true,
-              value: true
-            }
-          })
+              id: true, title: true, number: true, stage: true, value: true, probability: true,
+              ownerId: true, companyId: true, leadEntryDate: true, expectedCloseDate: true, actualCloseDate: true,
+              exitDate: true, createdAt: true, updatedAt: true, leadSourceDetail: true, source: true,
+              projectTower: true, projectClientType: true,
+              company: { select: { id: true, name: true } },
+              owner: { select: { id: true, name: true } }
+            },
+            orderBy: { updatedAt: 'desc' }
+          }),
+          prisma.opportunity.groupBy({ by: ['probability'], where: whereClause, _count: { probability: true } })
         ]);
-
-        // Contagens por temperatura
-        const allProbabilities = await prisma.opportunity.groupBy({
-          by: ['probability'],
-          where: { ...temperatureCountWhere },
-          _count: { probability: true }
-        });
-
-        const temperatureCounts = {
-          0: allProbabilities.filter(s => s.probability === 0).reduce((sum, s) => sum + s._count.probability, 0),
-          25: allProbabilities.filter(s => s.probability >= 1 && s.probability <= 25).reduce((sum, s) => sum + s._count.probability, 0),
-          50: allProbabilities.filter(s => s.probability >= 26 && s.probability <= 50).reduce((sum, s) => sum + s._count.probability, 0),
-          75: allProbabilities.filter(s => s.probability >= 51 && s.probability <= 75).reduce((sum, s) => sum + s._count.probability, 0),
-          100: allProbabilities.filter(s => s.probability >= 76 && s.probability <= 100).reduce((sum, s) => sum + s._count.probability, 0)
-        };
-
-        const sellerIds = sellerPerformance.map(s => s.ownerId);
-        const sellers = await prisma.user.findMany({
-          where: withUserTenant({ id: { in: sellerIds } }),
-          select: { id: true, name: true }
-        });
-
-        const sellerData = sellerPerformance.map(perf => {
-          const seller = sellers.find(s => s.id === perf.ownerId);
-          return {
-            sellerId: perf.ownerId,
-            sellerName: seller?.name || 'Desconhecido',
-            deals: perf._count.ownerId,
-            revenue: perf._sum.value || 0
-          };
-        });
-
-        const activeLeads = funnelData
-          .filter(item => item.stage === 'LEAD')
-          .reduce((sum, item) => sum + (item._count?.stage || 0), 0);
-
-        const conversion = (wonOpportunities + lostOpportunities) > 0
-          ? (wonOpportunities / (wonOpportunities + lostOpportunities)) * 100
-          : 0;
-
-        const avgMonthlyWon = Array.isArray(monthlyRevenue) && monthlyRevenue.length > 0
-          ? monthlyRevenue.reduce((s, m) => s + parseFloat(m.value || 0), 0) / monthlyRevenue.length
-          : 0;
-        const forecastMonths = [];
-        const today = new Date();
-        for (let i = 0; i < 6; i += 1) {
-          const m = new Date(today.getFullYear(), today.getMonth() + i, 1);
-          const target = Math.round(avgMonthlyWon * 1.1 * (1 + i * 0.02));
-          forecastMonths.push({
-            month: m.toISOString().slice(0, 10),
-            forecast: Math.round((pipelineAgg._sum.value || 0) / Math.max(6 - i, 1)),
-            target: Math.max(target, 1)
-          });
-        }
-
+        const analytics = buildB2BDashboardAnalytics(opportunities, { period: req.query?.period || 'year' });
+        const temperatureCounts = Object.fromEntries(Object.entries(temperatureRange).map(([level, band]) => [
+          level, probabilities.filter(row => row.probability >= band.gte && row.probability <= band.lte)
+            .reduce((total, row) => total + row._count.probability, 0)
+        ]));
         return Response.json({
-          kpis: {
-            pipelineValue: pipelineAgg._sum.value || 0,
-            wonValue: wonAgg._sum.value || 0,
-            conversionRate: Math.round(conversion * 100) / 100,
-            avgTicket: avgTicketAgg._avg.value || 0,
-            totalOpportunities,
-            wonOpportunities,
-            lostOpportunities,
-            activeLeads,
-            totalCompanies
-          },
-          charts: {
-            funnel: funnelData,
-            monthlyRevenue: (() => {
-              const byMonth = new Map();
-              for (const opp of monthlyRevenue) {
-                const d = new Date(opp.updatedAt);
-                const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-                const prev = byMonth.get(key) || { month: new Date(d.getFullYear(), d.getMonth(), 1), revenue: 0, deals: 0 };
-                prev.revenue += opp.value || 0;
-                prev.deals += 1;
-                byMonth.set(key, prev);
-              }
-              return [...byMonth.values()].sort((a, b) => a.month - b.month);
-            })(),
-            leadSources,
-            sellerPerformance: sellerData,
-            forecast: forecastMonths
-          },
+          ...analytics,
+          kpis: { ...analytics.kpis, totalCompanies: new Set(opportunities.map(row => row.companyId || row.company?.id).filter(Boolean)).size },
           temperatureCounts,
           opportunities
         });

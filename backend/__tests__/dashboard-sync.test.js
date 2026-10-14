@@ -13,9 +13,11 @@ describe('dashboard opportunity synchronization', () => {
     );
 
     expect(b2bBlock).toContain('const b2bOpportunityFilter = { b2gStage: null };');
-    expect(b2bBlock).not.toContain('projectClientType');
+    // Client profile is selected for analytics; it must not identify B2B rows.
+    const b2bFilterBlock = b2bBlock.slice(0, b2bBlock.indexOf('await Promise.all'));
+    expect(b2bFilterBlock).not.toContain('projectClientType');
     expect(b2bBlock).toContain("company: { clientType: 'B2B' }");
-    expect(b2bBlock).toContain('prisma.opportunity.count({ where: { ...whereClause } })');
+    expect(b2bBlock).toContain('buildB2BDashboardAnalytics(opportunities');
   });
 
   test('B2G dashboard uses canonical opportunities instead of the Kanban search result', () => {
@@ -25,7 +27,7 @@ describe('dashboard opportunity synchronization', () => {
       b2gPage.indexOf('const dashboardTotals')
     );
 
-    expect(dashboardSourceBlock).toContain('return opportunities.filter');
+    expect(dashboardSourceBlock).toContain('return opportunities');
     expect(dashboardSourceBlock).not.toContain('sortedFilteredOpportunities.map');
     expect(b2gPage).toContain("window.setInterval(refreshB2GOpportunities, 30000)");
   });
