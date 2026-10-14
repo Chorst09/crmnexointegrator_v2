@@ -45,6 +45,8 @@ const DashboardAdvancedChart = ({
   animated = true,
   customOptions = {},
   isEmpty = false,
+  emptyMessage = 'Nenhum dado disponível',
+  legendPosition = 'right',
   icon = null
 }) => {
   // Cores baseadas no tema
@@ -105,7 +107,9 @@ const DashboardAdvancedChart = ({
       labels: data.labels || [],
       datasets: datasets.map((dataset, idx) => ({
         ...dataset,
-        borderColor: dataset.borderColor || colors[idx % colors.length],
+        borderColor: dataset.borderColor || (type === 'doughnut'
+          ? DASHBOARD_COLORS.background.primary
+          : type === 'bar' ? (dataset.backgroundColor || colors[idx % colors.length]) : colors[idx % colors.length]),
         backgroundColor:
           dataset.backgroundColor ||
           (type === 'line'
@@ -162,8 +166,8 @@ const DashboardAdvancedChart = ({
           displayColors: true,
           callbacks: {
             labelColor: (context) => ({
-              borderColor: context.dataset.borderColor,
-              backgroundColor: context.dataset.borderColor + '40'
+              borderColor: context.element.options.borderColor,
+              backgroundColor: context.element.options.backgroundColor
             })
           }
         },
@@ -201,7 +205,11 @@ const DashboardAdvancedChart = ({
       }
     };
 
-    return { ...baseOptions, ...customOptions };
+    const plugins = { ...baseOptions.plugins };
+    Object.entries(customOptions.plugins || {}).forEach(([name, options]) => {
+      plugins[name] = { ...plugins[name], ...options };
+    });
+    return { ...baseOptions, ...customOptions, plugins };
   }, [showLegend, animated, customOptions]);
 
   return (
@@ -225,7 +233,7 @@ const DashboardAdvancedChart = ({
       {isEmpty ? (
         <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="text-center">
-            <p className="text-sm text-slate-500">Nenhum dado disponível</p>
+            <p className="text-sm text-slate-400">{emptyMessage}</p>
           </div>
         </div>
       ) : (
@@ -255,11 +263,12 @@ const DashboardAdvancedChart = ({
                 data={processedData}
                 options={{
                   ...chartOptions,
+                  scales: {},
                   plugins: {
                     ...chartOptions.plugins,
                     legend: {
                       ...chartOptions.plugins.legend,
-                      position: 'right'
+                      position: legendPosition
                     }
                   }
                 }}

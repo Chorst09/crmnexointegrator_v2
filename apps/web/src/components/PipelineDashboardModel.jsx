@@ -42,6 +42,10 @@ const compactNumber = (value) => {
   }).format(number);
 };
 
+const chartValue = (value, chart) => chart?.unit === 'currency'
+  ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(value)
+  : compactNumber(value);
+
 const panelOptions = {
   responsive: true,
   maintainAspectRatio: false,
@@ -125,7 +129,7 @@ function KpiRing({ metric, index }) {
   );
 }
 
-function MiniSignalCard({ title, label, value, data = [], color = DEFAULT_COLORS[0] }) {
+function MiniSignalCard({ title, label, value, detail = 'período selecionado', data = [], color = DEFAULT_COLORS[0] }) {
   const hasData = data.some((item) => Number(item) > 0);
   const chartData = useMemo(() => ({
     labels: data.map((_, index) => String(index + 1)),
@@ -141,12 +145,12 @@ function MiniSignalCard({ title, label, value, data = [], color = DEFAULT_COLORS
   }), [color, data]);
 
   return (
-    <article className="pipeline-model__signal-card" style={{ '--signal-color': color }}>
+    <article className={`pipeline-model__signal-card${data.length ? '' : ' is-summary'}`} style={{ '--signal-color': color }}>
       <div>
         <h4>{title}</h4>
         <span>{label}</span>
         <strong>{value}</strong>
-        <p>período selecionado</p>
+        <p>{detail}</p>
       </div>
       <div className="pipeline-model__sparkline">
         {hasData ? (
@@ -169,11 +173,11 @@ function MiniSignalCard({ title, label, value, data = [], color = DEFAULT_COLORS
   );
 }
 
-function ExecutiveSignals({ metrics = [], trendChart, performanceChart, temperature }) {
+function ExecutiveSignals({ metrics = [], trendChart, performanceChart, temperature, signals }) {
   const trendValues = trendChart?.datasets?.[0]?.data?.map((value) => Number(value) || 0) || [];
   const forecastValues = trendChart?.datasets?.[1]?.data?.map((value) => Number(value) || 0) || [];
   const performanceValues = performanceChart?.values?.map((value) => Number(value) || 0) || [];
-  const cards = [
+  const cards = signals || [
     {
       title: metrics[0]?.label || 'Pipeline',
       label: 'Total',
@@ -250,7 +254,7 @@ function TemperatureScale({ value = 0, levels = [], color }) {
 }
 
 function TemporalAreaChart({ chart }) {
-  const hasData = chart?.labels?.length > 0 && chart?.datasets?.some((dataset) => dataset.data?.some((value) => Number(value) > 0));
+  const hasData = chart?.labels?.length > 0 && (chart?.showZero || chart?.datasets?.some((dataset) => dataset.data?.some((value) => Number(value) > 0)));
   const data = useMemo(() => ({
     labels: chart?.labels || [],
     datasets: (chart?.datasets || []).map((dataset, index) => ({
@@ -264,12 +268,12 @@ function TemporalAreaChart({ chart }) {
       pointRadius: 3,
       pointHoverRadius: 6,
       borderWidth: 2.5,
-      tension: 0.4,
-      fill: true
+      tension: chart?.unit === 'count' ? 0 : 0.4,
+      fill: dataset.fill ?? true
     }))
   }), [chart]);
 
-  if (!hasData) return <EmptyChart />;
+  if (!hasData) return <EmptyChart label={chart?.emptyLabel} />;
 
   return (
     <Line
@@ -286,14 +290,14 @@ function TemporalAreaChart({ chart }) {
         },
         scales: {
           x: { grid: { color: 'rgba(75,85,99,0.22)' }, border: { display: false }, ticks: { color: TEXT_COLOR, font: { size: 9, weight: '700' }, maxRotation: 0 } },
-          y: { beginAtZero: true, grid: { color: GRID_COLOR }, border: { display: false }, ticks: { color: TEXT_COLOR, font: { size: 9 }, callback: compactNumber } }
+          y: { beginAtZero: true, grid: { color: GRID_COLOR }, border: { display: false }, ticks: { color: TEXT_COLOR, font: { size: 9 }, precision: chart?.unit === 'count' ? 0 : undefined, callback: compactNumber } }
         }
       }}
     />
   );
 }
 
-function HealthDonut({ value = 0 }) {
+function HealthDonut({ value = 0, label = 'Saúde' }) {
   const score = clampPercent(value);
   const color = score >= 70 ? '#22c55e' : score >= 45 ? '#f6b40b' : '#ff7a00';
   const data = useMemo(() => ({
@@ -320,7 +324,7 @@ function HealthDonut({ value = 0 }) {
       />
       <div>
         <strong>{score.toFixed(0)}%</strong>
-        <span>Saúde</span>
+        <span>{label}</span>
       </div>
     </div>
   );
@@ -328,17 +332,18 @@ function HealthDonut({ value = 0 }) {
 
 function HorizontalPerformance({ chart }) {
   const hasData = chart?.labels?.length > 0 && chart?.values?.some((value) => Number(value) > 0);
-  if (!hasData) return <EmptyChart />;
+  if (!hasData) return <EmptyChart label={chart?.emptyLabel} />;
 
   const values = chart.values.map((value) => Number(value) || 0);
   const maxValue = Math.max(...values, 1);
-  const targetPercent = clampPercent(chart.targetPercent ?? 85);
+  const targetPercent = chart.targetPercent === undefined ? null : clampPercent(chart.targetPercent);
+  const total = values.reduce((sum, value) => sum + value, 0);
 
   return (
     <div className="pipeline-model__performance" role="img" aria-label={`${chart.title || 'Performance'} em barras horizontais`}>
       <div className="pipeline-model__performance-legend">
-        <span><i /> Resultado</span>
-        <span className="is-target"><i /> Meta {targetPercent}%</span>
+        <span><i /> {chart.showShare ? 'Participação no total' : 'Resultado'}</span>
+        {targetPercent !== null ? <span className="is-target"><i /> Meta {targetPercent}%</span> : null}
       </div>
       <div className="pipeline-model__performance-rows">
         {chart.labels.map((label, index) => {
@@ -349,9 +354,9 @@ function HorizontalPerformance({ chart }) {
               <span className="pipeline-model__performance-label" title={label}>{label}</span>
               <div className="pipeline-model__performance-track">
                 <div className="pipeline-model__performance-bar" style={{ width: `${width}%`, backgroundColor: color }}>
-                  {width >= 34 ? <b>{Math.round(width)}%</b> : null}
+                  {width >= 34 ? <b>{chart.showShare ? ((values[index] / total) * 100).toFixed(0) : Math.round(width)}%</b> : null}
                 </div>
-                <i className="pipeline-model__target-marker" style={{ left: `${targetPercent}%` }} />
+                {targetPercent !== null ? <i className="pipeline-model__target-marker" style={{ left: `${targetPercent}%` }} /> : null}
               </div>
               <strong className="pipeline-model__performance-value">{compactNumber(values[index])}</strong>
             </div>
@@ -363,14 +368,16 @@ function HorizontalPerformance({ chart }) {
 }
 
 function TrendChart({ chart }) {
-  const hasData = chart?.labels?.length > 0 && chart?.datasets?.some((dataset) => dataset.data?.length > 0);
+  const hasData = chart?.labels?.length > 0 && chart?.hasData !== false && chart?.datasets?.some((dataset) => dataset.data?.length > 0);
   const data = useMemo(() => ({
     labels: chart?.labels || [],
     datasets: (chart?.datasets || []).map((dataset, index) => ({
       label: dataset.label,
       data: dataset.data,
       borderColor: dataset.color || DEFAULT_COLORS[index + 2],
-      backgroundColor: dataset.fillColor || 'rgba(69, 201, 111, 0.09)',
+      backgroundColor: dataset.fillColor || (chart?.type === 'bar' ? dataset.color : 'rgba(69, 201, 111, 0.09)'),
+      borderRadius: 4,
+      maxBarThickness: 22,
       pointBackgroundColor: dataset.color || DEFAULT_COLORS[index + 2],
       pointBorderColor: '#0b2243',
       pointBorderWidth: 1.5,
@@ -382,15 +389,18 @@ function TrendChart({ chart }) {
     }))
   }), [chart]);
 
-  if (!hasData) return <EmptyChart />;
+  if (!hasData) return <EmptyChart label={chart?.emptyLabel} />;
+
+  const Chart = chart?.type === 'bar' ? Bar : Line;
 
   return (
-    <Line
+    <Chart
       data={data}
       options={{
         ...panelOptions,
         plugins: {
           ...panelOptions.plugins,
+          tooltip: { ...panelOptions.plugins.tooltip, callbacks: { label: context => `${context.dataset.label}: ${chartValue(context.parsed.y, chart)}` } },
           legend: {
             display: true,
             align: 'end',
@@ -433,22 +443,26 @@ function TeamPerformance({ chart }) {
     }))
   }), [chart]);
 
-  if (!hasData) return <EmptyChart />;
+  if (!hasData) return <EmptyChart label={chart?.emptyLabel} />;
+
+  const horizontal = chart?.horizontal;
 
   return (
     <Bar
       data={data}
       options={{
         ...panelOptions,
+        indexAxis: horizontal ? 'y' : 'x',
         plugins: {
           ...panelOptions.plugins,
+          tooltip: { ...panelOptions.plugins.tooltip, callbacks: { label: context => `${context.dataset.label}: ${chartValue(horizontal ? context.parsed.x : context.parsed.y, chart)}` } },
           legend: chart.datasets.length > 1
             ? { display: true, labels: { color: '#bcd4ee', usePointStyle: true, pointStyle: 'circle', boxWidth: 8, padding: 12, font: { size: 10, weight: '600' } } }
             : { display: false }
         },
         scales: {
-          x: { grid: { display: false }, border: { display: false }, ticks: { color: '#9fb9d7', font: { size: 9, weight: '600' }, maxRotation: 0 } },
-          y: { beginAtZero: true, grid: { color: GRID_COLOR }, border: { display: false }, ticks: { color: TEXT_COLOR, font: { size: 9 }, precision: 0, callback: compactNumber } }
+          x: { beginAtZero: true, stacked: chart?.stacked, grid: { display: Boolean(horizontal), color: GRID_COLOR }, border: { display: false }, ticks: { color: '#9fb9d7', font: { size: 9, weight: '600' }, precision: 0, maxRotation: 0, ...(horizontal ? { callback: compactNumber } : {}) } },
+          y: { beginAtZero: true, stacked: chart?.stacked, grid: { display: !horizontal, color: GRID_COLOR }, border: { display: false }, ticks: { color: TEXT_COLOR, font: { size: 9 }, precision: 0, ...(!horizontal ? { callback: compactNumber } : {}) } }
         }
       }}
     />
@@ -468,6 +482,9 @@ export default function PipelineDashboardModel({
   temperatureColor,
   performanceChart,
   trendChart,
+  temporalChart,
+  executiveSignals,
+  health,
   table,
   alerts,
   teamChart,
@@ -489,7 +506,7 @@ export default function PipelineDashboardModel({
         ))}
       </section>
 
-      <ExecutiveSignals metrics={metrics} trendChart={trendChart} performanceChart={performanceChart} temperature={temperature} />
+      <ExecutiveSignals metrics={metrics} trendChart={trendChart} performanceChart={performanceChart} temperature={temperature} signals={executiveSignals} />
 
       <section className="pipeline-model__main-grid">
         <article className="pipeline-model__panel pipeline-model__funnel-panel">
@@ -508,19 +525,21 @@ export default function PipelineDashboardModel({
           <article className="pipeline-model__panel pipeline-model__chart-panel">
             <PanelHeader title={trendChart?.title || 'Tendencia Mensal'} subtitle={trendChart?.subtitle} />
             <div className="pipeline-model__chart"><TrendChart chart={trendChart} /></div>
+            {trendChart?.note ? <p className="pipeline-model__note">{trendChart.note}</p> : null}
           </article>
         </div>
       </section>
 
       <section className="pipeline-model__insight-grid">
         <article className="pipeline-model__panel pipeline-model__temporal-panel">
-          <PanelHeader title="Visão Temporal" subtitle="Evolução comparada do período selecionado" />
-          <div className="pipeline-model__temporal-chart"><TemporalAreaChart chart={trendChart} /></div>
+          <PanelHeader title={temporalChart?.title || 'Visão Temporal'} subtitle={temporalChart?.subtitle || 'Evolução comparada do período selecionado'} />
+          <div className="pipeline-model__temporal-chart"><TemporalAreaChart chart={temporalChart || trendChart} /></div>
+          {temporalChart?.note ? <p className="pipeline-model__note">{temporalChart.note}</p> : null}
         </article>
 
         <article className="pipeline-model__panel pipeline-model__health-panel">
-          <PanelHeader title="Saúde do Pipeline" subtitle="Score ponderado por conversão e temperatura" />
-          <HealthDonut value={temperature} />
+          <PanelHeader title={health?.title || 'Saúde do Pipeline'} subtitle={health?.subtitle || 'Score ponderado por conversão e temperatura'} />
+          <HealthDonut value={health?.value ?? temperature} label={health?.label} />
         </article>
       </section>
 
@@ -546,7 +565,7 @@ export default function PipelineDashboardModel({
                 ))}
               </tbody>
             </table>
-            {!table?.rows?.length ? <EmptyChart label="Sem registros para exibir" /> : null}
+            {!table?.rows?.length ? <EmptyChart label={table?.emptyLabel || 'Sem registros para exibir'} /> : null}
           </div>
         </article>
 
