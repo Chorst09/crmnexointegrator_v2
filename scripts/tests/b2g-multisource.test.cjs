@@ -12,10 +12,10 @@ function searchHarness(fetchImpl = global.fetch) {
   const router = { get: (url, ...handlers) => routes.set(url, handlers.at(-1)) };
   const ctx = { require: name => name === 'express' ? { Router: () => router } : name === 'jsonwebtoken' ? {} : name === '../lib/douNotice.cjs' ? require('../../apps/api/lib/douNotice.cjs') : require(name),
     module: { exports: {} }, process: { env: { JWT_SECRET:'test-only', B2G_SOURCE_TIMEOUT_MS:'1000' } },
-    URL, URLSearchParams, AbortSignal, AbortController, global: { fetch: fetchImpl }, setTimeout, clearTimeout, console };
+    URL, URLSearchParams, AbortSignal, AbortController, global: { fetch: fetchImpl }, setTimeout, clearTimeout, console, itNoticeFilterPromise: import('../../apps/api/lib/itNoticeFilter.mjs') };
   vm.createContext(ctx);
   const inject = `globalThis.inject = functions => { ${['buscarPNCPAgregado','buscarComprasNet','buscarDOU','buscarCuritibaECompras','buscarTransparenciaCuritiba','buscarPortalTransparenciaFederal','buscarContratacoes14133','buscarAtasSRP','buscarPregoesSIASG','buscarComprasGovDisputas'].map((name,i)=>`${name}=functions[${JSON.stringify(ids[i])}];`).join(' ')} };`;
-  vm.runInContext(fs.readFileSync(sourcePath,'utf8') + '\n' + inject, ctx);
+  vm.runInContext(fs.readFileSync(sourcePath,'utf8') + '\nloadITNoticeFilter=async()=>{itNoticeFilter=await itNoticeFilterPromise;return itNoticeFilter;};\n' + inject, ctx);
   return { ctx, routes };
 }
 async function invoke(handler, query) {
@@ -25,7 +25,7 @@ async function invoke(handler, query) {
 }
 test('all ten enabled sources execute; duplicate notices retain every provenance',async()=>{
   const {ctx,routes}=searchHarness();const calls=[];
-  ctx.inject(Object.fromEntries(ids.map(id=>[id,async()=>{calls.push(id);return {resultados:[{id:'notice-'+id,numeroControlePNCP:'13864377000130-1-001576/2026',fonte:id,titulo:'Mesmo edital',link:'https://'+id+'.gov.br/edital',documentos:[{url:'https://'+id+'.gov.br/document.pdf'}]}],errors:[]};}])));
+  ctx.inject(Object.fromEntries(ids.map(id=>[id,async()=>{calls.push(id);return {resultados:[{id:'notice-'+id,numeroControlePNCP:'13864377000130-1-001576/2026',fonte:id,titulo:'Mesmo edital de computadores',link:'https://'+id+'.gov.br/edital',documentos:[{url:'https://'+id+'.gov.br/document.pdf'}]}],errors:[]};}])));
   const {body}=await invoke(routes.get('/search'),{fontes:ids.join(',')});
   assert.deepEqual(calls.sort(),[...ids].sort());
   assert.equal(body.statusFontes.length,10);
@@ -42,7 +42,7 @@ test('single-source selection and paused sources are respected',async()=>{
 });
 test('slow source does not block remaining sources beyond the request budget',async()=>{
   const {ctx,routes}=searchHarness();
-  ctx.inject(Object.fromEntries(ids.map(id=>[id,id==='pncp'?()=>new Promise(()=>{}):async()=>({resultados:[{id,titulo:id,fonte:id}],errors:[]})])));
+  ctx.inject(Object.fromEntries(ids.map(id=>[id,id==='pncp'?()=>new Promise(()=>{}):async()=>({resultados:[{id,titulo:'Aquisição de computadores '+id,fonte:id}],errors:[]})])));
   const started=Date.now();const {body}=await invoke(routes.get('/search'),{fontes:ids.join(',')});
   assert.ok(Date.now()-started<1800);
   assert.equal(body.data.length,9);
@@ -161,7 +161,7 @@ test('real specialized adapters use Compras.gov modality codes, preserving sourc
 });
 test('deduplicating PNCP and ARP keeps ATA references and the independent purchase identifier', async () => {
   const { ctx, routes } = searchHarness();
-  ctx.inject(Object.fromEntries(ids.map(id => [id, async () => ({ resultados: ['pncp','atas-srp'].includes(id) ? [{ id: id==='pncp' ? 'notice' : 'arp', numeroControlePNCP: '60747318000162-1-001060/2026', fonte: id, ...(id === 'atas-srp' ? { idCompra: '53210105010982026', numeroControlePncpAta: '60747318000162-1-001060/2026-000001', linkAtaPNCP: 'https://pncp.gov.br/app/atas/60747318000162/2026/1060/1', link: 'https://pncp.gov.br/app/atas/60747318000162/2026/1060/1' } : {}) }] : [], errors: [] })])));
+  ctx.inject(Object.fromEntries(ids.map(id => [id, async () => ({ resultados: ['pncp','atas-srp'].includes(id) ? [{ id: id==='pncp' ? 'notice' : 'arp', numeroControlePNCP: '60747318000162-1-001060/2026', fonte: id, titulo: 'Aquisição de computadores', ...(id === 'atas-srp' ? { idCompra: '53210105010982026', numeroControlePncpAta: '60747318000162-1-001060/2026-000001', linkAtaPNCP: 'https://pncp.gov.br/app/atas/60747318000162/2026/1060/1', link: 'https://pncp.gov.br/app/atas/60747318000162/2026/1060/1' } : {}) }] : [], errors: [] })])));
   const { body } = await invoke(routes.get('/search'), { fontes: 'pncp,atas-srp' });
   assert.equal(body.data.length, 1);
   assert.equal(body.data[0].idCompra, '53210105010982026');
@@ -179,8 +179,8 @@ test('DOU queries Paraná, recovers location and money, and counts only the disp
     requested = new URL(url);
     return htmlResponse(douHtml([
       { classPK: 'pr', title: 'Aviso de licitação nº 12/2026', pubDate: '10/10/2026', hierarchyList: ['Prefeituras', 'Estado do Paraná', 'Prefeitura Municipal de Curitiba'],
-        content: 'Redes para escolas. Abertura da sessão em 20/10/2026 às 09:30. Valor total estimado: R$ 183.896,76.', urlTitle: 'aviso-pr' },
-      { classPK: 'sp', title: 'Aviso de licitação', pubDate: '10/10/2026', hierarchyList: ['Estado de São Paulo'], content: 'Licitação para redes.', urlTitle: 'aviso-sp' }
+        content: 'Redes de computadores para escolas. Abertura da sessão em 20/10/2026 às 09:30. Valor total estimado: R$ 183.896,76.', urlTitle: 'aviso-pr' },
+      { classPK: 'sp', title: 'Aviso de licitação', pubDate: '10/10/2026', hierarchyList: ['Estado de São Paulo'], content: 'Licitação para redes de computadores.', urlTitle: 'aviso-sp' }
     ]));
   });
   const { body } = await invoke(routes.get('/search'), { fontes: 'dou', uf: 'PR', dataInicio: '2026-10-06', dataFim: '2026-10-13' });
@@ -198,8 +198,8 @@ test('DOU reads the original publication to confirm location missing from the se
   const requested = [];
   const { routes } = searchHarness(async url => {
     requested.push(String(url));
-    if (String(url).includes('/buscar/')) return htmlResponse(douHtml([{ classPK: 1, title: 'Aviso de licitação', pubDate: '10/10/2026', content: 'Licitação para equipamentos.', urlTitle: 'notice-1' }]));
-    return htmlResponse('<div class="texto-dou"><p>Prefeitura Municipal de Curitiba - PR. Licitação para equipamentos.</p><p>Assinado em 10/10/2026. Abertura da sessão em 25/10/2026 às 10:00. Valor global estimado: R$ 10.500,00.</p></div>');
+    if (String(url).includes('/buscar/')) return htmlResponse(douHtml([{ classPK: 1, title: 'Aviso de licitação', pubDate: '10/10/2026', content: 'Licitação para equipamentos de informática.', urlTitle: 'notice-1' }]));
+    return htmlResponse('<div class="texto-dou"><p>Prefeitura Municipal de Curitiba - PR. Licitação para equipamentos de informática.</p><p>Assinado em 10/10/2026. Abertura da sessão em 25/10/2026 às 10:00. Valor global estimado: R$ 10.500,00.</p></div>');
   });
   const { body } = await invoke(routes.get('/search'), { fontes: 'dou', uf: 'PR', cidade: 'Curitiba' });
   assert.equal(requested.length, 2);
@@ -211,8 +211,8 @@ test('DOU reads the original publication to confirm location missing from the se
 
 test('DOU never assigns the requested UF without evidence or mistakes a signature date for a deadline', async () => {
   const { routes } = searchHarness(async url => String(url).includes('/buscar/')
-    ? htmlResponse(douHtml([{ classPK: 1, title: 'Aviso de licitação', pubDate: '10/10/2026', content: 'Licitação. Assinado em 13/10/2026.', urlTitle: 'notice-1' }]))
-    : htmlResponse('<div class="texto-dou">Licitação. Assinado em 13/10/2026.</div>'));
+    ? htmlResponse(douHtml([{ classPK: 1, title: 'Aviso de licitação', pubDate: '10/10/2026', content: 'Licitação de computadores. Assinado em 13/10/2026.', urlTitle: 'notice-1' }]))
+    : htmlResponse('<div class="texto-dou">Licitação de computadores. Assinado em 13/10/2026.</div>'));
   const { body } = await invoke(routes.get('/search'), { fontes: 'dou', uf: 'PR' });
   assert.equal(body.data.length, 0);
   assert.equal(body.diagnosticoFiltros.excluidos.semUf, 1);
@@ -226,8 +226,8 @@ const curitibaTable = (rows, state = 'state-1', nextPage = false) => `<input nam
 test('Curitiba submits publication filters and reads all ten columns, excluding old and completed procedures', async () => {
   const posts = [];
   const old = ['DS 1/2026', 'Dispensa', 'COHAB Curitiba', 'Placa de inauguração', 'R$ 0,00', 'COHAB', '', '08/01/2026', '01-283294/2025', 'Cotação Informada'];
-  const current = ['DS 9/2026', 'Dispensa', 'Curitiba', 'Equipamentos', 'R$ 0,00', 'Curitiba', '07/10/2026', '20/10/2026', '01-111111/2026', 'Publicado'];
-  const completed = ['PE 10/2026', 'Pregão', 'Curitiba', 'Redes', 'R$ 183.896,76', 'Curitiba', '08/10/2026', '21/10/2026', '01-222222/2026', 'Confirmado Vencedor'];
+  const current = ['DS 9/2026', 'Dispensa', 'Curitiba', 'Equipamentos de informática', 'R$ 0,00', 'Curitiba', '07/10/2026', '20/10/2026', '01-111111/2026', 'Publicado'];
+  const completed = ['PE 10/2026', 'Pregão', 'Curitiba', 'Redes de computadores', 'R$ 183.896,76', 'Curitiba', '08/10/2026', '21/10/2026', '01-222222/2026', 'Confirmado Vencedor'];
   const { routes } = searchHarness(async (url, options) => {
     if (options.method !== 'POST') return new Response(curitibaTable([old]), { headers: { 'set-cookie': 'session=abc; Path=/' } });
     posts.push({ fields: new URLSearchParams(options.body), cookie: options.headers.Cookie });
@@ -290,7 +290,7 @@ test('ARP recovers UF and municipality from the managing UASG instead of assumin
 
 test('merging sources recovers missing estimated values without discarding provenance', async () => {
   const { ctx, routes } = searchHarness();
-  ctx.inject(Object.fromEntries(ids.map(id => [id, async () => ({ resultados: ['pncp', 'comprasnet'].includes(id) ? [{ id, numeroControlePNCP: 'same', valor: id === 'pncp' ? null : 12345.67, uf: 'PR' }] : [], errors: [] })])));
+  ctx.inject(Object.fromEntries(ids.map(id => [id, async () => ({ resultados: ['pncp', 'comprasnet'].includes(id) ? [{ id, numeroControlePNCP: 'same', titulo: 'Aquisição de computadores', valor: id === 'pncp' ? null : 12345.67, uf: 'PR' }] : [], errors: [] })])));
   const { body } = await invoke(routes.get('/search'), { fontes: 'pncp,comprasnet', uf: 'PR' });
   assert.equal(body.data.length, 1);
   assert.equal(body.data[0].valor, 12345.67);
@@ -323,7 +323,7 @@ test('DOU geographic pagination uses the official cursor and excludes unrelated 
   const { routes } = searchHarness(async url => {
     requested.push(new URL(url));
     if (requested.length === 1) return htmlResponse(douHtml([{ classPK: 99, score: 1.5, displayDateSortable: 12345, title: 'Extrato de contrato', pubDate: '10/10/2026', content: 'Paraná: processo de licitação.' }]) + '<script>var request = {currentPage:1,totalPages:2};</script>');
-    return htmlResponse(douHtml([{ classPK: 100, title: 'Aviso de licitação', pubDate: '10/10/2026', hierarchyList: ['Estado do Paraná'], content: 'Licitação de equipamentos. Abertura em 20/10/2026 às 10:00. Valor total: R$ 10.000,00.' }]) + '<script>var request = {currentPage:2,totalPages:2};</script>');
+    return htmlResponse(douHtml([{ classPK: 100, title: 'Aviso de licitação', pubDate: '10/10/2026', hierarchyList: ['Estado do Paraná'], content: 'Licitação de equipamentos de informática. Abertura em 20/10/2026 às 10:00. Valor total: R$ 10.000,00.' }]) + '<script>var request = {currentPage:2,totalPages:2};</script>');
   });
   const { body } = await invoke(routes.get('/search'), { fontes: 'dou', uf: 'PR' });
   assert.equal(requested[0].searchParams.get('q'), 'Paraná');
@@ -335,7 +335,7 @@ test('DOU geographic pagination uses the official cursor and excludes unrelated 
 });
 
 test('Ji-Paraná publications remain in Rondônia when the state is declared in official metadata', async () => {
-  const { routes } = searchHarness(async () => htmlResponse(douHtml([{ classPK: 1, title: 'Aviso de licitação', pubDate: '10/10/2026', hierarchyList: ['Prefeituras', 'Estado de Rondônia', 'Prefeitura Municipal de Ji-Paraná'], content: 'Licitação de equipamentos.' }])));
+  const { routes } = searchHarness(async () => htmlResponse(douHtml([{ classPK: 1, title: 'Aviso de licitação', pubDate: '10/10/2026', hierarchyList: ['Prefeituras', 'Estado de Rondônia', 'Prefeitura Municipal de Ji-Paraná'], content: 'Licitação de equipamentos de informática.' }])));
   const { body } = await invoke(routes.get('/search'), { fontes: 'dou', uf: 'PR' });
   assert.equal(body.data.length, 0);
   assert.equal(body.diagnosticoFiltros.excluidos.uf, 1);
@@ -347,7 +347,7 @@ test('PNCP proposals published outside the chosen period do not exhaust the resu
   const { routes } = searchHarness(async url => {
     requested.push(String(url));
     const old = String(url).includes('/proposta');
-    return new Response(JSON.stringify({ data: [{ numeroControlePNCP: old ? 'old' : 'fresh', objetoCompra: 'Equipamentos', unidadeOrgao: { ufSigla: 'PR' }, dataPublicacaoPncp: old ? '2026-08-01' : '2026-10-10', dataEncerramentoProposta: '2099-01-01' }] }), { headers: { 'content-type': 'application/json' } });
+    return new Response(JSON.stringify({ data: [{ numeroControlePNCP: old ? 'old' : 'fresh', objetoCompra: 'Equipamentos de informática', unidadeOrgao: { ufSigla: 'PR' }, dataPublicacaoPncp: old ? '2026-08-01' : '2026-10-10', dataEncerramentoProposta: '2099-01-01' }] }), { headers: { 'content-type': 'application/json' } });
   });
   const { body } = await invoke(routes.get('/search'), { fontes: 'pncp', uf: 'PR', dataInicio: '2026-10-06', dataFim: '2026-10-13', apenasVigentes: 'true' });
   assert.ok(requested.some(url => url.includes('/publicacao')));

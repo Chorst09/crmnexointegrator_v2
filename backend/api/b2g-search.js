@@ -18,6 +18,11 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+let itNoticeFilter;
+async function loadITNoticeFilter() {
+  itNoticeFilter ||= await import('../../apps/api/lib/itNoticeFilter.mjs');
+  return itNoticeFilter;
+}
 
 const JWT_SECRET = (() => {
   const secret = String(process.env.JWT_SECRET || '').trim();
@@ -169,6 +174,9 @@ async function fetchPNCPItems(url, label, { timeoutMs = 9000 } = {}) {
 }
 
 const matchObjeto = (texto, objeto) => {
+  if (itNoticeFilter) {
+    return itNoticeFilter.isITNotice(texto) && itNoticeFilter.matchesProductQuery(texto, objeto);
+  }
   if (!objeto || objeto.trim().length < 2) return true;
   const haystack = String(texto || '').toLowerCase();
   const termos = objeto.toLowerCase().split(/\s+/).filter(t => t.length > 2);
@@ -1785,6 +1793,8 @@ router.get('/workers', auth, (req, res) => {
 router.get('/search', auth, async (req, res) => {
   const {
     objeto = '',
+    filtroProdutosAtivo = 'true',
+    produtosInteresse = '',
     uf = '',
     pagina = 1,
     tamanhoPagina = 20,
@@ -1810,8 +1820,14 @@ router.get('/search', auth, async (req, res) => {
   }
 
   const fontesAtivas = new Set(fontesRaw.split(',').map(f => f.trim()).filter(Boolean));
+  if (filtroProdutosAtivo === 'false' && !String(objeto).trim()) {
+    return res.json({ data: [], total: 0, info: 'Digite um produto de TI para buscar editais ou ative a descoberta automática em Configurações.' });
+  }
+
 
   try {
+    const ti = await loadITNoticeFilter();
+    const interestProducts = ti.sanitizeInterestProducts(produtosInteresse);
     const promises = [];
     const params = { objeto, uf, pagina: Number(pagina), tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim };
 
@@ -1874,9 +1890,14 @@ router.get('/search', auth, async (req, res) => {
     }
 
     const deduplicados = deduplicar(todosResultados);
-    const filtrados = apenasVigentes === 'true'
-      ? deduplicados.filter(isEditalVigente)
-      : deduplicados;
+    const diagnosticoFiltros = { coletados: todosResultados.length, unicos: deduplicados.length, exibidos: 0, excluidos: {} };
+    const filtrados = deduplicados.filter(item => {
+      const reason = apenasVigentes === 'true' && !isEditalVigente(item) ? 'encerrados'
+        : !ti.isITNotice(item) ? 'foraTI' : !ti.matchesProductQuery(item, objeto) ? 'produto' : null;
+      if (reason) diagnosticoFiltros.excluidos[reason] = (diagnosticoFiltros.excluidos[reason] || 0) + 1;
+      return !reason;
+    });
+    diagnosticoFiltros.exibidos = filtrados.length;
     const ordenados = ordenar(filtrados, ordem);
 
     // Estatísticas por fonte
@@ -1897,10 +1918,14 @@ router.get('/search', auth, async (req, res) => {
     })));
 
     res.json({
-      data: ordenados,
+      data: ordenados.map(item => ({ ...item, classificacaoTI: {
+        ...ti.classifyITNotice(item),
+        produtosInteresse: filtroProdutosAtivo === 'false' ? [] : ti.getInterestMatches(item, interestProducts)
+      } })),
       total: ordenados.length,
       pagina: Number(pagina),
       fontes: porFonte,
+      diagnosticoFiltros,
       erros: todosErros.length > 0 ? todosErros : undefined,
       timestamp: new Date().toISOString()
     });

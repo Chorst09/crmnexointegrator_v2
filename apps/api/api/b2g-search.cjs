@@ -18,6 +18,11 @@
 const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
+let itNoticeFilter;
+async function loadITNoticeFilter() {
+  itNoticeFilter ||= await import('../lib/itNoticeFilter.mjs');
+  return itNoticeFilter;
+}
 const { AsyncLocalStorage } = require('node:async_hooks');
 const sourceScope = new AsyncLocalStorage();
 const upstreamFetch = global.fetch;
@@ -197,6 +202,9 @@ async function fetchPNCPItems(url, label, { timeoutMs = 9000 } = {}) {
 }
 
 const matchObjeto = (texto, objeto) => {
+  if (itNoticeFilter) {
+    return itNoticeFilter.isITNotice(texto) && itNoticeFilter.matchesProductQuery(texto, objeto);
+  }
   if (!objeto || objeto.trim().length < 2) return true;
   const haystack = String(texto || '').toLowerCase();
   const termos = objeto.toLowerCase().split(/\s+/).filter(t => t.length > 2);
@@ -1843,6 +1851,8 @@ router.get('/workers', auth, (req, res) => {
 router.get('/search', auth, async (req, res) => {
   const {
     objeto = '',
+    filtroProdutosAtivo = 'true',
+    produtosInteresse = '',
     uf = '',
     pagina = 1,
     tamanhoPagina = 20,
@@ -1869,8 +1879,14 @@ router.get('/search', auth, async (req, res) => {
   }
 
   const fontesAtivas = new Set(fontesRaw.split(',').map(f => f.trim()).filter(Boolean));
+  if (filtroProdutosAtivo === 'false' && !String(objeto).trim()) {
+    return res.json({ data: [], total: 0, info: 'Digite um produto de TI para buscar editais ou ative a descoberta automática em Configurações.' });
+  }
+
 
   try {
+    const ti = await loadITNoticeFilter();
+    const interestProducts = ti.sanitizeInterestProducts(produtosInteresse);
     const promises = [];
     const params = { objeto, uf, cidade, pagina: Number(pagina), tamanhoPagina: Number(tamanhoPagina), dataInicio, dataFim };
 
@@ -1944,6 +1960,8 @@ router.get('/search', auth, async (req, res) => {
       else if (cidade && !normalizeSearchText(item.municipio || item.cidade || '').includes(normalizeSearchText(cidade))) motivo = (item.municipio || item.cidade) ? 'cidade' : 'semCidade';
       else if (!isWithinDateRange(item.dataPublicacao, dataInicio, dataFim)) motivo = 'periodo';
       else if (apenasVigentes === 'true' && !isEditalVigente(item, referenceTime)) motivo = 'encerrados';
+      else if (!ti.isITNotice(item)) motivo = 'foraTI';
+      else if (!ti.matchesProductQuery(item, objeto)) motivo = 'produto';
       if (motivo) motivos.set(item, motivo);
       return !motivo;
     });
@@ -1966,7 +1984,10 @@ router.get('/search', auth, async (req, res) => {
     }
 
     res.json({
-      data: ordenados,
+      data: ordenados.map(item => ({ ...item, classificacaoTI: {
+        ...ti.classifyITNotice(item),
+        produtosInteresse: filtroProdutosAtivo === 'false' ? [] : ti.getInterestMatches(item, interestProducts)
+      } })),
       total: ordenados.length,
       pagina: Number(pagina),
       fontes: porFonte,

@@ -82,8 +82,8 @@ export default function BuscarEditais() {
     },
     { 
       id: 'pipeline', 
-      name: 'Configurações (Pipeline)', 
-      subtitle: 'Status dos workers e sincronização',
+      name: 'Configurações',
+      subtitle: 'Produtos de TI e fontes de busca',
       icon: Settings 
     },
   ];
