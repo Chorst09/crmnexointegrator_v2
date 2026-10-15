@@ -1,8 +1,11 @@
+import companyVisibility from '../lib/company-visibility.cjs';
 import { prisma } from '../lib/prisma.js';
 import { updateCompanyLeadScore } from '../lib/leadScoring.js';
 import { createOpportunityForLead, DISTRIBUTION_STRATEGIES } from '../lib/leadDistribution.js';
 import { getTenantCompanyId, isTenantRecordVisible, forbiddenTenantResponse, tenantScopedWhere } from '../lib/tenantScope.js';
 import { validateCustomerOwnership } from '../lib/customerOwnershipValidator.js';
+
+const { companyOwnershipWhere, canAccessOwnedCompany, companyResponsibility } = companyVisibility;
 
 const parsePathIdFromUrl = (urlValue) => {
   if (!urlValue) return null;
@@ -67,6 +70,14 @@ const runOptionalCleanup = async (operation) => {
 };
 
 export default async function handler(req) {
+  const requestBody = ['POST', 'PUT', 'DELETE'].includes(req.method)
+    ? await req.json().catch(() => ({})) : {};
+  if (['GET', 'PUT', 'DELETE'].includes(req.method)) {
+    const accessId = resolveCompanyId(req, requestBody);
+    if (accessId && !await canAccessOwnedCompany(prisma, req.user, accessId)) {
+      return new Response('Empresa não encontrada ou acesso negado', { status: 403 });
+    }
+  }
   if (req.method === 'GET') {
     const clientType = String(req.query?.clientType || '').toUpperCase();
     const where = {
@@ -118,7 +129,7 @@ export default async function handler(req) {
     }
     
     const companies = await prisma.company.findMany({
-      where,
+      where: { AND: [where, companyOwnershipWhere(req.user)] },
       include: {
         contacts: true,
         opportunities: {
@@ -139,7 +150,7 @@ export default async function handler(req) {
   }
 
   if (req.method === 'POST') {
-    const body = await req.json();
+    const body = requestBody;
     const autoDistribute = body.autoDistribute !== false;
     const tenantCompanyId = getTenantCompanyId(req.user) || body.tenantCompanyId || null;
     const requesterId = req.user?.userId || req.user?.id || null;
@@ -174,8 +185,7 @@ export default async function handler(req) {
         status: normalizeCompanyStatus(body.status, 'LEAD'),
         leadScore: Number.isFinite(Number(body.leadScore)) ? Number(body.leadScore) : undefined,
         leadEntryDate: parseDateInput(body.leadEntryDate) || new Date(),
-        accountManagerName: body.accountManagerName || null,
-        accountManagerId: body.accountManagerId || null,
+        ...companyResponsibility(req.user, body, true),
         contacts: body.contacts ? {
           create: body.contacts.map(contact => ({
             name: contact.name,
@@ -221,7 +231,7 @@ export default async function handler(req) {
   }
 
   if (req.method === 'PUT') {
-    const body = await req.json();
+    const body = requestBody;
     const companyId = resolveCompanyId(req, body);
 
     if (!companyId) return new Response('id é obrigatório', { status: 400 });
@@ -250,8 +260,7 @@ export default async function handler(req) {
         status: body.status !== undefined ? normalizeCompanyStatus(body.status) : undefined,
         leadScore: body.leadScore,
         leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined,
-        accountManagerName: body.accountManagerName !== undefined ? body.accountManagerName || null : undefined,
-        accountManagerId: body.accountManagerId !== undefined ? body.accountManagerId || null : undefined
+        ...companyResponsibility(req.user, body)
       },
       include: {
         contacts: true,
@@ -270,7 +279,7 @@ export default async function handler(req) {
   }
 
   if (req.method === 'DELETE') {
-    const body = await req.json().catch(() => ({}));
+    const body = requestBody;
     const companyId = resolveCompanyId(req, body);
 
     if (!companyId) return new Response('id é obrigatório', { status: 400 });

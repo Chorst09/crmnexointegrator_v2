@@ -30,6 +30,11 @@ export const ROLE_POLICY_MODULES = [
     description: 'Monitoramento de editais e licitações em fontes públicas.'
   },
   {
+    key: 'ownCompaniesOnly',
+    label: 'Somente suas empresas B2B',
+    description: 'Exibe apenas empresas B2B sob sua responsabilidade. Admin e Master visualizam todas.'
+  },
+  {
     key: 'ownOpportunitiesOnly',
     label: 'Somente suas oportunidades',
     description: 'Quando ativo, o usuário vê apenas oportunidades criadas por ele.'
@@ -87,6 +92,7 @@ export const ROLE_ACCESS_POLICY = {
     leads: true,
     opportunities: true,
     publicOpportunities: true,
+    ownCompaniesOnly: true,
     ownOpportunitiesOnly: true,
     accessSimulador: true,
     simuladorViewPricing: false,
@@ -110,6 +116,7 @@ export const ROLE_ACCESS_POLICY = {
     leads: true,
     opportunities: true,
     publicOpportunities: true,
+    ownCompaniesOnly: true,
     ownOpportunitiesOnly: true,
     accessSimulador: true,
     simuladorViewPricing: false,
@@ -133,6 +140,7 @@ export const ROLE_ACCESS_POLICY = {
     leads: true,
     opportunities: true,
     publicOpportunities: false,
+    ownCompaniesOnly: true,
     ownOpportunitiesOnly: true,
     accessSimulador: true,
     simuladorViewPricing: false,
@@ -156,6 +164,7 @@ export const ROLE_ACCESS_POLICY = {
     leads: true,
     opportunities: true,
     publicOpportunities: true,
+    ownCompaniesOnly: false,
     ownOpportunitiesOnly: false,
     accessSimulador: true,
     simuladorViewPricing: true,
@@ -179,6 +188,7 @@ export const ROLE_ACCESS_POLICY = {
     leads: true,
     opportunities: true,
     publicOpportunities: true,
+    ownCompaniesOnly: false,
     ownOpportunitiesOnly: false,
     accessSimulador: true,
     simuladorViewPricing: true,

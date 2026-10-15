@@ -14,6 +14,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     leads: true,
     oportunidades: true,
     buscaOportunidadesPublicas: true,
+    ownCompaniesOnly: false,
     somenteSuasOportunidades: false,
     registroNoFabricante: true,
     documentacao: true,
@@ -32,6 +33,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     leads: true,
     oportunidades: true,
     buscaOportunidadesPublicas: true,
+    ownCompaniesOnly: false,
     somenteSuasOportunidades: false,
     registroNoFabricante: true,
     documentacao: true,
@@ -50,6 +52,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     leads: true,
     oportunidades: true,
     buscaOportunidadesPublicas: true,
+    ownCompaniesOnly: true,
     somenteSuasOportunidades: true,
     registroNoFabricante: true,
     documentacao: true,
@@ -68,6 +71,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     leads: true,
     oportunidades: true,
     buscaOportunidadesPublicas: false,
+    ownCompaniesOnly: true,
     somenteSuasOportunidades: true,
     registroNoFabricante: false,
     documentacao: false,
@@ -86,6 +90,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     leads: true,
     oportunidades: true,
     buscaOportunidadesPublicas: true,
+    ownCompaniesOnly: false,
     somenteSuasOportunidades: false,
     registroNoFabricante: true,
     documentacao: true,
@@ -104,6 +109,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     leads: true,
     oportunidades: true,
     buscaOportunidadesPublicas: true,
+    ownCompaniesOnly: false,
     somenteSuasOportunidades: false,
     registroNoFabricante: true,
     documentacao: true,
@@ -122,6 +128,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     leads: true,
     oportunidades: true,
     buscaOportunidadesPublicas: true,
+    ownCompaniesOnly: true,
     somenteSuasOportunidades: true,
     registroNoFabricante: true,
     documentacao: true,
@@ -232,7 +239,8 @@ function getPermissionTemplate(role, overrides = {}) {
 
   return {
     ...base,
-    ...normalizedOverrides
+    ...normalizedOverrides,
+    ...(['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(normalizedRole) ? { ownCompaniesOnly: false } : {})
   };
 }
 

@@ -1,7 +1,10 @@
+import companyVisibility from '../lib/company-visibility.cjs';
 import { prisma } from '../lib/prisma.js';
 import { updateCompanyLeadScore } from '../lib/leadScoring.js';
 import { createOpportunityForLead, DISTRIBUTION_STRATEGIES } from '../lib/leadDistribution.js';
 import { validateCustomerOwnership } from '../lib/customerOwnershipValidator.js';
+
+const { companyOwnershipWhere, canAccessOwnedCompany, companyResponsibility } = companyVisibility;
 
 const parsePathIdFromUrl = (urlValue) => {
   if (!urlValue) return null;
@@ -81,6 +84,14 @@ const runOptionalCleanup = async (operation) => {
 };
 
 export default async function handler(req) {
+  const requestBody = ['POST', 'PUT', 'DELETE'].includes(req.method)
+    ? await req.json().catch(() => ({})) : {};
+  if (['GET', 'PUT', 'DELETE'].includes(req.method)) {
+    const accessId = resolveCompanyId(req, requestBody);
+    if (accessId && !await canAccessOwnedCompany(prisma, req.user, accessId)) {
+      return new Response('Empresa não encontrada ou acesso negado', { status: 403 });
+    }
+  }
   if (req.method === 'GET') {
     const clientType = String(req.query?.clientType || '').toUpperCase();
     const where = clientType === 'B2B' || clientType === 'B2G' ? { clientType } : {};
@@ -137,15 +148,9 @@ export default async function handler(req) {
       where.tenantCompanyId = tenantId;
     }
 
-    if (req.user?.role === 'SELLER') {
-      where.OR = [
-        req.user.regionId ? { regionId: req.user.regionId } : undefined,
-        { opportunities: { some: { ownerId: req.user.userId } } }
-      ].filter(Boolean);
-    }
 
     const companies = await prisma.company.findMany({
-      where,
+      where: { AND: [where, companyOwnershipWhere(req.user)] },
       include: {
         contacts: true,
         opportunities: {
@@ -197,7 +202,7 @@ export default async function handler(req) {
   }
 
   if (req.method === 'POST') {
-    const body = await req.json();
+    const body = requestBody;
     const regionId = req.user?.role === 'SELLER' ? (req.user.regionId || null) : (body.regionId || null);
     const contactsToCreate = normalizeContacts(body.contacts);
     const autoDistribute = body.autoDistribute !== false;
@@ -235,7 +240,7 @@ export default async function handler(req) {
         status: normalizeCompanyStatus(body.status, 'LEAD'),
         leadScore: Number.isFinite(Number(body.leadScore)) ? Number(body.leadScore) : undefined,
         leadEntryDate: parseDateInput(body.leadEntryDate) || new Date(),
-        accountManagerName: body.accountManagerName || null,
+        ...companyResponsibility(req.user, body, true),
         regionId,
         tenantCompanyId: tenantId,
         contacts: contactsToCreate.length > 0
@@ -277,20 +282,10 @@ export default async function handler(req) {
   }
 
   if (req.method === 'PUT') {
-    const body = await req.json();
+    const body = requestBody;
     const companyId = resolveCompanyId(req, body);
 
     if (!companyId) return new Response('id é obrigatório', { status: 400 });
-    if (req.user?.role === 'SELLER') {
-      const existing = await prisma.company.findUnique({
-        where: { id: companyId },
-        select: { regionId: true }
-      });
-      if (!existing) return new Response('Not found', { status: 404 });
-      if (!req.user.regionId || existing.regionId !== req.user.regionId) {
-        return new Response('Forbidden', { status: 403 });
-      }
-    }
 
     const contactsToSave = normalizeContacts(body.contacts);
     const isMasterUser = String(req.user?.actualRole || req.user?.role || '').toUpperCase() === 'MASTER';
@@ -324,7 +319,7 @@ export default async function handler(req) {
           status: body.status !== undefined ? normalizeCompanyStatus(body.status) : undefined,
           leadScore: body.leadScore,
           leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined,
-          accountManagerName: body.accountManagerName !== undefined ? body.accountManagerName || null : undefined,
+          ...companyResponsibility(req.user, body),
           tenantCompanyId: isMasterUser && body.tenantCompanyId !== undefined ? body.tenantCompanyId : undefined
         },
         include: {
@@ -370,7 +365,7 @@ export default async function handler(req) {
   }
 
   if (req.method === 'DELETE') {
-    const body = await req.json().catch(() => ({}));
+    const body = requestBody;
     const companyId = resolveCompanyId(req, body);
 
     if (!companyId) return new Response('id é obrigatório', { status: 400 });
@@ -392,11 +387,6 @@ export default async function handler(req) {
 
     if (!company) return new Response('Empresa não encontrada', { status: 404 });
 
-    if (req.user?.role === 'SELLER') {
-      if (!req.user.regionId || company.regionId !== req.user.regionId) {
-        return new Response('Forbidden', { status: 403 });
-      }
-    }
 
     try {
       await prisma.$transaction(async (tx) => {

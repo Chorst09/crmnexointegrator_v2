@@ -3312,7 +3312,8 @@ export default function Administracao() {
                     <div className="space-y-2">
                       <div className="text-xs font-black uppercase tracking-[0.16em] text-cyan-700 dark:text-cyan-200">Permissões</div>
                       {ROLE_POLICY_MODULES.map((item) => {
-                        const checked = Boolean(rolePolicy.permissions?.[item.key]);
+                        const unrestrictedCompanies = item.key === 'ownCompaniesOnly' && ['ADMIN', 'MASTER'].includes(normalizedRole);
+                        const checked = !unrestrictedCompanies && Boolean(rolePolicy.permissions?.[item.key]);
                         return (
                           <label
                             key={item.key}
@@ -3323,7 +3324,7 @@ export default function Administracao() {
                               <input
                                 type="checkbox"
                                 checked={checked}
-                                disabled={!editableRole}
+                                disabled={!editableRole || unrestrictedCompanies}
                                 onChange={(e) => handleRolePolicyPermissionToggle(normalizedRole, item.key, e.target.checked)}
                               />
                             </span>

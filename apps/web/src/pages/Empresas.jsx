@@ -7,6 +7,7 @@ import AnimatedStats from '../components/AnimatedStats';
 import ModernTable from '../components/ModernTable';
 import Modal from '../components/Modal';
 import { API_ENDPOINTS, buildApiUrl, getAuthHeaders } from '../config/api';
+import { isMaster, normalizeRole } from '../utils/permissions';
 
 const normalizeClientType = (value, fallback = 'B2B') => {
   const raw = String(value || '').trim().toUpperCase();
@@ -146,6 +147,11 @@ const ScorePill = ({ score }) => {
 
 export default function Empresas({ clientType = 'B2B' }) {
   const navigate = useNavigate();
+  const [currentUser] = useState(() => {
+    try { return JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}'); }
+    catch { return {}; }
+  });
+  const canAssignAccountManager = isMaster(currentUser) || normalizeRole(currentUser.actualRole || currentUser.role) === 'ADMIN';
   const [searchParams] = useSearchParams();
   const pageClientType = normalizeClientType(clientType);
   const isGovernmentMode = pageClientType === 'B2G';
@@ -919,7 +925,8 @@ export default function Empresas({ clientType = 'B2B' }) {
             </div>
             <div className="mt-3">
               <select
-                value={formData.accountManagerId || ''}
+                value={canAssignAccountManager || editingCompany ? formData.accountManagerId || '' : currentUser.id || currentUser.userId || ''}
+                disabled={!canAssignAccountManager}
                 onChange={(e) => {
                   const selected = users.find(u => u.id === e.target.value);
                   setFormData({
@@ -937,6 +944,9 @@ export default function Empresas({ clientType = 'B2B' }) {
                   </option>
                 ))}
               </select>
+              {!canAssignAccountManager && (
+                <p className="mt-2 text-xs text-[var(--crm-muted)]">Novas empresas ficam sob sua responsabilidade. Admin e Master podem alterar o responsável.</p>
+              )}
             </div>
           </div>
 

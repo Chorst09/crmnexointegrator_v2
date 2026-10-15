@@ -173,6 +173,7 @@ const ROLE_POLICY_PERMISSION_KEYS = [
   'opportunities',
   'publicOpportunities',
   'ownOpportunitiesOnly',
+  'ownCompaniesOnly',
   'manufacturerRegistry',
   'documentation',
   'strategicReports',
@@ -205,6 +206,7 @@ const sanitizeRolePolicyOverrides = (policies = {}, tenantCompany = {}) => {
       return next;
     }, {});
 
+    if (role === 'ADMIN') permissions.ownCompaniesOnly = false;
     acc[role] = { moduleAccess, permissions };
     return acc;
   }, {});

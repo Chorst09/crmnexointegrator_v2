@@ -97,6 +97,7 @@ model Company {
   tenantCompanyId String?
   tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
   leadEntryDate DateTime @default(now())
+  accountManagerId String?
   accountManagerName     String?
   accountManagerEmail    String?
   accountManagerPhone    String?
@@ -119,6 +120,7 @@ model Company {
   projects      Project[]
 
   @@index([tenantCompanyId])
+  @@index([accountManagerId])
 }
 
 model TenantCompany {
