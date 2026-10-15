@@ -1,3 +1,5 @@
+import companyVisibility from '../lib/company-visibility.cjs';
+const { companyVisibilityWhere, canViewCompany, ownCompaniesOnly } = companyVisibility;
 import { prisma } from '../lib/prisma.js';
 import { updateCompanyLeadScore } from '../lib/leadScoring.js';
 import { createOpportunityForLead, DISTRIBUTION_STRATEGIES } from '../lib/leadDistribution.js';
@@ -80,6 +82,24 @@ const runOptionalCleanup = async (operation) => {
   }
 };
 
+
+const resolveAssignment = async (user, body, tenantCompanyId, creating) => {
+  const restricted = ownCompaniesOnly(user) && (body.clientType || 'B2B') === 'B2B';
+  const selfId = user.userId || user.id;
+  if (restricted && body.accountManagerId && body.accountManagerId !== selfId) {
+    return { error: 'Você só pode atribuir empresas B2B a si mesmo.' };
+  }
+  const id = restricted ? selfId : body.accountManagerId;
+  if (!restricted && !creating && id === undefined) return { data: {} };
+  if (!id) return { data: { accountManagerId: null, accountManagerName: null } };
+  const owner = await prisma.user.findFirst({
+    where: { id, tenantCompanyId: tenantCompanyId || null },
+    select: { id: true, name: true }
+  });
+  if (!owner) return { error: 'Responsável inválido para esta empresa.' };
+  return { data: { accountManagerId: owner.id, accountManagerName: owner.name } };
+};
+
 export default async function handler(req) {
   if (req.method === 'GET') {
     const clientType = String(req.query?.clientType || '').toUpperCase();
@@ -122,6 +142,7 @@ export default async function handler(req) {
         return new Response('Acesso negado', { status: 403 });
       }
 
+      if (!await canViewCompany(prisma, req.user, company.id)) return new Response('Acesso negado', { status: 403 });
       return Response.json(company);
     }
 
@@ -137,15 +158,10 @@ export default async function handler(req) {
       where.tenantCompanyId = tenantId;
     }
 
-    if (req.user?.role === 'SELLER') {
-      where.OR = [
-        req.user.regionId ? { regionId: req.user.regionId } : undefined,
-        { opportunities: { some: { ownerId: req.user.userId } } }
-      ].filter(Boolean);
-    }
+
 
     const companies = await prisma.company.findMany({
-      where,
+      where: { ...where, ...companyVisibilityWhere(req.user) },
       include: {
         contacts: true,
         opportunities: {
@@ -219,6 +235,8 @@ export default async function handler(req) {
       return Response.json(ownershipDecision, { status: 409 });
     }
 
+    const assignment = await resolveAssignment(req.user, body, tenantId, true);
+    if (assignment.error) return new Response(assignment.error, { status: 403 });
     const company = await prisma.company.create({
       data: {
         name: body.name,
@@ -235,7 +253,7 @@ export default async function handler(req) {
         status: normalizeCompanyStatus(body.status, 'LEAD'),
         leadScore: Number.isFinite(Number(body.leadScore)) ? Number(body.leadScore) : undefined,
         leadEntryDate: parseDateInput(body.leadEntryDate) || new Date(),
-        accountManagerName: body.accountManagerName || null,
+        ...assignment.data,
         regionId,
         tenantCompanyId: tenantId,
         contacts: contactsToCreate.length > 0
@@ -281,17 +299,6 @@ export default async function handler(req) {
     const companyId = resolveCompanyId(req, body);
 
     if (!companyId) return new Response('id é obrigatório', { status: 400 });
-    if (req.user?.role === 'SELLER') {
-      const existing = await prisma.company.findUnique({
-        where: { id: companyId },
-        select: { regionId: true }
-      });
-      if (!existing) return new Response('Not found', { status: 404 });
-      if (!req.user.regionId || existing.regionId !== req.user.regionId) {
-        return new Response('Forbidden', { status: 403 });
-      }
-    }
-
     const contactsToSave = normalizeContacts(body.contacts);
     const isMasterUser = String(req.user?.actualRole || req.user?.role || '').toUpperCase() === 'MASTER';
     const tenantId = isMasterUser ? null : (req.user?.tenantCompanyId || null);
@@ -301,11 +308,14 @@ export default async function handler(req) {
       select: { accessB2B: true, accessB2G: true, accessPreSales: true, tenantCompanyId: true }
     });
     if (!existingCompany) return new Response('Empresa não encontrada', { status: 404 });
+    if (!await canViewCompany(prisma, req.user, companyId)) return new Response('Acesso negado', { status: 403 });
 
     if (tenantId && existingCompany.tenantCompanyId && existingCompany.tenantCompanyId !== tenantId) {
       return new Response('Acesso negado', { status: 403 });
     }
 
+    const assignment = await resolveAssignment(req.user, body, existingCompany.tenantCompanyId, false);
+    if (assignment.error) return new Response(assignment.error, { status: 403 });
     const company = await prisma.$transaction(async (tx) => {
       const updatedCompany = await tx.company.update({
         where: { id: companyId },
@@ -324,7 +334,7 @@ export default async function handler(req) {
           status: body.status !== undefined ? normalizeCompanyStatus(body.status) : undefined,
           leadScore: body.leadScore,
           leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined,
-          accountManagerName: body.accountManagerName !== undefined ? body.accountManagerName || null : undefined,
+          ...assignment.data,
           tenantCompanyId: isMasterUser && body.tenantCompanyId !== undefined ? body.tenantCompanyId : undefined
         },
         include: {
@@ -391,12 +401,8 @@ export default async function handler(req) {
     });
 
     if (!company) return new Response('Empresa não encontrada', { status: 404 });
+    if (!await canViewCompany(prisma, req.user, companyId)) return new Response('Acesso negado', { status: 403 });
 
-    if (req.user?.role === 'SELLER') {
-      if (!req.user.regionId || company.regionId !== req.user.regionId) {
-        return new Response('Forbidden', { status: 403 });
-      }
-    }
 
     try {
       await prisma.$transaction(async (tx) => {

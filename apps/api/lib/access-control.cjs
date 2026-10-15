@@ -1,3 +1,4 @@
+const { canViewCompany } = require('./company-visibility.cjs');
 const { isMaster, normalizeRole } = require('./permissions.cjs');
 
 function isGlobalOperator(user = {}) {
@@ -41,11 +42,11 @@ function canAccessCompanyRecord(user = {}, company = {}) {
 async function canAccessCompany(prisma, user, companyId) {
   const company = await prisma.company.findUnique({
     where: { id: companyId },
-    select: { id: true, regionId: true }
+    select: { id: true, regionId: true, tenantCompanyId: true }
   });
 
   if (!company) return { allowed: false, missing: true };
-  return { allowed: canAccessCompanyRecord(user, company), missing: false, company };
+  return { allowed: canAccessCompanyRecord(user, company) && await canViewCompany(prisma, user, company.id), missing: false, company };
 }
 
 async function canAccessContract(prisma, user, contractId) {
@@ -55,7 +56,7 @@ async function canAccessContract(prisma, user, contractId) {
       id: true,
       companyId: true,
       company: {
-        select: { id: true, regionId: true }
+        select: { id: true, regionId: true, tenantCompanyId: true }
       }
     }
   });
@@ -69,13 +70,13 @@ async function canAccessCompanyDocument(prisma, user, documentId) {
     where: { id: documentId },
     include: {
       company: {
-        select: { id: true, regionId: true }
+        select: { id: true, regionId: true, tenantCompanyId: true }
       }
     }
   });
 
   if (!document) return { allowed: false, missing: true };
-  return { allowed: canAccessCompanyRecord(user, document.company), missing: false, document };
+  return { allowed: canAccessCompanyRecord(user, document.company) && await canViewCompany(prisma, user, document.company.id), missing: false, document };
 }
 
 async function canAccessContractAttachment(prisma, user, attachmentId) {
@@ -87,7 +88,7 @@ async function canAccessContractAttachment(prisma, user, attachmentId) {
           id: true,
           companyId: true,
           company: {
-            select: { id: true, regionId: true }
+            select: { id: true, regionId: true, tenantCompanyId: true }
           }
         }
       }

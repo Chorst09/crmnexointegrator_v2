@@ -182,6 +182,15 @@ async function main() {
       ADD COLUMN IF NOT EXISTS "tenantCompanyId" TEXT;
   `);
 
+  await prisma.$executeRawUnsafe(`ALTER TABLE "Company" ADD COLUMN IF NOT EXISTS "accountManagerId" TEXT`);
+  await prisma.$executeRawUnsafe(`
+    UPDATE "Company" c SET "accountManagerId" = u."id" FROM "User" u
+    WHERE c."accountManagerId" IS NULL AND c."accountManagerName" = u."name"
+      AND c."tenantCompanyId" IS NOT DISTINCT FROM u."tenantCompanyId"
+      AND (SELECT COUNT(*) FROM "User" other WHERE other."name" = c."accountManagerName"
+        AND other."tenantCompanyId" IS NOT DISTINCT FROM c."tenantCompanyId") = 1
+  `);
+
   await prisma.$executeRawUnsafe(`
     CREATE INDEX IF NOT EXISTS "Company_tenantCompanyId_idx"
       ON "Company"("tenantCompanyId");

@@ -106,6 +106,7 @@ model Company {
   tenantCompanyId String?
   tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
   leadEntryDate DateTime @default(now())
+  accountManagerId String?
   accountManagerName String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt

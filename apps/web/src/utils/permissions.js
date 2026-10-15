@@ -35,6 +35,11 @@ export const ROLE_POLICY_MODULES = [
     description: 'Quando ativo, o usuário vê apenas oportunidades criadas por ele.'
   },
   {
+    key: 'ownCompaniesOnly',
+    label: 'Somente suas empresas B2B',
+    description: 'Visualiza apenas empresas sob sua responsabilidade. Admin e Master visualizam todas as empresas disponíveis no seu acesso.'
+  },
+  {
     key: 'accessSimulador',
     label: 'Simulador',
     description: 'Acesso às calculadoras de precificação e ferramentas de simulação.'
@@ -88,6 +93,7 @@ export const ROLE_ACCESS_POLICY = {
     opportunities: true,
     publicOpportunities: true,
     ownOpportunitiesOnly: true,
+    ownCompaniesOnly: true,
     accessSimulador: true,
     simuladorViewPricing: false,
     simuladorViewCommissions: false,
@@ -111,6 +117,7 @@ export const ROLE_ACCESS_POLICY = {
     opportunities: true,
     publicOpportunities: true,
     ownOpportunitiesOnly: true,
+    ownCompaniesOnly: true,
     accessSimulador: true,
     simuladorViewPricing: false,
     simuladorViewCommissions: false,
@@ -134,6 +141,7 @@ export const ROLE_ACCESS_POLICY = {
     opportunities: true,
     publicOpportunities: false,
     ownOpportunitiesOnly: true,
+    ownCompaniesOnly: true,
     accessSimulador: true,
     simuladorViewPricing: false,
     simuladorViewCommissions: false,
@@ -157,6 +165,7 @@ export const ROLE_ACCESS_POLICY = {
     opportunities: true,
     publicOpportunities: true,
     ownOpportunitiesOnly: false,
+    ownCompaniesOnly: false,
     accessSimulador: true,
     simuladorViewPricing: true,
     simuladorViewCommissions: true,
@@ -180,6 +189,7 @@ export const ROLE_ACCESS_POLICY = {
     opportunities: true,
     publicOpportunities: true,
     ownOpportunitiesOnly: false,
+    ownCompaniesOnly: false,
     accessSimulador: true,
     simuladorViewPricing: true,
     simuladorViewCommissions: true,

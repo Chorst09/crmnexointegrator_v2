@@ -193,6 +193,7 @@ const buildRolePolicyDraft = (role, company) => {
     ...(stored.permissions && typeof stored.permissions === 'object' ? stored.permissions : {})
   };
 
+  if (['ADMIN', 'MASTER'].includes(normalizedRole)) permissions.ownCompaniesOnly = false;
   return { moduleAccess, permissions };
 };
 
@@ -2133,6 +2134,7 @@ export default function Administracao() {
     const normalizedRole = normalizeRole(role);
     if (!ROLE_POLICY_EDITABLE_ROLES.includes(normalizedRole)) return;
     if (!ROLE_POLICY_MODULES.some((item) => item.key === permissionKey)) return;
+    if (permissionKey === 'ownCompaniesOnly' && normalizedRole === 'ADMIN') return;
     if (!isMasterSession && !isAdminSession) return;
 
     setRolePolicyDrafts((prev) => {
@@ -3323,7 +3325,7 @@ export default function Administracao() {
                               <input
                                 type="checkbox"
                                 checked={checked}
-                                disabled={!editableRole}
+                                disabled={!editableRole || (item.key === 'ownCompaniesOnly' && normalizedRole === 'ADMIN')}
                                 onChange={(e) => handleRolePolicyPermissionToggle(normalizedRole, item.key, e.target.checked)}
                               />
                             </span>
