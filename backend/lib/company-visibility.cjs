@@ -1,14 +1,15 @@
-const { isMaster, normalizeRole, getPermissionTemplate } = require('./permissions.cjs');
+const { normalizeRole, isMaster } = require('./permissions.cjs');
 
-function restrictOwnCompanies(user = {}) {
+function ownCompaniesOnly(user = {}) {
   const role = normalizeRole(user.actualRole || user.role);
-  if (isMaster(user) || ['ADMIN', 'MANAGER', 'DIRECTOR'].includes(role)) return false;
-  return Boolean(user.permissions?.ownCompaniesOnly ?? getPermissionTemplate(role).ownCompaniesOnly);
+  if (isMaster(user) || role === 'ADMIN') return false;
+  const configured = user.permissions?.somenteSuasEmpresas ?? user.permissions?.ownCompaniesOnly;
+  return configured !== undefined ? Boolean(configured) : ['USER', 'SELLER'].includes(role);
 }
 
-// Explicit responsibility takes precedence; older unassigned records use opportunity ownership.
-function companyOwnershipWhere(user = {}) {
-  if (!restrictOwnCompanies(user)) return {};
+// Explicit account ownership takes precedence over legacy opportunity ownership.
+function companyVisibilityWhere(user = {}) {
+  if (!ownCompaniesOnly(user)) return {};
   const userId = user.userId || user.id;
   if (!userId) return { clientType: 'B2G' };
   return { OR: [
@@ -18,23 +19,11 @@ function companyOwnershipWhere(user = {}) {
   ] };
 }
 
-async function canAccessOwnedCompany(prisma, user, companyId) {
-  if (isMaster(user)) return true;
+async function canViewCompany(prisma, user, id) {
+  const tenant = !isMaster(user) && user.tenantCompanyId ? { tenantCompanyId: user.tenantCompanyId } : {};
   return Boolean(await prisma.company.findFirst({
-    where: { id: companyId, ...(user?.tenantCompanyId ? { tenantCompanyId: user.tenantCompanyId } : {}), ...companyOwnershipWhere(user) }, select: { id: true }
+    where: { id, ...tenant, ...companyVisibilityWhere(user) }, select: { id: true }
   }));
 }
 
-function companyResponsibility(user = {}, body = {}, creating = false) {
-  const role = normalizeRole(user.actualRole || user.role);
-  // Sellers cannot transfer responsibility through a forged payload.
-  if (!isMaster(user) && !['ADMIN', 'MANAGER', 'DIRECTOR'].includes(role)) {
-    return creating ? { accountManagerId: user.userId || user.id, accountManagerName: user.name || user.email || null } : {};
-  }
-  return {
-    accountManagerId: body.accountManagerId !== undefined ? body.accountManagerId || null : undefined,
-    accountManagerName: body.accountManagerName !== undefined ? body.accountManagerName || null : undefined
-  };
-}
-
-module.exports = { restrictOwnCompanies, companyOwnershipWhere, canAccessOwnedCompany, companyResponsibility };
+module.exports = { ownCompaniesOnly, companyVisibilityWhere, canViewCompany };

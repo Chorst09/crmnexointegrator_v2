@@ -1,4 +1,4 @@
-const { canAccessOwnedCompany } = require('./company-visibility.cjs');
+const { canViewCompany } = require('./company-visibility.cjs');
 const { isMaster, normalizeRole } = require('./permissions.cjs');
 
 function isGlobalOperator(user = {}) {
@@ -46,7 +46,7 @@ async function canAccessCompany(prisma, user, companyId) {
   });
 
   if (!company) return { allowed: false, missing: true };
-  return { allowed: canAccessCompanyRecord(user, company) && await canAccessOwnedCompany(prisma, user, company.id), missing: false, company };
+  return { allowed: canAccessCompanyRecord(user, company) && await canViewCompany(prisma, user, company.id), missing: false, company };
 }
 
 async function canAccessContract(prisma, user, contractId) {
@@ -76,7 +76,7 @@ async function canAccessCompanyDocument(prisma, user, documentId) {
   });
 
   if (!document) return { allowed: false, missing: true };
-  return { allowed: canAccessCompanyRecord(user, document.company) && await canAccessOwnedCompany(prisma, user, document.company.id), missing: false, document };
+  return { allowed: canAccessCompanyRecord(user, document.company) && await canViewCompany(prisma, user, document.company.id), missing: false, document };
 }
 
 async function canAccessContractAttachment(prisma, user, attachmentId) {

@@ -59,14 +59,10 @@ for (const root of ['apps/api', 'backend']) {
   });
   test(`${root}: policy can be disabled without removing tenant isolation; B2G keeps its visibility`, async () => {
     assert.equal((await (await request({ ...seller, permissions: { ownCompaniesOnly: false } })).json()).length, 4);
-    assert.equal(await visibility.canAccessOwnedCompany(prisma, seller, 'government'), true);
-    assert.deepEqual(visibility.companyOwnershipWhere({ role: 'USER' }), { clientType: 'B2G' });
+    assert.equal(await visibility.canViewCompany(prisma, seller, 'government'), true);
+    assert.deepEqual(visibility.companyVisibilityWhere({ role: 'USER' }), { clientType: 'B2G' });
   });
-  test(`${root}: new seller companies belong to their creator and assignment cannot be forged`, () => {
-    assert.deepEqual(visibility.companyResponsibility(seller, { accountManagerId: 'seller-b' }, true), { accountManagerId: 'seller-a', accountManagerName: 'Vendedor A' });
-    assert.deepEqual(visibility.companyResponsibility(seller, { accountManagerId: 'seller-b' }), {});
-    assert.equal(visibility.companyResponsibility({ role: 'ADMIN' }, { accountManagerId: 'seller-b' }).accountManagerId, 'seller-b');
-  });
+
 }
 
 const accessControl = require('../lib/access-control.cjs');

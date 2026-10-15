@@ -202,7 +202,7 @@ const sanitizeRolePolicyOverrides = (policies = {}, tenantCompany = {}) => {
     const permissions = ROLE_POLICY_PERMISSION_KEYS.reduce((next, key) => {
       next[key] = permissionInput[key] !== undefined
         ? Boolean(permissionInput[key])
-        : Boolean(getPermissionTemplate(role)[key]);
+        : Boolean(getPermissionTemplate(role)[key === 'ownCompaniesOnly' ? 'somenteSuasEmpresas' : key]);
       return next;
     }, {});
 

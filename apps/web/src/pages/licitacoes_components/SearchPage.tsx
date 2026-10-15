@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Filter, AlertCircle, Calendar, DollarSign, MapPin, Building2, ExternalLink, X, FileText, Download, Briefcase, CheckCircle2, Clock, AlertTriangle, ShieldCheck, ArrowUpDown, RefreshCw, Layers, Settings } from 'lucide-react';
 import { Licitacao } from './types';
+import { isITNotice, matchesProductQuery, getInterestMatches, normalizeITText } from '../../../../api/lib/itNoticeFilter.mjs';
+import { useITProductPreferences } from './itProductPreferences';
 import { cn } from './utils';
 import { LicitacaoDetalhesModal } from './LicitacaoDetalhesModal';
 import { ACTIVE_SOURCES_KEY, ACTIVE_SOURCES_EVENT, SOURCES_CATALOG } from './PipelineMonitor';
@@ -38,6 +40,9 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   const getPastDaysISO = (days: number) => new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [appliedProduct, setAppliedProduct] = useState('');
+  const [searchInfo, setSearchInfo] = useState('');
+  const productPreferences = useITProductPreferences();
   const [selectedUf, setSelectedUf] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   // Fontes ativas — lidas do localStorage gerenciado pelo PipelineMonitor (Configurações)
@@ -55,17 +60,6 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   // Janela recente padrão (últimos 7 dias) para garantir certames ativos com propostas abertas
   const [dataInicial, setDataInicial] = useState(() => getPastDaysISO(7));
   const [dataFinal, setDataFinal] = useState(getTodayISO);
-  
-  const [activeKeywords, setActiveKeywords] = useState<string[]>([
-    'computador', 'notebook', 'desktop', 'servidor', 'storage', 'monitor', 'impressora', 'scanner', 
-    'switch', 'roteador', 'firewall', 'access point', 'rack', 'cabeamento', 'fibra óptica', 'hardware', 
-    'tablet', 'software', 'licença', 'nuvem', 'cloud', 'aws', 'azure', 'antivírus', 'endpoint', 'erp', 
-    'crm', 'banco de dados', 'windows', 'linux', 'vmware', 'outsourcing', 'fábrica de software', 
-    'desenvolvimento', 'suporte técnico', 'service desk', 'help desk', 'manutenção', 'consultoria em ti', 
-    'segurança da informação', 'backup', 'datacenter', 'infraestrutura de ti', 'redes', 'pentest',
-    'ti', 'tecnologia da informação', 'informática', 'tecnologia'
-  ]);
-  const [newKeyword, setNewKeyword] = useState('');
   
   const [selectedLicitacao, setSelectedLicitacao] = useState<Licitacao | null>(null);
   const [managedIds, setManagedIds] = useState<Set<string>>(new Set());
@@ -141,9 +135,11 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
     fetchLicitacoes();
     // fontesAtivas é serializado em string para comparação estável no useEffect
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ocultarEncerrados, dataBuscaReferencia, selectedUf, Array.from(fontesAtivas).sort().join(',')]);
+  }, [ocultarEncerrados, dataBuscaReferencia, selectedUf, Array.from(fontesAtivas).sort().join(','), productPreferences.enabled, productPreferences.products.join('|')]);
 
-  const fetchLicitacoes = async () => {
+  const fetchLicitacoes = async (product = appliedProduct) => {
+    setAppliedProduct(product.trim());
+    setSearchInfo('');
     searchController.current?.abort();
     const controller = new AbortController();
     searchController.current = controller;
@@ -166,7 +162,10 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
       // com prazo de propostas ainda vigente (mínimo legal de 8 dias após publicação)
       const dataInicioEfetivo = dataInicial || getPastDaysISO(30);
       const params = new URLSearchParams({
-        objeto: searchTerm,
+        objeto: product.trim(),
+        somenteTI: 'true',
+        filtroProdutosAtivo: String(productPreferences.enabled),
+        produtosInteresse: JSON.stringify(productPreferences.products.map(normalizeITText)),
         uf: selectedUf,
         cidade: selectedCity,
         fontes: fontesParam,
@@ -188,6 +187,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
       // Se o backend informou que não há fontes ativas, respeita
       if (json.info) {
+        setSearchInfo(json.info);
         setLicitacoes([]);
         setTotalDisponivel(0);
         return;
@@ -275,19 +275,14 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
   const isAtivo = isNoticeActive;
   
-  const [filterByKeywords, setFilterByKeywords] = useState(false);
 
   // Total de editais descartados pela regra de abertura anterior à busca
   const totalExcluidosPassados = (diagnosticoFiltros?.excluidos?.encerrados || 0) + licitacoes.filter(lic => !isAberturaValida(lic)).length;
 
   const filteredLicitacoes = licitacoes.filter(lic => {
-    const searchNormalized = normalizeStr(searchTerm);
     const cityNormalized = normalizeStr(selectedCity);
     
-    const matchesSearch = searchNormalized === '' || 
-                          normalizeStr(getObjeto(lic)).includes(searchNormalized) || 
-                          normalizeStr(getOrgaoName(lic)).includes(searchNormalized) ||
-                          normalizeStr((lic as any).resumo || '').includes(searchNormalized);
+    const matchesSearch = matchesProductQuery(lic, appliedProduct);
     const matchesUf = selectedUf ? getUf(lic) === selectedUf : true;
     const matchesCity = cityNormalized === '' || normalizeStr(getCidade(lic)).includes(cityNormalized);
     const matchesActive = onlyActive ? isAtivo(lic) : true;
@@ -295,17 +290,9 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
     const matchesFonte = true; // filtro de fontes agora é feito no backend via fontesAtivas
     
-    const matchesKeywords = !filterByKeywords || activeKeywords.length === 0 || activeKeywords.some(kw => {
-        const kwNormalized = normalizeStr(kw);
-        const obj = normalizeStr(`${getObjeto(lic)} ${(lic as any).resumo || ''}`);
-        if (obj.includes(kwNormalized)) return true;
-        if (lic.itens && Array.isArray(lic.itens) && lic.itens.some(it => normalizeStr(it.descricao).includes(kwNormalized))) {
-          return true;
-        }
-        return false;
-    });
-    
-    return matchesSearch && matchesUf && matchesCity && matchesActive && matchesTemporal && matchesFonte && matchesKeywords;
+    const matchesIT = isITNotice(lic);
+
+    return matchesSearch && matchesUf && matchesCity && matchesActive && matchesTemporal && matchesFonte && matchesIT;
   });
 
   const sortedLicitacoes = [...filteredLicitacoes].sort((a, b) => {
@@ -326,17 +313,6 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
     return db - da;
   });
 
-  const handleAddKeyword = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newKeyword.trim() && !activeKeywords.includes(newKeyword.trim().toLowerCase())) {
-      setActiveKeywords([newKeyword.trim().toLowerCase(), ...activeKeywords]);
-      setNewKeyword('');
-    }
-  };
-
-  const removeKeyword = (kwToRemove: string) => {
-    setActiveKeywords(activeKeywords.filter(kw => kw !== kwToRemove));
-  };
 
   const [addingToManaged, setAddingToManaged] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
@@ -452,11 +428,12 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
               </div>
               <input
                 type="text"
-                placeholder="Buscar palavra-chave nos resultados..."
+                placeholder="Digite o produto de TI: notebook, firewall, Microsoft 365…"
+                aria-label="Produto de TI"
                 className="block w-full pl-10 pr-3 py-3 border border-[#07323e] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-[#011419] shadow-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') fetchLicitacoes(); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); fetchLicitacoes(searchTerm); } }}
               />
             </div>
             
@@ -524,11 +501,11 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
               />
             </div>
             <button
-              onClick={fetchLicitacoes}
+              onClick={() => fetchLicitacoes(searchTerm)}
               disabled={loading}
               className="px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white text-sm font-medium rounded-lg transition-all shadow-sm shadow-[#00171d] disabled:opacity-50 cursor-pointer"
             >
-              Buscar na Nuvem
+              Buscar editais
             </button>
             <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-2"></div>
             
@@ -565,6 +542,8 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
               {diagnosticoFiltros.excluidos?.cidade > 0 && ` ${diagnosticoFiltros.excluidos.cidade} fora da cidade selecionada.`}
               {diagnosticoFiltros.excluidos?.semCidade > 0 && ` ${diagnosticoFiltros.excluidos.semCidade} sem cidade confirmada ficaram fora do filtro de cidade.`}
               {diagnosticoFiltros.excluidos?.periodo > 0 && ` ${diagnosticoFiltros.excluidos.periodo} fora do período de publicação.`}
+              {diagnosticoFiltros.excluidos?.foraTI > 0 && ` ${diagnosticoFiltros.excluidos.foraTI} de outros segmentos descartados.`}
+              {diagnosticoFiltros.excluidos?.produto > 0 && ` ${diagnosticoFiltros.excluidos.produto} sem correspondência com o produto buscado.`}
               {diagnosticoFiltros.excluidos?.encerrados > 0 && ` ${diagnosticoFiltros.excluidos.encerrados} com prazo expirado ou situação encerrada.`}
             </p>
           )}
@@ -635,58 +614,12 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
           </div>
         </div>
 
-        {/* Tags de TI - Filtro */}
-        <div className="bg-[#011419] p-5 rounded-xl border border-[#07323e] shadow-sm mb-8">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-              <Filter className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-              Filtro Automático de Produtos de TI
-            </h3>
-            <label className="flex items-center cursor-pointer">
-              <div className="relative">
-                <input 
-                  type="checkbox" 
-                  className="sr-only"
-                  checked={filterByKeywords}
-                  onChange={(e) => setFilterByKeywords(e.target.checked)}
-                />
-                <div className={cn("block w-8 h-5 rounded-full transition-colors", filterByKeywords ? "bg-blue-600" : "bg-slate-300 dark:bg-slate-700")}></div>
-                <div className={cn("dot absolute left-1 top-1 bg-white w-3 h-3 rounded-full transition-transform", filterByKeywords ? "transform translate-x-3" : "")}></div>
-              </div>
-              <span className="ml-2 text-xs font-medium text-slate-200">{filterByKeywords ? "Ativo" : "Desativado"}</span>
-            </label>
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-cyan-900 bg-[#011419] px-4 py-3">
+          <div>
+            <p className="flex items-center gap-2 text-sm font-semibold text-cyan-200"><ShieldCheck className="h-4 w-4" />Busca exclusiva de TI</p>
+            <p className="mt-1 text-xs text-slate-400">{productPreferences.enabled ? 'Descoberta automática ativa. Digite um produto para direcionar a consulta.' : 'Modo manual: digite um produto de TI para buscar editais.'} Produtos de TI fora da lista de interesse também são considerados.</p>
           </div>
-
-          <form onSubmit={handleAddKeyword} className="flex gap-2 mb-4">
-            <input 
-              type="text" 
-              placeholder="Adicionar produto específico..." 
-              value={newKeyword}
-              onChange={(e) => setNewKeyword(e.target.value)}
-              className="flex-1 px-3 py-1.5 border border-slate-300 dark:border-slate-700 dark:bg-slate-800 rounded-lg text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-            <button 
-              type="submit" 
-              disabled={!newKeyword.trim()}
-              className="px-3 py-1.5 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white rounded-lg text-sm font-medium transition-all disabled:opacity-50 cursor-pointer shadow-sm shadow-[#00171d]"
-            >
-              Adicionar Tag
-            </button>
-          </form>
-
-          <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto p-2 bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800 rounded-lg">
-            {activeKeywords.map(kw => (
-              <span key={kw} className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-full border border-blue-200 dark:border-blue-800">
-                {kw}
-                <button 
-                  onClick={() => removeKeyword(kw)}
-                  className="p-0.5 hover:bg-blue-200 dark:hover:bg-blue-900/60 rounded-full transition-colors focus:outline-none cursor-pointer"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </span>
-            ))}
-          </div>
+          <button type="button" onClick={onNavigateToPipeline} className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-300 hover:text-cyan-100"><Settings className="h-4 w-4" />Configurar produtos</button>
         </div>
 
         {/* Alerta de Editais Ocultados pela Regra de Validade */}
@@ -719,9 +652,9 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
             <AlertCircle className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">Nenhum edital encontrado</h3>
             <p className="text-slate-400 mt-1">
-              {ocultarEncerrados && totalExcluidosPassados > 0
+              {searchInfo || (ocultarEncerrados && totalExcluidosPassados > 0
                 ? `${totalExcluidosPassados} editais encontrados nesta busca já aconteceram e foram ocultados pela Regra de Validade Temporal.`
-                : "Tente ajustar seus termos de busca ou filtros."}
+                : "Tente ajustar o produto, o período ou as fontes de busca." )}
             </p>
             {ocultarEncerrados && totalExcluidosPassados > 0 && (
               <button
@@ -748,9 +681,9 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                     {totalDisponivel} resultados recebidos nesta consulta
                   </span>
                 )}
-                {filterByKeywords && (
+                {productPreferences.enabled && (
                   <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                    Filtro TI Ativo ({activeKeywords.length} tags)
+                    Somente TI • automático
                   </span>
                 )}
               </div>
@@ -773,6 +706,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
             <div className="grid gap-4">
               {sortedLicitacoes.map((lic, i) => {
+                const interestMatches = productPreferences.enabled ? getInterestMatches(lic, productPreferences.products) : [];
                 const aberturaStatus = getAberturaStatus(lic);
                 const licId = getLicId(lic);
                 const isCardManaged = Boolean(licId && managedIds.has(licId));
@@ -818,6 +752,9 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                       <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 line-clamp-2 leading-tight">
                         {getObjeto(lic)}
                       </h3>
+                      {productPreferences.enabled && interestMatches.length > 0 && (
+                        <p className="mt-2 text-xs text-cyan-300">Produtos de interesse: {interestMatches.slice(0, 4).join(', ')}</p>
+                      )}
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
                       <p className="text-sm font-medium text-slate-400 mb-1">Valor Estimado</p>

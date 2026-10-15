@@ -5,6 +5,7 @@ import {
   Globe, FileSearch, Layers
 } from 'lucide-react';
 import { cn } from './utils';
+import { ITProductFilterSettings } from './ITProductFilterSettings';
 
 // ─── Chave de storage compartilhada com SearchPage ───────────────────────────
 export const ACTIVE_SOURCES_KEY = 'pipeline_active_sources_v2';
@@ -176,33 +177,14 @@ export function PipelineMonitor() {
     return new Set(ALL_SOURCE_IDS);
   });
 
-  // Garantir que todas as fontes estejam ativas na inicialização (fix automático)
+  // Initialize once; opening settings must preserve deliberately paused sources.
   useEffect(() => {
-    const ensureAllSourcesActive = () => {
-      try {
-        const saved = localStorage.getItem(ACTIVE_SOURCES_KEY);
-        if (!saved) {
-          // Se não existe, cria com todas ativas
-          localStorage.setItem(ACTIVE_SOURCES_KEY, JSON.stringify(ALL_SOURCE_IDS));
-          setActiveSources(new Set(ALL_SOURCE_IDS));
-          console.log('[PipelineMonitor] ✅ Todas as 10 fontes ativadas automaticamente');
-        } else {
-          const arr = JSON.parse(saved);
-          const current = new Set(Array.isArray(arr) ? arr : []);
-          // Verifica se alguma fonte está faltando
-          const missing = ALL_SOURCE_IDS.filter(id => !current.has(id));
-          if (missing.length > 0) {
-            const updated = new Set([...Array.from(current), ...missing]);
-            localStorage.setItem(ACTIVE_SOURCES_KEY, JSON.stringify(Array.from(updated)));
-            setActiveSources(updated);
-            console.log(`[PipelineMonitor] ✅ ${missing.length} fontes faltantes foram ativadas: ${missing.join(', ')}`);
-          }
-        }
-      } catch (e) {
-        console.warn('[PipelineMonitor] Erro ao garantir fontes ativas:', e);
+    try {
+      if (!localStorage.getItem(ACTIVE_SOURCES_KEY)) {
+        localStorage.setItem(ACTIVE_SOURCES_KEY, JSON.stringify(ALL_SOURCE_IDS));
+        window.dispatchEvent(new Event(ACTIVE_SOURCES_EVENT));
       }
-    };
-    ensureAllSourcesActive();
+    } catch { /* A busca mantém o padrão em memória quando o storage não está disponível. */ }
   }, []);
 
   // Status dos workers vindos do backend
@@ -299,10 +281,10 @@ export function PipelineMonitor() {
           <div>
             <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
               <Settings2 className="w-6 h-6 text-cyan-400" />
-              Configurações do Pipeline
+              Configurações da Busca de Editais
             </h1>
             <p className="text-sm text-slate-400 mt-1">
-              Gerencie as fontes ativas, monitore os workers de ingestão e acompanhe o status em tempo real.
+              Gerencie produtos de TI, fontes de busca e acompanhe as consultas.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -342,6 +324,7 @@ export function PipelineMonitor() {
 
       <div className="p-8 space-y-10">
         {statusError && <p role="alert" className="rounded-xl border border-amber-800 p-4 text-sm text-amber-200">{statusError} Os dados da última atualização podem estar desatualizados.</p>}
+        <ITProductFilterSettings />
 
         {/* ── Seção 1: Fontes de Busca (Configuração) ── */}
         <section>

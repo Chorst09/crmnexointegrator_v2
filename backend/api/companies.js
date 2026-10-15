@@ -1,11 +1,10 @@
 import companyVisibility from '../lib/company-visibility.cjs';
+const { companyVisibilityWhere, canViewCompany, ownCompaniesOnly } = companyVisibility;
 import { prisma } from '../lib/prisma.js';
 import { updateCompanyLeadScore } from '../lib/leadScoring.js';
 import { createOpportunityForLead, DISTRIBUTION_STRATEGIES } from '../lib/leadDistribution.js';
 import { getTenantCompanyId, isTenantRecordVisible, forbiddenTenantResponse, tenantScopedWhere } from '../lib/tenantScope.js';
 import { validateCustomerOwnership } from '../lib/customerOwnershipValidator.js';
-
-const { companyOwnershipWhere, canAccessOwnedCompany, companyResponsibility } = companyVisibility;
 
 const parsePathIdFromUrl = (urlValue) => {
   if (!urlValue) return null;
@@ -69,15 +68,25 @@ const runOptionalCleanup = async (operation) => {
   }
 };
 
-export default async function handler(req) {
-  const requestBody = ['POST', 'PUT', 'DELETE'].includes(req.method)
-    ? await req.json().catch(() => ({})) : {};
-  if (['GET', 'PUT', 'DELETE'].includes(req.method)) {
-    const accessId = resolveCompanyId(req, requestBody);
-    if (accessId && !await canAccessOwnedCompany(prisma, req.user, accessId)) {
-      return new Response('Empresa não encontrada ou acesso negado', { status: 403 });
-    }
+
+const resolveAssignment = async (user, body, tenantCompanyId, creating) => {
+  const restricted = ownCompaniesOnly(user) && (body.clientType || 'B2B') === 'B2B';
+  const selfId = user.userId || user.id;
+  if (restricted && body.accountManagerId && body.accountManagerId !== selfId) {
+    return { error: 'Você só pode atribuir empresas B2B a si mesmo.' };
   }
+  const id = restricted ? selfId : body.accountManagerId;
+  if (!restricted && !creating && id === undefined) return { data: {} };
+  if (!id) return { data: { accountManagerId: null, accountManagerName: null } };
+  const owner = await prisma.user.findFirst({
+    where: { id, tenantCompanyId: tenantCompanyId || null },
+    select: { id: true, name: true }
+  });
+  if (!owner) return { error: 'Responsável inválido para esta empresa.' };
+  return { data: { accountManagerId: owner.id, accountManagerName: owner.name } };
+};
+
+export default async function handler(req) {
   if (req.method === 'GET') {
     const clientType = String(req.query?.clientType || '').toUpperCase();
     const where = {
@@ -125,11 +134,12 @@ export default async function handler(req) {
         return forbiddenTenantResponse();
       }
       
+      if (!await canViewCompany(prisma, req.user, company.id)) return new Response('Acesso negado', { status: 403 });
       return Response.json(company);
     }
     
     const companies = await prisma.company.findMany({
-      where: { AND: [where, companyOwnershipWhere(req.user)] },
+      where: { ...where, ...companyVisibilityWhere(req.user) },
       include: {
         contacts: true,
         opportunities: {
@@ -150,7 +160,7 @@ export default async function handler(req) {
   }
 
   if (req.method === 'POST') {
-    const body = requestBody;
+    const body = await req.json();
     const autoDistribute = body.autoDistribute !== false;
     const tenantCompanyId = getTenantCompanyId(req.user) || body.tenantCompanyId || null;
     const requesterId = req.user?.userId || req.user?.id || null;
@@ -168,6 +178,8 @@ export default async function handler(req) {
       return Response.json(ownershipDecision, { status: 409 });
     }
 
+    const assignment = await resolveAssignment(req.user, body, tenantCompanyId, true);
+    if (assignment.error) return new Response(assignment.error, { status: 403 });
     const company = await prisma.company.create({
       data: {
         name: body.name,
@@ -185,7 +197,7 @@ export default async function handler(req) {
         status: normalizeCompanyStatus(body.status, 'LEAD'),
         leadScore: Number.isFinite(Number(body.leadScore)) ? Number(body.leadScore) : undefined,
         leadEntryDate: parseDateInput(body.leadEntryDate) || new Date(),
-        ...companyResponsibility(req.user, body, true),
+        ...assignment.data,
         contacts: body.contacts ? {
           create: body.contacts.map(contact => ({
             name: contact.name,
@@ -231,7 +243,7 @@ export default async function handler(req) {
   }
 
   if (req.method === 'PUT') {
-    const body = requestBody;
+    const body = await req.json();
     const companyId = resolveCompanyId(req, body);
 
     if (!companyId) return new Response('id é obrigatório', { status: 400 });
@@ -241,8 +253,11 @@ export default async function handler(req) {
       select: { accessB2B: true, accessB2G: true, accessPreSales: true, tenantCompanyId: true }
     });
     if (!existingCompany) return new Response('Empresa não encontrada', { status: 404 });
+    if (!await canViewCompany(prisma, req.user, companyId)) return new Response('Acesso negado', { status: 403 });
     if (!isTenantRecordVisible(req.user, existingCompany)) return forbiddenTenantResponse();
 
+    const assignment = await resolveAssignment(req.user, body, existingCompany.tenantCompanyId, false);
+    if (assignment.error) return new Response(assignment.error, { status: 403 });
     const company = await prisma.company.update({
       where: { id: companyId },
       data: {
@@ -260,7 +275,7 @@ export default async function handler(req) {
         status: body.status !== undefined ? normalizeCompanyStatus(body.status) : undefined,
         leadScore: body.leadScore,
         leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined,
-        ...companyResponsibility(req.user, body)
+        ...assignment.data
       },
       include: {
         contacts: true,
@@ -279,7 +294,7 @@ export default async function handler(req) {
   }
 
   if (req.method === 'DELETE') {
-    const body = requestBody;
+    const body = await req.json().catch(() => ({}));
     const companyId = resolveCompanyId(req, body);
 
     if (!companyId) return new Response('id é obrigatório', { status: 400 });
@@ -290,6 +305,7 @@ export default async function handler(req) {
     });
 
     if (!company) return new Response('Empresa não encontrada', { status: 404 });
+    if (!await canViewCompany(prisma, req.user, companyId)) return new Response('Acesso negado', { status: 403 });
     if (!isTenantRecordVisible(req.user, company)) return forbiddenTenantResponse();
 
     await prisma.$transaction(async (tx) => {

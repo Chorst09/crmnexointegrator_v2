@@ -16,6 +16,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     buscaOportunidadesPublicas: true,
     ownCompaniesOnly: false,
     somenteSuasOportunidades: false,
+    somenteSuasEmpresas: false,
     registroNoFabricante: true,
     documentacao: true,
     relatoriosEstrategicos: true,
@@ -35,6 +36,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     buscaOportunidadesPublicas: true,
     ownCompaniesOnly: false,
     somenteSuasOportunidades: false,
+    somenteSuasEmpresas: false,
     registroNoFabricante: true,
     documentacao: true,
     relatoriosEstrategicos: true,
@@ -54,6 +56,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     buscaOportunidadesPublicas: true,
     ownCompaniesOnly: true,
     somenteSuasOportunidades: true,
+    somenteSuasEmpresas: true,
     registroNoFabricante: true,
     documentacao: true,
     relatoriosEstrategicos: true,
@@ -73,6 +76,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     buscaOportunidadesPublicas: false,
     ownCompaniesOnly: true,
     somenteSuasOportunidades: true,
+    somenteSuasEmpresas: true,
     registroNoFabricante: false,
     documentacao: false,
     relatoriosEstrategicos: false,
@@ -92,6 +96,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     buscaOportunidadesPublicas: true,
     ownCompaniesOnly: false,
     somenteSuasOportunidades: false,
+    somenteSuasEmpresas: false,
     registroNoFabricante: true,
     documentacao: true,
     relatoriosEstrategicos: true,
@@ -111,6 +116,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     buscaOportunidadesPublicas: true,
     ownCompaniesOnly: false,
     somenteSuasOportunidades: false,
+    somenteSuasEmpresas: false,
     registroNoFabricante: true,
     documentacao: true,
     relatoriosEstrategicos: true,
@@ -130,6 +136,7 @@ const ROLE_PERMISSION_TEMPLATES = {
     buscaOportunidadesPublicas: true,
     ownCompaniesOnly: true,
     somenteSuasOportunidades: true,
+    somenteSuasEmpresas: true,
     registroNoFabricante: true,
     documentacao: true,
     relatoriosEstrategicos: true,
@@ -225,6 +232,7 @@ function getPermissionTemplate(role, overrides = {}) {
     opportunities: 'oportunidades',
     publicOpportunities: 'buscaOportunidadesPublicas',
     ownOpportunitiesOnly: 'somenteSuasOportunidades',
+    ownCompaniesOnly: 'somenteSuasEmpresas',
     manufacturerRegistry: 'registroNoFabricante',
     documentation: 'documentacao',
     strategicReports: 'relatoriosEstrategicos',
@@ -240,7 +248,7 @@ function getPermissionTemplate(role, overrides = {}) {
   return {
     ...base,
     ...normalizedOverrides,
-    ...(['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(normalizedRole) ? { ownCompaniesOnly: false } : {})
+    ...(['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(normalizedRole) ? { ownCompaniesOnly: false, somenteSuasEmpresas: false } : {})
   };
 }
 
