@@ -1,3 +1,4 @@
+import { normalizeNegotiationType, projectClientTypeFromNegotiation } from '../utils/opportunity-negotiation.mjs';
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { buildApiUrl, API_ENDPOINTS } from '../config/api';
@@ -706,8 +707,8 @@ export default function Oportunidades() {
     setFormData({
       title: opportunity.title,
       projectName: opportunity.projectName || opportunity.title || '',
-      projectClientType: opportunity.projectClientType || 'NEW_CLIENT',
-      negotiationType: opportunity.negotiationType || '',
+      projectClientType: projectClientTypeFromNegotiation(opportunity.negotiationType || opportunity.projectClientType) || opportunity.projectClientType || '',
+      negotiationType: normalizeNegotiationType(opportunity.negotiationType || opportunity.projectClientType),
       projectClassification: opportunity.projectClassification || '',
       projectTower: opportunity.projectTower || '',
       projectDetail: opportunity.projectDetail || '',
@@ -2253,7 +2254,7 @@ export default function Oportunidades() {
         isOpen={isTestModalOpen}
         onClose={() => {
           setIsTestModalOpen(false);
-          loadOpportunities();
+          fetchOpportunities();
         }}
       />
     </div>
