@@ -2,11 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   Activity, Server, Cpu, Database, CheckCircle2, AlertCircle,
   Clock, Zap, Download, RefreshCw, Settings2, Play, Pause,
-  Globe, FileSearch, Layers, Filter, X
+  Globe, FileSearch, Layers
 } from 'lucide-react';
 import { cn } from './utils';
+import { ITProductFilterSettings } from './ITProductFilterSettings';
 
-import { ACTIVE_SOURCES_KEY, ACTIVE_SOURCES_EVENT, TI_FILTER_ENABLED_KEY, TI_FILTER_KEYWORDS_KEY, TI_FILTER_EVENT, DEFAULT_TI_KEYWORDS, readTIFilterSettings } from './searchSettings.mjs';
+// ─── Chave de storage compartilhada com SearchPage ───────────────────────────
+export const ACTIVE_SOURCES_KEY = 'pipeline_active_sources_v2';
+export const ACTIVE_SOURCES_EVENT = 'pipeline-active-sources-changed';
 
 // ─── Catálogo canônico das 10 fontes ─────────────────────────────────────────
 export const SOURCES_CATALOG = [
@@ -135,6 +138,7 @@ const COLOR_MAP: Record<string, { badge: string; ring: string; dot: string; card
 
 const STATUS_CONFIG = {
   ok:      { label: 'Concluído',    icon: CheckCircle2, cls: 'bg-emerald-950/60 text-emerald-300 border-emerald-800', dot: 'bg-emerald-400' },
+  fallback: { label: 'Fonte alternativa', icon: CheckCircle2, cls: 'bg-sky-950/60 text-sky-300 border-sky-800', dot: 'bg-sky-400' },
   running: { label: 'Executando',   icon: Activity,     cls: 'bg-cyan-950/60 text-cyan-300 border-cyan-800',          dot: 'bg-cyan-400 animate-ping' },
   partial: { label: 'Parcial',      icon: AlertCircle,  cls: 'bg-amber-950/60 text-amber-300 border-amber-800',       dot: 'bg-amber-400' },
   error:   { label: 'Erro',         icon: AlertCircle,  cls: 'bg-red-950/60 text-red-300 border-red-800',             dot: 'bg-red-400' },
@@ -155,6 +159,9 @@ interface WorkerStatus {
   lastRunAt: string | null;
   lastError: string | null;
   totalResults: number;
+  returnedResults?: number;
+  fallback?: string | null;
+  warnings?: string[];
   updatedAt?: string;
 }
 
@@ -174,12 +181,16 @@ export function PipelineMonitor() {
     return new Set(ALL_SOURCE_IDS);
   });
 
-  // ── Estado do Filtro de Produtos de TI ─────────────────────────────────────
-  const [filterEnabled, setFilterEnabled] = useState<boolean>(() => readTIFilterSettings().enabled);
-  const [keywords, setKeywords] = useState<string[]>(() => readTIFilterSettings().keywords);
-  const [newKeyword, setNewKeyword] = useState('');
+  // Initialize once; opening settings must preserve deliberately paused sources.
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem(ACTIVE_SOURCES_KEY)) {
+        localStorage.setItem(ACTIVE_SOURCES_KEY, JSON.stringify(ALL_SOURCE_IDS));
+        window.dispatchEvent(new Event(ACTIVE_SOURCES_EVENT));
+      }
+    } catch { /* A busca mantém o padrão em memória quando o storage não está disponível. */ }
+  }, []);
 
-  // Fontes desativadas pelo usuário devem permanecer desativadas ao voltar aqui.
   // Status dos workers vindos do backend
   const [workerStatuses, setWorkerStatuses] = useState<Map<string, WorkerStatus>>(new Map());
   const [loadingStatuses, setLoadingStatuses] = useState(false);
@@ -215,47 +226,6 @@ export function PipelineMonitor() {
     const next = new Set<string>();
     setActiveSources(next);
     persistSources(next);
-  };
-
-  // ── Funções do Filtro de TI ─────────────────────────────────────────────────
-  const persistTIFilter = (enabled: boolean, kws: string[]) => {
-    try {
-      localStorage.setItem(TI_FILTER_ENABLED_KEY, enabled.toString());
-      localStorage.setItem(TI_FILTER_KEYWORDS_KEY, JSON.stringify(kws));
-      window.dispatchEvent(new Event(TI_FILTER_EVENT));
-    } catch (_) {}
-  };
-
-  const toggleTIFilter = () => {
-    const newEnabled = !filterEnabled;
-    setFilterEnabled(newEnabled);
-    persistTIFilter(newEnabled, keywords);
-  };
-
-  const addKeyword = (kw: string) => {
-    const trimmed = kw.trim().toLowerCase();
-    if (trimmed && !keywords.includes(trimmed)) {
-      const updated = [...keywords, trimmed];
-      setKeywords(updated);
-      persistTIFilter(filterEnabled, updated);
-      setNewKeyword('');
-    }
-  };
-
-  const removeKeyword = (kw: string) => {
-    const updated = keywords.filter(k => k !== kw);
-    setKeywords(updated);
-    persistTIFilter(filterEnabled, updated);
-  };
-
-  const handleAddKeyword = (e: React.FormEvent) => {
-    e.preventDefault();
-    addKeyword(newKeyword);
-  };
-
-  const resetToDefault = () => {
-    setKeywords(DEFAULT_TI_KEYWORDS);
-    persistTIFilter(filterEnabled, DEFAULT_TI_KEYWORDS);
   };
 
   // ── Busca status dos workers no backend ───────────────────────────────────
@@ -315,10 +285,10 @@ export function PipelineMonitor() {
           <div>
             <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
               <Settings2 className="w-6 h-6 text-cyan-400" />
-              Configurações do Pipeline
+              Configurações da Busca de Editais
             </h1>
             <p className="text-sm text-slate-400 mt-1">
-              Gerencie as fontes ativas, monitore os workers de ingestão e acompanhe o status em tempo real.
+              Gerencie produtos de TI, fontes de busca e acompanhe as consultas.
             </p>
           </div>
           <div className="flex items-center gap-3">
@@ -358,6 +328,7 @@ export function PipelineMonitor() {
 
       <div className="p-8 space-y-10">
         {statusError && <p role="alert" className="rounded-xl border border-amber-800 p-4 text-sm text-amber-200">{statusError} Os dados da última atualização podem estar desatualizados.</p>}
+        <ITProductFilterSettings />
 
         {/* ── Seção 1: Fontes de Busca (Configuração) ── */}
         <section>
@@ -510,12 +481,19 @@ export function PipelineMonitor() {
                       </td>
                       <td className="px-5 py-3.5">
                         <span className="text-xs font-semibold text-white">
-                          {ws?.totalResults != null ? ws.totalResults.toLocaleString('pt-BR') : '—'}
+                          {ws?.totalResults != null ? (ws.returnedResults ?? ws.totalResults).toLocaleString('pt-BR') : '—'}
                         </span>
-                        {ws?.lastError && (
-                          <p className="text-[10px] text-red-400 mt-0.5 truncate max-w-[120px]" title={ws.lastError}>
-                            {ws.lastError.slice(0, 40)}...
-                          </p>
+                        {ws?.returnedResults != null && ws.returnedResults !== ws.totalResults && (
+                          <p className="text-[10px] text-slate-400 mt-0.5">{ws.totalResults} coletados antes dos filtros</p>
+                        )}
+                        {(ws?.lastError || ws?.warnings?.length) && (
+                          <details className="text-[10px] mt-0.5 max-w-[260px]">
+                            <summary className={cn('cursor-pointer', ws.lastError ? 'text-red-400' : 'text-sky-300')}>Ver diagnóstico{ws.fallback ? ` · ${ws.fallback}` : ''}</summary>
+                            <div className="text-slate-300 whitespace-normal break-words mt-1 space-y-1">
+                              {ws.lastError && <p>{ws.lastError}</p>}
+                              {ws.warnings?.map((warning, index) => <p key={index}>{warning}</p>)}
+                            </div>
+                          </details>
                         )}
                       </td>
                       <td className="px-5 py-3.5">
@@ -547,128 +525,6 @@ export function PipelineMonitor() {
                 })}
               </tbody>
             </table>
-          </div>
-        </section>
-
-        {/* ── Seção: Filtro de Produtos de TI ── */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-white flex items-center gap-2.5">
-              <Filter className="w-5 h-5 text-blue-500" />
-              Filtro Automático de Produtos de TI
-            </h2>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={resetToDefault}
-                className="text-xs text-slate-400 hover:text-cyan-400 transition-colors underline cursor-pointer"
-              >
-                Restaurar Padrões ({DEFAULT_TI_KEYWORDS.length} tags)
-              </button>
-              <label className="flex items-center cursor-pointer select-none">
-                <div className="relative">
-                  <input 
-                    type="checkbox" 
-                    className="sr-only"
-                    checked={filterEnabled}
-                    onChange={toggleTIFilter}
-                  />
-                  <div className={cn("block w-11 h-6 rounded-full transition-colors", filterEnabled ? "bg-blue-600" : "bg-slate-700")}></div>
-                  <div className={cn("dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform", filterEnabled ? "transform translate-x-5" : "")}></div>
-                </div>
-                <span className="ml-2.5 text-sm font-semibold text-white">
-                  {filterEnabled ? "Ativo" : "Desativado"}
-                </span>
-              </label>
-            </div>
-          </div>
-
-          <div className="bg-[#011419] p-6 rounded-xl border border-[#07323e]">
-            {/* Info e Status */}
-            <div className="mb-5 p-3.5 bg-slate-800/40 rounded-lg border border-slate-700/50">
-              <div className="flex items-start gap-3">
-                <div className={cn(
-                  "p-2 rounded-lg mt-0.5",
-                  filterEnabled ? "bg-blue-500/20 text-blue-400" : "bg-slate-700/50 text-slate-500"
-                )}>
-                  <Filter className="w-4 h-4" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-semibold text-white mb-1">
-                    {filterEnabled 
-                      ? `Filtro Ativo — ${keywords.length} produto(s) de TI configurado(s)` 
-                      : "Filtro Desativado — A busca não restringe por produtos de TI"}
-                  </p>
-                  <p className="text-xs text-slate-400 leading-relaxed">
-                    {filterEnabled
-                      ? keywords.length === 0
-                        ? "Adicione ao menos um produto ou desative este filtro. Sem produtos configurados, a busca não retorna editais."
-                        : "Apenas editais que contenham pelo menos um dos produtos abaixo serão exibidos na busca. As alterações são salvas automaticamente neste navegador."
-                      : "Ative o filtro para buscar apenas editais relacionados a Tecnologia da Informação."}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Campo de Busca */}
-            <form onSubmit={handleAddKeyword} className="mb-5">
-              <div className="flex gap-3">
-                <input 
-                  type="text" 
-                  placeholder="Digite um produto de TI para adicionar (ex: notebook, firewall, azure)..." 
-                  value={newKeyword}
-                  onChange={(e) => setNewKeyword(e.target.value)}
-                  className="flex-1 px-4 py-2.5 border border-slate-700 bg-slate-800/60 rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                />
-                <button 
-                  type="submit" 
-                  disabled={!newKeyword.trim()}
-                  className="px-5 py-2.5 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white rounded-lg text-sm font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-lg shadow-cyan-900/20"
-                >
-                  Adicionar
-                </button>
-              </div>
-            </form>
-
-            {/* Tags */}
-            <div>
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                  Produtos Configurados ({keywords.length})
-                </p>
-                {keywords.length > 0 && (
-                  <button
-                    onClick={() => {
-                      setKeywords([]);
-                      persistTIFilter(filterEnabled, []);
-                    }}
-                    className="text-xs text-red-400 hover:text-red-300 transition-colors underline cursor-pointer"
-                  >
-                    Remover Todos
-                  </button>
-                )}
-              </div>
-              
-              <div className="flex flex-wrap gap-2 max-h-80 overflow-y-auto p-4 bg-slate-800/30 border border-slate-700/50 rounded-lg">
-                {keywords.length === 0 ? (
-                  <p className="text-sm text-slate-500 italic w-full text-center py-8">
-                    Nenhum produto adicionado. Use o campo acima para adicionar produtos de TI.
-                  </p>
-                ) : (
-                  keywords.map(kw => (
-                    <span key={kw} className="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500/10 text-blue-300 text-xs font-medium rounded-full border border-blue-500/30 hover:bg-blue-500/20 hover:border-blue-500/50 transition-all">
-                      {kw}
-                      <button 
-                        onClick={() => removeKeyword(kw)}
-                        className="p-0.5 hover:bg-blue-500/30 rounded-full transition-colors focus:outline-none cursor-pointer"
-                        title={`Remover "${kw}"`}
-                      >
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))
-                )}
-              </div>
-            </div>
           </div>
         </section>
 
