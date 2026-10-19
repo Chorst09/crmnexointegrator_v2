@@ -331,7 +331,7 @@ export default function Atividades() {
   const copyPricingToClipboard = (items = [], totals = {}) => {
     const lines = [
       `📋 PROPOSTA & PRECIFICAÇÃO PRÉ-VENDAS`,
-      `Orçamento: ${totals.numeroOrcamento || 'ORC-2026-0088'}`,
+      `Orçamento: ${totals.numeroOrcamento || '-'}`,
       `Valor Total Contrato: ${toCurrency(totals.valorTotalContrato)} (12 meses)`,
       `Recorrente (MRR): ${toCurrency(totals.valorMensal)}/mês | Instalação/Setup: ${toCurrency(totals.valorSetup)}`,
       ``,
@@ -362,12 +362,12 @@ export default function Atividades() {
     if (Array.isArray(activity.flow?.items) && activity.flow.items.length > 0) {
       return {
         id: activity.flow.preSalesRequestId || 'orc-flow-item',
-        numero: activity.flow.preSalesNumber || activity.flow.numeroOrcamento || 'ORC-2026-0088',
-        titulo: 'Orçamento Técnico NGFW + Conectividade Corporativa',
-        valorTotal: activity.flow.valorTotal || 43500,
-        valorMensal: activity.flow.valorMensal || 3500,
-        valorSetup: activity.flow.valorSetup || 1500,
-        margemMedia: activity.flow.margemMedia || 48.5,
+        numero: activity.flow.preSalesNumber || activity.flow.numeroOrcamento || null,
+        titulo: 'Orçamento Técnico',
+        valorTotal: activity.flow.valorTotal || 0,
+        valorMensal: activity.flow.valorMensal || 0,
+        valorSetup: activity.flow.valorSetup || 0,
+        margemMedia: activity.flow.margemMedia || 0,
         observacoes: activity.flow.observacoesTecnicas || activity.flow.observacoes || '',
         status: activity.flow.preSalesStatus || 'APROVADA',
         items: activity.flow.items
@@ -431,53 +431,9 @@ export default function Atividades() {
     }
 
     // 8. Se for atividade relacionada a pré-vendas, garante os dados com itens da engenharia B2B
+    // 8. Se for atividade relacionada a pré-vendas mas sem dados reais, retorna null
     if (isPreSalesRelatedActivity(activity)) {
-      return {
-        id: 'orc-b2b-dimensionado',
-        numero: activity.flow?.preSalesNumber || activity.flow?.numeroOrcamento || 'ORC-2026-0088',
-        titulo: 'Orçamento Técnico NGFW + Conectividade Corporativa',
-        valorTotal: activity.flow?.valorTotal || 43500,
-        valorMensal: activity.flow?.valorMensal || 3500,
-        valorSetup: activity.flow?.valorSetup || 1500,
-        margemMedia: activity.flow?.margemMedia || 48.5,
-        status: 'APROVADA',
-        observacoes: activity.flow?.observacoesTecnicas || 'Dimensionamento validado pela engenharia de pré-vendas com SLA de 99.8%, túneis VPN dedicados e alta disponibilidade.',
-        items: [
-          {
-            id: 'it-1',
-            descricao: 'Firewall Virtual Double NGFW (Licença NGFW + IPS/AV + VPN SSL/IPsec)',
-            categoria: 'Segurança & Datacenter',
-            quantidade: 1,
-            custoUnitario: 850,
-            precoSugerido: 1545,
-            margemLucro: 45,
-            subtotalCusto: 850,
-            subtotalVenda: 1545
-          },
-          {
-            id: 'it-2',
-            descricao: 'Link Dedicado 100Mbps Redundante Fibra + Rádio com SLA 4 Horas',
-            categoria: 'Conectividade Dedicada',
-            quantidade: 1,
-            custoUnitario: 980,
-            precoSugerido: 1955,
-            margemLucro: 50,
-            subtotalCusto: 980,
-            subtotalVenda: 1955
-          },
-          {
-            id: 'it-3',
-            descricao: 'Instalação, Parametrização de Políticas de Segurança e Setup de Redes',
-            categoria: 'Serviços de Implantação',
-            quantidade: 1,
-            custoUnitario: 600,
-            precoSugerido: 1500,
-            margemLucro: 60,
-            subtotalCusto: 600,
-            subtotalVenda: 1500
-          }
-        ]
-      };
+      return null;
     }
 
     return null;
@@ -894,10 +850,10 @@ export default function Atividades() {
 
         const flow = item?.flow || {};
         const budget = item?.preSalesRequest;
-        const itemCount = (Array.isArray(flow.items) && flow.items.length) || (Array.isArray(budget?.items) && budget.items.length) || 3;
-        const total = Number(flow.valorTotal || budget?.valorTotal || budget?.valorSugerido || 43500);
-        const mensal = Number(flow.valorMensal || budget?.valorMensal || (total ? Math.round(total / 12) : 3500));
-        const orcNumero = flow.preSalesNumber || flow.numeroOrcamento || budget?.numero || 'ORC-2026-0088';
+        const itemCount = (Array.isArray(flow.items) && flow.items.length) || (Array.isArray(budget?.items) && budget.items.length) || 0;
+        const total = Number(flow.valorTotal || budget?.valorTotal || budget?.valorSugerido || 0);
+        const mensal = Number(flow.valorMensal || budget?.valorMensal || 0);
+        const orcNumero = flow.preSalesNumber || flow.numeroOrcamento || budget?.numero || null;
 
         return (
           <div className="min-w-[210px] space-y-1">
@@ -1142,11 +1098,13 @@ export default function Atividades() {
                 {(item.flow?.items?.length || item.preSalesRequest?.items?.length || 3)} produtos precificados
               </span>
               <span className="font-extrabold text-emerald-300 font-mono text-xs">
-                {toCurrency(item.flow?.valorTotal || item.preSalesRequest?.valorTotal || 43500)}
+                {toCurrency(item.flow?.valorTotal || item.preSalesRequest?.valorTotal || 0)}
               </span>
             </div>
             <div className="mt-1 flex items-center justify-between text-[11px] text-slate-400">
-              <span>MRR: <strong className="text-slate-200">{toCurrency(item.flow?.valorMensal || 3500)}/mês</strong></span>
+              {item.flow?.valorMensal > 0 && (
+                <span>MRR: <strong className="text-slate-200">{toCurrency(item.flow?.valorMensal)}/mês</strong></span>
+              )}
               <span className="text-cyan-400 font-semibold group-hover:underline flex items-center gap-0.5">
                 Ver preços <ArrowRight className="h-2.5 w-2.5" />
               </span>
@@ -1155,8 +1113,8 @@ export default function Atividades() {
         )}
 
         <div className="mt-3 space-y-1 text-xs text-[var(--crm-muted)]">
-          <div>Empresa: <span className="text-[var(--crm-ink)]">{item.company?.name || item.companyName || (item.companyId ? 'TechCorp Telecomunicações & TI S/A' : '-')}</span></div>
-          <div>Responsavel: <span className="text-[var(--crm-ink)]">{item.assignedTo?.name || item.assignedToName || 'Equipe Comercial'}</span></div>
+          <div>Empresa: <span className="text-[var(--crm-ink)]">{item.company?.name || item.companyName || '-'}</span></div>
+          <div>Responsavel: <span className="text-[var(--crm-ink)]">{item.assignedTo?.name || item.assignedToName || '-'}</span></div>
           <div>
             Destino: <span className="text-[var(--crm-ink)] font-semibold">{getAreaLabel(item?.flow?.targetArea)}</span>
             {item?.flow?.targetArea === 'PRE_VENDAS' && item?.status === 'PENDING' && (
@@ -1388,7 +1346,7 @@ export default function Atividades() {
                 <div>
                   <div className="text-xs text-[var(--crm-muted)] uppercase mb-1">Empresa</div>
                   <div className="text-[var(--crm-ink)] font-semibold">
-                    {selectedActivity.company?.name || selectedActivity.companyName || selectedActivityBudget?.lead?.name || (selectedActivity.companyId ? 'TechCorp Telecomunicações & TI S/A' : 'Não informado')}
+                    {selectedActivity.company?.name || selectedActivity.companyName || selectedActivityBudget?.lead?.name || 'Não informado'}
                   </div>
                 </div>
                 <div>
@@ -1400,7 +1358,7 @@ export default function Atividades() {
                 <div>
                   <div className="text-xs text-[var(--crm-muted)] uppercase mb-1">Responsável</div>
                   <div className="text-[var(--crm-ink)] font-semibold">
-                    {selectedActivity.assignedTo?.name || selectedActivity.assignedToName || 'Equipe Comercial'}
+                    {selectedActivity.assignedTo?.name || selectedActivity.assignedToName || '-'}
                   </div>
                 </div>
                 <div>
@@ -1507,42 +1465,8 @@ export default function Atividades() {
                   };
                 });
               } else {
-                // Itens padrão do dimensionamento B2B se os dados ainda não foram populados
-                items = [
-                  {
-                    id: 'it-1',
-                    descricao: 'Firewall Virtual Double NGFW (Licença NGFW + IPS/AV + VPN SSL/IPsec)',
-                    categoria: 'Segurança & Datacenter',
-                    quantidade: 1,
-                    custoUnitario: 850,
-                    precoSugerido: 1545,
-                    margemLucro: 45,
-                    subtotalCusto: 850,
-                    subtotalVenda: 1545
-                  },
-                  {
-                    id: 'it-2',
-                    descricao: 'Link Dedicado 100Mbps Redundante Fibra + Rádio com SLA 4 Horas',
-                    categoria: 'Conectividade Dedicada',
-                    quantidade: 1,
-                    custoUnitario: 980,
-                    precoSugerido: 1955,
-                    margemLucro: 50,
-                    subtotalCusto: 980,
-                    subtotalVenda: 1955
-                  },
-                  {
-                    id: 'it-3',
-                    descricao: 'Instalação, Parametrização de Políticas de Segurança e Setup de Redes',
-                    categoria: 'Serviços de Implantação',
-                    quantidade: 1,
-                    custoUnitario: 600,
-                    precoSugerido: 1500,
-                    margemLucro: 60,
-                    subtotalCusto: 600,
-                    subtotalVenda: 1500
-                  }
-                ];
+                // Sem itens reais — não mostrar dados fictícios
+                items = [];
               }
 
               // Cálculos de totais
@@ -1554,7 +1478,7 @@ export default function Atividades() {
                 budget?.valorSugerido ||
                 flow.valorTotal ||
                 totalVendaCalculado ||
-                43500
+                0
               );
 
               const valorMensal = Number(
@@ -1580,13 +1504,13 @@ export default function Atividades() {
                 budget?.numero ||
                 flow.preSalesNumber ||
                 flow.numeroOrcamento ||
-                'ORC-2026-0088';
+                null;
 
               const observacoesTecnicas =
                 budget?.observacoes ||
                 flow.observacoesTecnicas ||
                 flow.observacoes ||
-                'Dimensionamento validado pela engenharia de pré-vendas com SLA de 99.8%, túneis VPN dedicados e alta disponibilidade.';
+                '';
 
               return (
                 <div className="rounded-2xl border-2 border-cyan-500/40 bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 p-5 shadow-xl shadow-cyan-950/20 space-y-5">
