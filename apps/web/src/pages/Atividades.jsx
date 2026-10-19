@@ -1560,13 +1560,13 @@ export default function Atividades() {
               const valorMensal = Number(
                 flow.valorMensal ||
                 budget?.valorMensal ||
-                3500
+                0  // Não usar fallback fictício
               );
 
               const valorSetup = Number(
                 flow.valorSetup ||
                 budget?.valorSetup ||
-                1500
+                0  // Não usar fallback fictício
               );
 
               const margemMedia = Number(
@@ -1682,8 +1682,8 @@ export default function Atividades() {
                     </div>
                   </div>
 
-                  {/* 4 Cards de Resumo Financeiro */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {/* Cards de Resumo Financeiro */}
+                  <div className={`grid gap-3 ${valorMensal > 0 || valorSetup > 0 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3'}`}>
                     <div className="rounded-xl border border-slate-800 bg-slate-800/60 p-3.5 shadow-sm">
                       <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
                         Número Orçamento
@@ -1698,27 +1698,29 @@ export default function Atividades() {
 
                     <div className="rounded-xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-slate-800/60 p-3.5 shadow-sm">
                       <span className="text-[11px] font-semibold text-cyan-300 uppercase tracking-wider block">
-                        Valor Total Contrato
+                        Valor Total {valorMensal > 0 ? 'Contrato' : 'da Proposta'}
                       </span>
                       <div className="text-base font-black text-cyan-300 mt-1">
                         {toCurrency(valorTotalContrato)}
                       </div>
                       <span className="text-[10px] text-slate-400 block mt-0.5">
-                        12 meses de vigência
+                        {valorMensal > 0 ? '12 meses de vigência' : 'Preço final aprovado'}
                       </span>
                     </div>
 
-                    <div className="rounded-xl border border-slate-800 bg-slate-800/60 p-3.5 shadow-sm">
-                      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
-                        Recorrente & Setup
-                      </span>
-                      <div className="text-sm font-extrabold text-emerald-400 mt-1">
-                        {toCurrency(valorMensal)}<span className="text-xs text-slate-400 font-normal">/mês</span>
+                    {(valorMensal > 0 || valorSetup > 0) && (
+                      <div className="rounded-xl border border-slate-800 bg-slate-800/60 p-3.5 shadow-sm">
+                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                          Recorrente & Setup
+                        </span>
+                        <div className="text-sm font-extrabold text-emerald-400 mt-1">
+                          {toCurrency(valorMensal)}<span className="text-xs text-slate-400 font-normal">/mês</span>
+                        </div>
+                        <span className="text-[10px] text-slate-400 block mt-0.5">
+                          Setup: {toCurrency(valorSetup)}
+                        </span>
                       </div>
-                      <span className="text-[10px] text-slate-400 block mt-0.5">
-                        Setup: {toCurrency(valorSetup)}
-                      </span>
-                    </div>
+                    )}
 
                     {isPreSales ? (
                       <div className="rounded-xl border border-slate-800 bg-slate-800/60 p-3.5 shadow-sm">
