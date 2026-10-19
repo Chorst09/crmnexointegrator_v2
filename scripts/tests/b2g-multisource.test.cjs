@@ -7,11 +7,11 @@ const vm = require('node:vm');
 const { createDocumentResolver, extractDocuments } = require('../../apps/api/lib/editalDocuments.cjs');
 const sourcePath = path.resolve(__dirname, '../../apps/api/api/b2g-search.cjs');
 const ids = ['pncp','comprasnet','dou','curitiba-ecompras','transparencia-curitiba','transparencia-federal','contratacoes-14133','atas-srp','pregoes-siasg','comprasgov-disputas'];
-function searchHarness(fetchImpl = global.fetch) {
+function searchHarness(fetchImpl = global.fetch, env = {}) {
   const routes = new Map();
   const router = { get: (url, ...handlers) => routes.set(url, handlers.at(-1)) };
   const ctx = { require: name => name === 'express' ? { Router: () => router } : name === 'jsonwebtoken' ? {} : name === '../lib/douNotice.cjs' ? require('../../apps/api/lib/douNotice.cjs') : require(name),
-    module: { exports: {} }, process: { env: { JWT_SECRET:'test-only', B2G_SOURCE_TIMEOUT_MS:'1000' } },
+    module: { exports: {} }, process: { env: { JWT_SECRET:'test-only', B2G_SOURCE_TIMEOUT_MS:'1000', ...env } },
     URL, URLSearchParams, AbortSignal, AbortController, global: { fetch: fetchImpl }, setTimeout, clearTimeout, console, itNoticeFilterPromise: import('../../apps/api/lib/itNoticeFilter.mjs') };
   vm.createContext(ctx);
   const inject = `globalThis.inject = functions => { ${['buscarPNCPAgregado','buscarComprasNet','buscarDOU','buscarCuritibaECompras','buscarTransparenciaCuritiba','buscarPortalTransparenciaFederal','buscarContratacoes14133','buscarAtasSRP','buscarPregoesSIASG','buscarComprasGovDisputas'].map((name,i)=>`${name}=functions[${JSON.stringify(ids[i])}];`).join(' ')} };`;
@@ -100,7 +100,7 @@ test('metadata uses public consultation API and recovers extensionless origin PD
 test('legacy file route helper shares origin fallback instead of returning PNCP gateway failures', async () => {
   const source = fs.readFileSync(path.resolve(__dirname, '../../apps/api/api/b2g-licitacoes.cjs'), 'utf8');
   const start = source.indexOf('const arquivosCache = new Map();');
-  const end = source.indexOf("router.post('/documentos/resolver'", start);
+  const end = source.indexOf("router.get(['/arquivos/:cnpj/:ano/:seq'", start);
   const fetchImpl = async url => {
     if (String(url).endsWith('/arquivos')) return new Response('', { status: 503 });
     if (String(url).includes('/orgaos/')) return new Response(JSON.stringify({ linkSistemaOrigem: 'https://portal.gov.br/edital.pdf' }));
@@ -371,7 +371,7 @@ test('Curitiba supports ASP.NET asynchronous postbacks and updated hidden fields
   const chunk = (type, id, content) => `${content.length}|${type}|${id}|${content}|`;
   const posts = [];
   const { routes } = searchHarness(async (url, options) => {
-    if (options.method !== 'POST') return htmlResponse(curitibaTable([]) + '<input name="ctl00$smaMasterPrincipal" value="">');
+    if (options.method !== 'POST') return htmlResponse(curitibaTable([]) + '<input name="ctl00$smaMasterPrincipal" value=""><script>Sys.WebForms.PageRequestManager._initialize();</script>');
     posts.push({ fields: new URLSearchParams(options.body), headers: options.headers });
     const currentRow = posts.length === 1 ? row : ['PE 2/2026', ...row.slice(1)];
     const panel = curitibaTable([currentRow], 'unused', posts.length === 1).replace(/<input\b[^>]*>/g, '');
@@ -382,6 +382,7 @@ test('Curitiba supports ASP.NET asynchronous postbacks and updated hidden fields
   assert.equal(posts[0].fields.get('__ASYNCPOST'), 'true');
   assert.equal(posts[0].fields.get('ctl00$smaMasterPrincipal'), 'ctl00$cphMasterPrincipal$uplGrid|ctl00$cphMasterPrincipal$lnbPesquisar');
   assert.equal(posts[0].headers['X-MicrosoftAjax'], 'Delta=true');
+  assert.equal(posts[1].fields.get('__ASYNCPOST'), 'true');
   assert.equal(posts[1].fields.get('__VIEWSTATE'), 'fresh-state');
   assert.equal(posts[1].fields.get('__EVENTVALIDATION'), 'fresh-validation');
   assert.equal(body.data[0].valor, 1234.56);
@@ -404,4 +405,186 @@ test('DOU search enriches values and purchase references even when PNCP is not s
   assert.equal(body.data[0].sequencialCompra, 123);
   assert.equal(body.data[0].link, 'https://www.in.gov.br/web/dou/-/aviso-real');
   assert.equal(body.data[0].dataPublicacao, '2026-10-13T00:00:00-03:00');
+});
+
+const jsonResponse = data => new Response(JSON.stringify(data), { headers: { 'content-type': 'application/json' } });
+const pncpNotice = (id, extras = {}) => ({ numeroControlePNCP: id, objetoCompra: 'Aquisição de computadores', orgaoEntidade: { cnpj: '12345678000199', esferaId: 'F' }, unidadeOrgao: { ufSigla: 'PR', municipioNome: 'Curitiba' }, dataPublicacaoPncp: '2026-10-10', dataEncerramentoProposta: '2099-01-01', ...extras });
+
+test('empty Compras.gov dataset recovers notices with the correct PNCP modality and preserves provenance', async () => {
+  const requested = [];
+  const { routes } = searchHarness(async value => {
+    const url = new URL(value); requested.push(url);
+    if (url.hostname.includes('dadosabertos')) return jsonResponse({ resultado: [] });
+    return jsonResponse({ data: [pncpNotice('recovered-' + url.searchParams.get('codigoModalidadeContratacao'))] });
+  });
+  const { body } = await invoke(routes.get('/search'), { fontes: 'contratacoes-14133', uf: 'PR' });
+  assert.equal(body.data.length, 2);
+  assert.equal(body.statusFontes[0].status, 'fallback');
+  assert.equal(body.statusFontes[0].fallback, 'PNCP');
+  assert.equal(body.statusFontes[0].lastError, null);
+  assert.ok(requested.filter(u => u.hostname === 'pncp.gov.br').every(u => ['6','8'].includes(u.searchParams.get('codigoModalidadeContratacao'))));
+  assert.ok(body.data.every(n => n.origens[0].id === 'contratacoes-14133'));
+});
+
+test('PNCP continues beyond a full page without IT notices', async () => {
+  const requested = [];
+  const { routes } = searchHarness(async value => {
+    const url = new URL(value); requested.push(url);
+    if (url.searchParams.get('pagina') === '1') return jsonResponse({ data: Array.from({ length: 50 }, (_, i) => pncpNotice('food-' + i, { objetoCompra: 'Aquisição de pão' })) });
+    return jsonResponse({ data: [pncpNotice('computer-page-2')] });
+  });
+  const { body } = await invoke(routes.get('/search'), { fontes: 'pncp', incluirPropostas: 'false' });
+  assert.equal(body.data.length, 1);
+  assert.equal(body.data[0].numeroControlePNCP, 'computer-page-2');
+  assert.ok(requested.some(url => url.searchParams.get('pagina') === '2'));
+});
+
+test('an isolated PNCP timeout does not open a global circuit for healthy modalities', async () => {
+  const { routes } = searchHarness(async value => {
+    const url = new URL(value);
+    if (url.searchParams.get('codigoModalidadeContratacao') === '6') throw new Error('timeout');
+    return jsonResponse({ data: [pncpNotice('healthy')] });
+  });
+  const { body } = await invoke(routes.get('/search'), { fontes: 'pncp', incluirPropostas: 'false' });
+  assert.equal(body.data[0].numeroControlePNCP, 'healthy');
+  assert.equal(body.statusFontes[0].status, 'partial');
+});
+
+test('proposal horizon includes future deadlines while the chosen dates still filter publication', async () => {
+  let proposal;
+  const { routes } = searchHarness(async value => {
+    const url = new URL(value);
+    if (url.pathname.endsWith('/proposta')) proposal = url;
+    return jsonResponse({ data: [] });
+  });
+  await invoke(routes.get('/search'), { fontes: 'pncp', dataInicio: '2026-10-01', dataFim: '2026-10-19' });
+  assert.equal(proposal.searchParams.has('dataInicial'), false);
+  assert.ok(proposal.searchParams.get('dataFinal') > new Date().toISOString().slice(0, 10).replaceAll('-', ''));
+});
+
+for (const env of [{}, { PORTAL_TRANSPARENCIA_TOKEN: 'test-token' }, { PORTAL_TRANSPARENCIA_TOKEN: 'test-token', PORTAL_TRANSPARENCIA_CODIGO_ORGAO: '123' }]) {
+  test(`federal alternative filters sphere before quota and recovers missing configuration or rejected token (${Object.keys(env).length})`, async () => {
+    const { routes } = searchHarness(async value => {
+      const url = new URL(value);
+      if (url.hostname.includes('portaldatransparencia')) return new Response('', { status: 401 });
+      if (url.hostname.includes('dadosabertos')) return jsonResponse({ resultado: [] });
+      return jsonResponse({ data: [...Array.from({ length: 30 }, (_, i) => pncpNotice('municipal-' + i, { orgaoEntidade: { esferaId: 'M' } })), pncpNotice('federal')] });
+    }, env);
+    const { body } = await invoke(routes.get('/search'), { fontes: 'transparencia-federal', uf: 'PR' });
+    assert.equal(body.data.length, 1);
+    assert.equal(body.data[0].numeroControlePNCP, 'federal');
+    assert.equal(body.statusFontes[0].status, 'fallback');
+    assert.ok(body.statusFontes[0].warnings.length);
+  });
+}
+
+test('a failed alternative remains an error instead of reporting an empty successful search', async () => {
+  const { routes } = searchHarness(async () => new Response('', { status: 503 }));
+  const { body } = await invoke(routes.get('/search'), { fontes: 'transparencia-federal' });
+  assert.equal(body.statusFontes[0].status, 'error');
+  assert.ok(body.statusFontes[0].lastError);
+  assert.equal(body.total, 0);
+});
+
+test('Curitiba PNCP fallback uses municipal filtering upstream and preserves purchase identifiers', async () => {
+  const requested = [];
+  const { routes } = searchHarness(async value => {
+    const url = new URL(value); requested.push(url);
+    if (url.hostname.includes('curitiba')) return new Response('', { status: 403 });
+    return jsonResponse({ data: [pncpNotice('12345678000199-1-000001/2026')] });
+  });
+  const { body } = await invoke(routes.get('/search'), { fontes: 'curitiba-ecompras', uf: 'PR', cidade: 'Curitiba' });
+  assert.equal(body.statusFontes[0].status, 'fallback');
+  assert.equal(body.data[0].numeroControlePNCP, '12345678000199-1-000001/2026');
+  assert.ok(requested.filter(u => u.hostname === 'pncp.gov.br').every(u => u.searchParams.get('codigoMunicipioIbge') === '4106902'));
+});
+
+test('SIASG scans beyond the first page and avoids location lookups for non-IT records', async () => {
+  const requested = [];
+  const { routes } = searchHarness(async value => {
+    const url = new URL(value); requested.push(url);
+    assert.ok(url.pathname.includes('modulo-legado'));
+    assert.equal(url.searchParams.get('modalidade'), '5');
+    return jsonResponse({ resultado: url.searchParams.get('pagina') === '1' ? Array.from({ length: 500 }, (_, i) => ({ id_compra: i, objeto: 'Aquisição de pão' })) : [{ id_compra: '12345605000012026', objeto: 'Computadores', endereco_entrega_edital: 'Centro - Curitiba/PR' }] });
+  });
+  const { body } = await invoke(routes.get('/search'), { fontes: 'pregoes-siasg', uf: 'PR' });
+  assert.equal(body.data.length, 1);
+  assert.equal(body.statusFontes[0].status, 'ok');
+  assert.equal(requested.length, 2);
+});
+
+test('ARP scans beyond non-IT records on its first page', async () => {
+  const requested = [];
+  const { routes } = searchHarness(async value => {
+    const url = new URL(value); requested.push(url);
+    return jsonResponse({ resultado: url.searchParams.get('pagina') === '1' ? Array.from({ length: 500 }, () => ({ objeto: 'Pão' })) : [{ objeto: 'Computadores', numeroControlePncpAta: '12345678000199-1-000001/2026-000001', numeroControlePncpCompra: '12345678000199-1-000001/2026', dataVigenciaFinal: '2099-01-01' }] });
+  });
+  const { body } = await invoke(routes.get('/search'), { fontes: 'atas-srp' });
+  assert.equal(body.data.length, 1);
+  assert.equal(requested.length, 2);
+});
+
+test('ARP applies location and publication filters before quota and continues beyond a full unrelated page', async () => {
+  const requested = [];
+  const ata = (id, extras = {}) => ({ idAta: id, objeto: 'Computadores', unidadeOrgaoUfSigla: 'PR', unidadeOrgaoMunicipioNome: 'Curitiba', dataAssinatura: '2026-10-10', ...extras });
+  const { routes } = searchHarness(async value => {
+    const url = new URL(value); requested.push(url);
+    assert.ok(url.pathname.includes('modulo-arp'));
+    const unrelated = Array.from({ length: 500 }, (_, i) => ata('sp-' + i, { unidadeOrgaoUfSigla: 'SP' }));
+    return jsonResponse({ resultado: url.searchParams.get('pagina') === '1' ? unrelated : [
+      ...Array.from({ length: 20 }, (_, i) => ata('city-' + i, { unidadeOrgaoMunicipioNome: 'Londrina' })),
+      ...Array.from({ length: 20 }, (_, i) => ata('date-' + i, { dataAssinatura: '2026-09-10' })),
+      ata('matching')
+    ] });
+  });
+  const { body } = await invoke(routes.get('/search'), { fontes: 'atas-srp', uf: 'PR', cidade: 'Curitiba', dataInicio: '2026-10-01', dataFim: '2026-10-19', tamanhoPagina: '20' });
+  assert.equal(body.data.length, 1);
+  assert.equal(body.data[0].id, 'arp-matching');
+  assert.equal(body.statusFontes[0].status, 'ok');
+  assert.equal(requested.length, 2);
+});
+
+test('ARP uses PNCP when primary records do not match the requested location and retains primary diagnostics', async () => {
+  const { routes } = searchHarness(async value => {
+    const url = new URL(value);
+    if (url.hostname.includes('dadosabertos')) return jsonResponse({ resultado: [{ idAta: 'other-state', objeto: 'Computadores', unidadeOrgaoUfSigla: 'SP', unidadeOrgaoMunicipioNome: 'São Paulo', dataAssinatura: '2026-10-10' }] });
+    if (url.pathname.endsWith('/atas/atualizacao')) return jsonResponse({ data: [{ numeroControlePNCPAta: '12345678000199-1-000001/2026-000002', numeroControlePNCPCompra: '12345678000199-1-000001/2026', objetoContratacao: 'Computadores', vigenciaFim: '2099-01-01', dataPublicacaoPncp: '2026-10-10' }] });
+    return jsonResponse({ unidadeOrgao: { ufSigla: 'PR', municipioNome: 'Curitiba' } });
+  });
+  const { body } = await invoke(routes.get('/search'), { fontes: 'atas-srp', uf: 'PR', cidade: 'Curitiba', dataInicio: '2026-10-01', dataFim: '2026-10-19' });
+  assert.equal(body.data.length, 1);
+  assert.equal(body.data[0].id, 'arp-12345678000199-1-000001/2026-000002');
+  assert.equal(body.statusFontes[0].status, 'fallback');
+  assert.ok(body.statusFontes[0].warnings.some(message => message.includes('sem atas correspondentes')));
+});
+
+test('ARP recovers real atas from PNCP without substituting purchase notices', async () => {
+  const { routes } = searchHarness(async value => {
+    const url = new URL(value);
+    if (url.hostname.includes('dadosabertos')) return jsonResponse({ resultado: [] });
+    if (url.pathname.endsWith('/atas/atualizacao')) return jsonResponse({ data: [{ numeroControlePNCPAta: '12345678000199-1-000001/2026-000002', numeroControlePNCPCompra: '12345678000199-1-000001/2026', objetoContratacao: 'Computadores', vigenciaFim: '2099-01-01', dataPublicacaoPncp: '2026-10-10' }] });
+    return jsonResponse({ unidadeOrgao: { ufSigla: 'PR', municipioNome: 'Curitiba' } });
+  });
+  const { body } = await invoke(routes.get('/search'), { fontes: 'atas-srp', uf: 'PR', cidade: 'Curitiba' });
+  assert.equal(body.data.length, 1);
+  assert.equal(body.data[0].linkAtaPNCP, 'https://pncp.gov.br/app/atas/12345678000199/2026/1/2');
+  assert.equal(body.statusFontes[0].status, 'fallback');
+});
+
+test('dispute quota excludes expired records before collecting active notices', async () => {
+  const { routes } = searchHarness(async () => jsonResponse({ resultado: [...Array.from({ length: 30 }, (_, i) => ({ numeroControlePNCP: 'expired-' + i, objetoCompra: 'Computadores', dataEncerramentoPropostaPncp: '2000-01-01' })), { numeroControlePNCP: 'active', objetoCompra: 'Computadores', dataEncerramentoPropostaPncp: '2099-01-01' }] }));
+  const { body } = await invoke(routes.get('/search'), { fontes: 'comprasgov-disputas' });
+  assert.equal(body.data.length, 1);
+  assert.equal(body.data[0].numeroControlePNCP, 'active');
+});
+
+test('worker polling retains displayed counts and filter diagnostics', async () => {
+  const { ctx, routes } = searchHarness();
+  ctx.inject(Object.fromEntries(ids.map(id => [id, async () => ({ resultados: [{ id: 'a', titulo: 'Computadores', uf: 'PR' }, { id: 'b', titulo: 'Computadores', uf: 'SP' }], errors: [] })])));
+  await invoke(routes.get('/search'), { fontes: 'pncp', uf: 'PR' });
+  const { body } = await invoke(routes.get('/workers'), {});
+  const worker = body.workers.find(w => w.id === 'pncp');
+  assert.equal(worker.totalResults, 2);
+  assert.equal(worker.returnedResults, 1);
+  assert.equal(worker.filteredOut.uf, 1);
 });

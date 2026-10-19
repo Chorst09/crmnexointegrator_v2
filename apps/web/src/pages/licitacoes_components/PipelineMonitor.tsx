@@ -138,6 +138,7 @@ const COLOR_MAP: Record<string, { badge: string; ring: string; dot: string; card
 
 const STATUS_CONFIG = {
   ok:      { label: 'Concluído',    icon: CheckCircle2, cls: 'bg-emerald-950/60 text-emerald-300 border-emerald-800', dot: 'bg-emerald-400' },
+  fallback: { label: 'Fonte alternativa', icon: CheckCircle2, cls: 'bg-sky-950/60 text-sky-300 border-sky-800', dot: 'bg-sky-400' },
   running: { label: 'Executando',   icon: Activity,     cls: 'bg-cyan-950/60 text-cyan-300 border-cyan-800',          dot: 'bg-cyan-400 animate-ping' },
   partial: { label: 'Parcial',      icon: AlertCircle,  cls: 'bg-amber-950/60 text-amber-300 border-amber-800',       dot: 'bg-amber-400' },
   error:   { label: 'Erro',         icon: AlertCircle,  cls: 'bg-red-950/60 text-red-300 border-red-800',             dot: 'bg-red-400' },
@@ -158,6 +159,9 @@ interface WorkerStatus {
   lastRunAt: string | null;
   lastError: string | null;
   totalResults: number;
+  returnedResults?: number;
+  fallback?: string | null;
+  warnings?: string[];
   updatedAt?: string;
 }
 
@@ -477,12 +481,19 @@ export function PipelineMonitor() {
                       </td>
                       <td className="px-5 py-3.5">
                         <span className="text-xs font-semibold text-white">
-                          {ws?.totalResults != null ? ws.totalResults.toLocaleString('pt-BR') : '—'}
+                          {ws?.totalResults != null ? (ws.returnedResults ?? ws.totalResults).toLocaleString('pt-BR') : '—'}
                         </span>
-                        {ws?.lastError && (
-                          <p className="text-[10px] text-red-400 mt-0.5 truncate max-w-[120px]" title={ws.lastError}>
-                            {ws.lastError.slice(0, 40)}...
-                          </p>
+                        {ws?.returnedResults != null && ws.returnedResults !== ws.totalResults && (
+                          <p className="text-[10px] text-slate-400 mt-0.5">{ws.totalResults} coletados antes dos filtros</p>
+                        )}
+                        {(ws?.lastError || ws?.warnings?.length) && (
+                          <details className="text-[10px] mt-0.5 max-w-[260px]">
+                            <summary className={cn('cursor-pointer', ws.lastError ? 'text-red-400' : 'text-sky-300')}>Ver diagnóstico{ws.fallback ? ` · ${ws.fallback}` : ''}</summary>
+                            <div className="text-slate-300 whitespace-normal break-words mt-1 space-y-1">
+                              {ws.lastError && <p>{ws.lastError}</p>}
+                              {ws.warnings?.map((warning, index) => <p key={index}>{warning}</p>)}
+                            </div>
+                          </details>
                         )}
                       </td>
                       <td className="px-5 py-3.5">

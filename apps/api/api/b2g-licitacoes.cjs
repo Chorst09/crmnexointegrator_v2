@@ -21,6 +21,7 @@
 
 const express = require('express');
 const crypto = require('crypto');
+const { inspectFile } = require('../lib/editalFileCache.cjs');
 const router  = express.Router();
 const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken, requireRole } = require('../lib/auth.cjs');
@@ -803,6 +804,18 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
   }
 
   if (filesList.length > 0) {
+    arquivosCache.set(cacheKey, { data: filesList, timestamp: now, hasRealFiles: true });
+    return filesList;
+  }
+
+  // Reutiliza a recuperação de anexos de qualquer sistema de origem oficial,
+  // inclusive URLs de download sem extensão e metadados da API de consulta.
+  const { createDocumentResolver } = require('../lib/editalDocuments.cjs');
+  const resolve = createDocumentResolver({ fetchImpl: fetch, getPncpFiles: async () => [] });
+  const recovered = await resolve({ numeroControlePNCP: `${cleanCnpj}-1-${String(cleanSeq).padStart(6, '0')}/${cleanAno}`,
+    linkSistemaOrigem: compraInfo?.linkSistemaOrigem || '' });
+  if (recovered.documentos.length) {
+    filesList = recovered.documentos.map(file => ({ ...file, uri: file.url, tipoDocumentoNome: file.tipo || 'Anexo do sistema de origem' }));
     arquivosCache.set(cacheKey, { data: filesList, timestamp: now, hasRealFiles: true });
     return filesList;
   }
@@ -2019,6 +2032,9 @@ async function downloadAndPersistFile(remoteUrl, localPath, timeoutMs = 30000) {
 
     const { size } = fs.statSync(temporaryPath);
     if (!size) throw new Error('O arquivo retornado pelo PNCP está vazio.');
+    if ((/application\/pdf/i.test(contentType) || /\.pdf$/i.test(localPath)) && inspectFile(temporaryPath) !== 'application/pdf') {
+      throw new Error('A resposta do portal não contém um documento válido em PDF.');
+    }
     fs.renameSync(temporaryPath, localPath);
     return { size, contentType };
   } catch (err) {

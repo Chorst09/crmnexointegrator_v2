@@ -46,7 +46,7 @@ test('failed HTML download never replaces a previously preserved PDF', async t =
   const source = fs.readFileSync(path.resolve(__dirname, '../../apps/api/api/b2g-licitacoes.cjs'), 'utf8');
   const start = source.indexOf('async function downloadAndPersistFile(');
   const end = source.indexOf('\n/**\n * resolveLocalPath', start);
-  const ctx = { fs, path, require, AbortController, setTimeout, clearTimeout, Buffer,
+  const ctx = { fs, path, require, crypto: require('node:crypto'), AbortController, setTimeout, clearTimeout, Buffer,
     inspectFile: require('../../apps/api/lib/editalFileCache.cjs').inspectFile,
     nextUA: () => 'Test', NodeReadable: require('node:stream').Readable,
     streamPipeline: require('node:stream/promises').pipeline,

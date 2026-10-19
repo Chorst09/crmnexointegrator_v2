@@ -36,7 +36,7 @@ const initial = [
       let data = [];
       if (url.pathname.endsWith('/auth/me')) data = { user };
       else if (url.pathname.endsWith('/settings')) data = {};
-      else if (url.pathname.endsWith('/workers')) data = { workers: [{ id: 'pncp', status: 'ok', totalResults: 2 }] };
+      else if (url.pathname.endsWith('/workers')) data = { workers: [{ id: 'pncp', status: 'fallback', totalResults: 12, returnedResults: 2, fallback: 'Compras.gov.br', warnings: ['Diagnóstico completo: fonte principal indisponível; consulta oficial alternativa concluída.'] }] };
       else if (url.pathname.endsWith('/b2g-search/search')) {
         const query = Object.fromEntries(url.searchParams);
         queries.push(query);
@@ -69,6 +69,11 @@ const initial = [
     assert.equal(await page.getByRole('heading', { name: 'Aquisição de pão', exact: true }).count(), 0);
     await page.getByRole('button', { name: 'Configurar produtos', exact: true }).click();
     await page.getByRole('heading', { name: 'Filtro Automático de Produtos de TI', exact: true }).waitFor();
+    const sourceRow = page.getByRole('row').filter({ hasText: 'PNCP Oficial' });
+    await sourceRow.getByText('Fonte alternativa', { exact: true }).waitFor();
+    assert.ok(await sourceRow.getByText('12 coletados antes dos filtros', { exact: true }).isVisible());
+    await sourceRow.getByText('Ver diagnóstico · Compras.gov.br', { exact: true }).click();
+    assert.ok(await sourceRow.getByText('Diagnóstico completo: fonte principal indisponível; consulta oficial alternativa concluída.', { exact: true }).isVisible());
     const automatic = page.getByRole('checkbox', { name: 'Descoberta automática de produtos de TI', exact: true });
     assert.ok(await automatic.isChecked());
     await page.getByRole('button', { name: 'Remover notebook', exact: true }).click();
