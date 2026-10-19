@@ -24,6 +24,7 @@ O domínio `nexosv2.chorstconsult.com.br` é ambiente secundário — **NÃO alt
 - **IP:** `209.50.241.25`
 - **Usuário SSH:** `root`
 - **Porta SSH:** `22`
+- **Senha SSH:** `XKn6KvIVHSTnSaFJ`
 - **Nginx config:** `/etc/nginx/sites-enabled/nexoscrm`
 - **Frontend servido de:** `/var/www/crmnexointegrator_3026/apps/web/dist`
 
@@ -41,16 +42,16 @@ O domínio `nexosv2.chorstconsult.com.br` é ambiente secundário — **NÃO alt
 
 ```bash
 # 1. Copiar arquivos via scp para o diretório CORRETO
-sshpass -p 'SENHA' scp arquivo.jsx root@209.50.241.25:/var/www/crmnexointegrator_3026/...
+sshpass -p 'XKn6KvIVHSTnSaFJ' scp arquivo.jsx root@209.50.241.25:/var/www/crmnexointegrator_3026/...
 
 # 2. Rebuild do frontend (se alterou JSX/TSX)
-ssh root@209.50.241.25 'cd /var/www/crmnexointegrator_3026/apps/web && npm run build'
+sshpass -p 'XKn6KvIVHSTnSaFJ' ssh root@209.50.241.25 'cd /var/www/crmnexointegrator_3026/apps/web && npm run build'
 
 # 3. Reiniciar a API (se alterou backend .cjs/.js)
-ssh root@209.50.241.25 'pm2 restart crmnexointegrator_3026'
+sshpass -p 'XKn6KvIVHSTnSaFJ' ssh root@209.50.241.25 'pm2 restart crmnexointegrator_3026'
 
 # 4. Verificar health
-ssh root@209.50.241.25 'curl -s http://localhost:3026/api/health'
+sshpass -p 'XKn6KvIVHSTnSaFJ' ssh root@209.50.241.25 'curl -s http://localhost:3026/api/health'
 ```
 
 ---
