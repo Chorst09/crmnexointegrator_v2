@@ -572,6 +572,47 @@ export default function Oportunidades() {
     await moveOpportunity(request.opportunity.id, request.stage, payload);
   };
 
+  // Função auxiliar para criar ou buscar órgão governamental (B2G)
+  const getOrCreateGovernmentAgency = async (agencyName) => {
+    if (!agencyName || !agencyName.trim()) return null;
+    
+    const normalizedName = agencyName.trim();
+    
+    // Buscar se órgão já existe
+    const existingCompanies = await fetch(buildApiUrl('/api/companies'), {
+      headers: getAuthHeaders()
+    }).then(r => r.json());
+    
+    const existingAgency = existingCompanies.find(c => 
+      c.clientType === 'B2G' && c.name.toUpperCase() === normalizedName.toUpperCase()
+    );
+    
+    if (existingAgency) {
+      console.log('[B2G] Órgão encontrado:', existingAgency.id, existingAgency.name);
+      return existingAgency.id;
+    }
+    
+    // Criar novo órgão
+    console.log('[B2G] Criando novo órgão:', normalizedName);
+    const newAgency = await fetch(buildApiUrl('/api/companies'), {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify({
+        name: normalizedName,
+        clientType: 'B2G',
+        country: 'Brasil',
+        status: 'ACTIVE'
+      })
+    }).then(r => r.json());
+    
+    console.log('[B2G] Órgão criado:', newAgency.id, newAgency.name);
+    
+    // Atualizar lista de empresas no estado
+    fetchDependencies();
+    
+    return newAgency.id;
+  };
+
   const handleSubmit = async (e, overrideFormData = null) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
     const payloadFormData = overrideFormData || formData;
@@ -580,6 +621,21 @@ export default function Oportunidades() {
     console.log('[DEBUG handleSubmit] selectedOpportunity:', selectedOpportunity?.id);
 
     const selectedCompany = companies.find((item) => item.id === payloadFormData.companyId);
+    
+    // Para B2G, criar/buscar órgão se orgaoEntidade foi preenchido
+    if (pipelineClientType === 'B2G' && payloadFormData.orgaoEntidade && !payloadFormData.companyId) {
+      try {
+        const agencyId = await getOrCreateGovernmentAgency(payloadFormData.orgaoEntidade);
+        if (agencyId) {
+          payloadFormData.companyId = agencyId;
+        }
+      } catch (err) {
+        console.error('[B2G] Erro ao criar/buscar órgão:', err);
+        alert('Erro ao processar órgão governamental. Tente novamente.');
+        return;
+      }
+    }
+    
     if (pipelineClientType === 'B2B' && payloadFormData.projectClientType === 'NEW_CLIENT' && !payloadFormData.companyId) {
       alert('Cadastre a empresa antes de criar uma oportunidade para cliente novo.');
       navigate('/empresas?openForm=1&returnTo=/oportunidades%3FnewOpportunity%3D1');

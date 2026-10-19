@@ -309,6 +309,7 @@ export default function OpportunityForm({
       description: updatedDescription,
       value: mergedValue,
       probability: mergedProbability,
+      orgaoEntidade: b2gForm.orgaoEntidade || null, // Adicionar campo do órgão para processamento
       // envioPropostas pode ser texto livre — só usar se for data ISO válida
       expectedCloseDate: (() => {
         const v = b2gForm.envioPropostas || formData.expectedCloseDate || '';
