@@ -63,7 +63,7 @@ test('interest products never qualify a non-IT notice or turn into a restrictive
 function harness(file) {
   const routes = new Map();
   const router = { get: (url, ...handlers) => routes.set(url, handlers.at(-1)) };
-  const ctx = { require: name => name === 'express' ? { Router: () => router } : name === 'jsonwebtoken' ? {} : name === '../lib/douNotice.cjs' ? require('../../apps/api/lib/douNotice.cjs') : require(name),
+  const ctx = { require: name => name === 'express' ? { Router: () => router } : name === 'jsonwebtoken' ? {} : name === '../lib/b2gLocation.cjs' ? require('../../apps/api/lib/b2gLocation.cjs') : name === '../lib/douNotice.cjs' ? require('../../apps/api/lib/douNotice.cjs') : require(name),
     module: { exports: {} }, process: { env: { JWT_SECRET: 'test-only', B2G_SOURCE_TIMEOUT_MS: '1000' } },
     URL, URLSearchParams, AbortSignal, AbortController, global: { fetch: () => { throw Error('No upstream access in this test'); } }, setTimeout, clearTimeout, console, itNoticeFilterPromise: filter };
   vm.createContext(ctx);
