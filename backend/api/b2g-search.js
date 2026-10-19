@@ -97,18 +97,25 @@ const safeJson = async (res) => {
 async function fetchWithRetry(url, options = {}, { timeoutMs = 45000, retries = 2 } = {}) {
   let lastErr;
   for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    // Mantém o controlador vivo até o prazo, inclusive durante a leitura do corpo.
+    // O timer não impede o encerramento de processos de diagnóstico já concluídos.
+    const deadline = setTimeout(() => controller.abort(new Error('Tempo limite de requisição ao portal excedido.')), timeoutMs);
+    deadline.unref?.();
     try {
       const res = await fetch(url, {
         ...options,
-        signal: AbortSignal.timeout(timeoutMs)
+        signal: controller.signal
       });
       if ([429, 502, 503, 504].includes(res.status) && attempt < retries) {
         await res.body?.cancel();
+        clearTimeout(deadline);
         await new Promise(resolve => setTimeout(resolve, 250 * (attempt + 1)));
         continue;
       }
       return res;
     } catch (err) {
+      clearTimeout(deadline);
       lastErr = err;
       if (sourceScope.getStore()?.signal.aborted) throw err;
       if (attempt < retries) {
