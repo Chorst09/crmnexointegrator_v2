@@ -706,3 +706,15 @@ test('PNCP publication recovery identifies the alternative endpoint when proposa
   assert.ok(body.statusFontes[0].warnings.some(warning => warning.includes('proposal timeout')));
   assert.equal(body.erros, undefined);
 });
+
+test('request deadline cancels a slow response body after headers have already arrived', async () => {
+  const { ctx } = searchHarness(async (url, options) => new Response(new ReadableStream({ start(controller) {
+    options.signal.addEventListener('abort', () => controller.error(options.signal.reason), { once: true });
+  } })));
+  vm.runInContext('globalThis.requestWithDeadline = fetchWithRetry;', ctx);
+  const keepAlive = setTimeout(() => {}, 2000);
+  try {
+    const response = await ctx.requestWithDeadline('https://portal.gov.br', {}, { timeoutMs: 20, retries: 0 });
+    await assert.rejects(response.text(), /Tempo limite de requisição ao portal excedido/);
+  } finally { clearTimeout(keepAlive); }
+});
