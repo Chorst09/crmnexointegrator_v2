@@ -692,3 +692,17 @@ test('concurrent workers share identical PNCP requests without sharing source ca
   assert.equal(upstreamSignal.aborted, false);
   assert.ok(results.every(items => items[0].numeroControlePNCP === 'shared'));
 });
+
+test('PNCP publication recovery identifies the alternative endpoint when proposal search times out', async () => {
+  const { routes } = searchHarness(async value => {
+    if (new URL(value).pathname.endsWith('/proposta')) throw new Error('proposal timeout');
+    return jsonResponse({ data: [pncpNotice('publication-recovery')] });
+  });
+  const { body } = await invoke(routes.get('/search'), { fontes: 'pncp', uf: 'PR', cidade: 'Curitiba' });
+  assert.equal(body.total, 1);
+  assert.equal(body.statusFontes[0].status, 'fallback');
+  assert.equal(body.statusFontes[0].fallback, 'PNCP publicações');
+  assert.equal(body.statusFontes[0].lastError, null);
+  assert.ok(body.statusFontes[0].warnings.some(warning => warning.includes('proposal timeout')));
+  assert.equal(body.erros, undefined);
+});

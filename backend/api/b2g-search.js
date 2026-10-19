@@ -612,7 +612,7 @@ async function buscarPNCPPublicacao({ objeto, uf, cidade = '', pagina = 1, taman
 
   // Cada modalidade avança pelas páginas brutas: o filtro de TI pode excluir
   // toda a primeira página sem que a consulta esteja vazia.
-  await mapWithConcurrency(modalidades, 3, async modCode => {
+  await mapWithConcurrency(modalidades, 2, async modCode => {
     for (let pageNumber = page; pageNumber < page + 3; pageNumber++) {
       if (resultados.length >= limit || Date.now() - startedAt > 11000) break;
       try {
@@ -644,7 +644,7 @@ async function buscarPNCPProposta({ objeto, uf, cidade = '', codigoMunicipioIbge
     if (uf) url.searchParams.set('uf', uf);
     if (codigoMunicipioIbge) url.searchParams.set('codigoMunicipioIbge', codigoMunicipioIbge);
 
-    const items = await fetchPNCPItems(url, 'PNCP propostas', { timeoutMs: 5000 });
+    const items = await fetchPNCPItems(url, 'PNCP propostas', { timeoutMs: 8000 });
 
     for (const item of items) {
       if (!matchesLocation({ uf: item.unidadeOrgao?.ufSigla, municipio: item.unidadeOrgao?.municipioNome }, { uf, cidade })) continue;
@@ -807,6 +807,8 @@ async function buscarPNCPDadosAbertos({ objeto, uf, cidade = '', pagina = 1, tam
 async function buscarPNCPAgregado({ objeto, uf, cidade = '', codigoMunicipioIbge = '', pagina = 1, tamanhoPagina = 20, dataInicio, dataFim, incluirPropostas = true, apenasVigentes = false }) {
   const resultados = [];
   const errors = [];
+  const warnings = [];
+  let fallback = null;
   const limit = clampNumber(tamanhoPagina, 10, 50, 20);
 
   // Quando apenasVigentes=true, prioriza o endpoint /proposta que filtra por
@@ -829,6 +831,10 @@ async function buscarPNCPAgregado({ objeto, uf, cidade = '', codigoMunicipioIbge
         resultados.push(item);
       }
     }
+    if (errors.length && publicacoes.resultados?.length && !publicacoes.errors?.length) {
+      warnings.push(...errors.splice(0));
+      fallback = 'PNCP publicações';
+    }
     errors.push(...(publicacoes.errors || []));
   }
 
@@ -839,7 +845,7 @@ async function buscarPNCPAgregado({ objeto, uf, cidade = '', codigoMunicipioIbge
     errors.push(...(dadosAbertos.errors || []));
   }
 
-  return { resultados, errors };
+  return { resultados, errors, warnings, fallback };
 }
 
 // Paginação de dados abertos acontece antes dos filtros locais de produto/UF.
@@ -1268,6 +1274,7 @@ const parseCuritibaAsyncResponse = (body, previousHtml) => {
 async function buscarTransparenciaCuritiba({ objeto, uf, cidade, dataInicio, dataFim, tamanhoPagina = 20 }) {
   const resultados = [];
   const errors = [];
+  const directDeadline = Date.now() + 9000;
 
   if (uf && String(uf).toUpperCase() !== 'PR') return { resultados, errors };
   if (cidade && !String(cidade).toLowerCase().includes('curitiba')) return { resultados, errors };
@@ -1276,12 +1283,14 @@ async function buscarTransparenciaCuritiba({ objeto, uf, cidade, dataInicio, dat
     const headers = { Accept: 'text/html,application/xhtml+xml', 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36' };
     const cookies = new Map();
     const readPage = async (fields) => {
+      const remainingMs = directDeadline - Date.now();
+      if (remainingMs <= 0) throw new Error('Consulta direta excedeu o prazo reservado; consultando a alternativa oficial.');
       const res = await fetchWithRetry(TRANSPARENCIA_CURITIBA_URL, {
         headers: { ...headers, ...(fields ? { 'Content-Type': 'application/x-www-form-urlencoded' } : {}),
           ...(fields?.get('__ASYNCPOST') === 'true' ? { 'X-MicrosoftAjax': 'Delta=true', 'X-Requested-With': 'XMLHttpRequest', Referer: TRANSPARENCIA_CURITIBA_URL } : {}),
           ...(cookies.size ? { Cookie: [...cookies].map(([key, value]) => `${key}=${value}`).join('; ') } : {}) },
         ...(fields ? { method: 'POST', body: fields.toString() } : {})
-      }, { timeoutMs: 6000, retries: 0 });
+      }, { timeoutMs: Math.min(5000, remainingMs), retries: 0 });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       for (const cookie of res.headers.getSetCookie?.() || []) {
         const pair = cookie.split(';')[0]; const index = pair.indexOf('=');
@@ -1603,7 +1612,7 @@ async function buscarAtasPNCP({ objeto, uf, cidade, pagina = 1, tamanhoPagina = 
     url.searchParams.set('dataFinal', String(dataFim || hoje()).replaceAll('-', ''));
     url.searchParams.set('pagina', String(page)); url.searchParams.set('tamanhoPagina', '100');
     try {
-      const items = await fetchPNCPItems(url, 'Atas PNCP', { timeoutMs: 5000 });
+      const items = await fetchPNCPItems(url, 'Atas PNCP', { timeoutMs: 12000 });
       const notices = await mapWithConcurrency(items.filter(item => !item.cancelado && isWithinDateRange(item.dataPublicacaoPncp || item.dataAssinatura, dataInicio, dataFim) && matchObjeto(item.objetoContratacao, objeto)), 4, async item => {
         let compra = {};
         const ref = String(item.numeroControlePNCPCompra || '').match(/^(\d{14})-1-(\d+)\/(\d{4})$/);
