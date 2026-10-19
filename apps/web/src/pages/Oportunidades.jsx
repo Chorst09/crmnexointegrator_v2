@@ -1103,7 +1103,7 @@ export default function Oportunidades() {
     .trim();
 
   const getOpportunityCompanyName = (opportunity) =>
-    opportunity?.company?.name || opportunity?.company?.NAME || opportunity?.companyName || opportunity?.COMPANYNAME || '';
+    opportunity?.agency?.name || opportunity?.company?.name || opportunity?.company?.NAME || opportunity?.companyName || opportunity?.COMPANYNAME || '';
 
   const getOpportunityProjectName = (opportunity) =>
     opportunity?.projectName || opportunity?.PROJECTNAME || opportunity?.title || opportunity?.TITLE || '';
@@ -1403,7 +1403,7 @@ export default function Oportunidades() {
                           <span className="text-[var(--crm-muted)] text-xs mt-0.5 shrink-0">⋮⋮</span>
                           <div className="min-w-0">
                             <p className="text-sm font-bold text-[var(--crm-ink)] leading-snug line-clamp-2">
-                              {opp.company?.name || 'Cliente não informado'}
+                              {opp.agency?.name || opp.company?.name || 'Cliente não informado'}
                             </p>
                             {opp.number && (
                               <p className="mt-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[rgb(var(--crm-accent-rgb))]">
@@ -1692,7 +1692,7 @@ export default function Oportunidades() {
                       onClick={() => handleViewDetails(opp)}
                       className="border-b border-[color:var(--crm-border)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.04)] cursor-pointer transition-colors"
                     >
-                      <td className="p-4 font-medium text-[var(--crm-ink)]">{opp.company?.name || 'N/I'}</td>
+                      <td className="p-4 font-medium text-[var(--crm-ink)]">{opp.agency?.name || opp.company?.name || 'N/I'}</td>
                       <td className="p-4 text-[var(--crm-ink)]">{opp.projectName || opp.title}</td>
                       <td className="p-4 font-semibold text-emerald-400">{formatCurrency(opp.value)}</td>
                       <td className="p-4">
@@ -1829,10 +1829,12 @@ export default function Oportunidades() {
                 </div>
 
                 <div className="crm-panel-muted rounded-xl p-4">
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_0.9)] mb-2">Empresa</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_0.9)] mb-2">
+                    {selectedOpportunity.agency ? 'Órgão' : 'Empresa'}
+                  </h3>
                   <div className="flex items-center">
                     <Building className="w-4 h-4 text-[rgb(var(--crm-accent-rgb))] mr-2" />
-                    <span className="text-[var(--crm-ink)] font-medium">{selectedOpportunity.company?.name || 'Não informado'}</span>
+                    <span className="text-[var(--crm-ink)] font-medium">{selectedOpportunity.agency?.name || selectedOpportunity.company?.name || 'Não informado'}</span>
                   </div>
                 </div>
 
@@ -2281,7 +2283,7 @@ export default function Oportunidades() {
         opportunity={pendingCloseOpportunity?.opportunity || null}
         opportunityTitle={
           pendingCloseOpportunity?.opportunity
-            ? `${pendingCloseOpportunity.opportunity.company?.name || 'Cliente'} - ${pendingCloseOpportunity.opportunity.projectName || pendingCloseOpportunity.opportunity.title || 'Oportunidade'}`
+            ? `${pendingCloseOpportunity.opportunity.agency?.name || pendingCloseOpportunity.opportunity.company?.name || 'Cliente'} - ${pendingCloseOpportunity.opportunity.projectName || pendingCloseOpportunity.opportunity.title || 'Oportunidade'}`
             : ''
         }
       />
