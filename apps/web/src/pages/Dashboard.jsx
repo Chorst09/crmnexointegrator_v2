@@ -354,6 +354,115 @@ export default function Dashboard() {
             data={{ labels: opportunityInsights.temperatureRows.map(row => row.label), datasets: [{ data: opportunityInsights.temperatureRows.map(row => hasValue ? row.value : row.count), backgroundColor: opportunityInsights.temperatureRows.map(row => row.color) }] }}
             customOptions={hasValue ? { plugins: { tooltip: { callbacks: { label: context => `${context.label}: ${formatCurrency(context.parsed)}` } } } } : {}} isEmpty={!hasOpen} emptyMessage="Nenhuma oportunidade em aberto nos filtros selecionados." />
         </section>
+
+        {/* Seção de Receitas Recorrentes e Pontuais */}
+        <section className="mt-8 px-2 pb-8">
+          <div className="mb-6">
+            <h2 className="text-xl font-semibold text-slate-100">Receitas recorrentes e pontuais</h2>
+            <p className="mt-1 text-sm text-slate-400">
+              Projeção das oportunidades ganhas a partir do fechamento e da vigência; não representa recebimentos. 
+              As vendas sem data de fechamento não entram na projeção.
+            </p>
+          </div>
+
+          {/* Cards de KPIs de Receita */}
+          <div className="mb-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="rounded-lg border border-emerald-500/30 bg-gradient-to-br from-emerald-950/40 to-slate-900/60 p-5">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-emerald-300">MRR Ativo</div>
+              <div className="text-2xl font-bold text-slate-100">{formatCurrency(kpis.activeMonthlyRecurring || 0)}</div>
+              <div className="mt-1 text-xs text-slate-400">Mensalidades recorrentes ativas</div>
+            </div>
+
+            <div className="rounded-lg border border-blue-500/30 bg-gradient-to-br from-blue-950/40 to-slate-900/60 p-5">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-blue-300">Contratos Recorrentes no Período</div>
+              <div className="text-2xl font-bold text-slate-100">{formatCurrency(kpis.periodRecurringRevenue || 0)}</div>
+              <div className="mt-1 text-xs text-slate-400">Valor total dos contratos recorrentes ganhos</div>
+            </div>
+
+            <div className="rounded-lg border border-purple-500/30 bg-gradient-to-br from-purple-950/40 to-slate-900/60 p-5">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-purple-300">Receita Pontual no Período</div>
+              <div className="text-2xl font-bold text-slate-100">{formatCurrency(kpis.periodOneTimeRevenue || 0)}</div>
+              <div className="mt-1 text-xs text-slate-400">Valor de projetos pontuais ganhos</div>
+            </div>
+
+            <div className="rounded-lg border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-slate-900/60 p-5">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-cyan-300">Mensalidades em Negociação</div>
+              <div className="text-2xl font-bold text-slate-100">{formatCurrency(kpis.pipelineMonthlyRecurring || 0)}</div>
+              <div className="mt-1 text-xs text-slate-400">MRR potencial do pipeline aberto</div>
+            </div>
+
+            <div className="rounded-lg border border-amber-500/30 bg-gradient-to-br from-amber-950/40 to-slate-900/60 p-5">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-amber-300">Contratos Recorrentes em Negociação</div>
+              <div className="text-2xl font-bold text-slate-100">{formatCurrency(kpis.pipelineRecurringContracts || 0)}</div>
+              <div className="mt-1 text-xs text-slate-400">Valor total dos contratos em aberto</div>
+            </div>
+
+            <div className="rounded-lg border border-orange-500/30 bg-gradient-to-br from-orange-950/40 to-slate-900/60 p-5">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-orange-300">Receita Pontual em Negociação</div>
+              <div className="text-2xl font-bold text-slate-100">{formatCurrency(kpis.pipelineOneTimeRevenue || 0)}</div>
+              <div className="mt-1 text-xs text-slate-400">Projetos pontuais no pipeline</div>
+            </div>
+          </div>
+
+          {/* Gráficos de Receita ao Longo do Tempo */}
+          <div className="grid gap-4 md:grid-cols-2">
+            <DashboardAdvancedChart 
+              title="Receitas Recorrentes vs Pontuais" 
+              subtitle={`Evolução por ${dashboardData?.period?.daily ? 'dia' : 'mês'} • ${historyLabel}`}
+              icon={<BarChart3 className="h-4 w-4" />} 
+              type="line" 
+              height={280}
+              data={{
+                labels: (charts.recurringVsOneTime || []).map(row => row.label),
+                datasets: [
+                  { 
+                    label: 'Receita Recorrente', 
+                    data: (charts.recurringVsOneTime || []).map(row => row.recurring), 
+                    borderColor: '#22c55e',
+                    backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                  },
+                  { 
+                    label: 'Receita Pontual', 
+                    data: (charts.recurringVsOneTime || []).map(row => row.oneTime), 
+                    borderColor: '#a855f7',
+                    backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                  }
+                ]
+              }}
+              customOptions={currencyOptions}
+              isEmpty={!(charts.recurringVsOneTime || []).some(row => row.recurring > 0 || row.oneTime > 0)}
+              emptyMessage="Nenhuma receita registrada no período selecionado"
+            />
+
+            <DashboardAdvancedChart 
+              title="MRR ao Longo do Tempo" 
+              subtitle={`Mensalidades recorrentes por ${dashboardData?.period?.daily ? 'dia' : 'mês'} • ${historyLabel}`}
+              icon={<BarChart3 className="h-4 w-4" />} 
+              type="line" 
+              height={280}
+              data={{
+                labels: (charts.recurringVsOneTime || []).map(row => row.label),
+                datasets: [
+                  { 
+                    label: 'MRR', 
+                    data: (charts.recurringVsOneTime || []).map(row => row.recurring / Math.max(row.contractMonths || 12, 1)), 
+                    borderColor: '#18c8df',
+                    backgroundColor: 'rgba(24, 200, 223, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                  }
+                ]
+              }}
+              customOptions={currencyOptions}
+              isEmpty={!(charts.recurringVsOneTime || []).some(row => row.recurring > 0)}
+              emptyMessage="Nenhuma receita recorrente no período selecionado"
+            />
+          </div>
+        </section>
       </>}
       <B2BTestFlowModal isOpen={isTestModalOpen} onClose={() => { setIsTestModalOpen(false); fetchDashboardData(selectedOwnerId, selectedTemperature, timeRange, { silent: true }); }} />
     </div>

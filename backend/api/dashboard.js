@@ -321,8 +321,11 @@ const buildGeneralDashboard = async (user = {}) => {
 };
 
 export default async function handler(req) {
+  console.log('[DASHBOARD] Requisição recebida:', req.method, 'Query:', JSON.stringify(req.query));
+  
   if (req.method === 'GET') {
     const { type = 'executive', userId, period = '6', ownerId, temperature: tempFilter } = req.query || {};
+    console.log('[DASHBOARD] Tipo:', type, 'Period:', period, 'OwnerId:', ownerId, 'TempFilter:', tempFilter);
     const tenantCompanyId = getTenantCompanyId(req.user);
     const withOpportunityTenant = (where = {}) => tenantCompanyId ? { ...where, tenantCompanyId } : where;
     const withCompanyTenant = (where = {}) => tenantCompanyId ? { ...where, tenantCompanyId } : where;
@@ -484,6 +487,9 @@ export default async function handler(req) {
       }
 
       if (type === 'b2b') {
+        console.log('[B2B Dashboard] === INÍCIO DO HANDLER B2B ===');
+        console.log('[B2B Dashboard] period:', period, 'ownerId:', ownerId, 'tempFilter:', tempFilter);
+        
         const b2bOpportunityFilter = { b2gStage: null };
         const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' } });
         const effectiveOwnerId = canSeeAllOpportunitiesDash(req.user)
@@ -500,6 +506,9 @@ export default async function handler(req) {
         const whereClause = { ...baseWhere };
         if (temperatureRange[tempFilter]) whereClause.probability = temperatureRange[tempFilter];
 
+        console.log('[B2B Dashboard] whereClause:', JSON.stringify(whereClause, null, 2));
+        console.log('[B2B Dashboard] period:', period);
+        
         // Read the complete, scoped portfolio; every chart uses this same set.
         // Period filters affect entry/closure history, never the current portfolio.
         const [totalCompanies, totalOpportunities, opportunities, probabilities] = await Promise.all([
@@ -519,17 +528,35 @@ export default async function handler(req) {
           }),
           prisma.opportunity.groupBy({ by: ['probability'], where: baseWhere, _count: { probability: true } })
         ]);
+        
+        console.log('[B2B Dashboard] Encontradas', opportunities.length, 'oportunidades');
+        
         const analytics = buildB2BDashboardAnalytics(opportunities, { period });
+        
+        console.log('[B2B Dashboard] Analytics retornado - keys:', Object.keys(analytics));
+        console.log('[B2B Dashboard] analytics.insights?', !!analytics.insights);
+        if (analytics.insights) {
+          console.log('[B2B Dashboard] insights.stageRows?', !!analytics.insights.stageRows, 'length:', analytics.insights.stageRows?.length);
+          console.log('[B2B Dashboard] insights.temperatureRows?', !!analytics.insights.temperatureRows, 'length:', analytics.insights.temperatureRows?.length);
+        }
+        
         const temperatureCounts = Object.fromEntries(Object.entries(temperatureRange).map(([level, band]) => [
           level, probabilities.filter(row => row.probability >= band.gte && row.probability <= band.lte)
             .reduce((total, row) => total + row._count.probability, 0)
         ]));
-        return Response.json({
+        
+        const response = {
           ...analytics,
           kpis: { ...analytics.kpis, totalCompanies, totalOpportunities },
           temperatureCounts,
           opportunities
-        });
+        };
+        
+        console.log('[B2B Dashboard] Response keys:', Object.keys(response));
+        console.log('[B2B Dashboard] Response.insights exists?', !!response.insights);
+        console.log('[B2B Dashboard] Response.insights keys:', Object.keys(response.insights || {}));
+        
+        return Response.json(response);
       }
 
       if (type === 'seller' && userId) {

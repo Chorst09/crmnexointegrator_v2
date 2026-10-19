@@ -151,13 +151,36 @@ export function buildB2BDashboardAnalytics(opportunities = [], { period = 'year'
       unscheduledValue: round(sum(open.filter(row => !row.__expected), '__value')),
       undatedClosures: [...won, ...lost].filter(row => !row.__closed).length,
       missingEntryDates: rows.filter(row => !row.__entry || row.__entry > range.end).length,
-      unpricedOpportunities: open.filter(row => row.__value <= 0).length
+      unpricedOpportunities: open.filter(row => row.__value <= 0).length,
+      
+      // Receitas recorrentes e pontuais
+      activeMonthlyRecurring: round(sum(rows.filter(row => row.revenueType === 'MENSAL' && row.stage === 'WON'), 'monthlyRecurringValue')), // MRR ativo (apenas ganhas)
+      periodRecurringRevenue: round(sum(rows.filter(row => row.revenueType === 'MENSAL'), 'totalContractValue')), // TODAS as oportunidades recorrentes
+      periodOneTimeRevenue: round(sum(rows.filter(row => row.revenueType === 'PONTUAL'), row => number(row.totalProductsValue) + number(row.setupValue))), // TODAS as oportunidades pontuais
+      pipelineMonthlyRecurring: round(sum(open.filter(row => row.revenueType === 'MENSAL'), 'monthlyRecurringValue')), // MRR em negociação
+      pipelineRecurringContracts: round(sum(open.filter(row => row.revenueType === 'MENSAL'), row => number(row.monthlyRecurringValue) * number(row.contractPeriodMonths))), // Valor total de contratos recorrentes em negociação
+      pipelineOneTimeRevenue: round(sum(open.filter(row => row.revenueType === 'PONTUAL'), row => number(row.totalProductsValue) + number(row.setupValue))) // Receita pontual em negociação
     },
     charts: {
       funnel: STAGES.map(stage => { const items = rows.filter(row => row.stage === stage); return { stage, _count: { stage: items.length }, _sum: { value: round(sum(items, '__value')) } }; }),
       leadSources: sourceRows.map(row => ({ source: row.label, _count: { source: row.count } })),
       timeline, forecast: forecast.map(row => ({ ...row, nominal: round(row.nominal), forecast: round(row.forecast) })),
       monthlyRevenue: timeline.map(row => ({ month: row.date, revenue: round(row.revenue), deals: row.won })),
+      
+      // Receitas recorrentes e pontuais ao longo do tempo
+      recurringVsOneTime: timeline.map(row => {
+        const recurringDeals = rows.filter(r => r.revenueType === 'MENSAL' && (range.daily ? key(r.__entry || r.__closed) === row.date : month(r.__entry || r.__closed) === row.date.slice(0, 7)));
+        const oneTimeDeals = rows.filter(r => r.revenueType === 'PONTUAL' && (range.daily ? key(r.__entry || r.__closed) === row.date : month(r.__entry || r.__closed) === row.date.slice(0, 7)));
+        return {
+          date: row.date,
+          label: row.label,
+          recurring: round(sum(recurringDeals, 'totalContractValue')),
+          oneTime: round(sum(oneTimeDeals, row => number(row.totalProductsValue) + number(row.setupValue))),
+          recurringDeals: recurringDeals.length,
+          oneTimeDeals: oneTimeDeals.length
+        };
+      }),
+      
       sellerPerformance
     },
     insights: { stageRows, temperatureRows, agingRows, riskRows, towerRows: group(open, 'projectTower'), clientTypeRows: group(open, 'projectClientType', { NEW_CLIENT: 'Cliente novo', BASE_CLIENT: 'Cliente da base', RENEWAL: 'Renovação' }) }

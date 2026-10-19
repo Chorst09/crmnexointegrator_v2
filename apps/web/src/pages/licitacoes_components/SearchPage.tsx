@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, Filter, AlertCircle, Calendar, DollarSign, MapPin, Building2, ExternalLink, X, FileText, Download, Briefcase, CheckCircle2, Clock, AlertTriangle, ShieldCheck, ArrowUpDown, RefreshCw, Layers, Settings } from 'lucide-react';
 import { Licitacao } from './types';
-import { isITNotice, matchesProductQuery, getInterestMatches, normalizeITText } from '../../../../api/lib/itNoticeFilter.mjs';
-import { useITProductPreferences } from './itProductPreferences';
 import { cn } from './utils';
 import { LicitacaoDetalhesModal } from './LicitacaoDetalhesModal';
-import { ACTIVE_SOURCES_KEY, ACTIVE_SOURCES_EVENT, SOURCES_CATALOG } from './PipelineMonitor';
+import { SOURCES_CATALOG } from './PipelineMonitor';
+import { ACTIVE_SOURCES_KEY, ACTIVE_SOURCES_EVENT, TI_FILTER_ENABLED_KEY, TI_FILTER_KEYWORDS_KEY, TI_FILTER_EVENT, readTIFilterSettings } from './searchSettings.mjs';
 import { getBrazilToday, formatNoticeValue, getNoticeDeadline, isNoticeActive, isNoticeCurrent, compareNoticeValues } from './noticeData.mjs';
 
 const ALL_SOURCE_IDS = SOURCES_CATALOG.map(s => s.id);
@@ -40,9 +39,6 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   const getPastDaysISO = (days: number) => new Date(Date.now() - days * 86400000).toISOString().split('T')[0];
 
   const [searchTerm, setSearchTerm] = useState('');
-  const [appliedProduct, setAppliedProduct] = useState('');
-  const [searchInfo, setSearchInfo] = useState('');
-  const productPreferences = useITProductPreferences();
   const [selectedUf, setSelectedUf] = useState('');
   const [selectedCity, setSelectedCity] = useState('');
   // Fontes ativas — lidas do localStorage gerenciado pelo PipelineMonitor (Configurações)
@@ -61,6 +57,9 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   const [dataInicial, setDataInicial] = useState(() => getPastDaysISO(7));
   const [dataFinal, setDataFinal] = useState(getTodayISO);
   
+  const [filterByKeywords, setFilterByKeywords] = useState(() => readTIFilterSettings().enabled);
+  const [activeKeywords, setActiveKeywords] = useState<string[]>(() => readTIFilterSettings().keywords);
+
   const [selectedLicitacao, setSelectedLicitacao] = useState<Licitacao | null>(null);
   const [managedIds, setManagedIds] = useState<Set<string>>(new Set());
   const [addingId, setAddingId] = useState<string | null>(null);
@@ -81,7 +80,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   // Sincroniza fontes ativas quando o localStorage muda (ex: usuário volta de Configurações)
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key === ACTIVE_SOURCES_KEY) {
+      if (e.key === null || e.key === ACTIVE_SOURCES_KEY) {
         setFontesAtivas(readFontesAtivas());
       }
     };
@@ -94,6 +93,24 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
       window.removeEventListener('storage', onStorage);
       window.removeEventListener(ACTIVE_SOURCES_EVENT, refreshSources);
       searchController.current?.abort();
+    };
+  }, []);
+
+  // Configurações se propagam também entre abas do mesmo navegador.
+  useEffect(() => {
+    const refreshTIFilter = () => {
+      const settings = readTIFilterSettings();
+      setFilterByKeywords(settings.enabled);
+      setActiveKeywords(settings.keywords);
+    };
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === null || event.key === TI_FILTER_ENABLED_KEY || event.key === TI_FILTER_KEYWORDS_KEY) refreshTIFilter();
+    };
+    window.addEventListener(TI_FILTER_EVENT, refreshTIFilter);
+    window.addEventListener('storage', onStorage);
+    return () => {
+      window.removeEventListener(TI_FILTER_EVENT, refreshTIFilter);
+      window.removeEventListener('storage', onStorage);
     };
   }, []);
 
@@ -132,14 +149,17 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   }, []);
 
   useEffect(() => {
-    fetchLicitacoes();
-    // fontesAtivas é serializado em string para comparação estável no useEffect
+    setLoading(true);
+    const timer = window.setTimeout(() => { fetchLicitacoes(); }, 400);
+    return () => {
+      window.clearTimeout(timer);
+      searchController.current?.abort();
+    };
+    // Serialização permite comparar os valores das configurações.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ocultarEncerrados, dataBuscaReferencia, selectedUf, Array.from(fontesAtivas).sort().join(','), productPreferences.enabled, productPreferences.products.join('|')]);
+  }, [ocultarEncerrados, dataBuscaReferencia, selectedUf, selectedCity, searchTerm, dataInicial, dataFinal, filterByKeywords, JSON.stringify(activeKeywords), Array.from(fontesAtivas).sort().join(',')]);
 
-  const fetchLicitacoes = async (product = appliedProduct) => {
-    setAppliedProduct(product.trim());
-    setSearchInfo('');
+  const fetchLicitacoes = async () => {
     searchController.current?.abort();
     const controller = new AbortController();
     searchController.current = controller;
@@ -157,15 +177,14 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
         return;
       }
 
+      if (dataInicial && dataFinal && dataInicial > dataFinal) throw new Error('A data inicial deve ser anterior ou igual à data final.');
+
       const fontesParam = Array.from(fontesAtivas).join(',');
       // Janela de busca: publicados nos últimos 30 dias — garante capturar editais
       // com prazo de propostas ainda vigente (mínimo legal de 8 dias após publicação)
       const dataInicioEfetivo = dataInicial || getPastDaysISO(30);
       const params = new URLSearchParams({
-        objeto: product.trim(),
-        somenteTI: 'true',
-        filtroProdutosAtivo: String(productPreferences.enabled),
-        produtosInteresse: JSON.stringify(productPreferences.products.map(normalizeITText)),
+        objeto: searchTerm,
         uf: selectedUf,
         cidade: selectedCity,
         fontes: fontesParam,
@@ -176,6 +195,8 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
         dataReferencia: dataBuscaReferencia,
         dataInicio: dataInicioEfetivo,
         dataFim: dataFinal || getTodayISO(),
+        filtrarProdutosTI: String(filterByKeywords),
+        keywordsTI: activeKeywords.join(',')
       });
 
       const response = await fetch(`/api/b2g-search/search?${params.toString()}`, {
@@ -187,7 +208,6 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
       // Se o backend informou que não há fontes ativas, respeita
       if (json.info) {
-        setSearchInfo(json.info);
         setLicitacoes([]);
         setTotalDisponivel(0);
         return;
@@ -275,24 +295,23 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
   const isAtivo = isNoticeActive;
   
-
   // Total de editais descartados pela regra de abertura anterior à busca
   const totalExcluidosPassados = (diagnosticoFiltros?.excluidos?.encerrados || 0) + licitacoes.filter(lic => !isAberturaValida(lic)).length;
 
   const filteredLicitacoes = licitacoes.filter(lic => {
+    const searchNormalized = normalizeStr(searchTerm);
     const cityNormalized = normalizeStr(selectedCity);
     
-    const matchesSearch = matchesProductQuery(lic, appliedProduct);
+    const matchesSearch = searchNormalized === '' || 
+                          normalizeStr(getObjeto(lic)).includes(searchNormalized) || 
+                          normalizeStr(getOrgaoName(lic)).includes(searchNormalized) ||
+                          normalizeStr((lic as any).resumo || '').includes(searchNormalized);
     const matchesUf = selectedUf ? getUf(lic) === selectedUf : true;
     const matchesCity = cityNormalized === '' || normalizeStr(getCidade(lic)).includes(cityNormalized);
     const matchesActive = onlyActive ? isAtivo(lic) : true;
     const matchesTemporal = isAberturaValida(lic);
 
-    const matchesFonte = true; // filtro de fontes agora é feito no backend via fontesAtivas
-    
-    const matchesIT = isITNotice(lic);
-
-    return matchesSearch && matchesUf && matchesCity && matchesActive && matchesTemporal && matchesFonte && matchesIT;
+    return matchesSearch && matchesUf && matchesCity && matchesActive && matchesTemporal;
   });
 
   const sortedLicitacoes = [...filteredLicitacoes].sort((a, b) => {
@@ -312,7 +331,6 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
     const db = new Date(getData(b)).getTime() || 0;
     return db - da;
   });
-
 
   const [addingToManaged, setAddingToManaged] = useState(false);
   const [addSuccess, setAddSuccess] = useState(false);
@@ -416,7 +434,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
             className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-cyan-300 transition-colors whitespace-nowrap cursor-pointer"
           >
             <Settings className="w-3.5 h-3.5" />
-            <span>Gerenciar fontes em <strong className="text-cyan-400">Configurações</strong></span>
+            <span>Gerenciar fontes e filtro de TI em <strong className="text-cyan-400">Configurações</strong></span>
           </button>
         </div>
 
@@ -428,12 +446,11 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
               </div>
               <input
                 type="text"
-                placeholder="Digite o produto de TI: notebook, firewall, Microsoft 365…"
-                aria-label="Produto de TI"
+                placeholder="Buscar palavra-chave nos resultados..."
                 className="block w-full pl-10 pr-3 py-3 border border-[#07323e] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-[#011419] shadow-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); fetchLicitacoes(searchTerm); } }}
+                onKeyDown={(e) => { if (e.key === 'Enter') fetchLicitacoes(); }}
               />
             </div>
             
@@ -501,11 +518,11 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
               />
             </div>
             <button
-              onClick={() => fetchLicitacoes(searchTerm)}
+              onClick={fetchLicitacoes}
               disabled={loading}
               className="px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white text-sm font-medium rounded-lg transition-all shadow-sm shadow-[#00171d] disabled:opacity-50 cursor-pointer"
             >
-              Buscar editais
+              Buscar na Nuvem
             </button>
             <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-2"></div>
             
@@ -541,9 +558,8 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
               {diagnosticoFiltros.excluidos?.semUf > 0 && ` ${diagnosticoFiltros.excluidos.semUf} sem UF confirmada ficaram fora do filtro de estado.`}
               {diagnosticoFiltros.excluidos?.cidade > 0 && ` ${diagnosticoFiltros.excluidos.cidade} fora da cidade selecionada.`}
               {diagnosticoFiltros.excluidos?.semCidade > 0 && ` ${diagnosticoFiltros.excluidos.semCidade} sem cidade confirmada ficaram fora do filtro de cidade.`}
+              {diagnosticoFiltros.excluidos?.produtosTI > 0 && ` ${diagnosticoFiltros.excluidos.produtosTI} sem correspondência nos produtos de TI configurados.`}
               {diagnosticoFiltros.excluidos?.periodo > 0 && ` ${diagnosticoFiltros.excluidos.periodo} fora do período de publicação.`}
-              {diagnosticoFiltros.excluidos?.foraTI > 0 && ` ${diagnosticoFiltros.excluidos.foraTI} de outros segmentos descartados.`}
-              {diagnosticoFiltros.excluidos?.produto > 0 && ` ${diagnosticoFiltros.excluidos.produto} sem correspondência com o produto buscado.`}
               {diagnosticoFiltros.excluidos?.encerrados > 0 && ` ${diagnosticoFiltros.excluidos.encerrados} com prazo expirado ou situação encerrada.`}
             </p>
           )}
@@ -614,14 +630,6 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
           </div>
         </div>
 
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-cyan-900 bg-[#011419] px-4 py-3">
-          <div>
-            <p className="flex items-center gap-2 text-sm font-semibold text-cyan-200"><ShieldCheck className="h-4 w-4" />Busca exclusiva de TI</p>
-            <p className="mt-1 text-xs text-slate-400">{productPreferences.enabled ? 'Descoberta automática ativa. Digite um produto para direcionar a consulta.' : 'Modo manual: digite um produto de TI para buscar editais.'} Produtos de TI fora da lista de interesse também são considerados.</p>
-          </div>
-          <button type="button" onClick={onNavigateToPipeline} className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-300 hover:text-cyan-100"><Settings className="h-4 w-4" />Configurar produtos</button>
-        </div>
-
         {/* Alerta de Editais Ocultados pela Regra de Validade */}
         {ocultarEncerrados && totalExcluidosPassados > 0 && (
           <div className="mb-4 bg-amber-50/90 dark:bg-amber-950/50 border border-amber-200/80 dark:border-amber-800/80 rounded-xl p-3.5 flex items-center justify-between gap-3 text-amber-900 dark:text-amber-200 shadow-sm">
@@ -652,9 +660,9 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
             <AlertCircle className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">Nenhum edital encontrado</h3>
             <p className="text-slate-400 mt-1">
-              {searchInfo || (ocultarEncerrados && totalExcluidosPassados > 0
+              {ocultarEncerrados && totalExcluidosPassados > 0
                 ? `${totalExcluidosPassados} editais encontrados nesta busca já aconteceram e foram ocultados pela Regra de Validade Temporal.`
-                : "Tente ajustar o produto, o período ou as fontes de busca." )}
+                : "Tente ajustar seus termos de busca ou filtros."}
             </p>
             {ocultarEncerrados && totalExcluidosPassados > 0 && (
               <button
@@ -681,9 +689,9 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                     {totalDisponivel} resultados recebidos nesta consulta
                   </span>
                 )}
-                {productPreferences.enabled && (
+                {filterByKeywords && (
                   <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
-                    Somente TI • automático
+                    Filtro TI Ativo ({activeKeywords.length} tags)
                   </span>
                 )}
               </div>
@@ -706,7 +714,6 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
             <div className="grid gap-4">
               {sortedLicitacoes.map((lic, i) => {
-                const interestMatches = productPreferences.enabled ? getInterestMatches(lic, productPreferences.products) : [];
                 const aberturaStatus = getAberturaStatus(lic);
                 const licId = getLicId(lic);
                 const isCardManaged = Boolean(licId && managedIds.has(licId));
@@ -752,9 +759,6 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                       <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 line-clamp-2 leading-tight">
                         {getObjeto(lic)}
                       </h3>
-                      {productPreferences.enabled && interestMatches.length > 0 && (
-                        <p className="mt-2 text-xs text-cyan-300">Produtos de interesse: {interestMatches.slice(0, 4).join(', ')}</p>
-                      )}
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
                       <p className="text-sm font-medium text-slate-400 mb-1">Valor Estimado</p>

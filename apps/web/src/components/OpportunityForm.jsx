@@ -490,36 +490,6 @@ export default function OpportunityForm({
             </div>
           )}
 
-          <div>
-            <label className={labelCls}>Modelo de Comissão</label>
-            <select
-              className={inputCls}
-              value={formData.projectType || 'SINGLE'}
-              onChange={e => setFormData(p => ({
-                ...p,
-                projectType: e.target.value,
-                projectMonths: e.target.value === 'MONTHLY' ? (p.projectMonths || '12') : ''
-              }))}
-            >
-              <option value="SINGLE">Projeto pontual</option>
-              <option value="MONTHLY">Projeto mensal</option>
-            </select>
-          </div>
-
-          <div>
-            <label className={labelCls}>Prazo do Projeto Mensal</label>
-            <select
-              className={inputCls}
-              value={formData.projectMonths || '12'}
-              disabled={(formData.projectType || 'SINGLE') !== 'MONTHLY'}
-              onChange={e => setFormData(p => ({ ...p, projectMonths: e.target.value }))}
-            >
-              {PROJECT_MONTH_OPTIONS.map((months) => (
-                <option key={months} value={String(months)}>{months} meses</option>
-              ))}
-            </select>
-          </div>
-
           <div className="sm:col-span-2">
             <label className={labelCls}>Descrição</label>
             <textarea className={inputCls} rows={3} value={formData.description || ''} onChange={e => setFormData(p => ({ ...p, description: e.target.value }))} />
@@ -534,6 +504,133 @@ export default function OpportunityForm({
             <label className={labelCls}>Probabilidade (%)</label>
             <input type="number" min={0} max={100} className={inputCls} value={formData.probability || ''} onChange={e => setFormData(p => ({ ...p, probability: e.target.value }))} />
           </div>
+
+          {/* Seção de Receitas Recorrentes e Pontuais */}
+          <div className="sm:col-span-2 border-t border-[#07323e] pt-4 mt-2">
+            <h3 className="text-sm font-semibold text-white mb-3">Modelo de Receita</h3>
+          </div>
+
+          <div className="sm:col-span-2">
+            <label className={labelCls}>Tipo de Receita</label>
+            <select 
+              className={inputCls} 
+              value={formData.revenueType || ''} 
+              onChange={e => {
+                const newType = e.target.value;
+                setFormData(p => ({ 
+                  ...p, 
+                  revenueType: newType,
+                  // Limpar campos ao trocar o tipo
+                  contractPeriodMonths: newType === 'MENSAL' ? 12 : '',
+                  monthlyRecurringValue: '',
+                  totalContractValue: '',
+                  totalProductsValue: '',
+                  setupValue: ''
+                }));
+              }}
+            >
+              <option value="">Selecione o tipo de receita...</option>
+              <option value="MENSAL">Projeto mensal</option>
+              <option value="PONTUAL">Projeto pontual</option>
+            </select>
+          </div>
+
+          {formData.revenueType === 'MENSAL' && (
+            <>
+              <div>
+                <label className={labelCls}>Período do contrato (meses)</label>
+                <select 
+                  className={inputCls}
+                  value={formData.contractPeriodMonths || 12}
+                  onChange={e => {
+                    const months = Number(e.target.value);
+                    const monthly = Number(formData.monthlyRecurringValue) || 0;
+                    setFormData(p => ({ 
+                      ...p, 
+                      contractPeriodMonths: months,
+                      totalContractValue: monthly * months
+                    }));
+                  }}
+                >
+                  <option value="12">12 meses</option>
+                  <option value="24">24 meses</option>
+                  <option value="36">36 meses</option>
+                  <option value="48">48 meses</option>
+                  <option value="60">60 meses</option>
+                </select>
+              </div>
+
+              <div>
+                <label className={labelCls}>Valor mensal (R$)</label>
+                <input 
+                  type="number" 
+                  min={0} 
+                  step="0.01" 
+                  className={inputCls} 
+                  value={formData.monthlyRecurringValue || ''} 
+                  onChange={e => {
+                    const monthly = Number(e.target.value) || 0;
+                    const months = Number(formData.contractPeriodMonths) || 12;
+                    setFormData(p => ({ 
+                      ...p, 
+                      monthlyRecurringValue: e.target.value,
+                      totalContractValue: monthly * months
+                    }));
+                  }}
+                  placeholder="0,00"
+                />
+              </div>
+
+              <div>
+                <label className={labelCls}>Valor total do contrato (R$)</label>
+                <input 
+                  type="number" 
+                  className={`${inputCls} bg-gray-100 dark:bg-gray-800`}
+                  value={formData.totalContractValue || ''} 
+                  readOnly
+                  placeholder="Valor mensal × período do contrato"
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Calculado automaticamente
+                </p>
+              </div>
+            </>
+          )}
+
+          {formData.revenueType === 'PONTUAL' && (
+            <>
+              <div>
+                <label className={labelCls}>Valor total dos produtos (R$)</label>
+                <input 
+                  type="number" 
+                  min={0} 
+                  step="0.01" 
+                  className={inputCls} 
+                  value={formData.totalProductsValue || ''} 
+                  onChange={e => setFormData(p => ({ ...p, totalProductsValue: e.target.value }))}
+                  placeholder="0,00"
+                />
+              </div>
+
+              <div>
+                <label className={labelCls}>Valor do setup (R$)</label>
+                <input 
+                  type="number" 
+                  min={0} 
+                  step="0.01" 
+                  className={inputCls} 
+                  value={formData.setupValue || ''} 
+                  onChange={e => setFormData(p => ({ ...p, setupValue: e.target.value }))}
+                  placeholder="0,00"
+                />
+              </div>
+            </>
+          )}
+
+          {formData.revenueType && (
+            <div className="sm:col-span-2 border-t border-[#07323e] pt-2 mt-2">
+            </div>
+          )}
 
           <div>
             <label className={labelCls}>Stage</label>
@@ -842,34 +939,6 @@ export default function OpportunityForm({
                   <option value="Cliente Novo">Cliente Novo</option>
                   <option value="Cliente da Base">Cliente da Base</option>
                   <option value="Renovação">Renovação</option>
-                </select>
-              </div>
-              <div>
-                <label className={labelCls}>Modelo de Comissão</label>
-                <select
-                  className={inputCls}
-                  value={formData.projectType || 'SINGLE'}
-                  onChange={e => setFormData(p => ({
-                    ...p,
-                    projectType: e.target.value,
-                    projectMonths: e.target.value === 'MONTHLY' ? (p.projectMonths || '12') : ''
-                  }))}
-                >
-                  <option value="SINGLE">Projeto pontual</option>
-                  <option value="MONTHLY">Projeto mensal</option>
-                </select>
-              </div>
-              <div>
-                <label className={labelCls}>Prazo do Projeto Mensal</label>
-                <select
-                  className={inputCls}
-                  value={formData.projectMonths || '12'}
-                  disabled={(formData.projectType || 'SINGLE') !== 'MONTHLY'}
-                  onChange={e => setFormData(p => ({ ...p, projectMonths: e.target.value }))}
-                >
-                  {PROJECT_MONTH_OPTIONS.map((months) => (
-                    <option key={months} value={String(months)}>{months} meses</option>
-                  ))}
                 </select>
               </div>
               <div>

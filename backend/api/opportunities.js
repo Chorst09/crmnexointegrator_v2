@@ -507,7 +507,14 @@ export default async function handler(req) {
               discount: p.discount || 0,
               notes: p.notes || null
             }))
-          } : undefined
+          } : undefined,
+          // Campos de receita recorrente e pontual
+          revenueType: body.revenueType || null,
+          contractPeriodMonths: body.contractPeriodMonths !== undefined && body.contractPeriodMonths !== null && body.contractPeriodMonths !== '' ? Number(body.contractPeriodMonths) : null,
+          monthlyRecurringValue: body.monthlyRecurringValue !== undefined && body.monthlyRecurringValue !== null && body.monthlyRecurringValue !== '' ? Number(body.monthlyRecurringValue) : null,
+          totalContractValue: body.totalContractValue !== undefined && body.totalContractValue !== null && body.totalContractValue !== '' ? Number(body.totalContractValue) : null,
+          totalProductsValue: body.totalProductsValue !== undefined && body.totalProductsValue !== null && body.totalProductsValue !== '' ? Number(body.totalProductsValue) : null,
+          setupValue: body.setupValue !== undefined && body.setupValue !== null && body.setupValue !== '' ? Number(body.setupValue) : null
         },
         include: {
           company: true,
@@ -684,6 +691,14 @@ export default async function handler(req) {
     if (body.contactFullName !== undefined) updateData.contactFullName = body.contactFullName || null;
     if (body.contactEmail !== undefined) updateData.contactEmail = body.contactEmail || null;
     if (body.contactPhone !== undefined) updateData.contactPhone = body.contactPhone || null;
+    
+    // Campos de receita recorrente e pontual
+    if (body.revenueType !== undefined) updateData.revenueType = body.revenueType || null;
+    if (body.contractPeriodMonths !== undefined) updateData.contractPeriodMonths = body.contractPeriodMonths === null || body.contractPeriodMonths === '' ? null : Number(body.contractPeriodMonths);
+    if (body.monthlyRecurringValue !== undefined) updateData.monthlyRecurringValue = body.monthlyRecurringValue === null || body.monthlyRecurringValue === '' ? null : Number(body.monthlyRecurringValue);
+    if (body.totalContractValue !== undefined) updateData.totalContractValue = body.totalContractValue === null || body.totalContractValue === '' ? null : Number(body.totalContractValue);
+    if (body.totalProductsValue !== undefined) updateData.totalProductsValue = body.totalProductsValue === null || body.totalProductsValue === '' ? null : Number(body.totalProductsValue);
+    if (body.setupValue !== undefined) updateData.setupValue = body.setupValue === null || body.setupValue === '' ? null : Number(body.setupValue);
     
     // Se mudou para WON ou LOST, definir data de fechamento e data de virada/saída.
     if (body.stage === 'WON' || body.stage === 'LOST') {

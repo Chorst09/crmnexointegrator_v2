@@ -255,7 +255,15 @@ export default function Oportunidades() {
     contactFullName: '',
     contactEmail: '',
     contactPhone: '',
-    products: []
+    products: [],
+    
+    // Campos de receita recorrente e pontual
+    revenueType: '',
+    contractPeriodMonths: 12,
+    monthlyRecurringValue: '',
+    totalContractValue: '',
+    totalProductsValue: '',
+    setupValue: ''
   });
 
   const [products, setProducts] = useState([]);
@@ -293,6 +301,15 @@ export default function Oportunidades() {
     contactEmail: '',
     contactPhone: '',
     products: [],
+    
+    // Campos de receita recorrente e pontual
+    revenueType: '',
+    contractPeriodMonths: 12,
+    monthlyRecurringValue: '',
+    totalContractValue: '',
+    totalProductsValue: '',
+    setupValue: '',
+    
     ...overrides
   });
 
@@ -558,8 +575,9 @@ export default function Oportunidades() {
   const handleSubmit = async (e, overrideFormData = null) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
     const payloadFormData = overrideFormData || formData;
-    console.log('[handleSubmit] chamado, payloadFormData keys:', Object.keys(payloadFormData));
-    console.log('[handleSubmit] selectedOpportunity:', selectedOpportunity?.id);
+    console.log('[DEBUG handleSubmit] Iniciando submit:', selectedOpportunity ? 'EDIT' : 'CREATE');
+    console.log('[DEBUG handleSubmit] payloadFormData keys:', Object.keys(payloadFormData));
+    console.log('[DEBUG handleSubmit] selectedOpportunity:', selectedOpportunity?.id);
 
     const selectedCompany = companies.find((item) => item.id === payloadFormData.companyId);
     if (pipelineClientType === 'B2B' && payloadFormData.projectClientType === 'NEW_CLIENT' && !payloadFormData.companyId) {
@@ -581,7 +599,9 @@ export default function Oportunidades() {
         ? buildScopedOpportunityByIdUrl(selectedOpportunity.id)
         : scopedOpportunitiesUrl;
       
+      console.log('[DEBUG handleSubmit] URL:', url);
       const method = selectedOpportunity ? 'PUT' : 'POST';
+      console.log('[DEBUG handleSubmit] Method:', method);
       
       const parsedValue = parseFloat(payloadFormData.value);
       const parsedProbability = parseInt(payloadFormData.probability);
@@ -648,16 +668,28 @@ export default function Oportunidades() {
                 discount: Number(p.discount) || 0,
                 notes: p.notes || null
               }))
-          : []
+          : [],
+        // Campos de receita recorrente e pontual
+        revenueType: payloadFormData.revenueType || null,
+        contractPeriodMonths: payloadFormData.contractPeriodMonths ? Number(payloadFormData.contractPeriodMonths) : null,
+        monthlyRecurringValue: payloadFormData.monthlyRecurringValue ? Number(payloadFormData.monthlyRecurringValue) : null,
+        totalContractValue: payloadFormData.totalContractValue ? Number(payloadFormData.totalContractValue) : null,
+        totalProductsValue: payloadFormData.totalProductsValue ? Number(payloadFormData.totalProductsValue) : null,
+        setupValue: payloadFormData.setupValue ? Number(payloadFormData.setupValue) : null
       };
 
+      console.log('[DEBUG handleSubmit] Body a enviar:', body);
+      
       const response = await fetch(url, {
         method,
         headers: getAuthHeaders(),
         body: JSON.stringify(body)
       });
 
+      console.log('[DEBUG handleSubmit] Response status:', response.status);
+
       if (response.ok) {
+        console.log('[DEBUG handleSubmit] Sucesso! Atualizando lista...');
         fetchOpportunities();
         setShowModal(false);
         resetForm();
@@ -703,7 +735,9 @@ export default function Oportunidades() {
 
   const handleEdit = (opportunity) => {
     console.log('[DEBUG handleEdit] Iniciando edição:', opportunity);
+    console.log('[DEBUG handleEdit] setSelectedOpportunity:', opportunity?.id);
     setSelectedOpportunity(opportunity);
+    console.log('[DEBUG handleEdit] Preparando formData...');
     setFormData({
       title: opportunity.title,
       projectName: opportunity.projectName || opportunity.title || '',
@@ -746,8 +780,10 @@ export default function Oportunidades() {
         notes: p.notes || ''
       }))
     });
-    console.log('[DEBUG handleEdit] Abrindo modal, showModal:', true);
+    console.log('[DEBUG handleEdit] formData preparado, abrindo modal...');
+    console.log('[DEBUG handleEdit] showModal antes:', showModal);
     setShowModal(true);
+    console.log('[DEBUG handleEdit] setShowModal(true) chamado');
   };
 
   const handleDelete = async (opportunity, e) => {
