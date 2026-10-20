@@ -387,13 +387,13 @@ export default function Oportunidades() {
       if (companiesRes.ok) {
         const companiesData = await companiesRes.json();
         const companiesArray = Array.isArray(companiesData) ? companiesData : [];
-        setCompanies(companiesArray.filter((item) => isCompanyInClientType(item, pipelineClientType)));
+        setCompanies(companiesArray.filter((item) => item && item.id && item.name && isCompanyInClientType(item, pipelineClientType)));
       }
       
       if (usersRes.ok) {
         const usersData = await usersRes.json();
         const assignableUsers = Array.isArray(usersData)
-          ? usersData.filter((user) => canOwnOpportunityForClientType(user, pipelineClientType))
+          ? usersData.filter((user) => user && user.id && user.name && canOwnOpportunityForClientType(user, pipelineClientType))
           : [];
         setUsers(assignableUsers);
       }
