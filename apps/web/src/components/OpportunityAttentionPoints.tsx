@@ -216,7 +216,7 @@ export default function OpportunityAttentionPoints({ opportunityId, currentUserI
             {visible.map(point => {
               const s   = SEV[point.severity];
               const resolved = point.status === 'RESOLVIDO';
-              const canAct   = isAdmin || point.author.id === currentUserId;
+              const canAct   = isAdmin || point.author?.id === currentUserId;
               return (
                 <div key={point.id} className={`group relative rounded-xl border p-4 transition-opacity ${resolved ? 'opacity-55' : ''} ${s.row}`}>
                   <div className="flex items-start gap-3">
@@ -239,8 +239,8 @@ export default function OpportunityAttentionPoints({ opportunityId, currentUserI
                         {point.description}
                       </p>
                       <p className="mt-1.5 text-xs text-[var(--crm-muted)]">
-                        {point.author.name} · {new Date(point.createdAt).toLocaleDateString('pt-BR')}
-                        {resolved && point.resolvedBy && ` · Resolvido por ${point.resolvedBy.name}`}
+                        {point.author?.name ?? 'Usuário'} · {new Date(point.createdAt).toLocaleDateString('pt-BR')}
+                        {resolved && point.resolvedBy && ` · Resolvido por ${point.resolvedBy?.name ?? ''}`}
                       </p>
                     </div>
 
