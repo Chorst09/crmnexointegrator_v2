@@ -441,25 +441,42 @@ export default function Atividades() {
 
   const handleGenerate10SlideProposal = (activity, items = [], totals = {}) => {
     try {
+      // Garantir que items tem todos os campos necessários para as lâminas
+      const normalizedItems = items.map((it) => {
+        const qtd = Number(it.quantidade || 1);
+        const preco = Number(it.precoSugerido ?? it.precoVenda ?? 0);
+        const subtotal = Number(it.subtotalVenda ?? (qtd * preco) ?? 0);
+        return {
+          descricao: it.descricao || it.produto || 'Item Técnico',
+          categoria: it.categoria || 'Telecom & TI',
+          quantidade: qtd,
+          custoUnitario: Number(it.custoUnitario || 0),
+          precoSugerido: preco,
+          margemLucro: Number(it.margemLucro || 0),
+          subtotalCusto: Number(it.subtotalCusto || 0),
+          subtotalVenda: subtotal
+        };
+      });
+
       const entry = createCommercialProposalFromReturnedBudget({
         activity,
-        items,
+        items: normalizedItems,
         totals,
         options: { clientType: 'B2B' }
       });
 
       if (entry?.id) {
         setProposalSuccessToast({
-          title: 'Proposta Comercial (10 Lâminas) Gerada!',
-          message: 'Itens e valores da lâmina financeira preenchidos automaticamente sem digitação manual. Abrindo editor oficial...'
+          title: '✅ Proposta Gerada com Sucesso!',
+          message: `${normalizedItems.length > 0 ? `${normalizedItems.length} produto(s) preenchido(s) automaticamente` : 'Proposta criada'} — abrindo editor de propostas...`
         });
         setTimeout(() => {
           navigate(`/propostas?proposalId=${encodeURIComponent(entry.id)}&openSlide=7`);
-        }, 500);
+        }, 800);
       }
     } catch (err) {
       console.error('Erro ao gerar proposta de 10 lâminas:', err);
-      alert('Erro ao gerar proposta comercial oficial.');
+      alert('Erro ao gerar proposta comercial. Tente novamente.');
     }
   };
 
@@ -956,28 +973,55 @@ export default function Atividades() {
             fetchPreSalesBudgetForActivity(item).then((budget) => {
               let budgetItems = [];
               if (Array.isArray(budget?.items) && budget.items.length > 0) {
-                budgetItems = budget.items.map((it) => ({
-                  descricao: it.descricao || it.product?.name || 'Item Homologado',
-                  quantidade: it.quantidade || 1,
-                  precoSugerido: it.precoSugerido || 0,
-                  subtotalVenda: (it.quantidade || 1) * (it.precoSugerido || 0)
-                }));
-              } else if (Array.isArray(item.flow?.items)) {
-                budgetItems = item.flow.items;
+                budgetItems = budget.items.map((it) => {
+                  const qtd = Number(it.quantidade ?? it.quantity ?? 1) || 1;
+                  const custo = Number(it.custoUnitario ?? it.unitCost ?? 0) || 0;
+                  const preco = Number(it.precoSugerido ?? it.precoVenda ?? 0) || 0;
+                  const margem = Number(it.margemLucro ?? 0) || 0;
+                  return {
+                    descricao: it.descricao || it.product?.name || 'Item Homologado',
+                    categoria: it.product?.category || 'Telecom & TI',
+                    quantidade: qtd,
+                    custoUnitario: custo,
+                    precoSugerido: preco,
+                    margemLucro: margem,
+                    subtotalCusto: qtd * custo,
+                    subtotalVenda: qtd * preco
+                  };
+                });
+              } else if (Array.isArray(item.flow?.items) && item.flow.items.length > 0) {
+                budgetItems = item.flow.items.map((it) => {
+                  const qtd = Number(it.quantidade || 1);
+                  const preco = Number(it.precoSugerido || 0);
+                  return {
+                    ...it,
+                    subtotalVenda: qtd * preco
+                  };
+                });
               }
+              const valorTotal = budget?.valorTotal || budget?.valorSugerido || item.flow?.valorTotal || 0;
               handleGenerate10SlideProposal(item, budgetItems, {
+                numeroOrcamento: budget?.numero || getActivityPreSalesReference(item).preSalesNumber || item.flow?.numeroOrcamento,
+                valorTotalContrato: valorTotal,
+                valorMensal: budget?.valorMensal || item.flow?.valorMensal || 0,
+                valorSetup: budget?.valorSetup || item.flow?.valorSetup || 0,
+                observacoesTecnicas: budget?.observacoes || item.flow?.observacoesTecnicas || ''
+              });
+            }).catch(() => {
+              // Se não encontrar orçamento, gera proposta com dados do flow
+              handleGenerate10SlideProposal(item, item.flow?.items || [], {
                 numeroOrcamento: getActivityPreSalesReference(item).preSalesNumber || item.flow?.numeroOrcamento,
-                valorTotalContrato: item.flow?.totalValue || item.flow?.valorTotalContrato,
-                valorMensal: item.flow?.valorMensal,
-                valorSetup: item.flow?.valorSetup
+                valorTotalContrato: item.flow?.valorTotal || 0,
+                valorMensal: item.flow?.valorMensal || 0,
+                valorSetup: item.flow?.valorSetup || 0
               });
             });
           }}
           className="crm-btn bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-200 border border-amber-500/40 px-2.5 py-1.5 text-xs font-bold inline-flex items-center gap-1 cursor-pointer shadow-sm shadow-amber-950/20"
-          title="Gerar Proposta Comercial de 10 Lâminas (Preenchimento Automático da Tabela Financeira)"
+          title="Gerar Proposta Comercial de 10 Lâminas com produtos do Pré-Vendas"
         >
           <Presentation className="h-3.5 w-3.5 text-amber-400" />
-          10 Lâminas
+          Gerar Proposta
         </button>
       )}
       {(getActivityPreSalesReference(item).preSalesRequestId || getActivityPreSalesReference(item).preSalesNumber) && (
@@ -1585,11 +1629,11 @@ export default function Atividades() {
                             observacoesTecnicas
                           });
                         }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-500/40 bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-200 text-xs font-bold transition-all shadow-md shadow-amber-950/30 cursor-pointer"
-                        title="Gerar Proposta Oficial de 10 Lâminas com a lâmina financeira preenchida automaticamente"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-amber-500/50 bg-gradient-to-r from-amber-500/25 via-orange-500/20 to-amber-600/30 hover:from-amber-500/40 hover:to-orange-500/40 text-amber-200 text-xs font-bold transition-all shadow-md shadow-amber-950/30 cursor-pointer"
+                        title="Gerar Proposta Comercial de 10 Lâminas com produtos preenchidos automaticamente"
                       >
-                        <Presentation className="h-3.5 w-3.5 text-amber-400" />
-                        <span>Gerar Proposta (10 Lâminas)</span>
+                        <Presentation className="h-4 w-4 text-amber-400" />
+                        <span>Gerar Proposta Comercial</span>
                       </button>
 
                       <button
