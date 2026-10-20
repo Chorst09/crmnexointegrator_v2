@@ -579,12 +579,22 @@ export default function Oportunidades() {
     const normalizedName = agencyName.trim();
     
     // Buscar se órgão já existe
-    const existingCompanies = await fetch(buildApiUrl('/api/companies'), {
+    const response = await fetch(buildApiUrl('/api/companies'), {
       headers: getAuthHeaders()
     }).then(r => r.json());
+
+    // A API pode retornar array direto ou { data: [...] } ou { companies: [...] }
+    const existingCompanies = Array.isArray(response)
+      ? response
+      : Array.isArray(response?.data)
+        ? response.data
+        : Array.isArray(response?.companies)
+          ? response.companies
+          : [];
     
     const existingAgency = existingCompanies.find(c => 
-      c.clientType === 'B2G' && c.name.toUpperCase() === normalizedName.toUpperCase()
+      c && c.clientType === 'B2G' && typeof c.name === 'string' &&
+      c.name.toUpperCase() === normalizedName.toUpperCase()
     );
     
     if (existingAgency) {
@@ -604,13 +614,14 @@ export default function Oportunidades() {
         status: 'ACTIVE'
       })
     }).then(r => r.json());
-    
-    console.log('[B2G] Órgão criado:', newAgency.id, newAgency.name);
+
+    const createdAgency = newAgency?.data || newAgency;
+    console.log('[B2G] Órgão criado:', createdAgency.id, createdAgency.name);
     
     // Atualizar lista de empresas no estado
     fetchDependencies();
     
-    return newAgency.id;
+    return createdAgency.id;
   };
 
   const handleSubmit = async (e, overrideFormData = null) => {
