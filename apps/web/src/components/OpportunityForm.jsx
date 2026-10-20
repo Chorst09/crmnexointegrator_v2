@@ -469,7 +469,7 @@ export default function OpportunityForm({
               <label className={labelCls}>Cliente</label>
               <select className={inputCls} value={formData.companyId || ''} onChange={e => setFormData(p => ({ ...p, companyId: e.target.value }))} required>
                 <option value="">Selecione um cliente cadastrado...</option>
-                {(companies || []).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                {(companies || []).filter(Boolean).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 {(companies || []).length === 0 && (
                   <option value="" disabled>Nenhuma empresa cadastrada encontrada</option>
                 )}
@@ -689,7 +689,7 @@ export default function OpportunityForm({
             <label className={labelCls}>Responsável</label>
             <select className={inputCls} value={formData.ownerId || ''} onChange={e => setFormData(p => ({ ...p, ownerId: e.target.value }))}>
               <option value="">Selecione...</option>
-              {(users || []).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+              {(users || []).filter(Boolean).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select>
           </div>
 
@@ -1003,14 +1003,14 @@ export default function OpportunityForm({
                 <label className={labelCls}>Empresa</label>
                 <select className={inputCls} value={formData.companyId || ''} onChange={e => setFormData(p => ({ ...p, companyId: e.target.value }))}>
                   <option value="">Selecione...</option>
-                  {(companies || []).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                  {(companies || []).filter(Boolean).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
               <div>
                 <label className={labelCls}>Responsável</label>
                 <select className={inputCls} value={formData.ownerId || ''} onChange={e => setFormData(p => ({ ...p, ownerId: e.target.value }))}>
                   <option value="">Selecione...</option>
-                  {(users || []).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                  {(users || []).filter(Boolean).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                 </select>
               </div>
               <div>
