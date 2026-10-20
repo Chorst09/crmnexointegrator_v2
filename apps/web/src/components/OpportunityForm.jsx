@@ -125,7 +125,7 @@ export default function OpportunityForm({
   // Produtos selecionados (lista dinâmica)
   const [productItems, setProductItems] = useState(() => {
     const existing = selectedOpportunity?.products || formData?.products || [];
-    return existing.map(p => ({
+    return existing.filter(Boolean).map(p => ({
       _key: p.id || String(Math.random()),
       productId: p.productId || p.product?.id || '',
       quantity: p.quantity || 1,
@@ -791,7 +791,7 @@ export default function OpportunityForm({
                             }}
                           >
                             <option value="">Selecione...</option>
-                            {(availableProducts || []).map(p => (
+                            {(availableProducts || []).filter(Boolean).map(p => (
                               <option key={p.id} value={p.id}>{p.name}</option>
                             ))}
                           </select>
