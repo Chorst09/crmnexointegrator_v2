@@ -686,9 +686,14 @@ export default function OpportunityForm({
           )}
 
           <div>
-            <label className={labelCls}>Responsável</label>
-            <select className={inputCls} value={formData.ownerId || ''} onChange={e => setFormData(p => ({ ...p, ownerId: e.target.value }))}>
-              <option value="">Selecione...</option>
+            <label className={labelCls}>Responsável *</label>
+            <select
+              className={inputCls}
+              value={formData.ownerId || ''}
+              onChange={e => setFormData(p => ({ ...p, ownerId: e.target.value }))}
+              required
+            >
+              <option value="">Selecione o responsável...</option>
               {(users || []).filter(Boolean).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select>
           </div>
@@ -940,6 +945,18 @@ export default function OpportunityForm({
                   <option value="Cliente Novo">Cliente Novo</option>
                   <option value="Cliente da Base">Cliente da Base</option>
                   <option value="Renovação">Renovação</option>
+                </select>
+              </div>
+              <div>
+                <label className={labelCls}>Responsável *</label>
+                <select
+                  className={inputCls}
+                  value={formData.ownerId || ''}
+                  onChange={e => setFormData(p => ({ ...p, ownerId: e.target.value }))}
+                  required
+                >
+                  <option value="">Selecione o responsável...</option>
+                  {(users || []).filter(Boolean).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                 </select>
               </div>
               <div>

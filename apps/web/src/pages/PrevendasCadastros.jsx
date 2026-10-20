@@ -127,6 +127,7 @@ const defaultOpportunityForm = {
   oportunidadeId: '',
   titulo: '',
   cliente: '',
+  gerenteConta: '',
   origem: 'B2B',
   modalidade: 'VENDA',
   valorEstimado: '',
@@ -635,6 +636,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         oportunidadeId: item.oportunidadeId || '',
         titulo: item.titulo || '',
         cliente: item.cliente || '',
+        gerenteConta: item.gerenteConta || '',
         origem: item.origem || 'B2B',
         modalidade: item.modalidade || 'VENDA',
         valorEstimado: item.valorEstimado ?? '',
@@ -1117,6 +1119,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               <h2>Resumo Comercial</h2>
               ${renderRows([
                 ['Cliente', item.cliente],
+                ['Gerente de Contas', item.gerenteConta],
                 ['Origem', item.origem],
                 ['Modalidade', item.modalidade],
                 ['Valor estimado', toCurrency(item.valorEstimado)],
@@ -2414,6 +2417,13 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                       </span>
                     </div>
 
+                    {item.gerenteConta && (
+                      <div className="rounded-lg bg-slate-900/50 border border-slate-800 p-2.5">
+                        <span className="text-slate-400 block text-[11px] font-medium">Gerente de Contas</span>
+                        <span className="font-semibold text-slate-200 text-sm block truncate">{item.gerenteConta}</span>
+                      </div>
+                    )}
+
                     <div className="rounded-lg bg-slate-900/50 border border-slate-800 p-2.5">
                       <span className="text-slate-400 block text-[11px] font-medium">Valor Estimado / Prazo</span>
                       <span className="font-bold text-emerald-400 text-sm block">{toCurrency(item.valorEstimado)}</span>
@@ -2981,6 +2991,17 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                   onChange={(event) => setOpportunityForm((prev) => ({ ...prev, cliente: event.target.value }))}
                   className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
                   placeholder="Nome do cliente"
+                />
+              </label>
+
+              <label className="space-y-1">
+                <span className="text-sm text-slate-300">Gerente de Contas</span>
+                <input
+                  type="text"
+                  value={opportunityForm.gerenteConta}
+                  onChange={(event) => setOpportunityForm((prev) => ({ ...prev, gerenteConta: event.target.value }))}
+                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  placeholder="Nome do gerente de contas"
                 />
               </label>
 
