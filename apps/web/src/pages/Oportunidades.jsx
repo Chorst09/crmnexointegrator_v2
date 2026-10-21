@@ -27,7 +27,6 @@ import {
   MessageCircle,
   StickyNote,
   FolderKanban,
-  Rocket,
   List,
   LayoutGrid
 } from 'lucide-react';
@@ -40,7 +39,6 @@ import OpportunityForm from '../components/OpportunityForm';
 import CloseOpportunityModal from '../components/CloseOpportunityModal';
 import OpportunityAttentionPoints from '../components/OpportunityAttentionPoints';
 import OpportunityLearnings from '../components/OpportunityLearnings';
-import B2BTestFlowModal from '../components/B2BTestFlowModal';
 import KickoffSection from '../components/KickoffSection';
 import {
   isCompanyInClientType,
@@ -126,7 +124,6 @@ export default function Oportunidades() {
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState(null);
-  const [isTestModalOpen, setIsTestModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState('');
   const [sellerFilter, setSellerFilter] = useState('');
@@ -1259,12 +1256,6 @@ export default function Oportunidades() {
         breadcrumbs={['CRM', pipelineLabel, 'Oportunidades']}
         actions={[
           {
-            label: 'Testar Fluxo B2B E2E',
-            icon: Rocket,
-            onClick: () => setIsTestModalOpen(true),
-            variant: 'secondary'
-          },
-          {
             label: 'Nova Oportunidade',
             icon: Plus,
             onClick: openCreateOpportunity,
@@ -2370,13 +2361,6 @@ export default function Oportunidades() {
         }
       />
 
-      <B2BTestFlowModal
-        isOpen={isTestModalOpen}
-        onClose={() => {
-          setIsTestModalOpen(false);
-          fetchOpportunities();
-        }}
-      />
     </div>
   );
 }
