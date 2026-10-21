@@ -373,16 +373,27 @@ export default function Sidebar({
     const nav = navRef.current;
     if (!nav) return undefined;
 
-    const restoreScroll = () => {
-      const saved = Number(sessionStorage.getItem(SIDEBAR_SCROLL_KEY));
-      if (Number.isFinite(saved)) {
-        nav.scrollTop = saved;
-      }
+    // Salva posição do scroll continuamente durante rolagem
+    const handleScroll = () => {
+      sessionStorage.setItem(SIDEBAR_SCROLL_KEY, String(nav.scrollTop));
     };
+    nav.addEventListener('scroll', handleScroll, { passive: true });
+    return () => nav.removeEventListener('scroll', handleScroll);
+  }, []);
 
-    restoreScroll();
-    const frame = window.requestAnimationFrame(restoreScroll);
-    return () => window.cancelAnimationFrame(frame);
+  useEffect(() => {
+    // Restaura posição do scroll após navegação
+    // Usa setTimeout para aguardar seções expandirem e DOM estabilizar
+    const saved = Number(sessionStorage.getItem(SIDEBAR_SCROLL_KEY));
+    if (!Number.isFinite(saved) || saved <= 0) return undefined;
+
+    const timer = setTimeout(() => {
+      if (navRef.current) {
+        navRef.current.scrollTop = saved;
+      }
+    }, 50);
+
+    return () => clearTimeout(timer);
   }, [location.pathname]);
 
   const toggleSection = (e, section) => {
@@ -409,7 +420,7 @@ export default function Sidebar({
       <NavLink
         to={item.path}
         title={collapsed ? `${item.label} - ${item.description}` : item.description}
-        onClick={saveSidebarScroll}
+        onClick={() => {}}
         className={({ isActive }) => [
           'group relative flex w-full overflow-hidden rounded-2xl',
           collapsed ? 'items-start gap-3 px-3 py-2.5 lg:items-center lg:justify-center lg:gap-0 lg:px-2' : 'items-start gap-3 px-3 py-2.5',
