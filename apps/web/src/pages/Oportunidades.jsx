@@ -766,7 +766,10 @@ export default function Oportunidades() {
         fetchOpportunities();
         setShowModal(false);
         resetForm();
-        alert(selectedOpportunity ? 'Oportunidade atualizada!' : 'Oportunidade criada!');
+        // Usar window.alert como fallback — funciona em todos os browsers
+        setTimeout(() => {
+          window.alert(selectedOpportunity ? 'Oportunidade atualizada com sucesso!' : 'Oportunidade criada com sucesso!');
+        }, 100);
       } else {
         let errMsg = 'Erro ao salvar oportunidade';
         try {
