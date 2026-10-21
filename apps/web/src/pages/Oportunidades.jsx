@@ -693,7 +693,7 @@ export default function Oportunidades() {
         manufacturer: payloadFormData.manufacturer || null,
         licenseCount: payloadFormData.licenseCount || null,
         contractMonths: payloadFormData.contractMonths || null,
-        monthlyValue: payloadFormData.monthlyValue || null,
+        monthlyValue: payloadFormData.monthlyValue === '' ? null : (payloadFormData.monthlyValue ?? null),
         installationFee: payloadFormData.installationFee || null,
         leadSourceDetail: payloadFormData.leadSourceDetail || null,
         projectType: payloadFormData.projectType || 'SINGLE',
@@ -739,10 +739,10 @@ export default function Oportunidades() {
         // Campos de receita recorrente e pontual
         revenueType: payloadFormData.revenueType || null,
         contractPeriodMonths: payloadFormData.contractPeriodMonths ? Number(payloadFormData.contractPeriodMonths) : null,
-        monthlyRecurringValue: payloadFormData.monthlyRecurringValue ? Number(payloadFormData.monthlyRecurringValue) : null,
-        totalContractValue: payloadFormData.totalContractValue ? Number(payloadFormData.totalContractValue) : null,
-        totalProductsValue: payloadFormData.totalProductsValue ? Number(payloadFormData.totalProductsValue) : null,
-        setupValue: payloadFormData.setupValue ? Number(payloadFormData.setupValue) : null
+        monthlyRecurringValue: payloadFormData.monthlyRecurringValue === '' || payloadFormData.monthlyRecurringValue == null ? null : Number(payloadFormData.monthlyRecurringValue),
+        totalContractValue: payloadFormData.totalContractValue === '' || payloadFormData.totalContractValue == null ? null : Number(payloadFormData.totalContractValue),
+        totalProductsValue: payloadFormData.totalProductsValue === '' || payloadFormData.totalProductsValue == null ? null : Number(payloadFormData.totalProductsValue),
+        setupValue: payloadFormData.setupValue === '' || payloadFormData.setupValue == null ? null : Number(payloadFormData.setupValue)
       };
 
       console.log('[DEBUG handleSubmit] Body a enviar:', body);
@@ -816,6 +816,12 @@ export default function Oportunidades() {
       manufacturer: opportunity.manufacturer || '',
       licenseCount: opportunity.licenseCount ?? '',
       contractMonths: opportunity.contractMonths ?? '',
+      revenueType: opportunity.revenueType || (opportunity.projectType === 'MONTHLY' ? 'MENSAL' : 'PONTUAL'),
+      contractPeriodMonths: opportunity.contractPeriodMonths || opportunity.projectMonths || opportunity.contractMonths || 12,
+      monthlyRecurringValue: opportunity.monthlyRecurringValue ?? opportunity.monthlyValue ?? (Number(opportunity.value || 0) / Number(opportunity.projectMonths || opportunity.contractMonths || 12)),
+      totalContractValue: opportunity.totalContractValue ?? opportunity.value ?? 0,
+      totalProductsValue: opportunity.totalProductsValue ?? opportunity.value ?? '',
+      setupValue: opportunity.setupValue ?? opportunity.installationFee ?? '',
       monthlyValue: opportunity.monthlyValue ?? '',
       installationFee: opportunity.installationFee ?? '',
       leadSourceDetail: opportunity.leadSourceDetail || '',

@@ -59,15 +59,22 @@ export function buildB2BDashboardAnalytics(opportunities = [], { period = 'year'
   const range = getB2BPeriod(period, now, opportunities);
   const inPeriod = value => value && value >= range.start && value <= range.end;
   const rows = opportunities.map(item => {
+    if (item.revenueType === 'MENSAL') item = { ...item, projectType: 'MONTHLY', projectMonths: item.contractPeriodMonths || item.projectMonths || item.contractMonths, monthlyValue: item.monthlyRecurringValue ?? item.monthlyValue, value: item.totalContractValue ?? item.value };
+    if (item.revenueType === 'PONTUAL') item = { ...item, projectType: 'SINGLE', value: item.totalProductsValue ?? item.value, installationFee: item.setupValue ?? item.installationFee };
     const entry = date(item.leadEntryDate) || date(item.createdAt);
     const closed = date(item.actualCloseDate) || (item.stage === 'LOST' ? date(item.exitDate) : null);
     const updated = date(item.updatedAt);
     const expected = date(item.expectedCloseDate);
-    const value = Math.max(0, number(item.value));
+    const monthly = item.projectType === 'MONTHLY';
+    const months = Math.max(1, Math.trunc(number(item.projectMonths || item.contractMonths) || 12));
+    const monthlyValue = item.monthlyValue !== null && item.monthlyValue !== undefined && item.monthlyValue !== ''
+      ? Math.max(0, number(item.monthlyValue)) : Math.max(0, number(item.value)) / months;
+    const setup = Math.max(0, number(item.installationFee));
+    const value = monthly ? monthlyValue * months : Math.max(0, number(item.value)) + setup;
     const age = entry && entry <= range.end ? Math.floor((range.end - entry) / DAY) : null;
     const idle = updated && updated <= range.end ? Math.floor((range.end - updated) / DAY) : null;
     const overdue = expected && expected < range.end ? Math.floor((range.end - expected) / DAY) : 0;
-    return { ...item, __stage: item.stage, __stageLabel: LABELS[item.stage] || item.stage, __entry: entry, __closed: closed, __expected: expected, __value: value, __probability: probability(item.probability), __weightedValue: value * probability(item.probability) / 100, __ageDays: age, __idleDays: idle, __overdueDays: overdue };
+    return { ...item, __monthly: monthly, __months: months, __monthlyValue: monthlyValue, __setup: setup, __stage: item.stage, __stageLabel: LABELS[item.stage] || item.stage, __entry: entry, __closed: closed, __expected: expected, __value: value, __probability: probability(item.probability), __weightedValue: value * probability(item.probability) / 100, __ageDays: age, __idleDays: idle, __overdueDays: overdue };
   });
   const open = rows.filter(row => !['WON', 'LOST'].includes(row.stage));
   const won = rows.filter(row => row.stage === 'WON');
@@ -90,6 +97,43 @@ export function buildB2BDashboardAnalytics(opportunities = [], { period = 'year'
     }
   }
   const timeline = [...buckets.values()];
+  // Revenue schedule is a projection from won contracts, not collected invoices.
+  // First installment is recognized on closure; later installments use that day,
+  // clamped to the last calendar day for shorter months.
+  const revenueTimeline = [...buckets.values()].map(row => ({ date: row.date, label: row.label, recurring: 0, oneTime: 0 }));
+  const revenueBuckets = new Map(revenueTimeline.map(row => [range.daily ? row.date : row.date.slice(0, 7), row]));
+  const addRevenue = (when, field, value) => {
+    if (!inPeriod(when)) return;
+    const bucket = revenueBuckets.get(range.daily ? key(when) : month(when));
+    if (bucket) bucket[field] += value;
+  };
+  let activeMrr = 0;
+  for (const row of won) {
+    if (!row.__closed || row.__closed > range.end) continue;
+    if (!row.__monthly) { addRevenue(row.__closed, 'oneTime', row.__value); continue; }
+    const installmentDate = offset => {
+      const start = monthStart(row.__closed, offset);
+      const lastDay = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth() + 1, 0)).getUTCDate();
+      return new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), Math.min(row.__closed.getUTCDate(), lastDay)));
+    };
+    if (range.end < installmentDate(row.__months)) activeMrr += row.__monthlyValue;
+    addRevenue(row.__closed, 'oneTime', row.__setup);
+    for (let offset = 0; offset < row.__months; offset += 1) {
+      const due = installmentDate(offset);
+      if (due > range.end) break;
+      addRevenue(due, 'recurring', row.__monthlyValue);
+    }
+  }
+  const revenue = {
+    activeMrr: round(activeMrr),
+    periodRecurring: round(sum(revenueTimeline, 'recurring')),
+    periodOneTime: round(sum(revenueTimeline, 'oneTime')),
+    recurringPipelineMonthly: round(sum(open.filter(row => row.__monthly), '__monthlyValue')),
+    recurringPipelineTotal: round(sum(open.filter(row => row.__monthly), '__value')),
+    oneTimePipeline: round(sum(open.filter(row => !row.__monthly), '__value')),
+    undatedWins: won.filter(row => !row.__closed).length
+  };
+
   const forecast = Array.from({ length: 6 }, (_, index) => ({ month: key(monthStart(range.end, index)), forecast: 0, nominal: 0, deals: 0 }));
   for (const row of open) {
     if (!row.__expected || row.__expected < range.end) continue;
@@ -139,6 +183,7 @@ export function buildB2BDashboardAnalytics(opportunities = [], { period = 'year'
   const sourceRows = group(rows.map(row => ({ ...row, __source: row.leadSourceDetail || row.source })), '__source');
   return {
     period: { start: key(range.start), end: key(range.end), daily: range.daily },
+    revenue,
     kpis: {
       totalOpportunities: rows.length, openOpportunities: open.length, wonOpportunities: won.length, lostOpportunities: lost.length,
       activeLeads: open.filter(row => row.stage === 'LEAD').length, pipelineValue: round(sum(open, '__value')), weightedPipelineValue: round(sum(open, '__weightedValue')),
@@ -156,6 +201,7 @@ export function buildB2BDashboardAnalytics(opportunities = [], { period = 'year'
     charts: {
       funnel: STAGES.map(stage => { const items = rows.filter(row => row.stage === stage); return { stage, _count: { stage: items.length }, _sum: { value: round(sum(items, '__value')) } }; }),
       leadSources: sourceRows.map(row => ({ source: row.label, _count: { source: row.count } })),
+      revenueTimeline: revenueTimeline.map(row => ({ ...row, recurring: round(row.recurring), oneTime: round(row.oneTime) })),
       timeline, forecast: forecast.map(row => ({ ...row, nominal: round(row.nominal), forecast: round(row.forecast) })),
       monthlyRevenue: timeline.map(row => ({ month: row.date, revenue: round(row.revenue), deals: row.won })),
       sellerPerformance

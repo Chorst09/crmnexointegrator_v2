@@ -395,7 +395,22 @@ export default function OpportunityForm({
   // ── Simple B2B form ──────────────────────────────────────────────────────────
   if (!isB2G) {
     return (
-      <form onSubmit={onSubmit} className={modalContainerClass}>
+      <form onSubmit={e => {
+        const monthly = formData.revenueType === 'MENSAL';
+        const months = Number(formData.contractPeriodMonths || 12);
+        const installment = Number(formData.monthlyRecurringValue || 0);
+        const products = Number(formData.totalProductsValue || 0);
+        const setup = Number(formData.setupValue || 0);
+        onSubmit(e, { ...formData,
+          projectType: monthly ? 'MONTHLY' : 'SINGLE',
+          projectMonths: monthly ? months : null,
+          contractMonths: monthly ? months : null,
+          monthlyValue: monthly ? installment : null,
+          installationFee: monthly ? null : setup,
+          totalContractValue: monthly ? Math.round(installment * months * 100) / 100 : null,
+          value: monthly ? Math.round(installment * months * 100) / 100 : products
+        });
+      }} className={modalContainerClass}>
         <div className={gridCls}>
           <div className="sm:col-span-2">
             <label className={labelCls}>Título</label>
@@ -448,18 +463,6 @@ export default function OpportunityForm({
                   <label className={labelCls}>Licenças</label>
                   <input type="number" min={0} className={inputCls} value={formData.licenseCount || ''} onChange={e => setFormData(p => ({ ...p, licenseCount: e.target.value }))} />
                 </div>
-                <div>
-                  <label className={labelCls}>Meses de Contrato</label>
-                  <input type="number" min={0} className={inputCls} value={formData.contractMonths || ''} onChange={e => setFormData(p => ({ ...p, contractMonths: e.target.value }))} />
-                </div>
-                <div>
-                  <label className={labelCls}>Valor Mensal (R$)</label>
-                  <input type="number" min={0} step="0.01" className={inputCls} value={formData.monthlyValue || ''} onChange={e => setFormData(p => ({ ...p, monthlyValue: e.target.value }))} />
-                </div>
-                <div>
-                  <label className={labelCls}>Taxa de Instalação (R$)</label>
-                  <input type="number" min={0} step="0.01" className={inputCls} value={formData.installationFee || ''} onChange={e => setFormData(p => ({ ...p, installationFee: e.target.value }))} />
-                </div>
               </div>
             </div>
           </div>
@@ -497,11 +500,6 @@ export default function OpportunityForm({
           </div>
 
           <div>
-            <label className={labelCls}>Valor (R$)</label>
-            <input type="number" className={inputCls} value={formData.value || ''} onChange={e => setFormData(p => ({ ...p, value: e.target.value }))} />
-          </div>
-
-          <div>
             <label className={labelCls}>Probabilidade (%)</label>
             <input type="number" min={0} max={100} className={inputCls} value={formData.probability || ''} onChange={e => setFormData(p => ({ ...p, probability: e.target.value }))} />
           </div>
@@ -512,8 +510,8 @@ export default function OpportunityForm({
           </div>
 
           <div className="sm:col-span-2">
-            <label className={labelCls}>Tipo de Receita</label>
-            <select 
+            <label className={labelCls} htmlFor="b2b-type">Tipo de Receita</label>
+            <select required id="b2b-type"
               className={inputCls} 
               value={formData.revenueType || ''} 
               onChange={e => {
@@ -539,8 +537,8 @@ export default function OpportunityForm({
           {formData.revenueType === 'MENSAL' && (
             <>
               <div>
-                <label className={labelCls}>Período do contrato (meses)</label>
-                <select 
+                <label className={labelCls} htmlFor="b2b-period">Período do contrato (meses)</label>
+                <select id="b2b-period"
                   className={inputCls}
                   value={formData.contractPeriodMonths || 12}
                   onChange={e => {
@@ -562,13 +560,13 @@ export default function OpportunityForm({
               </div>
 
               <div>
-                <label className={labelCls}>Valor mensal (R$)</label>
-                <input 
+                <label className={labelCls} htmlFor="b2b-monthly">Valor mensal (R$)</label>
+                <input required id="b2b-monthly"
                   type="number" 
                   min={0} 
                   step="0.01" 
                   className={inputCls} 
-                  value={formData.monthlyRecurringValue || ''} 
+                  value={formData.monthlyRecurringValue ?? ''}
                   onChange={e => {
                     const monthly = Number(e.target.value) || 0;
                     const months = Number(formData.contractPeriodMonths) || 12;
@@ -583,8 +581,8 @@ export default function OpportunityForm({
               </div>
 
               <div>
-                <label className={labelCls}>Valor total do contrato (R$)</label>
-                <input 
+                <label className={labelCls} htmlFor="b2b-total">Valor total do contrato (R$)</label>
+                <input id="b2b-total"
                   type="number" 
                   className={`${inputCls} bg-gray-100 dark:bg-gray-800`}
                   value={formData.totalContractValue || ''} 
@@ -601,26 +599,26 @@ export default function OpportunityForm({
           {formData.revenueType === 'PONTUAL' && (
             <>
               <div>
-                <label className={labelCls}>Valor total dos produtos (R$)</label>
-                <input 
+                <label className={labelCls} htmlFor="b2b-products">Valor total dos produtos (R$)</label>
+                <input required id="b2b-products"
                   type="number" 
                   min={0} 
                   step="0.01" 
                   className={inputCls} 
-                  value={formData.totalProductsValue || ''} 
+                  value={formData.totalProductsValue ?? ''}
                   onChange={e => setFormData(p => ({ ...p, totalProductsValue: e.target.value }))}
                   placeholder="0,00"
                 />
               </div>
 
               <div>
-                <label className={labelCls}>Valor do setup (R$)</label>
-                <input 
+                <label className={labelCls} htmlFor="b2b-setup">Valor do setup (R$)</label>
+                <input id="b2b-setup"
                   type="number" 
                   min={0} 
                   step="0.01" 
                   className={inputCls} 
-                  value={formData.setupValue || ''} 
+                  value={formData.setupValue ?? ''}
                   onChange={e => setFormData(p => ({ ...p, setupValue: e.target.value }))}
                   placeholder="0,00"
                 />

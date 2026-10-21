@@ -240,17 +240,25 @@ const revenueBreakdownFromOpportunities = (rows = []) =>
       return acc;
     }
 
-    const value = toNumber(item?.value);
+    if (item.revenueType === 'MENSAL') item = { ...item, projectType: 'MONTHLY', projectMonths: item.contractPeriodMonths || item.projectMonths || item.contractMonths, monthlyValue: item.monthlyRecurringValue ?? item.monthlyValue, value: item.totalContractValue ?? item.value };
+    if (item.revenueType === 'PONTUAL') item = { ...item, projectType: 'SINGLE', value: item.totalProductsValue ?? item.value, installationFee: item.setupValue ?? item.installationFee };
+    const value = Math.max(0, toNumber(item?.value));
+    const setup = Math.max(0, toNumber(item?.installationFee));
     const isMonthly = normalizeProjectType(item?.projectType) === MONTHLY_PROJECT_TYPE;
     if (isMonthly) {
-      const months = normalizeProjectMonths(item?.projectMonths);
-      acc.monthly += value;
-      acc.contract += value * months;
-      acc.total += value * months;
+      const months = Math.max(1, Math.trunc(normalizeProjectMonths(item?.projectMonths || item?.contractMonths)));
+      // value stores the contract total; monthlyValue is the installment.
+      // Older opportunities may only have the total recorded.
+      const monthlyValue = item?.monthlyValue !== null && item?.monthlyValue !== undefined && item?.monthlyValue !== ''
+        ? Math.max(0, toNumber(item.monthlyValue)) : value / months;
+      const contractTotal = Math.round(monthlyValue * months * 100) / 100;
+      acc.monthly += monthlyValue;
+      acc.contract += contractTotal;
+      acc.total += contractTotal;
       acc.monthlyCount += 1;
     } else {
-      acc.single += value;
-      acc.total += value;
+      acc.single += value + setup;
+      acc.total += value + setup;
       acc.singleCount += 1;
     }
     acc.count += 1;
