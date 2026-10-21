@@ -385,6 +385,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
   const [registry, setRegistry] = useState(defaultRegistry);
   const [pipelineOpportunities, setPipelineOpportunities] = useState([]);
+  const [users, setUsers] = useState([]);
 
   const [modalOpen, setModalOpen] = useState(false);
   const [modalType, setModalType] = useState(forcedTabKey || TAB_KEYS.DISTRIBUIDORES);
@@ -407,9 +408,10 @@ export default function PrevendasCadastros({ forcedTab = null }) {
     try {
       setLoading(true);
 
-      const [registryRes, opportunitiesRes] = await Promise.all([
+      const [registryRes, opportunitiesRes, usersRes] = await Promise.all([
         fetch(buildApiUrl('/prevendas-cadastros'), { headers: getAuthHeaders() }),
-        fetch(buildApiUrl('/opportunities'), { headers: getAuthHeaders() })
+        fetch(buildApiUrl('/opportunities'), { headers: getAuthHeaders() }),
+        fetch(buildApiUrl('/users'), { headers: getAuthHeaders() })
       ]);
 
       const registryPayload = registryRes.ok
@@ -420,8 +422,13 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         ? await opportunitiesRes.json().catch(() => [])
         : [];
 
+      const usersPayload = usersRes.ok
+        ? await usersRes.json().catch(() => [])
+        : [];
+
       setRegistry(registryPayload);
       setPipelineOpportunities(Array.isArray(opportunitiesPayload) ? opportunitiesPayload : []);
+      setUsers(Array.isArray(usersPayload) ? usersPayload.filter(u => u && u.id && u.name) : []);
     } catch (error) {
       console.error('Erro ao carregar cadastros de pré-vendas:', error);
       setRegistry(defaultRegistry);
@@ -2996,13 +3003,16 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
               <label className="space-y-1">
                 <span className="text-sm text-slate-300">Gerente de Contas</span>
-                <input
-                  type="text"
+                <select
                   value={opportunityForm.gerenteConta}
                   onChange={(event) => setOpportunityForm((prev) => ({ ...prev, gerenteConta: event.target.value }))}
                   className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
-                  placeholder="Nome do gerente de contas"
-                />
+                >
+                  <option value="">Selecionar gerente de contas</option>
+                  {users.map((u) => (
+                    <option key={u.id} value={u.name}>{u.name}</option>
+                  ))}
+                </select>
               </label>
 
               <label className="space-y-1">
