@@ -670,9 +670,18 @@ export default function Oportunidades() {
       const method = selectedOpportunity ? 'PUT' : 'POST';
       console.log('[DEBUG handleSubmit] Method:', method);
       
-      const parsedValue = parseFloat(payloadFormData.value);
       const parsedProbability = parseInt(payloadFormData.probability);
       const resolvedOwnerId = payloadFormData.ownerId || userId || '';
+
+      // Derivar value automaticamente a partir do Modelo de Receita
+      // O campo value alimenta todo o dashboard (pipeline, funil, KPIs)
+      let derivedValue = parseFloat(payloadFormData.value) || 0;
+      if (payloadFormData.revenueType === 'MENSAL' && payloadFormData.totalContractValue) {
+        derivedValue = Number(payloadFormData.totalContractValue);
+      } else if (payloadFormData.revenueType === 'PONTUAL') {
+        derivedValue = (Number(payloadFormData.totalProductsValue) || 0) + (Number(payloadFormData.setupValue) || 0);
+      }
+      const parsedValue = Number.isFinite(derivedValue) ? derivedValue : 0;
 
       if (!resolvedOwnerId) {
         alert('Selecione um responsável para criar a oportunidade.');
