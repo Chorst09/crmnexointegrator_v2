@@ -149,6 +149,9 @@ const buildGeneralDashboard = async (user = {}) => {
     description: true,
     projectType: true,
     projectMonths: true,
+    contractMonths: true,
+    monthlyValue: true,
+    installationFee: true,
     number: true,
     stage: true,
     b2gStage: true,
@@ -513,6 +516,7 @@ export default async function handler(req) {
               ownerId: true, leadEntryDate: true, expectedCloseDate: true, actualCloseDate: true,
               exitDate: true, createdAt: true, updatedAt: true, leadSourceDetail: true, source: true,
               projectTower: true, projectClientType: true,
+              projectType: true, projectMonths: true, contractMonths: true, monthlyValue: true, installationFee: true,
               company: { select: { id: true, name: true } },
               owner: { select: { id: true, name: true } }
             },

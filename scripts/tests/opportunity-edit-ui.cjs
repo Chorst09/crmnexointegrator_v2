@@ -56,6 +56,9 @@ const opportunity = {
     }
 
     await page.getByRole('heading', { name: 'Editar Oportunidade', exact: true }).waitFor();
+    for (const obsoleteLabel of ['Meses de Contrato', 'Valor Mensal (R$)', 'Taxa de Instalação (R$)', 'Valor (R$)']) {
+      assert.equal(await page.locator('form label').filter({ hasText: new RegExp('^' + obsoleteLabel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '$') }).count(), 0);
+    }
     const titleInput = page.locator('form input').first();
     assert.equal(await titleInput.inputValue(), opportunity.title);
     assert.equal(writes.length, 0);
@@ -74,6 +77,34 @@ const opportunity = {
     await page.getByRole('heading', { name: 'Editar Oportunidade', exact: true }).waitFor();
     assert.equal(await page.locator('form input').first().inputValue(), 'Oportunidade QA atualizada');
     await page.getByRole('button', { name: 'Cancelar', exact: true }).click();
+    await page.locator('button[title="Editar"]').first().click();
+    const type = page.getByLabel('Tipo de Receita');
+    assert.equal(await page.getByLabel('Valor total dos produtos (R$)').inputValue(), '36');
+    await page.getByLabel('Valor do setup (R$)').fill('250');
+    await type.selectOption('MENSAL');
+    await page.getByLabel('Valor mensal (R$)').fill('150.50');
+    await page.getByLabel('Período do contrato (meses)').selectOption('24');
+    assert.equal(await page.getByLabel('Valor total do contrato (R$)').inputValue(), '3612');
+    assert.equal(await page.getByLabel('Valor total dos produtos (R$)').count(), 0);
+    await page.getByRole('button', { name: 'Salvar Alterações', exact: true }).click();
+    await page.waitForFunction(() => !document.getElementById('b2b-monthly'));
+    assert.equal(writes[1].body.value, 3612);
+    assert.equal(writes[1].body.monthlyValue, 150.5);
+    assert.equal(writes[1].body.contractMonths, 24);
+    assert.equal(writes[1].body.projectMonths, 24);
+    await page.locator('button[title="Editar"]').first().click();
+    assert.equal(await page.getByLabel('Valor mensal (R$)').inputValue(), '150.5');
+    await type.selectOption('PONTUAL');
+    await page.getByLabel('Valor total dos produtos (R$)').fill('1800');
+    await page.getByLabel('Valor do setup (R$)').fill('250');
+    assert.equal(await page.getByLabel('Período do contrato (meses)').count(), 0);
+    await page.getByRole('button', { name: 'Salvar Alterações', exact: true }).click();
+    await page.waitForFunction(() => !document.getElementById('b2b-products'));
+    assert.equal(writes[2].body.value, 1800);
+    assert.equal(Number(writes[2].body.installationFee), 250);
+    assert.equal(writes[2].body.monthlyValue, null);
+    assert.equal(writes[2].body.contractMonths, null);
+    assert.equal(writes[2].body.projectMonths, null);
     assert.deepEqual(errors, []);
     console.log('Edição validada: formulário abre no Kanban e na lista, salva os dados pela API simulada e preserva empresa, responsável e valor.');
   } finally {

@@ -145,3 +145,32 @@ for (const apiFile of ['apps/api/api/dashboard.js', 'backend/api/dashboard.js'])
     assert.equal(calls.length, 0);
   });
 }
+
+test('revenue separates installments, products and setup, with active contracts independent of the period', async () => {
+  const { buildB2BDashboardAnalytics } = await analytics;
+  const rows = [
+    opportunity({ stage: 'WON', projectType: 'MONTHLY', projectMonths: 12, monthlyValue: 100, value: 1200, installationFee: 50, actualCloseDate: '2026-08-10' }),
+    opportunity({ stage: 'WON', value: 1000, installationFee: 200, actualCloseDate: '2026-10-10' }),
+    opportunity({ stage: 'WON', projectType: 'MONTHLY', projectMonths: 12, monthlyValue: 500, actualCloseDate: null }),
+    opportunity({ stage: 'LOST', projectType: 'MONTHLY', monthlyValue: 9000, actualCloseDate: '2026-10-10' }),
+    opportunity({ projectType: 'MONTHLY', projectMonths: 24, monthlyValue: 300, value: 7200 }),
+    opportunity({ value: 2000, installationFee: 100 })
+  ];
+  const result = buildB2BDashboardAnalytics(rows, { now, period: 'month' });
+  assert.deepEqual(result.revenue, { activeMrr: 100, periodRecurring: 100, periodOneTime: 1200, recurringPipelineMonthly: 300, recurringPipelineTotal: 7200, oneTimePipeline: 2100, undatedWins: 1 });
+  assert.equal(result.charts.revenueTimeline.find(row => row.date === '2026-10-10').recurring, 100);
+  const year = buildB2BDashboardAnalytics(rows, { now });
+  assert.equal(year.revenue.periodRecurring, 300);
+  assert.equal(year.revenue.periodOneTime, 1250);
+});
+
+test('recurrence clamps month end, expires after its term and supports legacy totals', async () => {
+  const { buildB2BDashboardAnalytics } = await analytics;
+  const rows = [opportunity({ stage: 'WON', projectType: 'MONTHLY', projectMonths: 2, value: 200, actualCloseDate: '2026-01-31' })];
+  const feb = buildB2BDashboardAnalytics(rows, { now: new Date('2026-02-28T15:00:00Z'), period: 'month' });
+  assert.equal(feb.revenue.activeMrr, 100);
+  assert.equal(feb.charts.revenueTimeline.find(row => row.date === '2026-02-28').recurring, 100);
+  const oct = buildB2BDashboardAnalytics(rows, { now });
+  assert.equal(oct.revenue.activeMrr, 0);
+  assert.equal(oct.revenue.periodRecurring, 200);
+});

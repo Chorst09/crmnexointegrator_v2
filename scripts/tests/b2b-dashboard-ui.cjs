@@ -59,6 +59,12 @@ const rows = Array.from({ length: 362 }, (_, index) => ({
     assert.ok(await page.getByText('362 entradas e 0 vendas ganhas no período', { exact: true }).isVisible());
     assert.ok(!(await page.getByText('Sem dados para o periodo selecionado').count()));
     assert.ok(!(await page.getByText('Meta 85%').count()));
+    const revenueRegion = page.getByRole('region', { name: 'Receitas recorrentes e pontuais' });
+    assert.equal(await revenueRegion.getByText('Receita mensal ativa (MRR)', { exact: true }).count(), 1);
+    assert.equal(await revenueRegion.getByText('Evolução das Receitas', { exact: true }).count(), 1);
+    assert.equal(await revenueRegion.getByText('Composição da Receita', { exact: true }).count(), 1);
+    await revenueRegion.scrollIntoViewIfNeeded();
+    await page.screenshot({ path: '/tmp/b2b-dashboard-revenue.png' });
     await page.waitForTimeout(900); // Chart.js entrance animation.
     await page.screenshot({ path: '/tmp/b2b-dashboard-desktop.png' });
     await page.locator('.pipeline-model__bottom-grid').scrollIntoViewIfNeeded();
