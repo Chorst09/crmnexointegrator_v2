@@ -21,12 +21,13 @@ import {
   Briefcase
 } from 'lucide-react';
 import {
-  BarChart, Bar, AreaChart, Area, ComposedChart, Line, XAxis, YAxis,
+  BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts';
 import PageHeader from '../components/PageHeader';
 import GradientCard from '../components/GradientCard';
 import ModernTable from '../components/ModernTable';
+import FinancialRevenueComposition, { REVENUE_COLORS } from '../components/FinancialRevenueComposition';
 
 const AnaliseFinanceira = () => {
   const [data, setData] = useState(null);
@@ -74,13 +75,19 @@ const AnaliseFinanceira = () => {
     });
   };
 
+  const revenueColumns = [
+    { key: 'kind', label: 'Perfil da receita', render: row => <span className="text-sm text-slate-300">{row?.kind || 'Não classificada'}</span> },
+    { key: 'recurringMonthly', label: 'Mensal (R$/mês)', render: row => <span className="font-semibold" style={{ color: REVENUE_COLORS.recurring }}>{formatBRL(row?.recurringMonthly)} / mês</span> },
+    { key: 'oneTime', label: 'Pontual (R$)', render: row => <span className="font-semibold" style={{ color: REVENUE_COLORS.oneTime }}>{formatBRL(row?.oneTime)}</span> }
+  ];
+
   const fetchFinancialData = async () => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
         periodo,
-        ...(dataInicio && { dataInicio }),
-        ...(dataFim && { dataFim }),
+        ...(periodo === 'customizado' && dataInicio && { dataInicio }),
+        ...(periodo === 'customizado' && dataFim && { dataFim }),
         ...(vendedor && { vendedor })
       });
 
@@ -170,7 +177,7 @@ const AnaliseFinanceira = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-5">
         <PageHeader
           title="Gestão & Análise Financeira"
-          description="Acompanhamento executivo de faturamento realizado, segmentação B2B / B2G e projeções do Simulador"
+          description="Receitas mensais e pontuais, contratos ganhos e oportunidades B2B / B2G"
           icon={BarChart3}
         />
         <div className="flex items-center gap-3">
@@ -192,6 +199,8 @@ const AnaliseFinanceira = () => {
         </div>
       </div>
 
+      {error && data && <p role="alert" className="text-sm text-amber-300">Falha ao atualizar: {error}. Os valores exibidos são da última consulta bem-sucedida.</p>}
+
       {/* SELETOR PRINCIPAL DE ANÁLISE (Tabs de Topo com destaque) */}
       <div className="bg-slate-900/90 border border-slate-800 p-2 rounded-2xl shadow-xl backdrop-blur-md">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
@@ -207,7 +216,7 @@ const AnaliseFinanceira = () => {
             <Layers className="w-5 h-5" />
             <div className="text-left">
               <div className="leading-tight">Visão Geral</div>
-              <div className="text-[11px] opacity-75 font-normal">Consolidado Real + Pipeline</div>
+              <div className="text-[11px] opacity-75 font-normal">Contratos + Pipeline</div>
             </div>
           </button>
 
@@ -334,6 +343,8 @@ const AnaliseFinanceira = () => {
         </div>
       </GradientCard>
 
+      {segmentoAtivo !== 'simulador' && <FinancialRevenueComposition key={segmentoAtivo} revenue={data?.[segmentoAtivo]?.revenue} scope={segmentoAtivo === 'geral' ? 'B2B + B2G' : segmentoAtivo.toUpperCase()} />}
+
       {/* ========================================================================= */}
       {/* 1. VISÃO GERAL CONSOLIDADA */}
       {/* ========================================================================= */}
@@ -346,8 +357,8 @@ const AnaliseFinanceira = () => {
                 <CheckCircle2 className="w-5 h-5" />
               </div>
               <div>
-                <h4 className="text-sm font-semibold text-white">Receita Financeira Realizada (Fechado Ganho)</h4>
-                <p className="text-xs text-slate-400">Total faturado e homologado de contratos efetivamente ganhos (B2B + B2G).</p>
+                <h4 className="text-sm font-semibold text-white">Valor contratado · negócios ganhos</h4>
+                <p className="text-xs text-slate-400">Soma dos contratos ganhos: recorrência em todo o prazo + cobranças pontuais (B2B + B2G).</p>
               </div>
             </div>
             <div className="text-right">
@@ -358,30 +369,30 @@ const AnaliseFinanceira = () => {
 
           {/* Cards de KPIs Gerais */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {/* Realizado B2B */}
+            {/* Contratado B2B */}
             <div className="bg-slate-900/80 border border-emerald-900/40 p-5 rounded-2xl relative overflow-hidden shadow-lg">
               <div className="flex items-center justify-between text-emerald-400 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Realizado B2B (Privado)</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">Contratado B2B (Privado)</span>
                 <Building2 className="w-5 h-5 opacity-80" />
               </div>
               <div className="text-2xl font-bold text-white mb-1">{formatBRL(geral.receita_b2b_realizada)}</div>
               <div className="text-xs text-slate-400 flex items-center justify-between">
                 <span>{b2b.total_ganhas || 0} contratos ganhos</span>
-                <span className="text-emerald-400 font-medium">Margem: {((b2b.margem || 0) * 100).toFixed(1)}%</span>
+                <span className="text-emerald-400 font-medium">Após comissões: {((b2b.margem || 0) * 100).toFixed(1)}%</span>
               </div>
               <div className="mt-3 text-[11px] text-slate-500">Pipeline ativo: {formatBRL(geral.pipeline_b2b_em_aberto)}</div>
             </div>
 
-            {/* Realizado B2G */}
+            {/* Contratado B2G */}
             <div className="bg-slate-900/80 border border-blue-900/40 p-5 rounded-2xl relative overflow-hidden shadow-lg">
               <div className="flex items-center justify-between text-blue-400 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Realizado B2G (Público)</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">Contratado B2G (Público)</span>
                 <Landmark className="w-5 h-5 opacity-80" />
               </div>
               <div className="text-2xl font-bold text-white mb-1">{formatBRL(geral.receita_b2g_realizada)}</div>
               <div className="text-xs text-slate-400 flex items-center justify-between">
                 <span>{b2g.total_ganhas || 0} licitações ganhas</span>
-                <span className="text-blue-400 font-medium">Margem: {((b2g.margem || 0) * 100).toFixed(1)}%</span>
+                <span className="text-blue-400 font-medium">Após comissões: {((b2g.margem || 0) * 100).toFixed(1)}%</span>
               </div>
               <div className="mt-3 text-[11px] text-slate-500">Pipeline ativo: {formatBRL(geral.pipeline_b2g_em_aberto)}</div>
             </div>
@@ -409,15 +420,15 @@ const AnaliseFinanceira = () => {
             {/* Resultado Líquido Geral */}
             <div className="bg-slate-900/80 border border-cyan-900/40 p-5 rounded-2xl relative overflow-hidden shadow-lg">
               <div className="flex items-center justify-between text-cyan-400 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Resultado Líquido Real</span>
+                <span className="text-xs font-semibold uppercase tracking-wider">Saldo após comissões</span>
                 <TrendingUp className="w-5 h-5 opacity-80" />
               </div>
               <div className="text-2xl font-bold text-white mb-1">{formatBRL(geral.resultado_liquido)}</div>
               <div className="text-xs text-slate-400 flex items-center justify-between">
                 <span>Comissões: {formatBRL(geral.despesas)}</span>
-                <span className="text-cyan-400 font-semibold">Margem: {((geral.margem || 0) * 100).toFixed(1)}%</span>
+                <span className="text-cyan-400 font-semibold">Após comissões: {((geral.margem || 0) * 100).toFixed(1)}%</span>
               </div>
-              <div className="mt-3 text-[11px] text-slate-500">Lucro operacional sobre contratos fechados</div>
+              <div className="mt-3 text-[11px] text-slate-500">Contratos ganhos menos comissões aprovadas</div>
             </div>
           </div>
 
@@ -425,7 +436,7 @@ const AnaliseFinanceira = () => {
           <div className="flex gap-2 border-b border-slate-800 pt-2">
             {[
               { id: 'resumo', label: 'Painel Geral Comparativo' },
-              { id: 'dre', label: 'DRE Consolidada' },
+              { id: 'dre', label: 'Resultado Comercial' },
               { id: 'tabelas', label: 'Oportunidades & Comissões' }
             ].map(tab => (
               <button
@@ -449,8 +460,8 @@ const AnaliseFinanceira = () => {
               <GradientCard className="p-6 bg-slate-900/70 border-slate-800">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-bold text-white text-base">Comparativo Realizado vs. Pipeline vs. Simulador</h3>
-                    <p className="text-xs text-slate-400">Valores em R$ comparando faturamento realizado, oportunidades em aberto e projeções</p>
+                    <h3 className="font-bold text-white text-base">Contratos ganhos, pipeline e estimativas</h3>
+                    <p className="text-xs text-slate-400">Valores totais em R$: prazo integral dos contratos e cobranças pontuais.</p>
                   </div>
                 </div>
                 <ResponsiveContainer width="100%" height={320}>
@@ -463,22 +474,22 @@ const AnaliseFinanceira = () => {
                     />
                     <Tooltip
                       contentStyle={{ backgroundColor: '#0F172A', border: '1px solid #334155', borderRadius: '8px' }}
-                      formatter={(val) => [formatBRL(val), 'Valor']}
+                      formatter={(val, name) => [formatBRL(val), name]}
                     />
                     <Legend />
-                    <Bar dataKey="realizado" name="Realizado (Fechado Ganho)" fill="#10B981" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="realizado" name="Contratado (ganhos)" fill="#10B981" radius={[6, 6, 0, 0]} />
                     <Bar dataKey="pipeline" name="Pipeline Ativo (Em Aberto)" fill="#3B82F6" radius={[6, 6, 0, 0]} />
                     <Bar dataKey="estimativa_simulador" name="Simulador (Estimativa Ponderada)" fill="#F59E0B" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </GradientCard>
 
-              {/* Gráfico 2: Composição de Receita Realizada */}
+              {/* Gráfico 2: Contratos ganhos por segmento */}
               <GradientCard className="p-6 bg-slate-900/70 border-slate-800">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <h3 className="font-bold text-white text-base">Composição de Receita Realizada</h3>
-                    <p className="text-xs text-slate-400">Divisão percentual e nominal entre contratos corporativos (B2B) e licitações (B2G)</p>
+                    <h3 className="font-bold text-white text-base">Contratos ganhos por segmento</h3>
+                    <p className="text-xs text-slate-400">Participação no valor total contratado: B2B e B2G.</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
@@ -553,23 +564,23 @@ const AnaliseFinanceira = () => {
             </div>
           )}
 
-          {/* Sub-Aba: DRE Consolidada */}
+          {/* Sub-Aba: Resultado Comercial */}
           {tabGeral === 'dre' && (
             <GradientCard className="p-6 bg-slate-900/80 border-slate-800 max-w-4xl mx-auto">
               <div className="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
                 <div>
-                  <h3 className="text-lg font-bold text-white">Demonstração do Resultado do Exercício (DRE)</h3>
-                  <p className="text-xs text-slate-400">Contabilização do faturamento real e deduções operacionais aprovadas</p>
+                  <h3 className="text-lg font-bold text-white">Resultado comercial dos contratos ganhos</h3>
+                  <p className="text-xs text-slate-400">Valor total contratado menos comissões aprovadas; faturamento e recebimentos não são apurados nesta visão.</p>
                 </div>
                 <div className="text-xs font-semibold px-3 py-1 bg-cyan-500/20 text-cyan-300 rounded-full border border-cyan-500/30">
-                  Consolidado Real
+                  Contratos ganhos
                 </div>
               </div>
 
               <div className="space-y-4 font-mono text-sm">
                 {/* 1. Receita Bruta Realizada */}
                 <div className="flex justify-between items-center py-2.5 px-3 bg-emerald-950/30 border border-emerald-800/40 rounded-lg">
-                  <span className="font-bold text-emerald-400">(+) RECEITA BRUTA REALIZADA</span>
+                  <span className="font-bold text-emerald-400">(+) VALOR TOTAL CONTRATADO</span>
                   <span className="font-bold text-emerald-300 text-base">{formatBRL(geral.receita_realizada)}</span>
                 </div>
                 <div className="pl-6 space-y-1.5 text-xs text-slate-400">
@@ -585,7 +596,7 @@ const AnaliseFinanceira = () => {
 
                 {/* 2. Deduções e Despesas */}
                 <div className="flex justify-between items-center py-2.5 px-3 bg-rose-950/30 border border-rose-800/40 rounded-lg mt-4">
-                  <span className="font-bold text-rose-400">(-) DESPESAS OPERACIONAIS COMERCIAIS</span>
+                  <span className="font-bold text-rose-400">(-) COMISSÕES APROVADAS</span>
                   <span className="font-bold text-rose-300 text-base">{formatBRL(geral.despesas)}</span>
                 </div>
                 <div className="pl-6 space-y-1.5 text-xs text-slate-400">
@@ -602,8 +613,8 @@ const AnaliseFinanceira = () => {
                 {/* 3. Resultado Líquido */}
                 <div className="flex justify-between items-center py-3.5 px-4 bg-gradient-to-r from-cyan-950/70 to-blue-950/70 border-2 border-cyan-500/60 rounded-xl mt-6">
                   <div>
-                    <div className="font-bold text-cyan-300 text-base">(=) RESULTADO LÍQUIDO OPERACIONAL</div>
-                    <div className="text-xs text-cyan-400/80 font-sans">Margem Operacional Efetiva: {((geral.margem || 0) * 100).toFixed(2)}%</div>
+                    <div className="font-bold text-cyan-300 text-base">(=) SALDO APÓS COMISSÕES</div>
+                    <div className="text-xs text-cyan-400/80 font-sans">Percentual após comissões: {((geral.margem || 0) * 100).toFixed(2)}%</div>
                   </div>
                   <span className="font-black text-cyan-200 text-xl">{formatBRL(geral.resultado_liquido)}</span>
                 </div>
@@ -612,7 +623,7 @@ const AnaliseFinanceira = () => {
                 <div className="mt-8 p-4 bg-amber-950/20 border border-amber-500/30 rounded-xl text-xs text-amber-300 flex items-start gap-3 font-sans">
                   <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-bold">Observação Contábil / Comercial:</span> As propostas cadastradas no módulo <strong>Simulador</strong> (atualmente totalizando {formatBRL(simulador.valor_total_estimado)} nominais / {formatBRL(simulador.valor_ponderado_estimado)} ponderados) não integram a DRE acima, pois representam estimativas de vendas e orçamentos em aberto, antes de fechamento de contrato formal.
+                    <span className="font-bold">Sobre as estimativas:</span> As propostas cadastradas no módulo <strong>Simulador</strong> (atualmente totalizando {formatBRL(simulador.valor_total_estimado)} nominais / {formatBRL(simulador.valor_ponderado_estimado)} ponderados) não integram o resultado acima, pois ainda são estimativas e orçamentos em aberto.
                   </div>
                 </div>
               </div>
@@ -626,6 +637,7 @@ const AnaliseFinanceira = () => {
                 <h3 className="font-bold text-white text-base mb-4">Oportunidades Cadastradas</h3>
                 <ModernTable
                   columns={[
+                    ...revenueColumns,
                     { key: 'nome', label: 'Oportunidade / Projeto', render: (row) => (
                       <span className="font-medium text-slate-200">{row?.nome || '-'}</span>
                     )},
@@ -651,7 +663,7 @@ const AnaliseFinanceira = () => {
                     { key: 'vendedor', label: 'Responsável', render: (row) => (
                       <span className="text-slate-300">{row?.vendedor || '-'}</span>
                     )},
-                    { key: 'valor', label: 'Valor', render: (row) => {
+                    { key: 'valor', label: 'Valor total', render: (row) => {
                       const val = typeof row === 'object' && row !== null ? row.valor : row;
                       return <span className="font-semibold text-emerald-400">{formatBRL(val)}</span>;
                     }},
@@ -688,7 +700,7 @@ const AnaliseFinanceira = () => {
           {/* KPIs B2B */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-slate-900/80 border border-emerald-800/40 p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-emerald-400 mb-1">Receita Realizada B2B</div>
+              <div className="text-xs font-semibold uppercase text-emerald-400 mb-1">Valor contratado B2B</div>
               <div className="text-2xl font-bold text-white">{formatBRL(b2b.receita_realizada)}</div>
               <div className="text-xs text-slate-400 mt-2">{b2b.total_ganhas || 0} contratos ganhos</div>
             </div>
@@ -706,16 +718,16 @@ const AnaliseFinanceira = () => {
             </div>
 
             <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-emerald-400 mb-1">Resultado Líquido B2B</div>
+              <div className="text-xs font-semibold uppercase text-emerald-400 mb-1">Após comissões B2B</div>
               <div className="text-2xl font-bold text-emerald-300">{formatBRL(b2b.resultado_liquido)}</div>
-              <div className="text-xs text-slate-400 mt-2">Margem: {((b2b.margem || 0) * 100).toFixed(1)}%</div>
+              <div className="text-xs text-slate-400 mt-2">Após comissões: {((b2b.margem || 0) * 100).toFixed(1)}%</div>
             </div>
           </div>
 
           {/* Gráfico do Funil de Estágios B2B */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <GradientCard className="p-6 bg-slate-900/80 border-slate-800">
-              <h3 className="font-bold text-white text-base mb-4">Pipeline B2B por Estágio</h3>
+              <h3 className="font-bold text-white text-base mb-4">Valor total por estágio B2B</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={b2b.estagios || []} layout="vertical" margin={{ top: 10, right: 30, left: 60, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -723,9 +735,12 @@ const AnaliseFinanceira = () => {
                   <YAxis type="category" dataKey="label" stroke="#94A3B8" width={120} tick={{ fontSize: 11 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#0F172A', border: '1px solid #334155', borderRadius: '8px' }}
-                    formatter={(val) => [formatBRL(val), 'Valor']}
+                    formatter={(val, name) => [formatBRL(val), name]}
                   />
-                  <Bar dataKey="valor" fill="#10B981" radius={[0, 6, 6, 0]} />
+                  <Legend />
+                  <Bar dataKey="recurringTotal" name="Recorrente · total no prazo" stackId="receita" fill={REVENUE_COLORS.recurring} />
+                  <Bar dataKey="oneTime" name="Pontual" stackId="receita" fill={REVENUE_COLORS.oneTime} />
+                  <Bar dataKey="unclassified" name="Sem classificação" stackId="receita" fill={REVENUE_COLORS.unknown} />
                 </BarChart>
               </ResponsiveContainer>
             </GradientCard>
@@ -742,6 +757,8 @@ const AnaliseFinanceira = () => {
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-sm text-emerald-400">{formatBRL(st.valor)}</div>
+                      <div className="text-xs mt-1" style={{ color: REVENUE_COLORS.recurring }}>Mensal: {formatBRL(st.recurringMonthly)} / mês</div>
+                      <div className="text-xs" style={{ color: REVENUE_COLORS.oneTime }}>Pontual: {formatBRL(st.oneTime)}</div>
                     </div>
                   </div>
                 ))}
@@ -754,6 +771,7 @@ const AnaliseFinanceira = () => {
             <h3 className="font-bold text-white text-base mb-4">Carteira de Oportunidades B2B</h3>
             <ModernTable
               columns={[
+                    ...revenueColumns,
                 { key: 'nome', label: 'Nome da Oportunidade', render: (row) => (
                   <span className="font-medium text-slate-200">{row?.nome || '-'}</span>
                 )},
@@ -771,7 +789,7 @@ const AnaliseFinanceira = () => {
                     </span>
                   );
                 }},
-                { key: 'valor', label: 'Valor', render: (row) => {
+                { key: 'valor', label: 'Valor total', render: (row) => {
                   const val = typeof row === 'object' && row !== null ? row.valor : row;
                   return <span className="font-semibold text-emerald-400">{formatBRL(val)}</span>;
                 }},
@@ -806,7 +824,7 @@ const AnaliseFinanceira = () => {
           {/* KPIs B2G */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="bg-slate-900/80 border border-blue-800/40 p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-blue-400 mb-1">Receita Homologada B2G</div>
+              <div className="text-xs font-semibold uppercase text-blue-400 mb-1">Valor contratado B2G</div>
               <div className="text-2xl font-bold text-white">{formatBRL(b2g.receita_realizada)}</div>
               <div className="text-xs text-slate-400 mt-2">{b2g.total_ganhas || 0} pregão(ões) ganho(s)</div>
             </div>
@@ -824,16 +842,16 @@ const AnaliseFinanceira = () => {
             </div>
 
             <div className="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-blue-400 mb-1">Resultado Líquido B2G</div>
+              <div className="text-xs font-semibold uppercase text-blue-400 mb-1">Após comissões B2G</div>
               <div className="text-2xl font-bold text-blue-300">{formatBRL(b2g.resultado_liquido)}</div>
-              <div className="text-xs text-slate-400 mt-2">Margem: {((b2g.margem || 0) * 100).toFixed(1)}%</div>
+              <div className="text-xs text-slate-400 mt-2">Após comissões: {((b2g.margem || 0) * 100).toFixed(1)}%</div>
             </div>
           </div>
 
           {/* Gráfico do Funil de Estágios B2G */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <GradientCard className="p-6 bg-slate-900/80 border-slate-800">
-              <h3 className="font-bold text-white text-base mb-4">Pipeline B2G por Fase Licitatória</h3>
+              <h3 className="font-bold text-white text-base mb-4">Valor total por fase B2G</h3>
               <ResponsiveContainer width="100%" height={280}>
                 <BarChart data={b2g.estagios || []} layout="vertical" margin={{ top: 10, right: 30, left: 60, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
@@ -841,9 +859,12 @@ const AnaliseFinanceira = () => {
                   <YAxis type="category" dataKey="label" stroke="#94A3B8" width={140} tick={{ fontSize: 11 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#0F172A', border: '1px solid #334155', borderRadius: '8px' }}
-                    formatter={(val) => [formatBRL(val), 'Valor']}
+                    formatter={(val, name) => [formatBRL(val), name]}
                   />
-                  <Bar dataKey="valor" fill="#3B82F6" radius={[0, 6, 6, 0]} />
+                  <Legend />
+                  <Bar dataKey="recurringTotal" name="Recorrente · total no prazo" stackId="receita" fill={REVENUE_COLORS.recurring} />
+                  <Bar dataKey="oneTime" name="Pontual" stackId="receita" fill={REVENUE_COLORS.oneTime} />
+                  <Bar dataKey="unclassified" name="Sem classificação" stackId="receita" fill={REVENUE_COLORS.unknown} />
                 </BarChart>
               </ResponsiveContainer>
             </GradientCard>
@@ -860,6 +881,8 @@ const AnaliseFinanceira = () => {
                     </div>
                     <div className="text-right">
                       <div className="font-bold text-sm text-blue-400">{formatBRL(st.valor)}</div>
+                      <div className="text-xs mt-1" style={{ color: REVENUE_COLORS.recurring }}>Mensal: {formatBRL(st.recurringMonthly)} / mês</div>
+                      <div className="text-xs" style={{ color: REVENUE_COLORS.oneTime }}>Pontual: {formatBRL(st.oneTime)}</div>
                     </div>
                   </div>
                 ))}
@@ -872,6 +895,7 @@ const AnaliseFinanceira = () => {
             <h3 className="font-bold text-white text-base mb-4">Editais e Processos Licitatórios B2G</h3>
             <ModernTable
               columns={[
+                    ...revenueColumns,
                 { key: 'nome', label: 'Processo / Objeto', render: (row) => (
                   <span className="font-medium text-slate-200">{row?.nome || '-'}</span>
                 )},
@@ -889,7 +913,7 @@ const AnaliseFinanceira = () => {
                     </span>
                   );
                 }},
-                { key: 'valor', label: 'Valor Estimado / Fechado', render: (row) => {
+                { key: 'valor', label: 'Valor total', render: (row) => {
                   const val = typeof row === 'object' && row !== null ? row.valor : row;
                   return <span className="font-semibold text-blue-400">{formatBRL(val)}</span>;
                 }},
@@ -982,7 +1006,7 @@ const AnaliseFinanceira = () => {
                   <YAxis stroke="#94A3B8" tickFormatter={(v) => `R$ ${(v / 1000).toFixed(0)}k`} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#0F172A', border: '1px solid #334155', borderRadius: '8px' }}
-                    formatter={(val) => [formatBRL(val), 'Valor']}
+                    formatter={(val, name) => [formatBRL(val), name]}
                   />
                   <Legend />
                   <Bar dataKey="valor_total" name="Valor Nominal" fill="#64748B" radius={[6, 6, 0, 0]} />
@@ -1006,7 +1030,7 @@ const AnaliseFinanceira = () => {
                   <YAxis type="category" dataKey="label" stroke="#94A3B8" width={130} tick={{ fontSize: 11 }} />
                   <Tooltip
                     contentStyle={{ backgroundColor: '#0F172A', border: '1px solid #334155', borderRadius: '8px' }}
-                    formatter={(val) => [formatBRL(val), 'Valor']}
+                    formatter={(val, name) => [formatBRL(val), name]}
                   />
                   <Bar dataKey="valor_total" name="Valor Total" fill="#0EA5E9" radius={[0, 6, 6, 0]} />
                 </BarChart>

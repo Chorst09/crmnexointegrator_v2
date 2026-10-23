@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { prisma } = require('../lib/prisma');
 const { canAccessChorstData, CHORST_EMAIL } = require('../lib/chorst-privacy.cjs');
+const { financialSegment, financialStage, splitFinancialRevenue, summarizeFinancialRevenue, financialRevenueAnalysis, financialStages } = require('../lib/financial-revenue.cjs');
 
 /**
  * Calcula filtro de data baseado no período
@@ -114,7 +115,7 @@ router.get('/dashboard', async (req, res) => {
     }
 
     // Buscar dados do banco
-    const [allOpportunities, allCommissions, allSimProposals] = await Promise.all([
+    const [rawOpportunities, allCommissions, allSimProposals] = await Promise.all([
       prisma.opportunity.findMany({
         where: oppWhere,
         include: {
@@ -127,7 +128,7 @@ router.get('/dashboard', async (req, res) => {
         where: commWhere,
         include: {
           seller: { select: { id: true, name: true, email: true } },
-          opportunity: { select: { id: true, title: true, value: true, company: { select: { clientType: true } } } }
+          opportunity: { select: { id: true, title: true, value: true, number: true, b2gStage: true, projectClientType: true, company: { select: { clientType: true } } } }
         },
         orderBy: { createdAt: 'desc' }
       }),
@@ -138,8 +139,10 @@ router.get('/dashboard', async (req, res) => {
     ]);
 
     // Classificação de Oportunidades: B2B vs B2G
-    const oppsB2B = allOpportunities.filter(o => (o.company?.clientType || 'B2B').toUpperCase() === 'B2B');
-    const oppsB2G = allOpportunities.filter(o => (o.company?.clientType || '').toUpperCase() === 'B2G');
+    const allOpportunities = rawOpportunities.map(item => ({ ...item, stage: financialStage(item), clientType: financialSegment(item), _revenue: splitFinancialRevenue(item) }));
+
+    const oppsB2B = allOpportunities.filter(o => o.clientType === 'B2B');
+    const oppsB2G = allOpportunities.filter(o => o.clientType === 'B2G');
 
     // Oportunidades Ganhas (Receita Realizada Efetiva)
     const wonB2B = oppsB2B.filter(o => o.stage === 'WON');
@@ -152,21 +155,21 @@ router.get('/dashboard', async (req, res) => {
     const openAll = allOpportunities.filter(o => o.stage !== 'WON' && o.stage !== 'LOST');
 
     // Cálculos de Receita Realizada (Fechado Ganho)
-    const receitaB2BRealizada = wonB2B.reduce((s, o) => s + (Number(o.value) || 0), 0);
-    const receitaB2GRealizada = wonB2G.reduce((s, o) => s + (Number(o.value) || 0), 0);
+    const receitaB2BRealizada = summarizeFinancialRevenue(wonB2B).total;
+    const receitaB2GRealizada = summarizeFinancialRevenue(wonB2G).total;
     const receitaRealizadaTotal = receitaB2BRealizada + receitaB2GRealizada;
 
     // Cálculos de Pipeline em Aberto (Oportunidades em negociação)
-    const pipelineB2B = openB2B.reduce((s, o) => s + (Number(o.value) || 0), 0);
-    const pipelineB2G = openB2G.reduce((s, o) => s + (Number(o.value) || 0), 0);
+    const pipelineB2B = summarizeFinancialRevenue(openB2B).total;
+    const pipelineB2G = summarizeFinancialRevenue(openB2G).total;
     const pipelineTotal = pipelineB2B + pipelineB2G;
 
     // Despesas de Comissões Aprovadas
     const comissoesB2B = allCommissions
-      .filter(c => (c.opportunity?.company?.clientType || 'B2B').toUpperCase() === 'B2B')
+      .filter(c => financialSegment(c.opportunity || {}) === 'B2B')
       .reduce((s, c) => s + (Number(c.amount) || 0), 0);
     const comissoesB2G = allCommissions
-      .filter(c => (c.opportunity?.company?.clientType || '').toUpperCase() === 'B2G')
+      .filter(c => financialSegment(c.opportunity || {}) === 'B2G')
       .reduce((s, c) => s + (Number(c.amount) || 0), 0);
     const comissoesTotal = allCommissions.reduce((s, c) => s + (Number(c.amount) || 0), 0);
 
@@ -326,10 +329,11 @@ router.get('/dashboard', async (req, res) => {
       id: opp.id,
       nome: opp.title,
       vendedor: opp.owner?.name || 'N/A',
-      origem: opp.company?.clientType || 'B2B',
+      origem: opp.clientType || financialSegment(opp),
       cliente: opp.company?.name || 'N/A',
       estagio: opp.stage,
-      valor: opp.value || 0,
+      valor: opp._revenue.total,
+      ...opp._revenue,
       data: opp.actualCloseDate
         ? new Date(opp.actualCloseDate).toLocaleDateString('pt-BR')
         : opp.createdAt
@@ -345,7 +349,7 @@ router.get('/dashboard', async (req, res) => {
       id: com.id,
       vendedor: com.seller?.name || 'N/A',
       oportunidade: com.opportunity?.title || 'Comissão Manual',
-      origem: com.opportunity?.company?.clientType || 'B2B',
+      origem: financialSegment(com.opportunity || {}),
       comissao: com.amount || 0,
       percentual: com.percentage || 0,
       data: new Date(com.createdAt).toLocaleDateString('pt-BR')
@@ -355,6 +359,7 @@ router.get('/dashboard', async (req, res) => {
     res.json({
       // 1. Visão Geral Consolidada
       geral: {
+        revenue: financialRevenueAnalysis(allOpportunities),
         receita_realizada: receitaRealizadaTotal,
         receita_b2b_realizada: receitaB2BRealizada,
         receita_b2g_realizada: receitaB2GRealizada,
@@ -377,6 +382,7 @@ router.get('/dashboard', async (req, res) => {
 
       // 2. Visão Exclusiva B2B
       b2b: {
+        revenue: financialRevenueAnalysis(oppsB2B),
         receita_realizada: receitaB2BRealizada,
         pipeline_em_aberto: pipelineB2B,
         total_ganhas: wonB2B.length,
@@ -386,17 +392,12 @@ router.get('/dashboard', async (req, res) => {
         resultado_liquido: resultadoLiquidoB2B,
         margem: margemB2B,
         tabela_oportunidades: tabelaOportunidadesB2B,
-        estagios: [
-          { estagio: 'DIAGNOSIS', label: 'Diagnóstico', count: oppsB2B.filter(o => o.stage === 'DIAGNOSIS').length, valor: oppsB2B.filter(o => o.stage === 'DIAGNOSIS').reduce((s, o) => s + (o.value || 0), 0) },
-          { estagio: 'PROPOSAL', label: 'Proposta Enviada', count: oppsB2B.filter(o => o.stage === 'PROPOSAL').length, valor: oppsB2B.filter(o => o.stage === 'PROPOSAL').reduce((s, o) => s + (o.value || 0), 0) },
-          { estagio: 'NEGOTIATION', label: 'Negociação', count: oppsB2B.filter(o => o.stage === 'NEGOTIATION').length, valor: oppsB2B.filter(o => o.stage === 'NEGOTIATION').reduce((s, o) => s + (o.value || 0), 0) },
-          { estagio: 'WON', label: 'Fechado Ganho', count: wonB2B.length, valor: receitaB2BRealizada },
-          { estagio: 'LOST', label: 'Perdido', count: oppsB2B.filter(o => o.stage === 'LOST').length, valor: oppsB2B.filter(o => o.stage === 'LOST').reduce((s, o) => s + (o.value || 0), 0) }
-        ]
+        estagios: financialStages(oppsB2B, 'B2B')
       },
 
       // 3. Visão Exclusiva B2G (Licitações / Governo)
       b2g: {
+        revenue: financialRevenueAnalysis(oppsB2G),
         receita_realizada: receitaB2GRealizada,
         pipeline_em_aberto: pipelineB2G,
         total_ganhas: wonB2G.length,
@@ -406,13 +407,7 @@ router.get('/dashboard', async (req, res) => {
         resultado_liquido: resultadoLiquidoB2G,
         margem: margemB2G,
         tabela_oportunidades: tabelaOportunidadesB2G,
-        estagios: [
-          { estagio: 'QUALIFICATION', label: 'Qualificação / Edital', count: oppsB2G.filter(o => o.stage === 'QUALIFICATION').length, valor: oppsB2G.filter(o => o.stage === 'QUALIFICATION').reduce((s, o) => s + (o.value || 0), 0) },
-          { estagio: 'PROPOSAL', label: 'Proposta / Licitacão', count: oppsB2G.filter(o => o.stage === 'PROPOSAL').length, valor: oppsB2G.filter(o => o.stage === 'PROPOSAL').reduce((s, o) => s + (o.value || 0), 0) },
-          { estagio: 'NEGOTIATION', label: 'Negociação / Recurso', count: oppsB2G.filter(o => o.stage === 'NEGOTIATION').length, valor: oppsB2G.filter(o => o.stage === 'NEGOTIATION').reduce((s, o) => s + (o.value || 0), 0) },
-          { estagio: 'WON', label: 'Homologado / Ganho', count: wonB2G.length, valor: receitaB2GRealizada },
-          { estagio: 'LOST', label: 'Deserto / Fracassado / Perdido', count: oppsB2G.filter(o => o.stage === 'LOST').length, valor: oppsB2G.filter(o => o.stage === 'LOST').reduce((s, o) => s + (o.value || 0), 0) }
-        ]
+        estagios: financialStages(oppsB2G, 'B2G')
       },
 
       // 4. MÓDULO SIMULADOR (ESTIMATIVAS DE VENDAS - SEPARADO)
