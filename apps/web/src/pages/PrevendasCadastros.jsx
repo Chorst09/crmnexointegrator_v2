@@ -37,6 +37,7 @@ import { buildApiUrl, getAuthHeaders } from '../config/api';
 import AnimatedStats from '../components/AnimatedStats';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
+import { applyPipelineOpportunity, filterPipelineOpportunities, getPipelineClient, getPipelineType } from '../utils/pipeline-opportunity.mjs';
 
 const TAB_KEYS = {
   DISTRIBUIDORES: 'distribuidores',
@@ -385,6 +386,12 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
   const [registry, setRegistry] = useState(defaultRegistry);
   const [pipelineOpportunities, setPipelineOpportunities] = useState([]);
+  const [pipelineType, setPipelineType] = useState('B2B');
+  const [pipelineSearch, setPipelineSearch] = useState('');
+  const matchingPipelineOpportunities = useMemo(
+    () => filterPipelineOpportunities(pipelineOpportunities, pipelineType, pipelineSearch),
+    [pipelineOpportunities, pipelineType, pipelineSearch]
+  );
   const [users, setUsers] = useState([]);
 
   const [modalOpen, setModalOpen] = useState(false);
@@ -620,6 +627,8 @@ export default function PrevendasCadastros({ forcedTab = null }) {
   }, [currentTab, registry, searchTerm, selectedFabricanteFilter, selectedStatusFilter, selectedOrigemFilter, fornMap]);
 
   const closeModal = () => {
+    setPipelineSearch('');
+    setPipelineType('B2B');
     setModalOpen(false);
     setEditingItem(null);
     setPartnerForm(defaultPartnerForm);
@@ -627,6 +636,8 @@ export default function PrevendasCadastros({ forcedTab = null }) {
   };
 
   const openCreateModal = (type) => {
+    setPipelineSearch('');
+    setPipelineType('B2B');
     setModalType(type);
     setEditingItem(null);
     setPartnerForm(defaultPartnerForm);
@@ -635,6 +646,9 @@ export default function PrevendasCadastros({ forcedTab = null }) {
   };
 
   const openEditModal = (type, item) => {
+    setPipelineSearch('');
+    const linkedOpportunity = pipelineOpportunities.find((entry) => entry.id === item.oportunidadeId);
+    setPipelineType(linkedOpportunity ? getPipelineType(linkedOpportunity) : item.origem === 'B2G' ? 'B2G' : 'B2B');
     setModalType(type);
     setEditingItem(item);
 
@@ -868,13 +882,16 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       return;
     }
 
+    setOpportunityForm((prev) => applyPipelineOpportunity(prev, selected));
+    setPipelineSearch('');
+  };
+
+  const handlePipelineTypeChange = (type) => {
+    setPipelineType(type);
+    setPipelineSearch('');
     setOpportunityForm((prev) => ({
-      ...prev,
-      oportunidadeId: selected.id,
-      titulo: selected.title || prev.titulo,
-      cliente: selected?.company?.name || prev.cliente,
-      origem: selected?.clientType === 'B2G' ? 'B2G' : prev.origem,
-      valorEstimado: Number.isFinite(Number(selected?.value)) ? String(selected.value) : prev.valorEstimado
+      ...prev, origem: type, oportunidadeId: '',
+      cliente: prev.oportunidadeId ? '' : prev.cliente
     }));
   };
 
@@ -2963,21 +2980,42 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         ) : (
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              <label className="space-y-1 md:col-span-2">
+              <div className="space-y-3 md:col-span-2">
                 <span className="text-sm text-slate-300">Oportunidade do Pipeline (opcional)</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <label className="space-y-1">
+                    <span className="text-sm text-slate-300">Tipo de oportunidade</span>
+                    <select value={pipelineType} onChange={(event) => handlePipelineTypeChange(event.target.value)} className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white">
+                      <option value="B2B">B2B · Empresas</option>
+                      <option value="B2G">B2G · Governo</option>
+                    </select>
+                  </label>
+                  <label className="space-y-1 md:col-span-2">
+                    <span className="text-sm text-slate-300">Buscar oportunidade</span>
+                    <div className="relative">
+                      <Search aria-hidden="true" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+                      <input type="search" value={pipelineSearch} onChange={(event) => setPipelineSearch(event.target.value)} placeholder="Digite o número, título ou cliente" className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 pl-10 pr-3 py-2 text-white" />
+                    </div>
+                  </label>
+                </div>
+                <label className="block space-y-1">
+                  <span className="text-sm text-slate-300">Selecionar oportunidade {pipelineType}</span>
                 <select
                   value={opportunityForm.oportunidadeId}
                   onChange={(event) => handlePickPipelineOpportunity(event.target.value)}
                   className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
                 >
-                  <option value="">Selecionar oportunidade existente</option>
-                  {pipelineOpportunities.map((entry) => (
+                  <option value="">{matchingPipelineOpportunities.length ? 'Selecionar oportunidade existente' : 'Nenhuma oportunidade encontrada'}</option>
+                  {opportunityForm.oportunidadeId && !matchingPipelineOpportunities.some((entry) => entry.id === opportunityForm.oportunidadeId) && <option value={opportunityForm.oportunidadeId}>{opportunityForm.titulo} • {opportunityForm.cliente || 'Sem cliente'}</option>}
+                  {matchingPipelineOpportunities.map((entry) => (
                     <option key={entry.id} value={entry.id}>
-                      {entry.title} • {entry?.company?.name || 'Sem cliente'}
+                      {entry.number ? `${entry.number} • ` : ''}{entry.title} • {getPipelineClient(entry) || 'Sem cliente'}
                     </option>
                   ))}
                 </select>
-              </label>
+                </label>
+                <p role="status" className="text-xs text-slate-400">{matchingPipelineOpportunities.length} oportunidade(s) encontrada(s). Ao selecionar, o cliente será preenchido automaticamente.</p>
+              </div>
 
               <label className="space-y-1">
                 <span className="text-sm text-slate-300">Título *</span>
@@ -3019,7 +3057,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 <span className="text-sm text-slate-300">Origem</span>
                 <select
                   value={opportunityForm.origem}
-                  onChange={(event) => setOpportunityForm((prev) => ({ ...prev, origem: event.target.value }))}
+                  onChange={(event) => ['B2B', 'B2G'].includes(event.target.value) ? handlePipelineTypeChange(event.target.value) : setOpportunityForm((prev) => ({ ...prev, origem: event.target.value }))}
                   className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
                 >
                   <option value="B2B">B2B</option>
