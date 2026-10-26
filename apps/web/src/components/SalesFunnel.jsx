@@ -1,13 +1,13 @@
 import React from 'react';
 
 const B2B_STAGES = [
-  { key: 'LEAD', label: 'Lead', width: 100, height: 43, palette: ['#38bdf8', '#0284c7', '#075985'] },
-  { key: 'QUALIFICATION', label: 'Qualificação', width: 88, height: 43, palette: ['#60a5fa', '#2563eb', '#1e3a8a'] },
-  { key: 'DIAGNOSIS', label: 'Diagnóstico', width: 76, height: 43, palette: ['#2dd4bf', '#0d9488', '#134e4a'] },
-  { key: 'PROPOSAL', label: 'Proposta', width: 64, height: 43, palette: ['#fbbf24', '#f59e0b', '#92400e'] },
-  { key: 'NEGOTIATION', label: 'Negociação', width: 52, height: 43, palette: ['#fb923c', '#ea580c', '#9a3412'] },
-  { key: 'WON', label: 'Ganhas', width: 42, height: 43, palette: ['#34d399', '#16a34a', '#14532d'] },
-  { key: 'LOST', label: 'Perdidas', width: 34, height: 43, palette: ['#94a3b8', '#64748b', '#334155'] }
+  { key: 'LEAD', label: 'Lead', width: 100, height: 56, palette: ['#38bdf8', '#0284c7', '#075985'] },
+  { key: 'QUALIFICATION', label: 'Qualificação', width: 88, height: 56, palette: ['#60a5fa', '#2563eb', '#1e3a8a'] },
+  { key: 'DIAGNOSIS', label: 'Diagnóstico', width: 76, height: 56, palette: ['#2dd4bf', '#0d9488', '#134e4a'] },
+  { key: 'PROPOSAL', label: 'Proposta', width: 64, height: 56, palette: ['#fbbf24', '#f59e0b', '#92400e'] },
+  { key: 'NEGOTIATION', label: 'Negociação', width: 52, height: 56, palette: ['#fb923c', '#ea580c', '#9a3412'] },
+  { key: 'WON', label: 'Ganhas', width: 42, height: 56, palette: ['#34d399', '#16a34a', '#14532d'] },
+  { key: 'LOST', label: 'Perdidas', width: 34, height: 56, palette: ['#94a3b8', '#64748b', '#334155'] }
 ];
 
 const TEMPERATURE_ACCENTS = {
@@ -30,7 +30,7 @@ const getStageValue = (data, stage) => {
 
 const SalesFunnel = ({ data = [], selectedTemperature = '' }) => {
   const svgWidth = 620;
-  const svgHeight = 340;
+  const svgHeight = 480;
   const centerX = svgWidth / 2;
   const maxStageWidth = 510;
   const selectedAccent = TEMPERATURE_ACCENTS[String(selectedTemperature || '')] || null;
@@ -44,7 +44,7 @@ const SalesFunnel = ({ data = [], selectedTemperature = '' }) => {
       ? (B2B_STAGES[index + 1].width / 100) * maxStageWidth + 14
       : renderedWidth * 0.7;
     const layout = { ...stage, y: currentY, renderedWidth, bottomWidth, count, percent, value: getStageValue(data, stage) };
-    currentY += stage.height + 2;
+    currentY += stage.height + 8;
     return layout;
   });
 
@@ -63,7 +63,7 @@ const SalesFunnel = ({ data = [], selectedTemperature = '' }) => {
           Temp. {selectedAccent.label}
         </div>
       )}
-      <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="h-full w-full max-w-[760px]" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Funil comercial B2B em seis etapas">
+      <svg viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="h-full w-full max-w-[760px]" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Funil comercial B2B em sete etapas">
         <defs>
           {layouts.map((stage) => (
             <React.Fragment key={stage.key}>
@@ -102,7 +102,7 @@ const SalesFunnel = ({ data = [], selectedTemperature = '' }) => {
           const topY = stage.y;
           const bottomY = topY + stage.height;
           const textColor = stage.key === 'PROPOSAL' ? '#27303b' : '#ffffff';
-          const textStartY = topY + (stage.height / 2) + 1;
+          const textStartY = topY + 28;
           const isTemperatureFiltered = Boolean(selectedAccent);
           const isHighlighted = isTemperatureFiltered && stage.count > 0;
           const isMuted = isTemperatureFiltered && stage.count === 0;
@@ -123,7 +123,7 @@ const SalesFunnel = ({ data = [], selectedTemperature = '' }) => {
               <path d={`M ${topLeft + 16} ${topY - 1} Q ${centerX} ${topY - 8} ${topRight - 16} ${topY - 1}`} fill="none" stroke="#ffffff" strokeLinecap="round" strokeWidth="2" opacity="0.38" />
               <text x={centerX} y={textStartY} textAnchor="middle" fill={textColor} fontFamily="Arial, Segoe UI, sans-serif" fontSize="15" fontWeight="800" paintOrder="stroke" stroke={textColor === '#ffffff' ? 'rgba(3,8,18,0.34)' : 'transparent'} strokeWidth="1.2">
                 <tspan x={centerX}>{stage.label}</tspan>
-                <tspan x={centerX} dy="16">{stage.count} • {stage.percent}%</tspan>
+                <tspan x={centerX} dy="17" fontSize="13" fontWeight="600">{stage.count} • {stage.percent}%</tspan>
               </text>
             </g>
           );

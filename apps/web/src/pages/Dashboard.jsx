@@ -3,7 +3,7 @@ import { BarChart3, Clock3, Maximize2, PieChart, RefreshCw, Rocket, Target, X } 
 import B2BTestFlowModal from '../components/B2BTestFlowModal';
 import PresentationControls from '../components/PresentationControls';
 import SalesFunnel from '../components/SalesFunnel';
-import DashboardKPICard from '../components/DashboardKPICard';
+import B2BRevenueCards from '../components/B2BRevenueCards';
 import DashboardAdvancedChart from '../components/DashboardAdvancedChart';
 import PipelineDashboardModel from '../components/PipelineDashboardModel';
 import '../styles/dashboardEffects.css';
@@ -359,16 +359,7 @@ export default function Dashboard() {
         </section>
 
         <section className="mt-5 px-2" aria-label="Receitas recorrentes e pontuais">
-          <h2 className="text-lg font-semibold text-[var(--crm-text)]">Receitas recorrentes e pontuais</h2>
-          <p className="mb-4 text-xs text-[var(--crm-muted)]">Projeção das oportunidades ganhas a partir do fechamento e da vigência; não representa recebimentos. {revenue.undatedWins || 0} vendas sem data de fechamento não entram na projeção.</p>
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            <DashboardKPICard title="Receita mensal ativa (MRR)" value={formatCurrency(revenue.activeMrr)} subtitle="Contratos ganhos vigentes na data atual" />
-            <DashboardKPICard title="Receita recorrente no período" value={formatCurrency(revenue.periodRecurring)} subtitle={historyLabel} colorTheme="green" />
-            <DashboardKPICard title="Receita pontual no período" value={formatCurrency(revenue.periodOneTime)} subtitle="Produtos + setup das vendas ganhas" colorTheme="orange" />
-            <DashboardKPICard title="Mensalidades em negociação" value={formatCurrency(revenue.recurringPipelineMonthly)} subtitle="Potencial mensal da carteira aberta" />
-            <DashboardKPICard title="Contratos recorrentes em negociação" value={formatCurrency(revenue.recurringPipelineTotal)} subtitle="Mensalidade × período dos contratos abertos" />
-            <DashboardKPICard title="Receita pontual em negociação" value={formatCurrency(revenue.oneTimePipeline)} subtitle="Produtos + setup da carteira aberta" colorTheme="orange" />
-          </div>
+          <B2BRevenueCards revenue={revenue} historyLabel={historyLabel} />
           <div className="mt-4 grid gap-4 lg:grid-cols-2">
             <DashboardAdvancedChart title="Evolução das Receitas" subtitle={`Vendas ganhas • ${historyLabel}`} type="bar" height={260}
               data={{ labels: revenueTimeline.map(row => row.label), datasets: [
