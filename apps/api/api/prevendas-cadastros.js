@@ -114,6 +114,14 @@ const normalizeBasePartner = (input = {}, preserve = {}) => {
 
 const normalizeOpportunityRegistry = (input = {}, preserve = {}) => {
   const now = new Date().toISOString();
+  const statusAprovacao = toString(input.statusAprovacao, preserve.statusAprovacao || 'AGUARDANDO_APROVACAO').toUpperCase();
+  const motivoNegativa = statusAprovacao === 'NEGADO' ? toString(input.motivoNegativa, preserve.motivoNegativa || '') : '';
+  if (!['AGUARDANDO_APROVACAO', 'APROVADO', 'NEGADO'].includes(statusAprovacao)) {
+    throw Object.assign(new Error('Status de aprovação inválido.'), { status: 400 });
+  }
+  if (statusAprovacao === 'NEGADO' && !motivoNegativa) {
+    throw Object.assign(new Error('Informe o motivo da negativa antes de salvar.'), { status: 400 });
+  }
   return {
     id: toString(input.id || preserve.id) || crypto.randomUUID(),
     oportunidadeId: toString(input.oportunidadeId, preserve.oportunidadeId || ''),
@@ -124,6 +132,8 @@ const normalizeOpportunityRegistry = (input = {}, preserve = {}) => {
     valorEstimado: toNumberOrNull(input.valorEstimado ?? preserve.valorEstimado),
     prazo: toOpportunityTermOrNull(input.prazo, preserve.prazo),
     status: toString(input.status, preserve.status || 'ABERTA').toUpperCase() || 'ABERTA',
+    statusAprovacao,
+    motivoNegativa,
     prioridade: toString(input.prioridade, preserve.prioridade || 'MEDIUM').toUpperCase() || 'MEDIUM',
     distribuidorIds: toStringArray(input.distribuidorIds ?? preserve.distribuidorIds),
     fornecedorIds: toStringArray(input.fornecedorIds ?? preserve.fornecedorIds),
@@ -227,6 +237,7 @@ export default async function handler(req) {
 
     return Response.json({ error: 'Método não suportado' }, { status: 405 });
   } catch (error) {
+    if (error.status === 400) return Response.json({ error: error.message }, { status: 400 });
     console.error('Erro no prevendas-cadastros:', error);
     return Response.json({ error: 'Erro interno do servidor' }, { status: 500 });
   }
