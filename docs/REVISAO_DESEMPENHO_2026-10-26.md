@@ -39,9 +39,9 @@ Backup original para reversão: `/var/www/nexoscrm/backups/performance-apache-20
 
 Reversão no servidor: copiar o backup original para `/var/www/site-double/apache.conf` e para `site-double-apache:/usr/local/apache2/conf/extra/httpd-vhosts.conf`, validar com `docker exec site-double-apache httpd -t` e recarregar com `docker exec site-double-apache httpd -k graceful`.
 
-## Correções de código preparadas localmente
+## Correções de código publicadas
 
-Estas alterações **não foram publicadas no processo da API em produção**. As mudanças de Apache acima já entregam compressão sem precisar reiniciar a API.
+Estas alterações foram publicadas às 08:50 de 26/10/2026, após autorização para commit e deploy, pelo commit `816d5689d847bd18f523f5e1ea0e47ac62784c95`, enviado à branch `main` no GitHub. As mudanças de Apache acima já estavam ativas antes dessa publicação.
 
 - Rotas CommonJS, autenticação e Google Calendar passam a compartilhar o cliente Prisma do backend. O adaptador ESM também usa esse mesmo cliente, evitando pools independentes por módulo.
 - Singleton do backend preservado também em produção. Removida a imposição automática de modo PgBouncer e cache de statements desabilitado: o ambiente inspecionado usa PostgreSQL diretamente; opções explícitas de conexão continuam preservadas.
@@ -49,7 +49,19 @@ Estas alterações **não foram publicadas no processo da API em produção**. A
 - Health check reutiliza o pool e limpa o temporizador, em vez de criar um cliente a cada chamada. No código anterior, uma falha antes de `$disconnect()` também podia deixar recursos sem liberação.
 - Middleware `compression`, já declarado nas dependências do backend, protege instalações da API que não passam por esse Apache.
 
-Nenhuma alteração local anterior foi revertida; não foi feito commit nem deploy geral do frontend. A API mantém o código que estava em execução, inclusive os pools anteriores, até a publicação das correções.
+Nenhuma alteração local anterior foi revertida nem incluída indevidamente no commit; no arquivo compartilhado `apps/api/lib/prisma.cjs`, somente o trecho de limitação do pool entrou no commit. As mudanças anteriores desse arquivo que já existiam no servidor foram preservadas. Não houve deploy geral do frontend.
+
+## Validação da publicação
+
+- Publicação restrita a 14 arquivos de código da API e um teste de regressão, com checagem dos hashes dos originais antes de qualquer substituição e dos arquivos instalados após a troca.
+- Backup completo dos arquivos alterados e manifesto em `/var/www/nexoscrm/backups/performance-api-20261026-085016-816d568/`. O manifesto registra hashes, permissões e estado anterior de cada arquivo. A publicação previa reversão automática caso o reinício ou o health check falhassem; não foi necessário acioná-la.
+- Processo `nexoscrm-api` reiniciado pelo PM2; health check HTTP 200 com banco conectado após a reinicialização. Os demais processos e contêineres não foram reiniciados.
+- Conexões ociosas observadas após a publicação e encerramento do processo de teste: 11, contra 50 na primeira amostra. Essa contagem varia conforme o uso; não representa teste de capacidade sob carga.
+- Em execução real, confirmado que os adaptadores ESM e CommonJS apontam para a mesma instância Prisma.
+- Quinze endpoints autenticados verificados: catorze retornaram HTTP 200 e JSON válido; `/api/workflows` retornou HTTP 500. A mesma falha foi reproduzida isoladamente com o arquivo original anterior ao deploy, demonstrando que é preexistente: o modelo `Workflow` não expõe a relação `executions` solicitada em `_count`. Essa pendência não foi alterada na publicação de desempenho.
+- Confirmados gzip na API diretamente pela porta 3026 e cache imutável no asset de entrada servido pelo Apache. Página inicial e asset retornaram HTTP 200.
+- Cinco testes de pool executados no próprio servidor, todos aprovados. Os dois novos testes cobrem limites padrão e preservação de limites explícitos do cliente de `apps/api`.
+- Evidências sem tokens ou dados pessoais: `verification.json` e `workflow-baseline.json` no diretório de backup da publicação. Identificador da versão ativa em `/var/www/nexoscrm/DEPLOYED_PERFORMANCE.json`.
 
 ## Pendências identificadas
 
@@ -57,6 +69,7 @@ Nenhuma alteração local anterior foi revertida; não foi feito commit nem depl
 |---|---|---|
 | Alta | HTTPS de `double.chorstconsult.com.br` falhou na validação do nome do certificado. Apache tem virtual host HTTPS do domínio institucional, não do CRM. | Configurar certificado e virtual host próprios para o CRM. Não atribuir a lentidão geral a isso sem confirmar a URL usada pelo usuário. |
 | Alta | `audit_logs` no banco tem estrutura legada; faltam campos como `user_name` esperados pelo Prisma. Logs mostram erros e fallback. | Preparar migração compatível com o histórico existente; validar leitura e gravação de auditoria antes de aplicar. Nenhuma alteração de schema foi feita nesta revisão. |
+| Média | Listagem de Automações (`/api/workflows`) solicita `_count.executions`, relação inexistente no modelo `Workflow`. | Falha HTTP 500 confirmada tanto no código original quanto após o deploy. Ajustar o contrato da consulta ao modelo persistido em correção própria. |
 | Média | Listagens de empresas/oportunidades retornam relações completas e não têm paginação na consulta principal. | Criar respostas de resumo e paginação em conjunto com os consumidores, sem truncar listas unilateralmente. Compressão reduz tráfego, mas não elimina serialização ou renderização desses objetos. |
 | Média | Bundle de Projetos tem aproximadamente 2,1 MB bruto / 646 KB gzip em um dos arquivos inspecionados. | Medir execução e renderização no navegador e separar recursos pesados por ação. O cache aplicado ajuda visitas seguintes, não elimina o custo da primeira execução. |
 | Média | Arquivo de asset inexistente pode receber `index.html` com HTTP 200 pelo fallback do servidor estático. | Ajustar o servidor estático para devolver 404 em `/assets/` ausente. O cache novo foi protegido para não armazenar esse HTML como asset imutável. |
@@ -71,4 +84,4 @@ Nenhuma alteração local anterior foi revertida; não foi feito commit nem depl
 - Site institucional continuou retornando HTTP 200 após a recarga.
 - Vinte testes locais passaram: pool Prisma, manutenção do banco real como fonte de dados e regressões dos dashboards B2B/geral. Sintaxe de `backend/server.js` e script Python validada; `git diff --check` sem erros.
 - Transformação de configuração testada como idempotente e restrita aos dois virtual hosts CRM.
-- Não foram feitos testes de carga, migrações de banco, limpeza de dados, emissão de certificados ou reinício da API. Não houve medição de navegação autenticada em um navegador do usuário; o tempo percebido após as mudanças ainda precisa ser confirmado nesse ambiente.
+- Não foram feitos testes de carga, migrações de banco, limpeza de dados ou emissão de certificados. Não houve medição de navegação autenticada em um navegador do usuário; o tempo percebido após as mudanças ainda precisa ser confirmado nesse ambiente.
