@@ -67,7 +67,7 @@ Nenhuma alteração local anterior foi revertida nem incluída indevidamente no 
 
 | Prioridade | Achado | Consequência e próximo passo |
 |---|---|---|
-| Alta | HTTPS de `double.chorstconsult.com.br` falhou na validação do nome do certificado. Apache tem virtual host HTTPS do domínio institucional, não do CRM. | Configurar certificado e virtual host próprios para o CRM. Não atribuir a lentidão geral a isso sem confirmar a URL usada pelo usuário. |
+| Resolvida | HTTPS de `double.chorstconsult.com.br` apresentava certificado do domínio institucional. | Certificado Let's Encrypt próprio emitido e instalado em 26/10/2026, com redirecionamento e renovação automática. Detalhes em `HTTPS_DOUBLE_2026-10-26.md`. |
 | Alta | `audit_logs` no banco tem estrutura legada; faltam campos como `user_name` esperados pelo Prisma. Logs mostram erros e fallback. | Preparar migração compatível com o histórico existente; validar leitura e gravação de auditoria antes de aplicar. Nenhuma alteração de schema foi feita nesta revisão. |
 | Média | Listagem de Automações (`/api/workflows`) solicita `_count.executions`, relação inexistente no modelo `Workflow`. | Falha HTTP 500 confirmada tanto no código original quanto após o deploy. Ajustar o contrato da consulta ao modelo persistido em correção própria. |
 | Média | Listagens de empresas/oportunidades retornam relações completas e não têm paginação na consulta principal. | Criar respostas de resumo e paginação em conjunto com os consumidores, sem truncar listas unilateralmente. Compressão reduz tráfego, mas não elimina serialização ou renderização desses objetos. |
@@ -84,4 +84,4 @@ Nenhuma alteração local anterior foi revertida nem incluída indevidamente no 
 - Site institucional continuou retornando HTTP 200 após a recarga.
 - Vinte testes locais passaram: pool Prisma, manutenção do banco real como fonte de dados e regressões dos dashboards B2B/geral. Sintaxe de `backend/server.js` e script Python validada; `git diff --check` sem erros.
 - Transformação de configuração testada como idempotente e restrita aos dois virtual hosts CRM.
-- Não foram feitos testes de carga, migrações de banco, limpeza de dados ou emissão de certificados. Não houve medição de navegação autenticada em um navegador do usuário; o tempo percebido após as mudanças ainda precisa ser confirmado nesse ambiente.
+- Na revisão de desempenho não foram feitos testes de carga, migrações de banco, limpeza de dados ou emissão de certificados. A emissão e instalação do certificado foram realizadas posteriormente, após solicitação específica, e documentadas em `HTTPS_DOUBLE_2026-10-26.md`. Não houve medição de navegação autenticada em um navegador do usuário; o tempo percebido após as mudanças ainda precisa ser confirmado nesse ambiente.
