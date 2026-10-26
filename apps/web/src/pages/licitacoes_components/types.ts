@@ -95,7 +95,7 @@ export interface MatrizItemAnalise {
   especificacao_sucinta: string;
   unidade?: string;
   quantitativo: number;
-  valor_estimado_unitario?: number;
+  valor_estimado_unitario?: number | null;
   valor_estimado_total?: number | null;
 }
 
@@ -136,6 +136,9 @@ export interface PontosDeAtencaoRisco {
 
 export interface FichaTecnicaEditalTR {
   extractionMethod?: string;
+  pricesWithheld?: boolean;
+  documentType?: string;
+  processo_administrativo?: string | null;
   analysisStatus?: 'extracted' | 'requires_reanalysis';
   analysisWarnings?: string[];
   id?: string;
