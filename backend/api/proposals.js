@@ -1,10 +1,9 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken } = require('../lib/auth');
 const { getTenantCompanyId, mergeRelationWhere } = require('../lib/tenantScope.cjs');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 const canAccessChorstData = (user = {}) => {
   const email = String(user?.email || '').trim().toLowerCase();

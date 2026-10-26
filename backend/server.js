@@ -1,6 +1,7 @@
 require('dotenv').config({ path: require('path').resolve(__dirname, '../.env') });
 const express = require('express');
 const cors = require('cors');
+const compression = require('compression');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const path = require('path');
@@ -38,6 +39,9 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 app.set('trust proxy', 1);
+
+// Compress large JSON responses as well as other text responses.
+app.use(compression());
 
 // Middlewares
 app.use(helmet({
@@ -101,13 +105,19 @@ app.use((req, res, next) => {
 const healthHandler = async (req, res) => {
   let dbOk = false;
   try {
-    const { PrismaClient } = require('@prisma/client');
-    const prisma = new PrismaClient();
-    await Promise.race([
-      prisma.$queryRaw`SELECT 1`,
-      new Promise((_, reject) => setTimeout(() => reject(new Error('DB timeout')), 5000))
-    ]);
-    await prisma.$disconnect();
+    const { prisma } = require('./lib/prisma.cjs');
+    let timer;
+    try {
+      await Promise.race([
+        prisma.$queryRaw`SELECT 1`,
+        new Promise((_, reject) => {
+          timer = setTimeout(() => reject(new Error('DB timeout')), 5000);
+          timer.unref?.();
+        })
+      ]);
+    } finally {
+      clearTimeout(timer);
+    }
     dbOk = true;
   } catch (err) {
     console.error('🔴 Health check — banco indisponível:', err.message);

@@ -1,10 +1,9 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken } = require('../lib/auth');
 const { getTenantCompanyId, mergeRelationWhere, tenantScopedWhere } = require('../lib/tenantScope.cjs');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 const scopeCompanyRelationWhere = (req, where = {}) => {
   const tenantCompanyId = getTenantCompanyId(req.user);
