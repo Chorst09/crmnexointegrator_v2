@@ -134,6 +134,8 @@ const defaultOpportunityForm = {
   valorEstimado: '',
   prazo: '',
   status: 'ABERTA',
+  statusAprovacao: 'AGUARDANDO_APROVACAO',
+  motivoNegativa: '',
   prioridade: 'MEDIUM',
   distribuidorIds: [],
   fornecedorIds: [],
@@ -663,6 +665,8 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         valorEstimado: item.valorEstimado ?? '',
         prazo: OPPORTUNITY_TERM_OPTIONS.includes(String(item.prazo || '').trim()) ? String(item.prazo).trim() : '',
         status: item.status || 'ABERTA',
+        statusAprovacao: item.statusAprovacao || 'AGUARDANDO_APROVACAO',
+        motivoNegativa: item.motivoNegativa || '',
         prioridade: item.prioridade || 'MEDIUM',
         distribuidorIds: Array.isArray(item.distribuidorIds) ? item.distribuidorIds : [],
         fornecedorIds: Array.isArray(item.fornecedorIds) ? item.fornecedorIds : [],
@@ -810,8 +814,14 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       return;
     }
 
+    if (opportunityForm.statusAprovacao === 'NEGADO' && !asString(opportunityForm.motivoNegativa)) {
+      alert('Informe o motivo da negativa antes de salvar.');
+      return;
+    }
+
     const payload = {
       ...opportunityForm,
+      motivoNegativa: opportunityForm.statusAprovacao === 'NEGADO' ? asString(opportunityForm.motivoNegativa) : '',
       titulo,
       cliente: asString(opportunityForm.cliente),
       valorEstimado: opportunityForm.valorEstimado === '' ? null : Number(opportunityForm.valorEstimado),
@@ -3137,6 +3147,33 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                   <option value="URGENT">Urgente</option>
                 </select>
               </label>
+            </div>
+
+            <div className="space-y-3 rounded-lg border border-slate-600/50 bg-slate-900/20 p-3">
+              <label className="block space-y-1">
+                <span className="text-sm text-slate-300">Status de aprovação</span>
+                <select
+                  value={opportunityForm.statusAprovacao}
+                  onChange={(event) => setOpportunityForm((prev) => ({ ...prev, statusAprovacao: event.target.value }))}
+                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                >
+                  <option value="AGUARDANDO_APROVACAO">Aguardando aprovação</option>
+                  <option value="APROVADO">Aprovado</option>
+                  <option value="NEGADO">Negado</option>
+                </select>
+              </label>
+              {opportunityForm.statusAprovacao === 'NEGADO' && (
+                <label className="block space-y-1">
+                  <span className="text-sm text-slate-300">Motivo da negativa *</span>
+                  <textarea
+                    required
+                    value={opportunityForm.motivoNegativa}
+                    onChange={(event) => setOpportunityForm((prev) => ({ ...prev, motivoNegativa: event.target.value }))}
+                    className="min-h-[100px] w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                    placeholder="Informe por que o registro de oportunidade foi negado"
+                  />
+                </label>
+              )}
             </div>
 
             <div className="mt-2 rounded-lg border border-sky-600/30 bg-sky-900/20 p-3">
