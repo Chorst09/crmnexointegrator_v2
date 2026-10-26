@@ -1,3 +1,6 @@
+import { normalizeFicha } from './ficha-normalizer.mjs';
+import { salvarFicha } from './ficha-persistence.mjs';
+import { getPncpIdentifiers, getInitialArquivos, getArquivoDownloadEndpoint, getDownloadFilename, normalizeArquivo } from './pncp-documents';
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   FileText, 
@@ -87,6 +90,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
   const [isProcessing, setIsProcessing] = useState(false);
   const [currentStep, setCurrentStep] = useState<number>(0);
   const [processingStatusMessage, setProcessingStatusMessage] = useState<string>('');
+  const [reanalysisId, setReanalysisId] = useState<string | null>(null);
   const [fichaTecnica, setFichaTecnica] = useState<FichaTecnicaEditalTR | null>(null);
   const [fonteExtracao, setFonteExtracao] = useState<string>('');
   const [copiedJson, setCopiedJson] = useState(false);
@@ -109,8 +113,8 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
     { title: "Extração de Texto", desc: "Leitura nativa e parsing de PDF ou Word (.docx/.doc)" },
     { title: "Classificação Heurística", desc: "Diferenciando Edital Principal vs Termo de Referência (TR/PB)" },
     { title: "Segmentador Semântico", desc: "Isolando seções críticas da Lei 14.133/2021 (Habilitação, Objeto, Prazos)" },
-    { title: "Sumarização com LLM", desc: "Structured Outputs com Pydantic v2 preenchendo Ficha Técnica" },
-    { title: "Indexação no Elasticsearch", desc: "Atualizando índice 'licitacoes' com resumo, nested itens e tags de risco" }
+    { title: "Extração dos dados", desc: "Extraindo os campos encontrados no texto dos documentos" },
+    { title: "Armazenamento da análise", desc: "Salvando a ficha e preservando os documentos originais" }
   ];
 
   useEffect(() => {
@@ -132,6 +136,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
   // Sincroniza ficha externa quando aberta a partir de 'Editais Analisados'
   useEffect(() => {
     if (initialFicha) {
+      setReanalysisId(initialFicha.id_licitacao);
       const fichaSegura = ensureFichaCompleta(initialFicha);
       setFichaTecnica(fichaSegura);
       setActiveTab('workbench');
@@ -217,30 +222,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
     setUploadedFiles(prev => prev.filter(f => f.id !== id));
   };
 
-  const handleCarregarExemploWord = () => {
-    // Simula carregamento de arquivos padrão da Lei 14.133 para teste rápido
-    const mockEditalFile: UploadedFileItem = {
-      id: 'mock-edital-01',
-      file: new globalThis.File([""], "Edital_Pregao_Eletronico_14133_Equipamentos_TI.pdf", { type: "application/pdf" }),
-      name: "Edital_Pregao_Eletronico_14133_Equipamentos_TI.pdf",
-      size: 458900,
-      base64: "data:application/pdf;base64,JVBERi0xLjQKJcTl8uXr...",
-      tipoDetectado: "EDITAL",
-      extensao: "PDF"
-    };
-
-    const mockTRFile: UploadedFileItem = {
-      id: 'mock-tr-02',
-      file: new globalThis.File([""], "Termo_de_Referencia_Anexo_I_Especificacoes.docx", { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }),
-      name: "Termo_de_Referencia_Anexo_I_Especificacoes.docx",
-      size: 215400,
-      base64: "data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,UEsDBBQAAAAIA...",
-      tipoDetectado: "TERMO_REFERENCIA",
-      extensao: "DOCX"
-    };
-
-    setUploadedFiles([mockEditalFile, mockTRFile]);
-  };
+  const handleCarregarExemploWord = () => { setInputMode('upload'); fileInputRef.current?.click(); };
 
   // Disparo do Processamento com o backend /api/analise-tr/processar-arquivo
   const handleProcessar = async () => {
@@ -255,33 +237,47 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
     try {
       let payloadFiles: { name: string; base64: string }[] = [];
-      let orgaoNome = "Órgão Licitante";
-      let modalidadeNome = "Pregão Eletrônico";
-      let idLicitacao = `DOC-TR-${Date.now().toString().slice(-6)}`;
+      let orgaoNome = "";
+      let modalidadeNome = "";
+      let idLicitacao = reanalysisId || `DOC-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
 
       if (inputMode === 'upload') {
         payloadFiles = uploadedFiles.map(u => ({ name: u.name, base64: u.base64 }));
-        if (uploadedFiles[0]?.name.toLowerCase().includes('curitiba')) orgaoNome = "Prefeitura Municipal de Curitiba";
+
       } else {
         const lic = licitacoes.find(l => l.id === selectedLicitacaoId);
         if (lic) {
           orgaoNome = lic.orgao;
           modalidadeNome = lic.modalidade;
           idLicitacao = lic.numeroControlePNCP || `PNCP-${lic.id}/2026`;
-          payloadFiles = [
-            { name: `Edital_Principal_${lic.id}.pdf`, base64: "data:application/pdf;base64,JVBERi0xLjQKJcTl8uXr..." },
-            { name: `Termo_de_Referencia_${lic.id}.docx`, base64: "data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,UEsDBBQAAAAIA..." }
-          ];
+          let arquivos = getInitialArquivos(lic);
+          const ids = getPncpIdentifiers(lic);
+          if (ids) {
+            const anexos = await fetch(`/api/b2g-licitacoes/arquivos/${ids.cnpj}/${ids.ano}/${ids.seq}`, { headers: getAuthHeaders() });
+            if (!anexos.ok) throw new Error('Não foi possível obter os documentos do edital. Anexe os arquivos originais.');
+            const encontrados = await anexos.json();
+            arquivos = [...arquivos, ...(Array.isArray(encontrados) ? encontrados.map(normalizeArquivo).filter(Boolean) : [])];
+          }
+          arquivos = [...new Map(arquivos.map(a => [a.url, a])).values()];
+          for (const arquivo of arquivos.slice(0, 10)) {
+            const downloaded = await fetch(getArquivoDownloadEndpoint(lic, arquivo), { headers: getAuthHeaders() });
+            if (!downloaded.ok) throw new Error(`Não foi possível baixar ${arquivo.titulo}.`);
+            const blob = await downloaded.blob();
+            let name = getDownloadFilename(downloaded.headers.get('content-disposition'), arquivo.titulo);
+            if (!/\.(pdf|docx?|DOCX?)$/i.test(name)) {
+              if (blob.type.includes('pdf')) name += '.pdf';
+              else if (blob.type.includes('wordprocessingml')) name += '.docx';
+              else if (blob.type.includes('msword')) name += '.doc';
+              else continue;
+            }
+            const file = new globalThis.File([blob], name, { type: blob.type });
+            payloadFiles.push({ name, base64: await readFileAsBase64(file) });
+          }
+          if (!payloadFiles.length) throw new Error('Nenhum PDF ou Word real disponível. Anexe os documentos originais.');
         }
       }
 
-      // Simulação visual de etapas para feedback responsivo
-      const interval = setInterval(() => {
-        setCurrentStep(prev => {
-          if (prev < 4) return prev + 1;
-          return prev;
-        });
-      }, 600);
+      setCurrentStep(2);
 
       const response = await fetch('/api/analise-tr/processar-arquivo', {
         method: 'POST',
@@ -294,260 +290,31 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
         })
       });
 
-      clearInterval(interval);
       setCurrentStep(4);
 
       if (response.ok) {
         const result = await response.json();
+        if (!result.ficha || result.ficha.analysisStatus === 'requires_reanalysis') throw new Error('O servidor não retornou uma análise válida.');
         const fichaSegura = ensureFichaCompleta(result.ficha);
         setFichaTecnica(fichaSegura);
         setFonteExtracao(result.fonte || 'Extrator Lei 14.133/2021');
-        await persistirFichaServidor(fichaSegura);
+        await persistirFichaServidor(fichaSegura, true);
         mostrarFeedback("Edital analisado com sucesso e salvo em Editais Analisados!");
       } else {
-        throw new Error("Erro no processamento da API");
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Não foi possível analisar os documentos.');
       }
     } catch (err) {
-      console.warn("Recorrendo ao gerador estruturado local:", err);
-      // Fallback seguro caso a chamada falhe
-      const lic = licitacoes.find(l => l.id === selectedLicitacaoId);
-      gerarFichaTecnicaFallback(lic);
+      const message = err instanceof Error ? err.message : 'Não foi possível analisar os documentos.';
+      setProcessingStatusMessage(message);
+      alert(message);
     } finally {
       setIsProcessing(false);
       setCurrentStep(0);
     }
   };
 
-  const formatarDataAmigavel = (dataIso?: string): string => {
-    if (!dataIso) return "28/09/2026 às 10:00";
-    try {
-      const d = new Date(dataIso);
-      if (isNaN(d.getTime())) return dataIso;
-      return `${d.toLocaleDateString('pt-BR')} às ${d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
-    } catch {
-      return dataIso;
-    }
-  };
-
-  const ensureFichaCompleta = (rawFicha?: any): FichaTecnicaEditalTR => {
-    if (!rawFicha) return gerarFichaTecnicaObjeto();
-    // Se for uma linha do banco com analysisData aninhado, desaninha
-    const nested = typeof rawFicha.analysisData === 'string'
-      ? (() => { try { return JSON.parse(rawFicha.analysisData); } catch (_) { return {}; } })()
-      : (typeof rawFicha.analysisData === 'object' && rawFicha.analysisData !== null ? rawFicha.analysisData : {});
-    const ficha = { ...nested, ...rawFicha };
-
-    return {
-      id_licitacao: ficha.id_licitacao || ficha.numeroControlePNCP || `DOC-${Date.now().toString().slice(-6)}`,
-      orgao_comprador: ficha.orgao_comprador || ficha.orgao_nome || ficha.orgao || "Prefeitura Municipal de Curitiba",
-      modalidade_contratacao: ficha.modalidade_contratacao || ficha.modalidade || "Pregão Eletrônico (Lei 14.133/2021)",
-      criterio_julgamento: ficha.criterio_julgamento || "Menor Preço por Item / Maior Desconto",
-      modo_disputa: ficha.modo_disputa || "Aberto",
-      data_abertura: ficha.data_abertura || ficha.data_abertura_proposta || "28/09/2026 às 10:00",
-      data_limite_proposta: ficha.data_limite_proposta || "28/09/2026 até às 09:59",
-      data_fim_esclarecimento: ficha.data_fim_esclarecimento || "Até 3 dias úteis anteriores à data de abertura (art. 164 da Lei 14.133/2021)",
-      data_fim_impugnacao: ficha.data_fim_impugnacao || "Até 3 dias úteis anteriores à data de abertura (art. 164 da Lei 14.133/2021)",
-      valor_estimado_total: typeof ficha.valor_estimado_total === 'number' ? ficha.valor_estimado_total : (Number(ficha.valor_estimado) || 150000.0),
-      portal_compras: ficha.portal_compras || "Compras.gov.br / Portal Nacional de Contratações Públicas (PNCP)",
-      resumo_executivo: ficha.resumo_executivo || ficha.objeto || "Contratação conforme especificações da Lei nº 14.133/2021.",
-      requisitos_habilitacao: {
-        atestados_capacidade_tecnica: Array.isArray(ficha.requisitos_habilitacao?.atestados_capacidade_tecnica) && ficha.requisitos_habilitacao.atestados_capacidade_tecnica.length > 0
-          ? ficha.requisitos_habilitacao.atestados_capacidade_tecnica
-          : [
-              "Atestado de Capacidade Técnica comprovando fornecimento compatível com o objeto (mínimo de 50% das quantidades estimadas).",
-              "Comprovação de estrutura de suporte técnico e reposição em até 48 horas úteis."
-            ],
-        certidoes_e_registros_especificos: Array.isArray(ficha.requisitos_habilitacao?.certidoes_e_registros_especificos) && ficha.requisitos_habilitacao.certidoes_e_registros_especificos.length > 0
-          ? ficha.requisitos_habilitacao.certidoes_e_registros_especificos
-          : [
-              "Certidão Conjunta Negativa de Débitos Relativos aos Tributos Federais e à Dívida Ativa da União.",
-              "Certificado de Regularidade do FGTS (CRF).",
-              "Certidão Negativa de Débitos Trabalhistas (CNDT).",
-              "Certidão Negativa de Falência e Concordata."
-            ],
-        exigencias_contabeis: Array.isArray(ficha.requisitos_habilitacao?.exigencias_contabeis) && ficha.requisitos_habilitacao.exigencias_contabeis.length > 0
-          ? ficha.requisitos_habilitacao.exigencias_contabeis
-          : [
-              { nome_indice: "Índice de Liquidez Geral (LG)", regra: ">= 1.0" },
-              { nome_indice: "Índice de Liquidez Corrente (LC)", regra: ">= 1.0" },
-              { nome_indice: "Índice de Solvência Geral (SG)", regra: ">= 1.0" },
-              { nome_indice: "Patrimônio Líquido", regra: "10% do valor estimado caso os índices sejam < 1.0" }
-            ],
-        qualificacao_equipe_chave: Array.isArray(ficha.requisitos_habilitacao?.qualificacao_equipe_chave) && ficha.requisitos_habilitacao.qualificacao_equipe_chave.length > 0
-          ? ficha.requisitos_habilitacao.qualificacao_equipe_chave
-          : ["Declaração de equipe técnica e indicação de responsável técnico credenciado."]
-      },
-      prazos_e_locais: {
-        prazo_inicio_entrega: ficha.prazos_e_locais?.prazo_inicio_entrega || "Até 15 (quinze) dias corridos a partir da Ordem de Fornecimento / Nota de Empenho.",
-        locais_prestacao_entrega: Array.isArray(ficha.prazos_e_locais?.locais_prestacao_entrega) && ficha.prazos_e_locais.locais_prestacao_entrega.length > 0
-          ? ficha.prazos_e_locais.locais_prestacao_entrega
-          : ["Almoxarifado Central e unidades regionais do órgão contratante."],
-        vigencia_contrato: ficha.prazos_e_locais?.vigencia_contrato || "12 (doze) meses prorrogáveis por até 5 anos nos termos do art. 106 da Lei 14.133/2021.",
-        regime_execucao: ficha.prazos_e_locais?.regime_execucao || "Empreitada por Preço Unitário",
-        prazo_recebimento_provisorio_definitivo: ficha.prazos_e_locais?.prazo_recebimento_provisorio_definitivo || "Provisório em até 15 dias; Definitivo em até 30 dias após verificação de conformidade."
-      },
-      pontos_de_atencao_risco: {
-        clausulas_punitivas_multas: Array.isArray(ficha.pontos_de_atencao_risco?.clausulas_punitivas_multas) && ficha.pontos_de_atencao_risco.clausulas_punitivas_multas.length > 0
-          ? ficha.pontos_de_atencao_risco.clausulas_punitivas_multas
-          : [
-              "Multa moratória de 0,5% por dia de atraso sobre o valor da parcela descumprida.",
-              "Multa compensatória de 10% a 20% em caso de inexecução total ou rescisão culposa.",
-              "Impedimento de licitar e contratar com a Administração Pública por até 3 anos (art. 156, III)."
-            ],
-        exigencia_amostra_poc: ficha.pontos_de_atencao_risco?.exigencia_amostra_poc || ficha.pontos_de_atencao_risco?.exigencia_amostra || "Apresentação obrigatória de amostra/PoC para o 1º classificado provisório em até 5 dias úteis.",
-        garantia_contratual: ficha.pontos_de_atencao_risco?.garantia_contratual || "Garantia contratual de 5% sobre o valor global do contrato.",
-        regras_vistoria: {
-          obrigatoria: Boolean(ficha.pontos_de_atencao_risco?.regras_vistoria?.obrigatoria),
-          permite_declaracao_substitutiva: ficha.pontos_de_atencao_risco?.regras_vistoria?.permite_declaracao_substitutiva !== false,
-          detalhes_e_prazo: ficha.pontos_de_atencao_risco?.regras_vistoria?.detalhes_e_prazo || "Vistoria facultativa com declaração formal de pleno conhecimento do local."
-        },
-        pontos_de_atencao_gerais: Array.isArray(ficha.pontos_de_atencao_risco?.pontos_de_atencao_gerais) && ficha.pontos_de_atencao_risco.pontos_de_atencao_gerais.length > 0
-          ? ficha.pontos_de_atencao_risco.pontos_de_atencao_gerais
-          : [
-              "Garantia mínima de fábrica de 12 meses com assistência técnica autorizada.",
-              "Vedada a subcontratação sem autorização prévia por escrito."
-            ]
-      },
-      matriz_itens: Array.isArray(ficha.matriz_itens) && ficha.matriz_itens.length > 0
-        ? ficha.matriz_itens
-        : [
-            {
-              item_numero: 1,
-              codigo_catalogo: "CATSER-21123",
-              especificacao_sucinta: "Serviço ou fornecimento principal especificado no Termo de Referência",
-              unidade: "UN",
-              quantitativo: 1,
-              valor_estimado_unitario: typeof ficha.valor_estimado_total === 'number' ? ficha.valor_estimado_total : 150000.0,
-              valor_estimado_total: typeof ficha.valor_estimado_total === 'number' ? ficha.valor_estimado_total : 150000.0
-            }
-          ],
-      tags_classificacao: Array.isArray(ficha.tags_classificacao) ? ficha.tags_classificacao : ["Lei 14.133/2021", "Pregão Eletrônico"],
-      documentos_origem: ficha.documentos_origem || { edital: "edital.pdf", termo_referencia: "termo_referencia.docx" },
-      data_processamento: ficha.data_processamento || new Date().toISOString()
-    };
-  };
-
-  const gerarFichaTecnicaObjeto = (lic?: Licitacao): FichaTecnicaEditalTR => {
-    const nomeDoc = uploadedFiles[0]?.name || "Edital_TR.pdf";
-    const dataRaw = lic?.dataHoraAberturaSessaoPublica || lic?.data_abertura;
-    const dataAberturaBase = dataRaw ? formatarDataAmigavel(dataRaw) : "28/09/2026 às 10:00";
-    const dataLimiteRaw = lic?.dataEncerramentoProposta || dataRaw;
-    const dataLimiteBase = dataLimiteRaw ? `${new Date(dataLimiteRaw).toLocaleDateString('pt-BR')} até às 09:59` : "28/09/2026 até às 09:59";
-
-    return {
-      id_licitacao: lic?.numeroControlePNCP || `DOC-${Date.now().toString().slice(-6)}`,
-      orgao_comprador: lic?.orgao || "Prefeitura Municipal de Curitiba",
-      modalidade_contratacao: lic?.modalidade || "Pregão Eletrônico (Lei 14.133/2021)",
-      criterio_julgamento: "Menor Preço por Item / Maior Desconto",
-      modo_disputa: "Aberto",
-      data_abertura: dataAberturaBase,
-      data_limite_proposta: dataLimiteBase,
-      data_fim_esclarecimento: "Até 3 dias úteis anteriores à data de abertura (art. 164 da Lei 14.133/2021)",
-      data_fim_impugnacao: "Até 3 dias úteis anteriores à data de abertura (art. 164 da Lei 14.133/2021)",
-      valor_estimado_total: lic?.valor_estimado || lic?.valorTotalEstimado || 150000.0,
-      portal_compras: "Compras.gov.br / Portal Nacional de Contratações Públicas (PNCP)",
-      resumo_executivo: `O certame destina-se à contratação conforme especificado no documento ${nomeDoc}. O objeto abrange a aquisição e fornecimento de materiais e serviços técnicos sob demanda com entrega parcelada.\n\nA contratação observa as normas da Lei nº 14.133/2021, com critérios rigorosos de conformidade técnica, sustentabilidade e fiscalização contratual direta pelo órgão.\n\nO critério de julgamento adotado é o de Menor Preço, admitindo-se a participação de empresas isoladas ou em consórcio, nos termos estipulados no Edital e no Termo de Referência.`,
-      requisitos_habilitacao: {
-        atestados_capacidade_tecnica: [
-          "Atestado de Capacidade Técnica comprovando que a licitante executou fornecimento de objeto de natureza compatível com o licitado (mínimo de 50% das quantidades estimadas).",
-          "Comprovação de estrutura de suporte técnico e reposição em até 48 horas úteis."
-        ],
-        certidoes_e_registros_especificos: [
-          "Certidão Conjunta Negativa de Débitos Relativos aos Tributos Federais e à Dívida Ativa da União.",
-          "Certificado de Regularidade do FGTS (CRF).",
-          "Certidão Negativa de Débitos Trabalhistas (CNDT).",
-          "Certidão Negativa de Falência e Concordata."
-        ],
-        exigencias_contabeis: [
-          { nome_indice: "Índice de Liquidez Geral (LG)", regra: ">= 1.0" },
-          { nome_indice: "Índice de Liquidez Corrente (LC)", regra: ">= 1.0" },
-          { nome_indice: "Índice de Solvência Geral (SG)", regra: ">= 1.0" },
-          { nome_indice: "Patrimônio Líquido", regra: "10% do valor estimado caso os índices sejam < 1.0" }
-        ],
-        qualificacao_equipe_chave: [
-          "Declaração de equipe técnica e indicação de responsável técnico credenciado."
-        ]
-      },
-      prazos_e_locais: {
-        prazo_inicio_entrega: "Até 15 (quinze) dias corridos a partir da Ordem de Fornecimento / Nota de Empenho.",
-        locais_prestacao_entrega: [
-          "Almoxarifado Central e unidades regionais do órgão contratante."
-        ],
-        vigencia_contrato: "12 (doze) meses prorrogáveis por até 5 anos nos termos do art. 106 da Lei 14.133/2021.",
-        regime_execucao: "Empreitada por Preço Unitário",
-        prazo_recebimento_provisorio_definitivo: "Provisório em até 15 dias; Definitivo em até 30 dias após verificação de conformidade."
-      },
-      pontos_de_atencao_risco: {
-        clausulas_punitivas_multas: [
-          "Multa moratória de 0,5% por dia de atraso sobre o valor da parcela descumprida.",
-          "Multa compensatória de 10% a 20% em caso de inexecução total ou rescisão culposa.",
-          "Impedimento de licitar e contratar com a Administração Pública por até 3 anos (art. 156, III)."
-        ],
-        exigencia_amostra_poc: "Apresentação obrigatória de amostra/PoC para o 1º classificado provisório em até 5 dias úteis.",
-        garantia_contratual: "Garantia contratual de 5% sobre o valor global do contrato.",
-        regras_vistoria: {
-          obrigatoria: false,
-          permite_declaracao_substitutiva: true,
-          detalhes_e_prazo: "Vistoria facultativa com declaração formal de pleno conhecimento do local."
-        },
-        pontos_de_atencao_gerais: [
-          "Garantia mínima de fábrica de 12 meses com assistência técnica autorizada.",
-          "Vedada a subcontratação sem autorização prévia por escrito."
-        ]
-      },
-      matriz_itens: lic?.itens && lic.itens.length > 0 ? lic.itens.map((it, idx) => ({
-        item_numero: idx + 1,
-        codigo_catalogo: `CATSER-${10000 + idx * 123}`,
-        especificacao_sucinta: it.descricao || "Item conforme Termo de Referência",
-        unidade: it.unidade || "UN",
-        quantitativo: it.quantidade || 1,
-        valor_estimado_unitario: it.valor_referencia || 100,
-        valor_estimado_total: (it.valor_referencia || 100) * (it.quantidade || 1)
-      })) : [
-        {
-          item_numero: 1,
-          codigo_catalogo: "CATSER-21123",
-          especificacao_sucinta: "Serviço de Colocation em Data Center Tier III com redundância elétrica e climatização",
-          unidade: "MÊS",
-          quantitativo: 12,
-          valor_estimado_unitario: 221966.67,
-          valor_estimado_total: 2663600.0
-        },
-        {
-          item_numero: 2,
-          codigo_catalogo: "CATSER-21246",
-          especificacao_sucinta: "Serviço de Armazenamento em Nuvem (Cloud Storage Corporativo de Alta Disponibilidade)",
-          unidade: "MÊS",
-          quantitativo: 24,
-          valor_estimado_unitario: 110983.33,
-          valor_estimado_total: 2663600.0
-        },
-        {
-          item_numero: 3,
-          codigo_catalogo: "CATSER-21369",
-          especificacao_sucinta: "Links Dedicados de Conectividade e Comunicação de Dados Redundantes (10 Gbps)",
-          unidade: "LINK",
-          quantitativo: 2,
-          valor_estimado_unitario: 1331800.0,
-          valor_estimado_total: 2663600.0
-        }
-      ],
-      tags_classificacao: ["Lei 14.133/2021", "Pregão Eletrônico", "Amostra Exigida", "Vistoria Substituível"],
-      documentos_origem: {
-        edital: uploadedFiles[0]?.name || "edital.pdf",
-        termo_referencia: uploadedFiles[1]?.name || uploadedFiles[0]?.name || "termo_referencia.docx"
-      },
-      data_processamento: new Date().toISOString()
-    };
-  };
-
-  const gerarFichaTecnicaFallback = (lic?: Licitacao) => {
-    const ficha = ensureFichaCompleta(gerarFichaTecnicaObjeto(lic));
-    setFichaTecnica(ficha);
-    setFonteExtracao('Motor Estruturado Lei 14.133/2021');
-    persistirFichaServidor(ficha);
-    mostrarFeedback("Edital analisado com sucesso e salvo em Editais Analisados!");
-  };
+  const ensureFichaCompleta = (rawFicha?: any): FichaTecnicaEditalTR => normalizeFicha(rawFicha || {});
 
   const handleCopyJson = () => {
     if (!fichaTecnica) return;
@@ -580,10 +347,11 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
     setTimeout(() => setFeedbackSalvo(null), 5500);
   };
 
-  const persistirFichaServidor = async (ficha: FichaTecnicaEditalTR) => {
+  const persistirFichaServidor = async (ficha: FichaTecnicaEditalTR, strict = false) => {
     try {
       setSalvandoFicha(true);
-      // Salva em localStorage para persistência local instantânea
+      await salvarFicha(ficha, { headers: getAuthHeaders() });
+      // O backup local só representa fichas confirmadas pelo servidor.
       try {
         localStorage.setItem(`ficha_tecnica_${ficha.id_licitacao}`, JSON.stringify(ficha));
         // Atualiza a lista completa de backups
@@ -600,17 +368,13 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
         console.warn('Falha ao salvar no localStorage:', e);
       }
       
-      // Salva no backend com persistência permanente em disco
-      await fetch('/api/analise-tr/salvar-ficha', {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(ficha)
-      });
-
       // Dispara evento para atualização instantânea de abas e badges
       window.dispatchEvent(new CustomEvent('edital-analisado-salvo', { detail: ficha }));
+      return true;
     } catch (e) {
-      console.warn('Erro ao salvar no servidor (mantido localmente):', e);
+      mostrarFeedback(e instanceof Error ? e.message : 'Falha ao salvar no servidor.');
+      if (strict) throw e;
+      return false;
     } finally {
       setSalvandoFicha(false);
     }
@@ -628,7 +392,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
     const nextNum = (fichaTecnica?.matriz_itens?.length || 0) + 1;
     setItemEmEdicao({
       item_numero: nextNum,
-      codigo_catalogo: `CATSER-${20000 + nextNum * 111}`,
+      codigo_catalogo: '',
       especificacao_sucinta: '',
       unidade: 'UN',
       quantitativo: 1,
@@ -640,7 +404,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
   };
 
   // Salvar item editado ou criado no modal
-  const handleSalvarItemModal = (itemAtualizado: MatrizItemAnalise) => {
+  const handleSalvarItemModal = async (itemAtualizado: MatrizItemAnalise) => {
     if (!fichaTecnica) return;
     let novosItens = [...fichaTecnica.matriz_itens];
     const indexExistente = novosItens.findIndex(it => it.item_numero === itemAtualizado.item_numero);
@@ -661,12 +425,12 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
     };
 
     setFichaTecnica(fichaAtualizada);
-    persistirFichaServidor(fichaAtualizada);
+    if (!await persistirFichaServidor(fichaAtualizada)) return;
     mostrarFeedback(`Item ${itemAtualizado.item_numero} salvo com sucesso! Valores da matriz recalculados.`);
   };
 
   // Excluir item da matriz
-  const handleExcluirItem = (itemNumero: number) => {
+  const handleExcluirItem = async (itemNumero: number) => {
     if (!fichaTecnica) return;
     const novosItens = fichaTecnica.matriz_itens.filter(it => it.item_numero !== itemNumero);
     const novoTotal = novosItens.reduce((acc, it) => acc + (it.valor_estimado_total || 0), 0);
@@ -678,7 +442,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
     };
 
     setFichaTecnica(fichaAtualizada);
-    persistirFichaServidor(fichaAtualizada);
+    if (!await persistirFichaServidor(fichaAtualizada)) return;
     mostrarFeedback(`Item ${itemNumero} excluído com sucesso.`);
   };
 
@@ -737,7 +501,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
     setItensRascunho(prev => prev.filter((_, i) => i !== index));
   };
 
-  const handleSalvarEdicaoTabela = () => {
+  const handleSalvarEdicaoTabela = async () => {
     if (!fichaTecnica) return;
     const novosItens = [...itensRascunho];
     const novoTotal = novosItens.reduce((acc, it) => acc + (it.valor_estimado_total || 0), 0);
@@ -750,7 +514,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
     setFichaTecnica(fichaAtualizada);
     setIsModoEdicaoTabela(false);
-    persistirFichaServidor(fichaAtualizada);
+    if (!await persistirFichaServidor(fichaAtualizada)) return;
     mostrarFeedback('Itens e quantitativos atualizados e salvos com sucesso!');
   };
 
@@ -865,7 +629,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                     onClick={handleCarregarExemploWord}
                     className="text-xs text-indigo-600 dark:text-indigo-300 hover:text-indigo-800 dark:hover:text-indigo-200 bg-indigo-50 dark:bg-indigo-950/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 px-3 py-1.5 rounded-lg border border-indigo-200 dark:border-indigo-800 font-medium transition-colors flex items-center gap-1.5"
                   >
-                    <FileSpreadsheet className="w-3.5 h-3.5" /> Carregar Exemplo (PDF + Word TR)
+                    <FileSpreadsheet className="w-3.5 h-3.5" /> Selecionar documentos reais
                   </button>
                 </div>
               </div>
@@ -988,7 +752,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
               <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-2 text-xs text-slate-400">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <span>Pipeline com OCR seletivo e Structured Outputs conforme Lei nº 14.133/2021.</span>
+                  <span>Pipeline com OCR seletivo e Extração estruturada conforme Lei nº 14.133/2021.</span>
                 </div>
 
                 <button
@@ -1114,9 +878,9 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
                   <div className="flex flex-wrap items-center gap-2">
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (fichaTecnica) {
-                          persistirFichaServidor(fichaTecnica);
+                          if (!await persistirFichaServidor(fichaTecnica)) return;
                           mostrarFeedback("Ficha Técnica e Matriz de Itens salvas com sucesso!");
                         }
                       }}
@@ -1183,10 +947,10 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
                     <div className="flex items-center gap-2">
                       <span className="px-2.5 py-1 rounded-md bg-blue-800/80 border border-blue-700/50 text-[11px] font-medium text-blue-200">
-                        Portal: {fichaTecnica.portal_compras || 'Compras.gov.br / PNCP'}
+                        Portal: {fichaTecnica.portal_compras || 'Não identificado'}
                       </span>
                       <span className="px-2.5 py-1 rounded-md bg-indigo-800/80 border border-indigo-700/50 text-[11px] font-semibold text-emerald-300">
-                        Modo: {fichaTecnica.modo_disputa || 'Aberto'}
+                        Modo: {fichaTecnica.modo_disputa || 'Não identificado'}
                       </span>
                     </div>
                   </div>
@@ -1228,7 +992,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                         </div>
                         <div className="flex items-baseline gap-2 mt-1">
                           <span className="text-base font-bold text-slate-900 dark:text-slate-100 leading-snug">
-                            {fichaTecnica.data_limite_proposta || 'Até início da abertura'}
+                            {fichaTecnica.data_limite_proposta || 'Não identificado'}
                           </span>
                         </div>
                       </div>
@@ -1250,7 +1014,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           </span>
                         </div>
                         <div className="text-xs text-white font-medium mt-1 leading-relaxed">
-                          {fichaTecnica.data_fim_esclarecimento || 'Até 3 dias úteis anteriores à data de abertura'}
+                          {fichaTecnica.data_fim_esclarecimento || 'Não identificado'}
                         </div>
                       </div>
                       <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center gap-1.5 text-[11px] text-slate-400">
@@ -1369,21 +1133,21 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                       <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-700/60">
                         <span className="text-xs text-slate-400 block mb-1">Prazo para Início / Entrega</span>
                         <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                          {fichaTecnica.prazos_e_locais?.prazo_inicio_entrega || 'Até 15 dias úteis'}
+                          {fichaTecnica.prazos_e_locais?.prazo_inicio_entrega || 'Não identificado'}
                         </span>
                       </div>
 
                       <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-700/60">
                         <span className="text-xs text-slate-400 block mb-1">Vigência Contratual</span>
                         <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                          {fichaTecnica.prazos_e_locais?.vigencia_contrato || '12 meses'}
+                          {fichaTecnica.prazos_e_locais?.vigencia_contrato || 'Não identificado'}
                         </span>
                       </div>
 
                       <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-700/60">
                         <span className="text-xs text-slate-400 block mb-1">Regime de Execução</span>
                         <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
-                          {fichaTecnica.prazos_e_locais?.regime_execucao || 'Preço Unitário'}
+                          {fichaTecnica.prazos_e_locais?.regime_execucao || 'Não identificado'}
                         </span>
                       </div>
 
@@ -1420,7 +1184,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                     <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
                       <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Exigência de Amostra / PoC</span>
                       <p className="text-xs text-white leading-relaxed">
-                        {fichaTecnica.pontos_de_atencao_risco?.exigencia_amostra_poc || "Não exigido."}
+                        {fichaTecnica.pontos_de_atencao_risco?.exigencia_amostra_poc || "Não identificado."}
                       </p>
                     </div>
 
@@ -1428,7 +1192,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                     <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
                       <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Regra de Vistoria Técnica</span>
                       <p className="text-xs text-white leading-relaxed">
-                        {fichaTecnica.pontos_de_atencao_risco?.regras_vistoria?.detalhes_e_prazo || "Vistoria facultativa com declaração substitutiva."}
+                        {fichaTecnica.pontos_de_atencao_risco?.regras_vistoria?.detalhes_e_prazo || "Não identificado."}
                       </p>
                     </div>
 
@@ -1436,7 +1200,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                     <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
                       <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Garantia Contratual</span>
                       <p className="text-xs text-white leading-relaxed">
-                        {fichaTecnica.pontos_de_atencao_risco?.garantia_contratual || "Não exigida."}
+                        {fichaTecnica.pontos_de_atencao_risco?.garantia_contratual || "Não identificado."}
                       </p>
                     </div>
                   </div>
@@ -1519,8 +1283,8 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
                           <button
                             type="button"
-                            onClick={() => {
-                              persistirFichaServidor(fichaTecnica);
+                            onClick={async () => {
+                              if (!await persistirFichaServidor(fichaTecnica)) return;
                               mostrarFeedback("Matriz de Itens salva e sincronizada com sucesso!");
                             }}
                             disabled={salvandoFicha}
@@ -1832,7 +1596,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                     </div>
                     <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm mb-1">Sumarização LLM</h3>
                     <p className="text-xs text-slate-300 leading-relaxed">
-                      Schemas estritos com <code>pydantic</code> v2 e invocação de LLMs via <strong>Structured Outputs</strong> (JSON Schema Mode), garantindo extração determinística sem alucinações.
+                      Schemas estritos com <code>pydantic</code> v2 e invocação de LLMs via <strong>Extração estruturada</strong> (JSON Schema Mode), garantindo extração determinística sem alucinações.
                     </p>
                   </div>
                   <span className="text-[11px] text-violet-600 dark:text-violet-400 font-mono mt-4 block">summarizer.py</span>
@@ -1947,7 +1711,7 @@ class AnaliseEditalTRPipeline:
         secoes_tr = self.chunker.extrair_secoes_criticas(par["termo_referencia"].caminho_arquivo, "TERMO_REFERENCIA")
         pacote = self.chunker.montar_pacote_contexto_llm(secoes_edital, secoes_tr)
 
-        # 4. Sumarização estruturada com LLM (Structured Outputs)
+        # 4. Sumarização estruturada com LLM (Extração estruturada)
         ficha_tecnica = await self.summarizer.extrair_ficha_tecnica(id_licitacao, pacote)
 
         # 5. Atualização e indexação no Elasticsearch
@@ -2022,7 +1786,7 @@ from .schemas import FichaTecnicaEditalTR
 
 class LLMDocumentSummarizer:
     async def extrair_ficha_tecnica(self, id_licitacao, pacote_contexto):
-        # Utiliza Structured Outputs nativo do OpenAI/Anthropic/Gemini
+        # Utiliza Extração estruturada nativo do OpenAI/Anthropic/Gemini
         completion = await self.client.beta.chat.completions.parse(
             model="gpt-4o-mini",
             messages=[
