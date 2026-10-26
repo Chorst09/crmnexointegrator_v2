@@ -1166,16 +1166,12 @@ export default function Oportunidades() {
   };
 
   const getNextStage = (currentStage) => {
+    if (currentStage === 'LEAD') return null;
     const currentIndex = stages.indexOf(currentStage);
     if (currentIndex < stages.length - 3) { // Não avançar para WON ou LOST automaticamente
       return stages[currentIndex + 1];
     }
     return null;
-  };
-
-  const getAdvanceLabel = (currentStage) => {
-    if (currentStage === 'LEAD') return 'Converter Lead';
-    return 'Avançar';
   };
 
   const normalizeSearchText = (value) => String(value || '')
@@ -1573,7 +1569,7 @@ export default function Oportunidades() {
                               onClick={(e) => { e.stopPropagation(); requestMoveOpportunity(opp, getNextStage(stage)); }}
                               className="flex-1 flex items-center justify-center gap-1 rounded-xl bg-blue-600 px-2 py-1.5 text-xs font-semibold text-white hover:bg-blue-500 transition-colors"
                             >
-                              {getAdvanceLabel(stage)} <ArrowRight className="w-3 h-3" />
+                              Avançar <ArrowRight className="w-3 h-3" />
                             </button>
                           )}
                           <button
@@ -1698,7 +1694,7 @@ export default function Oportunidades() {
                               onClick={(e) => { e.stopPropagation(); requestMoveOpportunity(opp, nextStage); }}
                               className="rounded-xl bg-blue-600 px-3 py-2 text-xs font-bold text-white transition-colors hover:bg-blue-500"
                             >
-                              {getAdvanceLabel(stage)}
+                              Avançar
                             </button>
                           )}
                           {stage !== 'WON' && stage !== 'LOST' && (
