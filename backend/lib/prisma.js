@@ -1,9 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+// Share the same bounded pool with the CommonJS routes.
+import shared from './prisma.cjs';
 
-const globalForPrisma = globalThis;
-
-export const prisma = globalForPrisma.prisma || new PrismaClient();
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = prisma;
-}
+export const prisma = shared.prisma;

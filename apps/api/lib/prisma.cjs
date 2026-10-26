@@ -113,11 +113,16 @@ async function ensureB2GTablesExist() {
 
 if (!isPlaceholderUrl) {
   try {
+    // Bound this client's pool independently of the machine's CPU count.
+    // This API also runs alongside the backend pool in the production process.
+    const databaseUrl = new (require('node:url').URL)(rawUrl);
+    if (!databaseUrl.searchParams.has('connection_limit')) databaseUrl.searchParams.set('connection_limit', '10');
+    if (!databaseUrl.searchParams.has('pool_timeout')) databaseUrl.searchParams.set('pool_timeout', '15');
     const prismaOptions = {
       log: ['warn', 'error'],
       datasources: {
         db: {
-          url: rawUrl
+          url: databaseUrl.toString()
         }
       }
     };

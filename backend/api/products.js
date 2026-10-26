@@ -1,9 +1,8 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken } = require('../lib/auth');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 const isMasterUser = (user = {}) => String(user.actualRole || user.role || '').toUpperCase() === 'MASTER';
 const getTenantCompanyId = (user = {}) => (isMasterUser(user) ? null : String(user.tenantCompanyId || '').trim() || null);

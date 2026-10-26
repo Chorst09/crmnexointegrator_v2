@@ -14,14 +14,12 @@ const rawUrl = process.env.DATABASE_URL || '';
 if (rawUrl && !rawUrl.includes('connection_limit=')) {
   const separator = rawUrl.includes('?') ? '&' : '?';
   prismaOptions.datasources.db.url =
-    `${rawUrl}${separator}connection_limit=10&pool_timeout=15&pgbouncer=true&statement_cache_size=0`;
+    `${rawUrl}${separator}connection_limit=10&pool_timeout=15`;
 }
 
 const prisma = global.__nexosPrisma || new PrismaClient(prismaOptions);
 
-if (process.env.NODE_ENV !== 'production') {
-  global.__nexosPrisma = prisma;
-}
+global.__nexosPrisma = prisma;
 
 // Graceful shutdown
 let isShuttingDown = false;

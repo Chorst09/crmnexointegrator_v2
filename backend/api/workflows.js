@@ -1,9 +1,8 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken, requireRole } = require('../lib/auth');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 const getWorkflowDelegate = () => prisma.workflow || prisma.advancedWorkflow || null;
 const getAutomationRuleDelegate = () => prisma.automationRule || null;

@@ -6,11 +6,10 @@
  * usando tabela própria (SimulatorProposal) no PostgreSQL via Prisma.
  */
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken } = require('../lib/auth');
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 // ─── Helper: normaliza proposta do formato do Simulador ───────────────────────
 const normalizeProposal = (data) => ({
