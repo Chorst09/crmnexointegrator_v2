@@ -1,7 +1,7 @@
 'use strict';
 
 const express = require('express');
-const { prisma } = require('../lib/prisma.cjs');
+const { prisma } = require('../lib/opportunity-prisma.cjs');
 const { authenticateToken } = require('../lib/auth.cjs');
 const router = express.Router();
 

@@ -4,7 +4,7 @@ const express = require('express');
 const fs = require('fs');
 const multer = require('multer');
 const path = require('path');
-const { prisma } = require('../lib/prisma.cjs');
+const { prisma } = require('../lib/opportunity-prisma.cjs');
 const { authenticateToken } = require('../lib/auth.cjs');
 const router = express.Router();
 
