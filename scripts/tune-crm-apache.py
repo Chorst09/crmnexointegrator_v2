@@ -44,7 +44,9 @@ def tune(text):
     def host(match):
         nonlocal count
         block = match.group()
-        if re.search(r'ServerName\s+(double|nexos)\.chorstconsult\.com\.br\s', block):
+        is_crm = re.search(r'ServerName\s+(double|nexos)\.chorstconsult\.com\.br\s', block)
+        is_https_redirect = re.search(r'RewriteRule\s+\^\s+https://.*\[R=308,L,NE\]', block)
+        if is_crm and not is_https_redirect:
             count += 1
             return block.replace('</VirtualHost>', '    ' + POLICY + '\n</VirtualHost>')
         return block
