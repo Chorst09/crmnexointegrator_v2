@@ -1303,10 +1303,11 @@ export default function Oportunidades() {
       </div>
 
       {/* Abas: Oportunidades / Histórico */}
-      <div className="flex gap-1 rounded-2xl border border-[color:var(--crm-border)] bg-[var(--crm-surface)] p-1.5 w-fit shadow-sm">
+      <div className="flex w-fit max-w-full flex-wrap items-center gap-2 rounded-xl border border-[color:var(--crm-border)] bg-[var(--crm-surface)] p-1.5 shadow-sm">
+        <div className="flex items-center gap-1" role="group" aria-label="Seção de oportunidades">
         <button
           onClick={() => setViewMode('pipeline')}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex items-center gap-2 ${(pipelineClientType === 'B2B') ? 'px-3 py-2 rounded-lg text-xs font-semibold' : 'px-6 py-2.5 rounded-xl text-sm font-bold'} transition-all ${
             viewMode === 'pipeline'
               ? 'bg-blue-600 text-white shadow-md'
               : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)]'
@@ -1317,7 +1318,7 @@ export default function Oportunidades() {
         </button>
         <button
           onClick={() => setViewMode('historico')}
-          className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${
+          className={`flex items-center gap-2 ${(pipelineClientType === 'B2B') ? 'px-3 py-2 rounded-lg text-xs font-semibold' : 'px-6 py-2.5 rounded-xl text-sm font-bold'} transition-all ${
             viewMode === 'historico'
               ? 'bg-blue-600 text-white shadow-md'
               : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)]'
@@ -1326,6 +1327,35 @@ export default function Oportunidades() {
           <BarChart3 className="w-4.5 h-4.5" />
           Histórico
         </button>
+        </div>
+        {viewMode === 'pipeline' && (
+          <div className="flex items-center gap-1 border-l border-[color:var(--crm-border)] pl-2" role="group" aria-label="Visualização das oportunidades">
+        <button
+          type="button"
+          onClick={() => setPipelineLayout('list')}
+          className={`flex items-center justify-center gap-2 transition-all ${(pipelineClientType === 'B2B') ? 'min-w-[88px] rounded-lg px-3 py-2 text-xs font-semibold' : 'min-w-[120px] rounded-xl px-5 py-3 text-sm font-bold'} ${
+            pipelineLayout === 'list'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'text-[var(--crm-muted)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)] hover:text-[var(--crm-ink)]'
+          }`}
+        >
+          <List className="h-5 w-5" />
+          Lista
+        </button>
+        <button
+          type="button"
+          onClick={() => setPipelineLayout('kanban')}
+          className={`flex items-center justify-center gap-2 transition-all ${(pipelineClientType === 'B2B') ? 'min-w-[88px] rounded-lg px-3 py-2 text-xs font-semibold' : 'min-w-[120px] rounded-xl px-5 py-3 text-sm font-bold'} ${
+            pipelineLayout === 'kanban'
+              ? 'bg-blue-600 text-white shadow-md'
+              : 'text-[var(--crm-muted)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)] hover:text-[var(--crm-ink)]'
+          }`}
+        >
+          <LayoutGrid className="h-5 w-5" />
+          Kanban
+        </button>
+          </div>
+        )}
       </div>
 
       {viewMode === 'pipeline' ? (
@@ -1374,33 +1404,6 @@ export default function Oportunidades() {
             </select>
           </label>
         </div>
-      </div>
-
-      <div className="flex w-fit gap-1.5 rounded-2xl border border-[color:var(--crm-border)] bg-[var(--crm-surface)] p-2 shadow-sm">
-        <button
-          type="button"
-          onClick={() => setPipelineLayout('list')}
-          className={`flex min-w-[120px] items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-all ${
-            pipelineLayout === 'list'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-[var(--crm-muted)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)] hover:text-[var(--crm-ink)]'
-          }`}
-        >
-          <List className="h-5 w-5" />
-          Lista
-        </button>
-        <button
-          type="button"
-          onClick={() => setPipelineLayout('kanban')}
-          className={`flex min-w-[120px] items-center justify-center gap-2 rounded-xl px-5 py-3 text-sm font-bold transition-all ${
-            pipelineLayout === 'kanban'
-              ? 'bg-blue-600 text-white shadow-md'
-              : 'text-[var(--crm-muted)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)] hover:text-[var(--crm-ink)]'
-          }`}
-        >
-          <LayoutGrid className="h-5 w-5" />
-          Kanban
-        </button>
       </div>
 
       {pipelineLayout === 'kanban' ? (
