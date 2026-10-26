@@ -586,7 +586,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                             Valor Estimado Total
                           </span>
                           <p className="text-xl font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
-                            {formatarMoeda(ficha.valor_estimado_total)}
+                            {ficha.pricesWithheld ? 'Não informado na minuta' : formatarMoeda(ficha.valor_estimado_total)}
                           </p>
                         </div>
                         <div className="mt-3 pt-3 border-t border-slate-200/60 dark:border-slate-750 space-y-1 text-xs text-slate-400">

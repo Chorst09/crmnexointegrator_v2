@@ -1,7 +1,7 @@
 import { FichaTecnicaEditalTR } from '../types';
 
 export const formatarMoeda = (valor?: number | null): string => {
-  if (valor === undefined || valor === null || isNaN(valor)) return 'R$ 0,00';
+  if (valor === undefined || valor === null || isNaN(valor)) return 'Não identificado';
   return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
 };
 
