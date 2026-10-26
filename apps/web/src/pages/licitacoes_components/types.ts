@@ -96,7 +96,7 @@ export interface MatrizItemAnalise {
   unidade?: string;
   quantitativo: number;
   valor_estimado_unitario?: number;
-  valor_estimado_total?: number;
+  valor_estimado_total?: number | null;
 }
 
 export interface ExigenciaContabil {
@@ -120,8 +120,8 @@ export interface PrazosELocais {
 }
 
 export interface RegrasVistoria {
-  obrigatoria: boolean;
-  permite_declaracao_substitutiva: boolean;
+  obrigatoria: boolean | null;
+  permite_declaracao_substitutiva: boolean | null;
   detalhes_e_prazo?: string;
 }
 
@@ -135,6 +135,9 @@ export interface PontosDeAtencaoRisco {
 }
 
 export interface FichaTecnicaEditalTR {
+  extractionMethod?: string;
+  analysisStatus?: 'extracted' | 'requires_reanalysis';
+  analysisWarnings?: string[];
   id?: string;
   id_licitacao: string;
   orgao_comprador: string;
@@ -145,7 +148,7 @@ export interface FichaTecnicaEditalTR {
   data_abertura?: string;
   data_limite_proposta?: string;
   data_fim_esclarecimento?: string;
-  valor_estimado_total?: number;
+  valor_estimado_total?: number | null;
   portal_compras?: string;
   requisitos_habilitacao: RequisitosHabilitacao;
   prazos_e_locais: PrazosELocais;

@@ -1,3 +1,4 @@
+import { normalizeFicha as normalizeDocumentFicha, hasSampleRequirement } from './ficha-normalizer.mjs';
 import React, { useState, useEffect } from 'react';
 import { 
   FileCheck, 
@@ -67,49 +68,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
     setTimeout(() => setNotification(null), 4000);
   };
 
-  const normalizeFicha = (f: any): FichaTecnicaEditalTR => {
-    if (!f) return {} as any;
-    const nested = typeof f.analysisData === 'string'
-      ? (() => { try { return JSON.parse(f.analysisData); } catch (_) { return {}; } })()
-      : (typeof f.analysisData === 'object' && f.analysisData !== null ? f.analysisData : {});
-    const merged = { ...nested, ...f };
-    return {
-      ...merged,
-      id_licitacao: merged.id_licitacao || merged.numeroControlePNCP || `DOC-${f.id || ''}`,
-      orgao_comprador: merged.orgao_comprador || merged.orgao || 'Órgão Licitante',
-      resumo_executivo: merged.resumo_executivo || merged.objeto || 'Contratação regida pela Lei nº 14.133/2021.',
-      valor_estimado_total: typeof merged.valor_estimado_total === 'number' ? merged.valor_estimado_total : (parseFloat(merged.valor_estimado) || 0),
-      requisitos_habilitacao: {
-        atestados_capacidade_tecnica: Array.isArray(merged.requisitos_habilitacao?.atestados_capacidade_tecnica)
-          ? merged.requisitos_habilitacao.atestados_capacidade_tecnica
-          : [],
-        certidoes_e_registros_especificos: Array.isArray(merged.requisitos_habilitacao?.certidoes_e_registros_especificos)
-          ? merged.requisitos_habilitacao.certidoes_e_registros_especificos
-          : [],
-        exigencias_contabeis: Array.isArray(merged.requisitos_habilitacao?.exigencias_contabeis)
-          ? merged.requisitos_habilitacao.exigencias_contabeis
-          : [],
-        qualificacao_equipe_chave: Array.isArray(merged.requisitos_habilitacao?.qualificacao_equipe_chave)
-          ? merged.requisitos_habilitacao.qualificacao_equipe_chave
-          : []
-      },
-      prazos_e_locais: merged.prazos_e_locais || {
-        prazo_inicio_entrega: '',
-        locais_prestacao_entrega: [],
-        vigencia_contrato: '',
-        regime_execucao: '',
-        prazo_recebimento_provisorio_definitivo: ''
-      },
-      pontos_de_atencao_risco: merged.pontos_de_atencao_risco || {
-        clausulas_punitivas_multas: [],
-        exigencia_amostra_poc: '',
-        garantia_contratual: '',
-        regras_vistoria: { obrigatoria: false, permite_declaracao_substitutiva: true, detalhes_e_prazo: '' },
-        pontos_de_atencao_gerais: []
-      },
-      matriz_itens: Array.isArray(merged.matriz_itens) ? merged.matriz_itens : []
-    };
-  };
+  const normalizeFicha = (f: any): FichaTecnicaEditalTR => normalizeDocumentFicha(f);
 
   const carregarFichas = async () => {
     try {
@@ -190,6 +149,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
   };
 
   const handleConverterOportunidadeB2G = async (ficha: FichaTecnicaEditalTR) => {
+    if (ficha.analysisStatus === 'requires_reanalysis') { showNotification('Reanexe o documento original na bancada antes de converter esta ficha.'); return; }
     const fichaKey = ficha.id_licitacao;
     try {
       setConvertingId(fichaKey);
@@ -267,7 +227,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
   const valorTotalMapeado = fichas.reduce((acc, f) => acc + (f.valor_estimado_total || 0), 0);
   const totalItensExtraidos = fichas.reduce((acc, f) => acc + (f.matriz_itens?.length || 0), 0);
   const totalComAmostraOuRisco = fichas.filter(f => 
-    Boolean(f.pontos_de_atencao_risco?.exigencia_amostra_poc) || 
+    hasSampleRequirement(f) ||
     f.pontos_de_atencao_risco?.regras_vistoria?.obrigatoria
   ).length;
 
@@ -287,7 +247,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
     }
 
     if (filterRisco === 'amostra') {
-      return Boolean(f.pontos_de_atencao_risco?.exigencia_amostra_poc);
+      return hasSampleRequirement(f);
     }
     if (filterRisco === 'vistoria') {
       return Boolean(f.pontos_de_atencao_risco?.regras_vistoria?.obrigatoria);
@@ -400,8 +360,8 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                 <DollarSign className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 mt-1 truncate" title={formatarMoeda(valorTotalMapeado)}>
-              {formatarMoeda(valorTotalMapeado)}
+            <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 mt-1 truncate" title={formatarMoeda(fichas.some(f => f.valor_estimado_total !== null && f.valor_estimado_total !== undefined) ? valorTotalMapeado : null)}>
+              {formatarMoeda(fichas.some(f => f.valor_estimado_total !== null && f.valor_estimado_total !== undefined) ? valorTotalMapeado : null)}
             </p>
             <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Soma dos orçamentos de referência</p>
           </div>
@@ -557,7 +517,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
             {fichasFiltradas.map((ficha) => {
               const isExpanded = !!expandedCards[ficha.id_licitacao];
               const activeTab = activeTabByCard[ficha.id_licitacao] || 'itens';
-              const temAmostra = Boolean(ficha.pontos_de_atencao_risco?.exigencia_amostra_poc);
+              const temAmostra = hasSampleRequirement(ficha);
               const vistoriaObrigatoria = ficha.pontos_de_atencao_risco?.regras_vistoria?.obrigatoria;
               const isDeletingThis = deleteConfirmId === ficha.id_licitacao;
               const isConvertingThis = convertingId === ficha.id_licitacao;
@@ -579,11 +539,11 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                             {ficha.id_licitacao}
                           </span>
                           <span className="bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-semibold px-2.5 py-1 rounded-md border border-blue-100 dark:border-blue-900/60">
-                            {ficha.modalidade_contratacao || 'Pregão Eletrônico'}
+                            {ficha.modalidade_contratacao || 'Não identificado'}
                           </span>
                           {temAmostra && (
                             <span className="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 text-xs font-semibold px-2.5 py-1 rounded-md border border-amber-200 dark:border-amber-800 flex items-center gap-1">
-                              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> Amostra / PoC Obrigatória
+                              <AlertTriangle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> Amostra / PoC no documento
                             </span>
                           )}
                           {vistoriaObrigatoria && (
@@ -597,6 +557,8 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                           </span>
                         </div>
 
+                        {ficha.analysisStatus === 'requires_reanalysis' && <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-500">Análise antiga inválida. Abra na bancada e anexe novamente o PDF original para reanalisar. Valores e exigências padronizados foram desconsiderados.</div>}
+                        {ficha.analysisStatus !== 'requires_reanalysis' && ficha.analysisWarnings?.length > 0 && <p className="text-xs text-amber-500">{ficha.analysisWarnings.join(' ')}</p>}
                         <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-snug">
                           {ficha.orgao_comprador}
                         </h2>
@@ -665,7 +627,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                       <div className="bg-slate-50/60 dark:bg-slate-800/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
                         <span className="text-slate-400 dark:text-slate-500 block font-medium">Vigência Contratual:</span>
                         <strong className="text-white text-xs mt-0.5 block truncate" title={ficha.prazos_e_locais?.vigencia_contrato}>
-                          {ficha.prazos_e_locais?.vigencia_contrato || '12 meses'}
+                          {ficha.prazos_e_locais?.vigencia_contrato || 'Não identificado'}
                         </strong>
                       </div>
                     </div>
@@ -831,11 +793,11 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                             <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
                               <div>
                                 <span className="font-semibold text-slate-700 dark:text-slate-200 block">Exigência de Amostra/PoC:</span>
-                                <p className="mt-0.5">{ficha.pontos_de_atencao_risco?.exigencia_amostra_poc || 'Não exigida.'}</p>
+                                <p className="mt-0.5">{ficha.pontos_de_atencao_risco?.exigencia_amostra_poc || 'Não identificado.'}</p>
                               </div>
                               <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
                                 <span className="font-semibold text-slate-700 dark:text-slate-200 block">Garantia Contratual:</span>
-                                <p className="mt-0.5">{ficha.pontos_de_atencao_risco?.garantia_contratual || 'Não exigida.'}</p>
+                                <p className="mt-0.5">{ficha.pontos_de_atencao_risco?.garantia_contratual || 'Não identificado.'}</p>
                               </div>
                             </div>
                           </div>
