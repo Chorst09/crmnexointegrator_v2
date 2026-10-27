@@ -1,3 +1,5 @@
+import { getOpportunityFabricante } from '../utils/registry-manufacturer.mjs';
+export { getOpportunityFabricante } from '../utils/registry-manufacturer.mjs';
 import { REGISTRY_OPPORTUNITY_STATUSES, getRegistryStatusLabel } from '../utils/registry-opportunity-status.mjs';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -147,28 +149,6 @@ const defaultOpportunityForm = {
   dataValidade: ''
 };
 
-export const getOpportunityFabricante = (item, fornMap) => {
-  if (item?.fabricante && String(item.fabricante).trim()) {
-    return String(item.fabricante).trim().toUpperCase();
-  }
-  if (Array.isArray(item?.fornecedorIds) && item.fornecedorIds.length > 0 && fornMap) {
-    const names = item.fornecedorIds.map((id) => fornMap.get(id)).filter(Boolean);
-    if (names.length > 0) return names.join(', ').toUpperCase();
-  }
-  const rawNum = String(item?.numeroOportunidade || '').trim();
-  if (rawNum) {
-    const match = rawNum.match(/^(DELL|LENOVO|CISCO|HP|HPE|FORTINET|ARUBA|HUAWEI|SOPHOS|MICROSOFT|VMWARE|NUTANIX|CHECKPOINT|PALO\s*ALTO|EXTREME|RUCKUS|AVAYA|INTEL|AMD|ORACLE|IBM|REDHAT|ZABBIX)/i);
-    if (match) return match[1].toUpperCase();
-    const roMatch = rawNum.match(/^RO[-_\s]+([A-Za-z0-9]+)/i);
-    if (roMatch) return roMatch[1].toUpperCase();
-  }
-  const rawTitle = `${item?.titulo || ''} ${item?.produto || ''}`;
-  const matchTitle = rawTitle.match(/\b(DELL|LENOVO|CISCO|HP|HPE|FORTINET|ARUBA|HUAWEI|SOPHOS|MICROSOFT|VMWARE|NUTANIX|CHECKPOINT|PALO\s*ALTO|EXTREME)\b/i);
-  if (matchTitle) return matchTitle[1].toUpperCase();
-
-  return '';
-};
-
 export const getFabricanteBadgeStyle = (fabricanteName) => {
   const norm = String(fabricanteName || '').toUpperCase();
   if (norm.includes('DELL')) {
@@ -183,7 +163,7 @@ export const getFabricanteBadgeStyle = (fabricanteName) => {
   if (norm.includes('CISCO')) {
     return 'border-sky-500/60 bg-sky-600/25 text-sky-300 shadow-sm shadow-sky-900/40 ring-1 ring-sky-400/30';
   }
-  if (norm.includes('FORTINET')) {
+  if (norm.includes('FORTINET') || norm.includes('VEEAM')) {
     return 'border-emerald-500/60 bg-emerald-600/25 text-emerald-300 shadow-sm shadow-emerald-900/40 ring-1 ring-emerald-400/30';
   }
   if (norm.includes('ARUBA')) {
@@ -668,7 +648,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         prioridade: item.prioridade || 'MEDIUM',
         distribuidorIds: Array.isArray(item.distribuidorIds) ? item.distribuidorIds : [],
         fornecedorIds: Array.isArray(item.fornecedorIds) ? item.fornecedorIds : [],
-        fabricante: item.fabricante || '',
+        fabricante: getOpportunityFabricante(item, fornMap),
         observacoes: item.observacoes || '',
         numeroOportunidade: item.numeroOportunidade || '',
         produto: item.produto || '',
@@ -3194,7 +3174,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 </label>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   <span className="text-[11px] text-slate-400 font-medium">Marcas rápidas:</span>
-                  {['DELL', 'LENOVO', 'HP', 'CISCO', 'FORTINET', 'ARUBA', 'HUAWEI', 'MICROSOFT'].map((brand) => (
+                  {['DELL', 'LENOVO', 'HP', 'CISCO', 'FORTINET', 'ARUBA', 'HUAWEI', 'MICROSOFT', 'VEEAM'].map((brand) => (
                     <button
                       key={brand}
                       type="button"
