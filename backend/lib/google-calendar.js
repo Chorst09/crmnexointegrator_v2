@@ -1,12 +1,7 @@
 const { google } = require('googleapis');
 
-let _prisma = null;
 function getPrisma() {
-  if (!_prisma) {
-    const { PrismaClient } = require('@prisma/client');
-    _prisma = new PrismaClient();
-  }
-  return _prisma;
+  return require('./prisma.cjs').prisma;
 }
 
 const SCOPES = [

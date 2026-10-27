@@ -2,7 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { PrismaClient } = require('@prisma/client');
+const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken } = require('../lib/auth');
 const { getTenantCompanyId, mergeRelationWhere } = require('../lib/tenantScope.cjs');
 
@@ -41,7 +41,6 @@ const upload = multer({
 });
 
 const router = express.Router();
-const prisma = new PrismaClient();
 
 const scopeContractWhere = (req, where = {}) => {
   const tenantCompanyId = getTenantCompanyId(req.user);
