@@ -83,6 +83,7 @@ const defaultRegistry = {
 };
 
 const defaultPartnerForm = {
+  distribuidorIds: [],
   nome: '',
   logoUrl: '',
   razaoSocial: '',
@@ -661,6 +662,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       });
     } else {
       setPartnerForm({
+        distribuidorIds: Array.isArray(item.distribuidorIds) ? item.distribuidorIds : [],
         nome: item.nome || '',
         logoUrl: item.logoUrl || item.logo || '',
         razaoSocial: item.razaoSocial || '',
@@ -1606,6 +1608,33 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
       </div>
 
+      <fieldset className="rounded-xl border border-slate-600/50 bg-slate-900/30 p-4">
+        <legend className="px-1 text-sm font-medium text-slate-200">Distribuidores que fornecem esta marca</legend>
+        <p className="mb-3 text-xs text-slate-400">Selecione um ou mais distribuidores cadastrados.</p>
+        <div className="max-h-48 space-y-2 overflow-y-auto">
+          {registry.distribuidores.length === 0 ? (
+            <p className="text-sm text-slate-400">Nenhum distribuidor cadastrado. Cadastre na aba Distribuidores para selecionar aqui.</p>
+          ) : registry.distribuidores.map((distribuidor) => (
+            <label key={distribuidor.id} className="flex items-center gap-2 text-sm text-slate-200">
+              <input
+                type="checkbox"
+                checked={partnerForm.distribuidorIds.includes(distribuidor.id)}
+                onChange={(event) => {
+                  const checked = event.target.checked;
+                  setPartnerForm((prev) => ({
+                    ...prev,
+                    distribuidorIds: checked
+                      ? [...new Set([...prev.distribuidorIds, distribuidor.id])]
+                      : prev.distribuidorIds.filter((id) => id !== distribuidor.id)
+                  }));
+                }}
+              />
+              {distribuidor.nome}
+            </label>
+          ))}
+        </div>
+      </fieldset>
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <label className="space-y-1.5">
           <span className="text-sm font-medium text-slate-300">Portal / Partner</span>
@@ -2085,6 +2114,17 @@ export default function PrevendasCadastros({ forcedTab = null }) {
             <span className="w-fit rounded-full border border-emerald-200/25 bg-emerald-400/24 px-8 py-4 text-3xl font-semibold text-white shadow-[0_18px_44px_-24px_rgba(16,185,129,0.75)] backdrop-blur-md">
               {statusLabel}
             </span>
+          </div>
+        </section>
+
+        <section className="crm-gradient-section rounded-2xl p-6">
+          <h3 className="mb-3 text-xl font-semibold text-white">Distribuidores que fornecem esta marca</h3>
+          <div className="flex flex-wrap gap-2">
+            {(item.distribuidorIds || []).some((id) => distMap.has(id)) ? (
+              (item.distribuidorIds || []).filter((id) => distMap.has(id)).map((id) => (
+                <span key={id} className="rounded-lg border border-cyan-500/30 bg-cyan-500/10 px-3 py-1 text-sm text-cyan-100">{distMap.get(id)}</span>
+              ))
+            ) : <p className="text-sm text-slate-400">Nenhum distribuidor vinculado.</p>}
           </div>
         </section>
 

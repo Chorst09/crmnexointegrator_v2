@@ -329,6 +329,20 @@ export default function OpportunityForm({
   const projectClientType = projectClientTypeFromNegotiation(negotiationType);
   const shouldSelectExistingCompany = projectClientType === 'BASE_CLIENT' || projectClientType === 'RENEWAL';
   const shouldCreateCompanyFirst = projectClientType === 'NEW_CLIENT' && !selectedOpportunity;
+  const handleCompanyChange = (companyId) => {
+    const company = (companies || []).find((item) => item && String(item.id) === companyId);
+    const contacts = Array.isArray(company?.contacts) ? company.contacts.filter(Boolean) : [];
+    const contact = contacts.find((item) => item.isPrimary) || contacts[0];
+
+    setFormData((prev) => ({
+      ...prev,
+      companyId,
+      contactName: contact?.position || '',
+      contactFullName: contact?.name || '',
+      contactEmail: contact?.email || '',
+      contactPhone: applyPhoneMask(contact?.phone || '')
+    }));
+  };
   const handleNegotiationTypeChange = (value) => {
     const normalizedValue = normalizeNegotiationType(value);
     const nextProjectClientType = projectClientTypeFromNegotiation(normalizedValue);
@@ -470,7 +484,7 @@ export default function OpportunityForm({
           {shouldSelectExistingCompany && (
             <div className="sm:col-span-2">
               <label className={labelCls}>Cliente</label>
-              <select className={inputCls} value={formData.companyId || ''} onChange={e => setFormData(p => ({ ...p, companyId: e.target.value }))} required>
+              <select className={inputCls} value={formData.companyId || ''} onChange={e => handleCompanyChange(e.target.value)} required>
                 <option value="">Selecione um cliente cadastrado...</option>
                 {(companies || []).filter(Boolean).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 {(companies || []).length === 0 && (

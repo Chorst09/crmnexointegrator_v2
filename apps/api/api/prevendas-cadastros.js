@@ -81,6 +81,7 @@ const normalizeBasePartner = (input = {}, preserve = {}) => {
     site: toString(input.site, preserve.site || ''),
     categorias: toStringArray(input.categorias ?? preserve.categorias),
     marcas: toStringArray(input.marcas ?? preserve.marcas),
+    distribuidorIds: toStringArray(input.distribuidorIds ?? preserve.distribuidorIds),
     accountManager: toString(input.accountManager, preserve.accountManager || ''),
     portalUrl: toString(input.portalUrl, preserve.portalUrl || ''),
     portalLogin: toString(input.portalLogin, preserve.portalLogin || ''),
