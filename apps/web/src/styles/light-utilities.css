@@ -2839,11 +2839,6 @@ html:not(.dark) :is(
 ) { color: rgb(82, 87, 98) !important; }
 
 html:not(.dark) :is(
-  [style^="color: rgb(251, 113, 133)"],
-  [style*="; color: rgb(251, 113, 133)"]
-) { color: rgb(137, 60, 72) !important; }
-
-html:not(.dark) :is(
   [style^="color: rgb(254, 226, 226)"],
   [style*="; color: rgb(254, 226, 226)"]
 ) { color: rgb(96, 87, 87) !important; }
@@ -3032,6 +3027,11 @@ html:not(.dark) :is(
   [style^="color: rgb(219, 234, 254)"],
   [style*="; color: rgb(219, 234, 254)"]
 ) { color: rgb(84, 89, 96) !important; }
+
+html:not(.dark) :is(
+  [style^="color: rgb(251, 113, 133)"],
+  [style*="; color: rgb(251, 113, 133)"]
+) { color: rgb(137, 60, 72) !important; }
 
 html:not(.dark) :is(
   [style^="color: rgb(20, 184, 166)"],

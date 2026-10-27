@@ -1,3 +1,4 @@
+import { REGISTRY_OPPORTUNITY_STATUSES, isRegistryOpportunityOpen } from '../utils/registry-opportunity-status.mjs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -690,7 +691,7 @@ export default function PreVendas() {
   const registroStats = useMemo(() => {
     const total = registroFiltrado.length;
     const abertas = registroFiltrado.filter((item) =>
-      ['ABERTA', 'EM_ANALISE', 'EM_COTACAO', 'PRECIFICADA'].includes(String(item?.status || '').toUpperCase())
+      isRegistryOpportunityOpen(item?.status)
     ).length;
     const ganhas = registroFiltrado.filter((item) => String(item?.status || '').toUpperCase() === 'GANHA').length;
     const valorPotencial = registroFiltrado.reduce((acc, item) => acc + Number(item?.valorEstimado || 0), 0);
@@ -763,35 +764,18 @@ export default function PreVendas() {
   }, [distribuidores, fornecedores]);
 
   const registroStatusChartData = useMemo(() => {
-    const statusOrder = ['ABERTA', 'EM_ANALISE', 'EM_COTACAO', 'PRECIFICADA', 'DEVOLVIDA', 'GANHA', 'PERDIDA'];
-    const statusLabels = {
-      ABERTA: 'Aberta',
-      EM_ANALISE: 'Em análise',
-      EM_COTACAO: 'Em cotação',
-      PRECIFICADA: 'Precificada',
-      DEVOLVIDA: 'Devolvida',
-      GANHA: 'Ganha',
-      PERDIDA: 'Perdida'
-    };
+    const statusOrder = REGISTRY_OPPORTUNITY_STATUSES.map(item => item.value);
     const counts = statusOrder.map((status) =>
       registroFiltrado.filter((item) => String(item?.status || '').toUpperCase() === status).length
     );
 
     return {
-      labels: statusOrder.map((status) => statusLabels[status]),
+      labels: REGISTRY_OPPORTUNITY_STATUSES.map(item => item.label),
       datasets: [
         {
           label: 'Oportunidades',
           data: counts,
-          backgroundColor: [
-            '#ff7a00',
-            '#f6b40b',
-            '#f6b40b',
-            '#1f7fe5',
-            '#18c8df',
-            '#34d399',
-            '#fb7185'
-          ],
+          backgroundColor: REGISTRY_OPPORTUNITY_STATUSES.map(item => item.color),
           borderRadius: 8,
           borderSkipped: false
         }
