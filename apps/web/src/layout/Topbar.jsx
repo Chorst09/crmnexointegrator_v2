@@ -91,7 +91,7 @@ export default function Topbar({ onMenuClick }) {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[#0b2a35]/70 bg-[radial-gradient(ellipse_at_76%_0%,rgba(37,196,218,0.22)_0%,transparent_44%),radial-gradient(ellipse_at_18%_0%,rgba(51,15,28,0.34)_0%,transparent_48%),linear-gradient(180deg,rgba(5,7,13,0.98)_0%,rgba(7,16,28,0.96)_100%)] px-4 py-3 shadow-[0_22px_54px_-38px_rgba(34,211,238,0.55)] backdrop-blur-2xl sm:px-6 lg:px-8">
+    <header className="crm-topbar sticky top-0 z-30 border-b border-[#0b2a35]/70 bg-[radial-gradient(ellipse_at_76%_0%,rgba(37,196,218,0.22)_0%,transparent_44%),radial-gradient(ellipse_at_18%_0%,rgba(51,15,28,0.34)_0%,transparent_48%),linear-gradient(180deg,rgba(5,7,13,0.98)_0%,rgba(7,16,28,0.96)_100%)] px-4 py-3 shadow-[0_22px_54px_-38px_rgba(34,211,238,0.55)] backdrop-blur-2xl sm:px-6 lg:px-8">
       <div className="mx-auto flex h-[5.65rem] w-full max-w-[1920px] items-center gap-5">
         <button
           type="button"
@@ -104,7 +104,7 @@ export default function Topbar({ onMenuClick }) {
         </button>
 
         <div
-          className="relative hidden h-[5.15rem] min-w-0 flex-1 overflow-hidden rounded-[24px] border border-[#0b2a35]/70 bg-cover bg-center shadow-[0_24px_54px_-36px_rgba(34,211,238,0.58)] md:block"
+          className="crm-topbar-banner relative hidden h-[5.15rem] min-w-0 flex-1 overflow-hidden rounded-[24px] border border-[#0b2a35]/70 bg-cover bg-center shadow-[0_24px_54px_-36px_rgba(34,211,238,0.58)] md:block"
           style={{ backgroundImage: "url('/b2g/govflow-header.png')" }}
         >
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(5,7,13,0.82)_0%,rgba(5,9,18,0.56)_36%,rgba(9,34,42,0.20)_70%,rgba(35,211,238,0.26)_100%)]" />

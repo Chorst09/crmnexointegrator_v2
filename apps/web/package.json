@@ -6,7 +6,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "check:opportunity-edit": "node scripts/check-opportunity-edit.cjs && node --test scripts/opportunity-edit-guard.test.cjs",
-    "prebuild": "npm run check:opportunity-edit"
+    "prebuild": "npm run theme:generate && npm run check:theme && npm run check:opportunity-edit",
+    "theme:generate": "node ../../scripts/theme/generate-light-utilities.cjs",
+    "check:theme": "node --test ../../scripts/theme/light-theme.test.cjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.9.1",

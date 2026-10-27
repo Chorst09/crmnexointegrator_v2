@@ -3,7 +3,7 @@
  * Módulo completo de Licitações B2G - 100% baseado em licitacoes_codigo
  * Com tema dark/teal customizado
  */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search,
@@ -22,7 +22,6 @@ import { GerenciadasPage } from './licitacoes_components/GerenciadasPage';
 import { AnaliseEditaisPage } from './licitacoes_components/AnaliseEditaisPage';
 import { EditaisAnalisadosPage } from './licitacoes_components/EditaisAnalisadosPage';
 import { PipelineMonitor } from './licitacoes_components/PipelineMonitor';
-import { ThemeProvider } from './licitacoes_components/context/ThemeContext';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -30,18 +29,6 @@ export default function BuscarEditais() {
   const navigate = useNavigate();
   const [currentView, setCurrentView] = useState('search');
   const [fichaParaBancada, setFichaParaBancada] = useState(null);
-
-  // Forçar tema dark ao montar
-  useEffect(() => {
-    try {
-      localStorage.setItem('licitacoes_app_theme', 'dark');
-      document.documentElement.classList.add('dark');
-      document.body.classList.add('dark');
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } catch (e) {
-      console.warn('Erro ao forçar tema dark:', e);
-    }
-  }, []);
 
   const navigation = [
     { 
@@ -89,8 +76,7 @@ export default function BuscarEditais() {
   ];
 
   return (
-    <ThemeProvider>
-      <div className="flex h-full bg-[#011116] text-slate-100 overflow-hidden dark">
+      <div className="flex h-full bg-[#011116] text-slate-100 overflow-hidden">
         {/* Sidebar com tema escuro/teal */}
         <aside className="w-72 flex flex-col h-full flex-shrink-0 bg-[#011015] border-r border-[#07323e] shadow-xl">
           {/* Brand */}
@@ -217,6 +203,5 @@ export default function BuscarEditais() {
           {currentView === 'pipeline' && <PipelineMonitor />}
         </main>
       </div>
-    </ThemeProvider>
   );
 }

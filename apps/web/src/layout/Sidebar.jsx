@@ -619,7 +619,7 @@ export default function Sidebar({
 
       <aside
         className={[
-          'fixed inset-y-0 left-0 z-40 w-[312px] max-w-[86vw]',
+          'crm-sidebar fixed inset-y-0 left-0 z-40 w-[312px] max-w-[86vw]',
           collapsed ? 'lg:w-[88px]' : 'lg:w-[312px]',
           'transform transition-[transform,width] duration-300 will-change-transform',
           open ? 'translate-x-0' : '-translate-x-full',

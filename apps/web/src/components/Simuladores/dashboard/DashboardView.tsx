@@ -921,12 +921,12 @@ const DashboardView = () => {
     : [{ name: 'Sem valores', value: 1, color: '#475569' }];
 
   const simulatorPanelStyle = {
-    background: 'linear-gradient(180deg, rgba(20,29,49,0.97) 0%, rgba(9,14,27,0.99) 100%)',
+    background: 'var(--crm-panel-background, linear-gradient(180deg, rgba(20,29,49,0.97) 0%, rgba(9,14,27,0.99) 100%))',
     borderColor: 'rgba(78,91,118,0.48)'
   };
 
   const simulatorInnerStyle = {
-    background: 'linear-gradient(145deg, rgba(17,26,45,0.94) 0%, rgba(9,15,28,0.96) 100%)',
+    background: 'var(--crm-panel-background, linear-gradient(145deg, rgba(17,26,45,0.94) 0%, rgba(9,15,28,0.96) 100%))',
     borderColor: 'rgba(67,80,106,0.5)'
   };
 
@@ -1054,7 +1054,7 @@ const DashboardView = () => {
       {/* ── KPI CARDS TOP ── */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {monthlyFunnelBoard.top.map((item, i) => (
-          <div key={item.title} className="anim-card relative overflow-hidden rounded-lg p-5 shadow-[0_24px_50px_-28px_rgba(0,0,0,0.9)]" style={{ animationDelay: `${i * 80}ms` }}>
+          <div key={item.title} className="crm-simulator-kpi anim-card relative overflow-hidden rounded-lg p-5 shadow-[0_24px_50px_-28px_rgba(0,0,0,0.9)]" style={{ animationDelay: `${i * 80}ms` }}>
             <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-90`} />
             <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.2)_0%,transparent_48%,rgba(0,0,0,0.22)_100%)]" />
             <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-24px_44px_rgba(0,0,0,0.34)]" />
@@ -1079,7 +1079,7 @@ const DashboardView = () => {
           ...simulatorPanelStyle,
           animationDelay: "140ms",
           background:
-            'radial-gradient(circle at 18% 16%, rgba(32,212,245,0.14), transparent 34%), radial-gradient(circle at 78% 12%, rgba(255,111,15,0.12), transparent 32%), linear-gradient(135deg, rgba(14,23,42,0.98) 0%, rgba(9,14,27,0.98) 50%, rgba(11,20,38,0.98) 100%)',
+            'var(--crm-panel-background, radial-gradient(circle at 18% 16%, rgba(32,212,245,0.14), transparent 34%), radial-gradient(circle at 78% 12%, rgba(255,111,15,0.12), transparent 32%), linear-gradient(135deg, rgba(14,23,42,0.98) 0%, rgba(9,14,27,0.98) 50%, rgba(11,20,38,0.98) 100%))',
         }}
       >
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -1106,7 +1106,7 @@ const DashboardView = () => {
                   style={{
                     borderColor: visualTemperatureLevel.color,
                     color: visualTemperatureLevel.color,
-                    background: 'rgba(3,8,18,0.78)',
+                    background: 'var(--crm-panel-background, rgba(3,8,18,0.78))',
                     boxShadow: `0 0 22px ${visualTemperatureLevel.color}55`,
                   }}
                 >
@@ -1335,7 +1335,7 @@ const DashboardView = () => {
       {/* ── KPI CARDS BOTTOM ── */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {monthlyFunnelBoard.bottom.map((item, i) => (
-          <div key={item.title} className="anim-card relative overflow-hidden rounded-lg p-4 shadow-[0_20px_44px_-28px_rgba(0,0,0,0.88)]" style={{ animationDelay: `${200 + i * 60}ms` }}>
+          <div key={item.title} className="crm-simulator-kpi anim-card relative overflow-hidden rounded-lg p-4 shadow-[0_20px_44px_-28px_rgba(0,0,0,0.88)]" style={{ animationDelay: `${200 + i * 60}ms` }}>
             <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-85`}/>
             <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.15)_0%,transparent_50%)]"/>
             <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]"/>

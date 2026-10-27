@@ -25,6 +25,7 @@ const applyResolvedThemeToDocument = (resolvedTheme) => {
   if (typeof document === 'undefined') return;
   const isDark = resolvedTheme === 'dark';
   document.documentElement.classList.toggle('dark', isDark);
+  if (!isDark) document.body.classList.remove('dark');
   // Helps native form controls render appropriately in both modes.
   document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
 };

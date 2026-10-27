@@ -1,0 +1,399 @@
+@import './light-utilities.css';
+
+/* Light theme only. The dark palette and its component rules stay untouched. */
+html:not(.dark) {
+  --crm-text: #172033;
+  --crm-panel-background: #ffffff;
+  --crm-bg: #f1f5f9;
+  --crm-background: #f1f5f9;
+  --crm-surface-alt: #f8fafc;
+  --crm-bg-base-2-rgb: 241 245 249;
+  --crm-ink: #172033;
+  --crm-ink-rgb: 23 32 51;
+  --crm-muted: #526176;
+  --crm-muted-rgb: 82 97 118;
+  --crm-surface: #ffffff;
+  --crm-surface-2: #f1f5f9;
+  --crm-surface-2-rgb: 241 245 249;
+  --crm-border: #cbd5e1;
+  --crm-accent: #c2410c;
+  --crm-accent-rgb: 194 65 12;
+  --crm-ring: rgb(3 105 161 / 0.32);
+  --primary: 20 90% 38%;
+  --muted-foreground: 215 26% 35%;
+  --border: 214 32% 84%;
+  --input: 214 32% 84%;
+}
+
+html:not(.dark) body {
+  background: #f1f5f9;
+  color: var(--crm-ink);
+}
+
+html:not(.dark) body::before,
+html:not(.dark) body::after,
+html:not(.dark) .crm-app-backdrop {
+  display: none;
+}
+
+html:not(.dark) :is(.crm-panel, .crm-card, .crm-gradient-glass, .crm-gradient-section, .crm-gradient-hero) {
+  color: var(--crm-ink);
+  border-color: var(--crm-border);
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.06);
+  backdrop-filter: none;
+}
+
+html:not(.dark) :is(.crm-gradient-glass, .crm-gradient-section)::before {
+  display: none;
+}
+
+html:not(.dark) :is(.crm-gradient-glass, .crm-card):hover {
+  border-color: #94a3b8;
+  box-shadow: 0 4px 12px rgb(15 23 42 / 0.09);
+}
+
+html:not(.dark) .crm-gradient-hero {
+  background: linear-gradient(110deg, #fff7ed, #ecfeff);
+}
+
+html:not(.dark) .crm-gradient-field {
+  color: var(--crm-ink);
+  background: #f8fafc;
+  border-color: var(--crm-border);
+  backdrop-filter: none;
+}
+
+html:not(.dark) .crm-gradient-icon {
+  color: #075985;
+  background: #e0f2fe;
+  border-color: #bae6fd;
+  box-shadow: none;
+}
+
+html:not(.dark) :is(.crm-topbar, .crm-sidebar) {
+  color: var(--crm-ink);
+  background: #ffffff;
+  border-color: var(--crm-border);
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.05);
+}
+
+html:not(.dark) .crm-sidebar :is(a, button) {
+  text-shadow: none;
+}
+
+html:not(.dark) .crm-sidebar a[aria-current='page'] {
+  background: #e0f2fe !important;
+  color: #075985 !important;
+  border-color: #7dd3fc !important;
+}
+
+/* Replace the photographic header's dark wash with a readable light panel. */
+html:not(.dark) .crm-topbar-banner {
+  background-image: linear-gradient(110deg, #f8fafc, #e0f2fe) !important;
+  box-shadow: none;
+}
+html:not(.dark) .crm-topbar-banner > .absolute.inset-0 {
+  display: none;
+}
+html:not(.dark) .crm-topbar-banner > .absolute:not(.inset-0) {
+  background: transparent !important;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+html:not(.dark) :is(input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']), select, textarea) {
+  color: var(--crm-ink) !important;
+  background-color: #ffffff !important;
+  border-color: #94a3b8 !important;
+  color-scheme: light;
+}
+html:not(.dark) :is(input, textarea)::placeholder {
+  color: #64748b !important;
+  opacity: 1;
+}
+html:not(.dark) :is(input, select, textarea):disabled {
+  background-color: #e2e8f0 !important;
+  color: #526176 !important;
+}
+html:not(.dark) :is(input[type='checkbox'], input[type='radio']) {
+  accent-color: #0369a1;
+}
+html:not(.dark) option {
+  background: #ffffff;
+  color: #172033;
+}
+html:not(.dark) :focus-visible {
+  outline: 2px solid #0369a1;
+  outline-offset: 2px;
+}
+
+html:not(.dark) .crm-btn-primary,
+html:not(.dark) .precificacao-module .crm-btn-primary {
+  color: #ffffff !important;
+  background: #9a3412 !important;
+  border-color: #9a3412;
+  box-shadow: none;
+}
+html:not(.dark) .crm-btn-primary:hover,
+html:not(.dark) .precificacao-module .crm-btn-primary:hover {
+  background: #7c2d12 !important;
+}
+html:not(.dark) .crm-btn-danger {
+  background: #b91c1c;
+  color: #ffffff !important;
+}
+html:not(.dark) :is(.crm-btn-primary, .crm-btn-danger) :is(span, svg) {
+  color: inherit !important;
+}
+html:not(.dark) .crm-btn-secondary {
+  color: #334155;
+  background: #ffffff;
+  border-color: #94a3b8;
+}
+
+/* Filled actions keep a white foreground; translucent badges use dark tones. */
+html:not(.dark) :is(.bg-blue-600, .bg-blue-700, .bg-blue-800, .bg-indigo-600, .bg-indigo-700, .bg-violet-600, .bg-purple-600, .bg-red-600, .bg-red-700, .bg-rose-600, .bg-emerald-600, .bg-emerald-700, .bg-green-700, .bg-teal-700, .bg-sky-600, .bg-sky-700, .bg-cyan-700, .bg-primary, .bg-destructive) {
+  color: #ffffff !important;
+}
+html:not(.dark) :is(.bg-blue-600, .bg-blue-700, .bg-indigo-600, .bg-red-600, .bg-emerald-700, .bg-primary, .bg-destructive) :is(.text-white, .text-slate-100, .text-blue-100) {
+  color: #ffffff !important;
+}
+
+html:not(.dark) .precificacao-module {
+  --prec-card-bg: #ffffff;
+  --prec-card-muted: #f8fafc;
+  --prec-active-bg: #e0f2fe;
+  --prec-active-text: #075985;
+  --prec-button-text: #172033;
+}
+
+/* SVG charts and legends, including tooltips rendered through portals. */
+html:not(.dark) :is(.recharts-cartesian-axis-tick-value, .recharts-label, .recharts-text) {
+  fill: #475569;
+}
+html:not(.dark) .recharts-cartesian-grid line {
+  stroke: #cbd5e1;
+}
+html:not(.dark) .recharts-default-tooltip {
+  color: #172033 !important;
+  background: #ffffff !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) .project-management-embed {
+  --pm-bg: #f1f5f9;
+  --pm-bg-elevated: #ffffff;
+  --pm-surface: #ffffff;
+  --pm-surface-strong: #f8fafc;
+  --pm-border: #cbd5e1;
+  --pm-accent: #c2410c;
+  --pm-success: #15803d;
+  color-scheme: light;
+  color: #172033;
+}
+html:not(.dark) .custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+html:not(.dark) .custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+}
+
+html:not(.dark) .pipeline-model {
+  --pipeline-bg: #f1f5f9;
+  --pipeline-panel: #ffffff;
+  --pipeline-panel-strong: #f8fafc;
+  --pipeline-border: #cbd5e1;
+  --pipeline-text: #172033;
+  --pipeline-muted: #526176;
+  background: #f1f5f9;
+  border-color: var(--pipeline-border);
+  box-shadow: none;
+}
+html:not(.dark) .pipeline-model :is(.pipeline-model__toolbar, .pipeline-model__panel, .pipeline-model__kpi, .pipeline-model__signal-card) {
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.05);
+}
+html:not(.dark) .pipeline-model :is(h2, h3, h4, strong, th, td, select, option, .pipeline-model__ring span) {
+  color: #172033;
+}
+html:not(.dark) .pipeline-model select {
+  background: #ffffff;
+}
+html:not(.dark) .pipeline-model :is(.pipeline-model__panel-header, .pipeline-model__table thead) {
+  background: #e2e8f0;
+  border-color: #cbd5e1;
+}
+
+/* Print artifacts already carry their own document palette. */
+@media print {
+  html:not(.dark) body { background: #ffffff; }
+}
+
+html:not(.dark) .dashboard-card {
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.06);
+}
+html:not(.dark) .dashboard-card:hover {
+  border-color: #94a3b8;
+  box-shadow: 0 4px 12px rgb(15 23 42 / 0.09);
+}
+html:not(.dark) .pipeline-model :is(p, span, b, small, label, .pipeline-model__empty, .pipeline-model__performance-label, .pipeline-model__performance-legend) {
+  color: #526176;
+}
+html:not(.dark) .pipeline-model :is(.pipeline-model__kpi-copy strong, .pipeline-model__health strong, .pipeline-model__temperature-levels b) {
+  color: #172033;
+  text-shadow: none;
+}
+html:not(.dark) .pipeline-model .pipeline-model__menu-icon {
+  color: #9a3412;
+}
+html:not(.dark) .pipeline-model .pipeline-model__performance-track {
+  background: #e2e8f0;
+  box-shadow: none;
+}
+html:not(.dark) .pipeline-model .pipeline-model__performance-bar b {
+  color: #172033;
+  text-shadow: none;
+}
+html:not(.dark) .pipeline-model .pipeline-model__alert {
+  background: #f8fafc;
+}
+html:not(.dark) .pipeline-model :is(td, th) {
+  border-color: #cbd5e1;
+}
+
+/* Legacy cost allocation workspace uses an embedded stylesheet. */
+html:not(.dark) .rp-app {
+  color: #172033;
+  background: #f1f5f9;
+}
+html:not(.dark) .rp-app :is(.rp-header, .rp-nav, .rp-card, .rp-kpi, .rp-mode-card, .rp-source-card, .rp-composition-summary, .rp-detail-row, .rp-form-panel, .rp-footer, .rp-table-wrap, .rp-wizard, .rp-segment) {
+  color: #172033;
+  background: #ffffff;
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 6px rgb(15 23 42 / 0.04);
+}
+html:not(.dark) .rp-app :is(.rp-brand, h1, h2, h3, h4, strong, td, label) {
+  color: #172033;
+}
+html:not(.dark) .rp-app :is(.rp-sub, .rp-field, .rp-tab, .rp-wizard-step, .rp-kpi span, .rp-mode-card span, .rp-mode-card small) {
+  color: #526176;
+  opacity: 1;
+}
+html:not(.dark) .rp-app :is(.rp-btn, .rp-btn-light, .rp-segment button, .rp-wizard-step span) {
+  color: #334155;
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+html:not(.dark) .rp-app :is(.rp-tab.active, .rp-segment button.active, .rp-mode-card.active, .rp-source-card.active) {
+  background: #e0f2fe;
+  color: #075985;
+  border-color: #0284c7;
+}
+html:not(.dark) .rp-app .rp-wizard-step.active span {
+  background: #075985;
+  color: #ffffff;
+  border-color: #075985;
+}
+html:not(.dark) .rp-app .rp-wizard-step.done span {
+  background: #166534;
+  color: #ffffff;
+}
+html:not(.dark) .rp-app .rp-wizard-line {
+  background: #cbd5e1;
+}
+html:not(.dark) .rp-app :is(.rp-primary, .rp-success) {
+  color: #ffffff !important;
+}
+html:not(.dark) .rp-app .rp-danger {
+  color: #9f1239 !important;
+}
+html:not(.dark) .rp-app :is(.rp-alert.info, .rp-blue) {
+  background: #e0f2fe;
+  color: #075985;
+  border-color: #7dd3fc;
+}
+html:not(.dark) .rp-app :is(.rp-alert.warn, .rp-amber) {
+  background: #fef3c7;
+  color: #92400e;
+  border-color: #fcd34d;
+}
+html:not(.dark) .rp-app :is(.rp-alert.ok, .rp-green) {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
+}
+html:not(.dark) .rp-app :is(.rp-alert.err, .rp-red) {
+  background: #ffe4e6;
+  color: #9f1239;
+  border-color: #fda4af;
+}
+html:not(.dark) .rp-app :is(.rp-table th, .rp-table tfoot td, .rp-gray) {
+  background: #e2e8f0;
+  color: #334155;
+  border-color: #cbd5e1;
+}
+html:not(.dark) .rp-app :is(.rp-table td, .rp-card-head) {
+  border-color: #cbd5e1;
+}
+
+html:not(.dark) :is([class~='bg-[var(--crm-accent)]'], [class~='bg-[color:var(--crm-accent)]']) {
+  color: #ffffff !important;
+}
+html:not(.dark) :is(.bg-blue-500, .bg-cyan-600) {
+  background-color: #075985 !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .pipeline-model .pipeline-model__controls button {
+  color: #334155;
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+html:not(.dark) .pipeline-model .pipeline-model__controls button:hover {
+  background: #e2e8f0;
+}
+html:not(.dark) :is(.bg-blue-500, .bg-cyan-600):hover {
+  background-color: #0c4a6e !important;
+}
+
+/* PageHeader is shared by company, lead, opportunity, activity and other modules. */
+html:not(.dark) .crm-page-header {
+  background: linear-gradient(110deg, #ffffff, #f0f9ff) !important;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.06);
+}
+html:not(.dark) .crm-page-header > .absolute {
+  display: none;
+}
+html:not(.dark) .crm-page-header :is(h1, p, nav) {
+  color: #172033;
+}
+html:not(.dark) .crm-simulator-kpi {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.06);
+}
+html:not(.dark) .crm-simulator-kpi > .absolute {
+  display: none;
+}
+html:not(.dark) .market-dashboard :is(.anim-card, [style*="--crm-panel-background"]) {
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 8px rgb(15 23 42 / 0.06);
+}
+
+/* The simulator reuses thermometer classes outside .pipeline-model. */
+html:not(.dark) .market-dashboard :is(.pipeline-model__temperature-title span, .pipeline-model__temperature-levels span, .pipeline-model__temperature-levels b) {
+  color: #334155;
+}
+html:not(.dark) .market-dashboard .pipeline-model__temperature-title strong {
+  color: #172033;
+}
+html:not(.dark) .market-dashboard .pipeline-model__temperature-levels > div {
+  opacity: 1 !important;
+}
+html:not(.dark) :is([class~='text-[rgb(var(--crm-accent-rgb))]'], [class~='text-[var(--crm-accent)]']) {
+  color: #9a3412 !important;
+}

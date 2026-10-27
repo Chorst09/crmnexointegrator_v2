@@ -14,6 +14,7 @@ import {
   DollarSign,
   Target,
   BarChart3,
+  CheckCircle,
   Zap,
   Clock
 } from 'lucide-react';

@@ -56,7 +56,7 @@ const SalesFunnel = ({ data = [], selectedTemperature = '' }) => {
           style={{
             borderColor: selectedAccent.color,
             color: selectedAccent.color,
-            background: 'rgba(3, 8, 18, 0.78)',
+            background: 'var(--crm-panel-background, rgba(3, 8, 18, 0.78))',
             boxShadow: `0 0 22px ${selectedAccent.color}55`
           }}
         >

@@ -8,6 +8,7 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
+  RadialLinearScale,
   LineElement,
   BarElement,
   PointElement,
@@ -24,6 +25,7 @@ import '../styles/dashboardEffects.css';
 ChartJS.register(
   CategoryScale,
   LinearScale,
+  RadialLinearScale,
   LineElement,
   BarElement,
   PointElement,

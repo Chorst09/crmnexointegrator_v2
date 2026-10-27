@@ -19,7 +19,7 @@ const PageHeader = ({
   };
 
   return (
-    <div className={`relative overflow-hidden rounded-2xl bg-gradient-to-r ${gradients[gradient]} p-6 md:p-7 mb-6 shadow-soft-xl motion-safe:animate-fade-up`}>
+    <div className={`crm-page-header relative overflow-hidden rounded-2xl bg-gradient-to-r ${gradients[gradient]} p-6 md:p-7 mb-6 shadow-soft-xl motion-safe:animate-fade-up`}>
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute inset-0" style={{

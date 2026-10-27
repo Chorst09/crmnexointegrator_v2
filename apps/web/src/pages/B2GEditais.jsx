@@ -4612,7 +4612,7 @@ export default function B2GEditais() {
           className="relative overflow-hidden rounded-[20px] border border-[#79c2ff52] p-3 text-[#dbeeff] shadow-[0_36px_70px_-50px_rgba(6,20,45,0.96)] lg:p-4"
           style={{
             background:
-              'linear-gradient(130deg, rgba(12,46,85,0.96) 0%, rgba(8,30,58,0.97) 48%, rgba(19,58,101,0.95) 100%)'
+              'var(--crm-panel-background, linear-gradient(130deg, rgba(12,46,85,0.96) 0%, rgba(8,30,58,0.97) 48%, rgba(19,58,101,0.95) 100%))'
           }}
         >
           <div className="pointer-events-none absolute -left-20 top-16 h-64 w-64 rounded-full bg-[#88c3ff24] blur-[80px]" />
@@ -4686,7 +4686,7 @@ export default function B2GEditais() {
                 className="rounded-xl border border-[#7ec3ff45] p-3"
                 style={{
                   background:
-                    'linear-gradient(150deg, rgba(27,72,123,0.82) 0%, rgba(18,45,87,0.9) 72%, rgba(12,32,62,0.98) 100%)'
+                    'var(--crm-panel-background, linear-gradient(150deg, rgba(27,72,123,0.82) 0%, rgba(18,45,87,0.9) 72%, rgba(12,32,62,0.98) 100%))'
                 }}
               >
                 <div className="text-xs uppercase tracking-[0.12em] text-[#8bb3d7]">
@@ -4709,7 +4709,7 @@ export default function B2GEditais() {
                 className="rounded-xl border border-[#7ec3ff45] p-3"
                 style={{
                   background:
-                    'linear-gradient(150deg, rgba(24,62,106,0.8) 0%, rgba(14,37,74,0.92) 76%, rgba(9,26,54,0.98) 100%)'
+                    'var(--crm-panel-background, linear-gradient(150deg, rgba(24,62,106,0.8) 0%, rgba(14,37,74,0.92) 76%, rgba(9,26,54,0.98) 100%))'
                 }}
               >
                 <div className="text-xs uppercase tracking-[0.12em] text-[#9bb8d7]">
@@ -4788,7 +4788,7 @@ export default function B2GEditais() {
         <section className="grid gap-5 xl:grid-cols-[1.9fr_1fr]">
           <div
             className="rounded-[20px] border border-[#78c5ff50] p-5 text-[#d9edff] lg:p-6"
-            style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+            style={{ background: 'var(--crm-panel-background, linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96)))' }}
           >
             <div className="flex items-start justify-between">
               <div>
@@ -4811,7 +4811,7 @@ export default function B2GEditais() {
 
           <div
             className="rounded-[20px] border border-[#78c5ff50] p-5 text-[#d9edff] lg:p-6"
-            style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+            style={{ background: 'var(--crm-panel-background, linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96)))' }}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -4866,7 +4866,7 @@ export default function B2GEditais() {
 
         <section
           className="rounded-[22px] border border-[#78c5ff50] p-4 text-[#d9edff] lg:p-6"
-          style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+          style={{ background: 'var(--crm-panel-background, linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96)))' }}
         >
           <style>
             {`
@@ -4978,7 +4978,7 @@ export default function B2GEditais() {
 
         <section
           className="rounded-[22px] border border-[#78c5ff50] p-4 text-[#d9edff] lg:p-6"
-          style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+          style={{ background: 'var(--crm-panel-background, linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96)))' }}
         >
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div>
@@ -5180,7 +5180,7 @@ export default function B2GEditais() {
         {monthlyProjectData.months.length > 0 && (
           <section
             className="rounded-[22px] border border-[#78c5ff50] p-5 text-[#d9edff] lg:p-6"
-            style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+            style={{ background: 'var(--crm-panel-background, linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96)))' }}
           >
             <div className="mb-4 flex items-start justify-between">
               <div>
@@ -5262,7 +5262,7 @@ export default function B2GEditais() {
 
         <section
           className="rounded-[22px] border border-[#78c5ff50] p-4 text-[#d9edff] lg:p-6"
-          style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+          style={{ background: 'var(--crm-panel-background, linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96)))' }}
         >
           <h3 className="text-lg font-black leading-tight text-[#dcecff]">Editais e valores</h3>
           <div className="mt-4 max-h-[420px] space-y-2 overflow-y-auto pr-2">
@@ -5302,7 +5302,7 @@ export default function B2GEditais() {
         <section className="grid gap-4 lg:grid-cols-2">
           <div
             className="rounded-[22px] border border-[#78c5ff50] p-5 text-[#d9edff]"
-            style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+            style={{ background: 'var(--crm-panel-background, linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96)))' }}
           >
             <h3 className="flex items-center gap-2 text-lg font-black leading-tight text-[#dcecff]">
               <AlertTriangle className="h-5 w-5 text-[#4cc8ff]" />
@@ -5338,7 +5338,7 @@ export default function B2GEditais() {
 
           <div
             className="rounded-[22px] border border-[#78c5ff50] p-5 text-[#d9edff]"
-            style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+            style={{ background: 'var(--crm-panel-background, linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96)))' }}
           >
             <div className="flex items-start justify-between">
               <div>
@@ -5385,7 +5385,7 @@ export default function B2GEditais() {
 
         <section
           className="rounded-[22px] border border-[#78c5ff50] p-5 text-[#d9edff]"
-          style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+          style={{ background: 'var(--crm-panel-background, linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96)))' }}
         >
           <h3 className="flex items-center gap-2 text-lg font-black leading-tight text-[#dcecff]">
             <Workflow className="h-5 w-5 text-[#4cc8ff]" />
