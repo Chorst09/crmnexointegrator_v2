@@ -195,16 +195,16 @@ const PartnerRegistryCard = ({ item, type = 'distributor' }) => {
   const completion = isActive ? 158 : 84;
 
   return (
-    <div className={`crm-gradient-glass group min-h-[230px] rounded-lg p-5 ${tone.hover}`}>
+    <div className={`crm-gradient-glass group crm-partner-summary rounded-xl p-3.5 ${tone.hover}`}>
       <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${tone.topBar}`} />
       <div className={`absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br ${tone.glow} blur-3xl transition-opacity duration-300 group-hover:opacity-100`} />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_0%,rgba(255,255,255,0.08),transparent_34%),linear-gradient(145deg,rgba(255,255,255,0.07),transparent_42%)]" />
 
       <div className="relative z-10 flex h-full flex-col">
-        <div className="flex items-start justify-between gap-4">
+        <div className="flex items-start justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="relative flex h-16 w-16 shrink-0 items-center justify-center">
-              <svg className="absolute h-16 w-16 -rotate-90" viewBox="0 0 64 64" aria-hidden="true">
+            <div className="relative flex h-11 w-11 shrink-0 items-center justify-center">
+              <svg className="absolute h-11 w-11 -rotate-90" viewBox="0 0 64 64" aria-hidden="true">
                 <circle cx="32" cy="32" r="27" stroke="rgba(51,65,85,0.82)" strokeWidth="7" fill="none" />
                 <circle
                   cx="32"
@@ -218,7 +218,7 @@ const PartnerRegistryCard = ({ item, type = 'distributor' }) => {
                   className="drop-shadow-[0_0_14px_rgba(255,122,0,0.28)] transition-all duration-500"
                 />
               </svg>
-              <div className={`crm-gradient-icon relative flex h-10 w-10 items-center justify-center rounded-lg ${tone.iconBox}`}>
+              <div className={`crm-gradient-icon relative flex h-8 w-8 items-center justify-center rounded-lg ${tone.iconBox}`}>
                 <Icon className="h-5 w-5" />
               </div>
             </div>
@@ -227,7 +227,7 @@ const PartnerRegistryCard = ({ item, type = 'distributor' }) => {
               <p className={`text-[10px] font-bold uppercase tracking-[0.18em] ${type === 'supplier' ? 'text-cyan-200/80' : 'text-teal-200/80'}`}>
                 {tone.label}
               </p>
-              <h4 className={`mt-1 truncate text-lg font-bold text-white transition-colors ${tone.title}`}>{name}</h4>
+              <h4 className={`mt-1 truncate text-sm font-semibold text-white transition-colors ${tone.title}`}>{name}</h4>
             </div>
           </div>
 
@@ -240,7 +240,7 @@ const PartnerRegistryCard = ({ item, type = 'distributor' }) => {
           </span>
         </div>
 
-        <div className="mt-5 grid gap-2.5 text-xs text-slate-300">
+        <div className="mt-3 grid gap-2.5 text-xs text-slate-300">
           <div className="flex min-w-0 items-center gap-2">
             <MapPin className="h-4 w-4 shrink-0 text-slate-500" />
             <span className="truncate">{location || 'Localização não informada'}</span>
@@ -1181,7 +1181,7 @@ export default function PreVendas() {
                 key={filter.key}
                 type="button"
                 onClick={filter.onClick}
-                className={`min-h-[86px] rounded-xl border px-4 py-3 text-left transition-colors ${
+                className={`min-h-[68px] rounded-xl border px-3 py-2.5 text-left transition-colors ${
                   filter.active
                     ? 'border-orange-400/70 bg-orange-500/16 text-white shadow-[0_0_0_1px_rgba(255,122,0,0.18),0_18px_44px_rgba(255,122,0,0.10)]'
                     : 'border-gray-600/50 bg-gray-800/40 text-gray-300 hover:border-cyan-400/45 hover:bg-gray-700/40'

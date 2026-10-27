@@ -41,7 +41,7 @@ const StatsCard = ({
   return (
     <div
       className={[
-        'group relative overflow-hidden rounded-2xl border border-slate-200/70 bg-gradient-to-br from-white/95 via-white to-slate-100/80 p-6 shadow-soft-xl dark:border-[#374151] dark:from-[#111827] dark:via-[#111827] dark:to-[#0d1423]',
+        'group relative overflow-hidden crm-stat-card rounded-xl border border-slate-200/70 bg-gradient-to-br from-white/95 via-white to-slate-100/80 p-3.5 shadow-sm dark:border-[#374151] dark:from-[#111827] dark:via-[#111827] dark:to-[#0d1423]',
         'transition-all duration-300',
         onClick ? 'cursor-pointer hover:-translate-y-1 hover:shadow-soft-2xl hover:border-orange-400/45 dark:hover:border-orange-400/45' : ''
       ].join(' ')}
@@ -49,13 +49,13 @@ const StatsCard = ({
     >
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/40 via-transparent to-orange-300/10 opacity-70 dark:from-orange-400/8 dark:to-cyan-300/10" />
 
-      <div className="relative z-[1] flex items-center justify-between gap-4">
+      <div className="relative z-[1] flex items-center justify-between gap-3">
         <div className="flex-1 min-w-0">
-          <p className="truncate text-sm font-medium text-gray-600 dark:text-slate-300">{title}</p>
+          <p className="text-xs font-medium text-gray-600 dark:text-slate-300">{title}</p>
           <p className={`mt-1 text-2xl font-bold ${classes.value}`}>{value}</p>
 
           {subtitle && (
-            <p className="mt-1 truncate text-xs text-gray-500 dark:text-slate-400">{subtitle}</p>
+            <p className="mt-1 text-[11px] text-gray-500 dark:text-slate-400">{subtitle}</p>
           )}
 
           {trend && (
@@ -75,8 +75,8 @@ const StatsCard = ({
           )}
         </div>
 
-        <div className={`rounded-xl border border-white/35 bg-gradient-to-br p-3 shadow-soft-xl dark:border-white/10 ${classes.badge}`}>
-          <Icon className="h-6 w-6" />
+        <div className={`rounded-xl border border-white/35 bg-gradient-to-br p-2 shadow-sm dark:border-white/10 ${classes.badge}`}>
+          <Icon className="h-4 w-4" />
         </div>
       </div>
     </div>

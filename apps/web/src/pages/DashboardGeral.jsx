@@ -668,13 +668,13 @@ function ExecutiveSparkCard({ title, label, value, data = [], color = '#ff7a00' 
   const hasData = data.some((item) => Number(item) > 0);
 
   return (
-    <div className="dashboard-card grid min-h-[132px] grid-cols-[minmax(0,0.82fr)_minmax(120px,1fr)] gap-3 overflow-hidden rounded-lg border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.98),rgba(13,20,35,0.98))] p-4">
+    <div className="dashboard-card grid min-h-[108px] grid-cols-[minmax(0,0.82fr)_minmax(120px,1fr)] gap-3 overflow-hidden rounded-lg border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.98),rgba(13,20,35,0.98))] p-4">
       <div className="min-w-0">
         <p className="text-sm font-black leading-tight text-[#f4f7fb]">{title}</p>
         <p className="mt-2 text-[10px] font-bold uppercase tracking-wide text-[#8f9caf]">{label}</p>
         <p className="mt-1 truncate text-2xl font-black leading-none text-white" title={String(value)}>{value}</p>
       </div>
-      <div className="h-[88px] min-w-0 self-end">
+      <div className="h-[64px] min-w-0 self-end">
         {hasData ? (
           <Line
             data={chartData}

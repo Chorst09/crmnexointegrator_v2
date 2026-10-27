@@ -84,9 +84,9 @@ const AnimatedStats = ({
   const formattedDisplayValue = typeof displayValue === 'number' ? displayValue.toLocaleString() : displayValue;
   const valueText = `${prefix}${formattedDisplayValue ?? ''}${suffix}`;
   const isLongValue = String(valueText).length > (compact ? 9 : 12);
-  const valueSizeClass = compact
-    ? (isLongValue ? 'text-[clamp(1.45rem,2vw,1.9rem)]' : 'text-2xl')
-    : (isLongValue ? 'text-[clamp(1.75rem,2.25vw,2.6rem)]' : 'text-3xl md:text-4xl');
+  const valueSizeClass = isLongValue
+    ? 'text-[clamp(1.125rem,1.6vw,1.5rem)]'
+    : (compact ? 'text-xl' : 'text-2xl');
 
   const getTrendIcon = () => {
     if (!trend) return null;
@@ -115,59 +115,33 @@ const AnimatedStats = ({
   };
 
   return (
-    <div 
-      className={`
-        crm-panel group relative overflow-hidden ${compact ? 'p-4 min-h-[132px]' : 'p-5 min-h-[148px]'}
-        transition-all duration-300 hover:shadow-soft-xl hover:-translate-y-0.5
-        ${onClick ? 'cursor-pointer' : ''}
-      `}
+    <div
+      className={`crm-panel crm-stat-card group relative overflow-hidden rounded-xl border p-3.5 transition-shadow duration-200 hover:shadow-md ${onClick ? 'cursor-pointer' : ''}`}
       onClick={onClick}
     >
-      {/* Background Pattern */}
-      <div className="absolute inset-0 opacity-40">
-        <div className={`absolute inset-0 bg-gradient-to-br ${classes.wash}`}></div>
+      <div className="pointer-events-none absolute inset-0 opacity-20">
+        <div className={`absolute inset-0 bg-gradient-to-br ${classes.wash}`} />
       </div>
-      <div className="absolute inset-0 crm-dotgrid opacity-10"></div>
-
-      <div className="relative z-10 flex h-full flex-col gap-3">
-        <div className="flex items-start justify-between gap-3">
-          <p className={`${compact ? 'text-[13px] leading-snug' : 'text-sm leading-snug'} max-w-[72%] font-bold text-[var(--crm-muted)]`}>
-            {title}
-          </p>
-
-          <div className={`${compact ? 'p-2.5 rounded-xl' : 'p-3 rounded-2xl'} shrink-0 bg-gradient-to-br ${classes.light} border border-white/10 shadow-sm`}>
-            {typeof Icon === 'string' ? (
-              <span className={compact ? 'text-xl' : 'text-2xl'}>{Icon}</span>
-            ) : (
-              <Icon className={`${compact ? 'w-5 h-5' : 'w-6 h-6'} ${classes.icon}`} />
-            )}
-          </div>
-        </div>
-
-        <div className="min-w-0">
-          <p
-            className={`${valueSizeClass} max-w-full whitespace-nowrap font-extrabold leading-none tracking-normal ${classes.text} transition-all duration-300`}
-            title={valueTitle || valueText}
-          >
-            {valueText}
-          </p>
-          
-          {subtitle && (
-            <p className={`${compact ? 'mt-2 text-[12px] leading-snug' : 'mt-2 text-xs leading-snug'} text-[var(--crm-muted)]`}>{subtitle}</p>
-          )}
-        </div>
-        
-        {trend && (
-          <div className={`inline-flex w-fit items-center gap-1 rounded-full font-semibold ${compact ? 'mt-auto px-2 py-1 text-[11px]' : 'mt-auto px-2.5 py-1 text-xs'} ${getTrendColor()}`}>
-            {getTrendIcon()}
-            <span>{trend.value}</span>
+      <div className="relative z-10 flex items-start gap-3">
+        {Icon && (
+          <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${classes.light} border border-white/10`}>
+            {typeof Icon === 'string' ? <span className="text-lg">{Icon}</span> : <Icon className={`h-[18px] w-[18px] ${classes.icon}`} />}
           </div>
         )}
-      </div>
-
-      {/* Hover Effect */}
-      <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-        <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 motion-safe:group-hover:animate-shine" />
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-medium leading-snug text-[var(--crm-muted)]">{title}</p>
+          <div className="mt-1 flex min-w-0 flex-wrap items-baseline gap-x-2 gap-y-1">
+            <p className={`${valueSizeClass} max-w-full break-words font-bold leading-tight tracking-tight tabular-nums ${classes.text}`} title={valueTitle || valueText}>
+              {valueText}
+            </p>
+            {trend && (
+              <span className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] font-semibold ${getTrendColor()}`}>
+                {getTrendIcon()}<span>{trend.value}</span>
+              </span>
+            )}
+          </div>
+          {subtitle && <p className="mt-1 text-[11px] leading-snug text-[var(--crm-muted)]">{subtitle}</p>}
+        </div>
       </div>
     </div>
   );

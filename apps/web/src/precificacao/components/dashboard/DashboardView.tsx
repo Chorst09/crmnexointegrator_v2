@@ -974,7 +974,7 @@ const DashboardView = () => {
   }
 
   return (
-    <div className="market-dashboard min-h-screen space-y-6 bg-[#070b16] p-6" data-section="dashboard-main">
+    <div className="market-dashboard min-h-screen space-y-4 bg-[#070b16] p-4" data-section="dashboard-main">
       <style>{`
         [data-section="dashboard-main"]:fullscreen { overflow-y: auto; padding: 1.5rem; }
         [data-section="dashboard-main"]:-webkit-full-screen { overflow-y: auto; padding: 1.5rem; }
@@ -984,7 +984,7 @@ const DashboardView = () => {
       `}</style>
 
       {/* ── HEADER ── */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-lg border px-6 py-4 shadow-[0_28px_70px_-48px_rgba(0,0,0,0.95)]" style={simulatorPanelStyle}>
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 shadow-[0_28px_70px_-48px_rgba(0,0,0,0.95)]" style={simulatorPanelStyle}>
         <div className="flex items-center gap-4">
           <div className="rounded-lg bg-gradient-to-br from-[#ff6f0f] to-[#ffb21a] p-3 shadow-[0_18px_40px_-22px_rgba(255,111,15,0.9)]">
             <TrendingUp className="h-7 w-7 text-white" />
@@ -1014,7 +1014,7 @@ const DashboardView = () => {
       </div>
 
       {/* ── FILTROS ── */}
-      <div className="rounded-lg border p-5" style={simulatorPanelStyle}>
+      <div className="rounded-lg border p-3.5" style={simulatorPanelStyle}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-black uppercase tracking-[0.12em] text-[#f4f7fb]">Filtros</h3>
           <div className="flex gap-2">
@@ -1054,14 +1054,14 @@ const DashboardView = () => {
       {/* ── KPI CARDS TOP ── */}
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         {monthlyFunnelBoard.top.map((item, i) => (
-          <div key={item.title} className="crm-simulator-kpi anim-card relative overflow-hidden rounded-lg p-5 shadow-[0_24px_50px_-28px_rgba(0,0,0,0.9)]" style={{ animationDelay: `${i * 80}ms` }}>
+          <div key={item.title} className="crm-simulator-kpi anim-card relative overflow-hidden rounded-lg p-3.5 shadow-[0_24px_50px_-28px_rgba(0,0,0,0.9)]" style={{ animationDelay: `${i * 80}ms` }}>
             <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-90`} />
             <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.2)_0%,transparent_48%,rgba(0,0,0,0.22)_100%)]" />
             <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-24px_44px_rgba(0,0,0,0.34)]" />
             <div className="relative z-10 flex flex-col h-full gap-3">
               <p className="text-[11px] font-black uppercase tracking-[0.16em] text-white/82">{item.title}</p>
               <div className="flex items-end justify-between">
-                <p className="text-4xl font-black leading-none text-white">{formatCurrencyCompact(item.amount)}</p>
+                <p className="text-2xl font-bold leading-none text-white">{formatCurrencyCompact(item.amount)}</p>
                 <div className="text-right">
                   <p className="text-2xl font-black text-white/90">{item.qty}</p>
                   <p className="text-xs font-bold text-white/70">projetos</p>
@@ -1335,7 +1335,7 @@ const DashboardView = () => {
       {/* ── KPI CARDS BOTTOM ── */}
       <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {monthlyFunnelBoard.bottom.map((item, i) => (
-          <div key={item.title} className="crm-simulator-kpi anim-card relative overflow-hidden rounded-lg p-4 shadow-[0_20px_44px_-28px_rgba(0,0,0,0.88)]" style={{ animationDelay: `${200 + i * 60}ms` }}>
+          <div key={item.title} className="crm-simulator-kpi anim-card relative overflow-hidden rounded-lg p-3 shadow-[0_20px_44px_-28px_rgba(0,0,0,0.88)]" style={{ animationDelay: `${200 + i * 60}ms` }}>
             <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-85`}/>
             <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.15)_0%,transparent_50%)]"/>
             <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]"/>

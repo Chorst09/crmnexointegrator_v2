@@ -28,14 +28,14 @@ export default function ProjectCard({ project, onClick }) {
       className={`group relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-gradient-to-br ${healthScoreClass} transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer`}
     >
       {/* Header com status gradient */}
-      <div className={`h-2 w-full ${color === 'slate' ? 'bg-gradient-to-r from-slate-400 to-slate-600' : color === 'blue' ? 'bg-gradient-to-r from-blue-400 to-cyan-600' : color === 'yellow' ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : color === 'green' ? 'bg-gradient-to-r from-green-400 to-emerald-600' : 'bg-gradient-to-r from-red-400 to-rose-600'}`} />
+      <div className={`h-1 w-full ${color === 'slate' ? 'bg-gradient-to-r from-slate-400 to-slate-600' : color === 'blue' ? 'bg-gradient-to-r from-blue-400 to-cyan-600' : color === 'yellow' ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : color === 'green' ? 'bg-gradient-to-r from-green-400 to-emerald-600' : 'bg-gradient-to-r from-red-400 to-rose-600'}`} />
 
-      <div className="p-5 space-y-4">
+      <div className="p-4 space-y-3">
         {/* Top section: Número + Status */}
         <div className="flex items-start justify-between">
           <div>
             <p className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider">{project.number}</p>
-            <h3 className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">{project.name}</h3>
+            <h3 className="font-semibold text-base text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">{project.name}</h3>
           </div>
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
             project.type === 'B2G' 
@@ -71,7 +71,7 @@ export default function ProjectCard({ project, onClick }) {
             </div>
             <div className="text-xs">
               <p className="text-slate-500 dark:text-slate-400">Health</p>
-              <p className={`font-bold text-lg ${healthColor(project.healthScore)}`}>{project.healthScore || 75}</p>
+              <p className={`font-semibold text-base ${healthColor(project.healthScore)}`}>{project.healthScore || 75}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">

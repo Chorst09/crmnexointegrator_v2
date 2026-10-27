@@ -90,7 +90,7 @@ const DashboardKPICard = ({
     <div
       onClick={onClick}
       className={`
-        dashboard-card group relative overflow-hidden ${isCompact ? 'p-3.5' : 'p-6'}
+        dashboard-card crm-kpi-card group relative overflow-hidden ${isCompact ? 'p-3' : 'p-4'}
         ${onClick ? 'cursor-pointer' : ''}
         ${isAnimated ? 'animate-fade-in-up' : ''}
       `}
@@ -119,9 +119,9 @@ const DashboardKPICard = ({
       {/* Conteúdo */}
       <div className="relative z-10">
         {/* Header */}
-        <div className={`flex items-start justify-between ${isCompact ? 'mb-2.5' : 'mb-4'}`}>
+        <div className={`flex items-start justify-between ${isCompact ? 'mb-2' : 'mb-2.5'}`}>
           <div>
-            <p className={`${isCompact ? 'text-[10px]' : 'text-xs'} font-semibold uppercase tracking-wider text-slate-400 mb-1`}>
+            <p className={`${isCompact ? 'text-[10px]' : 'text-xs'} font-semibold uppercase tracking-wide text-slate-400 mb-1`}>
               {title}
             </p>
             {subtitle && (
@@ -151,10 +151,10 @@ const DashboardKPICard = ({
         </div>
 
         {/* Valor Principal */}
-        <div className={isCompact ? 'mb-2.5' : 'mb-4'}>
+        <div className={isCompact ? 'mb-1.5' : 'mb-2'}>
           <div className="flex items-baseline gap-2">
             <span
-              className={`${isCompact ? 'text-2xl sm:text-3xl' : 'text-4xl'} font-bold tracking-tight`}
+              className={`${isCompact ? 'text-2xl' : 'text-[28px]'} font-bold tracking-tight`}
               style={{
                 color,
                 textShadow: `0 0 20px ${color}40`

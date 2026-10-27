@@ -31,14 +31,14 @@ const StatCard: React.FC<StatCardProps> = ({ icon, title, value, subtext }) => {
   const shadowColor = getShadowColor(title);
 
   return (
-    <div className={`bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl shadow-[0_18px_42px_-28px_rgba(0,0,0,0.85)] ${shadowColor} hover:shadow-[0_22px_52px_-30px_rgba(0,0,0,0.95)] transition-all duration-300 transform hover:brightness-[1.02] border border-slate-700/30 group overflow-hidden relative`}>
+    <div className={`crm-stat-card bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl shadow-[0_18px_42px_-28px_rgba(0,0,0,0.85)] ${shadowColor} hover:shadow-[0_22px_52px_-30px_rgba(0,0,0,0.95)] transition-all duration-300 transform hover:brightness-[1.02] border border-slate-700/30 group overflow-hidden relative`}>
       {/* Gradient overlay */}
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
       
       {/* Content */}
-      <div className="relative p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div className={`p-2.5 rounded-lg bg-gradient-to-br ${gradient} shadow-lg`}>
+      <div className="relative p-3">
+        <div className="flex items-center justify-between mb-2">
+          <div className={`p-2 rounded-lg bg-gradient-to-br ${gradient} shadow-lg`}>
             <div className="text-white">
               {icon}
             </div>
@@ -54,7 +54,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon, title, value, subtext }) => {
           <h3 className="text-white font-bold tracking-tight text-sm mb-1 group-hover:text-cyan-300 transition-colors">
             {title}
           </h3>
-          <p className="text-slate-400 text-sm">{subtext}</p>
+          <p className="text-slate-400 text-xs">{subtext}</p>
         </div>
       </div>
       

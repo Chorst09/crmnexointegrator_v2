@@ -1,0 +1,28 @@
+/* Shared density for operational screens, in both color themes. */
+.crm-page-header h1,
+.crm-stat-card,
+.crm-kpi-card {
+  font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+}
+.crm-page-header h1 { letter-spacing: -0.025em; }
+.crm-page-header-copy { flex: 1 1 auto; }
+.crm-page-header { border-radius: 14px; }
+.crm-stat-card { min-width: 0; border-radius: 12px; }
+.crm-stat-card p { overflow-wrap: anywhere; }
+.grid:has(> .crm-stat-card),
+.grid:has(> .crm-kpi-card) { gap: 12px; align-items: stretch; }
+.crm-kpi-card { border-radius: 12px; }
+.crm-kpi-card > .relative > :last-child:empty { display: none; }
+.crm-partner-summary { min-height: 0; }
+
+@media (min-width: 640px) {
+  .grid:has(> .crm-stat-card) {
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .crm-stat-card, .crm-kpi-card, .crm-page-header {
+    animation: none !important;
+    transition: none !important;
+  }
+}

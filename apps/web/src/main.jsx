@@ -4,6 +4,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import './styles/dashboardEffects.css';
 import './styles/light-theme.css';
+import './styles/compact-layout.css';
 import './theme/chartTheme';
 import App from './App';
 import { ThemeProvider } from './theme/ThemeProvider';

@@ -40,18 +40,18 @@ const CalculatorCard = ({ title, description, icon, calculatorId, color, onNavig
 
   return (
     <div
-      className={`bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-xl ${hoverShadow} hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-slate-700/50 h-full cursor-pointer group overflow-hidden relative`}
+      className={`bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl shadow-sm ${hoverShadow} hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-slate-700/50 h-full cursor-pointer group overflow-hidden relative`}
       onClick={() => onNavigate(calculatorId)}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
-      <div className="relative p-6">
-        <div className="flex items-center mb-4">
+      <div className="relative p-4">
+        <div className="flex items-center mb-2">
           <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg mr-4`}>
             <div className="text-white">{icon}</div>
           </div>
-          <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">{title}</h3>
+          <h3 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors">{title}</h3>
         </div>
-        <p className="text-slate-300 mb-6 leading-relaxed">{description}</p>
+        <p className="text-slate-300 mb-3 leading-relaxed">{description}</p>
         <div className="flex items-center text-cyan-400 font-semibold group-hover:text-cyan-300 transition-colors">
           Acessar calculadora
           <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />

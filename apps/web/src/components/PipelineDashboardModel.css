@@ -121,8 +121,8 @@
 .pipeline-model__kpi {
   position: relative;
   min-width: 0;
-  min-height: 126px;
-  padding: 14px 28px 14px 14px;
+  min-height: 98px;
+  padding: 12px 24px 12px 12px;
   display: flex;
   align-items: center;
   gap: 13px;
@@ -148,9 +148,9 @@
 
 .pipeline-model__ring {
   position: relative;
-  width: 76px;
-  height: 76px;
-  flex: 0 0 76px;
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
   filter: drop-shadow(0 4px 8px color-mix(in srgb, var(--metric-color) 28%, transparent));
 }
 
