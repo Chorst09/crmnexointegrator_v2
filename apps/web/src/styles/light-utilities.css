@@ -2182,6 +2182,16 @@ html:not(.dark) :is(
 ) { color: rgb(170, 28, 28) !important; }
 
 html:not(.dark) :is(
+  [style^="color: rgb(251, 191, 36)"],
+  [style*="; color: rgb(251, 191, 36)"]
+) { color: rgb(105, 80, 12) !important; }
+
+html:not(.dark) :is(
+  [style^="color: rgb(148, 163, 184)"],
+  [style*="; color: rgb(148, 163, 184)"]
+) { color: rgb(80, 88, 100) !important; }
+
+html:not(.dark) :is(
   [style^="color: rgb(31, 127, 229)"],
   [style*="; color: rgb(31, 127, 229)"]
 ) { color: rgb(21, 89, 162) !important; }
@@ -2212,11 +2222,6 @@ html:not(.dark) :is(
 ) { color: rgb(7, 96, 88) !important; }
 
 html:not(.dark) :is(
-  [style^="color: rgb(251, 191, 36)"],
-  [style*="; color: rgb(251, 191, 36)"]
-) { color: rgb(105, 80, 12) !important; }
-
-html:not(.dark) :is(
   [style^="color: rgb(251, 146, 60)"],
   [style*="; color: rgb(251, 146, 60)"]
 ) { color: rgb(126, 72, 28) !important; }
@@ -2225,11 +2230,6 @@ html:not(.dark) :is(
   [style^="color: rgb(234, 88, 12)"],
   [style*="; color: rgb(234, 88, 12)"]
 ) { color: rgb(152, 56, 7) !important; }
-
-html:not(.dark) :is(
-  [style^="color: rgb(148, 163, 184)"],
-  [style*="; color: rgb(148, 163, 184)"]
-) { color: rgb(80, 88, 100) !important; }
 
 html:not(.dark) :is(
   [style^="color: rgb(100, 116, 139)"],
