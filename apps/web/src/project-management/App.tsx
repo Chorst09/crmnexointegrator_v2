@@ -11,6 +11,7 @@ import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 import KanbanBoard from './components/KanbanBoard';
+import ProjectViewSelector from './components/ProjectViewSelector';
 import ListView from './components/ListView';
 import Dashboard from './components/Dashboard';
 import TeamView from './components/TeamView';
@@ -1490,20 +1491,11 @@ export default function App({ onBack }: { onBack?: () => void }) {
               </div>
             </div>
 
-            <div className="flex items-center gap-6 overflow-x-auto text-sm font-medium hide-scrollbar">
-              <Tab icon={Users} label="Equipe" active={activeView === 'team'} onClick={() => setActiveView('team')} />
-              <Tab icon={BarChart2} label="Painéis" active={activeView === 'dashboard'} onClick={() => setActiveView('dashboard')} />
-              <Tab icon={ListIcon} label="Lista" active={activeView === 'list'} onClick={() => setActiveView('list')} />
-              <Tab icon={LayoutTemplate} label="Quadro" active={activeView === 'board'} onClick={() => setActiveView('board')} />
-              <Tab icon={Calendar} label="Calendário" active={activeView === 'calendar'} onClick={() => setActiveView('calendar')} />
-              <Tab icon={GanttChartSquare} label="Gantt" active={activeView === 'gantt'} onClick={() => setActiveView('gantt')} />
-              <Tab icon={CheckCircle2} label="Matriz RACI" active={activeView === 'raci'} onClick={() => setActiveView('raci')} />
-              <Tab icon={Activity} label="Atividade" active={activeView === 'activity'} onClick={() => setActiveView('activity')} />
-              <Tab icon={ListIcon} label="Carga de trabalho" active={activeView === 'workload'} onClick={() => setActiveView('workload')} />
-              <div className="flex items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer pb-2">
-                <Plus className="w-4 h-4" /> Visualização
-              </div>
-            </div>
+            <ProjectViewSelector
+              projectId={activeSpaceId}
+              activeView={activeView}
+              onSelect={setActiveView}
+            />
           </div>
         </div>
 
