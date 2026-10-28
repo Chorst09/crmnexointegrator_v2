@@ -1,6 +1,6 @@
 import { getOpportunityFabricante } from '../utils/registry-manufacturer.mjs';
 export { getOpportunityFabricante } from '../utils/registry-manufacturer.mjs';
-import { REGISTRY_OPPORTUNITY_STATUSES, getRegistryStatusLabel } from '../utils/registry-opportunity-status.mjs';
+import { REGISTRY_OPPORTUNITY_STATUSES, getRegistryStatusLabel, normalizeRegistryStatus } from '../utils/registry-opportunity-status.mjs';
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -137,7 +137,7 @@ const defaultOpportunityForm = {
   modalidade: 'VENDA',
   valorEstimado: '',
   prazo: '',
-  status: 'ABERTA',
+  status: 'EM_ANALISE',
   prioridade: 'MEDIUM',
   distribuidorIds: [],
   fornecedorIds: [],
@@ -533,7 +533,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       }
 
       if (selectedStatusFilter !== 'ALL') {
-        filtered = filtered.filter((item) => String(item.status || 'ABERTA').toUpperCase() === selectedStatusFilter);
+        filtered = filtered.filter((item) => normalizeRegistryStatus(item.status) === selectedStatusFilter);
       }
 
       if (selectedOrigemFilter !== 'ALL') {
@@ -644,7 +644,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         modalidade: item.modalidade || 'VENDA',
         valorEstimado: item.valorEstimado ?? '',
         prazo: OPPORTUNITY_TERM_OPTIONS.includes(String(item.prazo || '').trim()) ? String(item.prazo).trim() : '',
-        status: item.status || 'ABERTA',
+        status: normalizeRegistryStatus(item.status),
         prioridade: item.prioridade || 'MEDIUM',
         distribuidorIds: Array.isArray(item.distribuidorIds) ? item.distribuidorIds : [],
         fornecedorIds: Array.isArray(item.fornecedorIds) ? item.fornecedorIds : [],
@@ -793,13 +793,19 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       return;
     }
 
+    const fabricante = getOpportunityFabricante(opportunityForm, fornMap);
+    if (!fabricante) {
+      alert('Informe o fabricante / fornecedor do RO antes de salvar.');
+      return;
+    }
+
     const payload = {
       ...opportunityForm,
       titulo,
       cliente: asString(opportunityForm.cliente),
       valorEstimado: opportunityForm.valorEstimado === '' ? null : Number(opportunityForm.valorEstimado),
       prazo: opportunityForm.prazo || null,
-      fabricante: asString(opportunityForm.fabricante),
+      fabricante,
       dataAbertura: opportunityForm.dataAbertura || null,
       dataValidade: opportunityForm.dataValidade || null,
       distribuidorIds: Array.isArray(opportunityForm.distribuidorIds) ? opportunityForm.distribuidorIds : [],
@@ -2438,7 +2444,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-wide uppercase ${badgeClassForStatus(item.status)}`}>
+                  <span className={`rounded-full border px-2.5 py-0.5 text-[11px] font-semibold tracking-wide uppercase ${badgeClassForStatus(normalizeRegistryStatus(item.status))}`}>
                     {getRegistryStatusLabel(item.status || 'ABERTA')}
                   </span>
                   <span className={`rounded-full border px-2 py-0.5 text-[11px] ${badgeClassForPriority(item.prioridade)}`}>
@@ -3174,7 +3180,10 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 </label>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
                   <span className="text-[11px] text-slate-400 font-medium">Marcas rápidas:</span>
-                  {['DELL', 'LENOVO', 'HP', 'CISCO', 'FORTINET', 'ARUBA', 'HUAWEI', 'MICROSOFT', 'VEEAM'].map((brand) => (
+                  {[...new Set([
+                    'DELL', 'LENOVO', 'HP', 'CISCO', 'FORTINET', 'ARUBA', 'HUAWEI', 'MICROSOFT', 'VEEAM',
+                    ...availableFabricantes.map(({ name }) => name)
+                  ])].map((brand) => (
                     <button
                       key={brand}
                       type="button"

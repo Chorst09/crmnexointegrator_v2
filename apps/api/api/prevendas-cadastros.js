@@ -113,6 +113,13 @@ const normalizeBasePartner = (input = {}, preserve = {}) => {
   };
 };
 
+const normalizeRegistryStatus = (status) => {
+  const key = String(status || '').trim().toUpperCase();
+  if (['APROVADO', 'GANHA'].includes(key)) return 'APROVADO';
+  if (['NEGADO', 'PERDIDA', 'DEVOLVIDA'].includes(key)) return 'NEGADO';
+  return 'EM_ANALISE';
+};
+
 const normalizeOpportunityRegistry = (input = {}, preserve = {}) => {
   const now = new Date().toISOString();
   return {
@@ -124,7 +131,7 @@ const normalizeOpportunityRegistry = (input = {}, preserve = {}) => {
     modalidade: toString(input.modalidade, preserve.modalidade || 'VENDA').toUpperCase() || 'VENDA',
     valorEstimado: toNumberOrNull(input.valorEstimado ?? preserve.valorEstimado),
     prazo: toOpportunityTermOrNull(input.prazo, preserve.prazo),
-    status: toString(input.status, preserve.status || 'ABERTA').toUpperCase() || 'ABERTA',
+    status: normalizeRegistryStatus(input.status ?? preserve.status),
     prioridade: toString(input.prioridade, preserve.prioridade || 'MEDIUM').toUpperCase() || 'MEDIUM',
     distribuidorIds: toStringArray(input.distribuidorIds ?? preserve.distribuidorIds),
     fornecedorIds: toStringArray(input.fornecedorIds ?? preserve.fornecedorIds),

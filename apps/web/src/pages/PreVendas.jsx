@@ -1,4 +1,4 @@
-import { REGISTRY_OPPORTUNITY_STATUSES, isRegistryOpportunityOpen } from '../utils/registry-opportunity-status.mjs';
+import { REGISTRY_OPPORTUNITY_STATUSES, isRegistryOpportunityOpen, normalizeRegistryStatus } from '../utils/registry-opportunity-status.mjs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -766,7 +766,7 @@ export default function PreVendas() {
   const registroStatusChartData = useMemo(() => {
     const statusOrder = REGISTRY_OPPORTUNITY_STATUSES.map(item => item.value);
     const counts = statusOrder.map((status) =>
-      registroFiltrado.filter((item) => String(item?.status || '').toUpperCase() === status).length
+      registroFiltrado.filter((item) => normalizeRegistryStatus(item?.status) === status).length
     );
 
     return {

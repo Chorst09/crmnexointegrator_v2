@@ -9,7 +9,8 @@ const BRANDS = [
   ['PALO ALTO', 'PALOALTO'], ['EXTREME', 'EXTREME NETWORKS'], ['RUCKUS'], ['AVAYA'],
   ['INTEL'], ['AMD'], ['ORACLE'], ['IBM'], ['RED HAT', 'REDHAT'], ['ZABBIX'],
   ['TP-LINK', 'TP LINK', 'TPLINK'], ['TREND MICRO'], ['WITHSECURE', 'WITH SECURE'],
-  ['BITDEFENDER'], ['ACRONIS'], ['GOTO'], ['LOGITECH'], ['UBIQUITI'], ['MIKROTIK']
+  ['BITDEFENDER'], ['ACRONIS'], ['GOTO'], ['LOGITECH'], ['UBIQUITI'], ['MIKROTIK'],
+  ['SECURE GATE', 'SECUREGATE']
 ];
 
 export const getOpportunityFabricante = (item, fornMap = new Map()) => {

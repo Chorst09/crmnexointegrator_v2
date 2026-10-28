@@ -4,7 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const root = path.resolve(__dirname, '../..');
-const approvals = ['AGUARDANDO_APROVACAO', 'APROVADO', 'NEGADO'];
+const approvals = ['EM_ANALISE', 'APROVADO', 'NEGADO'];
 
 for (const file of ['backend/api/prevendas-cadastros.js', 'apps/api/api/prevendas-cadastros.js']) {
   test(`${file}: approval statuses survive create, update and read`, async () => {
@@ -21,6 +21,10 @@ for (const file of ['backend/api/prevendas-cadastros.js', 'apps/api/api/prevenda
       method, url: `/api/prevendas-cadastros/oportunidades${suffix}`,
       user: { userId: 'test-user', name: 'Teste' }, json: async () => body
     });
+    for (const [legacy, expected] of [['ABERTA', 'EM_ANALISE'], ['GANHA', 'APROVADO'], ['PERDIDA', 'NEGADO'], ['DEVOLVIDA', 'NEGADO'], ['AGUARDANDO_APROVACAO', 'EM_ANALISE']]) {
+      const response = await handler(request('POST', '', { titulo: 'Registro antigo', status: legacy }));
+      assert.equal((await response.json()).status, expected);
+    }
     for (const status of approvals) {
       const created = await handler(request('POST', '', { titulo: 'Registro de teste', status }));
       assert.equal(created.status, 201);
@@ -40,12 +44,14 @@ for (const file of ['backend/api/prevendas-cadastros.js', 'apps/api/api/prevenda
 
 test('approval labels are readable and approval does not mean a won sale', async () => {
   const { getRegistryStatusLabel, isRegistryOpportunityOpen, REGISTRY_OPPORTUNITY_STATUSES } = await import('../../apps/web/src/utils/registry-opportunity-status.mjs');
-  assert.equal(getRegistryStatusLabel('AGUARDANDO_APROVACAO'), 'Aguardando aprovação');
+  assert.equal(getRegistryStatusLabel('AGUARDANDO_APROVACAO'), 'Em análise');
   assert.equal(getRegistryStatusLabel('APROVADO'), 'Aprovado');
   assert.equal(getRegistryStatusLabel('NEGADO'), 'Negado');
   assert.equal(isRegistryOpportunityOpen('AGUARDANDO_APROVACAO'), true);
   assert.equal(isRegistryOpportunityOpen('APROVADO'), true);
   assert.equal(isRegistryOpportunityOpen('NEGADO'), false);
-  assert.ok(REGISTRY_OPPORTUNITY_STATUSES.some(item => item.value === 'GANHA'));
-  assert.ok(REGISTRY_OPPORTUNITY_STATUSES.some(item => item.value === 'PERDIDA'));
+  assert.deepEqual(REGISTRY_OPPORTUNITY_STATUSES.map(item => item.value), approvals);
+  assert.equal(getRegistryStatusLabel('GANHA'), 'Aprovado');
+  assert.equal(getRegistryStatusLabel('PERDIDA'), 'Negado');
+  assert.equal(getRegistryStatusLabel('ABERTA'), 'Em análise');
 });

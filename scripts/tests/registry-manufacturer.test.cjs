@@ -18,6 +18,9 @@ test('manufacturer resolution supports older records and preserves explicit/link
     [{ produto: 'Switch TP-Link' }, 'TP-LINK'],
     [{ titulo: 'Proteção Trend Micro' }, 'TREND MICRO'],
     [{ titulo: 'Backup Acronis' }, 'ACRONIS'],
+    [{ titulo: 'Projeto para Backup com VEEAM', produto: 'Backup VEEAM', numeroOportunidade: '2026923102204' }, 'VEEAM'],
+    [{ titulo: 'Assessment Vunerabilidade', produto: 'Assessment - Secure Gate', numeroOportunidade: '001' }, 'SECURE GATE'],
+    [{ produto: 'Assessment SecureGate' }, 'SECURE GATE'],
     [{ numeroOportunidade: 'RO-20261020', produto: 'Produto sem marca' }, ''],
     [{ produto: 'AMDAHL computing' }, ''],
     [{ produto: 'Produto sem marca', observacoes: 'Cliente usa Veeam com concorrente' }, '']
