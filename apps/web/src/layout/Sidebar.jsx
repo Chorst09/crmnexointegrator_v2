@@ -291,7 +291,7 @@ export default function Sidebar({
             return {
               ...section,
               items: section.items.filter((item) =>
-                ['/dashboard', '/empresas', '/oportunidades', '/atividades', '/leads', '/simuladores'].includes(item.path)
+                ['/dashboard', '/empresas', '/oportunidades', '/atividades', '/leads', '/propostas', '/simuladores'].includes(item.path)
               )
             };
           }
@@ -307,7 +307,7 @@ export default function Sidebar({
         // Logic for USER and SELLER roles.
         if (role === ROLES.USER || role === ROLES.SELLER) {
           if (section.id === 'vendas' && access.accessB2B) {
-            const allowedPaths = ['/dashboard', '/empresas', '/oportunidades', '/atividades', '/leads', '/b2b-kickoff'];
+            const allowedPaths = ['/dashboard', '/empresas', '/oportunidades', '/atividades', '/leads', '/b2b-kickoff', '/propostas'];
             // Add simuladores if user has access to simulador
             if (access.accessSimulador) {
               allowedPaths.push('/simuladores');

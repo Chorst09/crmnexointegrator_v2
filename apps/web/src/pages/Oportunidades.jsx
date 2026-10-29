@@ -1809,6 +1809,7 @@ export default function Oportunidades() {
           isOpen={showModal}
           onClose={() => { setShowModal(false); resetForm(); }}
           title={selectedOpportunity ? 'Editar Oportunidade' : 'Nova Oportunidade'}
+          closeOnOverlayClick={false}
           size="large"
         >
           <OpportunityForm
