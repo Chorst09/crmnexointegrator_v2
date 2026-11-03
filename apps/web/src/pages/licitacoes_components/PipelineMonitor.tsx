@@ -124,26 +124,26 @@ const getAuthHeaders = () => {
 };
 
 const COLOR_MAP: Record<string, { badge: string; ring: string; dot: string; card: string }> = {
-  sky:     { badge: 'bg-sky-950/80 border-sky-700/60 text-sky-200',     ring: 'ring-sky-400',     dot: 'bg-sky-400',     card: 'border-sky-700/40' },
-  emerald: { badge: 'bg-emerald-950/80 border-emerald-700/60 text-emerald-200', ring: 'ring-emerald-400', dot: 'bg-emerald-400', card: 'border-emerald-700/40' },
-  cyan:    { badge: 'bg-cyan-950/80 border-cyan-700/60 text-cyan-200',   ring: 'ring-cyan-400',    dot: 'bg-cyan-400',    card: 'border-cyan-700/40' },
-  teal:    { badge: 'bg-teal-950/80 border-teal-700/60 text-teal-200',   ring: 'ring-teal-400',    dot: 'bg-teal-400',    card: 'border-teal-700/40' },
-  yellow:  { badge: 'bg-yellow-950/80 border-yellow-700/60 text-yellow-200', ring: 'ring-yellow-400', dot: 'bg-yellow-400', card: 'border-yellow-700/40' },
-  purple:  { badge: 'bg-purple-950/80 border-purple-700/60 text-purple-200', ring: 'ring-purple-400', dot: 'bg-purple-400', card: 'border-purple-700/40' },
-  blue:    { badge: 'bg-blue-950/80 border-blue-700/60 text-blue-200',   ring: 'ring-blue-400',    dot: 'bg-blue-400',    card: 'border-blue-700/40' },
-  orange:  { badge: 'bg-orange-950/80 border-orange-700/60 text-orange-200', ring: 'ring-orange-400', dot: 'bg-orange-400', card: 'border-orange-700/40' },
-  slate:   { badge: 'bg-slate-800/80 border-slate-600/60 text-slate-200', ring: 'ring-slate-400',  dot: 'bg-slate-400',   card: 'border-slate-600/40' },
-  indigo:  { badge: 'bg-indigo-950/80 border-indigo-700/60 text-indigo-200', ring: 'ring-indigo-400', dot: 'bg-indigo-400', card: 'border-indigo-700/40' },
+  sky:     { badge: "bg-sky-50/80 dark:bg-sky-950/80 border-sky-200/60 dark:border-sky-700/60 text-sky-700 dark:text-sky-200",     ring: 'ring-sky-400',     dot: 'bg-sky-400',     card: "border-sky-200/40 dark:border-sky-700/40" },
+  emerald: { badge: "bg-emerald-50/80 dark:bg-emerald-950/80 border-emerald-200/60 dark:border-emerald-700/60 text-emerald-700 dark:text-emerald-200", ring: 'ring-emerald-400', dot: 'bg-emerald-400', card: "border-emerald-200/40 dark:border-emerald-700/40" },
+  cyan:    { badge: "bg-cyan-50/80 dark:bg-cyan-950/80 border-cyan-200/60 dark:border-cyan-700/60 text-cyan-700 dark:text-cyan-200",   ring: 'ring-cyan-400',    dot: 'bg-cyan-400',    card: "border-cyan-200/40 dark:border-cyan-700/40" },
+  teal:    { badge: "bg-teal-50/80 dark:bg-teal-950/80 border-teal-200/60 dark:border-teal-700/60 text-teal-700 dark:text-teal-200",   ring: 'ring-teal-400',    dot: 'bg-teal-400',    card: "border-teal-200/40 dark:border-teal-700/40" },
+  yellow:  { badge: "bg-yellow-50/80 dark:bg-yellow-950/80 border-yellow-200/60 dark:border-yellow-700/60 text-yellow-700 dark:text-yellow-200", ring: 'ring-yellow-400', dot: 'bg-yellow-400', card: "border-yellow-200/40 dark:border-yellow-700/40" },
+  purple:  { badge: "bg-purple-50/80 dark:bg-purple-950/80 border-purple-200/60 dark:border-purple-700/60 text-purple-700 dark:text-purple-200", ring: 'ring-purple-400', dot: 'bg-purple-400', card: "border-purple-200/40 dark:border-purple-700/40" },
+  blue:    { badge: "bg-blue-50/80 dark:bg-blue-950/80 border-blue-200/60 dark:border-blue-700/60 text-blue-700 dark:text-blue-200",   ring: 'ring-blue-400',    dot: 'bg-blue-400',    card: "border-blue-200/40 dark:border-blue-700/40" },
+  orange:  { badge: "bg-orange-50/80 dark:bg-orange-950/80 border-orange-200/60 dark:border-orange-700/60 text-orange-700 dark:text-orange-200", ring: 'ring-orange-400', dot: 'bg-orange-400', card: "border-orange-200/40 dark:border-orange-700/40" },
+  slate:   { badge: "bg-[rgb(var(--crm-surface-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]", ring: 'ring-slate-400',  dot: "bg-[rgb(var(--crm-surface-rgb)_/_1)]",   card: "border-[var(--crm-border)]" },
+  indigo:  { badge: "bg-indigo-50/80 dark:bg-indigo-950/80 border-indigo-200/60 dark:border-indigo-700/60 text-indigo-700 dark:text-indigo-200", ring: 'ring-indigo-400', dot: 'bg-indigo-400', card: "border-indigo-200/40 dark:border-indigo-700/40" },
 };
 
 const STATUS_CONFIG = {
-  ok:      { label: 'Concluído',    icon: CheckCircle2, cls: 'bg-emerald-950/60 text-emerald-300 border-emerald-800', dot: 'bg-emerald-400' },
-  fallback: { label: 'Fonte alternativa', icon: CheckCircle2, cls: 'bg-sky-950/60 text-sky-300 border-sky-800', dot: 'bg-sky-400' },
-  running: { label: 'Executando',   icon: Activity,     cls: 'bg-cyan-950/60 text-cyan-300 border-cyan-800',          dot: 'bg-cyan-400 animate-ping' },
-  partial: { label: 'Parcial',      icon: AlertCircle,  cls: 'bg-amber-950/60 text-amber-300 border-amber-800',       dot: 'bg-amber-400' },
-  error:   { label: 'Erro',         icon: AlertCircle,  cls: 'bg-red-950/60 text-red-300 border-red-800',             dot: 'bg-red-400' },
-  idle:    { label: 'Aguardando busca',      icon: Clock,        cls: 'bg-slate-800/60 text-slate-400 border-slate-700',       dot: 'bg-slate-500' },
-  paused:  { label: 'Pausado',      icon: Pause,        cls: 'bg-slate-800/60 text-slate-400 border-slate-700',       dot: 'bg-slate-600' },
+  ok:      { label: 'Concluído',    icon: CheckCircle2, cls: "bg-emerald-50/60 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800", dot: 'bg-emerald-400' },
+  fallback: { label: 'Fonte alternativa', icon: CheckCircle2, cls: "bg-sky-50/60 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800", dot: 'bg-sky-400' },
+  running: { label: 'Executando',   icon: Activity,     cls: "bg-cyan-50/60 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800",          dot: 'bg-cyan-400 animate-ping' },
+  partial: { label: 'Parcial',      icon: AlertCircle,  cls: "bg-amber-50/60 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800",       dot: 'bg-amber-400' },
+  error:   { label: 'Erro',         icon: AlertCircle,  cls: "bg-red-50/60 dark:bg-red-950/60 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800",             dot: 'bg-red-400' },
+  idle:    { label: 'Aguardando busca',      icon: Clock,        cls: "bg-[rgb(var(--crm-surface-rgb)_/_0.6)] text-[rgb(var(--crm-muted-rgb)_/_1)] border-[var(--crm-border)]",       dot: "bg-[rgb(var(--crm-surface-rgb)_/_1)]" },
+  paused:  { label: 'Pausado',      icon: Pause,        cls: "bg-[rgb(var(--crm-surface-rgb)_/_0.6)] text-[rgb(var(--crm-muted-rgb)_/_1)] border-[var(--crm-border)]",       dot: "bg-[rgb(var(--crm-surface-rgb)_/_1)]" },
 };
 
 const pipelineStages = [
@@ -278,16 +278,16 @@ export function PipelineMonitor() {
   const okCount = Array.from(workerStatuses.values()).filter(w => w.status === 'ok' || w.status === 'running').length;
 
   return (
-    <div className="flex flex-col h-full bg-[#011116] overflow-y-auto">
+    <div className="flex flex-col h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-y-auto">
       {/* ── Header ── */}
-      <header className="px-8 py-6 bg-[#011419] border-b border-[#07323e] flex-shrink-0">
+      <header className="px-8 py-6 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)] flex-shrink-0">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight flex items-center gap-3">
-              <Settings2 className="w-6 h-6 text-cyan-400" />
+            <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] tracking-tight flex items-center gap-3">
+              <Settings2 className="w-6 h-6 text-cyan-700 dark:text-cyan-400" />
               Configurações da Busca de Editais
             </h1>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
               Gerencie produtos de TI, fontes de busca e acompanhe as consultas.
             </p>
           </div>
@@ -295,7 +295,7 @@ export function PipelineMonitor() {
             <button
               onClick={fetchWorkerStatuses}
               disabled={loadingStatuses}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[#02171d] border border-[#073541] hover:border-cyan-500 text-cyan-400 text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] hover:border-cyan-500 text-cyan-700 dark:text-cyan-400 text-xs font-semibold transition-all disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={cn('w-3.5 h-3.5', loadingStatuses && 'animate-spin')} />
               Atualizar Status
@@ -303,7 +303,7 @@ export function PipelineMonitor() {
             <button
               onClick={handleDownloadZip}
               disabled={downloading}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold border border-slate-700 transition-colors disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-semibold border border-[var(--crm-border)] transition-colors disabled:opacity-50 cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               {downloading ? 'Gerando...' : 'Baixar Código (.zip)'}
@@ -311,48 +311,48 @@ export function PipelineMonitor() {
             <div className={cn(
               'flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border',
               okCount > 0
-                ? 'bg-emerald-950/60 text-emerald-300 border-emerald-800'
-                : 'bg-slate-800/60 text-slate-400 border-slate-700'
+                ? "bg-emerald-50/60 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800"
+                : "bg-[rgb(var(--crm-surface-rgb)_/_0.6)] text-[rgb(var(--crm-muted-rgb)_/_1)] border-[var(--crm-border)]"
             )}>
-              <div className={cn('w-2 h-2 rounded-full', okCount > 0 ? 'bg-emerald-400 animate-pulse' : 'bg-slate-500')} />
+              <div className={cn('w-2 h-2 rounded-full', okCount > 0 ? 'bg-emerald-400 animate-pulse' : "bg-[rgb(var(--crm-surface-rgb)_/_1)]")} />
               {statusError ? 'Status indisponível' : okCount > 0 ? `${okCount} consulta(s) concluída(s) ou em execução` : 'Aguardando execução'}
             </div>
           </div>
         </div>
         {lastRefresh && (
-          <p className="text-[11px] text-slate-500 mt-2">
+          <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">
             Último refresh: {lastRefresh.toLocaleTimeString('pt-BR')}
           </p>
         )}
       </header>
 
       <div className="p-8 space-y-10">
-        {statusError && <p role="alert" className="rounded-xl border border-amber-800 p-4 text-sm text-amber-200">{statusError} Os dados da última atualização podem estar desatualizados.</p>}
+        {statusError && <p role="alert" className="rounded-xl border border-amber-200 dark:border-amber-800 p-4 text-sm text-amber-700 dark:text-amber-200">{statusError} Os dados da última atualização podem estar desatualizados.</p>}
         <ITProductFilterSettings />
 
         {/* ── Seção 1: Fontes de Busca (Configuração) ── */}
         <section>
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <Layers className="w-5 h-5 text-cyan-400" />
-              <h2 className="text-base font-bold text-white uppercase tracking-wider">
+              <Layers className="w-5 h-5 text-cyan-700 dark:text-cyan-400" />
+              <h2 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                 Fontes Governamentais Monitoradas
               </h2>
-              <span className="px-2.5 py-0.5 rounded-full bg-cyan-900/60 border border-cyan-700/60 text-cyan-300 text-xs font-bold">
+              <span className="px-2.5 py-0.5 rounded-full bg-cyan-50/60 dark:bg-cyan-900/60 border border-cyan-200/60 dark:border-cyan-700/60 text-cyan-700 dark:text-cyan-300 text-xs font-bold">
                 {activeCount} de {SOURCES_CATALOG.length} ativas
               </span>
             </div>
             <div className="flex gap-2">
-              <button onClick={selectAll} className="text-[11px] px-3 py-1 rounded-lg bg-cyan-900/60 text-cyan-300 border border-cyan-700/60 hover:bg-cyan-800/80 transition-colors cursor-pointer">
+              <button onClick={selectAll} className="text-[11px] px-3 py-1 rounded-lg bg-cyan-50/60 dark:bg-cyan-900/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200/60 dark:border-cyan-700/60 hover:bg-cyan-50/80 dark:hover:bg-cyan-800/80 transition-colors cursor-pointer">
                 Todas
               </button>
-              <button onClick={clearAll} className="text-[11px] px-3 py-1 rounded-lg bg-slate-800/60 text-slate-400 border border-slate-700/60 hover:bg-slate-700/80 transition-colors cursor-pointer">
+              <button onClick={clearAll} className="text-[11px] px-3 py-1 rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_0.6)] text-[rgb(var(--crm-muted-rgb)_/_1)] border border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.8)] transition-colors cursor-pointer">
                 Nenhuma
               </button>
             </div>
           </div>
 
-          <p className="text-xs text-slate-400 mb-4">
+          <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">
             As fontes marcadas aqui são usadas automaticamente em todas as buscas de editais do módulo.
             Desmarque uma fonte para pausá-la — nenhum worker será disparado para ela.
           </p>
@@ -372,8 +372,8 @@ export function PipelineMonitor() {
                   className={cn(
                     'relative flex flex-col gap-2 p-3.5 rounded-xl border text-left transition-all cursor-pointer group',
                     isOn
-                      ? `bg-[#011d26] ${colors.card} ring-1 ${colors.ring}`
-                      : 'bg-[#011419]/60 border-slate-800/50 opacity-45 hover:opacity-70',
+                      ? `bg-[rgb(var(--crm-surface-2-rgb)_/_1)] ${colors.card} ring-1 ${colors.ring}`
+                      : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border-[var(--crm-border)] opacity-45 hover:opacity-70",
                   )}
                 >
                   {/* Status dot */}
@@ -385,15 +385,15 @@ export function PipelineMonitor() {
                     <span className="text-lg leading-none">{source.icon}</span>
                     <div className={cn(
                       'w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors',
-                      isOn ? `bg-cyan-500 border-cyan-400` : 'bg-slate-900 border-slate-600'
+                      isOn ? `bg-cyan-500 border-cyan-400` : "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-[var(--crm-border)]"
                     )}>
-                      {isOn && <CheckCircle2 className="w-3 h-3 text-white" />}
+                      {isOn && <CheckCircle2 className="w-3 h-3 text-[rgb(var(--crm-ink-rgb)_/_1)]" />}
                     </div>
                   </div>
 
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-white leading-tight truncate">{source.shortName}</p>
-                    <p className={cn('text-[10px] mt-0.5 font-medium', isOn ? 'text-slate-400' : 'text-slate-600')}>
+                    <p className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] leading-tight truncate">{source.shortName}</p>
+                    <p className={cn('text-[10px] mt-0.5 font-medium', isOn ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]")}>
                       {source.tipo}
                     </p>
                   </div>
@@ -413,20 +413,20 @@ export function PipelineMonitor() {
         {/* ── Seção 2: Pool de Workers ── */}
         <section>
           <div className="flex items-center gap-2 mb-5">
-            <Server className="w-5 h-5 text-cyan-400" />
-            <h2 className="text-base font-bold text-white uppercase tracking-wider">
+            <Server className="w-5 h-5 text-cyan-700 dark:text-cyan-400" />
+            <h2 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
               Scraper Workers (Pool)
             </h2>
-            <span className="px-2.5 py-0.5 rounded-full bg-slate-800/80 border border-slate-700 text-slate-400 text-xs font-bold">
+            <span className="px-2.5 py-0.5 rounded-full bg-[rgb(var(--crm-surface-rgb)_/_0.8)] border border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs font-bold">
               {SOURCES_CATALOG.length} workers registrados
             </span>
           </div>
 
-          <p className="mb-4 text-xs text-slate-400">Os workers executam quando uma busca é solicitada. O status representa a última execução neste processo da API e é reiniciado quando o servidor reinicia.</p>
-          <div className="bg-[#011419] border border-[#07323e] rounded-xl overflow-hidden">
+          <p className="mb-4 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Os workers executam quando uma busca é solicitada. O status representa a última execução neste processo da API e é reiniciado quando o servidor reinicia.</p>
+          <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-xl overflow-hidden">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="bg-slate-800/60 border-b border-[#07323e] text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+                <tr className="bg-[rgb(var(--crm-surface-rgb)_/_0.6)] border-b border-[var(--crm-border)] text-[11px] uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] font-semibold">
                   <th className="px-5 py-3.5">Worker</th>
                   <th className="px-5 py-3.5">Tipo</th>
                   <th className="px-5 py-3.5">Endpoint</th>
@@ -436,7 +436,7 @@ export function PipelineMonitor() {
                   <th className="px-5 py-3.5">Fonte Ativa</th>
                 </tr>
               </thead>
-              <tbody className="text-sm divide-y divide-slate-800/60">
+              <tbody className="text-sm divide-y divide-[var(--crm-border)]">
                 {SOURCES_CATALOG.map((source) => {
                   const ws = workerStatuses.get(source.id);
                   const statusKey = (ws?.status || 'idle') as keyof typeof STATUS_CONFIG;
@@ -452,14 +452,14 @@ export function PipelineMonitor() {
                   return (
                     <tr key={source.id} className={cn(
                       'transition-colors',
-                      isOn ? 'hover:bg-slate-800/30' : 'opacity-40'
+                      isOn ? "hover:bg-[rgb(var(--crm-surface-rgb)_/_0.3)]" : 'opacity-40'
                     )}>
                       <td className="px-5 py-3.5">
                         <div className="flex items-center gap-2.5">
                           <span className="text-base">{source.icon}</span>
                           <div>
-                            <p className="text-xs font-bold text-white leading-tight">{source.name}</p>
-                            <p className="text-[10px] text-slate-500 font-mono">{source.id}</p>
+                            <p className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] leading-tight">{source.name}</p>
+                            <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-mono">{source.id}</p>
                           </div>
                         </div>
                       </td>
@@ -469,27 +469,27 @@ export function PipelineMonitor() {
                         </span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-[11px] text-slate-400 font-mono truncate max-w-[180px] block" title={source.endpoint}>
+                        <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-mono truncate max-w-[180px] block" title={source.endpoint}>
                           {source.endpoint.replace('https://', '')}
                         </span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-xs text-slate-400 flex items-center gap-1.5">
-                          <Clock className="w-3.5 h-3.5 text-slate-500" />
+                        <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                           {lastRun}
                         </span>
                       </td>
                       <td className="px-5 py-3.5">
-                        <span className="text-xs font-semibold text-white">
+                        <span className="text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {ws?.totalResults != null ? (ws.returnedResults ?? ws.totalResults).toLocaleString('pt-BR') : '—'}
                         </span>
                         {ws?.returnedResults != null && ws.returnedResults !== ws.totalResults && (
-                          <p className="text-[10px] text-slate-400 mt-0.5">{ws.totalResults} coletados antes dos filtros</p>
+                          <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">{ws.totalResults} coletados antes dos filtros</p>
                         )}
                         {(ws?.lastError || ws?.warnings?.length) && (
                           <details className="text-[10px] mt-0.5 max-w-[260px]">
-                            <summary className={cn('cursor-pointer', ws.lastError ? 'text-red-400' : 'text-sky-300')}>Ver diagnóstico{ws.fallback ? ` · ${ws.fallback}` : ''}</summary>
-                            <div className="text-slate-300 whitespace-normal break-words mt-1 space-y-1">
+                            <summary className={cn('cursor-pointer', ws.lastError ? "text-red-700 dark:text-red-400" : "text-sky-700 dark:text-sky-300")}>Ver diagnóstico{ws.fallback ? ` · ${ws.fallback}` : ''}</summary>
+                            <div className="text-[rgb(var(--crm-ink-rgb)_/_1)] whitespace-normal break-words mt-1 space-y-1">
                               {ws.lastError && <p>{ws.lastError}</p>}
                               {ws.warnings?.map((warning, index) => <p key={index}>{warning}</p>)}
                             </div>
@@ -510,12 +510,12 @@ export function PipelineMonitor() {
                           onClick={() => toggleSource(source.id)}
                           className={cn(
                             'relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none cursor-pointer',
-                            isOn ? 'bg-cyan-600' : 'bg-slate-700'
+                            isOn ? 'bg-cyan-600' : "bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                           )}
                           aria-label={isOn ? `Desativar ${source.name}` : `Ativar ${source.name}`}
                         >
                           <span className={cn(
-                            'inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow-sm transition-transform',
+                            "inline-block h-3.5 w-3.5 transform rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)] shadow-sm transition-transform",
                             isOn ? 'translate-x-4' : 'translate-x-1'
                           )} />
                         </button>
@@ -531,8 +531,8 @@ export function PipelineMonitor() {
         {/* ── Seção 3: Fluxo de Processamento ── */}
         <section>
           <div className="flex items-center gap-2 mb-5">
-            <Activity className="w-5 h-5 text-cyan-400" />
-            <h2 className="text-base font-bold text-white uppercase tracking-wider">
+            <Activity className="w-5 h-5 text-cyan-700 dark:text-cyan-400" />
+            <h2 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
               Fluxo de Processamento
             </h2>
           </div>
@@ -541,16 +541,16 @@ export function PipelineMonitor() {
             {pipelineStages.map((stage, i) => {
               const Icon = stage.icon;
               return (
-                <div key={i} className="bg-[#011419] p-5 rounded-xl border border-[#07323e] relative">
+                <div key={i} className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] relative">
                   <div className="flex items-center justify-between mb-4">
-                    <div className="bg-slate-800 p-2.5 rounded-lg text-slate-300">
+                    <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] p-2.5 rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       <Icon className="w-5 h-5" />
                     </div>
                     <CheckCircle2 className="w-5 h-5 text-emerald-500" />
                   </div>
-                  <h4 className="font-bold text-white text-sm mb-1">{stage.name}</h4>
-                  <p className="text-xs text-slate-400 mb-3">{stage.desc}</p>
-                  <div className="pt-3 border-t border-slate-800 text-xs font-mono text-cyan-400">
+                  <h4 className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm mb-1">{stage.name}</h4>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-3">{stage.desc}</p>
+                  <div className="pt-3 border-t border-[var(--crm-border)] text-xs font-mono text-cyan-700 dark:text-cyan-400">
                     {stage.metrics}
                   </div>
                 </div>
@@ -563,20 +563,20 @@ export function PipelineMonitor() {
         <section>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: 'Fontes Ativas', value: `${activeCount} / ${SOURCES_CATALOG.length}`, icon: Globe, color: 'text-cyan-400' },
-              { label: 'Workers Registrados', value: String(SOURCES_CATALOG.length), icon: Server, color: 'text-emerald-400' },
-              { label: 'Concluídos / Executando', value: String(okCount), icon: Activity, color: okCount > 0 ? 'text-emerald-400' : 'text-slate-400' },
-              { label: 'Workers com Erro', value: String(Array.from(workerStatuses.values()).filter(w => w.status === 'error').length), icon: AlertCircle, color: 'text-red-400' },
+              { label: 'Fontes Ativas', value: `${activeCount} / ${SOURCES_CATALOG.length}`, icon: Globe, color: "text-cyan-700 dark:text-cyan-400" },
+              { label: 'Workers Registrados', value: String(SOURCES_CATALOG.length), icon: Server, color: "text-emerald-700 dark:text-emerald-400" },
+              { label: 'Concluídos / Executando', value: String(okCount), icon: Activity, color: okCount > 0 ? "text-emerald-700 dark:text-emerald-400" : "text-[rgb(var(--crm-muted-rgb)_/_1)]" },
+              { label: 'Workers com Erro', value: String(Array.from(workerStatuses.values()).filter(w => w.status === 'error').length), icon: AlertCircle, color: "text-red-700 dark:text-red-400" },
             ].map((kpi, i) => {
               const Icon = kpi.icon;
               return (
-                <div key={i} className="bg-[#011419] border border-[#07323e] rounded-xl p-4 flex items-center gap-4">
-                  <div className="bg-slate-800/80 p-2.5 rounded-lg">
+                <div key={i} className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-xl p-4 flex items-center gap-4">
+                  <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.8)] p-2.5 rounded-lg">
                     <Icon className={cn('w-5 h-5', kpi.color)} />
                   </div>
                   <div>
-                    <p className="text-2xl font-extrabold text-white">{kpi.value}</p>
-                    <p className="text-[11px] text-slate-400 font-medium">{kpi.label}</p>
+                    <p className="text-2xl font-extrabold text-[rgb(var(--crm-ink-rgb)_/_1)]">{kpi.value}</p>
+                    <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium">{kpi.label}</p>
                   </div>
                 </div>
               );

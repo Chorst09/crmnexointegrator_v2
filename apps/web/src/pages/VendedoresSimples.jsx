@@ -52,7 +52,7 @@ export default function VendedoresSimples() {
     return (
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-4">Vendedores (Teste)</h1>
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <div className="bg-red-100 dark:bg-red-950 border border-red-400 text-red-700 dark:text-red-300 px-4 py-3 rounded">
           Erro: {error}
         </div>
       </div>
@@ -71,7 +71,7 @@ export default function VendedoresSimples() {
             {data.map((seller) => (
               <div key={seller.id} className="border rounded p-4">
                 <h3 className="font-medium">{seller.name}</h3>
-                <p className="text-sm text-gray-600 dark:text-slate-200">{seller.email}</p>
+                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{seller.email}</p>
                 <p className="text-sm">Função: {seller.role}</p>
                 <p className="text-sm">Região: {seller.region?.name || 'Não definida'}</p>
                 <p className="text-sm">Cota: R$ {seller.quota?.toLocaleString('pt-BR') || '0'}</p>

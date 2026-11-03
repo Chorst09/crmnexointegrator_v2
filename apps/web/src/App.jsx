@@ -109,7 +109,7 @@ export default function App() {
   return (
     <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <ScrollToTop />
-      <Suspense fallback={<div role="status" className="min-h-screen grid place-items-center bg-[#0b1120] text-slate-300">Carregando módulo...</div>}>
+      <Suspense fallback={<div role="status" className="min-h-screen grid place-items-center bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">Carregando módulo...</div>}>
       <Routes>
         <Route path="/" element={<DashboardHome />} />
         <Route path="/login" element={<Login />} />
@@ -133,7 +133,7 @@ export default function App() {
           element={
             <ProtectedRoute>
               <RoleGuard allowedRoles={[ROLES.ADMIN, ROLES.DIRECTOR, ROLES.MANAGER, ROLES.USER]}>
-                <Suspense fallback={<div className="min-h-screen grid place-items-center bg-[#0b1120] text-slate-400">Carregando gestão de projetos...</div>}>
+                <Suspense fallback={<div className="min-h-screen grid place-items-center bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando gestão de projetos...</div>}>
                   <Projetos />
                 </Suspense>
               </RoleGuard>

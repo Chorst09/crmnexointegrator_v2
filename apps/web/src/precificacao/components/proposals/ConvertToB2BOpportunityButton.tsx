@@ -213,7 +213,7 @@ export const ConvertToB2BOpportunityButton: React.FC<ConvertToB2BOpportunityButt
       size="sm"
       onClick={handleConvert}
       disabled={isConverting}
-      className="border-emerald-600 text-emerald-300 hover:bg-emerald-700 hover:text-white"
+      className="border-emerald-600 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-700 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
     >
       {isConverting ? (
         <Loader2 className="h-4 w-4 mr-2 animate-spin" />

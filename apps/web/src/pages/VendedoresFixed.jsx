@@ -136,12 +136,12 @@ export default function VendedoresFixed() {
 
   const getStatusColor = (status) => {
     const colors = {
-      'ACHIEVED': 'text-green-600 bg-green-100',
-      'ON_TRACK': 'text-blue-600 bg-blue-100',
-      'AT_RISK': 'text-yellow-600 bg-yellow-100',
-      'BEHIND': 'text-red-600 bg-red-100'
+      'ACHIEVED': "text-green-600 bg-green-100 dark:bg-green-950",
+      'ON_TRACK': "text-blue-600 bg-blue-100 dark:bg-blue-950",
+      'AT_RISK': "text-yellow-600 bg-yellow-100 dark:bg-yellow-950",
+      'BEHIND': "text-red-600 bg-red-100 dark:bg-red-950"
     };
-    return colors[status] || 'text-gray-600 bg-gray-100 dark:text-slate-200 dark:bg-slate-700/50';
+    return colors[status] || "text-[rgb(var(--crm-muted-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]";
   };
 
   const getStatusText = (status) => {
@@ -310,8 +310,8 @@ export default function VendedoresFixed() {
       label: 'Nome',
       render: (item) => (
         <div>
-          <div className="font-medium text-gray-900 dark:text-gray-100">{item.name}</div>
-          <div className="text-sm text-gray-500 dark:text-slate-200">{item.email}</div>
+          <div className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.name}</div>
+          <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.email}</div>
         </div>
       )
     },
@@ -319,7 +319,7 @@ export default function VendedoresFixed() {
       key: 'role',
       label: 'Função',
       render: (item) => (
-        <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+        <span className="px-2 py-1 bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 rounded-full text-xs font-medium">
           {roleLabels[normalizeRole(item.role)] || item.role}
         </span>
       )
@@ -335,8 +335,8 @@ export default function VendedoresFixed() {
       render: (item) => (
         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
           resolveSellerType(item) === 'governo'
-            ? 'bg-purple-100 text-purple-800'
-            : 'bg-blue-100 text-blue-800'
+            ? "bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300"
+            : "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300"
         }`}>
           {resolveSellerType(item) === 'governo' ? 'Governo' : 'Privado'}
         </span>
@@ -365,19 +365,19 @@ export default function VendedoresFixed() {
           <div className="flex gap-2">
             <button
               onClick={() => handleEdit(item, 'seller')}
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              className="text-blue-600 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium"
             >
               Editar
             </button>
             <button
               onClick={() => handleDelete(item.id, 'seller')}
-              className="text-red-600 hover:text-red-800 text-sm font-medium"
+              className="text-red-600 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium"
             >
               Excluir
             </button>
           </div>
         ) : (
-          <span className="text-sm text-gray-400 dark:text-slate-200">-</span>
+          <span className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">-</span>
         )
       )
     }
@@ -389,8 +389,8 @@ export default function VendedoresFixed() {
       label: 'Vendedor',
       render: (item) => (
         <div>
-          <div className="font-medium text-gray-900 dark:text-gray-100">{item.seller?.name}</div>
-          <div className="text-sm text-gray-500 dark:text-slate-200">{item.seller?.region?.name}</div>
+          <div className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.seller?.name}</div>
+          <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.seller?.region?.name}</div>
         </div>
       )
     },
@@ -409,7 +409,7 @@ export default function VendedoresFixed() {
       label: 'Progresso',
       render: (item) => (
         <div className="flex items-center">
-          <div className="flex-1 bg-gray-200 dark:bg-white/10 rounded-full h-2 mr-2">
+          <div className="flex-1 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.1)] rounded-full h-2 mr-2">
             <div 
               className="bg-blue-600 h-2 rounded-full transition-all duration-300"
               style={{ width: `${Math.min(item.progress || 0, 100)}%` }}
@@ -435,13 +435,13 @@ export default function VendedoresFixed() {
         <div className="flex gap-2">
           <button
             onClick={() => handleEdit(item, 'target')}
-            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+            className="text-blue-600 hover:text-blue-800 dark:hover:text-blue-300 text-sm font-medium"
           >
             Editar
           </button>
           <button
             onClick={() => handleDelete(item.id, 'target')}
-            className="text-red-600 hover:text-red-800 text-sm font-medium"
+            className="text-red-600 hover:text-red-800 dark:hover:text-red-300 text-sm font-medium"
           >
             Excluir
           </button>
@@ -464,7 +464,7 @@ export default function VendedoresFixed() {
   if (loading) {
     return (
       <div className="p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Gestão de Vendedores</h1>
+        <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-4">Gestão de Vendedores</h1>
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           <span className="ml-2">Carregando dados...</span>
@@ -476,8 +476,8 @@ export default function VendedoresFixed() {
   if (error) {
     return (
       <div className="p-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-4">Gestão de Vendedores</h1>
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+        <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-4">Gestão de Vendedores</h1>
+        <div className="bg-red-100 dark:bg-red-950 border border-red-400 text-red-700 dark:text-red-300 px-4 py-3 rounded">
           <strong>Erro:</strong> {error}
           <button 
             onClick={loadData}
@@ -495,8 +495,8 @@ export default function VendedoresFixed() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Gestão de Vendedores</h1>
-          <p className="text-gray-600 dark:text-slate-200">Cadastro de vendedores e gestão de metas</p>
+          <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Gestão de Vendedores</h1>
+          <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Cadastro de vendedores e gestão de metas</p>
         </div>
         <div className="flex gap-2">
           {canManageUsers && (
@@ -582,7 +582,7 @@ export default function VendedoresFixed() {
       </div>
 
       {/* Tabs */}
-      <div className="border-b border-gray-200 dark:border-blue-500/20">
+      <div className="border-b border-[var(--crm-border)] dark:border-blue-500/20">
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'vendedores', label: 'Vendedores', icon: '👥' },
@@ -594,7 +594,7 @@ export default function VendedoresFixed() {
               className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-slate-200 dark:hover:text-slate-100 dark:hover:border-blue-400/50 dark:border-blue-500/30'
+                  : "border-transparent text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-[var(--crm-border)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:border-blue-400/50 dark:border-blue-500/30"
               }`}
             >
               <span>{tab.icon}</span>
@@ -609,8 +609,8 @@ export default function VendedoresFixed() {
         {activeTab === 'vendedores' && (
           <div className="p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Vendedores Cadastrados</h2>
-              <div className="text-sm text-gray-500 dark:text-slate-200">
+              <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Vendedores Cadastrados</h2>
+              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 {sellerUsers.length} vendedores · {preSalesUsers.length} Pré-Vendas
               </div>
             </div>
@@ -625,8 +625,8 @@ export default function VendedoresFixed() {
         {activeTab === 'metas' && (
           <div className="p-6">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Metas de Vendas</h2>
-              <div className="text-sm text-gray-500 dark:text-slate-200">
+              <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Metas de Vendas</h2>
+              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 {salesTargets.length} metas cadastradas
               </div>
             </div>
@@ -656,7 +656,7 @@ export default function VendedoresFixed() {
             {modalType === 'seller' ? (
               <form onSubmit={handleSaveSeller} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                     Nome *
                   </label>
                   <input
@@ -664,13 +664,13 @@ export default function VendedoresFixed() {
                     required
                     value={formData.name || ''}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Nome completo do vendedor"
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                     Email *
                   </label>
                   <input
@@ -678,14 +678,14 @@ export default function VendedoresFixed() {
                     required
                     value={formData.email || ''}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="email@empresa.com"
                   />
                 </div>
 
                 {!editingItem && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                       Senha *
                     </label>
                     <input
@@ -693,14 +693,14 @@ export default function VendedoresFixed() {
                       required
                       value={formData.password || ''}
                       onChange={(e) => setFormData({...formData, password: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="Senha inicial"
                     />
                   </div>
                 )}
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                     Função
                   </label>
                   <select
@@ -715,7 +715,7 @@ export default function VendedoresFixed() {
                           : { ...accessBySellerType(formData.sellerType || 'privado'), accessPreSales: false })
                       });
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="SELLER">Vendedor</option>
                     <option value="PRE_SALES">Pré-Vendas</option>
@@ -726,13 +726,13 @@ export default function VendedoresFixed() {
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                     Região
                   </label>
                   <select
                     value={formData.regionId || ''}
                     onChange={(e) => setFormData({...formData, regionId: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="">Selecione uma região</option>
                     {regions.map(region => (
@@ -745,7 +745,7 @@ export default function VendedoresFixed() {
                 
                 {normalizeRole(formData.role) !== 'PRE_SALES' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                     Tipo
                   </label>
                   <select
@@ -758,7 +758,7 @@ export default function VendedoresFixed() {
                         ...accessBySellerType(sellerType)
                       });
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="privado">Privado</option>
                     <option value="governo">Governo</option>
@@ -767,7 +767,7 @@ export default function VendedoresFixed() {
                 )}
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                     Cota Mensal (R$)
                   </label>
                   <input
@@ -775,7 +775,7 @@ export default function VendedoresFixed() {
                     step="0.01"
                     value={formData.quota || ''}
                     onChange={(e) => setFormData({...formData, quota: parseFloat(e.target.value) || 0})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="50000.00"
                   />
                 </div>
@@ -784,7 +784,7 @@ export default function VendedoresFixed() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors dark:text-slate-100 dark:bg-slate-700/60 dark:hover:bg-slate-600/70"
+                    className="px-4 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
                   >
                     Cancelar
                   </button>
@@ -799,14 +799,14 @@ export default function VendedoresFixed() {
             ) : (
               <form onSubmit={handleSaveTarget} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                     Vendedor *
                   </label>
                   <select
                     required
                     value={formData.sellerId || ''}
                     onChange={(e) => setFormData({...formData, sellerId: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="">Selecione um vendedor</option>
                     {sellers.map(seller => (
@@ -818,7 +818,7 @@ export default function VendedoresFixed() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                     Tipo de Meta *
                   </label>
                   <select
@@ -833,7 +833,7 @@ export default function VendedoresFixed() {
                         ...dates
                       });
                     }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   >
                     <option value="MENSAL">Meta Mensal</option>
                     <option value="ANUAL">Meta Anual</option>
@@ -843,7 +843,7 @@ export default function VendedoresFixed() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                       Meta Valor (R$) *
                     </label>
                     <input
@@ -852,20 +852,20 @@ export default function VendedoresFixed() {
                       required
                       value={formData.targetValue || ''}
                       onChange={(e) => setFormData({...formData, targetValue: parseFloat(e.target.value) || 0})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="50000.00"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                       Meta Negócios
                     </label>
                     <input
                       type="number"
                       value={formData.targetDeals || ''}
                       onChange={(e) => setFormData({...formData, targetDeals: parseInt(e.target.value) || 0})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                       placeholder="10"
                     />
                   </div>
@@ -873,7 +873,7 @@ export default function VendedoresFixed() {
                 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                       Data Início *
                     </label>
                     <input
@@ -881,12 +881,12 @@ export default function VendedoresFixed() {
                       required
                       value={formData.startDate || ''}
                       onChange={(e) => setFormData({...formData, startDate: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                       Data Fim *
                     </label>
                     <input
@@ -894,26 +894,26 @@ export default function VendedoresFixed() {
                       required
                       value={formData.endDate || ''}
                       onChange={(e) => setFormData({...formData, endDate: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                     Descrição
                   </label>
                   <textarea
                     value={formData.description || ''}
                     onChange={(e) => setFormData({...formData, description: e.target.value})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     rows="3"
                     placeholder="Descrição da meta..."
                   />
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                     Bônus (%)
                   </label>
                   <input
@@ -921,7 +921,7 @@ export default function VendedoresFixed() {
                     step="0.1"
                     value={formData.bonusPercentage || ''}
                     onChange={(e) => setFormData({...formData, bonusPercentage: parseFloat(e.target.value) || 0})}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="5.0"
                   />
                 </div>
@@ -930,7 +930,7 @@ export default function VendedoresFixed() {
                   <button
                     type="button"
                     onClick={() => setShowModal(false)}
-                    className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors dark:text-slate-100 dark:bg-slate-700/60 dark:hover:bg-slate-600/70"
+                    className="px-4 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
                   >
                     Cancelar
                   </button>

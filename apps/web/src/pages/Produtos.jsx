@@ -174,7 +174,7 @@ export default function Produtos() {
       key: 'category',
       label: 'Categoria',
       render: (item) => (
-        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold bg-black/5 dark:bg-white/5 text-[var(--crm-ink)]">
+        <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] text-[var(--crm-ink)]">
           {item.category || 'Sem categoria'}
         </span>
       )
@@ -202,7 +202,7 @@ export default function Produtos() {
             'inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold',
             item.active
               ? 'bg-emerald-500/10 text-emerald-900 dark:text-emerald-200'
-              : 'bg-slate-500/10 text-slate-800 dark:text-slate-200'
+              : "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
           ].join(' ')}
         >
           {item.active ? 'Ativo' : 'Inativo'}

@@ -305,7 +305,7 @@ const getCompanyStatusMeta = (status) => {
 
   return {
     label: normalized || 'Indefinido',
-    className: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200'
+    className: "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
   };
 };
 
@@ -2239,8 +2239,8 @@ export default function Administracao() {
         label: 'Nome',
         render: (u) => (
           <div>
-            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{u.name}</div>
-            <div className="text-xs text-gray-500 dark:text-slate-200">{u.email}</div>
+            <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{u.name}</div>
+            <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{u.email}</div>
           </div>
         )
       },
@@ -2249,7 +2249,7 @@ export default function Administracao() {
         label: 'Perfil',
         render: (u) => {
           const role = normalizeRole(u.role);
-          let badgeClass = 'bg-slate-100 text-slate-800 dark:bg-slate-800 dark:text-slate-300';
+          let badgeClass = "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]";
           if (role === 'MASTER') badgeClass = 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300';
           else if (role === 'ADMIN') badgeClass = 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300';
           else if (role === 'SELLER') badgeClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300 border border-emerald-500/20';
@@ -2268,7 +2268,7 @@ export default function Administracao() {
         render: (u) => {
           const company = u.tenantCompany || companyById.get(u.tenantCompanyId);
           return (
-            <div className="text-sm text-gray-900 dark:text-gray-100">
+            <div className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
               {company?.name || company?.legalName || '-'}
             </div>
           );
@@ -2278,7 +2278,7 @@ export default function Administracao() {
         key: 'region',
         label: 'Região',
         render: (u) => (
-          <div className="text-sm text-gray-900 dark:text-gray-100">
+          <div className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
             {u.region?.name || '-'}
           </div>
         )
@@ -2287,7 +2287,7 @@ export default function Administracao() {
         key: 'quota',
         label: 'Cota',
         render: (u) => (
-          <div className="text-sm text-gray-900 dark:text-gray-100">
+          <div className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
             {typeof u.quota === 'number'
               ? u.quota.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })
               : '-'}
@@ -2306,11 +2306,11 @@ export default function Administracao() {
           if (u.commissionProject48 != null) parts.push(`48m: ${u.commissionProject48}%`);
           if (u.commissionProject60 != null) parts.push(`60m: ${u.commissionProject60}%`);
           return parts.length > 0 ? (
-            <div className="text-xs leading-relaxed text-gray-600 dark:text-slate-300">
+            <div className="text-xs leading-relaxed text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
               {parts.map((p, i) => <div key={i}>{p}</div>)}
             </div>
           ) : (
-            <span className="text-xs text-gray-400">-</span>
+            <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">-</span>
           );
         }
       },
@@ -2318,7 +2318,7 @@ export default function Administracao() {
         key: 'createdAt',
         label: 'Criado em',
         render: (u) => (
-          <div className="text-sm text-gray-700 dark:text-gray-200">
+          <div className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
             {u.createdAt ? new Date(u.createdAt).toLocaleDateString('pt-BR') : '-'}
           </div>
         )
@@ -2336,8 +2336,8 @@ export default function Administracao() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{pageTitle}</h1>
-          <p className="text-gray-600 dark:text-slate-200">
+          <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{pageTitle}</h1>
+          <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
             {pageDescription}
           </p>
         </div>
@@ -2362,12 +2362,12 @@ export default function Administracao() {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+        <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 px-4 py-3 rounded-lg">
           <strong>Erro:</strong> {error}
         </div>
       )}
 
-      <div className="border-b border-gray-200 dark:border-blue-500/20">
+      <div className="border-b border-[var(--crm-border)] dark:border-blue-500/20">
         <nav className="-mb-px flex flex-wrap gap-x-6">
           {availableTabs.map((tab) => (
             <button
@@ -2376,7 +2376,7 @@ export default function Administracao() {
               className={`py-2 px-1 border-b-2 font-medium text-sm flex items-center gap-2 ${
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-slate-200 dark:hover:text-slate-100 dark:hover:border-blue-400/50 dark:border-blue-500/30'
+                  : "border-transparent text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-[var(--crm-border)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:border-blue-400/50 dark:border-blue-500/30"
               }`}
             >
               <span>{tab.icon}</span>
@@ -2388,26 +2388,26 @@ export default function Administracao() {
 
       {activeTab === 'perfil' && (
         <div className="crm-card rounded-2xl p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Perfil</h2>
-          <p className="text-sm text-gray-600 dark:text-slate-200">
+          <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Perfil</h2>
+          <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
             Dados da sua conta e identificação da sessão atual.
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4">
-              <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-300">Nome</div>
-              <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">{sessionUser?.name || '-'}</div>
+            <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4">
+              <div className="text-xs uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Nome</div>
+              <div className="mt-1 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{sessionUser?.name || '-'}</div>
             </div>
-            <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4">
-              <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-300">Email</div>
-              <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">{sessionUser?.email || '-'}</div>
+            <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4">
+              <div className="text-xs uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Email</div>
+              <div className="mt-1 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{sessionUser?.email || '-'}</div>
             </div>
-            <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4">
-              <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-300">Role</div>
-              <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">{roleLabel(sessionUser?.role)}</div>
+            <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4">
+              <div className="text-xs uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Role</div>
+              <div className="mt-1 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{roleLabel(sessionUser?.role)}</div>
             </div>
-            <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4">
-              <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-300">Acesso</div>
-              <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4">
+              <div className="text-xs uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Acesso</div>
+              <div className="mt-1 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 {isMasterSession
                   ? 'Administração global completa (MASTER)'
                   : 'Configurações da empresa e gestão de usuários (ADMIN)'}
@@ -2420,18 +2420,18 @@ export default function Administracao() {
       {activeTab === 'empresa' && (
         <div className="crm-card rounded-2xl p-6 space-y-6">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Identidade do Sistema</h2>
-            <p className="text-sm text-gray-600 dark:text-slate-200">Nome e logo exibidos no menu lateral</p>
+            <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Identidade do Sistema</h2>
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Nome e logo exibidos no menu lateral</p>
           </div>
 
           <form onSubmit={saveSettings} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Nome do sistema</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Nome do sistema</label>
               <input
                 type="text"
                 value={settings.appName}
                 onChange={(e) => setSettings((s) => ({ ...s, appName: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="CRM NEXOS"
               />
             </div>
@@ -2450,15 +2450,15 @@ export default function Administracao() {
           <div className="border-t pt-6 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Logo</h3>
-                <p className="text-xs text-gray-600 dark:text-slate-200">Envie uma imagem (PNG/JPG/WebP/GIF/SVG) até 5MB</p>
+                <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Logo</h3>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Envie uma imagem (PNG/JPG/WebP/GIF/SVG) até 5MB</p>
               </div>
               {settings.logoUrl && (
                 <button
                   type="button"
                   onClick={removeLogo}
                   disabled={savingSettings}
-                  className="text-red-600 hover:text-red-700 text-sm font-medium disabled:opacity-50"
+                  className="text-red-600 hover:text-red-700 dark:hover:text-red-300 text-sm font-medium disabled:opacity-50"
                 >
                   Remover
                 </button>
@@ -2466,7 +2466,7 @@ export default function Administracao() {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4 sm:items-center">
-              <div className="w-20 h-20 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center overflow-hidden">
+              <div className="w-20 h-20 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] flex items-center justify-center overflow-hidden">
                 {logoSrc ? (
                   <img src={logoSrc} alt="Logo" className="w-full h-full object-contain" />
                 ) : (
@@ -2479,7 +2479,7 @@ export default function Administracao() {
                   type="file"
                   accept="image/*"
                   onChange={(e) => setLogoFile(e.target.files?.[0] || null)}
-                  className="block w-full text-sm text-gray-700 dark:text-slate-100"
+                  className="block w-full text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 />
                 <div className="flex items-center gap-3">
                   <button
@@ -2491,7 +2491,7 @@ export default function Administracao() {
                     {logoUploading ? 'Enviando...' : 'Enviar Logo'}
                   </button>
                   {logoFile && (
-                    <span className="text-xs text-gray-600 dark:text-slate-200">{logoFile.name}</span>
+                    <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{logoFile.name}</span>
                   )}
                 </div>
               </div>
@@ -2503,8 +2503,8 @@ export default function Administracao() {
       {activeTab === 'avisos' && (
         <div className="crm-card rounded-2xl p-6 space-y-6">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Avisos</h2>
-            <p className="text-sm text-gray-600 dark:text-slate-200">Defina como deseja receber notificações do sistema.</p>
+            <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Avisos</h2>
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Defina como deseja receber notificações do sistema.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[
@@ -2516,9 +2516,9 @@ export default function Administracao() {
             ].map(([key, label]) => (
               <label
                 key={key}
-                className="flex items-center justify-between rounded-xl border border-gray-200 dark:border-blue-500/20 px-4 py-3"
+                className="flex items-center justify-between rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 px-4 py-3"
               >
-                <span className="text-sm text-gray-800 dark:text-slate-100">{label}</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{label}</span>
                 <input
                   type="checkbox"
                   checked={Boolean(alertsPrefs[key])}
@@ -2543,51 +2543,51 @@ export default function Administracao() {
       {activeTab === 'seguranca' && (
         <div className="crm-card rounded-2xl p-6 space-y-6">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Segurança</h2>
-            <p className="text-sm text-gray-600 dark:text-slate-200">
+            <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Segurança</h2>
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
               Redefina senha com código mestre de recuperação.
             </p>
           </div>
 
           <form onSubmit={updateSecurityPassword} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Email</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Email</label>
               <input
                 type="email"
                 required
                 value={securityForm.email}
                 onChange={(e) => setSecurityForm((prev) => ({ ...prev, email: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Nova senha</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Nova senha</label>
               <input
                 type="password"
                 required
                 value={securityForm.newPassword}
                 onChange={(e) => setSecurityForm((prev) => ({ ...prev, newPassword: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Confirmar senha</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Confirmar senha</label>
               <input
                 type="password"
                 required
                 value={securityForm.confirmPassword}
                 onChange={(e) => setSecurityForm((prev) => ({ ...prev, confirmPassword: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg"
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Código de recuperação</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Código de recuperação</label>
               <input
                 type="password"
                 required
                 value={securityForm.recoveryCode}
                 onChange={(e) => setSecurityForm((prev) => ({ ...prev, recoveryCode: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg"
               />
             </div>
             <div className="md:col-span-2">
@@ -2606,19 +2606,19 @@ export default function Administracao() {
       {activeTab === 'backup' && (
         <div className="space-y-6">
           {/* Sub-tabs switch */}
-          <div className="flex flex-wrap items-center gap-2 border-b border-slate-700/60 pb-3">
+          <div className="flex flex-wrap items-center gap-2 border-b border-[var(--crm-border)] pb-3">
             <button
               type="button"
               onClick={() => setActiveBackupSubTab('rotina')}
               className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 activeBackupSubTab === 'rotina'
-                  ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/40 shadow-sm shadow-cyan-900/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? "bg-cyan-600/20 text-cyan-700 dark:text-cyan-400 border border-cyan-500/40 shadow-sm shadow-cyan-900/20"
+                  : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
               }`}
             >
               <span>🛡️</span>
               <span>4. Rotina Automatizada (Segunda a Sexta às 17h)</span>
-              <span className="px-2 py-0.5 text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-full font-mono">
+              <span className="px-2 py-0.5 text-xs bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 rounded-full font-mono">
                 Ativo
               </span>
             </button>
@@ -2628,8 +2628,8 @@ export default function Administracao() {
               onClick={() => setActiveBackupSubTab('manual')}
               className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all flex items-center gap-2 ${
                 activeBackupSubTab === 'manual'
-                  ? 'bg-cyan-600/20 text-cyan-400 border border-cyan-500/40 shadow-sm shadow-cyan-900/20'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
+                  ? "bg-cyan-600/20 text-cyan-700 dark:text-cyan-400 border border-cyan-500/40 shadow-sm shadow-cyan-900/20"
+                  : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
               }`}
             >
               <span>💾</span>
@@ -2640,20 +2640,20 @@ export default function Administracao() {
           {activeBackupSubTab === 'rotina' && (
             <div className="space-y-6">
               {/* Card 1: Status Geral da Rotina */}
-              <div className="crm-card rounded-2xl p-6 border border-cyan-500/30 bg-gradient-to-br from-slate-900 via-slate-900 to-cyan-950/20 shadow-xl space-y-5">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+              <div className="crm-card rounded-2xl p-6 border border-cyan-500/30 bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-2-rgb)_/_1)] to-cyan-950/20 shadow-xl space-y-5">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[var(--crm-border)] pb-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">🛡️</span>
-                      <h2 className="text-xl font-bold text-white tracking-wide">
+                      <h2 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] tracking-wide">
                         Rotina de Backup Automatizada do Banco de Dados
                       </h2>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 animate-pulse">
                         <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
                         Cron Ativo
                       </span>
                     </div>
-                    <p className="text-sm text-slate-300">
+                    <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       Cópia de segurança programada do banco PostgreSQL nativo com integridade estrutural validada e retenção de 14 dias.
                     </p>
                   </div>
@@ -2662,7 +2662,7 @@ export default function Administracao() {
                     type="button"
                     onClick={fetchRoutineStatus}
                     disabled={routineLoading}
-                    className="self-start md:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 flex items-center gap-2 transition-all disabled:opacity-50"
+                    className="self-start md:self-center px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)] flex items-center gap-2 transition-all disabled:opacity-50"
                   >
                     <span className={routineLoading ? 'animate-spin' : ''}>↻</span>
                     <span>{routineLoading ? 'Atualizando...' : 'Atualizar Status'}</span>
@@ -2671,77 +2671,77 @@ export default function Administracao() {
 
                 {/* 4 Blocos Informativos Principais */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
+                  <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_0.6)] border border-[var(--crm-border)] space-y-1">
+                    <div className="text-xs uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] font-semibold flex items-center gap-1.5">
                       <span>⏰</span> Agendamento
                     </div>
-                    <div className="text-sm font-bold text-white">Diário às 02h30</div>
-                    <div className="text-xs text-cyan-400 font-mono">30 2 * * * (BRT -03)</div>
+                    <div className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Diário às 02h30</div>
+                    <div className="text-xs text-cyan-700 dark:text-cyan-400 font-mono">30 2 * * * (BRT -03)</div>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
+                  <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_0.6)] border border-[var(--crm-border)] space-y-1">
+                    <div className="text-xs uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] font-semibold flex items-center gap-1.5">
                       <span>🗄️</span> Banco de Dados
                     </div>
-                    <div className="text-sm font-bold text-white">nexoscrm</div>
-                    <div className="text-xs text-slate-400">PostgreSQL (porta 5433 · 126 Tabelas)</div>
+                    <div className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">nexoscrm</div>
+                    <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">PostgreSQL (porta 5433 · 126 Tabelas)</div>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
+                  <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_0.6)] border border-[var(--crm-border)] space-y-1">
+                    <div className="text-xs uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] font-semibold flex items-center gap-1.5">
                       <span>📅</span> Política de Retenção
                     </div>
-                    <div className="text-sm font-bold text-white">14 Dias de Histórico</div>
-                    <div className="text-xs text-slate-400">Limpeza e rotação automática</div>
+                    <div className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">14 Dias de Histórico</div>
+                    <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Limpeza e rotação automática</div>
                   </div>
 
-                  <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700/60 space-y-1">
-                    <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold flex items-center gap-1.5">
+                  <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_0.6)] border border-[var(--crm-border)] space-y-1">
+                    <div className="text-xs uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] font-semibold flex items-center gap-1.5">
                       <span>✅</span> Integridade Estrutural
                     </div>
-                    <div className="text-sm font-bold text-emerald-400">100% Comprovada</div>
-                    <div className="text-xs text-slate-400">Validação pós-dump (pg_restore)</div>
+                    <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400">100% Comprovada</div>
+                    <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Validação pós-dump (pg_restore)</div>
                   </div>
                 </div>
 
                 {/* Domínio & Caminho do Script */}
-                <div className="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-                  <div className="flex items-center gap-2 text-slate-300">
-                    <span className="font-semibold text-slate-400">🌐 Domínio Produção:</span>
+                <div className="p-3.5 rounded-xl bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border border-[var(--crm-border)] flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2 text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                    <span className="font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">🌐 Domínio Produção:</span>
                     <a
                       href="https://nexos.chorstconsult.com.br"
                       target="_blank"
                       rel="noreferrer"
-                      className="text-cyan-400 underline font-mono hover:text-cyan-300"
+                      className="text-cyan-700 dark:text-cyan-400 underline font-mono hover:text-cyan-700 dark:hover:text-cyan-300"
                     >
                       https://nexos.chorstconsult.com.br
                     </a>
                   </div>
-                  <div className="flex items-center gap-2 text-slate-300 font-mono text-[11px]">
-                    <span className="font-semibold text-slate-400">📁 Armazenamento:</span>
-                    <span className="text-slate-300 bg-slate-800 px-2 py-0.5 rounded">/root/backups/nexoscrm-3026/</span>
+                  <div className="flex items-center gap-2 text-[rgb(var(--crm-ink-rgb)_/_1)] font-mono text-[11px]">
+                    <span className="font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">📁 Armazenamento:</span>
+                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-0.5 rounded">/root/backups/nexoscrm-3026/</span>
                   </div>
                 </div>
               </div>
 
               {/* Card 2: Lista dos Backups Gerados no Servidor */}
-              <div className="crm-card rounded-2xl p-6 border border-slate-800 bg-slate-900/90 space-y-4">
+              <div className="crm-card rounded-2xl p-6 border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <span className="text-lg">📦</span>
-                    <h3 className="text-base font-bold text-white">
+                    <h3 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       Cópias de Segurança Disponíveis no Servidor ({routineStatus?.files?.length || 0})
                     </h3>
                   </div>
-                  <span className="text-xs text-slate-400">
-                    Retidos em <code className="text-cyan-300">/root/backups/nexoscrm-3026/</code>
+                  <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                    Retidos em <code className="text-cyan-700 dark:text-cyan-300">/root/backups/nexoscrm-3026/</code>
                   </span>
                 </div>
 
                 {routineStatus?.files && routineStatus.files.length > 0 ? (
-                  <div className="overflow-x-auto rounded-xl border border-slate-800">
-                    <table className="w-full text-left text-xs text-slate-200">
-                      <thead className="bg-slate-800/80 text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-700/60">
+                  <div className="overflow-x-auto rounded-xl border border-[var(--crm-border)]">
+                    <table className="w-full text-left text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                      <thead className="bg-[rgb(var(--crm-surface-rgb)_/_0.8)] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider font-semibold border-b border-[var(--crm-border)]">
                         <tr>
                           <th className="px-4 py-3">Arquivo do Backup</th>
                           <th className="px-4 py-3">Tamanho</th>
@@ -2750,25 +2750,25 @@ export default function Administracao() {
                           <th className="px-4 py-3 text-right">Integridade</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-800">
+                      <tbody className="divide-y divide-[var(--crm-border)]">
                         {routineStatus.files.map((file, idx) => (
-                          <tr key={idx} className="hover:bg-slate-800/40 transition-colors">
-                            <td className="px-4 py-3 font-mono text-cyan-300 font-medium">
+                          <tr key={idx} className="hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] transition-colors">
+                            <td className="px-4 py-3 font-mono text-cyan-700 dark:text-cyan-300 font-medium">
                               {file.name}
                             </td>
-                            <td className="px-4 py-3 font-semibold text-slate-100">
+                            <td className="px-4 py-3 font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               {file.sizeFormatted}
                             </td>
-                            <td className="px-4 py-3 text-slate-300">
+                            <td className="px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               {new Date(file.modifiedAt || file.createdAt).toLocaleString('pt-BR')}
                             </td>
                             <td className="px-4 py-3">
-                              <span className="px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-mono text-[10px]">
+                              <span className="px-2 py-0.5 rounded bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-mono text-[10px]">
                                 PostgreSQL Custom (-Fc)
                               </span>
                             </td>
                             <td className="px-4 py-3 text-right">
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                                 ✓ Íntegro
                               </span>
                             </td>
@@ -2778,70 +2778,70 @@ export default function Administracao() {
                     </table>
                   </div>
                 ) : (
-                  <div className="p-4 rounded-xl bg-slate-800/30 border border-dashed border-slate-700 text-center text-xs text-slate-400">
+                  <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_0.3)] border border-dashed border-[var(--crm-border)] text-center text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     {routineLoading ? 'Consultando backups no servidor...' : 'Nenhum arquivo de backup encontrado ainda ou permissão restrita.'}
                   </div>
                 )}
               </div>
 
               {/* Card 3: Documentação e Procedimento de Restauração (Disaster Recovery) */}
-              <div className="crm-card rounded-2xl p-6 border border-slate-800 bg-slate-900/90 space-y-4">
-                <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
+              <div className="crm-card rounded-2xl p-6 border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] space-y-4">
+                <div className="flex items-center gap-2 border-b border-[var(--crm-border)] pb-3">
                   <span className="text-lg">📖</span>
-                  <h3 className="text-base font-bold text-white">
+                  <h3 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Guia de Procedimentos Operacionais e Restauração (Disaster Recovery)
                   </h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                   {/* Bloco 1: Restauração Sandbox */}
-                  <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
-                    <div className="font-bold text-amber-300 flex items-center gap-1.5">
+                  <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] space-y-2">
+                    <div className="font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
                       <span>🧪</span> 1. Testar Restauração em Sandbox (Sem Risco)
                     </div>
-                    <p className="text-slate-300 leading-relaxed">
+                    <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                       Cria uma base temporária, restaura as 126 tabelas, confere contagens de clientes e editais e depois remove a base de teste:
                     </p>
-                    <pre className="p-2.5 rounded bg-slate-900 text-emerald-400 font-mono text-[11px] overflow-x-auto border border-slate-800">
+                    <pre className="p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-emerald-700 dark:text-emerald-400 font-mono text-[11px] overflow-x-auto border border-[var(--crm-border)]">
                       /root/backups/backup-nexoscrm-3026.sh --test &lt;caminho_do_dump&gt;
                     </pre>
                   </div>
 
                   {/* Bloco 2: Restauração Produção */}
-                  <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
-                    <div className="font-bold text-rose-300 flex items-center gap-1.5">
+                  <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] space-y-2">
+                    <div className="font-bold text-rose-700 dark:text-rose-300 flex items-center gap-1.5">
                       <span>⚠️</span> 2. Restauração Direta em Produção
                     </div>
-                    <p className="text-slate-300 leading-relaxed">
+                    <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                       Gera um snapshot de segurança prévio, para a aplicação temporariamente, restaura a base e reaplica as permissões:
                     </p>
-                    <pre className="p-2.5 rounded bg-slate-900 text-cyan-300 font-mono text-[11px] overflow-x-auto border border-slate-800">
+                    <pre className="p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-cyan-700 dark:text-cyan-300 font-mono text-[11px] overflow-x-auto border border-[var(--crm-border)]">
                       /root/backups/backup-nexoscrm-3026.sh --live &lt;caminho_do_dump&gt;
                     </pre>
                   </div>
 
                   {/* Bloco 3: Logs */}
-                  <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
-                    <div className="font-bold text-cyan-300 flex items-center gap-1.5">
+                  <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] space-y-2">
+                    <div className="font-bold text-cyan-700 dark:text-cyan-300 flex items-center gap-1.5">
                       <span>📋</span> 3. Acompanhamento dos Logs da Rotina
                     </div>
-                    <p className="text-slate-300 leading-relaxed">
+                    <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                       Para acompanhar a execução do agendamento das 02h30 em tempo real na VPS:
                     </p>
-                    <pre className="p-2.5 rounded bg-slate-900 text-slate-300 font-mono text-[11px] overflow-x-auto border border-slate-800">
+                    <pre className="p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-mono text-[11px] overflow-x-auto border border-[var(--crm-border)]">
                       tail -f /var/log/nexoscrm-3026-backup.log
                     </pre>
                   </div>
 
                   {/* Bloco 4: Disparo Manual */}
-                  <div className="p-4 rounded-xl bg-slate-950/80 border border-slate-800 space-y-2">
-                    <div className="font-bold text-purple-300 flex items-center gap-1.5">
+                  <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] space-y-2">
+                    <div className="font-bold text-purple-700 dark:text-purple-300 flex items-center gap-1.5">
                       <span>⚡</span> 4. Execução Manual Imediata
                     </div>
-                    <p className="text-slate-300 leading-relaxed">
+                    <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                       Para disparar um backup sob demanda pelo terminal a qualquer momento:
                     </p>
-                    <pre className="p-2.5 rounded bg-slate-900 text-slate-300 font-mono text-[11px] overflow-x-auto border border-slate-800">
+                    <pre className="p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-mono text-[11px] overflow-x-auto border border-[var(--crm-border)]">
                       /root/backups/backup-nexoscrm-3026.sh
                     </pre>
                   </div>
@@ -2850,13 +2850,13 @@ export default function Administracao() {
                 {/* Trecho do Log do Servidor */}
                 {routineStatus?.lastLogSnippet && (
                   <div className="space-y-2 pt-2">
-                    <div className="flex items-center justify-between text-xs text-slate-400">
-                      <span className="font-semibold text-slate-300 flex items-center gap-1.5">
+                    <div className="flex items-center justify-between text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                      <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-1.5">
                         <span>📟</span> Últimas Linhas do Log de Execução no Servidor:
                       </span>
                       <span className="font-mono text-[11px]">/var/log/nexoscrm-3026-backup.log</span>
                     </div>
-                    <pre className="p-3 rounded-xl bg-black/80 text-emerald-400 font-mono text-[11px] overflow-x-auto border border-slate-800 leading-relaxed max-h-48 overflow-y-auto">
+                    <pre className="p-3 rounded-xl bg-black/80 text-emerald-700 dark:text-emerald-400 font-mono text-[11px] overflow-x-auto border border-[var(--crm-border)] leading-relaxed max-h-48 overflow-y-auto">
                       {routineStatus.lastLogSnippet}
                     </pre>
                   </div>
@@ -2867,8 +2867,8 @@ export default function Administracao() {
 
           {activeBackupSubTab === 'manual' && (
             <div className="crm-card rounded-2xl p-6 space-y-4">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Backup manual sob demanda (.json)</h2>
-              <p className="text-sm text-gray-600 dark:text-slate-200">
+              <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Backup manual sob demanda (.json)</h2>
+              <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Exporte todas as tabelas do banco de dados, schema Prisma, migrations e arquivos de upload vinculados ao sistema em formato JSON para download em seu computador.
               </p>
               <div className="flex flex-wrap items-center gap-3">
@@ -2884,7 +2884,7 @@ export default function Administracao() {
                   type="file"
                   accept="application/json,.json"
                   onChange={(e) => setRestoreFile(e.target.files?.[0] || null)}
-                  className="text-sm text-gray-700 dark:text-slate-100"
+                  className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 />
                 <button
                   type="button"
@@ -2895,7 +2895,7 @@ export default function Administracao() {
                   {restoreLoading ? 'Restaurando...' : 'Restaurar backup (.json)'}
                 </button>
               </div>
-              <p className="text-xs text-gray-500 dark:text-slate-300">
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Admin e Master podem restaurar backups completos pelo arquivo exportado. A operação substitui as tabelas do banco e exige confirmação antes de iniciar.
               </p>
               {backupResult && (
@@ -2917,20 +2917,20 @@ export default function Administracao() {
                         <div className="divide-y divide-emerald-100 dark:divide-emerald-900">
                           {(summary.modules || []).map((mod) => (
                             <div key={mod.module} className="py-1.5 flex items-start gap-2">
-                              <span className={`mt-0.5 text-base leading-none ${mod.totalRows > 0 ? 'text-emerald-500' : 'text-slate-400'}`}>
+                              <span className={`mt-0.5 text-base leading-none ${mod.totalRows > 0 ? 'text-emerald-500' : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                                 {mod.totalRows > 0 ? '✓' : '○'}
                               </span>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between gap-2">
-                                  <span className="font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wide text-[11px]">
+                                  <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wide text-[11px]">
                                     {mod.module}
                                   </span>
-                                  <span className="text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                  <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] whitespace-nowrap">
                                     {mod.tableCount} tab · {(mod.totalRows || 0).toLocaleString('pt-BR')} reg
                                   </span>
                                 </div>
                                 {mod.tables?.length > 0 && (
-                                  <div className="text-slate-400 dark:text-slate-500 truncate mt-0.5">
+                                  <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] truncate mt-0.5">
                                     {mod.tables.slice(0, 6).join(', ')}
                                     {mod.tables.length > 6 && ` +${mod.tables.length - 6} mais`}
                                   </div>
@@ -2959,8 +2959,8 @@ export default function Administracao() {
           onDelete={deleteUser}
           emptyState={
             <div className="text-center py-16">
-              <div className="text-gray-900 font-semibold">Nenhum usuário encontrado</div>
-              <div className="text-gray-500 dark:text-slate-200 text-sm mt-1">Cadastre um novo usuário para começar</div>
+              <div className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Nenhum usuário encontrado</div>
+              <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm mt-1">Cadastre um novo usuário para começar</div>
             </div>
           }
         />
@@ -2972,10 +2972,10 @@ export default function Administracao() {
             <div className="crm-card rounded-2xl p-6">
               <div className="text-center py-16">
                 <div className="text-6xl mb-4">🔒</div>
-                <div className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">
+                <div className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                   Acesso Restrito
                 </div>
-                <div className="text-gray-600 dark:text-slate-300">
+                <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Apenas usuários com role MASTER podem acessar a Gestão de Empresas.
                 </div>
               </div>
@@ -2984,8 +2984,8 @@ export default function Administracao() {
             <div className="crm-card rounded-2xl p-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Gestão de Empresas</h2>
-                  <p className="text-sm text-gray-600 dark:text-slate-200 mt-1">
+                  <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Gestão de Empresas</h2>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
                     Empresas compradoras entram aqui para revisão. Confira plano, módulos e políticas antes de aprovar o acesso.
                   </p>
                 </div>
@@ -3011,61 +3011,61 @@ export default function Administracao() {
             {loadingCompanies ? (
               <div className="text-center py-12">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-                <p className="mt-4 text-sm text-gray-600 dark:text-slate-200">Carregando empresas...</p>
+                <p className="mt-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Carregando empresas...</p>
               </div>
             ) : companies.length === 0 ? (
               <div className="text-center py-16">
-                <div className="text-gray-900 dark:text-gray-100 font-semibold">Nenhuma empresa encontrada</div>
-                <div className="text-gray-500 dark:text-slate-200 text-sm mt-1">
+                <div className="text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Nenhuma empresa encontrada</div>
+                <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm mt-1">
                   As empresas aparecerão aqui após compra, checkout ou cadastro manual de licenciamento.
                 </div>
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-slate-700">
-                  <thead className="bg-gray-50 dark:bg-slate-800/50">
+                <table className="min-w-full divide-y divide-[var(--crm-border)] dark:divide-[var(--crm-border)]">
+                  <thead className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                         Empresa
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                         CNPJ
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                         Plano
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                         Módulos
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                         Usuários
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-left text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                         Criado em
                       </th>
-                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+                      <th className="px-6 py-3 text-right text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                         Ações
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white dark:bg-slate-900 divide-y divide-gray-200 dark:divide-slate-700">
+                  <tbody className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] divide-y divide-[var(--crm-border)] dark:divide-[var(--crm-border)]">
                     {companies.map((company) => {
                       const statusMeta = getCompanyStatusMeta(company.status);
                       const canApproveCompany = String(company.status || '').toUpperCase() !== 'ACTIVE';
                       return (
-                        <tr key={company.id} className="hover:bg-gray-50 dark:hover:bg-slate-800/50">
+                        <tr key={company.id} className="hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                            <div className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               {company.name}
                             </div>
-                            <div className="text-sm text-gray-500 dark:text-slate-400">
+                            <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
                               {company.email || '-'}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             {company.cnpj || '-'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -3084,7 +3084,7 @@ export default function Administracao() {
                                   onClick={() => approveCompany(company)}
                                   disabled={approvingCompanyId === company.id}
                                   title="Aprovar empresa após conferir módulos e políticas"
-                                  className="inline-flex min-h-9 items-center justify-center rounded-lg border border-emerald-300/40 bg-gradient-to-r from-cyan-500/25 via-teal-500/20 to-emerald-500/25 px-3 py-1.5 text-xs font-semibold text-emerald-50 shadow-lg shadow-cyan-500/10 transition hover:border-emerald-200/70 hover:from-cyan-500/35 hover:to-emerald-500/35 disabled:cursor-not-allowed disabled:opacity-50"
+                                  className="inline-flex min-h-9 items-center justify-center rounded-lg border border-emerald-300/40 bg-gradient-to-r from-cyan-500/25 via-teal-500/20 to-emerald-500/25 px-3 py-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-50 shadow-lg shadow-cyan-500/10 transition hover:border-emerald-200/70 dark:hover:border-emerald-800/70 hover:from-cyan-500/35 hover:to-emerald-500/35 disabled:cursor-not-allowed disabled:opacity-50"
                                 >
                                   {approvingCompanyId === company.id ? 'Aprovando...' : 'Aprovar'}
                                 </button>
@@ -3096,17 +3096,17 @@ export default function Administracao() {
                               {companyModuleBadges(company).map((module) => (
                                 <span
                                   key={module}
-                                  className="rounded-full border border-cyan-300/30 bg-cyan-500/10 px-2 py-0.5 text-[11px] font-semibold text-cyan-100"
+                                  className="rounded-full border border-cyan-300/30 bg-cyan-500/10 px-2 py-0.5 text-[11px] font-semibold text-cyan-700 dark:text-cyan-100"
                                 >
                                   {module}
                                 </span>
                               ))}
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             {company.usersCount ?? '-'}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-slate-400">
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
                             {company.createdAt ? new Date(company.createdAt).toLocaleDateString('pt-BR') : '-'}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -3158,8 +3158,8 @@ export default function Administracao() {
         <div className="crm-card rounded-2xl p-6 space-y-6">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Plano Contratado</h2>
-              <p className="text-sm text-gray-600 dark:text-slate-200">
+              <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Plano Contratado</h2>
+              <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Consulte o plano ativo da empresa e os módulos liberados para configurar usuários.
               </p>
             </div>
@@ -3174,7 +3174,7 @@ export default function Administracao() {
           </div>
 
           {loadingLicensing ? (
-            <div className="text-sm text-gray-600 dark:text-slate-200">Carregando plano contratado...</div>
+            <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Carregando plano contratado...</div>
           ) : !contractedCompany ? (
             <div className="rounded-xl border border-amber-300/40 bg-amber-50/80 px-4 py-3 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
               Nenhuma empresa vinculada a esta sessão. O plano contratado aparecerá aqui após a aprovação pelo MASTER.
@@ -3183,41 +3183,41 @@ export default function Administracao() {
             <>
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
                 <div className="rounded-xl border border-cyan-300/25 bg-cyan-500/10 p-4">
-                  <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-300">Empresa</div>
-                  <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">{contractedCompany.name || '-'}</div>
-                  <div className="mt-1 text-xs text-gray-600 dark:text-slate-300">{contractedCompany.cnpj || contractedCompany.email || '-'}</div>
+                  <div className="text-xs uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Empresa</div>
+                  <div className="mt-1 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{contractedCompany.name || '-'}</div>
+                  <div className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{contractedCompany.cnpj || contractedCompany.email || '-'}</div>
                 </div>
                 <div className="rounded-xl border border-cyan-300/25 bg-cyan-500/10 p-4">
-                  <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-300">Plano</div>
-                  <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="text-xs uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Plano</div>
+                  <div className="mt-1 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {contractedCompany.license?.plan?.name || contractedCompany.planName || 'Sem plano ativo'}
                   </div>
-                  <div className="mt-1 text-xs text-gray-600 dark:text-slate-300">
+                  <div className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {contractedCompany.license?.status || contractedCompany.status || '-'}
                   </div>
                 </div>
                 <div className="rounded-xl border border-cyan-300/25 bg-cyan-500/10 p-4">
-                  <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-300">Assentos</div>
-                  <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="text-xs uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Assentos</div>
+                  <div className="mt-1 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {contractedCompany.license?.seats ?? contractedCompany.license?.plan?.seatsIncluded ?? '-'}
                   </div>
-                  <div className="mt-1 text-xs text-gray-600 dark:text-slate-300">
+                  <div className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Usuários cadastrados: {contractedCompany.users?.length ?? contractedCompany.usersCount ?? '-'}
                   </div>
                 </div>
                 <div className="rounded-xl border border-cyan-300/25 bg-cyan-500/10 p-4">
-                  <div className="text-xs uppercase tracking-wide text-gray-500 dark:text-slate-300">Vigência</div>
-                  <div className="mt-1 text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="text-xs uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Vigência</div>
+                  <div className="mt-1 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {formatDateLabel(contractedCompany.license?.startDate)} até {formatDateLabel(contractedCompany.license?.endDate)}
                   </div>
-                  <div className="mt-1 text-xs text-gray-600 dark:text-slate-300">
+                  <div className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Pagamento: {contractedCompany.license?.paymentStatus || '-'}
                   </div>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Módulos contratados</h3>
+                <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Módulos contratados</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-3">
                   {MODULE_ACCESS_ITEMS.map((item) => {
                     const enabled = Boolean(contractedCompanyAccess[item.key]);
@@ -3227,12 +3227,12 @@ export default function Administracao() {
                         className={`rounded-xl border p-3 ${
                           enabled
                             ? 'border-cyan-300/35 bg-gradient-to-br from-cyan-500/15 via-teal-500/10 to-emerald-500/15'
-                            : 'border-gray-200 bg-gray-50/60 opacity-60 dark:border-slate-700 dark:bg-slate-900/35'
+                            : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] opacity-60 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)]"
                         }`}
                       >
-                        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{item.label}</div>
-                        <div className="mt-1 text-xs text-gray-600 dark:text-slate-300">{item.description}</div>
-                        <div className={`mt-3 text-xs font-semibold ${enabled ? 'text-cyan-700 dark:text-cyan-200' : 'text-gray-500 dark:text-slate-400'}`}>
+                        <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.label}</div>
+                        <div className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.description}</div>
+                        <div className={`mt-3 text-xs font-semibold ${enabled ? 'text-cyan-700 dark:text-cyan-200' : "text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                           {enabled ? 'Contratado' : 'Não contratado'}
                         </div>
                       </div>
@@ -3241,7 +3241,7 @@ export default function Administracao() {
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-blue-300/30 bg-blue-50/70 px-4 py-3 text-sm text-blue-900 dark:bg-cyan-500/10 dark:text-cyan-100">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl border border-blue-300/30 bg-blue-50/70 dark:bg-blue-950/70 px-4 py-3 text-sm text-blue-900 dark:text-blue-300 dark:bg-cyan-500/10 dark:text-cyan-100">
                 <span>Use as políticas por role para conferir o padrão de liberação e ajuste usuários em Usuários e Acessos.</span>
                 <button
                   type="button"
@@ -3260,8 +3260,8 @@ export default function Administracao() {
         <div className="crm-card rounded-2xl p-6 space-y-6">
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Políticas de Acesso por Role</h2>
-              <p className="text-sm text-gray-600 dark:text-slate-200">
+              <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Políticas de Acesso por Role</h2>
+              <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Defina permissões e módulos por role dentro do plano contratado pela empresa.
               </p>
             </div>
@@ -3285,7 +3285,7 @@ export default function Administracao() {
           </div>
 
           {loadingLicensing ? (
-            <div className="text-sm text-gray-600 dark:text-slate-200">Carregando políticas do plano...</div>
+            <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Carregando políticas do plano...</div>
           ) : !contractedCompany ? (
             <div className="rounded-xl border border-amber-300/40 bg-amber-50/80 px-4 py-3 text-sm text-amber-900 dark:bg-amber-500/10 dark:text-amber-200">
               Nenhum plano contratado encontrado para esta empresa.
@@ -3300,11 +3300,11 @@ export default function Administracao() {
                 return (
                   <div
                     key={role}
-                    className="rounded-2xl border border-dashed border-blue-300/40 dark:border-cyan-400/25 bg-slate-50/70 dark:bg-slate-900/35 p-4 space-y-3"
+                    className="rounded-2xl border border-dashed border-blue-300/40 dark:border-cyan-400/25 bg-[rgb(var(--crm-surface-rgb)_/_0.7)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] p-4 space-y-3"
                   >
                     <div>
-                      <div className="text-2xl font-semibold text-gray-900 dark:text-gray-100">{roleLabel(role)}</div>
-                      <div className="mt-1 text-xs text-gray-600 dark:text-slate-300">
+                      <div className="text-2xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{roleLabel(role)}</div>
+                      <div className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         Plano: {contractedCompany.license?.plan?.name || contractedCompany.planName || 'Sem plano ativo'}
                       </div>
                     </div>
@@ -3317,10 +3317,10 @@ export default function Administracao() {
                         return (
                           <label
                             key={item.key}
-                            className={`block space-y-1 rounded-lg border px-3 py-2 ${editableRole ? 'border-cyan-300/25 bg-cyan-500/10' : 'border-gray-200 bg-gray-100/50 opacity-60 dark:border-slate-700 dark:bg-slate-800/40'}`}
+                            className={`block space-y-1 rounded-lg border px-3 py-2 ${editableRole ? 'border-cyan-300/25 bg-cyan-500/10' : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.5)] opacity-60 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.4)]"}`}
                           >
                             <span className="flex items-start justify-between gap-3">
-                              <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.label}</span>
+                              <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.label}</span>
                               <input
                                 type="checkbox"
                                 checked={checked}
@@ -3328,7 +3328,7 @@ export default function Administracao() {
                                 onChange={(e) => handleRolePolicyPermissionToggle(normalizedRole, item.key, e.target.checked)}
                               />
                             </span>
-                            <span className="block text-xs text-gray-600 dark:text-slate-300">{item.description}</span>
+                            <span className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.description}</span>
                           </label>
                         );
                       })}
@@ -3340,9 +3340,9 @@ export default function Administracao() {
                       const contracted = Boolean(contractedCompanyAccess[item.key]);
                       const checked = Boolean(roleAccess[item.key]);
                       return (
-                        <div key={item.key} className={`space-y-1 rounded-lg border px-3 py-2 ${contracted ? 'border-cyan-300/25 bg-cyan-500/10' : 'border-gray-200 bg-gray-100/50 opacity-60 dark:border-slate-700 dark:bg-slate-800/40'}`}>
+                        <div key={item.key} className={`space-y-1 rounded-lg border px-3 py-2 ${contracted ? 'border-cyan-300/25 bg-cyan-500/10' : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.5)] opacity-60 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.4)]"}`}>
                           <div className="flex items-center justify-between gap-3">
-                            <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.label}</div>
+                            <div className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.label}</div>
                             <input
                               type="checkbox"
                               checked={checked}
@@ -3350,7 +3350,7 @@ export default function Administracao() {
                               onChange={(e) => handleRolePolicyModuleToggle(normalizedRole, item.key, e.target.checked)}
                             />
                           </div>
-                          <div className="text-xs text-gray-600 dark:text-slate-300">
+                          <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             {contracted ? item.description : 'Não contratado neste plano'}
                           </div>
                         </div>
@@ -3374,8 +3374,8 @@ export default function Administracao() {
           <div className="crm-card rounded-2xl p-6 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">API de Integrações Enterprise</h2>
-                <p className="text-sm text-gray-600 dark:text-slate-200">
+                <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">API de Integrações Enterprise</h2>
+                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   OAuth2 client_credentials, idempotência, rate limit por parceiro, webhooks e mapeamento extensível.
                 </p>
               </div>
@@ -3390,49 +3390,49 @@ export default function Administracao() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
-              <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-3">
-                <div className="font-semibold text-gray-900 dark:text-gray-100">Token OAuth2</div>
-                <div className="text-gray-600 dark:text-slate-200 break-all">{`${API_BASE_URL}/integration/oauth/token`}</div>
+              <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-3">
+                <div className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Token OAuth2</div>
+                <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] break-all">{`${API_BASE_URL}/integration/oauth/token`}</div>
               </div>
-              <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-3">
-                <div className="font-semibold text-gray-900 dark:text-gray-100">API Pública</div>
-                <div className="text-gray-600 dark:text-slate-200 break-all">{`${API_BASE_URL}/integration/v1`}</div>
+              <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-3">
+                <div className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">API Pública</div>
+                <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] break-all">{`${API_BASE_URL}/integration/v1`}</div>
               </div>
-              <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-3">
-                <div className="font-semibold text-gray-900 dark:text-gray-100">Admin Integrações</div>
-                <div className="text-gray-600 dark:text-slate-200 break-all">{API_ENDPOINTS.integration.partners}</div>
+              <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-3">
+                <div className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Admin Integrações</div>
+                <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] break-all">{API_ENDPOINTS.integration.partners}</div>
               </div>
             </div>
           </div>
 
           {latestCredentials && (
-            <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4">
-              <div className="text-sm font-semibold text-amber-900">Credenciais geradas para {latestCredentials.partnerName}</div>
-              <div className="text-xs text-amber-800 mt-1">Guarde o `client_secret` agora. Ele não é exibido novamente.</div>
+            <div className="bg-amber-50 dark:bg-amber-950 border border-amber-200 dark:border-amber-800 rounded-2xl p-4">
+              <div className="text-sm font-semibold text-amber-900 dark:text-amber-300">Credenciais geradas para {latestCredentials.partnerName}</div>
+              <div className="text-xs text-amber-800 dark:text-amber-300 mt-1">Guarde o `client_secret` agora. Ele não é exibido novamente.</div>
               <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
                 <div>
-                  <div className="text-amber-900 font-medium">client_id</div>
-                  <div className="text-amber-800 break-all">{latestCredentials.client_id}</div>
+                  <div className="text-amber-900 dark:text-amber-300 font-medium">client_id</div>
+                  <div className="text-amber-800 dark:text-amber-300 break-all">{latestCredentials.client_id}</div>
                 </div>
                 <div>
-                  <div className="text-amber-900 font-medium">client_secret</div>
-                  <div className="text-amber-800 break-all">{latestCredentials.client_secret}</div>
+                  <div className="text-amber-900 dark:text-amber-300 font-medium">client_secret</div>
+                  <div className="text-amber-800 dark:text-amber-300 break-all">{latestCredentials.client_secret}</div>
                 </div>
                 <div className="md:col-span-2">
-                  <div className="text-amber-900 font-medium">token_url</div>
-                  <div className="text-amber-800 break-all">{latestCredentials.token_url}</div>
+                  <div className="text-amber-900 dark:text-amber-300 font-medium">token_url</div>
+                  <div className="text-amber-800 dark:text-amber-300 break-all">{latestCredentials.token_url}</div>
                 </div>
               </div>
             </div>
           )}
 
           <div className="crm-card rounded-2xl p-6">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3">Parceiros OAuth2</h3>
+            <h3 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Parceiros OAuth2</h3>
 
             {loadingPartners ? (
-              <div className="text-sm text-gray-600 dark:text-slate-200">Carregando parceiros...</div>
+              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Carregando parceiros...</div>
             ) : integrationPartners.length === 0 ? (
-              <div className="text-sm text-gray-600 dark:text-slate-200">
+              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Nenhum parceiro cadastrado. Use “Novo Parceiro OAuth2” para abrir integração com TOTVS/ERPs.
               </div>
             ) : (
@@ -3440,18 +3440,18 @@ export default function Administracao() {
                 {integrationPartners.map((partner) => (
                   <div
                     key={partner.id}
-                    className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"
+                    className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"
                   >
                     <div className="space-y-1">
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{partner.name}</div>
-                      <div className="text-xs text-gray-600 dark:text-slate-200">
+                      <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{partner.name}</div>
+                      <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         {partner.provider} • {partner.type} • Tier {partner.partnerTier} •{' '}
                         {partner.rateLimitPerMinute || '-'} req/min
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-slate-200 break-all">
+                      <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] break-all">
                         client_id: {partner.clientId || '-'}
                       </div>
-                      <div className="text-xs text-gray-600 dark:text-slate-200">
+                      <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         scopes: {(partner.scopes || []).join(', ') || '-'}
                       </div>
                     </div>
@@ -3460,7 +3460,7 @@ export default function Administracao() {
                       type="button"
                       onClick={() => rotatePartnerSecret(partner)}
                       disabled={rotatingSecretId === partner.id}
-                      className="px-3 py-2 rounded-lg border border-amber-300 text-amber-700 hover:bg-amber-50 transition-colors text-sm disabled:opacity-50"
+                      className="px-3 py-2 rounded-lg border border-amber-300 text-amber-700 dark:text-amber-300 hover:bg-amber-50 dark:hover:bg-amber-950 transition-colors text-sm disabled:opacity-50"
                     >
                       {rotatingSecretId === partner.id ? 'Rotacionando...' : 'Rotacionar Secret'}
                     </button>
@@ -3477,13 +3477,13 @@ export default function Administracao() {
           <div className="crm-card rounded-2xl p-6 space-y-3">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
               <div>
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Administração de Licenciamento</h2>
-                <p className="text-sm text-gray-600 dark:text-slate-200">
+                <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Administração de Licenciamento</h2>
+                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Gestão de planos por empresa, provisionamento e perfis de acesso.
                 </p>
               </div>
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 dark:bg-slate-700/50 dark:text-slate-100">
+                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   {licensingSummary.totalCompanies} empresas
                 </span>
                 <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-cyan-100 text-cyan-700 dark:bg-cyan-500/20 dark:text-cyan-200">
@@ -3494,27 +3494,27 @@ export default function Administracao() {
           </div>
 
           <div className="crm-card rounded-2xl p-6">
-            <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3">Planos</h3>
+            <h3 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Planos</h3>
             {loadingLicensing ? (
-              <div className="text-sm text-gray-600 dark:text-slate-200">Carregando planos...</div>
+              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Carregando planos...</div>
             ) : licensingPlans.length === 0 ? (
-              <div className="text-sm text-gray-600 dark:text-slate-200">Nenhum plano cadastrado.</div>
+              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum plano cadastrado.</div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                 {licensingPlans.map((plan) => (
                   <div
                     key={plan.id}
-                    className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4 bg-white/40 dark:bg-slate-900/35"
+                    className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4 bg-[rgb(var(--crm-surface-rgb)_/_0.4)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)]"
                   >
-                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{plan.name}</div>
-                    <div className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">
+                    <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{plan.name}</div>
+                    <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
                       {Number(plan.price || 0).toLocaleString('pt-BR', {
                         style: 'currency',
                         currency: plan.currency || 'BRL'
                       })}
                     </div>
-                    <div className="text-xs text-gray-600 dark:text-slate-200 mt-1">{plan.description || 'Plano ativo'}</div>
-                    <div className="text-xs text-gray-600 dark:text-slate-200 mt-2">
+                    <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">{plan.description || 'Plano ativo'}</div>
+                    <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2">
                       Assentos inclusos: {plan.seatsIncluded ?? 1}
                     </div>
                   </div>
@@ -3525,7 +3525,7 @@ export default function Administracao() {
 
           <div className="crm-card rounded-2xl p-6 space-y-4">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <h3 className="text-base font-semibold text-gray-900 dark:text-gray-100">Empresas e Licenças</h3>
+              <h3 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Empresas e Licenças</h3>
               {!isMasterSession && (
                 <div className="text-xs text-amber-600 dark:text-amber-300">
                   Sem privilégio MASTER: cadastro/exclusão manual de empresa desabilitado.
@@ -3534,9 +3534,9 @@ export default function Administracao() {
             </div>
 
             {loadingLicensing ? (
-              <div className="text-sm text-gray-600 dark:text-slate-200">Carregando empresas...</div>
+              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Carregando empresas...</div>
             ) : licensingCompanies.length === 0 ? (
-              <div className="text-sm text-gray-600 dark:text-slate-200">Nenhuma empresa de licenciamento encontrada.</div>
+              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhuma empresa de licenciamento encontrada.</div>
             ) : (
               <div className="space-y-4">
                 {licensingCompanies.map((company) => {
@@ -3546,16 +3546,16 @@ export default function Administracao() {
                   return (
                     <div
                       key={company.id}
-                      className="rounded-2xl border border-gray-200 dark:border-blue-500/20 p-4 sm:p-5 bg-white/40 dark:bg-slate-900/35 space-y-4"
+                      className="rounded-2xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4 sm:p-5 bg-[rgb(var(--crm-surface-rgb)_/_0.4)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] space-y-4"
                     >
                       <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-3">
                         <div>
-                          <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">{company.name}</div>
-                          <div className="text-sm text-gray-600 dark:text-slate-200">
+                          <div className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{company.name}</div>
+                          <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             Licença atual:{' '}
                             {company.license?.plan?.name ? `${company.license.plan.name} - ${statusLabel}` : 'Não definida'}
                           </div>
-                          <div className="text-xs text-gray-600 dark:text-slate-300 mt-1">
+                          <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
                             {company.email || '-'} {company.cnpj ? `• CNPJ ${company.cnpj}` : ''}
                           </div>
                         </div>
@@ -3564,7 +3564,7 @@ export default function Administracao() {
                           <button
                             type="button"
                             onClick={() => openCreateCompanyUser(company)}
-                            className="px-3 py-2 rounded-lg border border-cyan-300 text-cyan-700 hover:bg-cyan-50 transition-colors text-sm dark:border-cyan-500/40 dark:text-cyan-200 dark:hover:bg-cyan-500/10"
+                            className="px-3 py-2 rounded-lg border border-cyan-300 text-cyan-700 hover:bg-cyan-50 dark:hover:bg-cyan-950 transition-colors text-sm dark:border-cyan-500/40 dark:text-cyan-200 dark:hover:bg-cyan-500/10"
                           >
                             Novo usuário
                           </button>
@@ -3581,7 +3581,7 @@ export default function Administracao() {
 
                       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
                         <div>
-                          <label className="block text-xs font-semibold text-gray-700 dark:text-slate-100 mb-1">Plano</label>
+                          <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Plano</label>
                           <select
                             value={draft.planId || ''}
                             onChange={(e) => {
@@ -3593,7 +3593,7 @@ export default function Administracao() {
                                 seats: nextPlan?.seatsIncluded ?? draft.seats
                               });
                             }}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-transparent"
+                            className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg bg-transparent"
                           >
                             <option value="">Selecione...</option>
                             {licensingPlans.map((plan) => (
@@ -3605,11 +3605,11 @@ export default function Administracao() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-gray-700 dark:text-slate-100 mb-1">Status</label>
+                          <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Status</label>
                           <select
                             value={draft.status || 'ACTIVE'}
                             onChange={(e) => updateLicenseDraft(company.id, { status: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-transparent"
+                            className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg bg-transparent"
                           >
                             <option value="PENDING">Pendente</option>
                             <option value="ACTIVE">Ativa</option>
@@ -3620,53 +3620,53 @@ export default function Administracao() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-gray-700 dark:text-slate-100 mb-1">Início</label>
+                          <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Início</label>
                           <input
                             type="date"
                             value={draft.startDate || ''}
                             onChange={(e) => updateLicenseDraft(company.id, { startDate: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-transparent"
+                            className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg bg-transparent"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-gray-700 dark:text-slate-100 mb-1">Vencimento</label>
+                          <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Vencimento</label>
                           <input
                             type="date"
                             value={draft.endDate || ''}
                             onChange={(e) => updateLicenseDraft(company.id, { endDate: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-transparent"
+                            className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg bg-transparent"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-gray-700 dark:text-slate-100 mb-1">Preço (R$)</label>
+                          <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Preço (R$)</label>
                           <input
                             type="number"
                             step="0.01"
                             value={draft.priceAtPurchase ?? ''}
                             onChange={(e) => updateLicenseDraft(company.id, { priceAtPurchase: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-transparent"
+                            className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg bg-transparent"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-gray-700 dark:text-slate-100 mb-1">Assentos</label>
+                          <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Assentos</label>
                           <input
                             type="number"
                             min="1"
                             value={draft.seats ?? ''}
                             onChange={(e) => updateLicenseDraft(company.id, { seats: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-transparent"
+                            className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg bg-transparent"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-gray-700 dark:text-slate-100 mb-1">Pagamento</label>
+                          <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Pagamento</label>
                           <select
                             value={draft.paymentStatus || 'CONFIRMED'}
                             onChange={(e) => updateLicenseDraft(company.id, { paymentStatus: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-transparent"
+                            className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg bg-transparent"
                           >
                             <option value="PENDING">Pendente</option>
                             <option value="CONFIRMED">Confirmado</option>
@@ -3676,24 +3676,24 @@ export default function Administracao() {
                         </div>
 
                         <div>
-                          <label className="block text-xs font-semibold text-gray-700 dark:text-slate-100 mb-1">Ref. pagamento</label>
+                          <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Ref. pagamento</label>
                           <input
                             type="text"
                             value={draft.paymentReference || ''}
                             onChange={(e) => updateLicenseDraft(company.id, { paymentReference: e.target.value })}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-transparent"
+                            className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg bg-transparent"
                             placeholder="Pedido/PIX/Fatura"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-semibold text-gray-700 dark:text-slate-100 mb-1">Observações</label>
+                        <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Observações</label>
                         <input
                           type="text"
                           value={draft.notes || ''}
                           onChange={(e) => updateLicenseDraft(company.id, { notes: e.target.value })}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-transparent"
+                          className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg bg-transparent"
                           placeholder="Observações da licença"
                         />
                       </div>
@@ -3703,28 +3703,28 @@ export default function Administracao() {
                           type="button"
                           onClick={() => saveCompanyLicense(company)}
                           disabled={savingLicenseFor === company.id}
-                          className="px-4 py-2 rounded-lg bg-cyan-500 text-slate-950 font-semibold hover:bg-cyan-400 transition-colors disabled:opacity-50"
+                          className="px-4 py-2 rounded-lg bg-cyan-500 text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold hover:bg-cyan-400 transition-colors disabled:opacity-50"
                         >
                           {savingLicenseFor === company.id ? 'Salvando...' : 'Salvar licença'}
                         </button>
 
-                        <div className="text-xs text-gray-600 dark:text-slate-300">
+                        <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {company.usersCount || 0} usuário(s), {company.adminsCount || 0} admin(s)
                         </div>
                       </div>
 
                       {Array.isArray(company.users) && company.users.length > 0 && (
-                        <div className="pt-2 border-t border-gray-200 dark:border-blue-500/20">
-                          <div className="text-xs font-semibold text-gray-700 dark:text-slate-100 mb-2">Usuários da empresa</div>
+                        <div className="pt-2 border-t border-[var(--crm-border)] dark:border-blue-500/20">
+                          <div className="text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Usuários da empresa</div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             {company.users.map((user) => (
                               <div
                                 key={user.id}
-                                className="rounded-lg border border-gray-200 dark:border-blue-500/20 px-3 py-2"
+                                className="rounded-lg border border-[var(--crm-border)] dark:border-blue-500/20 px-3 py-2"
                               >
-                                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{user.name}</div>
-                                <div className="text-xs text-gray-600 dark:text-slate-300">{user.email}</div>
-                                <div className="text-xs text-gray-600 dark:text-slate-300 mt-1">
+                                <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{user.name}</div>
+                                <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{user.email}</div>
+                                <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
                                   {roleLabel(user.role)}
                                   {user.isCompanyOwner ? ' • dono' : ''}
                                 </div>
@@ -3753,7 +3753,7 @@ export default function Administracao() {
         }}
       >
         {!selectedCompanyDetails ? (
-          <div className="text-sm text-gray-600 dark:text-slate-200">Nenhum detalhe disponível.</div>
+          <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum detalhe disponível.</div>
         ) : (
           <div className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3761,43 +3761,43 @@ export default function Administracao() {
                 const statusMeta = getCompanyStatusMeta(selectedCompanyDetails.status);
                 return (
                   <>
-                    <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4 space-y-3">
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Dados gerais</div>
-                      <div className="text-sm text-gray-600 dark:text-slate-300">
+                    <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4 space-y-3">
+                      <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Dados gerais</div>
+                      <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <strong>Nome:</strong> {selectedCompanyDetails.name}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-slate-300">
+                      <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <strong>Razão social:</strong> {selectedCompanyDetails.legalName || '-'}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-slate-300">
+                      <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <strong>CNPJ/Documento:</strong> {selectedCompanyDetails.cnpj || '-'}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-slate-300">
+                      <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <strong>Email:</strong> {selectedCompanyDetails.email || '-'}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-slate-300">
+                      <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <strong>Telefone:</strong> {selectedCompanyDetails.phone || '-'}
                       </div>
                     </div>
 
-                    <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4 space-y-3">
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Status e origem</div>
-                      <div className="text-sm text-gray-600 dark:text-slate-300">
+                    <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4 space-y-3">
+                      <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Status e origem</div>
+                      <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <strong>Origem:</strong> Licenciamento
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-slate-300 flex items-center gap-2">
+                      <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-2">
                         <strong>Status:</strong>
                         <span className={`px-2 py-0.5 inline-flex text-xs leading-5 font-semibold rounded-full ${statusMeta.className}`}>
                           {statusMeta.label}
                         </span>
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-slate-300">
+                      <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <strong>Plano:</strong> {selectedCompanyDetails.planName || 'Sem plano'}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-slate-300">
+                      <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <strong>Criado em:</strong> {formatDateLabel(selectedCompanyDetails.createdAt)}
                       </div>
-                      <div className="text-sm text-gray-600 dark:text-slate-300">
+                      <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <strong>Atualizado em:</strong> {formatDateLabel(selectedCompanyDetails.updatedAt)}
                       </div>
                     </div>
@@ -3807,24 +3807,24 @@ export default function Administracao() {
             </div>
 
             {selectedCompanyDetails.source === 'operational' && (
-              <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4 space-y-2">
-                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Informações comerciais</div>
-                <div className="text-sm text-gray-600 dark:text-slate-300">
+              <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4 space-y-2">
+                <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Informações comerciais</div>
+                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <strong>Segmento:</strong> {selectedCompanyDetails.segment || '-'}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-slate-300">
+                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <strong>Porte:</strong> {selectedCompanyDetails.size || '-'}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-slate-300">
+                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <strong>Lead score:</strong> {selectedCompanyDetails.leadScore ?? '-'}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-slate-300">
+                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <strong>Risco de churn:</strong>{' '}
                   {selectedCompanyDetails.churnRisk !== null && selectedCompanyDetails.churnRisk !== undefined
                     ? `${selectedCompanyDetails.churnRisk}%`
                     : '-'}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-slate-300">
+                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <strong>Localização:</strong>{' '}
                   {[selectedCompanyDetails.city, selectedCompanyDetails.state, selectedCompanyDetails.country].filter(Boolean).join(' / ') || '-'}
                 </div>
@@ -3832,38 +3832,38 @@ export default function Administracao() {
             )}
 
             {selectedCompanyDetails.license && (
-              <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4 space-y-2">
-                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Licenciamento</div>
-                <div className="text-sm text-gray-600 dark:text-slate-300">
+              <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4 space-y-2">
+                <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Licenciamento</div>
+                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <strong>Status da licença:</strong> {selectedCompanyDetails.license.status || '-'}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-slate-300">
+                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <strong>Status pagamento:</strong> {selectedCompanyDetails.license.paymentStatus || '-'}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-slate-300">
+                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <strong>Assentos:</strong> {selectedCompanyDetails.license.seats ?? '-'}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-slate-300">
+                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <strong>Início:</strong> {formatDateLabel(selectedCompanyDetails.license.startDate)}
                 </div>
-                <div className="text-sm text-gray-600 dark:text-slate-300">
+                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <strong>Fim:</strong> {formatDateLabel(selectedCompanyDetails.license.endDate)}
                 </div>
               </div>
             )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4">
-                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Usuários</div>
+              <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4">
+                <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Usuários</div>
                 {loadingCompanyDetails ? (
-                  <div className="text-sm text-gray-600 dark:text-slate-300">Carregando usuários...</div>
+                  <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Carregando usuários...</div>
                 ) : Array.isArray(selectedCompanyDetails.users) && selectedCompanyDetails.users.length > 0 ? (
                   <div className="space-y-2">
                     {selectedCompanyDetails.users.map((user) => (
-                      <div key={user.id || user.email} className="rounded-lg border border-gray-200 dark:border-blue-500/20 px-3 py-2">
-                        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{user.name || '-'}</div>
-                        <div className="text-xs text-gray-600 dark:text-slate-300">{user.email || '-'}</div>
-                        <div className="text-xs text-gray-600 dark:text-slate-300">
+                      <div key={user.id || user.email} className="rounded-lg border border-[var(--crm-border)] dark:border-blue-500/20 px-3 py-2">
+                        <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{user.name || '-'}</div>
+                        <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{user.email || '-'}</div>
+                        <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {roleLabel(user.role)}
                           {user.isCompanyOwner ? ' • dono' : ''}
                         </div>
@@ -3871,32 +3871,32 @@ export default function Administracao() {
                     ))}
                   </div>
                 ) : (
-                  <div className="text-sm text-gray-600 dark:text-slate-300">Nenhum usuário vinculado.</div>
+                  <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum usuário vinculado.</div>
                 )}
               </div>
 
-              <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4">
-                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Contatos</div>
+              <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4">
+                <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Contatos</div>
                 {Array.isArray(selectedCompanyDetails.contacts) && selectedCompanyDetails.contacts.length > 0 ? (
                   <div className="space-y-2">
                     {selectedCompanyDetails.contacts.map((contact) => (
-                      <div key={contact.id || `${contact.name}-${contact.email}`} className="rounded-lg border border-gray-200 dark:border-blue-500/20 px-3 py-2">
-                        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{contact.name || '-'}</div>
-                        <div className="text-xs text-gray-600 dark:text-slate-300">{contact.email || '-'}</div>
-                        <div className="text-xs text-gray-600 dark:text-slate-300">{contact.phone || '-'}</div>
+                      <div key={contact.id || `${contact.name}-${contact.email}`} className="rounded-lg border border-[var(--crm-border)] dark:border-blue-500/20 px-3 py-2">
+                        <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{contact.name || '-'}</div>
+                        <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{contact.email || '-'}</div>
+                        <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{contact.phone || '-'}</div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="text-sm text-gray-600 dark:text-slate-300">Nenhum contato cadastrado.</div>
+                  <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum contato cadastrado.</div>
                 )}
               </div>
             </div>
 
             {selectedCompanyDetails.notes && (
-              <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-4">
-                <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">Observações</div>
-                <div className="text-sm text-gray-600 dark:text-slate-300 whitespace-pre-wrap">{selectedCompanyDetails.notes}</div>
+              <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4">
+                <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Observações</div>
+                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] whitespace-pre-wrap">{selectedCompanyDetails.notes}</div>
               </div>
             )}
           </div>
@@ -3911,67 +3911,67 @@ export default function Administracao() {
         <form onSubmit={saveEditedManagementCompany} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Nome da empresa *</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Nome da empresa *</label>
               <input
                 type="text"
                 required
                 value={companyEditForm.name}
                 onChange={(e) => setCompanyEditForm((prev) => ({ ...prev, name: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="Nome da empresa"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Razão social</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Razão social</label>
               <input
                 type="text"
                 value={companyEditForm.legalName}
                 onChange={(e) => setCompanyEditForm((prev) => ({ ...prev, legalName: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="Razão social"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">CNPJ/Documento</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">CNPJ/Documento</label>
               <input
                 type="text"
                 value={companyEditForm.cnpj}
                 onChange={(e) => setCompanyEditForm((prev) => ({ ...prev, cnpj: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="00.000.000/0000-00"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Email</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Email</label>
               <input
                 type="email"
                 value={companyEditForm.email}
                 onChange={(e) => setCompanyEditForm((prev) => ({ ...prev, email: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="contato@empresa.com"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Telefone</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Telefone</label>
               <input
                 type="tel"
                 value={companyEditForm.phone}
                 onChange={(e) => setCompanyEditForm((prev) => ({ ...prev, phone: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="(00) 00000-0000"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Status</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Status</label>
               <select
                 value={companyEditForm.status}
                 onChange={(e) => setCompanyEditForm((prev) => ({ ...prev, status: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-transparent"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 bg-transparent"
               >
                 <option value="ACTIVE">Ativa</option>
                 <option value="LEAD">Lead</option>
@@ -3984,7 +3984,7 @@ export default function Administracao() {
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-2">Módulos de acesso</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Módulos de acesso</label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {[
                   ['accessB2B', 'Módulo B2B'],
@@ -3993,47 +3993,47 @@ export default function Administracao() {
                   ['accessManagement', 'Gestão'],
                   ['accessAutomation', 'Automações']
                 ].map(([key, label]) => (
-                  <label key={key} className="flex items-center gap-2 rounded-lg border border-gray-200 p-3 text-sm dark:border-blue-500/20">
+                  <label key={key} className="flex items-center gap-2 rounded-lg border border-[var(--crm-border)] p-3 text-sm dark:border-blue-500/20">
                     <input
                       type="checkbox"
                       checked={Boolean(companyEditForm[key])}
                       onChange={(e) => handleCompanyModuleToggle(setCompanyEditForm, key, e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+                      className="h-4 w-4 rounded border-[var(--crm-border)] text-cyan-600 focus:ring-cyan-500"
                     />
-                    <span className="font-medium text-gray-800 dark:text-slate-100">{label}</span>
+                    <span className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{label}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Segmento</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Segmento</label>
               <input
                 type="text"
                 value={companyEditForm.segment}
                 onChange={(e) => setCompanyEditForm((prev) => ({ ...prev, segment: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="Segmento da empresa"
               />
             </div>
 
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Observações</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Observações</label>
               <textarea
                 value={companyEditForm.notes}
                 onChange={(e) => setCompanyEditForm((prev) => ({ ...prev, notes: e.target.value }))}
                 rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="Observações internas"
               />
             </div>
           </div>
 
-          <div className="flex justify-end gap-2 pt-4 border-t border-gray-200 dark:border-blue-500/20">
+          <div className="flex justify-end gap-2 pt-4 border-t border-[var(--crm-border)] dark:border-blue-500/20">
             <button
               type="button"
               onClick={closeEditManagementCompany}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors dark:text-slate-100 dark:bg-slate-700/60 dark:hover:bg-slate-600/70"
+              className="px-4 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
             >
               Cancelar
             </button>
@@ -4058,31 +4058,31 @@ export default function Administracao() {
       >
         <form onSubmit={saveUser} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Nome *</label>
+            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Nome *</label>
             <input
               type="text"
               required
               value={userForm.name}
               onChange={(e) => setUserForm((f) => ({ ...f, name: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="Nome completo"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Email *</label>
+            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Email *</label>
             <input
               type="email"
               required
               value={userForm.email}
               onChange={(e) => setUserForm((f) => ({ ...f, email: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="email@empresa.com"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">
+            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
               Senha {editingUser ? '(opcional)' : '*'}
             </label>
             <input
@@ -4090,18 +4090,18 @@ export default function Administracao() {
               required={!editingUser}
               value={userForm.password}
               onChange={(e) => setUserForm((f) => ({ ...f, password: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder={editingUser ? 'Deixe em branco para manter' : 'Senha inicial'}
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Perfil *</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Perfil *</label>
               <select
                 value={userForm.role}
                 onChange={(e) => handleUserRoleChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="USER">Usuário</option>
                 <option value="PRE_SALES">Pré-Vendas</option>
@@ -4111,11 +4111,11 @@ export default function Administracao() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Região</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Região</label>
               <select
                 value={userForm.regionId || ''}
                 onChange={(e) => setUserForm((f) => ({ ...f, regionId: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               >
                 <option value="">Sem região</option>
                 {regions.map((r) => (
@@ -4127,12 +4127,12 @@ export default function Administracao() {
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Empresa vinculada</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Empresa vinculada</label>
               <select
                 value={userForm.tenantCompanyId || ''}
                 onChange={(e) => setUserForm((f) => ({ ...f, tenantCompanyId: e.target.value }))}
                 disabled={!isMasterSession}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:cursor-not-allowed disabled:bg-gray-100 disabled:text-gray-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:cursor-not-allowed disabled:bg-[rgb(var(--crm-surface-rgb)_/_1)] disabled:text-[rgb(var(--crm-muted-rgb)_/_1)]"
               >
                 <option value="">Sem empresa vinculada</option>
                 {licensingCompanies.map((company) => (
@@ -4142,7 +4142,7 @@ export default function Administracao() {
                 ))}
               </select>
               {!isMasterSession && (
-                <p className="mt-1 text-xs text-gray-500 dark:text-slate-300">
+                <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Administradores criam usuários dentro da própria empresa.
                 </p>
               )}
@@ -4150,21 +4150,21 @@ export default function Administracao() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Cota mensal (R$)</label>
+            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Cota mensal (R$)</label>
             <input
               type="number"
               step="0.01"
               value={userForm.quota}
               onChange={(e) => setUserForm((f) => ({ ...f, quota: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="50000.00"
             />
           </div>
 
-          <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-3 space-y-3">
-            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Comissões</div>
+          <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-3 space-y-3">
+            <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissões</div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Venda Pontual (%)</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Venda Pontual (%)</label>
               <input
                 type="number"
                 step="0.01"
@@ -4172,12 +4172,12 @@ export default function Administracao() {
                 max="100"
                 value={userForm.commissionSalePercentage}
                 onChange={(e) => setUserForm((f) => ({ ...f, commissionSalePercentage: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Ex: 3.0"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Projetos Mensais (% por duração)</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Projetos Mensais (% por duração)</label>
               <div className="grid grid-cols-5 gap-2">
                 {[
                   { key: 'commissionProject12', label: '12m' },
@@ -4187,7 +4187,7 @@ export default function Administracao() {
                   { key: 'commissionProject60', label: '60m' }
                 ].map((field) => (
                   <div key={field.key}>
-                    <label className="block text-xs font-medium text-gray-500 dark:text-slate-300 mb-1">{field.label}</label>
+                    <label className="block text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">{field.label}</label>
                     <input
                       type="number"
                       step="0.01"
@@ -4195,7 +4195,7 @@ export default function Administracao() {
                       max="100"
                       value={userForm[field.key]}
                       onChange={(e) => setUserForm((f) => ({ ...f, [field.key]: e.target.value }))}
-                      className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                      className="w-full px-2 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
                       placeholder="%"
                     />
                   </div>
@@ -4204,13 +4204,13 @@ export default function Administracao() {
             </div>
           </div>
 
-          <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-3 space-y-2">
-            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Acesso por módulo</div>
+          <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-3 space-y-2">
+            <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Acesso por módulo</div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {MODULE_ACCESS_ITEMS.map(({ key, label }) => {
                 const contracted = isMasterSession || Boolean(contractedCompanyAccess[key]);
                 return (
-                  <label key={key} className={`flex items-center gap-2 text-sm ${contracted ? 'text-gray-700 dark:text-slate-100' : 'text-gray-400 dark:text-slate-500'}`}>
+                  <label key={key} className={`flex items-center gap-2 text-sm ${contracted ? "text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                     <input
                       type="checkbox"
                       checked={Boolean(userForm[key])}
@@ -4226,7 +4226,7 @@ export default function Administracao() {
           </div>
 
           {normalizeRole(userForm.role) === 'ADMIN' && (
-            <label className="flex items-center gap-2 text-sm text-gray-700 dark:text-slate-100">
+            <label className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
               <input
                 type="checkbox"
                 checked={Boolean(userForm.isCompanyOwner)}
@@ -4240,7 +4240,7 @@ export default function Administracao() {
             <button
               type="button"
               onClick={() => setShowUserModal(false)}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors dark:text-slate-100 dark:bg-slate-700/60 dark:hover:bg-slate-600/70"
+              className="px-4 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
             >
               Cancelar
             </button>
@@ -4265,24 +4265,24 @@ export default function Administracao() {
       >
         <form onSubmit={savePartner} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Nome do Parceiro *</label>
+            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Nome do Parceiro *</label>
             <input
               type="text"
               required
               value={partnerForm.name}
               onChange={(e) => setPartnerForm((p) => ({ ...p, name: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               placeholder="TOTVS Protheus - Unidade SP"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Tipo</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Tipo</label>
               <select
                 value={partnerForm.type}
                 onChange={(e) => setPartnerForm((p) => ({ ...p, type: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               >
                 <option value="ERP">ERP</option>
                 <option value="API_EXTERNAL">API Externa</option>
@@ -4290,11 +4290,11 @@ export default function Administracao() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Provider</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Provider</label>
               <select
                 value={partnerForm.provider}
                 onChange={(e) => setPartnerForm((p) => ({ ...p, provider: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               >
                 <option value="TOTVS">TOTVS</option>
                 <option value="SAP">SAP</option>
@@ -4304,11 +4304,11 @@ export default function Administracao() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Tier</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Tier</label>
               <select
                 value={partnerForm.partnerTier}
                 onChange={(e) => setPartnerForm((p) => ({ ...p, partnerTier: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               >
                 <option value="BRONZE">Bronze</option>
                 <option value="SILVER">Silver</option>
@@ -4319,35 +4319,35 @@ export default function Administracao() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Scopes OAuth2</label>
+            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Scopes OAuth2</label>
             <input
               type="text"
               value={partnerForm.scopes}
               onChange={(e) => setPartnerForm((p) => ({ ...p, scopes: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
               placeholder="b2b:read b2b:write b2g:read b2g:write"
             />
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Webhook URL (opcional)</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Webhook URL (opcional)</label>
               <input
                 type="url"
                 value={partnerForm.webhookUrl}
                 onChange={(e) => setPartnerForm((p) => ({ ...p, webhookUrl: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 placeholder="https://erp.exemplo.com/webhooks/crm"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Rate limit (req/min)</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Rate limit (req/min)</label>
               <input
                 type="number"
                 min="1"
                 value={partnerForm.rateLimitPerMinute}
                 onChange={(e) => setPartnerForm((p) => ({ ...p, rateLimitPerMinute: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
                 placeholder="60"
               />
             </div>
@@ -4357,7 +4357,7 @@ export default function Administracao() {
             <button
               type="button"
               onClick={() => setShowPartnerModal(false)}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors dark:text-slate-100 dark:bg-slate-700/60 dark:hover:bg-slate-600/70"
+              className="px-4 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
             >
               Cancelar
             </button>
@@ -4380,59 +4380,59 @@ export default function Administracao() {
         <form onSubmit={createCompany} className="space-y-6 max-h-[70vh] overflow-y-auto">
           {/* Dados da Empresa */}
           <div className="space-y-4">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 border-b pb-2">Informações da Empresa</h3>
+            <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] border-b pb-2">Informações da Empresa</h3>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Nome da Empresa *</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Nome da Empresa *</label>
               <input
                 type="text"
                 required
                 value={companyForm.companyName}
                 onChange={(e) => setCompanyForm((prev) => ({ ...prev, companyName: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="Sua Empresa Ltda"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">CNPJ *</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">CNPJ *</label>
                 <input
                   type="text"
                   required
                   value={companyForm.document}
                   onChange={(e) => setCompanyForm((prev) => ({ ...prev, document: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   placeholder="00.000.000/0000-00"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Telefone *</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Telefone *</label>
                 <input
                   type="tel"
                   required
                   value={companyForm.phone}
                   onChange={(e) => setCompanyForm((prev) => ({ ...prev, phone: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   placeholder="(00) 00000-0000"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Email da Empresa *</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Email da Empresa *</label>
               <input
                 type="email"
                 required
                 value={companyForm.email}
                 onChange={(e) => setCompanyForm((prev) => ({ ...prev, email: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="contato@empresa.com"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-2">Módulos de acesso</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Módulos de acesso</label>
               <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {[
                   ['accessB2B', 'Módulo B2B'],
@@ -4441,14 +4441,14 @@ export default function Administracao() {
                   ['accessManagement', 'Gestão'],
                   ['accessAutomation', 'Automações']
                 ].map(([key, label]) => (
-                  <label key={key} className="flex items-center gap-2 rounded-lg border border-gray-200 p-3 text-sm dark:border-blue-500/20">
+                  <label key={key} className="flex items-center gap-2 rounded-lg border border-[var(--crm-border)] p-3 text-sm dark:border-blue-500/20">
                     <input
                       type="checkbox"
                       checked={Boolean(companyForm[key])}
                       onChange={(e) => handleCompanyModuleToggle(setCompanyForm, key, e.target.checked)}
-                      className="h-4 w-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500"
+                      className="h-4 w-4 rounded border-[var(--crm-border)] text-cyan-600 focus:ring-cyan-500"
                     />
-                    <span className="font-medium text-gray-800 dark:text-slate-100">{label}</span>
+                    <span className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{label}</span>
                   </label>
                 ))}
               </div>
@@ -4457,40 +4457,40 @@ export default function Administracao() {
 
           {/* Dados do Responsável */}
           <div className="space-y-4 pt-4 border-t">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Responsável pela Conta</h3>
+            <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Responsável pela Conta</h3>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Nome Completo *</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Nome Completo *</label>
               <input
                 type="text"
                 required
                 value={companyForm.responsibleName}
                 onChange={(e) => setCompanyForm((prev) => ({ ...prev, responsibleName: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="João Silva"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Email *</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Email *</label>
                 <input
                   type="email"
                   required
                   value={companyForm.responsibleEmail}
                   onChange={(e) => setCompanyForm((prev) => ({ ...prev, responsibleEmail: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   placeholder="joao@empresa.com"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Telefone *</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Telefone *</label>
                 <input
                   type="tel"
                   required
                   value={companyForm.responsiblePhone}
                   onChange={(e) => setCompanyForm((prev) => ({ ...prev, responsiblePhone: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   placeholder="(00) 00000-0000"
                 />
               </div>
@@ -4499,57 +4499,57 @@ export default function Administracao() {
 
           {/* Usuário Administrador */}
           <div className="space-y-4 pt-4 border-t">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Usuário Administrador</h3>
-            <p className="text-sm text-gray-600 dark:text-slate-300">
+            <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Usuário Administrador</h3>
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
               Este usuário será criado, mas só poderá acessar após aprovação da empresa pelo MASTER.
             </p>
             
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Nome do Admin *</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Nome do Admin *</label>
               <input
                 type="text"
                 required
                 value={companyForm.adminName}
                 onChange={(e) => setCompanyForm((prev) => ({ ...prev, adminName: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="Nome completo"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Email do Admin *</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Email do Admin *</label>
               <input
                 type="email"
                 required
                 value={companyForm.adminEmail}
                 onChange={(e) => setCompanyForm((prev) => ({ ...prev, adminEmail: e.target.value }))}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 placeholder="admin@empresa.com"
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Senha *</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Senha *</label>
                 <input
                   type="password"
                   required
                   minLength={6}
                   value={companyForm.adminPassword}
                   onChange={(e) => setCompanyForm((prev) => ({ ...prev, adminPassword: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   placeholder="Mínimo 6 caracteres"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Confirmar Senha *</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Confirmar Senha *</label>
                 <input
                   type="password"
                   required
                   minLength={6}
                   value={companyForm.adminConfirmPassword}
                   onChange={(e) => setCompanyForm((prev) => ({ ...prev, adminConfirmPassword: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                   placeholder="Repita a senha"
                 />
               </div>
@@ -4558,15 +4558,15 @@ export default function Administracao() {
 
           {/* Plano e Status */}
           <div className="space-y-4 pt-4 border-t">
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Licenciamento</h3>
+            <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Licenciamento</h3>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Plano *</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Plano *</label>
                 <select
                   value={companyForm.planCode}
                   onChange={(e) => setCompanyForm((prev) => ({ ...prev, planCode: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 >
                   <option value="MENSAL">Mensal</option>
                   <option value="TRIMESTRAL">Trimestral</option>
@@ -4575,11 +4575,11 @@ export default function Administracao() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Status</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Status</label>
                 <select
                   value={companyForm.status}
                   onChange={(e) => setCompanyForm((prev) => ({ ...prev, status: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+                  className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
                 >
                   <option value="PROSPECT">Aguardando aprovação</option>
                   <option value="ACTIVE">Ativa</option>
@@ -4594,7 +4594,7 @@ export default function Administracao() {
             <button
               type="button"
               onClick={() => setShowCompanyModal(false)}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors dark:text-slate-100 dark:bg-slate-700/60 dark:hover:bg-slate-600/70"
+              className="px-4 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
             >
               Cancelar
             </button>
@@ -4619,44 +4619,44 @@ export default function Administracao() {
       >
         <form onSubmit={saveCompanyUser} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Nome *</label>
+            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Nome *</label>
             <input
               type="text"
               required
               value={companyUserForm.name}
               onChange={(e) => setCompanyUserForm((prev) => ({ ...prev, name: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+              className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Email *</label>
+            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Email *</label>
             <input
               type="email"
               required
               value={companyUserForm.email}
               onChange={(e) => setCompanyUserForm((prev) => ({ ...prev, email: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+              className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Senha (opcional)</label>
+            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Senha (opcional)</label>
             <input
               type="password"
               value={companyUserForm.password}
               onChange={(e) => setCompanyUserForm((prev) => ({ ...prev, password: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+              className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
               placeholder="Se vazio, o sistema gera senha"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-slate-100 mb-1">Perfil</label>
+            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Perfil</label>
             <select
               value={companyUserForm.role}
               onChange={(e) => handleCompanyUserRoleChange(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
+              className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500"
             >
               <option value="USER">Usuário</option>
               <option value="PRE_SALES">Pre-Vendas</option>
@@ -4664,13 +4664,13 @@ export default function Administracao() {
             </select>
           </div>
 
-          <div className="rounded-xl border border-gray-200 dark:border-blue-500/20 p-3 space-y-2">
-            <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">Acesso por módulo</div>
+          <div className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-3 space-y-2">
+            <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Acesso por módulo</div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
               {MODULE_ACCESS_ITEMS.map(({ key, label }) => {
                 const companyAccess = normalizeCompanyModuleAccess(targetCompanyForUser);
                 return (
-                  <label key={key} className="flex items-center gap-2 text-sm text-gray-700 dark:text-slate-100">
+                  <label key={key} className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     <input
                       type="checkbox"
                       checked={Boolean(companyUserForm[key])}
@@ -4688,7 +4688,7 @@ export default function Administracao() {
             <button
               type="button"
               onClick={() => setShowCompanyUserModal(false)}
-              className="px-4 py-2 text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors dark:text-slate-100 dark:bg-slate-700/60 dark:hover:bg-slate-600/70"
+              className="px-4 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
             >
               Cancelar
             </button>
@@ -4711,14 +4711,14 @@ export default function Administracao() {
         size="md"
       >
         <div className="space-y-4">
-          <p className="text-sm text-gray-700 dark:text-slate-200 whitespace-pre-line leading-relaxed">
+          <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] whitespace-pre-line leading-relaxed">
             {confirmDialog.description}
           </p>
-          <div className="flex justify-end gap-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+          <div className="flex justify-end gap-3 pt-3 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)]">
             <button
               type="button"
               onClick={closeConfirm}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:text-slate-200 dark:hover:bg-slate-600 rounded-lg transition-colors"
+              className="px-4 py-2 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg transition-colors"
             >
               {confirmDialog.cancelText || 'Cancelar'}
             </button>
@@ -4731,7 +4731,7 @@ export default function Administracao() {
                   cb();
                 }
               }}
-              className={`px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors ${
+              className={`px-4 py-2 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg transition-colors ${
                 confirmDialog.isDanger
                   ? 'bg-rose-600 hover:bg-rose-700'
                   : 'bg-emerald-600 hover:bg-emerald-700'

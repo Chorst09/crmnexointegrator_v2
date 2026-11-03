@@ -152,7 +152,7 @@ const PosVenda = () => {
         IN_PROGRESS: 'bg-sky-500/10 text-sky-900 dark:text-sky-200',
         WAITING_CUSTOMER: 'bg-amber-500/10 text-amber-900 dark:text-amber-200',
         RESOLVED: 'bg-emerald-500/10 text-emerald-900 dark:text-emerald-200',
-        CLOSED: 'bg-slate-500/10 text-slate-800 dark:text-slate-200'
+        CLOSED: "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
       },
       churn: {
         LOW: 'bg-emerald-500/10 text-emerald-900 dark:text-emerald-200',
@@ -161,7 +161,7 @@ const PosVenda = () => {
         CRITICAL: 'bg-red-500/10 text-red-900 dark:text-red-200'
       }
     };
-    return colors[type]?.[status] || 'bg-slate-500/10 text-slate-800 dark:text-slate-200';
+    return colors[type]?.[status] || "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]";
   };
 
   const getPriorityColor = (priority) => {
@@ -171,7 +171,7 @@ const PosVenda = () => {
       HIGH: 'bg-orange-500/10 text-orange-900 dark:text-orange-200',
       URGENT: 'bg-red-500/10 text-red-900 dark:text-red-200'
     };
-    return colors[priority] || 'bg-slate-500/10 text-slate-800 dark:text-slate-200';
+    return colors[priority] || "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]";
   };
 
   const getNPSCategory = (score) => {
@@ -191,7 +191,7 @@ const PosVenda = () => {
       B2G: 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
       B2C: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300'
     };
-    return badges[clientType] || 'bg-slate-500/10 text-slate-800 dark:text-slate-200';
+    return badges[clientType] || "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]";
   };
 
   const filterByClientType = (items) => {
@@ -618,7 +618,7 @@ const PosVenda = () => {
                          tab.color === 'yellow' ? 'border-amber-400 text-amber-800 dark:text-amber-100 bg-amber-500/10' :
                          'border-red-400 text-red-700 dark:text-red-100 bg-red-500/10')
                       : 'border-transparent text-[var(--crm-muted)] hover:text-[var(--crm-ink)] hover:border-[color:var(--crm-border)]'
-                  } whitespace-nowrap py-4 px-5 border-b-2 font-semibold text-sm flex items-center gap-3 rounded-t-xl transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/5`}
+                  } whitespace-nowrap py-4 px-5 border-b-2 font-semibold text-sm flex items-center gap-3 rounded-t-xl transition-all duration-200 hover:bg-black/5 dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]`}
                 >
                   <Icon className="w-5 h-5" />
                   {tab.label}
@@ -628,7 +628,7 @@ const PosVenda = () => {
                          tab.color === 'green' ? 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-100' :
                          tab.color === 'yellow' ? 'bg-amber-500/20 text-amber-900 dark:text-amber-100' :
                          'bg-red-500/20 text-red-800 dark:text-red-100')
-                      : 'bg-black/5 text-[var(--crm-muted)] dark:bg-white/10'
+                      : "bg-black/5 text-[var(--crm-muted)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.1)]"
                   }`}>
                     {tab.count}
                   </span>
@@ -687,7 +687,7 @@ const PosVenda = () => {
                     const progress = totalSteps > 0 ? (completedSteps / totalSteps) * 100 : 0;
                     return (
                       <div className="flex items-center">
-                        <div className="w-20 bg-black/10 dark:bg-white/10 rounded-full h-2 mr-3">
+                        <div className="w-20 bg-black/10 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.1)] rounded-full h-2 mr-3">
                           <div className="bg-blue-600 h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
                         </div>
                         <span className="text-sm text-[var(--crm-muted)] font-semibold">{completedSteps}/{totalSteps}</span>
@@ -878,7 +878,7 @@ const PosVenda = () => {
                   label: 'Score',
                   render: (item) => (
                     <div className="flex items-center">
-                      <Star className="w-4 h-4 text-yellow-400 mr-2" />
+                      <Star className="w-4 h-4 text-yellow-700 dark:text-yellow-400 mr-2" />
                       <span className="text-lg font-bold text-[var(--crm-ink)]">
                         {item.score !== null ? item.score : '-'}
                       </span>
@@ -1015,7 +1015,7 @@ const PosVenda = () => {
                     label: 'Score de Risco',
                     render: (item) => (
                       <div className="flex items-center">
-                        <div className="w-20 bg-black/10 dark:bg-white/10 rounded-full h-3 mr-3">
+                        <div className="w-20 bg-black/10 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.1)] rounded-full h-3 mr-3">
                           <div className={`h-3 rounded-full transition-all duration-300 ${
                             item.score >= 80 ? 'bg-gradient-to-r from-red-500 to-red-600' : 
                             item.score >= 65 ? 'bg-gradient-to-r from-orange-500 to-orange-600' : 
@@ -1032,7 +1032,7 @@ const PosVenda = () => {
                     render: (item) => (
                       <div className="max-w-xs">
                         {item.reasons?.slice(0, 2).map((reason, index) => (
-                          <span key={index} className="text-xs bg-slate-500/10 text-[var(--crm-ink)] px-2 py-1 rounded-full mb-1 inline-block mr-1">{reason}</span>
+                          <span key={index} className="text-xs bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[var(--crm-ink)] px-2 py-1 rounded-full mb-1 inline-block mr-1">{reason}</span>
                         ))}
                         {item.reasons?.length > 2 && (
                           <div className="text-xs text-[var(--crm-muted)] mt-1">+{item.reasons.length - 2} outros fatores</div>
@@ -1403,7 +1403,7 @@ const OnboardingDetailModal = ({ onboarding, onAdvanceStep, onUpdateOnboarding, 
             <option value="CANCELLED">Cancelado</option>
           </select>
         </div>
-        <div className="w-full bg-black/10 dark:bg-white/10 rounded-full h-3">
+        <div className="w-full bg-black/10 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.1)] rounded-full h-3">
           <div className="bg-blue-600 h-3 rounded-full transition-all" style={{ width: `${progress}%` }} />
         </div>
       </div>
@@ -1605,7 +1605,7 @@ const NPSDetailModal = ({ nps, onClose, getNPSCategory, onSubmitResponse }) => {
           </>
         ) : (
           <>
-            <Star className="w-12 h-12 text-yellow-400 mx-auto mb-3" />
+            <Star className="w-12 h-12 text-yellow-700 dark:text-yellow-400 mx-auto mb-3" />
             <p className="text-sm font-semibold text-[var(--crm-muted)]">Pesquisa ainda não respondida</p>
           </>
         )}

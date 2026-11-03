@@ -209,20 +209,20 @@ const Automacoes = () => {
   const getStatusColor = (status, type = 'default') => {
     const colors = {
       execution: {
-        PENDING: 'bg-yellow-100 text-yellow-800',
-        RUNNING: 'bg-blue-100 text-blue-800',
-        COMPLETED: 'bg-green-100 text-green-800',
-        FAILED: 'bg-red-100 text-red-800'
+        PENDING: "bg-yellow-100 dark:bg-yellow-950 text-yellow-800 dark:text-yellow-300",
+        RUNNING: "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300",
+        COMPLETED: "bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300",
+        FAILED: "bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300"
       },
       notification: {
-        PENDING: 'bg-yellow-100 text-yellow-800',
-        SENT: 'bg-green-100 text-green-800',
-        DELIVERED: 'bg-blue-100 text-blue-800',
-        READ: 'bg-slate-500/15 text-slate-700 dark:text-slate-200 border border-slate-500/20',
-        FAILED: 'bg-red-100 text-red-800'
+        PENDING: "bg-yellow-100 dark:bg-yellow-950 text-yellow-800 dark:text-yellow-300",
+        SENT: "bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300",
+        DELIVERED: "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300",
+        READ: "bg-[rgb(var(--crm-surface-rgb)_/_0.15)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)]",
+        FAILED: "bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300"
       }
     };
-    return colors[type]?.[status] || 'bg-slate-500/15 text-slate-700 dark:text-slate-200 border border-slate-500/20';
+    return colors[type]?.[status] || "bg-[rgb(var(--crm-surface-rgb)_/_0.15)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)]";
   };
 
   const getTriggerIcon = (trigger) => {
@@ -741,25 +741,25 @@ const Automacoes = () => {
         ]}
       />
 
-      <section className="overflow-hidden rounded-2xl border border-[color:var(--crm-border)] bg-[radial-gradient(circle_at_12%_20%,rgba(255,122,0,0.22),transparent_32%),radial-gradient(circle_at_78%_10%,rgba(34,197,94,0.16),transparent_30%),linear-gradient(135deg,rgba(10,15,30,0.96),rgba(17,24,39,0.92))] shadow-2xl">
+      <section className="overflow-hidden rounded-2xl border border-[color:var(--crm-border)] bg-[radial-gradient(circle_at_12%_20%,rgba(255,122,0,0.22),transparent_32%),radial-gradient(circle_at_78%_10%,rgba(34,197,94,0.16),transparent_30%),linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_0.96),rgb(var(--crm-surface-2-rgb)_/_0.92))] shadow-2xl">
         <div className="grid gap-6 p-6 lg:grid-cols-[1.05fr_.95fr]">
           <div className="space-y-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-orange-400/30 bg-orange-500/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-orange-200">
+              <span className="rounded-full border border-orange-400/30 bg-orange-500/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-orange-700 dark:text-orange-200">
                 Builder visual
               </span>
-              <span className="rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-200">
+              <span className="rounded-full border border-emerald-400/30 bg-emerald-500/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-emerald-700 dark:text-emerald-200">
                 Execução monitorada
               </span>
-              <span className="rounded-full border border-cyan-400/30 bg-cyan-500/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-200">
+              <span className="rounded-full border border-cyan-400/30 bg-cyan-500/15 px-3 py-1 text-xs font-black uppercase tracking-wide text-cyan-700 dark:text-cyan-200">
                 Templates prontos
               </span>
             </div>
             <div>
-              <h2 className="max-w-3xl text-3xl font-black leading-tight text-white">
+              <h2 className="max-w-3xl text-3xl font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Automatize jornadas comerciais, operações e atendimento com controle de ponta a ponta.
               </h2>
-              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Modelo inspirado em builders modernos: escolha o gatilho, aplique filtros, divida caminhos, execute ações, defina retentativas e acompanhe falhas antes que virem gargalo.
               </p>
             </div>
@@ -771,23 +771,23 @@ const Automacoes = () => {
               ].map((metric) => {
                 const Icon = metric.icon;
                 return (
-                  <div key={metric.label} className="rounded-xl border border-white/10 bg-white/[0.04] p-4">
+                  <div key={metric.label} className="rounded-xl border border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-rgb)_/_0.04)] p-4">
                     <Icon className="mb-3 h-5 w-5" style={{ color: metric.color }} />
-                    <p className="text-2xl font-black text-white">{metric.value}</p>
-                    <p className="text-xs font-bold uppercase tracking-wide text-slate-400">{metric.label}</p>
+                    <p className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{metric.value}</p>
+                    <p className="text-xs font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">{metric.label}</p>
                   </div>
                 );
               })}
             </div>
           </div>
 
-          <div className="rounded-2xl border border-white/10 bg-[#070b16]/75 p-5">
+          <div className="rounded-2xl border border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.75)] p-5">
             <div className="mb-4 flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-black text-white">Fluxo padrão</h3>
-                <p className="text-xs text-slate-500">Gatilho, filtro, ramificação e ação final</p>
+                <h3 className="text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Fluxo padrão</h3>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Gatilho, filtro, ramificação e ação final</p>
               </div>
-              <button onClick={() => openModal('workflow')} className="rounded-lg bg-[#ff7a00] px-3 py-2 text-xs font-black text-white transition-colors hover:bg-[#f6b40b] hover:text-[#050914]">
+              <button onClick={() => openModal('workflow')} className="rounded-lg bg-[#ff7a00] px-3 py-2 text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Criar fluxo
               </button>
             </div>
@@ -800,13 +800,13 @@ const Automacoes = () => {
               ].map((node, index) => {
                 const Icon = node.icon;
                 return (
-                  <div key={node.title} className="relative rounded-xl border border-[#263345] bg-[#0b1020] p-4">
-                    {index < 3 && <div className="absolute -right-3 top-1/2 hidden h-0.5 w-3 bg-[#374151] md:block" />}
+                  <div key={node.title} className="relative rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
+                    {index < 3 && <div className="absolute -right-3 top-1/2 hidden h-0.5 w-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] md:block" />}
                     <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg" style={{ backgroundColor: `${node.color}18`, color: node.color }}>
                       <Icon className="h-5 w-5" />
                     </span>
-                    <p className="text-sm font-black text-white">{node.title}</p>
-                    <p className="mt-1 text-[11px] leading-4 text-slate-500">{node.text}</p>
+                    <p className="text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{node.title}</p>
+                    <p className="mt-1 text-[11px] leading-4 text-[rgb(var(--crm-muted-rgb)_/_1)]">{node.text}</p>
                   </div>
                 );
               })}
@@ -878,16 +878,16 @@ const Automacoes = () => {
                          tab.color === 'green' ? 'border-emerald-400 text-emerald-700 bg-emerald-500/10 dark:text-emerald-200' :
                          'border-amber-400 text-amber-700 bg-amber-500/10 dark:text-amber-200')
                       : 'border-transparent text-[var(--crm-muted)] hover:text-[var(--crm-ink)] hover:border-[var(--crm-border)]'
-                  } whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm flex items-center gap-3 rounded-t-xl transition-all duration-200 hover:bg-black/5 dark:hover:bg-white/5`}
+                  } whitespace-nowrap py-4 px-6 border-b-2 font-medium text-sm flex items-center gap-3 rounded-t-xl transition-all duration-200 hover:bg-black/5 dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]`}
                 >
                   <Icon className="w-5 h-5" />
                   {tab.label}
                   <span className={`px-3 py-1 text-xs font-semibold rounded-full ${
                     activeTab === tab.id 
-                      ? (tab.color === 'blue' ? 'bg-blue-100 text-blue-700' :
-                         tab.color === 'green' ? 'bg-green-100 text-green-700' :
-                         'bg-yellow-100 text-yellow-700')
-                      : 'bg-black/5 dark:bg-white/10 text-[var(--crm-muted)]'
+                      ? (tab.color === 'blue' ? "bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300" :
+                         tab.color === 'green' ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300" :
+                         "bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300")
+                      : "bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[var(--crm-muted)]"
                   }`}>
                     {tab.count}
                   </span>
@@ -954,7 +954,7 @@ const Automacoes = () => {
                       setEditingWorkflow(null);
                       setShowWorkflowModal(true);
                     }}
-                    className="group rounded-2xl border border-[color:var(--crm-border)] bg-black/5 p-4 text-left transition-all hover:-translate-y-0.5 hover:border-orange-400/50 hover:bg-orange-500/5 dark:bg-white/5"
+                    className="group rounded-2xl border border-[color:var(--crm-border)] bg-black/5 p-4 text-left transition-all hover:-translate-y-0.5 hover:border-orange-400/50 hover:bg-orange-500/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]"
                   >
                     <div className="mb-3 flex items-start justify-between gap-3">
                       <div>
@@ -990,7 +990,7 @@ const Automacoes = () => {
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-start">
                           <div className="p-3 bg-gradient-to-br from-cyan-500 via-blue-500 to-emerald-500 rounded-xl mr-4 shadow-lg">
-                            <TriggerIcon className="w-6 h-6 text-white" />
+                            <TriggerIcon className="w-6 h-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                           </div>
                           <div className="flex-1">
                             <h4 className="text-lg font-bold text-[var(--crm-ink)] mb-1">{workflow.name}</h4>
@@ -998,13 +998,13 @@ const Automacoes = () => {
                           </div>
                         </div>
                         <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
-                          isWorkflowActive(workflow) ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200 border border-emerald-500/20' : 'bg-slate-500/15 text-slate-700 dark:text-slate-200 border border-slate-500/20'
+                          isWorkflowActive(workflow) ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200 border border-emerald-500/20' : "bg-[rgb(var(--crm-surface-rgb)_/_0.15)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)]"
                         }`}>
                           {isWorkflowActive(workflow) ? 'Ativo' : 'Inativo'}
                         </span>
                       </div>
 
-                      <div className="mb-5 rounded-2xl border border-[color:var(--crm-border)] bg-black/5 p-3 dark:bg-white/5">
+                      <div className="mb-5 rounded-2xl border border-[color:var(--crm-border)] bg-black/5 p-3 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]">
                         <div className="grid grid-cols-4 gap-2">
                           {[
                             { icon: Zap, label: 'Gatilho', value: getTriggerLabel(workflow.trigger), color: '#18c8df' },
@@ -1026,26 +1026,26 @@ const Automacoes = () => {
                       </div>
                       
                       <div className="space-y-3 mb-6">
-                        <div className="flex items-center justify-between p-3 rounded-lg border border-[color:var(--crm-border)] bg-black/5 dark:bg-white/5">
+                        <div className="flex items-center justify-between p-3 rounded-lg border border-[color:var(--crm-border)] bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]">
                           <span className="text-sm text-[var(--crm-muted)]">Gatilho:</span>
-                          <span className="text-xs font-medium text-blue-700 bg-blue-100 px-2 py-1 rounded-full">
+                          <span className="text-xs font-medium text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950 px-2 py-1 rounded-full">
                             {getTriggerLabel(workflow.trigger)}
                           </span>
                         </div>
                         <div className="grid grid-cols-3 gap-3">
-                          <div className="text-center p-3 rounded-lg border border-[color:var(--crm-border)] bg-black/5 dark:bg-white/5">
+                          <div className="text-center p-3 rounded-lg border border-[color:var(--crm-border)] bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]">
                             <div className="text-lg font-bold text-[var(--crm-ink)]">
                               {workflow._count?.executions || 0}
                             </div>
                             <div className="text-xs text-[var(--crm-muted)]">Execuções</div>
                           </div>
-                          <div className="text-center p-3 rounded-lg border border-[color:var(--crm-border)] bg-black/5 dark:bg-white/5">
+                          <div className="text-center p-3 rounded-lg border border-[color:var(--crm-border)] bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]">
                             <div className="text-lg font-bold text-[var(--crm-ink)]">
                               {actionsCount}
                             </div>
                             <div className="text-xs text-[var(--crm-muted)]">Ações</div>
                           </div>
-                          <div className="text-center p-3 rounded-lg border border-[color:var(--crm-border)] bg-black/5 dark:bg-white/5">
+                          <div className="text-center p-3 rounded-lg border border-[color:var(--crm-border)] bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]">
                             <div className="text-lg font-bold text-[var(--crm-ink)]">
                               {workflowPriority === 'URGENT' ? 'Urg' : workflowPriority === 'HIGH' ? 'Alta' : workflowPriority === 'LOW' ? 'Baixa' : 'Média'}
                             </div>
@@ -1064,7 +1064,7 @@ const Automacoes = () => {
                         </button>
                         <button
                           onClick={() => openWorkflowEdit(workflow)}
-                          className="flex-1 bg-gradient-to-r from-slate-600 to-slate-700 text-white px-4 py-3 rounded-xl text-sm font-medium hover:from-slate-700 hover:to-slate-800 flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl"
+                          className="flex-1 bg-gradient-to-r from-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-rgb)_/_1)] text-[var(--crm-ink)] px-4 py-3 rounded-xl text-sm font-medium hover:from-[rgb(var(--crm-surface-rgb)_/_1)] hover:to-[rgb(var(--crm-surface-rgb)_/_1)] flex items-center justify-center gap-2 transition-all duration-200 shadow-lg hover:shadow-xl"
                         >
                           <Settings className="w-4 h-4" />
                           Editar
@@ -1126,7 +1126,7 @@ const Automacoes = () => {
                   key: 'type',
                   label: 'Tipo',
                   render: (item) => (
-                    <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
+                    <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300">
                       {item.type}
                     </span>
                   )
@@ -1136,7 +1136,7 @@ const Automacoes = () => {
                   label: 'Status',
                   render: (item) => (
                     <span className={`inline-flex px-3 py-1 text-xs font-semibold rounded-full ${
-                      item.active ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200 border border-emerald-500/20' : 'bg-slate-500/15 text-slate-700 dark:text-slate-200 border border-slate-500/20'
+                      item.active ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200 border border-emerald-500/20' : "bg-[rgb(var(--crm-surface-rgb)_/_0.15)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)]"
                     }`}>
                       {item.active ? 'Ativo' : 'Inativo'}
                     </span>
@@ -1147,7 +1147,7 @@ const Automacoes = () => {
                   label: 'Última Execução',
                   render: (item) => (
                     <div className="flex items-center">
-                      <Activity className="w-4 h-4 text-gray-400 mr-2" />
+                      <Activity className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)] mr-2" />
                       <span className="text-sm text-[var(--crm-ink)]">
                         {item.lastRun 
                           ? new Date(item.lastRun).toLocaleString('pt-BR')
@@ -1162,7 +1162,7 @@ const Automacoes = () => {
                   label: 'Próxima Execução',
                   render: (item) => (
                     <div className="flex items-center">
-                      <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                      <Calendar className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)] mr-2" />
                       <span className="text-sm text-[var(--crm-ink)]">
                         {item.nextRun 
                           ? new Date(item.nextRun).toLocaleString('pt-BR')
@@ -1190,7 +1190,7 @@ const Automacoes = () => {
               ]}
               emptyState={
                 <div>
-                  <Settings className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+                  <Settings className="w-16 h-16 text-[rgb(var(--crm-ink-rgb)_/_1)] mx-auto mb-4" />
                   <h3 className="text-lg font-medium text-[var(--crm-ink)] mb-2">Nenhuma regra encontrada</h3>
                   <p className="text-[var(--crm-muted)]">Crie regras de automação para otimizar seus processos</p>
                 </div>
@@ -1235,13 +1235,13 @@ const Automacoes = () => {
                             <div className="flex items-center gap-4 text-xs text-[var(--crm-muted)]">
                               <div className="flex items-center">
                                 <span className="font-medium">Canal:</span>
-                                <span className="ml-1 px-2 py-1 bg-blue-100 text-blue-700 rounded-full">
+                                <span className="ml-1 px-2 py-1 bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 rounded-full">
                                   {notification.channel}
                                 </span>
                               </div>
                               <div className="flex items-center">
                                 <span className="font-medium">Tipo:</span>
-                                <span className="ml-1 px-2 py-1 bg-slate-500/15 text-slate-700 dark:text-slate-200 rounded-full">
+                                <span className="ml-1 px-2 py-1 bg-[rgb(var(--crm-surface-rgb)_/_0.15)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-full">
                                   {notification.type}
                                 </span>
                               </div>
@@ -1254,13 +1254,13 @@ const Automacoes = () => {
                         </div>
                         <div className="flex flex-col items-end space-y-2">
                           {notification.sentAt && (
-                            <div className="flex items-center text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                            <div className="flex items-center text-xs text-green-600 bg-green-50 dark:bg-green-950 px-2 py-1 rounded-full">
                               <CheckCircle className="w-3 h-3 mr-1" />
                               Enviado
                             </div>
                           )}
                           {notification.readAt && (
-                            <div className="flex items-center text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                            <div className="flex items-center text-xs text-blue-600 bg-blue-50 dark:bg-blue-950 px-2 py-1 rounded-full">
                               <Eye className="w-3 h-3 mr-1" />
                               Lido
                             </div>
@@ -1292,7 +1292,7 @@ const Automacoes = () => {
       <div className="rounded-2xl border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.72)] p-8 shadow-lg">
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Zap className="w-8 h-8 text-white" />
+            <Zap className="w-8 h-8 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
           </div>
           <h3 className="text-3xl font-bold text-[var(--crm-ink)] mb-3">Automações Pré-configuradas</h3>
           <p className="text-[var(--crm-muted)] text-lg">Templates prontos para usar - configure em poucos cliques</p>
@@ -1371,7 +1371,7 @@ const Automacoes = () => {
                   automation.gradient === 'orange' ? 'bg-gradient-to-br from-orange-500 to-orange-600' :
                   'bg-gradient-to-br from-red-500 to-red-600'
                 }`}>
-                    <Icon className="w-6 h-6 text-white" />
+                    <Icon className="w-6 h-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                   </div>
                   <div className="flex-1">
                     <h4 className="text-lg font-bold text-[var(--crm-ink)] mb-2">{automation.title}</h4>
@@ -1382,7 +1382,7 @@ const Automacoes = () => {
                 <div className="mb-6">
                   <div className="flex flex-wrap gap-2">
                     {automation.features.map((feature, idx) => (
-                      <span key={idx} className="px-3 py-1 bg-black/5 dark:bg-white/10 text-[var(--crm-ink)] text-xs font-medium rounded-full border border-[color:var(--crm-border)]">
+                      <span key={idx} className="px-3 py-1 bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[var(--crm-ink)] text-xs font-medium rounded-full border border-[color:var(--crm-border)]">
                         {feature}
                       </span>
                     ))}
@@ -1391,7 +1391,7 @@ const Automacoes = () => {
                 
                 <button 
                   onClick={() => configurePresetAutomation(automation.title)}
-                  className={`w-full text-white px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl ${
+                  className={`w-full text-[rgb(var(--crm-ink-rgb)_/_1)] px-4 py-3 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl ${
                   automation.gradient === 'blue' ? 'bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800' :
                   automation.gradient === 'green' ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800' :
                   automation.gradient === 'purple' ? 'bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800' :
@@ -1476,7 +1476,7 @@ const Automacoes = () => {
                 </h3>
                 <div className="space-y-2">
                   {previewAutomation.conditions.map((condition, index) => (
-                    <div key={index} className="flex items-center gap-3 p-3 bg-black/5 dark:bg-white/5 rounded-2xl border border-[color:var(--crm-border)]">
+                    <div key={index} className="flex items-center gap-3 p-3 bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] rounded-2xl border border-[color:var(--crm-border)]">
                       <div className="p-1 bg-orange-500/15 rounded">
                         <AlertCircle className="w-3 h-3 text-orange-700 dark:text-orange-300" />
                       </div>
@@ -1495,7 +1495,7 @@ const Automacoes = () => {
               </h3>
               <div className="space-y-2">
                 {previewAutomation.actions.map((action, index) => (
-                  <div key={index} className="flex items-center gap-3 p-3 bg-black/5 dark:bg-white/5 rounded-2xl border border-[color:var(--crm-border)]">
+                  <div key={index} className="flex items-center gap-3 p-3 bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] rounded-2xl border border-[color:var(--crm-border)]">
                     <div className="p-1 bg-emerald-500/15 rounded">
                       <Play className="w-3 h-3 text-emerald-700 dark:text-emerald-300" />
                     </div>
@@ -1564,7 +1564,7 @@ const Automacoes = () => {
                   <span className={`rounded-full px-3 py-1 text-xs font-black ${
                     workflowForm.active
                       ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-200'
-                      : 'bg-slate-500/15 text-slate-600 dark:text-slate-300'
+                      : "bg-[rgb(var(--crm-surface-rgb)_/_0.15)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   }`}>
                     {workflowForm.active ? 'Ativo' : 'Rascunho'}
                   </span>
@@ -1648,14 +1648,14 @@ const Automacoes = () => {
                     id="workflowActive"
                     checked={workflowForm.active}
                     onChange={(e) => setWorkflowForm(prev => ({ ...prev, active: e.target.checked }))}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-[var(--crm-border)] rounded"
                   />
                   <label htmlFor="workflowActive" className="ml-2 block text-sm text-[var(--crm-ink)]">
                     Ativar workflow imediatamente
                   </label>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 rounded-2xl border border-[color:var(--crm-border)] bg-black/5 p-4 dark:bg-white/5">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 rounded-2xl border border-[color:var(--crm-border)] bg-black/5 p-4 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]">
                   <div>
                     <label className="mb-2 flex items-center gap-2 text-sm font-medium text-[var(--crm-muted)]">
                       <Clock className="h-4 w-4 text-cyan-500" />
@@ -2008,7 +2008,7 @@ const Automacoes = () => {
                     id="ruleActive"
                     checked={ruleForm.active}
                     onChange={(e) => setRuleForm(prev => ({ ...prev, active: e.target.checked }))}
-                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-[var(--crm-border)] rounded"
                   />
                   <label htmlFor="ruleActive" className="ml-2 block text-sm text-[var(--crm-ink)]">
                     Ativar regra imediatamente

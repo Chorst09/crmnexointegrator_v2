@@ -41,36 +41,36 @@ export default function DocModal({ title, sections = [], triggerLabel = 'Guia de
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border border-slate-700 bg-[#0f172a] shadow-2xl">
+      <div className="relative w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-2xl">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[var(--crm-border)]">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/20 rounded-lg">
-              <BookOpen className="w-5 h-5 text-blue-400" />
+              <BookOpen className="w-5 h-5 text-blue-700 dark:text-blue-400" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">{title}</h2>
-              <p className="text-xs text-slate-400">Documentação de uso</p>
+              <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{title}</h2>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Documentação de uso</p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-all"
+            className="p-2 rounded-lg text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-all"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Search */}
-        <div className="px-6 py-3 border-b border-slate-700/50">
+        <div className="px-6 py-3 border-b border-[var(--crm-border)]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
             <input
               type="text"
               placeholder="Buscar na documentação..."
               value={search}
               onChange={e => setSearch(e.target.value)}
-              className="w-full pl-9 pr-4 py-2 rounded-lg bg-slate-800 border border-slate-700 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              className="w-full pl-9 pr-4 py-2 rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:border-blue-500"
             />
           </div>
         </div>
@@ -78,21 +78,21 @@ export default function DocModal({ title, sections = [], triggerLabel = 'Guia de
         {/* Content */}
         <div className="flex-1 overflow-y-auto px-6 py-4 space-y-2">
           {filtered.length === 0 && (
-            <p className="text-center text-slate-500 py-8">Nenhum resultado encontrado.</p>
+            <p className="text-center text-[rgb(var(--crm-muted-rgb)_/_1)] py-8">Nenhum resultado encontrado.</p>
           )}
           {filtered.map((section, idx) => (
-            <div key={idx} className="rounded-xl border border-slate-700/50 overflow-hidden">
+            <div key={idx} className="rounded-xl border border-[var(--crm-border)] overflow-hidden">
               <button
                 onClick={() => toggle(idx)}
-                className="w-full flex items-center justify-between px-4 py-3 bg-slate-800/60 hover:bg-slate-800 transition-all text-left"
+                className="w-full flex items-center justify-between px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.6)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-all text-left"
               >
-                <span className="font-semibold text-white text-sm">{section.title}</span>
+                <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{section.title}</span>
                 {expanded[idx]
-                  ? <ChevronDown className="w-4 h-4 text-slate-400 shrink-0" />
-                  : <ChevronRight className="w-4 h-4 text-slate-400 shrink-0" />}
+                  ? <ChevronDown className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)] shrink-0" />
+                  : <ChevronRight className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)] shrink-0" />}
               </button>
               {expanded[idx] && (
-                <div className="px-4 py-4 bg-slate-900/40 text-sm text-slate-300 leading-relaxed space-y-3">
+                <div className="px-4 py-4 bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed space-y-3">
                   {typeof section.content === 'string'
                     ? section.content.split('\n').map((line, i) => (
                         line.trim() === '' ? <br key={i} /> : <p key={i}>{line}</p>
@@ -105,11 +105,11 @@ export default function DocModal({ title, sections = [], triggerLabel = 'Guia de
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-slate-700/50 flex justify-between items-center">
-          <span className="text-xs text-slate-500">{sections.length} seções disponíveis</span>
+        <div className="px-6 py-3 border-t border-[var(--crm-border)] flex justify-between items-center">
+          <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{sections.length} seções disponíveis</span>
           <button
             onClick={handleClose}
-            className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 hover:bg-slate-700 text-sm font-medium transition-all"
+            className="px-4 py-2 rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-sm font-medium transition-all"
           >
             Fechar
           </button>

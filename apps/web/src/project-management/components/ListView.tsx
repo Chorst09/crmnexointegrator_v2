@@ -9,30 +9,30 @@ function cn(...inputs: ClassValue[]) {
 }
 
 const statusColors: Record<IssueStatus, string> = {
-  'PENDENTE': 'bg-[#111827] text-slate-300',
-  'PLANEJAMENTO': 'bg-[#111827] text-slate-300',
-  'EM PROGRESSO': 'bg-[#3b82f6] text-white',
-  'EM RISCO': 'bg-[#ff7a00] text-white',
-  'ATUALIZAÇÃO NECESSÁRIA': 'bg-[#eab308] text-slate-900',
-  'EM ESPERA': 'bg-[#78716c] text-white',
-  'CONCLUÍDO': 'bg-[#22c55e] text-white',
-  'CANCELADO': 'bg-[#22c55e] text-white'
+  'PENDENTE': "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]",
+  'PLANEJAMENTO': "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]",
+  'EM PROGRESSO': "bg-[#3b82f6] text-[rgb(var(--crm-ink-rgb)_/_1)]",
+  'EM RISCO': "bg-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)]",
+  'ATUALIZAÇÃO NECESSÁRIA': "bg-[#eab308] text-[rgb(var(--crm-ink-rgb)_/_1)]",
+  'EM ESPERA': "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]",
+  'CONCLUÍDO': "bg-[#22c55e] text-[rgb(var(--crm-ink-rgb)_/_1)]",
+  'CANCELADO': "bg-[#22c55e] text-[rgb(var(--crm-ink-rgb)_/_1)]"
 };
 
 const priorityColors: Record<string, string> = {
   'Urgente': 'text-red-500',
   'Alta': 'text-yellow-500',
   'Normal': 'text-blue-500',
-  'Baixa': 'text-slate-400',
+  'Baixa': "text-[rgb(var(--crm-muted-rgb)_/_1)]",
 };
 
 export default function ListView({ issues, onTaskClick, onDeleteIssue }: { issues: Issue[], onTaskClick?: (issue: Issue) => void, onDeleteIssue?: (issue: Issue) => void | Promise<void> }) {
   return (
-    <div className="h-full bg-[#070b16] flex flex-col text-slate-300">
+    <div className="h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] flex flex-col text-[rgb(var(--crm-ink-rgb)_/_1)]">
       <div className="flex-1 overflow-auto p-6">
-        <div className="border border-[#263345] rounded-lg shadow-sm overflow-hidden bg-[#111827]">
+        <div className="border border-[var(--crm-border)] rounded-lg shadow-sm overflow-hidden bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
           <table className="w-full text-left text-sm whitespace-nowrap">
-            <thead className="bg-[#111827] border-b border-[#263345] text-slate-400">
+            <thead className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]">
               <tr>
                 <th className="px-6 py-3 font-semibold w-full">Nome da Fase</th>
                 <th className="px-6 py-3 font-semibold">Status</th>
@@ -42,15 +42,15 @@ export default function ListView({ issues, onTaskClick, onDeleteIssue }: { issue
                 <th className="px-6 py-3 font-semibold">Ações</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#0d1423]">
+            <tbody className="divide-y divide-[var(--crm-border)]">
               {issues.map(issue => (
                 <tr
                   key={issue.id}
-                  className="hover:bg-[#111827] transition-colors group cursor-pointer"
+                  className="hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] transition-colors group cursor-pointer"
                   onClick={() => onTaskClick?.(issue)}
                 >
-                  <td className="px-6 py-3 font-medium text-slate-200 group-hover:text-white transition-colors truncate max-w-md flex items-center gap-2">
-                    <span className="text-slate-500 text-[10px] font-mono">{issue.key || `PRJ-${issue.id.slice(-3)}`}</span>
+                  <td className="px-6 py-3 font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors truncate max-w-md flex items-center gap-2">
+                    <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-[10px] font-mono">{issue.key || `PRJ-${issue.id.slice(-3)}`}</span>
                     {issue.title}
                   </td>
                   <td className="px-6 py-3">
@@ -66,21 +66,21 @@ export default function ListView({ issues, onTaskClick, onDeleteIssue }: { issue
                   <td className="px-6 py-3">
                     {issue.assignee ? (
                       <div className="flex items-center gap-2">
-                        <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-white", issue.assignee.color)}>
+                        <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]", issue.assignee.color)}>
                           {issue.assignee.initials}
                         </div>
-                        <span className="text-slate-300 text-xs">{issue.assignee.name}</span>
+                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs">{issue.assignee.name}</span>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-2 text-slate-500 text-xs">
-                        <div className="w-5 h-5 rounded-full border border-dashed border-slate-600 flex items-center justify-center">
+                      <div className="flex items-center gap-2 text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">
+                        <div className="w-5 h-5 rounded-full border border-dashed border-[var(--crm-border)] flex items-center justify-center">
                           <UserIcon className="w-3 h-3" />
                         </div>
                         <span>Vazio</span>
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-3 text-slate-400 text-xs">
+                  <td className="px-6 py-3 text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">
                     {issue.dueDate ? issue.dueDate : '-'}
                   </td>
                   <td className="px-6 py-3">
@@ -92,7 +92,7 @@ export default function ListView({ issues, onTaskClick, onDeleteIssue }: { issue
                           onDeleteIssue?.(issue);
                         }
                       }}
-                      className="rounded p-1.5 text-slate-500 hover:bg-red-900/40 hover:text-red-400"
+                      className="rounded p-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-red-50/40 dark:hover:bg-red-900/40 hover:text-red-700 dark:hover:text-red-400"
                       title="Excluir fase"
                     >
                       <Trash2 className="w-4 h-4" />

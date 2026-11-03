@@ -123,9 +123,9 @@ const PortalBuscaComFiltrosTI = () => {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700 p-6">
+      <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg shadow-sm border border-[var(--crm-border)] dark:border-[var(--crm-border)] p-6">
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
             Portal de Busca B2G
           </h1>
           <button
@@ -133,13 +133,13 @@ const PortalBuscaComFiltrosTI = () => {
             className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors ${
               mostrarFiltrosTI || busca.filtrosTI.temFiltros
                 ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
             }`}
           >
             <Filter className="w-4 h-4" />
             Filtros TI Avançados
             {busca.filtrosTI.temFiltros && (
-              <span className="bg-white text-blue-600 text-xs px-2 py-1 rounded-full">
+              <span className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-blue-600 text-xs px-2 py-1 rounded-full">
                 Ativo
               </span>
             )}
@@ -153,13 +153,13 @@ const PortalBuscaComFiltrosTI = () => {
             placeholder="Objeto da licitação"
             value={busca.objeto}
             onChange={(e) => setBusca(prev => ({ ...prev, objeto: e.target.value }))}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+            className="px-4 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:border-[var(--crm-border)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
           />
           
           <select
             value={busca.uf}
             onChange={(e) => setBusca(prev => ({ ...prev, uf: e.target.value }))}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+            className="px-4 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:border-[var(--crm-border)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
           >
             <option value="">Todos os Estados</option>
             <option value="SP">São Paulo</option>
@@ -172,7 +172,7 @@ const PortalBuscaComFiltrosTI = () => {
             type="date"
             value={busca.dataInicio}
             onChange={(e) => setBusca(prev => ({ ...prev, dataInicio: e.target.value }))}
-            className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:border-slate-600 dark:text-white"
+            className="px-4 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:border-[var(--crm-border)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
           />
 
           <button
@@ -182,7 +182,7 @@ const PortalBuscaComFiltrosTI = () => {
           >
             {carregando ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-[var(--crm-border)]" />
                 Buscando...
               </>
             ) : (
@@ -205,14 +205,14 @@ const PortalBuscaComFiltrosTI = () => {
       )}
 
       {/* Resultados */}
-      <div className="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-700">
+      <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg shadow-sm border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
         {/* Header dos resultados */}
-        <div className="p-6 border-b border-gray-200 dark:border-slate-700">
+        <div className="p-6 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)]">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
               Resultados da Busca
               {totalResultados > 0 && (
-                <span className="ml-2 text-sm text-gray-500">
+                <span className="ml-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   ({totalResultados} {totalResultados === 1 ? 'resultado' : 'resultados'})
                 </span>
               )}
@@ -228,24 +228,24 @@ const PortalBuscaComFiltrosTI = () => {
         </div>
 
         {/* Lista de resultados */}
-        <div className="divide-y divide-gray-200 dark:divide-slate-700">
+        <div className="divide-y divide-[var(--crm-border)] dark:divide-[var(--crm-border)]">
           {resultados.length === 0 && !carregando && (
             <div className="p-8 text-center">
-              <p className="text-gray-500 dark:text-gray-400">
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 Nenhum resultado encontrado. Tente ajustar os filtros de busca.
               </p>
             </div>
           )}
 
           {resultados.map((edital, index) => (
-            <div key={edital.id || index} className="p-6 hover:bg-gray-50 dark:hover:bg-slate-750">
+            <div key={edital.id || index} className="p-6 hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-slate-750">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                  <h3 className="text-lg font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                     {edital.titulo || edital.objeto || edital.objeto_compra}
                   </h3>
                   
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-gray-600 dark:text-gray-400">
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     <div>
                       <span className="font-medium">Órgão:</span>
                       <p>{edital.orgao?.nome || edital.orgao_nome || 'N/A'}</p>
@@ -268,25 +268,25 @@ const PortalBuscaComFiltrosTI = () => {
                   {edital.relevancia?.score && (
                     <div className="mt-2">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs text-gray-500">Relevância:</span>
-                        <div className="bg-gray-200 dark:bg-slate-600 rounded-full h-2 w-20">
+                        <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Relevância:</span>
+                        <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-full h-2 w-20">
                           <div 
                             className="bg-blue-600 h-2 rounded-full" 
                             style={{ width: `${Math.min(edital.relevancia.score / 2, 100)}%` }}
                           />
                         </div>
-                        <span className="text-xs text-gray-500">{Math.round(edital.relevancia.score)}</span>
+                        <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{Math.round(edital.relevancia.score)}</span>
                       </div>
                     </div>
                   )}
                 </div>
 
                 <div className="flex items-center gap-2 ml-4">
-                  <button className="p-2 text-gray-400 hover:text-blue-600 rounded-lg">
+                  <button className="p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-blue-600 rounded-lg">
                     <Eye className="w-4 h-4" />
                   </button>
                   {edital.vigente && (
-                    <span className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded-full">
+                    <span className="bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300 text-xs font-medium px-2 py-1 rounded-full">
                       Vigente
                     </span>
                   )}

@@ -183,7 +183,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
-        backgroundColor: '#0f172a',
+        backgroundColor: "rgb(var(--crm-surface-2-rgb) / 1)",
         color: 'white'
       }}>
         Carregando...
@@ -198,7 +198,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         alignItems: 'center',
         justifyContent: 'center',
         height: '100vh',
-        backgroundColor: '#0f172a',
+        backgroundColor: "rgb(var(--crm-surface-2-rgb) / 1)",
         color: 'white'
       }}>
         Autenticando...

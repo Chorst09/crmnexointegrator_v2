@@ -46,7 +46,7 @@ class ErrorBoundary extends Component {
 
     return (
       <div className="crm-panel mx-auto max-w-3xl p-8 text-center">
-        <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-400/35 bg-amber-500/15 text-amber-300">
+        <div className="mx-auto inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-amber-400/35 bg-amber-500/15 text-amber-700 dark:text-amber-300">
           <AlertTriangle className="h-7 w-7" />
         </div>
         <h2 className="mt-4 text-2xl font-black text-[var(--crm-ink)]">

@@ -46,7 +46,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
   if (isLoading && !channelSeller && !seller && !channelInfluencer && !channelIndicator) {
     return (
       <div className={cn("flex items-center justify-center p-8", className)}>
-        <div className="text-white">Carregando tabelas de comissões...</div>
+        <div className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Carregando tabelas de comissões...</div>
       </div>
     );
   }
@@ -55,7 +55,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
   if (error && !channelSeller && !seller && !channelInfluencer && !channelIndicator) {
     return (
       <div className={cn("flex items-center justify-center p-8", className)}>
-        <div className="text-red-400">Erro ao carregar tabelas de comissões: {error}</div>
+        <div className="text-red-700 dark:text-red-400">Erro ao carregar tabelas de comissões: {error}</div>
       </div>
     );
   }
@@ -84,7 +84,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
             <Button
               onClick={() => setIsEditing(false)}
               variant="outline"
-              className="text-white border-slate-600 hover:bg-slate-800 flex items-center gap-2"
+              className="text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] flex items-center gap-2"
             >
               <X className="h-4 w-4" />
               Cancelar
@@ -95,7 +95,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
 
       {/* First Row: Canal/Vendedor table at top */}
       <div className="w-full">
-        <Card className="bg-slate-900/80 border-slate-800 text-white">
+        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
           <CardHeader>
             <CardTitle>Comissão Canal/Vendedor</CardTitle>
           </CardHeader>
@@ -104,15 +104,15 @@ export default function CommissionTablesUnified({ className, editable: initialEd
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-white">Prazo (meses)</TableHead>
-                    <TableHead className="text-right text-white">Comissão</TableHead>
+                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Prazo (meses)</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {channelSeller && (
                     <>
                       <TableRow>
-                        <TableCell className="text-white">12 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">12 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -125,12 +125,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(channelSeller.months_12)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(channelSeller.months_12)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">24 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">24 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -143,12 +143,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(channelSeller.months_24)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(channelSeller.months_24)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">36 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">36 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -161,12 +161,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(channelSeller.months_36)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(channelSeller.months_36)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">48 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">48 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -179,12 +179,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(channelSeller.months_48)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(channelSeller.months_48)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">60 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">60 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -197,7 +197,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(channelSeller.months_60)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(channelSeller.months_60)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -213,7 +213,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
       {/* Second Row: Influencer and Indicator tables side by side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Canal Influenciador Table */}
-        <Card className="bg-slate-900/80 border-slate-800 text-white">
+        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
           <CardHeader>
             <CardTitle>Comissão Canal Influenciador</CardTitle>
           </CardHeader>
@@ -222,18 +222,18 @@ export default function CommissionTablesUnified({ className, editable: initialEd
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-white">Receita Mensal</TableHead>
-                    <TableHead className="text-right text-white">12m</TableHead>
-                    <TableHead className="text-right text-white">24m</TableHead>
-                    <TableHead className="text-right text-white">36m</TableHead>
-                    <TableHead className="text-right text-white">48m</TableHead>
-                    <TableHead className="text-right text-white">60m</TableHead>
+                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Receita Mensal</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">12m</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">24m</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">36m</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">48m</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">60m</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {channelInfluencer && channelInfluencer.map((commission) => (
                     <TableRow key={commission.id}>
-                      <TableCell className="text-white text-sm">{commission.revenue_range}</TableCell>
+                      <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{commission.revenue_range}</TableCell>
                       <TableCell className="text-right">
                         {isEditing ? (
                           <EditableCell
@@ -246,7 +246,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                             })}
                           />
                         ) : (
-                          <span className="text-white text-sm">{formatBrazilianNumber(commission.months_12)}%</span>
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(commission.months_12)}%</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -261,7 +261,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                             })}
                           />
                         ) : (
-                          <span className="text-white text-sm">{formatBrazilianNumber(commission.months_24)}%</span>
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(commission.months_24)}%</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -276,7 +276,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                             })}
                           />
                         ) : (
-                          <span className="text-white text-sm">{formatBrazilianNumber(commission.months_36)}%</span>
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(commission.months_36)}%</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -291,7 +291,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                             })}
                           />
                         ) : (
-                          <span className="text-white text-sm">{formatBrazilianNumber(commission.months_48)}%</span>
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(commission.months_48)}%</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -306,7 +306,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                             })}
                           />
                         ) : (
-                          <span className="text-white text-sm">{formatBrazilianNumber(commission.months_60)}%</span>
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(commission.months_60)}%</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -318,7 +318,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
         </Card>
 
         {/* Canal Indicador Table */}
-        <Card className="bg-slate-900/80 border-slate-800 text-white">
+        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
           <CardHeader>
             <CardTitle>Comissão Canal Indicador</CardTitle>
           </CardHeader>
@@ -327,18 +327,18 @@ export default function CommissionTablesUnified({ className, editable: initialEd
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-white">Receita Mensal</TableHead>
-                    <TableHead className="text-right text-white">12m</TableHead>
-                    <TableHead className="text-right text-white">24m</TableHead>
-                    <TableHead className="text-right text-white">36m</TableHead>
-                    <TableHead className="text-right text-white">48m</TableHead>
-                    <TableHead className="text-right text-white">60m</TableHead>
+                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Receita Mensal</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">12m</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">24m</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">36m</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">48m</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">60m</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {channelIndicator && channelIndicator.map((commission) => (
                     <TableRow key={commission.id}>
-                      <TableCell className="text-white text-sm">{commission.revenue_range}</TableCell>
+                      <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{commission.revenue_range}</TableCell>
                       <TableCell className="text-right">
                         {isEditing ? (
                           <EditableCell
@@ -351,7 +351,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                             })}
                           />
                         ) : (
-                          <span className="text-white text-sm">{formatBrazilianNumber(commission.months_12)}%</span>
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(commission.months_12)}%</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -366,7 +366,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                             })}
                           />
                         ) : (
-                          <span className="text-white text-sm">{formatBrazilianNumber(commission.months_24)}%</span>
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(commission.months_24)}%</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -381,7 +381,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                             })}
                           />
                         ) : (
-                          <span className="text-white text-sm">{formatBrazilianNumber(commission.months_36)}%</span>
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(commission.months_36)}%</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -396,7 +396,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                             })}
                           />
                         ) : (
-                          <span className="text-white text-sm">{formatBrazilianNumber(commission.months_48)}%</span>
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(commission.months_48)}%</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -411,7 +411,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                             })}
                           />
                         ) : (
-                          <span className="text-white text-sm">{formatBrazilianNumber(commission.months_60)}%</span>
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(commission.months_60)}%</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -426,7 +426,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
       {/* Third Row: Seller and Director tables side by side */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Vendedor Table */}
-        <Card className="bg-slate-900/80 border-slate-800 text-white">
+        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
           <CardHeader>
             <CardTitle>Comissão Vendedor</CardTitle>
           </CardHeader>
@@ -435,15 +435,15 @@ export default function CommissionTablesUnified({ className, editable: initialEd
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-white">Prazo (meses)</TableHead>
-                    <TableHead className="text-right text-white">Comissão</TableHead>
+                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Prazo (meses)</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {seller && (
                     <>
                       <TableRow>
-                        <TableCell className="text-white">12 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">12 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -456,12 +456,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(seller.months_12)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(seller.months_12)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">24 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">24 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -474,12 +474,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(seller.months_24)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(seller.months_24)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">36 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">36 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -492,12 +492,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(seller.months_36)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(seller.months_36)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">48 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">48 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -510,12 +510,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(seller.months_48)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(seller.months_48)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">60 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">60 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -528,7 +528,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(seller.months_60)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(seller.months_60)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
@@ -541,7 +541,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
         </Card>
 
         {/* Diretor Table */}
-        <Card className="bg-slate-900/80 border-slate-800 text-white">
+        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
           <CardHeader>
             <CardTitle>Comissão Diretor</CardTitle>
           </CardHeader>
@@ -550,15 +550,15 @@ export default function CommissionTablesUnified({ className, editable: initialEd
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-white">Prazo (meses)</TableHead>
-                    <TableHead className="text-right text-white">Comissão</TableHead>
+                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Prazo (meses)</TableHead>
+                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {channelDirector && (
                     <>
                       <TableRow>
-                        <TableCell className="text-white">12 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">12 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -571,12 +571,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(channelDirector.months_12)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(channelDirector.months_12)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">24 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">24 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -589,12 +589,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(channelDirector.months_24)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(channelDirector.months_24)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">36 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">36 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -607,12 +607,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(channelDirector.months_36)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(channelDirector.months_36)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">48 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">48 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -625,12 +625,12 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(channelDirector.months_48)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(channelDirector.months_48)}%</span>
                           )}
                         </TableCell>
                       </TableRow>
                       <TableRow>
-                        <TableCell className="text-white">60 meses</TableCell>
+                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">60 meses</TableCell>
                         <TableCell className="text-right">
                           {isEditing ? (
                             <EditableCell
@@ -643,7 +643,7 @@ export default function CommissionTablesUnified({ className, editable: initialEd
                               })}
                             />
                           ) : (
-                            <span className="text-white text-sm">{formatBrazilianNumber(channelDirector.months_60)}%</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{formatBrazilianNumber(channelDirector.months_60)}%</span>
                           )}
                         </TableCell>
                       </TableRow>

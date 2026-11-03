@@ -70,11 +70,11 @@ export const CalculatorLoading: React.FC<CalculatorLoadingProps> = ({
   return (
     <div className={cn(
       'flex flex-col items-center justify-center p-8 space-y-4',
-      'bg-slate-900/50 rounded-lg border border-slate-700',
+      "bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] rounded-lg border border-[var(--crm-border)]",
       className
     )}>
       {getIcon()}
-      <p className="text-slate-300 text-sm font-medium">
+      <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm font-medium">
         {message || getDefaultMessage()}
       </p>
     </div>
@@ -96,7 +96,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
-      <div className="bg-slate-900 rounded-lg border border-slate-700 p-8 max-w-sm w-full mx-4">
+      <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-lg border border-[var(--crm-border)] p-8 max-w-sm w-full mx-4">
         <CalculatorLoading message={message} type={type} className="bg-transparent border-none p-0" />
       </div>
     </div>
@@ -117,7 +117,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
       {Array.from({ length: lines }).map((_, index) => (
         <div
           key={index}
-          className="h-4 bg-slate-700 rounded animate-pulse"
+          className="h-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded animate-pulse"
           style={{
             width: `${Math.random() * 40 + 60}%`
           }}
@@ -143,7 +143,7 @@ export const TableSkeleton: React.FC<TableSkeletonProps> = ({
       {/* Header skeleton */}
       <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
         {Array.from({ length: columns }).map((_, index) => (
-          <div key={`header-${index}`} className="h-6 bg-slate-600 rounded animate-pulse" />
+          <div key={`header-${index}`} className="h-6 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded animate-pulse" />
         ))}
       </div>
       
@@ -157,7 +157,7 @@ export const TableSkeleton: React.FC<TableSkeletonProps> = ({
           {Array.from({ length: columns }).map((_, colIndex) => (
             <div 
               key={`cell-${rowIndex}-${colIndex}`} 
-              className="h-4 bg-slate-700 rounded animate-pulse" 
+              className="h-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded animate-pulse"
             />
           ))}
         </div>
@@ -173,11 +173,11 @@ interface CardSkeletonProps {
 export const CardSkeleton: React.FC<CardSkeletonProps> = ({ className }) => {
   return (
     <div className={cn(
-      'bg-slate-900/80 border border-slate-800 rounded-lg p-6 space-y-4',
+      "bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] rounded-lg p-6 space-y-4",
       className
     )}>
       {/* Title skeleton */}
-      <div className="h-6 bg-slate-700 rounded animate-pulse w-1/3" />
+      <div className="h-6 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded animate-pulse w-1/3" />
       
       {/* Content skeleton */}
       <div className="space-y-3">
@@ -186,8 +186,8 @@ export const CardSkeleton: React.FC<CardSkeletonProps> = ({ className }) => {
       
       {/* Button skeleton */}
       <div className="flex space-x-2">
-        <div className="h-10 bg-slate-700 rounded animate-pulse w-24" />
-        <div className="h-10 bg-slate-700 rounded animate-pulse w-20" />
+        <div className="h-10 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded animate-pulse w-24" />
+        <div className="h-10 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded animate-pulse w-20" />
       </div>
     </div>
   );
@@ -207,15 +207,15 @@ export const ProgressBar: React.FC<ProgressBarProps> = ({
   return (
     <div className={cn('space-y-2', className)}>
       {message && (
-        <p className="text-sm text-slate-300 font-medium">{message}</p>
+        <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium">{message}</p>
       )}
-      <div className="w-full bg-slate-700 rounded-full h-2">
+      <div className="w-full bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-full h-2">
         <div
           className="bg-blue-500 h-2 rounded-full transition-all duration-300 ease-out"
           style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
         />
       </div>
-      <p className="text-xs text-slate-400 text-right">
+      <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] text-right">
         {Math.round(progress)}%
       </p>
     </div>

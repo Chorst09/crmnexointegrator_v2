@@ -22,10 +22,10 @@ const PHASE_LABELS = {
 };
 
 const STATUS_STYLES = {
-  AGENDADA:   'border-blue-500/40 bg-blue-500/10 text-blue-300',
-  REALIZADA:  'border-emerald-500/40 bg-emerald-500/10 text-emerald-300',
-  CANCELADA:  'border-red-500/40 bg-red-500/10 text-red-300',
-  REAGENDADA: 'border-yellow-500/40 bg-yellow-500/10 text-yellow-300'
+  AGENDADA:   "border-blue-500/40 bg-blue-500/10 text-blue-700 dark:text-blue-300",
+  REALIZADA:  "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300",
+  CANCELADA:  "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300",
+  REAGENDADA: "border-yellow-500/40 bg-yellow-500/10 text-yellow-700 dark:text-yellow-300"
 };
 
 const STATUS_LABELS = {
@@ -223,7 +223,7 @@ export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute
           <button
             type="button"
             onClick={() => { setShowNewForm(v => !v); setFeedback(''); }}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/20 transition-colors"
           >
             {showNewForm ? '✕ Cancelar' : '+ Nova Reunião'}
           </button>
@@ -271,10 +271,10 @@ export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute
                 ))}
               </select>
               {newForm.phase === 'ALINHAMENTO_INTERNO' && (
-                <p className="mt-1 text-[11px] text-slate-400">📋 Use o Modelo de Kickoff Interno para alinhar escopo, riscos e responsabilidades com o time.</p>
+                <p className="mt-1 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">📋 Use o Modelo de Kickoff Interno para alinhar escopo, riscos e responsabilidades com o time.</p>
               )}
               {newForm.phase === 'ALINHAMENTO_EXTERNO' && (
-                <p className="mt-1 text-[11px] text-slate-400">🚀 Use o Modelo de Kickoff Externo para alinhar com o cliente, cronograma e governança.</p>
+                <p className="mt-1 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">🚀 Use o Modelo de Kickoff Externo para alinhar com o cliente, cronograma e governança.</p>
               )}
             </div>
 
@@ -323,10 +323,10 @@ export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute
             </div>
           </div>
 
-          {feedback && <p className="text-sm text-rose-400">{feedback}</p>}
+          {feedback && <p className="text-sm text-rose-700 dark:text-rose-400">{feedback}</p>}
 
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => setShowNewForm(false)} className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800">
+            <button type="button" onClick={() => setShowNewForm(false)} className="rounded-lg border border-[var(--crm-border)] px-4 py-2 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]">
               Cancelar
             </button>
             <button type="submit" disabled={creating} className="rounded-lg bg-cyan-600 hover:bg-cyan-500 disabled:opacity-60 px-4 py-2 text-sm font-semibold text-white transition-colors">
@@ -354,7 +354,7 @@ export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute
                   /* Formulário de Edição */
                   <form onSubmit={handleUpdateMeeting} className="rounded-xl border border-yellow-500/30 bg-yellow-500/5 p-4 space-y-4">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="text-sm font-semibold text-yellow-300">Editando Reunião</h4>
+                      <h4 className="text-sm font-semibold text-yellow-700 dark:text-yellow-300">Editando Reunião</h4>
                     </div>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -438,7 +438,7 @@ export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute
                     </div>
 
                     <div className="flex justify-end gap-2">
-                      <button type="button" onClick={() => setEditingMeeting(null)} className="rounded-lg border border-slate-600 px-4 py-2 text-sm font-medium text-slate-300 hover:bg-slate-800">
+                      <button type="button" onClick={() => setEditingMeeting(null)} className="rounded-lg border border-[var(--crm-border)] px-4 py-2 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]">
                         Cancelar
                       </button>
                       <button type="submit" className="rounded-lg bg-yellow-600 hover:bg-yellow-500 px-4 py-2 text-sm font-semibold text-white transition-colors">
@@ -477,7 +477,7 @@ export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute
                           // Navega pela rota do módulo de origem para respeitar as permissões do vendedor.
                           window.location.href = `${kickoffRoute}?meetingId=${encodeURIComponent(meetingId)}`;
                         }}
-                        className="shrink-0 rounded-lg border border-cyan-600 bg-cyan-600/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-600/20 transition-colors"
+                        className="shrink-0 rounded-lg border border-cyan-600 bg-cyan-600/10 px-3 py-1.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300 hover:bg-cyan-600/20 transition-colors"
                       >
                         Abrir reunião →
                       </button>
@@ -488,7 +488,7 @@ export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute
                       <button
                         type="button"
                         onClick={() => handleEdit(m)}
-                        className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 px-3 py-1.5 text-xs font-semibold text-yellow-300 hover:bg-yellow-500/20 transition-colors"
+                        className="rounded-lg border border-yellow-500/50 bg-yellow-500/10 px-3 py-1.5 text-xs font-semibold text-yellow-700 dark:text-yellow-300 hover:bg-yellow-500/20 transition-colors"
                       >
                         ✏️ Editar
                       </button>
@@ -496,7 +496,7 @@ export default function KickoffSection({ opportunityId, onNavigate, kickoffRoute
                         type="button"
                         onClick={() => handleDelete(m.id)}
                         disabled={deleting === m.id}
-                        className="rounded-lg border border-red-500/50 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-300 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
+                        className="rounded-lg border border-red-500/50 bg-red-500/10 px-3 py-1.5 text-xs font-semibold text-red-700 dark:text-red-300 hover:bg-red-500/20 disabled:opacity-50 transition-colors"
                       >
                         {deleting === m.id ? 'Excluindo...' : '🗑️ Excluir'}
                       </button>

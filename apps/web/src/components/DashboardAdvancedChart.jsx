@@ -1,3 +1,4 @@
+import { useTheme } from '../theme/ThemeProvider';
 /**
  * Advanced Chart Component para Dashboards
  * Suporta múltiplos tipos com efeitos avançados
@@ -8,6 +9,7 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
+  RadialLinearScale,
   LineElement,
   BarElement,
   PointElement,
@@ -18,12 +20,13 @@ import {
   Filler
 } from 'chart.js';
 import { Line, Bar, Doughnut, Radar, PolarArea } from 'react-chartjs-2';
-import { DASHBOARD_COLORS, CHART_CONFIG } from '../constants/dashboardTheme';
+import { DASHBOARD_COLORS as BASE_DASHBOARD_COLORS, CHART_CONFIG } from '../constants/dashboardTheme';
 import '../styles/dashboardEffects.css';
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
+  RadialLinearScale,
   LineElement,
   BarElement,
   PointElement,
@@ -49,6 +52,16 @@ const DashboardAdvancedChart = ({
   legendPosition = 'right',
   icon = null
 }) => {
+  const { resolvedTheme } = useTheme();
+  const DASHBOARD_COLORS = useMemo(() => {
+    const dark = resolvedTheme === 'dark';
+    return {
+      ...BASE_DASHBOARD_COLORS,
+      background: { primary: dark ? '#050914' : '#f8fafc', overlay: dark ? '#111827' : '#ffffff' },
+      text: { primary: dark ? '#f4f7fb' : '#0f172a', secondary: dark ? '#cbd5e1' : '#475569', tertiary: dark ? '#8f9caf' : '#64748b' },
+      border: { light: dark ? 'rgba(148,163,184,0.2)' : 'rgba(15,23,42,0.12)' }
+    };
+  }, [resolvedTheme]);
   // Cores baseadas no tema
   const colorPalettes = {
     multi: [
@@ -127,7 +140,7 @@ const DashboardAdvancedChart = ({
         borderCapStyle: 'round'
       }))
     };
-  }, [data, type, colors, subtitle]);
+  }, [data, type, colors, subtitle, DASHBOARD_COLORS]);
 
   // Opções do chart
   const chartOptions = useMemo(() => {
@@ -210,7 +223,7 @@ const DashboardAdvancedChart = ({
       plugins[name] = { ...plugins[name], ...options };
     });
     return { ...baseOptions, ...customOptions, plugins };
-  }, [showLegend, animated, customOptions]);
+  }, [showLegend, animated, customOptions, DASHBOARD_COLORS]);
 
   return (
     <div className="dashboard-card p-6 space-y-4">
@@ -218,22 +231,22 @@ const DashboardAdvancedChart = ({
       <div className="flex items-center justify-between">
         <div>
           {title && (
-            <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
               {title}
             </h3>
           )}
           {subtitle && (
-            <p className="text-xs text-slate-500 mt-1">{subtitle}</p>
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">{subtitle}</p>
           )}
         </div>
-        {icon && <div className="text-slate-400">{icon}</div>}
+        {icon && <div className="text-[rgb(var(--crm-muted-rgb)_/_1)]">{icon}</div>}
       </div>
 
       {/* Empty State */}
       {isEmpty ? (
         <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div className="text-center">
-            <p className="text-sm text-slate-400">{emptyMessage}</p>
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">{emptyMessage}</p>
           </div>
         </div>
       ) : (
@@ -283,11 +296,11 @@ const DashboardAdvancedChart = ({
           </div>
 
           {/* Footer Info */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-500/20">
-            <span className="text-xs text-slate-500">
+          <div className="flex items-center justify-between pt-4 border-t border-[var(--crm-border)]">
+            <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
               {new Date().toLocaleDateString('pt-BR')}
             </span>
-            <span className="text-xs text-slate-600">
+            <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
               {processedData.datasets.length} série{processedData.datasets.length !== 1 ? 's' : ''}
             </span>
           </div>

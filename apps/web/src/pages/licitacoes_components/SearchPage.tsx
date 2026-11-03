@@ -374,32 +374,32 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#011116] transition-colors duration-200">
-      <header className="px-8 pt-6 pb-4 bg-[#011419] border-b border-[#07323e]">
+    <div className="flex flex-col h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] transition-colors duration-200">
+      <header className="px-8 pt-6 pb-4 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)]">
         <div className="flex items-center gap-3">
-          <h1 className="text-3xl font-extrabold text-white tracking-tight">Buscar Editais</h1>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-950/80 text-emerald-300 border border-emerald-800">
+          <h1 className="text-3xl font-extrabold text-[rgb(var(--crm-ink-rgb)_/_1)] tracking-tight">Buscar Editais</h1>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50/80 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
             <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
             Multi-Fontes Integradas
           </span>
         </div>
-        <p className="text-sm text-slate-300 mt-2 max-w-5xl leading-relaxed">
+        <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2 max-w-5xl leading-relaxed">
           Busca nas fontes ativas de PNCP, Compras.gov.br, SIASG, DOU, atas, contratações diretas e portais de transparência.
         </p>
       </header>
 
       <div className="p-8 flex-1 overflow-y-auto">
         {/* FONTES ATIVAS — resumo + link para configurações */}
-        <div className="bg-[#021820]/90 border border-[#083d4c] rounded-2xl px-4 py-3 mb-6 shadow-lg flex items-center justify-between gap-4 flex-wrap">
+        <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] border border-[var(--crm-border)] rounded-2xl px-4 py-3 mb-6 shadow-lg flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-1.5">
-              <Layers className="w-4 h-4 text-cyan-400" />
-              <span className="text-xs font-black uppercase tracking-wider text-white">
+              <Layers className="w-4 h-4 text-cyan-700 dark:text-cyan-400" />
+              <span className="text-xs font-black uppercase tracking-wider text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Fontes Ativas:
               </span>
             </div>
             {fontesAtivas.size === 0 ? (
-              <span className="text-xs text-amber-400 font-semibold flex items-center gap-1">
+              <span className="text-xs text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-1">
                 <AlertCircle className="w-3.5 h-3.5" /> Nenhuma fonte selecionada — sem resultados
               </span>
             ) : (
@@ -407,14 +407,14 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                 {SOURCES_CATALOG.filter(s => fontesAtivas.has(s.id)).map(s => (
                   <span
                     key={s.id}
-                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[#011d26] border border-[#07323e] text-slate-300"
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-semibold bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   >
                     <span>{s.icon}</span>
                     <span>{s.shortName}</span>
                   </span>
                 ))}
                 {fontesAtivas.size < SOURCES_CATALOG.length && (
-                  <span className="text-[11px] text-slate-500 self-center ml-1">
+                  <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] self-center ml-1">
                     ({SOURCES_CATALOG.length - fontesAtivas.size} desativadas)
                   </span>
                 )}
@@ -424,10 +424,10 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
           {/* Botão de atalho para configurações */}
           <button
             onClick={onNavigateToPipeline}
-            className="flex items-center gap-1.5 text-[11px] text-slate-400 hover:text-cyan-300 transition-colors whitespace-nowrap cursor-pointer"
+            className="flex items-center gap-1.5 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors whitespace-nowrap cursor-pointer"
           >
             <Settings className="w-3.5 h-3.5" />
-            <span>Gerenciar fontes em <strong className="text-cyan-400">Configurações</strong></span>
+            <span>Gerenciar fontes em <strong className="text-cyan-700 dark:text-cyan-400">Configurações</strong></span>
           </button>
         </div>
 
@@ -435,13 +435,13 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
           <div className="flex gap-4">
             <div className="relative flex-1">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-slate-400 dark:text-slate-500" />
+                <Search className="h-5 w-5 text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]" />
               </div>
               <input
                 type="text"
                 placeholder="Digite o produto de TI: notebook, firewall, Microsoft 365…"
                 aria-label="Produto de TI"
-                className="block w-full pl-10 pr-3 py-3 border border-[#07323e] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-[#011419] shadow-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500"
+                className="block w-full pl-10 pr-3 py-3 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] dark:placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); fetchLicitacoes(searchTerm); } }}
@@ -453,7 +453,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
               placeholder="Cidade (ex: Curitiba)..."
               aria-label="Cidade"
               list="b2g-city-options"
-              className="border border-[#07323e] rounded-lg px-4 py-3 bg-[#011419] text-slate-900 dark:text-slate-100 shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none w-48 placeholder-slate-400 dark:placeholder-slate-500"
+              className="border border-[var(--crm-border)] rounded-lg px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none w-48 placeholder-[rgb(var(--crm-muted-rgb)_/_1)] dark:placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); fetchLicitacoes(); } }}
@@ -464,7 +464,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
             <select
               aria-label="Estado"
-              className="border border-[#07323e] rounded-lg px-4 py-3 bg-[#011419] text-slate-700 dark:text-slate-200 shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none w-48"
+              className="border border-[var(--crm-border)] rounded-lg px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none w-48"
               value={selectedUf}
               onChange={(e) => {
                 const uf = e.target.value;
@@ -505,10 +505,10 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
           
           <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Publicado de:</span>
+              <span className="text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Publicado de:</span>
               <input
                 type="date"
-                className="border border-[#07323e] rounded-lg px-3 py-2 bg-[#011419] text-slate-700 dark:text-slate-200 shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none text-sm"
+                className="border border-[var(--crm-border)] rounded-lg px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none text-sm"
                 aria-label="Publicado de"
                 max={getTodayISO()}
                 value={dataInicial}
@@ -516,10 +516,10 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
               />
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium text-slate-600 dark:text-slate-300">Até:</span>
+              <span className="text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Até:</span>
               <input
                 type="date"
-                className="border border-[#07323e] rounded-lg px-3 py-2 bg-[#011419] text-slate-700 dark:text-slate-200 shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none text-sm"
+                className="border border-[var(--crm-border)] rounded-lg px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none text-sm"
                 aria-label="Publicado até"
                 max={getTodayISO()}
                 value={dataFinal}
@@ -533,7 +533,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
             >
               Buscar editais
             </button>
-            <div className="w-px h-6 bg-slate-200 dark:bg-slate-800 mx-2"></div>
+            <div className="w-px h-6 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] mx-2"></div>
             
             <label className="flex items-center cursor-pointer">
               <div className="relative">
@@ -543,27 +543,27 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                   checked={onlyActive}
                   onChange={(e) => setOnlyActive(e.target.checked)}
                 />
-                <div className={cn("block w-10 h-6 rounded-full transition-colors", onlyActive ? "bg-cyan-600 dark:bg-cyan-500" : "bg-slate-300 dark:bg-slate-700")}></div>
-                <div className={cn("dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform", onlyActive ? "transform translate-x-4" : "")}></div>
+                <div className={cn("block w-10 h-6 rounded-full transition-colors", onlyActive ? "bg-cyan-600 dark:bg-cyan-500" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]")}></div>
+                <div className={cn("dot absolute left-1 top-1 bg-[rgb(var(--crm-surface-rgb)_/_1)] w-4 h-4 rounded-full transition-transform", onlyActive ? "transform translate-x-4" : "")}></div>
               </div>
-              <span className="ml-3 text-sm font-medium text-slate-200">Apenas situação ativa</span>
+              <span className="ml-3 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Apenas situação ativa</span>
             </label>
           </div>
 
-          {periodWarning && <p role="status" className="text-sm text-amber-300">{periodWarning}</p>}
+          {periodWarning && <p role="status" className="text-sm text-amber-700 dark:text-amber-300">{periodWarning}</p>}
 
           {statusFontes.length > 0 && !loading && (
-        <div className="rounded-xl border border-[#07323e] bg-[#011419] p-4 space-y-3">
-          <h3 className="text-sm font-semibold text-slate-100">Fontes consultadas ({statusFontes.length})</h3>
+        <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4 space-y-3">
+          <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Fontes consultadas ({statusFontes.length})</h3>
           <div className="flex flex-wrap gap-2">
             {statusFontes.map((status) => (
-              <span key={status.id} title={status.lastError || status.warnings?.join(' ') || 'A contagem exibida considera os filtros desta tela; fontes podem compartilhar o mesmo edital.'} className={`rounded-lg border px-3 py-1.5 text-xs ${status.status === 'error' ? 'border-rose-800 text-rose-300' : status.status === 'partial' ? 'border-amber-800 text-amber-300' : status.status === 'fallback' ? 'border-sky-800 text-sky-300' : 'border-emerald-800 text-emerald-300'}`}>
+              <span key={status.id} title={status.lastError || status.warnings?.join(' ') || 'A contagem exibida considera os filtros desta tela; fontes podem compartilhar o mesmo edital.'} className={`rounded-lg border px-3 py-1.5 text-xs ${status.status === 'error' ? "border-rose-200 dark:border-rose-800 text-rose-700 dark:text-rose-300" : status.status === 'partial' ? "border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300" : status.status === 'fallback' ? "border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300" : "border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300"}`}>
                 {status.nome}: {filteredLicitacoes.filter(lic => (lic as any).sourceId === status.id || (lic as any).origens?.some((origin: any) => origin.id === status.id)).length} exibido(s) / {status.totalResults} coletado(s){status.status === 'error' ? ' — falha' : status.status === 'partial' ? ' — parcial' : status.status === 'fallback' ? ` — alternativa: ${status.fallback || 'fonte oficial'}` : ''}
               </span>
             ))}
           </div>
           {diagnosticoFiltros && (
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
               {diagnosticoFiltros.coletados} registros coletados; {diagnosticoFiltros.unicos} após remover duplicatas; {filteredLicitacoes.length} exibidos com os filtros atuais.
               {diagnosticoFiltros.excluidos?.uf > 0 && ` ${diagnosticoFiltros.excluidos.uf} fora da UF selecionada.`}
               {diagnosticoFiltros.excluidos?.semUf > 0 && ` ${diagnosticoFiltros.excluidos.semUf} sem UF confirmada ficaram fora do filtro de estado.`}
@@ -578,34 +578,34 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
         </div>
       )}
       {searchErrors.length > 0 && !loading && (
-        <details className="rounded-xl border border-amber-800/60 bg-amber-950/20 p-4 text-sm text-amber-200">
+        <details className="rounded-xl border border-amber-200/60 dark:border-amber-800/60 bg-amber-50/20 dark:bg-amber-950/20 p-4 text-sm text-amber-700 dark:text-amber-200">
           <summary className="cursor-pointer font-semibold">Algumas fontes não concluíram a consulta ({searchErrors.length})</summary>
           <ul className="mt-2 list-disc pl-5 space-y-1">{searchErrors.map((error, i) => <li key={i}>{error}</li>)}</ul>
         </details>
       )}
 
       {/* Painel da Regra de Validade Temporal (Filtro por Data de Abertura) */}
-          <div className="bg-slate-100/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.8)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div className={cn(
                 "p-1.5 rounded-lg",
-                ocultarEncerrados ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400" : "bg-slate-200 dark:bg-slate-800 text-slate-400"
+                ocultarEncerrados ? "bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
               )}>
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-white uppercase tracking-wider">
+                  <span className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                     Regra de Validade Temporal:
                   </span>
                   <span className={cn(
                     "text-[11px] font-semibold px-2 py-0.5 rounded-full",
-                    ocultarEncerrados ? "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800" : "bg-slate-200 dark:bg-slate-800 text-slate-300"
+                    ocultarEncerrados ? "bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   )}>
                     {ocultarEncerrados ? "Ativa (Ocultando Editais Já Acontecidos)" : "Desativada (Mostrando Todos)"}
                   </span>
                 </div>
-                <p className="text-xs text-slate-400 mt-0.5">
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">
                   Não traz editais com data de abertura/lances inferior à data da busca ({new Date(`${dataBuscaReferencia}T00:00:00`).toLocaleDateString('pt-BR')}).
                 </p>
               </div>
@@ -613,12 +613,12 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
             <div className="flex items-center gap-3 self-end md:self-auto">
               <div className="flex items-center gap-1.5">
-                <span className="text-xs text-slate-400 font-medium">Data de Busca:</span>
+                <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium">Data de Busca:</span>
                 <input
                   type="date"
                   value={dataBuscaReferencia}
                   onChange={(e) => setDataBuscaReferencia(e.target.value)}
-                  className="border border-[#07323e] bg-[#011419] rounded-md px-2 py-1 text-xs text-slate-700 dark:text-slate-200 focus:ring-1 focus:ring-blue-600 outline-none shadow-sm"
+                  className="border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-md px-2 py-1 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:ring-1 focus:ring-blue-600 outline-none shadow-sm"
                   title="Data de referência da busca para verificar se o certame já aconteceu"
                 />
               </div>
@@ -631,10 +631,10 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                     checked={ocultarEncerrados}
                     onChange={(e) => setOcultarEncerrados(e.target.checked)}
                   />
-                  <div className={cn("block w-9 h-5 rounded-full transition-colors", ocultarEncerrados ? "bg-emerald-600" : "bg-slate-300 dark:bg-slate-700")}></div>
-                  <div className={cn("dot absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform", ocultarEncerrados ? "transform translate-x-4" : "")}></div>
+                  <div className={cn("block w-9 h-5 rounded-full transition-colors", ocultarEncerrados ? "bg-emerald-600" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]")}></div>
+                  <div className={cn("dot absolute left-0.5 top-0.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] w-4 h-4 rounded-full transition-transform", ocultarEncerrados ? "transform translate-x-4" : "")}></div>
                 </div>
-                <span className="ml-2 text-xs font-semibold text-slate-200">
+                <span className="ml-2 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   {ocultarEncerrados ? "Ocultar Encerrados" : "Permitir Passados"}
                 </span>
               </label>
@@ -642,12 +642,12 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
           </div>
         </div>
 
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-cyan-900 bg-[#011419] px-4 py-3">
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-cyan-200 dark:border-cyan-900 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-4 py-3">
           <div>
-            <p className="flex items-center gap-2 text-sm font-semibold text-cyan-200"><ShieldCheck className="h-4 w-4" />Busca exclusiva de TI</p>
-            <p className="mt-1 text-xs text-slate-400">{productPreferences.enabled ? 'Descoberta automática ativa. Digite um produto para direcionar a consulta.' : 'Modo manual: digite um produto de TI para buscar editais.'} Produtos de TI fora da lista de interesse também são considerados.</p>
+            <p className="flex items-center gap-2 text-sm font-semibold text-cyan-700 dark:text-cyan-200"><ShieldCheck className="h-4 w-4" />Busca exclusiva de TI</p>
+            <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{productPreferences.enabled ? 'Descoberta automática ativa. Digite um produto para direcionar a consulta.' : 'Modo manual: digite um produto de TI para buscar editais.'} Produtos de TI fora da lista de interesse também são considerados.</p>
           </div>
-          <button type="button" onClick={onNavigateToPipeline} className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-300 hover:text-cyan-100"><Settings className="h-4 w-4" />Configurar produtos</button>
+          <button type="button" onClick={onNavigateToPipeline} className="inline-flex items-center gap-1.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300 hover:text-cyan-700 dark:hover:text-cyan-100"><Settings className="h-4 w-4" />Configurar produtos</button>
         </div>
 
         {/* Alerta de Editais Ocultados pela Regra de Validade */}
@@ -671,15 +671,15 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
         {loading ? (
           <div className="flex justify-center py-20">
             <div className="animate-pulse flex flex-col items-center gap-4">
-              <div className="h-8 w-8 rounded-full border-4 border-slate-200 dark:border-slate-700 border-t-cyan-500 animate-spin"></div>
-              <p className="text-slate-400 text-sm">Buscando na base de dados...</p>
+              <div className="h-8 w-8 rounded-full border-4 border-[var(--crm-border)] dark:border-[var(--crm-border)] border-t-cyan-500 animate-spin"></div>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm">Buscando na base de dados...</p>
             </div>
           </div>
         ) : filteredLicitacoes.length === 0 ? (
-          <div className="text-center py-20 bg-[#011419] rounded-xl border border-[#07323e] border-dashed">
-            <AlertCircle className="w-12 h-12 text-slate-300 dark:text-slate-600 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-900 dark:text-slate-100">Nenhum edital encontrado</h3>
-            <p className="text-slate-400 mt-1">
+          <div className="text-center py-20 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-xl border border-[var(--crm-border)] border-dashed">
+            <AlertCircle className="w-12 h-12 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum edital encontrado</h3>
+            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
               {searchInfo || (ocultarEncerrados && totalExcluidosPassados > 0
                 ? `${totalExcluidosPassados} editais encontrados nesta busca já aconteceram e foram ocultados pela Regra de Validade Temporal.`
                 : "Tente ajustar o produto, o período ou as fontes de busca." )}
@@ -687,7 +687,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
             {ocultarEncerrados && totalExcluidosPassados > 0 && (
               <button
                 onClick={() => { setOcultarEncerrados(false); setOnlyActive(false); }}
-                className="mt-4 px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold rounded-lg transition-colors inline-flex items-center gap-1.5 cursor-pointer"
+                className="mt-4 px-4 py-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-semibold rounded-lg transition-colors inline-flex items-center gap-1.5 cursor-pointer"
               >
                 <Clock className="w-3.5 h-3.5" /> Desativar filtro e ver editais passados
               </button>
@@ -696,16 +696,16 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
         ) : (
           <div className="flex flex-col gap-4">
             {/* Barra de Status e Ordenação dos Resultados */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#011419] px-5 py-3.5 rounded-xl border border-[#07323e] shadow-sm">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-5 py-3.5 rounded-xl border border-[var(--crm-border)] shadow-sm">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                  <span className="text-sm font-bold text-slate-800 dark:text-slate-100">
+                  <span className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {sortedLicitacoes.length} {sortedLicitacoes.length === 1 ? 'edital encontrado' : 'editais encontrados'}
                   </span>
                 </div>
                 {totalDisponivel > 0 && (
-                  <span className="text-xs text-slate-400 hidden md:inline border-l border-[#07323e] pl-3">
+                  <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] hidden md:inline border-l border-[var(--crm-border)] pl-3">
                     {totalDisponivel} resultados recebidos nesta consulta
                   </span>
                 )}
@@ -717,12 +717,12 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
               </div>
 
               <div className="flex items-center gap-2 self-end sm:self-auto">
-                <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
-                <span className="text-xs font-medium text-slate-400">Ordenar por:</span>
+                <ArrowUpDown className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
+                <span className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Ordenar por:</span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="text-xs font-semibold bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-700 dark:text-slate-200 focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer"
+                  className="text-xs font-semibold bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg px-2.5 py-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer"
                 >
                   <option value="recente">Mais Recentes</option>
                   <option value="abertura_proxima">Abertura Mais Próxima</option>
@@ -740,7 +740,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                 const isCardManaged = Boolean(licId && managedIds.has(licId));
                 const isCardAdding = addingId === licId;
                 return (
-                  <div key={lic.numeroControlePNCP || lic.id || `lic-${i}`} className="bg-[#011419] rounded-xl border border-[#07323e] p-6 shadow-sm hover:shadow-md transition-shadow group">
+                  <div key={lic.numeroControlePNCP || lic.id || `lic-${i}`} className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-xl border border-[var(--crm-border)] p-6 shadow-sm hover:shadow-md transition-shadow group">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -758,7 +758,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                           aberturaStatus.type === 'soon' ? "bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800" :
                           aberturaStatus.type === 'upcoming' ? "bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800" :
                           aberturaStatus.type === 'expired' ? "bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800" :
-                          "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                          "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                         )}>
                           <Clock className="w-3 h-3" />
                           {aberturaStatus.label}
@@ -767,41 +767,41 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                         <span className="bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-200/60 dark:border-blue-800 text-xs font-semibold px-2.5 py-1 rounded-md uppercase tracking-wider">
                           {lic.modalidade || lic.modalidadeNome || 'Licitação'}
                         </span>
-                        <span className="flex items-center text-xs font-medium text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded-md">
+                        <span className="flex items-center text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1 rounded-md">
                           <MapPin className="w-3 h-3 mr-1" />
                           {getCidade(lic) ? `${getCidade(lic)} - ${getUf(lic)}` : getUf(lic)}
                         </span>
                       </div>
                       <div className="mb-2 flex flex-wrap gap-1.5">
                         {Array.from(new Set(((lic as any).origens?.length ? (lic as any).origens : [{ nome: (lic as any).fonte || 'Fonte oficial' }]).map((origin: any) => origin.nome))).map((name: any) => (
-                          <span key={name} className="rounded-md border border-cyan-800/60 px-2 py-0.5 text-xs text-cyan-300">{name}</span>
+                          <span key={name} className="rounded-md border border-cyan-200/60 dark:border-cyan-800/60 px-2 py-0.5 text-xs text-cyan-700 dark:text-cyan-300">{name}</span>
                         ))}
                       </div>
-                      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 line-clamp-2 leading-tight">
+                      <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] line-clamp-2 leading-tight">
                         {getObjeto(lic)}
                       </h3>
                       {productPreferences.enabled && interestMatches.length > 0 && (
-                        <p className="mt-2 text-xs text-cyan-300">Produtos de interesse: {interestMatches.slice(0, 4).join(', ')}</p>
+                        <p className="mt-2 text-xs text-cyan-700 dark:text-cyan-300">Produtos de interesse: {interestMatches.slice(0, 4).join(', ')}</p>
                       )}
                     </div>
                     <div className="text-right flex-shrink-0 ml-4">
-                      <p className="text-sm font-medium text-slate-400 mb-1">Valor Estimado</p>
+                      <p className="text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Valor Estimado</p>
                       <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
                         {formatNoticeValue(lic)}
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-6 text-sm text-slate-600 dark:text-slate-300 border-t border-slate-100 dark:border-slate-800 pt-4 mt-2 flex-wrap">
+                  <div className="flex items-center gap-6 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] pt-4 mt-2 flex-wrap">
                     <div className="flex items-center">
-                      <Building2 className="w-4 h-4 mr-2 text-slate-400 flex-shrink-0" />
+                      <Building2 className="w-4 h-4 mr-2 text-[rgb(var(--crm-muted-rgb)_/_1)] flex-shrink-0" />
                       <span className="truncate max-w-[280px]">{getOrgaoName(lic)}</span>
                     </div>
 
-                    <div className="flex items-center text-slate-200">
+                    <div className="flex items-center text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       <Calendar className="w-4 h-4 mr-1.5 text-cyan-600 dark:text-cyan-400 flex-shrink-0" />
-                      <span className="text-xs text-slate-400 mr-1">Prazo:</span>
-                      <strong className="text-xs text-slate-800 dark:text-slate-100">{formatAbertura(lic)}</strong>
+                      <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mr-1">Prazo:</span>
+                      <strong className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatAbertura(lic)}</strong>
                     </div>
 
                     {/* Botões de Download de PDF */}
@@ -812,7 +812,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                             href={lic.pdfUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1 px-2 py-1 rounded-md bg-rose-950/60 hover:bg-rose-900/70 text-rose-300 border border-rose-800/70 text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                            className="flex items-center gap-1 px-2 py-1 rounded-md bg-rose-50/60 dark:bg-rose-950/60 hover:bg-rose-50/70 dark:hover:bg-rose-900/70 text-rose-700 dark:text-rose-300 border border-rose-200/70 dark:border-rose-800/70 text-xs font-semibold transition-all cursor-pointer shadow-xs"
                             title="Download do PDF do edital"
                           >
                             <Download className="w-3 h-3" />
@@ -825,7 +825,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                             href={doc.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="flex items-center gap-1 px-2 py-1 rounded-md bg-rose-950/60 hover:bg-rose-900/70 text-rose-300 border border-rose-800/70 text-xs font-semibold transition-all cursor-pointer shadow-xs"
+                            className="flex items-center gap-1 px-2 py-1 rounded-md bg-rose-50/60 dark:bg-rose-950/60 hover:bg-rose-50/70 dark:hover:bg-rose-900/70 text-rose-700 dark:text-rose-300 border border-rose-200/70 dark:border-rose-800/70 text-xs font-semibold transition-all cursor-pointer shadow-xs"
                             title={doc.titulo || 'Download PDF'}
                           >
                             <Download className="w-3 h-3" />
@@ -833,7 +833,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                           </a>
                         ))}
                         {lic.documentos && lic.documentos.length > 2 && (
-                          <span className="text-xs text-slate-400 px-1">
+                          <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] px-1">
                             +{lic.documentos.length - 2}
                           </span>
                         )}
@@ -842,8 +842,8 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                     
                     <div className="ml-auto flex items-center gap-2">
                       {isCardManaged ? (
-                        <span className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-800/80 font-semibold text-xs shadow-xs">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-emerald-50/60 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80 font-semibold text-xs shadow-xs">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" />
                           <span>Gerenciada</span>
                         </span>
                       ) : (
@@ -854,13 +854,13 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                             e.stopPropagation();
                             handleAddToManaged(lic);
                           }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#022129] hover:bg-[#032f3b] text-cyan-300 border border-cyan-800/70 font-semibold text-xs transition-all cursor-pointer shadow-xs disabled:opacity-50"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-cyan-700 dark:text-cyan-300 border border-cyan-200/70 dark:border-cyan-800/70 font-semibold text-xs transition-all cursor-pointer shadow-xs disabled:opacity-50"
                           title="Adicionar a Licitações Gerenciadas sem sair da tela"
                         >
                           {isCardAdding ? (
                             <div className="w-3.5 h-3.5 rounded-full border-2 border-cyan-400 border-t-transparent animate-spin" />
                           ) : (
-                            <Briefcase className="w-3.5 h-3.5 text-cyan-400" />
+                            <Briefcase className="w-3.5 h-3.5 text-cyan-700 dark:text-cyan-400" />
                           )}
                           <span>Adicionar às Gerenciadas</span>
                         </button>
@@ -903,19 +903,19 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
       {/* Notificação Toast */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-4 py-3 rounded-xl bg-[#011c23] border border-cyan-500/50 text-white shadow-2xl shadow-cyan-950/80 animate-in fade-in slide-in-from-bottom-3 duration-200">
+        <div className="fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-4 py-3 rounded-xl bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-cyan-500/50 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-2xl shadow-cyan-950/80 animate-in fade-in slide-in-from-bottom-3 duration-200">
           {toastMessage.type === 'success' ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-700 dark:text-emerald-400 flex-shrink-0" />
           ) : toastMessage.type === 'error' ? (
-            <AlertTriangle className="w-5 h-5 text-rose-400 flex-shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-rose-700 dark:text-rose-400 flex-shrink-0" />
           ) : (
-            <AlertCircle className="w-5 h-5 text-cyan-400 flex-shrink-0" />
+            <AlertCircle className="w-5 h-5 text-cyan-700 dark:text-cyan-400 flex-shrink-0" />
           )}
-          <span className="text-sm font-medium text-slate-100">{toastMessage.text}</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">{toastMessage.text}</span>
           <button 
             type="button"
             onClick={() => setToastMessage(null)}
-            className="ml-2 text-slate-400 hover:text-white cursor-pointer"
+            className="ml-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>

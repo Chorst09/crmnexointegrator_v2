@@ -124,21 +124,21 @@ const MaquinasVirtuaisCalculatorSimple = () => {
                                 <div
                                     key={plan.id}
                                     className={`p-4 border rounded-lg cursor-pointer transition-colors ${selectedPlan?.id === plan.id
-                                            ? 'border-blue-500 bg-blue-50'
-                                            : 'border-gray-200 hover:border-gray-300'
+                                            ? "border-blue-500 bg-blue-50 dark:bg-blue-950"
+                                            : "border-[var(--crm-border)] hover:border-[var(--crm-border)]"
                                         }`}
                                     onClick={() => handlePlanSelect(plan.id)}
                                 >
                                     <div className="flex justify-between items-start">
                                         <div>
                                             <h3 className="font-semibold">{plan.name}</h3>
-                                            <p className="text-sm text-gray-600">{plan.description}</p>
+                                            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">{plan.description}</p>
                                         </div>
                                         <div className="text-right">
                                             <p className="font-bold text-lg">
                                                 R$ {plan.price.toFixed(2)}/mês
                                             </p>
-                                            <p className="text-sm text-gray-500">
+                                            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                                 Setup: R$ {plan.setupCost.toFixed(2)}
                                             </p>
                                         </div>
@@ -184,7 +184,7 @@ const MaquinasVirtuaisCalculatorSimple = () => {
                         </div>
 
                         {selectedPlan && (
-                            <div className="space-y-4 pt-4 border-t border-gray-200">
+                            <div className="space-y-4 pt-4 border-t border-[var(--crm-border)]">
                                 <h3 className="text-lg font-semibold">Preços do Plano Selecionado ({selectedPlan.name})</h3>
                                 <div>
                                     <Label htmlFor="plan-price">Preço Mensal (R$)</Label>
@@ -226,20 +226,20 @@ const MaquinasVirtuaisCalculatorSimple = () => {
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="text-center p-4 bg-gray-50 rounded-lg">
-                                <p className="text-sm text-gray-600">Valor de Setup</p>
+                            <div className="text-center p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg">
+                                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Valor de Setup</p>
                                 <p className="text-2xl font-bold text-blue-600">
                                     R$ {setupCost.toFixed(2)}
                                 </p>
                             </div>
-                            <div className="text-center p-4 bg-gray-50 rounded-lg">
-                                <p className="text-sm text-gray-600">Mensalidade</p>
+                            <div className="text-center p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg">
+                                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Mensalidade</p>
                                 <p className="text-2xl font-bold text-green-600">
                                     R$ {monthlyPrice.toFixed(2)}
                                 </p>
                             </div>
-                            <div className="text-center p-4 bg-gray-50 rounded-lg">
-                                <p className="text-sm text-gray-600">Total 1º Mês</p>
+                            <div className="text-center p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg">
+                                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Total 1º Mês</p>
                                 <p className="text-2xl font-bold text-purple-600">
                                     R$ {totalFirstMonth.toFixed(2)}
                                 </p>

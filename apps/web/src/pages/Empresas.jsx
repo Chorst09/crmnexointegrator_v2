@@ -104,12 +104,12 @@ const formatKickoffDate = (date, startTime, endTime) => {
 
 const StatusPill = ({ status }) => {
   const cls = {
-    LEAD: 'bg-slate-500/10 text-slate-700 dark:text-slate-200',
+    LEAD: "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]",
     PROSPECT: 'bg-sky-500/10 text-sky-800 dark:text-sky-200',
     ACTIVE: 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-200',
     INACTIVE: 'bg-amber-500/10 text-amber-900 dark:text-amber-200',
     CHURNED: 'bg-red-500/10 text-red-800 dark:text-red-200'
-  }[status] || 'bg-slate-500/10 text-slate-700 dark:text-slate-200';
+  }[status] || "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]";
 
   return (
     <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold ${cls}`}>
@@ -119,7 +119,7 @@ const StatusPill = ({ status }) => {
 };
 
 const SizePill = ({ size }) => (
-  <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold bg-black/5 dark:bg-white/5 text-[var(--crm-ink)]">
+  <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] text-[var(--crm-ink)]">
     {SIZE_LABELS[size] || size || '-'}
   </span>
 );
@@ -135,7 +135,7 @@ const ScorePill = ({ score }) => {
         ? 'bg-amber-500/[0.12] text-amber-900 dark:text-amber-200'
         : s >= 40
           ? 'bg-sky-500/[0.12] text-sky-900 dark:text-sky-200'
-          : 'bg-slate-500/[0.12] text-slate-800 dark:text-slate-200';
+          : "bg-[rgb(var(--crm-surface-rgb)_/_0.12)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]";
 
   return (
     <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-extrabold ${cls}`}>
@@ -814,7 +814,7 @@ export default function Empresas({ clientType = 'B2B' }) {
         bulkDeleteLabel="Excluir selecionados"
         emptyState={
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-black/5 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] rounded-full flex items-center justify-center mx-auto mb-4">
               <Building2 className="w-8 h-8 text-[var(--crm-muted)]" />
             </div>
             <h3 className="text-lg font-semibold text-[var(--crm-ink)] mb-2">Nenhum {entityLabelLower} encontrado</h3>
@@ -1083,7 +1083,7 @@ export default function Empresas({ clientType = 'B2B' }) {
                 {docFiles.map((file, index) => (
                   <div
                     key={`${file.name}-${index}`}
-                    className="flex items-center justify-between gap-4 p-2 rounded-xl bg-black/5 dark:bg-white/5 border border-[color:var(--crm-border)]"
+                    className="flex items-center justify-between gap-4 p-2 rounded-xl bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[color:var(--crm-border)]"
                   >
                     <div className="text-sm text-[var(--crm-ink)] truncate">{file.name}</div>
                     <button
@@ -1294,7 +1294,7 @@ export default function Empresas({ clientType = 'B2B' }) {
                           {contact.email && (
                             <div className="flex items-center gap-2 text-sm text-[var(--crm-ink)]">
                               <Mail className="w-3.5 h-3.5 text-[var(--crm-muted)]" />
-                              <a href={`mailto:${contact.email}`} className="hover:text-blue-600 dark:hover:text-blue-400">
+                              <a href={`mailto:${contact.email}`} className="hover:text-blue-600 dark:hover:text-blue-700 dark:hover:text-blue-400">
                                 {contact.email}
                               </a>
                             </div>
@@ -1302,7 +1302,7 @@ export default function Empresas({ clientType = 'B2B' }) {
                           {contact.phone && (
                             <div className="flex items-center gap-2 text-sm text-[var(--crm-ink)]">
                               <Phone className="w-3.5 h-3.5 text-[var(--crm-muted)]" />
-                              <a href={`tel:${contact.phone}`} className="hover:text-blue-600 dark:hover:text-blue-400">
+                              <a href={`tel:${contact.phone}`} className="hover:text-blue-600 dark:hover:text-blue-700 dark:hover:text-blue-400">
                                 {contact.phone}
                               </a>
                             </div>
@@ -1419,9 +1419,9 @@ export default function Empresas({ clientType = 'B2B' }) {
                             contract.status === 'RENEWAL_PENDING' ? 'bg-amber-500/10 text-amber-700 dark:text-amber-200' :
                             contract.status === 'AWAITING_SIGNATURE' ? 'bg-blue-500/10 text-blue-700 dark:text-blue-200' :
                             contract.status === 'EXPIRED' ? 'bg-red-500/10 text-red-700 dark:text-red-200' :
-                            contract.status === 'CANCELLED' ? 'bg-gray-500/10 text-gray-700 dark:text-gray-200' :
+                            contract.status === 'CANCELLED' ? "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" :
                             contract.status === 'RENEWED' ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-200' :
-                            'bg-slate-500/10 text-slate-700 dark:text-slate-200'
+                            "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           }`}>
                             {contract.status === 'ACTIVE' ? 'Ativo' :
                              contract.status === 'RENEWAL_PENDING' ? 'A Renovar' :
@@ -1601,7 +1601,7 @@ export default function Empresas({ clientType = 'B2B' }) {
                     companyKickoffs.map((meeting) => {
                       const kickoffStatus = KICKOFF_STATUS[meeting.status] || {
                         label: meeting.status || 'Sem status',
-                        className: 'bg-slate-500/10 text-slate-700 dark:text-slate-200'
+                        className: "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       };
 
                       return (
@@ -1655,19 +1655,19 @@ export default function Empresas({ clientType = 'B2B' }) {
                           </div>
 
                           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mt-4">
-                            <div className="rounded-xl bg-black/5 dark:bg-white/5 border border-[color:var(--crm-border)] p-3">
+                            <div className="rounded-xl bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[color:var(--crm-border)] p-3">
                               <div className="text-lg font-extrabold text-[var(--crm-ink)]">{meeting._count?.participants ?? 0}</div>
                               <div className="text-[11px] text-[var(--crm-muted)]">Participantes</div>
                             </div>
-                            <div className="rounded-xl bg-black/5 dark:bg-white/5 border border-[color:var(--crm-border)] p-3">
+                            <div className="rounded-xl bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[color:var(--crm-border)] p-3">
                               <div className="text-lg font-extrabold text-[var(--crm-ink)]">{meeting._count?.agendaItems ?? 0}</div>
                               <div className="text-[11px] text-[var(--crm-muted)]">Agenda</div>
                             </div>
-                            <div className="rounded-xl bg-black/5 dark:bg-white/5 border border-[color:var(--crm-border)] p-3">
+                            <div className="rounded-xl bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[color:var(--crm-border)] p-3">
                               <div className="text-lg font-extrabold text-[var(--crm-ink)]">{meeting._count?.checklistItems ?? 0}</div>
                               <div className="text-[11px] text-[var(--crm-muted)]">Checklist</div>
                             </div>
-                            <div className="rounded-xl bg-black/5 dark:bg-white/5 border border-[color:var(--crm-border)] p-3">
+                            <div className="rounded-xl bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[color:var(--crm-border)] p-3">
                               <div className="text-lg font-extrabold text-[var(--crm-ink)]">{meeting._count?.actionItems ?? 0}</div>
                               <div className="text-[11px] text-[var(--crm-muted)]">Ações</div>
                             </div>
@@ -1719,7 +1719,7 @@ export default function Empresas({ clientType = 'B2B' }) {
                         {viewDocFiles.map((file, index) => (
                           <div
                             key={`${file.name}-${index}`}
-                            className="flex items-center justify-between gap-4 p-2 rounded-xl bg-black/5 dark:bg-white/5 border border-[color:var(--crm-border)]"
+                            className="flex items-center justify-between gap-4 p-2 rounded-xl bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[color:var(--crm-border)]"
                           >
                             <div className="text-sm text-[var(--crm-ink)] truncate">{file.name}</div>
                             <button
@@ -1740,7 +1740,7 @@ export default function Empresas({ clientType = 'B2B' }) {
                       companyDetails.documents.map((doc) => (
                         <div
                           key={doc.id}
-                          className="flex items-center justify-between gap-4 p-3 rounded-2xl bg-black/5 dark:bg-white/5 border border-[color:var(--crm-border)]"
+                          className="flex items-center justify-between gap-4 p-3 rounded-2xl bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[color:var(--crm-border)]"
                         >
                           <div className="flex items-center gap-3 min-w-0">
                             <Upload className="w-4 h-4 text-blue-600 dark:text-blue-300" />

@@ -360,13 +360,13 @@ export default function PortalBuscaEditais() {
   return (
     <div
       className="min-h-screen p-4 md:p-6"
-      style={{ background: 'var(--crm-background, #0f172a)', color: 'var(--crm-ink, #f1f5f9)' }}
+      style={{ background: "var(--crm-background, rgb(var(--crm-surface-2-rgb) / 1))", color: "var(--crm-ink, rgb(var(--crm-ink-rgb) / 1))" }}
     >
       {/* Header */}
       <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Portal de Busca de Editais</h1>
-          <p className="mt-1 text-sm" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+          <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Portal de Busca de Editais</h1>
+          <p className="mt-1 text-sm" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
             Busca inteligente de editais públicos — {MOCK_EDITAIS.length} editais disponíveis
           </p>
         </div>
@@ -392,10 +392,10 @@ export default function PortalBuscaEditais() {
           <div
             key={kpi.label}
             className="rounded-xl border p-4"
-            style={{ background: 'var(--crm-surface, #1e293b)', borderColor: 'var(--crm-border, #334155)' }}
+            style={{ background: "var(--crm-surface, rgb(var(--crm-surface-rgb) / 1))", borderColor: "var(--crm-border, var(--crm-border))" }}
           >
-            <div className="text-2xl font-bold text-white">{kpi.value}</div>
-            <div className="mt-1 text-xs" style={{ color: 'var(--crm-muted, #94a3b8)' }}>{kpi.label}</div>
+            <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{kpi.value}</div>
+            <div className="mt-1 text-xs" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>{kpi.label}</div>
           </div>
         ))}
       </div>
@@ -404,11 +404,11 @@ export default function PortalBuscaEditais() {
       {activeTab !== 'perfil' && (
         <div
           className="mb-6 rounded-xl border p-5"
-          style={{ background: 'var(--crm-surface, #1e293b)', borderColor: 'var(--crm-border, #334155)' }}
+          style={{ background: "var(--crm-surface, rgb(var(--crm-surface-rgb) / 1))", borderColor: "var(--crm-border, var(--crm-border))" }}
         >
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-base font-semibold text-white">Busca Inteligente</h2>
-            <label className="flex cursor-pointer items-center gap-2 text-sm" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+            <h2 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Busca Inteligente</h2>
+            <label className="flex cursor-pointer items-center gap-2 text-sm" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
               <input
                 type="checkbox"
                 checked={perfilAtuacao}
@@ -417,7 +417,7 @@ export default function PortalBuscaEditais() {
               />
               Usar perfil de atuação
               {keywords.length > 0 && (
-                <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-xs text-blue-400">
+                <span className="rounded-full bg-blue-500/20 px-2 py-0.5 text-xs text-blue-700 dark:text-blue-400">
                   {keywords.length} termos
                 </span>
               )}
@@ -427,7 +427,7 @@ export default function PortalBuscaEditais() {
           <form onSubmit={handleSearch}>
             <div className="mb-3 grid grid-cols-1 gap-3 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+                <label className="mb-1 block text-xs font-medium" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
                   Objeto Principal
                 </label>
                 <input
@@ -435,12 +435,12 @@ export default function PortalBuscaEditais() {
                   placeholder="Ex: software, equipamentos, consultoria..."
                   value={objeto}
                   onChange={e => setObjeto(e.target.value)}
-                  className="w-full rounded-lg border bg-transparent px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
-                  style={{ borderColor: 'var(--crm-border, #334155)' }}
+                  className="w-full rounded-lg border bg-transparent px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] outline-none focus:border-blue-500"
+                  style={{ borderColor: "var(--crm-border, var(--crm-border))" }}
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+                <label className="mb-1 block text-xs font-medium" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
                   Nº Edital
                 </label>
                 <input
@@ -448,22 +448,22 @@ export default function PortalBuscaEditais() {
                   placeholder="Ex: 001/2026"
                   value={numEdital}
                   onChange={e => setNumEdital(e.target.value)}
-                  className="w-full rounded-lg border bg-transparent px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
-                  style={{ borderColor: 'var(--crm-border, #334155)' }}
+                  className="w-full rounded-lg border bg-transparent px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] outline-none focus:border-blue-500"
+                  style={{ borderColor: "var(--crm-border, var(--crm-border))" }}
                 />
               </div>
             </div>
 
             <div className="mb-3 grid grid-cols-1 gap-3 md:grid-cols-3">
               <div>
-                <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+                <label className="mb-1 block text-xs font-medium" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
                   Estado
                 </label>
                 <select
                   value={estado}
                   onChange={e => setEstado(e.target.value)}
-                  className="w-full rounded-lg border bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
-                  style={{ borderColor: 'var(--crm-border, #334155)' }}
+                  className="w-full rounded-lg border bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-blue-500"
+                  style={{ borderColor: "var(--crm-border, var(--crm-border))" }}
                 >
                   <option value="">Todos os estados</option>
                   {['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'].map(s => (
@@ -472,7 +472,7 @@ export default function PortalBuscaEditais() {
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+                <label className="mb-1 block text-xs font-medium" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
                   Cidade
                 </label>
                 <input
@@ -480,19 +480,19 @@ export default function PortalBuscaEditais() {
                   placeholder="Ex: Curitiba, São Paulo..."
                   value={cidade}
                   onChange={e => setCidade(e.target.value)}
-                  className="w-full rounded-lg border bg-transparent px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
-                  style={{ borderColor: 'var(--crm-border, #334155)' }}
+                  className="w-full rounded-lg border bg-transparent px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] outline-none focus:border-blue-500"
+                  style={{ borderColor: "var(--crm-border, var(--crm-border))" }}
                 />
               </div>
               <div>
-                <label className="mb-1 block text-xs font-medium" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+                <label className="mb-1 block text-xs font-medium" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
                   Modalidade
                 </label>
                 <select
                   value={modalidade}
                   onChange={e => setModalidade(e.target.value)}
-                  className="w-full rounded-lg border bg-slate-800 px-3 py-2 text-sm text-white outline-none focus:border-blue-500"
-                  style={{ borderColor: 'var(--crm-border, #334155)' }}
+                  className="w-full rounded-lg border bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-blue-500"
+                  style={{ borderColor: "var(--crm-border, var(--crm-border))" }}
                 >
                   <option value="">Todas as modalidades</option>
                   {['Pregão Eletrônico','Concorrência','Dispensa','Inexigibilidade','Tomada de Preços','Convite','Leilão'].map(m => (
@@ -508,7 +508,7 @@ export default function PortalBuscaEditais() {
                 { id: 'comEdital', label: 'Com edital disponível', value: comEdital, set: setComEdital },
                 { id: 'favoritas', label: 'Somente favoritas', value: somenteFavoritas, set: setSomenteFavoritas }
               ].map(opt => (
-                <label key={opt.id} className="flex cursor-pointer items-center gap-2 text-sm text-white">
+                <label key={opt.id} className="flex cursor-pointer items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <input
                     type="checkbox"
                     checked={opt.value}
@@ -532,8 +532,8 @@ export default function PortalBuscaEditais() {
               <button
                 type="button"
                 onClick={limparFiltros}
-                className="rounded-lg border px-4 py-2 text-sm text-white transition hover:bg-white/5"
-                style={{ borderColor: 'var(--crm-border, #334155)' }}
+                className="rounded-lg border px-4 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]"
+                style={{ borderColor: "var(--crm-border, var(--crm-border))" }}
               >
                 Limpar
               </button>
@@ -543,7 +543,7 @@ export default function PortalBuscaEditais() {
       )}
 
       {/* Tabs */}
-      <div className="mb-4 flex gap-1 rounded-xl border p-1" style={{ background: 'var(--crm-surface, #1e293b)', borderColor: 'var(--crm-border, #334155)' }}>
+      <div className="mb-4 flex gap-1 rounded-xl border p-1" style={{ background: "var(--crm-surface, rgb(var(--crm-surface-rgb) / 1))", borderColor: "var(--crm-border, var(--crm-border))" }}>
         {[
           { id: 'resultados', label: `Resultados${searched ? ` (${results.length})` : ''}` },
           { id: 'favoritos', label: `Favoritos (${favoritos.length})` },
@@ -567,9 +567,9 @@ export default function PortalBuscaEditais() {
       {activeTab === 'resultados' && (
         <div>
           {!searched && !loading && (
-            <div className="rounded-xl border p-10 text-center" style={{ borderColor: 'var(--crm-border, #334155)' }}>
+            <div className="rounded-xl border p-10 text-center" style={{ borderColor: "var(--crm-border, var(--crm-border))" }}>
               <Search className="mx-auto mb-3 h-10 w-10 opacity-30" />
-              <p className="text-sm" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+              <p className="text-sm" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
                 Use os filtros acima e clique em "Pesquisar Agora" para buscar editais.
               </p>
             </div>
@@ -577,15 +577,15 @@ export default function PortalBuscaEditais() {
 
           {loading && (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-8 w-8 animate-spin text-blue-400" />
+              <Loader2 className="h-8 w-8 animate-spin text-blue-700 dark:text-blue-400" />
             </div>
           )}
 
           {searched && !loading && results.length === 0 && (
-            <div className="rounded-xl border p-10 text-center" style={{ borderColor: 'var(--crm-border, #334155)' }}>
+            <div className="rounded-xl border p-10 text-center" style={{ borderColor: "var(--crm-border, var(--crm-border))" }}>
               <FileText className="mx-auto mb-3 h-10 w-10 opacity-30" />
-              <p className="mb-2 font-medium text-white">Nenhum edital encontrado</p>
-              <p className="text-sm" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+              <p className="mb-2 font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum edital encontrado</p>
+              <p className="text-sm" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
                 Tente ajustar os filtros ou limpar a busca.
               </p>
               <button
@@ -616,9 +616,9 @@ export default function PortalBuscaEditais() {
       {activeTab === 'favoritos' && (
         <div>
           {favoritosData.length === 0 ? (
-            <div className="rounded-xl border p-10 text-center" style={{ borderColor: 'var(--crm-border, #334155)' }}>
+            <div className="rounded-xl border p-10 text-center" style={{ borderColor: "var(--crm-border, var(--crm-border))" }}>
               <Star className="mx-auto mb-3 h-10 w-10 opacity-30" />
-              <p className="text-sm" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+              <p className="text-sm" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
                 Nenhum edital favoritado ainda. Clique na estrela nos resultados para favoritar.
               </p>
             </div>
@@ -641,10 +641,10 @@ export default function PortalBuscaEditais() {
       {activeTab === 'perfil' && (
         <div
           className="rounded-xl border p-5"
-          style={{ background: 'var(--crm-surface, #1e293b)', borderColor: 'var(--crm-border, #334155)' }}
+          style={{ background: "var(--crm-surface, rgb(var(--crm-surface-rgb) / 1))", borderColor: "var(--crm-border, var(--crm-border))" }}
         >
-          <h2 className="mb-1 text-base font-semibold text-white">Perfil de Atuação</h2>
-          <p className="mb-4 text-sm" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+          <h2 className="mb-1 text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Perfil de Atuação</h2>
+          <p className="mb-4 text-sm" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
             Configure palavras-chave para filtrar automaticamente os editais relevantes para o seu negócio.
           </p>
 
@@ -655,8 +655,8 @@ export default function PortalBuscaEditais() {
               value={newKeyword}
               onChange={e => setNewKeyword(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && addKeyword()}
-              className="flex-1 rounded-lg border bg-transparent px-3 py-2 text-sm text-white placeholder-slate-500 outline-none focus:border-blue-500"
-              style={{ borderColor: 'var(--crm-border, #334155)' }}
+              className="flex-1 rounded-lg border bg-transparent px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] outline-none focus:border-blue-500"
+              style={{ borderColor: "var(--crm-border, var(--crm-border))" }}
             />
             <button
               onClick={addKeyword}
@@ -667,7 +667,7 @@ export default function PortalBuscaEditais() {
           </div>
 
           {keywords.length === 0 ? (
-            <p className="text-sm" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+            <p className="text-sm" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
               Nenhuma palavra-chave configurada.
             </p>
           ) : (
@@ -675,11 +675,11 @@ export default function PortalBuscaEditais() {
               {keywords.map(term => (
                 <span
                   key={term}
-                  className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm text-white"
-                  style={{ borderColor: 'var(--crm-border, #334155)', background: 'rgba(59,130,246,0.1)' }}
+                  className="flex items-center gap-1.5 rounded-full border px-3 py-1 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                  style={{ borderColor: "var(--crm-border, var(--crm-border))", background: 'rgba(59,130,246,0.1)' }}
                 >
                   {term}
-                  <button onClick={() => removeKeyword(term)} className="text-slate-400 hover:text-red-400">
+                  <button onClick={() => removeKeyword(term)} className="text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-red-700 dark:hover:text-red-400">
                     <X className="h-3 w-3" />
                   </button>
                 </span>
@@ -688,8 +688,8 @@ export default function PortalBuscaEditais() {
           )}
 
           {keywords.length > 0 && (
-            <div className="mt-4 rounded-lg border p-3" style={{ borderColor: 'var(--crm-border, #334155)', background: 'rgba(59,130,246,0.05)' }}>
-              <p className="text-xs" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+            <div className="mt-4 rounded-lg border p-3" style={{ borderColor: "var(--crm-border, var(--crm-border))", background: 'rgba(59,130,246,0.05)' }}>
+              <p className="text-xs" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
                 Para usar o perfil na busca, ative o toggle "Usar perfil de atuação" no formulário de busca.
               </p>
             </div>
@@ -706,12 +706,12 @@ function EditalCard({ edital, isFavorito, onFavoritar }) {
   return (
     <div
       className="rounded-xl border p-5 transition hover:border-blue-500/40"
-      style={{ background: 'var(--crm-surface, #1e293b)', borderColor: 'var(--crm-border, #334155)' }}
+      style={{ background: "var(--crm-surface, rgb(var(--crm-surface-rgb) / 1))", borderColor: "var(--crm-border, var(--crm-border))" }}
     >
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="flex-1">
           <div className="mb-1 flex flex-wrap items-center gap-2">
-            <span className="text-xs font-medium text-blue-400">{edital.numero}</span>
+            <span className="text-xs font-medium text-blue-700 dark:text-blue-400">{edital.numero}</span>
             <span
               className="rounded-full px-2 py-0.5 text-xs"
               style={{
@@ -723,17 +723,17 @@ function EditalCard({ edital, isFavorito, onFavoritar }) {
             </span>
             <span
               className="rounded-full px-2 py-0.5 text-xs"
-              style={{ background: 'rgba(148,163,184,0.1)', color: 'var(--crm-muted, #94a3b8)' }}
+              style={{ background: "rgb(var(--crm-surface-rgb) / 0.1)", color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}
             >
               {edital.modalidade}
             </span>
           </div>
-          <h3 className="font-semibold text-white">{edital.titulo}</h3>
-          <p className="mt-1 text-sm" style={{ color: 'var(--crm-muted, #94a3b8)' }}>{edital.descricao}</p>
+          <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{edital.titulo}</h3>
+          <p className="mt-1 text-sm" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>{edital.descricao}</p>
         </div>
         <button
           onClick={onFavoritar}
-          className="shrink-0 rounded-lg p-2 transition hover:bg-white/5"
+          className="shrink-0 rounded-lg p-2 transition hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]"
           title={isFavorito ? 'Remover dos favoritos' : 'Adicionar aos favoritos'}
         >
           <Star
@@ -750,7 +750,7 @@ function EditalCard({ edital, isFavorito, onFavoritar }) {
           { icon: DollarSign, label: formatarMoeda(edital.valor) },
           { icon: Calendar, label: `Prazo: ${formatarData(edital.dataPrazo)}` }
         ].map((item, i) => (
-          <div key={i} className="flex items-center gap-1.5 text-xs" style={{ color: 'var(--crm-muted, #94a3b8)' }}>
+          <div key={i} className="flex items-center gap-1.5 text-xs" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>
             <item.icon className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">{item.label}</span>
           </div>
@@ -763,8 +763,8 @@ function EditalCard({ edital, isFavorito, onFavoritar }) {
             href={edital.pdfUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-white transition hover:bg-white/5"
-            style={{ borderColor: 'var(--crm-border, #334155)' }}
+            className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] transition hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]"
+            style={{ borderColor: "var(--crm-border, var(--crm-border))" }}
           >
             <Download className="h-3.5 w-3.5" /> Baixar Edital
           </a>
@@ -774,8 +774,8 @@ function EditalCard({ edital, isFavorito, onFavoritar }) {
             href={edital.portalUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-white transition hover:bg-white/5"
-            style={{ borderColor: 'var(--crm-border, #334155)' }}
+            className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] transition hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]"
+            style={{ borderColor: "var(--crm-border, var(--crm-border))" }}
           >
             <ExternalLink className="h-3.5 w-3.5" /> Ver no Portal
           </a>
@@ -784,8 +784,8 @@ function EditalCard({ edital, isFavorito, onFavoritar }) {
             href="https://pncp.gov.br/app/editais"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition hover:bg-white/5"
-            style={{ borderColor: 'var(--crm-border, #334155)', color: 'var(--crm-muted, #94a3b8)' }}
+            className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]"
+            style={{ borderColor: "var(--crm-border, var(--crm-border))", color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}
             title="Buscar no PNCP"
           >
             <ExternalLink className="h-3.5 w-3.5" /> Buscar no PNCP
@@ -793,9 +793,9 @@ function EditalCard({ edital, isFavorito, onFavoritar }) {
         )}
         <button
           onClick={onFavoritar}
-          className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition hover:bg-white/5"
+          className="flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs transition hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]"
           style={{
-            borderColor: 'var(--crm-border, #334155)',
+            borderColor: "var(--crm-border, var(--crm-border))",
             color: isFavorito ? '#facc15' : 'var(--crm-muted, #94a3b8)'
           }}
         >

@@ -23,7 +23,7 @@ const roleConfig = {
     shortLabel: 'R',
     description: 'Quem executa o trabalho',
     icon: CheckCircle2,
-    color: 'text-blue-400 bg-blue-500/10 border-blue-500/30',
+    color: "text-blue-700 dark:text-blue-400 bg-blue-500/10 border-blue-500/30",
     multiple: true
   },
   accountable: {
@@ -31,7 +31,7 @@ const roleConfig = {
     shortLabel: 'A',
     description: 'Quem aprova e tem autoridade final (apenas 1 pessoa)',
     icon: User,
-    color: 'text-purple-400 bg-purple-500/10 border-purple-500/30',
+    color: "text-purple-700 dark:text-purple-400 bg-purple-500/10 border-purple-500/30",
     multiple: false
   },
   consulted: {
@@ -39,7 +39,7 @@ const roleConfig = {
     shortLabel: 'C',
     description: 'Quem deve ser consultado antes de decisões',
     icon: MessageSquare,
-    color: 'text-green-400 bg-green-500/10 border-green-500/30',
+    color: "text-green-700 dark:text-green-400 bg-green-500/10 border-green-500/30",
     multiple: true
   },
   informed: {
@@ -47,7 +47,7 @@ const roleConfig = {
     shortLabel: 'I',
     description: 'Quem deve ser mantido informado do progresso',
     icon: Bell,
-    color: 'text-orange-400 bg-orange-500/10 border-orange-500/30',
+    color: "text-orange-700 dark:text-orange-400 bg-orange-500/10 border-orange-500/30",
     multiple: true
   }
 };
@@ -110,8 +110,8 @@ export default function RACIMatrix({ users, value, onChange, readonly = false }:
     <div className="space-y-3">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h4 className="text-sm font-bold text-slate-100">Matriz RACI</h4>
-          <p className="text-xs text-slate-500 mt-0.5">Defina responsabilidades e comunicação</p>
+          <h4 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Matriz RACI</h4>
+          <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Defina responsabilidades e comunicação</p>
         </div>
       </div>
 
@@ -130,15 +130,15 @@ export default function RACIMatrix({ users, value, onChange, readonly = false }:
                     <Icon className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-slate-100">{config.label}</p>
-                    <p className="text-[10px] text-slate-500">{config.description}</p>
+                    <p className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{config.label}</p>
+                    <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{config.description}</p>
                   </div>
                 </div>
                 {!readonly && (
                   <button
                     type="button"
                     onClick={() => setExpandedRole(isExpanded ? null : role)}
-                    className="rounded p-1 text-slate-400 hover:bg-[#070b16] hover:text-slate-200"
+                    className="rounded p-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   >
                     <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </button>
@@ -151,17 +151,17 @@ export default function RACIMatrix({ users, value, onChange, readonly = false }:
                   {selectedUsers.map(user => (
                     <div
                       key={user.id}
-                      className="flex items-center gap-1.5 rounded-md bg-[#070b16] border border-[#263345] px-2 py-1"
+                      className="flex items-center gap-1.5 rounded-md bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] px-2 py-1"
                     >
-                      <div className={`flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-white ${user.color || 'bg-slate-600'}`}>
+                      <div className={`flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] ${user.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}`}>
                         {user.initials || user.name.substring(0, 2).toUpperCase()}
                       </div>
-                      <span className="text-xs text-slate-300">{user.name}</span>
+                      <span className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">{user.name}</span>
                       {!readonly && (
                         <button
                           type="button"
                           onClick={() => toggleUser(role, user.id)}
-                          className="ml-1 text-slate-500 hover:text-red-400"
+                          className="ml-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-red-700 dark:hover:text-red-400"
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -170,12 +170,12 @@ export default function RACIMatrix({ users, value, onChange, readonly = false }:
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-slate-600 italic mt-2">Nenhum usuário atribuído</p>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] italic mt-2">Nenhum usuário atribuído</p>
               )}
 
               {/* User Selection Dropdown */}
               {isExpanded && !readonly && (
-                <div className="mt-3 max-h-40 overflow-y-auto rounded-md border border-[#263345] bg-[#070b16]">
+                <div className="mt-3 max-h-40 overflow-y-auto rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
                   {users.map(user => {
                     const isSelected = isUserSelected(role, user.id);
                     return (
@@ -183,19 +183,19 @@ export default function RACIMatrix({ users, value, onChange, readonly = false }:
                         key={user.id}
                         type="button"
                         onClick={() => toggleUser(role, user.id)}
-                        className={`flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-[#111827] ${
-                          isSelected ? 'bg-[#111827]' : ''
+                        className={`flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] ${
+                          isSelected ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)]" : ''
                         }`}
                       >
-                        <div className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white ${user.color || 'bg-slate-600'}`}>
+                        <div className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] ${user.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}`}>
                           {user.initials || user.name.substring(0, 2).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-slate-200 truncate">{user.name}</p>
-                          {user.email && <p className="text-[10px] text-slate-500 truncate">{user.email}</p>}
+                          <p className="text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">{user.name}</p>
+                          {user.email && <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] truncate">{user.email}</p>}
                         </div>
                         {isSelected && (
-                          <CheckCircle2 className="h-4 w-4 text-green-400 flex-shrink-0" />
+                          <CheckCircle2 className="h-4 w-4 text-green-700 dark:text-green-400 flex-shrink-0" />
                         )}
                       </button>
                     );
@@ -209,9 +209,9 @@ export default function RACIMatrix({ users, value, onChange, readonly = false }:
 
       {!readonly && (
         <div className="rounded-md bg-blue-500/10 border border-blue-500/30 p-3 mt-3">
-          <p className="text-xs text-blue-300">
+          <p className="text-xs text-blue-700 dark:text-blue-300">
             <strong>Dica:</strong> Use RACI para evitar confusão de responsabilidades. 
-            <span className="text-blue-400"> Accountable (A)</span> deve ser apenas 1 pessoa com autoridade final.
+            <span className="text-blue-700 dark:text-blue-400"> Accountable (A)</span> deve ser apenas 1 pessoa com autoridade final.
           </p>
         </div>
       )}

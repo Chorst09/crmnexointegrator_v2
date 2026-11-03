@@ -18,7 +18,7 @@ interface AnalyticsDashboardProps {
 
 export function AnalyticsDashboard({ results, params }: AnalyticsDashboardProps) {
   const costData = [
-    { name: 'Impostos', value: results.dre.taxes.monthlyValue, color: '#94a3b8' },
+    { name: 'Impostos', value: results.dre.taxes.monthlyValue, color: "rgb(var(--crm-muted-rgb) / 1)" },
     { name: 'Amort. Setup', value: results.monthlyAmortization, color: '#6366f1' },
     { name: 'OPEX Base', value: results.totalMonthlyRecurringCost, color: '#818cf8' },
     { name: 'Comissões', value: results.dre.commissions.monthlyValue, color: '#c7d2fe' },
@@ -60,9 +60,9 @@ export function AnalyticsDashboard({ results, params }: AnalyticsDashboardProps)
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card className="rounded-[2.5rem] border-slate-200 shadow-sm overflow-hidden">
-          <CardHeader className="bg-slate-50/50 border-b border-slate-100">
-            <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-500">Composição do Faturamento</CardTitle>
+        <Card className="rounded-[2.5rem] border-[var(--crm-border)] shadow-sm overflow-hidden">
+          <CardHeader className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border-b border-[var(--crm-border)]">
+            <CardTitle className="text-sm font-bold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)]">Composição do Faturamento</CardTitle>
             <CardDescription>Onde cada real pago pelo cliente é alocado mensalmente.</CardDescription>
           </CardHeader>
           <CardContent className="p-6 h-[300px]">
@@ -91,9 +91,9 @@ export function AnalyticsDashboard({ results, params }: AnalyticsDashboardProps)
           </CardContent>
         </Card>
 
-        <Card className="rounded-[2.5rem] border-slate-200 shadow-sm overflow-hidden">
-          <CardHeader className="bg-slate-50/50 border-b border-slate-100">
-            <CardTitle className="text-sm font-bold uppercase tracking-wider text-slate-500">Benchmark de Viabilidade</CardTitle>
+        <Card className="rounded-[2.5rem] border-[var(--crm-border)] shadow-sm overflow-hidden">
+          <CardHeader className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border-b border-[var(--crm-border)]">
+            <CardTitle className="text-sm font-bold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)]">Benchmark de Viabilidade</CardTitle>
             <CardDescription>Comparação entre Preço Alvo e Ponto de Equilíbrio.</CardDescription>
           </CardHeader>
           <CardContent className="p-6 h-[300px]">
@@ -103,7 +103,7 @@ export function AnalyticsDashboard({ results, params }: AnalyticsDashboardProps)
                 <XAxis type="number" hide />
                 <YAxis dataKey="name" type="category" width={100} axisLine={false} tickLine={false} className="font-medium text-xs" />
                 <Tooltip 
-                  cursor={{ fill: '#f8fafc' }}
+                  cursor={{ fill: "rgb(var(--crm-ink-rgb) / 1)" }}
                   formatter={(value: number) => formatCurrency(value)}
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                 />
@@ -123,14 +123,14 @@ export function AnalyticsDashboard({ results, params }: AnalyticsDashboardProps)
 
 function MetricCard({ title, value, description, icon }: { title: string, value: string, description: string, icon: React.ReactNode }) {
   return (
-    <Card className="rounded-3xl border-slate-200 shadow-sm bg-white">
+    <Card className="rounded-3xl border-[var(--crm-border)] shadow-sm bg-[rgb(var(--crm-surface-rgb)_/_1)]">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{title}</span>
-          <div className="p-2 bg-slate-50 rounded-xl">{icon}</div>
+          <span className="text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-widest">{title}</span>
+          <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl">{icon}</div>
         </div>
-        <div className="text-2xl font-bold text-slate-900 font-headline">{value}</div>
-        <p className="text-[10px] text-slate-500 mt-1">{description}</p>
+        <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] font-headline">{value}</div>
+        <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">{description}</p>
       </CardContent>
     </Card>
   );

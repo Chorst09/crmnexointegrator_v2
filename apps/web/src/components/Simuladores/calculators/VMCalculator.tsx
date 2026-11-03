@@ -521,7 +521,7 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 relative" style={{
+    <div className="min-h-screen bg-[rgb(var(--crm-surface-rgb)_/_1)] relative" style={{
       backgroundImage: 'url(https://img.freepik.com/premium-photo/corridor-data-center-server-room-server-room-internet-communication-networks-ai-generativex9_28914-4589.jpg?w=1380)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
@@ -538,8 +538,8 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
           <div className="container mx-auto p-4 space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-3xl font-bold text-white">Buscar Propostas - VM</h1>
-                <p className="text-slate-300 mt-2">Encontre propostas existentes ou crie uma nova.</p>
+                <h1 className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Buscar Propostas - VM</h1>
+                <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2">Encontre propostas existentes ou crie uma nova.</p>
               </div>
               <Button onClick={createNewProposal} className="bg-blue-600 hover:bg-blue-700">
                 <Plus className="h-4 w-4 mr-2" />
@@ -548,47 +548,47 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
             </div>
 
             {/* Search Input */}
-            <Card className="bg-slate-800 border-slate-700">
+            <Card className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]">
               <CardContent className="p-6">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                   <Input
                     placeholder="Buscar por cliente ou ID..."
                     value={proposalSearchTerm}
                     onChange={(e) => setProposalSearchTerm(e.target.value)}
-                    className="pl-10 bg-slate-700 border-slate-600 text-white"
+                    className="pl-10 bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   />
                 </div>
               </CardContent>
             </Card>
 
             {/* Proposals Table */}
-            <Card className="bg-slate-800 border-slate-700">
+            <Card className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]">
               <CardHeader>
-                <CardTitle className="text-white">Propostas</CardTitle>
+                <CardTitle className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Propostas</CardTitle>
               </CardHeader>
               <CardContent>
                 {filteredProposals.length > 0 ? (
                   <div className="overflow-x-auto">
                     <table className="w-full">
                       <thead>
-                        <tr className="border-b border-slate-600">
-                          <th className="text-left py-3 px-4 text-slate-300">ID</th>
-                          <th className="text-left py-3 px-4 text-slate-300">Cliente</th>
-                          <th className="text-left py-3 px-4 text-slate-300">Data</th>
-                          <th className="text-left py-3 px-4 text-slate-300">Total Mensal</th>
-                          <th className="text-left py-3 px-4 text-slate-300">Ações</th>
+                        <tr className="border-b border-[var(--crm-border)]">
+                          <th className="text-left py-3 px-4 text-[rgb(var(--crm-ink-rgb)_/_1)]">ID</th>
+                          <th className="text-left py-3 px-4 text-[rgb(var(--crm-ink-rgb)_/_1)]">Cliente</th>
+                          <th className="text-left py-3 px-4 text-[rgb(var(--crm-ink-rgb)_/_1)]">Data</th>
+                          <th className="text-left py-3 px-4 text-[rgb(var(--crm-ink-rgb)_/_1)]">Total Mensal</th>
+                          <th className="text-left py-3 px-4 text-[rgb(var(--crm-ink-rgb)_/_1)]">Ações</th>
                         </tr>
                       </thead>
                       <tbody>
                         {filteredProposals.map((proposal) => (
-                          <tr key={proposal.id} className="border-b border-slate-700 hover:bg-slate-700/50">
-                            <td className="py-3 px-4 text-white">{proposal.proposalNumber}</td>
-                            <td className="py-3 px-4 text-white">{proposal.clientName}</td>
-                            <td className="py-3 px-4 text-slate-300">
+                          <tr key={proposal.id} className="border-b border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
+                            <td className="py-3 px-4 text-[rgb(var(--crm-ink-rgb)_/_1)]">{proposal.proposalNumber}</td>
+                            <td className="py-3 px-4 text-[rgb(var(--crm-ink-rgb)_/_1)]">{proposal.clientName}</td>
+                            <td className="py-3 px-4 text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               {proposal.date ? (isNaN(new Date(proposal.date).getTime()) ? 'N/A' : new Date(proposal.date).toLocaleDateString('pt-BR')) : 'N/A'}
                             </td>
-                            <td className="py-3 px-4 text-green-400 font-semibold">
+                            <td className="py-3 px-4 text-green-700 dark:text-green-400 font-semibold">
                               {formatCurrency(proposal.totalPrice)}
                             </td>
                             <td className="py-3 px-4">
@@ -597,7 +597,7 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                                   variant="outline"
                                   size="sm"
                                   onClick={() => viewProposal(proposal)}
-                                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                                  className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                 >
                                   <Eye className="h-4 w-4 mr-2" /> Visualizar
                                 </Button>
@@ -605,7 +605,7 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                                   variant="outline"
                                   size="sm"
                                   onClick={() => editProposal(proposal)}
-                                  className="border-blue-600 text-blue-300 hover:bg-blue-700"
+                                  className="border-blue-600 text-blue-700 dark:text-blue-300 hover:bg-blue-700"
                                 >
                                   <Edit className="h-4 w-4 mr-2" /> Editar
                                 </Button>
@@ -625,9 +625,9 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                   </div>
                 ) : (
                   <div className="text-center py-16">
-                    <FileText className="h-12 w-12 mx-auto mb-4 text-slate-400" />
-                    <h3 className="text-lg font-semibold text-white mb-2">Nenhuma proposta encontrada</h3>
-                    <p className="text-slate-400">Clique em &quot;Nova Proposta&quot; para começar.</p>
+                    <FileText className="h-12 w-12 mx-auto mb-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
+                    <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Nenhuma proposta encontrada</h3>
+                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Clique em &quot;Nova Proposta&quot; para começar.</p>
                   </div>
                 )}
               </CardContent>
@@ -638,12 +638,12 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
         {/* Proposal Summary View */}
         {viewMode === 'proposal-summary' && currentProposal && (
           <div className="container mx-auto p-4">
-            <Card className="bg-white border-gray-300 text-black print:shadow-none proposal-view">
+            <Card className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] print:shadow-none proposal-view">
               <CardHeader className="print:pb-2">
                 <div className="flex justify-between items-start mb-4 print:mb-2">
                   <div>
-                    <h1 className="text-2xl font-bold text-gray-900">Proposta Comercial</h1>
-                    <p className="text-gray-600">Máquinas Virtuais</p>
+                    <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Proposta Comercial</h1>
+                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Máquinas Virtuais</p>
                   </div>
                   <div className="flex gap-2 no-print">
                     <Button variant="outline" onClick={() => setViewMode('search')}>
@@ -659,7 +659,7 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                 {/* Dados da Proposta */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 print:gap-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Dados da Proposta</h3>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Dados da Proposta</h3>
                     <div className="space-y-2 text-sm">
                       <p><strong>Número:</strong> {currentProposal.proposalNumber}</p>
                       <p><strong>Nome:</strong> {currentProposal.name}</p>
@@ -668,7 +668,7 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                     </div>
                   </div>
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Resumo Financeiro</h3>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Resumo Financeiro</h3>
                     <div className="space-y-2 text-sm">
                       <p><strong>Total da Proposta:</strong> {formatCurrency(currentProposal.totalPrice)}</p>
                       <p><strong>Rodada Atual:</strong> {currentProposal.currentRound}</p>
@@ -678,28 +678,28 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
 
                 {/* Máquinas Virtuais */}
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">Máquinas Virtuais</h3>
+                  <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Máquinas Virtuais</h3>
                   <div className="overflow-x-auto">
-                    <table className="w-full border-collapse border border-gray-300">
+                    <table className="w-full border-collapse border border-[var(--crm-border)]">
                       <thead>
-                        <tr className="bg-gray-100">
-                          <th className="border border-gray-300 px-4 py-2 text-left">Nome</th>
-                          <th className="border border-gray-300 px-4 py-2 text-left">vCPU</th>
-                          <th className="border border-gray-300 px-4 py-2 text-left">RAM (GB)</th>
-                          <th className="border border-gray-300 px-4 py-2 text-left">Storage</th>
-                          <th className="border border-gray-300 px-4 py-2 text-left">OS</th>
-                          <th className="border border-gray-300 px-4 py-2 text-left">Qtd</th>
+                        <tr className="bg-[rgb(var(--crm-surface-rgb)_/_1)]">
+                          <th className="border border-[var(--crm-border)] px-4 py-2 text-left">Nome</th>
+                          <th className="border border-[var(--crm-border)] px-4 py-2 text-left">vCPU</th>
+                          <th className="border border-[var(--crm-border)] px-4 py-2 text-left">RAM (GB)</th>
+                          <th className="border border-[var(--crm-border)] px-4 py-2 text-left">Storage</th>
+                          <th className="border border-[var(--crm-border)] px-4 py-2 text-left">OS</th>
+                          <th className="border border-[var(--crm-border)] px-4 py-2 text-left">Qtd</th>
                         </tr>
                       </thead>
                       <tbody>
                         {currentProposal.vms.map((vm, index) => (
                           <tr key={index}>
-                            <td className="border border-gray-300 px-4 py-2">{vm.name}</td>
-                            <td className="border border-gray-300 px-4 py-2">{vm.vcpu}</td>
-                            <td className="border border-gray-300 px-4 py-2">{vm.ram}</td>
-                            <td className="border border-gray-300 px-4 py-2">{vm.storageSize}GB {vm.storageType}</td>
-                            <td className="border border-gray-300 px-4 py-2">{vm.os}</td>
-                            <td className="border border-gray-300 px-4 py-2">{vm.quantity}</td>
+                            <td className="border border-[var(--crm-border)] px-4 py-2">{vm.name}</td>
+                            <td className="border border-[var(--crm-border)] px-4 py-2">{vm.vcpu}</td>
+                            <td className="border border-[var(--crm-border)] px-4 py-2">{vm.ram}</td>
+                            <td className="border border-[var(--crm-border)] px-4 py-2">{vm.storageSize}GB {vm.storageType}</td>
+                            <td className="border border-[var(--crm-border)] px-4 py-2">{vm.os}</td>
+                            <td className="border border-[var(--crm-border)] px-4 py-2">{vm.quantity}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -710,21 +710,21 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                 {/* Rodadas de Negociação */}
                 {currentProposal.negotiationRounds.length > 0 && (
                   <div>
-                    <h3 className="text-lg font-semibold text-gray-900 mb-3">Histórico de Negociações</h3>
+                    <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Histórico de Negociações</h3>
                     <div className="space-y-3">
                       {currentProposal.negotiationRounds.map((round, index) => (
-                        <div key={index} className="border border-gray-300 p-3 rounded">
+                        <div key={index} className="border border-[var(--crm-border)] p-3 rounded">
                           <div className="flex justify-between items-start mb-2">
                             <h4 className="font-semibold">Rodada {round.roundNumber}</h4>
-                            <span className={`px-2 py-1 rounded text-xs ${round.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                              round.status === 'rejected' ? 'bg-red-100 text-red-800' :
-                                'bg-yellow-100 text-yellow-800'
+                            <span className={`px-2 py-1 rounded text-xs ${round.status === 'accepted' ? "bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300" :
+                              round.status === 'rejected' ? "bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300" :
+                                "bg-yellow-100 dark:bg-yellow-950 text-yellow-800 dark:text-yellow-300"
                               }`}>
                               {round.status === 'accepted' ? 'Aceito' :
                                 round.status === 'rejected' ? 'Rejeitado' : 'Ativo'}
                             </span>
                           </div>
-                          <p className="text-sm text-gray-600 mb-2">{round.description}</p>
+                          <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mb-2">{round.description}</p>
                           <div className="grid grid-cols-2 gap-4 text-sm">
                             <p><strong>Data:</strong> {round.date ? (isNaN(new Date(round.date).getTime()) ? 'N/A' : new Date(round.date).toLocaleDateString('pt-BR')) : 'N/A'}</p>
                             <p><strong>Desconto:</strong> {round.discount}%</p>
@@ -746,48 +746,48 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
           <div className="container mx-auto p-4 space-y-6">
             <div className="flex justify-between items-center">
               <div>
-                <h1 className="text-3xl font-bold text-white">
+                <h1 className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   {viewMode === 'create' ? 'Nova Proposta' : 'Editar Proposta'}
                 </h1>
-                <p className="text-slate-300 mt-2">Configure as VMs e detalhes da proposta.</p>
+                <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2">Configure as VMs e detalhes da proposta.</p>
               </div>
-              <Button onClick={cancelAction} variant="outline" className="border-slate-600 text-white">
+              <Button onClick={cancelAction} variant="outline" className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 <ArrowLeft className="h-4 w-4 mr-2" />
                 Voltar
               </Button>
             </div>
 
             <Tabs defaultValue="config" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 bg-slate-800">
+              <TabsList className="grid w-full grid-cols-2 bg-[rgb(var(--crm-surface-rgb)_/_1)]">
                 <TabsTrigger value="config">Configuração de VM</TabsTrigger>
                 <TabsTrigger value="pricing-settings">Configurações de Preços</TabsTrigger>
               </TabsList>
 
               <TabsContent value="config">
                 {/* Proposal Basic Info */}
-                <Card className="bg-slate-800 border-slate-700 mt-6">
+                <Card className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] mt-6">
                   <CardHeader>
-                    <CardTitle className="text-white">Informações da Proposta</CardTitle>
+                    <CardTitle className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Informações da Proposta</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Label htmlFor="proposalName" className="text-white">Nome da Proposta</Label>
+                        <Label htmlFor="proposalName" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Nome da Proposta</Label>
                         <Input
                           id="proposalName"
                           value={currentProposal.name}
                           onChange={(e) => setCurrentProposal(prev => ({ ...prev, name: e.target.value }))}
-                          className="bg-slate-700 border-slate-600 text-white"
+                          className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           placeholder="Digite o nome da proposta"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="clientName" className="text-white">Nome do Cliente</Label>
+                        <Label htmlFor="clientName" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Nome do Cliente</Label>
                         <Input
                           id="clientName"
                           value={currentProposal.clientName}
                           onChange={(e) => setCurrentProposal(prev => ({ ...prev, clientName: e.target.value }))}
-                          className="bg-slate-700 border-slate-600 text-white"
+                          className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           placeholder="Digite o nome do cliente"
                         />
                       </div>
@@ -796,49 +796,49 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                 </Card>
 
                 {/* VM Configuration */}
-                <Card className="bg-slate-800 border-slate-700 mt-6">
+                <Card className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] mt-6">
                   <CardHeader>
-                    <CardTitle className="text-white">Configuração de VM</CardTitle>
+                    <CardTitle className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Configuração de VM</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <div>
-                        <Label htmlFor="vmName" className="text-white">Nome da VM</Label>
+                        <Label htmlFor="vmName" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Nome da VM</Label>
                         <Input
                           id="vmName"
                           value={currentVM.name}
                           onChange={(e) => setCurrentVM(prev => ({ ...prev, name: e.target.value }))}
-                          className="bg-slate-700 border-slate-600 text-white"
+                          className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           placeholder="Nome da VM"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="vcpu" className="text-white">vCPU</Label>
+                        <Label htmlFor="vcpu" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">vCPU</Label>
                         <Input
                           id="vcpu"
                           type="number"
                           value={currentVM.vcpu}
                           onChange={(e) => setCurrentVM(prev => ({ ...prev, vcpu: parseInt(e.target.value) || 0 }))}
-                          className="bg-slate-700 border-slate-600 text-white"
+                          className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="ram" className="text-white">RAM (GB)</Label>
+                        <Label htmlFor="ram" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">RAM (GB)</Label>
                         <Input
                           id="ram"
                           type="number"
                           value={currentVM.ram}
                           onChange={(e) => setCurrentVM(prev => ({ ...prev, ram: parseInt(e.target.value) || 0 }))}
-                          className="bg-slate-700 border-slate-600 text-white"
+                          className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="storageType" className="text-white">Tipo de Storage</Label>
+                        <Label htmlFor="storageType" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Tipo de Storage</Label>
                         <Select
                           value={currentVM.storageType}
                           onValueChange={(value) => setCurrentVM(prev => ({ ...prev, storageType: value }))}
                         >
-                          <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                          <SelectTrigger className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -849,23 +849,23 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                         </Select>
                       </div>
                       <div>
-                        <Label htmlFor="storageSize" className="text-white">Storage (GB)</Label>
+                        <Label htmlFor="storageSize" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Storage (GB)</Label>
                         <Input
                           id="storageSize"
                           type="number"
                           value={currentVM.storageSize}
                           onChange={(e) => setCurrentVM(prev => ({ ...prev, storageSize: parseInt(e.target.value) || 0 }))}
-                          className="bg-slate-700 border-slate-600 text-white"
+                          className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                         />
                       </div>
                       <div>
-                        <Label htmlFor="quantity" className="text-white">Quantidade</Label>
+                        <Label htmlFor="quantity" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Quantidade</Label>
                         <Input
                           id="quantity"
                           type="number"
                           value={currentVM.quantity}
                           onChange={(e) => setCurrentVM(prev => ({ ...prev, quantity: parseInt(e.target.value) || 1 }))}
-                          className="bg-slate-700 border-slate-600 text-white"
+                          className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                         />
                       </div>
                     </div>
@@ -878,44 +878,44 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
 
                 {/* VMs List */}
                 {currentProposal.vms.length > 0 && (
-                  <Card className="bg-slate-800 border-slate-700 mt-6">
+                  <Card className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] mt-6">
                     <CardHeader>
-                      <CardTitle className="text-white">VMs da Proposta</CardTitle>
+                      <CardTitle className="text-[rgb(var(--crm-ink-rgb)_/_1)]">VMs da Proposta</CardTitle>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
                         {currentProposal.vms.map((vm) => (
-                          <div key={vm.id} className="border border-slate-600 rounded-lg p-4 bg-slate-700">
+                          <div key={vm.id} className="border border-[var(--crm-border)] rounded-lg p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)]">
                             <div className="flex items-center justify-between mb-3">
-                              <h5 className="font-medium text-white">{vm.name}</h5>
+                              <h5 className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">{vm.name}</h5>
                               <Button
                                 variant="outline"
                                 size="sm"
                                 onClick={() => removeVMFromProposal(vm.id)}
-                                className="border-red-600 text-red-400 hover:bg-red-600 hover:text-white"
+                                className="border-red-600 text-red-700 dark:text-red-400 hover:bg-red-600 hover:text-white"
                               >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
                             </div>
-                            <div className="grid grid-cols-2 gap-4 text-sm text-slate-300">
+                            <div className="grid grid-cols-2 gap-4 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               <div>
-                                <span className="text-slate-400">vCPU:</span> {vm.vcpu}
+                                <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">vCPU:</span> {vm.vcpu}
                               </div>
                               <div>
-                                <span className="text-slate-400">RAM:</span> {vm.ram}GB
+                                <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">RAM:</span> {vm.ram}GB
                               </div>
                               <div>
-                                <span className="text-slate-400">Storage:</span> {vm.storageSize}GB {vm.storageType}
+                                <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Storage:</span> {vm.storageSize}GB {vm.storageType}
                               </div>
                               <div>
-                                <span className="text-slate-400">Qtd:</span> {vm.quantity}
+                                <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Qtd:</span> {vm.quantity}
                               </div>
                             </div>
-                            <div className="mt-3 pt-3 border-t border-slate-600">
-                              <div className="font-medium text-green-400">
+                            <div className="mt-3 pt-3 border-t border-[var(--crm-border)]">
+                              <div className="font-medium text-green-700 dark:text-green-400">
                                 {formatCurrency(calculateVMPrice(vm))}/mês por VM
                               </div>
-                              <div className="text-sm text-slate-400">
+                              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                 Total: {formatCurrency(calculateVMPrice(vm) * vm.quantity)}/mês
                               </div>
                             </div>
@@ -927,21 +927,21 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                 )}
 
                 {/* Summary */}
-                <Card className="bg-slate-800 border-slate-700 mt-6">
+                <Card className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] mt-6">
                   <CardHeader>
-                    <CardTitle className="text-white">Resumo Financeiro</CardTitle>
+                    <CardTitle className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Resumo Financeiro</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="bg-blue-600 p-4 rounded-lg">
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-white">
+                        <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {formatCurrency(calculateTotalPrice)}
                         </div>
-                        <div className="text-sm text-blue-100">Total Mensal</div>
+                        <div className="text-sm text-blue-700 dark:text-blue-100">Total Mensal</div>
                       </div>
                     </div>
 
-                    <div className="space-y-2 text-slate-300">
+                    <div className="space-y-2 text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       <div className="flex justify-between">
                         <span>Subtotal:</span>
                         <span>{formatCurrency(calculateTotalPrice)}</span>
@@ -950,8 +950,8 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                         <span>Desconto (0%):</span>
                         <span>R$ 0,00</span>
                       </div>
-                      <Separator className="bg-slate-600" />
-                      <div className="flex justify-between font-bold text-white">
+                      <Separator className="bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
+                      <div className="flex justify-between font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <span>Total:</span>
                         <span>{formatCurrency(calculateTotalPrice)}</span>
                       </div>
@@ -966,92 +966,92 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
               </TabsContent>
 
               <TabsContent value="pricing-settings">
-                <Card className="bg-slate-800 border-slate-700 mt-6">
+                <Card className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] mt-6">
                   <CardHeader>
-                    <CardTitle className="text-white">Configurações de Preços</CardTitle>
+                    <CardTitle className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Configurações de Preços</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-6">
                     {/* Custos de Hardware */}
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-4">Custos de Hardware</h3>
+                      <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-4">Custos de Hardware</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="vcpuPerCore" className="text-white">vCPU por Core (R$)</Label>
+                          <Label htmlFor="vcpuPerCore" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">vCPU por Core (R$)</Label>
                           <Input
                             id="vcpuPerCore"
                             type="number"
                             value={pricingConfig.vcpuPerCore}
                             onChange={(e) => handlePricingConfigChange('vcpuPerCore', parseFloat(e.target.value) || 0)}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="ramPerGB" className="text-white">RAM por GB (R$)</Label>
+                          <Label htmlFor="ramPerGB" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">RAM por GB (R$)</Label>
                           <Input
                             id="ramPerGB"
                             type="number"
                             value={pricingConfig.ramPerGB}
                             onChange={(e) => handlePricingConfigChange('ramPerGB', parseFloat(e.target.value) || 0)}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                       </div>
                       <div className="mt-6">
-                        <h4 className="text-md font-semibold text-white mb-2">Armazenamento por GB (R$)</h4>
+                        <h4 className="text-md font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Armazenamento por GB (R$)</h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
-                            <Label htmlFor="hddSas" className="text-white">HDD SAS</Label>
+                            <Label htmlFor="hddSas" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">HDD SAS</Label>
                             <Input
                               id="hddSas"
                               type="number"
                               value={pricingConfig.storagePerGB['HDD SAS']}
                               onChange={(e) => handlePricingConfigChange('storagePerGB', { ...pricingConfig.storagePerGB, 'HDD SAS': parseFloat(e.target.value) || 0 })}
-                              className="bg-slate-700 border-slate-600 text-white"
+                              className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                             />
                           </div>
                           <div>
-                            <Label htmlFor="ssdSata" className="text-white">SSD SATA</Label>
+                            <Label htmlFor="ssdSata" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">SSD SATA</Label>
                             <Input
                               id="ssdSata"
                               type="number"
                               value={pricingConfig.storagePerGB['SSD SATA']}
                               onChange={(e) => handlePricingConfigChange('storagePerGB', { ...pricingConfig.storagePerGB, 'SSD SATA': parseFloat(e.target.value) || 0 })}
-                              className="bg-slate-700 border-slate-600 text-white"
+                              className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                             />
                           </div>
                           <div>
-                            <Label htmlFor="ssdNvme" className="text-white">SSD NVMe</Label>
+                            <Label htmlFor="ssdNvme" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">SSD NVMe</Label>
                             <Input
                               id="ssdNvme"
                               type="number"
                               value={pricingConfig.storagePerGB['SSD NVMe']}
                               onChange={(e) => handlePricingConfigChange('storagePerGB', { ...pricingConfig.storagePerGB, 'SSD NVme': parseFloat(e.target.value) || 0 })}
-                              className="bg-slate-700 border-slate-600 text-white"
+                              className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                             />
                           </div>
                         </div>
                       </div>
                       <div className="mt-6">
-                        <h4 className="text-md font-semibold text-white mb-2">Custos de Rede (R$)</h4>
+                        <h4 className="text-md font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Custos de Rede (R$)</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
-                            <Label htmlFor="network1Gbps" className="text-white">1 Gbps</Label>
+                            <Label htmlFor="network1Gbps" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">1 Gbps</Label>
                             <Input
                               id="network1Gbps"
                               type="number"
                               value={pricingConfig.networkCosts['1 Gbps']}
                               onChange={(e) => handlePricingConfigChange('networkCosts', { ...pricingConfig.networkCosts, '1 Gbps': parseFloat(e.target.value) || 0 })}
-                              className="bg-slate-700 border-slate-600 text-white"
+                              className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                             />
                           </div>
                           <div>
-                            <Label htmlFor="network10Gbps" className="text-white">10 Gbps</Label>
+                            <Label htmlFor="network10Gbps" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">10 Gbps</Label>
                             <Input
                               id="network10Gbps"
                               type="number"
                               value={pricingConfig.networkCosts['10 Gbps']}
                               onChange={(e) => handlePricingConfigChange('networkCosts', { ...pricingConfig.networkCosts, '10 Gbps': parseFloat(e.target.value) || 0 })}
-                              className="bg-slate-700 border-slate-600 text-white"
+                              className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                             />
                           </div>
                         </div>
@@ -1060,89 +1060,89 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
 
                     {/* Licenças de SO e Serviços Adicionais */}
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-4">Licenças de SO e Serviços Adicionais</h3>
+                      <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-4">Licenças de SO e Serviços Adicionais</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="linuxOs" className="text-white">Linux (R$)</Label>
+                          <Label htmlFor="linuxOs" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Linux (R$)</Label>
                           <Input
                             id="linuxOs"
                             type="number"
                             value={pricingConfig.osLicense.Linux}
                             onChange={(e) => handlePricingConfigChange('osLicense', { ...pricingConfig.osLicense, Linux: parseFloat(e.target.value) || 0 })}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="windowsServerOs" className="text-white">Windows Server (R$)</Label>
+                          <Label htmlFor="windowsServerOs" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Windows Server (R$)</Label>
                           <Input
                             id="windowsServerOs"
                             type="number"
                             value={pricingConfig.osLicense['Windows Server']}
                             onChange={(e) => handlePricingConfigChange('osLicense', { ...pricingConfig.osLicense, 'Windows Server': parseFloat(e.target.value) || 0 })}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="freebsdOs" className="text-white">FreeBSD (R$)</Label>
+                          <Label htmlFor="freebsdOs" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">FreeBSD (R$)</Label>
                           <Input
                             id="freebsdOs"
                             type="number"
                             value={pricingConfig.osLicense.FreeBSD}
                             onChange={(e) => handlePricingConfigChange('osLicense', { ...pricingConfig.osLicense, FreeBSD: parseFloat(e.target.value) || 0 })}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="customOs" className="text-white">Custom OS (R$)</Label>
+                          <Label htmlFor="customOs" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Custom OS (R$)</Label>
                           <Input
                             id="customOs"
                             type="number"
                             value={pricingConfig.osLicense.Custom}
                             onChange={(e) => handlePricingConfigChange('osLicense', { ...pricingConfig.osLicense, Custom: parseFloat(e.target.value) || 0 })}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                         <div>
-                          <Label htmlFor="backupPerGB" className="text-white">Backup por GB (R$)</Label>
+                          <Label htmlFor="backupPerGB" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Backup por GB (R$)</Label>
                           <Input
                             id="backupPerGB"
                             type="number"
                             value={pricingConfig.backupPerGB}
                             onChange={(e) => handlePricingConfigChange('backupPerGB', parseFloat(e.target.value) || 0)}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="additionalIP" className="text-white">IP Adicional (R$)</Label>
+                          <Label htmlFor="additionalIP" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">IP Adicional (R$)</Label>
                           <Input
                             id="additionalIP"
                             type="number"
                             value={pricingConfig.additionalIP}
                             onChange={(e) => handlePricingConfigChange('additionalIP', parseFloat(e.target.value) || 0)}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="additionalSnapshot" className="text-white">Snapshot Adicional (R$)</Label>
+                          <Label htmlFor="additionalSnapshot" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Snapshot Adicional (R$)</Label>
                           <Input
                             id="additionalSnapshot"
                             type="number"
                             value={pricingConfig.additionalSnapshot}
                             onChange={(e) => handlePricingConfigChange('additionalSnapshot', parseFloat(e.target.value) || 0)}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="vpnSiteToSite" className="text-white">VPN Site-to-Site (R$)</Label>
+                          <Label htmlFor="vpnSiteToSite" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">VPN Site-to-Site (R$)</Label>
                           <Input
                             id="vpnSiteToSite"
                             type="number"
                             value={pricingConfig.vpnSiteToSite}
                             onChange={(e) => handlePricingConfigChange('vpnSiteToSite', parseFloat(e.target.value) || 0)}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                       </div>
@@ -1150,62 +1150,62 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
 
                     {/* Descontos e Taxas */}
                     <div>
-                      <h3 className="text-lg font-semibold text-white mb-4">Descontos e Taxas</h3>
+                      <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-4">Descontos e Taxas</h3>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                          <Label htmlFor="markup" className="text-white">Markup (%)</Label>
+                          <Label htmlFor="markup" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Markup (%)</Label>
                           <Input
                             id="markup"
                             type="number"
                             value={pricingConfig.markup}
                             onChange={(e) => handlePricingConfigChange('markup', parseFloat(e.target.value) || 0)}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="commission" className="text-white">Comissão (%)</Label>
+                          <Label htmlFor="commission" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão (%)</Label>
                           <Input
                             id="commission"
                             type="number"
                             value={pricingConfig.commission}
                             onChange={(e) => handlePricingConfigChange('commission', parseFloat(e.target.value) || 0)}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="setupFee" className="text-white">Taxa de Setup (R$)</Label>
+                          <Label htmlFor="setupFee" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Taxa de Setup (R$)</Label>
                           <Input
                             id="setupFee"
                             type="number"
                             value={pricingConfig.setupFee}
                             onChange={(e) => handlePricingConfigChange('setupFee', parseFloat(e.target.value) || 0)}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                         <div>
-                          <Label htmlFor="managementSupport" className="text-white">Gestão e Suporte (R$)</Label>
+                          <Label htmlFor="managementSupport" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Gestão e Suporte (R$)</Label>
                           <Input
                             id="managementSupport"
                             type="number"
                             value={pricingConfig.managementSupport}
                             onChange={(e) => handlePricingConfigChange('managementSupport', parseFloat(e.target.value) || 0)}
-                            className="bg-slate-700 border-slate-600 text-white"
+                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                       </div>
 
                       <div className="mt-6">
-                        <h4 className="text-md font-semibold text-white mb-2">Descontos Contratuais (%)</h4>
+                        <h4 className="text-md font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Descontos Contratuais (%)</h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                           {Object.entries(pricingConfig.contractDiscounts).map(([months, discount]) => (
                             <div key={months}>
-                              <Label htmlFor={`discount-${months}`} className="text-white">{months} Meses</Label>
+                              <Label htmlFor={`discount-${months}`} className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{months} Meses</Label>
                               <Input
                                 id={`discount-${months}`}
                                 type="number"
                                 value={discount}
                                 onChange={(e) => handlePricingConfigChange('contractDiscounts', { ...pricingConfig.contractDiscounts, [months]: parseFloat(e.target.value) || 0 })}
-                                className="bg-slate-700 border-slate-600 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                               />
                             </div>
                           ))}
@@ -1213,12 +1213,12 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                       </div>
 
                       <div className="mt-6">
-                        <h4 className="text-md font-semibold text-white mb-2">Regime Tributário</h4>
+                        <h4 className="text-md font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Regime Tributário</h4>
                         <Select
                           value={pricingConfig.selectedTaxRegime}
                           onValueChange={(value) => handlePricingConfigChange('selectedTaxRegime', value)}
                         >
-                          <SelectTrigger className="bg-slate-700 border-slate-600 text-white">
+                          <SelectTrigger className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -1232,33 +1232,33 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                         {pricingConfig.selectedTaxRegime && (
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
                             <div>
-                              <Label htmlFor="pisCofins" className="text-white">PIS/COFINS (%)</Label>
+                              <Label htmlFor="pisCofins" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">PIS/COFINS (%)</Label>
                               <Input
                                 id="pisCofins"
                                 type="number"
                                 value={pricingConfig.taxes[pricingConfig.selectedTaxRegime as keyof typeof pricingConfig.taxes].pisCofins}
                                 onChange={(e) => handlePricingConfigChange('taxes', { ...pricingConfig.taxes, [pricingConfig.selectedTaxRegime]: { ...pricingConfig.taxes[pricingConfig.selectedTaxRegime as keyof typeof pricingConfig.taxes], pisCofins: parseFloat(e.target.value) || 0 } })}
-                                className="bg-slate-700 border-slate-600 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                               />
                             </div>
                             <div>
-                              <Label htmlFor="iss" className="text-white">ISS (%)</Label>
+                              <Label htmlFor="iss" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">ISS (%)</Label>
                               <Input
                                 id="iss"
                                 type="number"
                                 value={pricingConfig.taxes[pricingConfig.selectedTaxRegime as keyof typeof pricingConfig.taxes].iss}
                                 onChange={(e) => handlePricingConfigChange('taxes', { ...pricingConfig.taxes, [pricingConfig.selectedTaxRegime]: { ...pricingConfig.taxes[pricingConfig.selectedTaxRegime as keyof typeof pricingConfig.taxes], iss: parseFloat(e.target.value) || 0 } })}
-                                className="bg-slate-700 border-slate-600 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                               />
                             </div>
                             <div>
-                              <Label htmlFor="csllIr" className="text-white">CSLL/IR (%)</Label>
+                              <Label htmlFor="csllIr" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">CSLL/IR (%)</Label>
                               <Input
                                 id="csllIr"
                                 type="number"
                                 value={pricingConfig.taxes[pricingConfig.selectedTaxRegime as keyof typeof pricingConfig.taxes].csllIr}
                                 onChange={(e) => handlePricingConfigChange('taxes', { ...pricingConfig.taxes, [pricingConfig.selectedTaxRegime]: { ...pricingConfig.taxes[pricingConfig.selectedTaxRegime as keyof typeof pricingConfig.taxes], csllIr: parseFloat(e.target.value) || 0 } })}
-                                className="bg-slate-700 border-slate-600 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                               />
                             </div>
                           </div>

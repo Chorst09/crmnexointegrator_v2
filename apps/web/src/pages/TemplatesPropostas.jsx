@@ -248,7 +248,7 @@ const SimulatorCommercialTemplatePreview = ({ template }) => {
     <div className="space-y-10">
       <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--crm-muted)]">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10">
+          <span className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[rgb(var(--crm-ink-rgb)_/_0.1)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.1)]">
             A4 • Retrato
           </span>
           <span className="inline-flex items-center px-3 py-1 rounded-full bg-blue-500/10 text-blue-700 dark:text-blue-200 border border-blue-500/20">
@@ -261,7 +261,7 @@ const SimulatorCommercialTemplatePreview = ({ template }) => {
       </div>
 
       <div
-        className="proposal-page bg-white border rounded-lg shadow-lg print:shadow-none print:border-none overflow-hidden"
+        className="proposal-page bg-[rgb(var(--crm-surface-rgb)_/_1)] border rounded-lg shadow-lg print:shadow-none print:border-none overflow-hidden"
         style={pageStyle}
       >
         <div
@@ -288,7 +288,7 @@ const SimulatorCommercialTemplatePreview = ({ template }) => {
           </div>
 
           <div className="absolute top-8 right-8">
-            <div className="bg-blue-900 border-2 border-white rounded-lg p-4 w-40 h-40 flex flex-col items-center justify-center overflow-hidden">
+            <div className="bg-blue-50 dark:bg-blue-900 border-2 border-[var(--crm-border)] rounded-lg p-4 w-40 h-40 flex flex-col items-center justify-center overflow-hidden">
               {!isBlank(template.coverLogo) ? (
                 <img
                   src={template.coverLogo}
@@ -298,19 +298,19 @@ const SimulatorCommercialTemplatePreview = ({ template }) => {
               ) : (
                 <>
                   <div className="flex items-center justify-center mb-1">
-                    <div className="w-4 h-4 border-2 border-white rounded-full mr-1" />
-                    <div className="w-4 h-4 border-2 border-white rounded-full" />
+                    <div className="w-4 h-4 border-2 border-[var(--crm-border)] rounded-full mr-1" />
+                    <div className="w-4 h-4 border-2 border-[var(--crm-border)] rounded-full" />
                   </div>
-                  <div className="text-white font-bold text-lg">double</div>
-                  <div className="text-white text-xs">ti + telecom</div>
+                  <div className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold text-lg">double</div>
+                  <div className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs">ti + telecom</div>
                 </>
               )}
             </div>
           </div>
 
-          <div className="p-12 text-white">
+          <div className="p-12 text-[rgb(var(--crm-ink-rgb)_/_1)]">
             <div className="mb-8">
-              <h1 className="text-6xl font-bold text-blue-200 leading-tight">
+              <h1 className="text-6xl font-bold text-blue-700 dark:text-blue-200 leading-tight">
                 Proposta<br />Comercial
               </h1>
             </div>
@@ -321,23 +321,23 @@ const SimulatorCommercialTemplatePreview = ({ template }) => {
               <div className="text-md opacity-80 mt-1">Projeto: Nome do Projeto</div>
             </div>
 
-            <div className="border-t border-white opacity-30 mb-8" />
+            <div className="border-t border-[var(--crm-border)] opacity-30 mb-8" />
 
             <div className="space-y-4">
               <div className="text-xl font-semibold mb-4">Produto:</div>
               <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-blue-200 rounded-full flex items-center justify-center">
-                  <Check className="w-4 h-4 text-blue-900" />
+                <div className="w-6 h-6 bg-blue-200 dark:bg-blue-950 rounded-full flex items-center justify-center">
+                  <Check className="w-4 h-4 text-blue-900 dark:text-blue-300" />
                 </div>
                 <span className="text-lg font-semibold">Internet</span>
               </div>
             </div>
 
-            <div className="border-t border-white opacity-30 mt-8" />
+            <div className="border-t border-[var(--crm-border)] opacity-30 mt-8" />
           </div>
 
           <div className="absolute bottom-40 left-1/2 transform -translate-x-1/2">
-            <div className="w-[500px] h-[375px] bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg border-2 border-white overflow-hidden">
+            <div className="w-[500px] h-[375px] bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg border-2 border-[var(--crm-border)] overflow-hidden">
               <div className="h-full bg-gradient-to-b from-blue-500 to-blue-700 flex items-center justify-center relative">
                 <div className="absolute inset-0 bg-gradient-to-b from-blue-600 to-blue-800">
                   {Array.from({ length: 5 }).map((_, index) => (
@@ -347,7 +347,7 @@ const SimulatorCommercialTemplatePreview = ({ template }) => {
                     </React.Fragment>
                   ))}
                 </div>
-                <div className="text-center text-white relative z-10">
+                <div className="text-center text-[rgb(var(--crm-ink-rgb)_/_1)] relative z-10">
                   <div className="text-2xl font-bold mb-2">Internet</div>
                   <div className="text-sm opacity-80">Infraestrutura de Alta Tecnologia</div>
                 </div>
@@ -357,17 +357,17 @@ const SimulatorCommercialTemplatePreview = ({ template }) => {
 
           <div className="absolute bottom-8 left-8">
             <div className="flex items-center space-x-4">
-              <div className="w-16 h-16 bg-white rounded-lg flex items-center justify-center">
-                <div className="w-12 h-12 bg-gray-800 rounded grid grid-cols-8 grid-rows-8 gap-0.5 p-1">
+              <div className="w-16 h-16 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg flex items-center justify-center">
+                <div className="w-12 h-12 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded grid grid-cols-8 grid-rows-8 gap-0.5 p-1">
                   {Array.from({ length: 64 }).map((_, index) => (
                     <div
                       key={index}
-                      className={(index + Math.floor(index / 8)) % 3 === 0 ? 'bg-white' : 'bg-gray-800'}
+                      className={(index + Math.floor(index / 8)) % 3 === 0 ? "bg-[rgb(var(--crm-surface-rgb)_/_1)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}
                     />
                   ))}
                 </div>
               </div>
-              <div className="text-white">
+              <div className="text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 <div className="font-semibold text-lg">Visite Nosso Site</div>
                 <div className="text-sm opacity-90">www.doubletelecom.com.br</div>
               </div>
@@ -377,22 +377,22 @@ const SimulatorCommercialTemplatePreview = ({ template }) => {
       </div>
 
       <div
-        className="proposal-page bg-white border rounded-lg shadow-lg print:shadow-none print:border-none overflow-hidden"
+        className="proposal-page bg-[rgb(var(--crm-surface-rgb)_/_1)] border rounded-lg shadow-lg print:shadow-none print:border-none overflow-hidden"
         style={pageStyle}
       >
-        <div className="p-12 h-full relative text-gray-900">
+        <div className="p-12 h-full relative text-[rgb(var(--crm-ink-rgb)_/_1)]">
           <div className="flex justify-between items-start mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Proposta Comercial</h1>
-              <p className="text-gray-600">Internet</p>
+              <h1 className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Proposta Comercial</h1>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Internet</p>
             </div>
             <div className="text-right">
-              <div className="text-sm text-gray-600">Data: {new Date().toLocaleDateString('pt-BR')}</div>
+              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Data: {new Date().toLocaleDateString('pt-BR')}</div>
             </div>
           </div>
 
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Dados do Cliente</h3>
+            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Dados do Cliente</h3>
             <div className="space-y-2 text-sm">
               <p><strong>Nome:</strong> Nome do Cliente</p>
               <p><strong>Projeto:</strong> Nome do Projeto</p>
@@ -403,7 +403,7 @@ const SimulatorCommercialTemplatePreview = ({ template }) => {
           </div>
 
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Gerente de Contas</h3>
+            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Gerente de Contas</h3>
             <div className="space-y-2 text-sm">
               <p><strong>Nome:</strong> Gerente de Conta</p>
               <p><strong>Email:</strong> comercial@empresa.com.br</p>
@@ -412,43 +412,43 @@ const SimulatorCommercialTemplatePreview = ({ template }) => {
           </div>
 
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Produtos e Serviços</h3>
-            <table className="w-full border-collapse border border-gray-300 text-sm">
+            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Produtos e Serviços</h3>
+            <table className="w-full border-collapse border border-[var(--crm-border)] text-sm">
               <thead>
-                <tr className="bg-gray-50">
-                  <th className="border border-gray-300 px-4 py-2 text-left">Descrição</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Setup</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Mensal</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Descontos</th>
+                <tr className="bg-[rgb(var(--crm-surface-rgb)_/_1)]">
+                  <th className="border border-[var(--crm-border)] px-4 py-2 text-left">Descrição</th>
+                  <th className="border border-[var(--crm-border)] px-4 py-2 text-left">Setup</th>
+                  <th className="border border-[var(--crm-border)] px-4 py-2 text-left">Mensal</th>
+                  <th className="border border-[var(--crm-border)] px-4 py-2 text-left">Descontos</th>
                 </tr>
               </thead>
               <tbody>
                 <tr>
-                  <td className="border border-gray-300 px-4 py-2">Produto / Serviço</td>
-                  <td className="border border-gray-300 px-4 py-2">R$ 0,00</td>
-                  <td className="border border-gray-300 px-4 py-2">R$ 0,00</td>
-                  <td className="border border-gray-300 px-4 py-2">-</td>
+                  <td className="border border-[var(--crm-border)] px-4 py-2">Produto / Serviço</td>
+                  <td className="border border-[var(--crm-border)] px-4 py-2">R$ 0,00</td>
+                  <td className="border border-[var(--crm-border)] px-4 py-2">R$ 0,00</td>
+                  <td className="border border-[var(--crm-border)] px-4 py-2">-</td>
                 </tr>
               </tbody>
             </table>
           </div>
 
           <div className="mb-8">
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Resumo Financeiro Detalhado</h3>
-            <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-gray-300 rounded-lg p-5">
+            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Resumo Financeiro Detalhado</h3>
+            <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-rgb)_/_1)] border-2 border-[var(--crm-border)] rounded-lg p-5">
               <table className="w-full">
                 <tbody>
-                  <tr className="border-b-2 border-gray-300">
-                    <td className="py-3 text-sm font-bold text-gray-800">Total Setup (Instalação):</td>
-                    <td className="py-3 text-sm text-right font-bold text-gray-900">R$ 0,00</td>
+                  <tr className="border-b-2 border-[var(--crm-border)]">
+                    <td className="py-3 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Total Setup (Instalação):</td>
+                    <td className="py-3 text-sm text-right font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">R$ 0,00</td>
                   </tr>
-                  <tr className="bg-blue-50 border-b-2 border-blue-300">
-                    <td className="py-3 text-base font-bold text-blue-900">Valor Mensal Final:</td>
-                    <td className="py-3 text-base text-right font-bold text-blue-900">R$ 0,00</td>
+                  <tr className="bg-blue-50 dark:bg-blue-950 border-b-2 border-blue-300">
+                    <td className="py-3 text-base font-bold text-blue-900 dark:text-blue-300">Valor Mensal Final:</td>
+                    <td className="py-3 text-base text-right font-bold text-blue-900 dark:text-blue-300">R$ 0,00</td>
                   </tr>
                   <tr>
-                    <td className="py-2 text-sm font-medium text-gray-700">Prazo Contratual:</td>
-                    <td className="py-2 text-sm text-right font-semibold text-gray-900">12 meses</td>
+                    <td className="py-2 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Prazo Contratual:</td>
+                    <td className="py-2 text-sm text-right font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">12 meses</td>
                   </tr>
                 </tbody>
               </table>
@@ -456,14 +456,14 @@ const SimulatorCommercialTemplatePreview = ({ template }) => {
           </div>
 
           <div className="absolute bottom-12 left-12 right-12">
-            <div className="border-t border-gray-300 pt-4">
+            <div className="border-t border-[var(--crm-border)] pt-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <p className="text-sm text-gray-600">Double TI + Telecom</p>
-                  <p className="text-sm text-gray-600">www.doubletelecom.com.br</p>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Double TI + Telecom</p>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">www.doubletelecom.com.br</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-600">Página 2 de 2</p>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Página 2 de 2</p>
                 </div>
               </div>
             </div>
@@ -538,10 +538,10 @@ const ProposalTemplatePreview = ({ template }) => {
     <div className="space-y-10">
       <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-[var(--crm-muted)]">
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10">
+          <span className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[rgb(var(--crm-ink-rgb)_/_0.1)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.1)]">
             {template.pageSize || 'A4'} {template.pageOrientation === 'landscape' ? '• Paisagem' : '• Retrato'}
           </span>
-          <span className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/10">
+          <span className="inline-flex items-center px-3 py-1 rounded-full bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[rgb(var(--crm-ink-rgb)_/_0.1)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.1)]">
             {enabledSections.length} seção(ões)
           </span>
           {isDouble && (
@@ -562,7 +562,7 @@ const ProposalTemplatePreview = ({ template }) => {
             aspectRatio: '210 / 297',
             background: page.background || '#ffffff',
             fontFamily: template.fontFamily || 'Inter',
-            color: '#0f172a'
+            color: "rgb(var(--crm-ink-rgb) / 1)"
           };
 
           const footerLabel = page.kind === 'section' ? (page.section?.id || '') : page.kind;
@@ -571,14 +571,14 @@ const ProposalTemplatePreview = ({ template }) => {
             page.kind === 'cover'
               ? 'p-0'
               : page.section?.layout === 'double-who'
-                ? 'px-14 pt-16 pb-24 text-white'
+                ? "px-14 pt-16 pb-24 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 : 'px-14 pt-16 pb-24';
 
           return (
             <div key={`${page.kind}-${page.number}`} className="mx-auto w-full max-w-[860px]">
               <div
                 className={[
-                  'relative overflow-hidden rounded-[26px] shadow-soft-2xl border border-black/10 dark:border-white/10 bg-white',
+                  "relative overflow-hidden rounded-[26px] shadow-soft-2xl border border-[rgb(var(--crm-ink-rgb)_/_0.1)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-rgb)_/_1)]",
                   'motion-safe:animate-fade-up will-change-transform',
                   'transition-transform duration-300 hover:-translate-y-1'
                 ].join(' ')}
@@ -588,14 +588,14 @@ const ProposalTemplatePreview = ({ template }) => {
                 {page.kind === 'cover' && (
                   <>
                     {coverHasOverlay && (
-                      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/10 to-black/60" />
+                      <div className="absolute inset-0 bg-gradient-to-b from-[rgb(var(--crm-surface-2-rgb)_/_0.6)] via-[rgb(var(--crm-surface-2-rgb)_/_0.1)] to-[rgb(var(--crm-surface-2-rgb)_/_0.6)]" />
                     )}
                     <div className="absolute inset-0">
                       <div className="h-full w-full" />
                     </div>
 
                     {coverHasOverlay && (
-                      <div className="absolute inset-0 p-12 flex flex-col justify-between text-white">
+                      <div className="absolute inset-0 p-12 flex flex-col justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <div className="max-w-[78%]">
                           {!isBlank(template.coverLogo) && (
                             <img
@@ -650,7 +650,7 @@ const ProposalTemplatePreview = ({ template }) => {
 
                         <div className="mt-10 space-y-3">
                           {enabledSections.length === 0 ? (
-                            <div className="text-sm text-gray-600 dark:text-gray-300">
+                            <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               Nenhuma seção habilitada.
                             </div>
                           ) : (
@@ -664,11 +664,11 @@ const ProposalTemplatePreview = ({ template }) => {
 
                               return (
                                 <div key={s.id || i} className="flex items-center gap-3 text-sm">
-                                  <div className="font-medium text-slate-900">
+                                  <div className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                     {s.title}
                                   </div>
-                                  <div className="flex-1 border-b border-dotted border-slate-300/80 translate-y-1" />
-                                  <div className="tabular-nums text-slate-700">
+                                  <div className="flex-1 border-b border-dotted border-[var(--crm-border)] translate-y-1" />
+                                  <div className="tabular-nums text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                     {pageNumber}
                                   </div>
                                 </div>
@@ -694,7 +694,7 @@ const ProposalTemplatePreview = ({ template }) => {
 
                       {!isBlank(page.section?.body) && (
                         <div
-                          className={page.section?.layout === 'double-who' ? 'mt-6 text-slate-100/90 space-y-4' : 'mt-6 text-slate-700 space-y-4'}
+                          className={page.section?.layout === 'double-who' ? "mt-6 text-[rgb(var(--crm-ink-rgb)_/_0.9)] space-y-4" : "mt-6 text-[rgb(var(--crm-ink-rgb)_/_1)] space-y-4"}
                           style={{ fontSize: `${template.fontSize || 12}px` }}
                         >
                           {renderTextParagraphs(page.section?.body)}
@@ -710,8 +710,8 @@ const ProposalTemplatePreview = ({ template }) => {
                             className={[
                               'inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold',
                               page.section?.layout === 'double-who'
-                                ? 'bg-white/10 text-white border border-white/15'
-                                : 'bg-blue-500/10 text-blue-800 border border-blue-500/20'
+                                ? "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)]"
+                                : "bg-blue-500/10 text-blue-800 dark:text-blue-300 border border-blue-500/20"
                             ].join(' ')}
                           >
                             {h}
@@ -722,7 +722,7 @@ const ProposalTemplatePreview = ({ template }) => {
 
                     {safeArray(page.section?.bullets).length > 0 && (
                       <ul
-                        className={page.section?.layout === 'double-who' ? 'mt-8 space-y-2 text-slate-100/90' : 'mt-8 space-y-2 text-slate-700'}
+                        className={page.section?.layout === 'double-who' ? "mt-8 space-y-2 text-[rgb(var(--crm-ink-rgb)_/_0.9)]" : "mt-8 space-y-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"}
                         style={{ fontSize: `${template.fontSize || 12}px` }}
                       >
                         {safeArray(page.section?.bullets).map((b, i) => (
@@ -743,7 +743,7 @@ const ProposalTemplatePreview = ({ template }) => {
                     )}
 
                     {safeArray(page.section?.placeholders).length > 0 && (
-                      <div className={page.section?.layout === 'double-who' ? 'mt-8 text-slate-100/80' : 'mt-8 text-slate-500'}>
+                      <div className={page.section?.layout === 'double-who' ? "mt-8 text-[rgb(var(--crm-ink-rgb)_/_0.8)]" : "mt-8 text-[rgb(var(--crm-muted-rgb)_/_1)]"}>
                         <div className="text-xs font-semibold uppercase tracking-wider opacity-90">
                           Campos a preencher
                         </div>
@@ -759,7 +759,7 @@ const ProposalTemplatePreview = ({ template }) => {
 
                     {!isBlank(page.section?.notes) && (
                       <div
-                        className={page.section?.layout === 'double-who' ? 'mt-10 p-4 rounded-2xl bg-white/10 border border-white/15 text-slate-100/90' : 'mt-10 p-4 rounded-2xl bg-slate-50 border border-slate-200 text-slate-700'}
+                        className={page.section?.layout === 'double-who' ? "mt-10 p-4 rounded-2xl bg-[rgb(var(--crm-surface-rgb)_/_0.1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_0.9)]" : "mt-10 p-4 rounded-2xl bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"}
                         style={{ fontSize: `${template.fontSize || 12}px` }}
                       >
                         <div className="text-xs font-semibold uppercase tracking-wider opacity-80 mb-2">
@@ -772,7 +772,7 @@ const ProposalTemplatePreview = ({ template }) => {
                     )}
 
                     {/* Page number */}
-                    <div className="absolute bottom-6 right-7 text-xs tabular-nums opacity-70 text-slate-500">
+                    <div className="absolute bottom-6 right-7 text-xs tabular-nums opacity-70 text-[rgb(var(--crm-muted-rgb)_/_1)]">
                       {page.number}
                     </div>
                   </div>
@@ -785,7 +785,7 @@ const ProposalTemplatePreview = ({ template }) => {
                   safeArray(page.section?.placeholders).length === 0 &&
                   safeArray(page.section?.highlights).length === 0 &&
                   isBlank(page.section?.notes) && (
-                    <div className="absolute inset-0 px-14 pt-28 pb-24 text-slate-500">
+                    <div className="absolute inset-0 px-14 pt-28 pb-24 text-[rgb(var(--crm-muted-rgb)_/_1)]">
                       <div className="max-w-[78%] text-sm">
                         Conteúdo da seção "{page.section?.title}"...
                       </div>
@@ -795,7 +795,7 @@ const ProposalTemplatePreview = ({ template }) => {
 
               <div className="mt-3 flex items-center justify-between gap-4 text-xs text-[var(--crm-muted)]">
                 <div className="truncate">
-                  <span className="font-medium text-slate-700 dark:text-slate-200">{page.label}</span>
+                  <span className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{page.label}</span>
                   {footerLabel ? (
                     <span className="ml-2 opacity-70">
                       {footerLabel}
@@ -1078,14 +1078,14 @@ const TemplatesPropostas = () => {
         <form onSubmit={handleSubmit} className="space-y-8">
               {/* Informações Básicas */}
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center">
                   <Settings className="w-5 h-5 mr-2 text-purple-500" />
                   Informações Básicas
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                       Nome do Template *
                     </label>
                     <input
@@ -1099,7 +1099,7 @@ const TemplatesPropostas = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                       Descrição
                     </label>
                     <input
@@ -1112,7 +1112,7 @@ const TemplatesPropostas = () => {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                       Tipo de Proposta
                     </label>
                     <select
@@ -1153,9 +1153,9 @@ const TemplatesPropostas = () => {
                     id="isDefault"
                     checked={formData.isDefault}
                     onChange={(e) => setFormData(prev => ({ ...prev, isDefault: e.target.checked }))}
-                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-[var(--crm-border)] rounded"
                   />
-                  <label htmlFor="isDefault" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
+                  <label htmlFor="isDefault" className="ml-2 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Definir como template padrão
                   </label>
                 </div>
@@ -1163,7 +1163,7 @@ const TemplatesPropostas = () => {
 
               {/* Configurações de Capa */}
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center">
                   <Image className="w-5 h-5 mr-2 text-blue-500" />
                   Configurações de Capa
                 </h3>
@@ -1174,17 +1174,17 @@ const TemplatesPropostas = () => {
                     id="coverEnabled"
                     checked={formData.coverEnabled}
                     onChange={(e) => setFormData(prev => ({ ...prev, coverEnabled: e.target.checked }))}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-[var(--crm-border)] rounded"
                   />
-                  <label htmlFor="coverEnabled" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
+                  <label htmlFor="coverEnabled" className="ml-2 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Incluir capa na proposta
                   </label>
                 </div>
 
                 {formData.coverEnabled && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-6 border-l-2 border-blue-200">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pl-6 border-l-2 border-blue-200 dark:border-blue-800">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                         Título da Capa
                       </label>
                       <input
@@ -1196,7 +1196,7 @@ const TemplatesPropostas = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                         Subtítulo da Capa
                       </label>
                       <input
@@ -1208,7 +1208,7 @@ const TemplatesPropostas = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                         Logo da Capa (URL)
                       </label>
                       <input
@@ -1221,7 +1221,7 @@ const TemplatesPropostas = () => {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                         Fundo da Capa (CSS)
                       </label>
                       <input
@@ -1240,7 +1240,7 @@ const TemplatesPropostas = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* Cabeçalho */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center">
                     <Layout className="w-5 h-5 mr-2 text-green-500" />
                     Cabeçalho
                   </h3>
@@ -1251,17 +1251,17 @@ const TemplatesPropostas = () => {
                       id="headerEnabled"
                       checked={formData.headerEnabled}
                       onChange={(e) => setFormData(prev => ({ ...prev, headerEnabled: e.target.checked }))}
-                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-green-600 focus:ring-green-500 border-[var(--crm-border)] rounded"
                     />
-                    <label htmlFor="headerEnabled" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
+                    <label htmlFor="headerEnabled" className="ml-2 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       Incluir cabeçalho
                     </label>
                   </div>
 
                   {formData.headerEnabled && (
-                    <div className="space-y-4 pl-6 border-l-2 border-green-200">
+                    <div className="space-y-4 pl-6 border-l-2 border-green-200 dark:border-green-800">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                           Texto do Cabeçalho
                         </label>
                         <input
@@ -1273,7 +1273,7 @@ const TemplatesPropostas = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                           Logo do Cabeçalho (URL)
                         </label>
                         <input
@@ -1285,7 +1285,7 @@ const TemplatesPropostas = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                           Altura (px)
                         </label>
                         <input
@@ -1303,7 +1303,7 @@ const TemplatesPropostas = () => {
 
                 {/* Rodapé */}
                 <div className="space-y-4">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center">
                     <Layout className="w-5 h-5 mr-2 text-orange-500" />
                     Rodapé
                   </h3>
@@ -1314,17 +1314,17 @@ const TemplatesPropostas = () => {
                       id="footerEnabled"
                       checked={formData.footerEnabled}
                       onChange={(e) => setFormData(prev => ({ ...prev, footerEnabled: e.target.checked }))}
-                      className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+                      className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-[var(--crm-border)] rounded"
                     />
-                    <label htmlFor="footerEnabled" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
+                    <label htmlFor="footerEnabled" className="ml-2 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       Incluir rodapé
                     </label>
                   </div>
 
                   {formData.footerEnabled && (
-                    <div className="space-y-4 pl-6 border-l-2 border-orange-200">
+                    <div className="space-y-4 pl-6 border-l-2 border-orange-200 dark:border-orange-800">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                           Texto do Rodapé
                         </label>
                         <input
@@ -1336,7 +1336,7 @@ const TemplatesPropostas = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                           Logo do Rodapé (URL)
                         </label>
                         <input
@@ -1348,7 +1348,7 @@ const TemplatesPropostas = () => {
                       </div>
                       
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                        <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                           Altura (px)
                         </label>
                         <input
@@ -1367,7 +1367,7 @@ const TemplatesPropostas = () => {
 
               {/* Configurações de Índice */}
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center">
                   <Type className="w-5 h-5 mr-2 text-indigo-500" />
                   Índice
                 </h3>
@@ -1378,16 +1378,16 @@ const TemplatesPropostas = () => {
                     id="indexEnabled"
                     checked={formData.indexEnabled}
                     onChange={(e) => setFormData(prev => ({ ...prev, indexEnabled: e.target.checked }))}
-                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-[var(--crm-border)] rounded"
                   />
-                  <label htmlFor="indexEnabled" className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
+                  <label htmlFor="indexEnabled" className="ml-2 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Incluir índice na proposta
                   </label>
                 </div>
 
                 {formData.indexEnabled && (
-                  <div className="pl-6 border-l-2 border-indigo-200">
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <div className="pl-6 border-l-2 border-indigo-200 dark:border-indigo-800">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                       Título do Índice
                     </label>
                     <input
@@ -1403,7 +1403,7 @@ const TemplatesPropostas = () => {
               {/* Seções */}
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                  <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                  <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center">
                     <FileText className="w-5 h-5 mr-2 text-purple-500" />
                     Seções da Proposta
                   </h3>
@@ -1425,7 +1425,7 @@ const TemplatesPropostas = () => {
                           type="checkbox"
                           checked={section.enabled}
                           onChange={(e) => updateSection(index, 'enabled', e.target.checked)}
-                          className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-gray-300 rounded"
+                          className="h-4 w-4 text-purple-600 focus:ring-purple-500 border-[var(--crm-border)] rounded"
                         />
                       </div>
                       
@@ -1464,38 +1464,38 @@ const TemplatesPropostas = () => {
 
               {/* Configurações de Estilo */}
               <div className="space-y-6">
-                <h3 className="text-lg font-semibold text-gray-900 flex items-center">
+                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center">
                   <Palette className="w-5 h-5 mr-2 text-pink-500" />
                   Configurações de Estilo
                 </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                       Cor Primária
                     </label>
                     <input
                       type="color"
                       value={formData.primaryColor}
                       onChange={(e) => setFormData(prev => ({ ...prev, primaryColor: e.target.value }))}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                      className="w-full h-12 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                       Cor Secundária
                     </label>
                     <input
                       type="color"
                       value={formData.secondaryColor}
                       onChange={(e) => setFormData(prev => ({ ...prev, secondaryColor: e.target.value }))}
-                      className="w-full h-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                      className="w-full h-12 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
                     />
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                       Fonte
                     </label>
                     <select
@@ -1512,7 +1512,7 @@ const TemplatesPropostas = () => {
                   </div>
                   
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                    <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                       Tamanho da Fonte
                     </label>
                     <input
@@ -1528,7 +1528,7 @@ const TemplatesPropostas = () => {
               </div>
 
               {/* Botões */}
-              <div className="flex justify-end gap-4 pt-6 border-t border-gray-200 dark:border-blue-500/20">
+              <div className="flex justify-end gap-4 pt-6 border-t border-[var(--crm-border)] dark:border-blue-500/20">
                 <button
                   type="button"
                   onClick={resetForm}
@@ -1555,7 +1555,7 @@ const TemplatesPropostas = () => {
         title={previewTemplate ? `Preview: ${previewTemplate.name}` : 'Preview'}
       >
         {previewTemplate && (
-          <div className="bg-black/5 dark:bg-white/5 p-6 rounded-2xl">
+          <div className="bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] p-6 rounded-2xl">
             <ProposalTemplatePreview template={previewTemplate} />
           </div>
         )}
@@ -1577,13 +1577,13 @@ const TemplatesPropostas = () => {
               <div className="flex items-center">
                 <FileText className="w-4 h-4 text-purple-500 mr-2" />
                 <div>
-                  <div className="font-medium text-gray-900 flex items-center gap-2">
+                  <div className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-2">
                     {template.name}
                     {template.isDefault && (
                       <Star className="w-4 h-4 text-yellow-500 fill-current" />
                     )}
                   </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-500">
+                  <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     {template.description || 'Sem descrição'}
                   </div>
                 </div>
@@ -1596,25 +1596,25 @@ const TemplatesPropostas = () => {
             render: (template) => (
               <div className="flex flex-wrap gap-1">
                 {template.coverEnabled && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300 rounded-full">
                     <Image className="w-3 h-3 mr-1" />
                     Capa
                   </span>
                 )}
                 {template.headerEnabled && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300 rounded-full">
                     <Layout className="w-3 h-3 mr-1" />
                     Cabeçalho
                   </span>
                 )}
                 {template.footerEnabled && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-orange-100 text-orange-800 rounded-full">
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-orange-100 dark:bg-orange-950 text-orange-800 dark:text-orange-300 rounded-full">
                     <Layout className="w-3 h-3 mr-1" />
                     Rodapé
                   </span>
                 )}
                 {template.indexEnabled && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 rounded-full">
                     <Type className="w-3 h-3 mr-1" />
                     Índice
                   </span>
@@ -1626,7 +1626,7 @@ const TemplatesPropostas = () => {
             key: 'sections',
             label: 'Seções',
             render: (template) => (
-              <div className="text-sm text-gray-900 dark:text-gray-100">
+              <div className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 {normalizeTemplateSections(template.sections, template.type).filter(s => s.enabled).length} seções ativas
               </div>
             )
@@ -1637,10 +1637,10 @@ const TemplatesPropostas = () => {
             render: (template) => (
               <div className="flex items-center gap-2">
                 <div 
-                  className="w-4 h-4 rounded-full border border-gray-300 dark:border-blue-500/30"
+                  className="w-4 h-4 rounded-full border border-[var(--crm-border)] dark:border-blue-500/30"
                   style={{ backgroundColor: template.primaryColor }}
                 ></div>
-                <span className="text-sm text-gray-600 dark:text-gray-300">{template.fontFamily}</span>
+                <span className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{template.fontFamily}</span>
               </div>
             )
           },
@@ -1650,16 +1650,16 @@ const TemplatesPropostas = () => {
             render: (template) => (
               <div className="flex items-center gap-2">
                 {template.isActive ? (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300 rounded-full">
                     Ativo
                   </span>
                 ) : (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-gray-100 text-gray-800 rounded-full">
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-full">
                     Inativo
                   </span>
                 )}
                 {template.isDefault && (
-                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-yellow-100 text-yellow-800 rounded-full">
+                  <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-yellow-100 dark:bg-yellow-950 text-yellow-800 dark:text-yellow-300 rounded-full">
                     Padrão
                   </span>
                 )}
@@ -1704,14 +1704,14 @@ const TemplatesPropostas = () => {
             icon: Trash2,
             onClick: handleDelete,
             condition: (template) => !template.isDefault,
-            className: 'text-red-600 hover:text-red-800'
+            className: "text-red-600 hover:text-red-800 dark:hover:text-red-300"
           }
         ]}
         emptyState={
           <div>
-            <FileText className="w-16 h-16 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum template encontrado</h3>
-            <p className="text-gray-500 dark:text-gray-400 dark:text-gray-500">Comece criando seu primeiro template de proposta</p>
+            <FileText className="w-16 h-16 text-[rgb(var(--crm-ink-rgb)_/_1)] mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Nenhum template encontrado</h3>
+            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Comece criando seu primeiro template de proposta</p>
           </div>
         }
       />

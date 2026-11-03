@@ -18,14 +18,14 @@ interface Learning {
 interface Props { opportunityId: string; currentUserId: string; isAdmin: boolean; }
 
 const CATS: Record<LearningCategory, { label: string; icon: typeof BookOpen; badge: string; row: string }> = {
-  NEGOCIACAO:      { label: 'Negociação',      icon: Lightbulb,    badge: 'bg-cyan-500/20    text-cyan-300    border-cyan-500/40',    row: 'border-cyan-500/20    bg-cyan-500/5'    },
-  CONCORRENCIA:    { label: 'Concorrência',    icon: Swords,        badge: 'bg-purple-500/20  text-purple-300  border-purple-500/40',  row: 'border-purple-500/20  bg-purple-500/5'  },
-  EDITAL_JURIDICO: { label: 'Edital/Jurídico', icon: FileText,      badge: 'bg-amber-500/20   text-amber-300   border-amber-500/40',   row: 'border-amber-500/20   bg-amber-500/5'   },
-  ESCOPO_TECNICO:  { label: 'Escopo Técnico',  icon: Code2,         badge: 'bg-blue-500/20    text-blue-300    border-blue-500/40',    row: 'border-blue-500/20    bg-blue-500/5'    },
-  PERDA_DE_DEAL:   { label: 'Perda de Deal',   icon: TrendingDown,  badge: 'bg-red-500/20     text-red-300     border-red-500/40',     row: 'border-red-500/20     bg-red-500/5'     },
-  RELACIONAMENTO:  { label: 'Relacionamento',  icon: Users,         badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40', row: 'border-emerald-500/20 bg-emerald-500/5' },
-  PRECIFICACAO:    { label: 'Precificação',    icon: Tag,           badge: 'bg-yellow-500/20  text-yellow-300  border-yellow-500/40',  row: 'border-yellow-500/20  bg-yellow-500/5'  },
-  OUTRO:           { label: 'Outro',           icon: Puzzle,        badge: 'bg-slate-500/20   text-slate-300   border-slate-500/40',   row: 'border-slate-500/20   bg-slate-500/5'   },
+  NEGOCIACAO:      { label: 'Negociação',      icon: Lightbulb,    badge: "bg-cyan-500/20    text-cyan-700 dark:text-cyan-300    border-cyan-500/40",    row: 'border-cyan-500/20    bg-cyan-500/5'    },
+  CONCORRENCIA:    { label: 'Concorrência',    icon: Swords,        badge: "bg-purple-500/20  text-purple-700 dark:text-purple-300  border-purple-500/40",  row: 'border-purple-500/20  bg-purple-500/5'  },
+  EDITAL_JURIDICO: { label: 'Edital/Jurídico', icon: FileText,      badge: "bg-amber-500/20   text-amber-700 dark:text-amber-300   border-amber-500/40",   row: 'border-amber-500/20   bg-amber-500/5'   },
+  ESCOPO_TECNICO:  { label: 'Escopo Técnico',  icon: Code2,         badge: "bg-blue-500/20    text-blue-700 dark:text-blue-300    border-blue-500/40",    row: 'border-blue-500/20    bg-blue-500/5'    },
+  PERDA_DE_DEAL:   { label: 'Perda de Deal',   icon: TrendingDown,  badge: "bg-red-500/20     text-red-700 dark:text-red-300     border-red-500/40",     row: 'border-red-500/20     bg-red-500/5'     },
+  RELACIONAMENTO:  { label: 'Relacionamento',  icon: Users,         badge: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40", row: 'border-emerald-500/20 bg-emerald-500/5' },
+  PRECIFICACAO:    { label: 'Precificação',    icon: Tag,           badge: "bg-yellow-500/20  text-yellow-700 dark:text-yellow-300  border-yellow-500/40",  row: 'border-yellow-500/20  bg-yellow-500/5'  },
+  OUTRO:           { label: 'Outro',           icon: Puzzle,        badge: "bg-[rgb(var(--crm-surface-rgb)_/_0.2)]   text-[rgb(var(--crm-ink-rgb)_/_1)]   border-[var(--crm-border)]",   row: "border-[var(--crm-border)]   bg-[rgb(var(--crm-surface-rgb)_/_0.05)]"   },
 };
 
 const CAT_KEYS = Object.keys(CATS) as LearningCategory[];
@@ -81,14 +81,14 @@ export default function OpportunityLearnings({ opportunityId, currentUserId, isA
       {/* ── Cabeçalho ────────────────────────────────────────────────────── */}
       <div className="flex items-center justify-between gap-3 p-4 border-b border-[color:var(--crm-border)]">
         <div className="flex items-center gap-3">
-          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-500/30 bg-cyan-500/15 text-cyan-400 flex-shrink-0">
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-500/30 bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 flex-shrink-0">
             <BookOpen className="h-4 w-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-[var(--crm-ink)]">Aprendizados</span>
               {learnings.length > 0 && (
-                <span className="inline-flex items-center justify-center rounded-full bg-cyan-500/20 border border-cyan-500/35 text-cyan-400 text-[10px] font-bold px-1.5 py-0.5 min-w-[18px] leading-none">
+                <span className="inline-flex items-center justify-center rounded-full bg-cyan-500/20 border border-cyan-500/35 text-cyan-700 dark:text-cyan-400 text-[10px] font-bold px-1.5 py-0.5 min-w-[18px] leading-none">
                   {learnings.length}
                 </span>
               )}
@@ -101,8 +101,8 @@ export default function OpportunityLearnings({ opportunityId, currentUserId, isA
           onClick={() => { setShowForm(v => !v); setError(''); setDesc(''); setCategory('NEGOCIACAO'); }}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
             showForm
-              ? 'bg-slate-700 border-slate-600 text-slate-200'
-              : 'bg-cyan-500/15 border-cyan-500/35 text-cyan-300 hover:bg-cyan-500/25'
+              ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
+              : "bg-cyan-500/15 border-cyan-500/35 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/25"
           }`}
         >
           {showForm ? <><X className="h-3.5 w-3.5" /> Cancelar</> : <><Plus className="h-3.5 w-3.5" /> Adicionar</>}
@@ -123,7 +123,7 @@ export default function OpportunityLearnings({ opportunityId, currentUserId, isA
                   <button
                     key={c} type="button" onClick={() => setCategory(c)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
-                      category === c ? CATS[c].badge : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-300'
+                      category === c ? CATS[c].badge : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[var(--crm-border)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     }`}
                   >
                     <Icon className="h-3 w-3" />
@@ -146,14 +146,14 @@ export default function OpportunityLearnings({ opportunityId, currentUserId, isA
             />
           </div>
 
-          {error && <p className="text-xs font-medium text-red-400">{error}</p>}
+          {error && <p className="text-xs font-medium text-red-700 dark:text-red-400">{error}</p>}
 
           <div className="flex justify-end">
             <button
               type="button"
               onClick={handleSave}
               disabled={submitting || !desc.trim()}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-cyan-500/20 border border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold bg-cyan-500/20 border border-cyan-500/40 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               <Save className="h-4 w-4" />
               {submitting ? 'Salvando...' : 'Salvar aprendizado'}
@@ -170,7 +170,7 @@ export default function OpportunityLearnings({ opportunityId, currentUserId, isA
             className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
               filter === 'ALL'
                 ? 'bg-[rgb(var(--crm-accent-rgb)_/_0.2)] border-[rgb(var(--crm-accent-rgb)_/_0.5)] text-[rgb(var(--crm-accent-rgb))]'
-                : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-300'
+                : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[var(--crm-border)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
             }`}
           >
             Todos ({learnings.length})
@@ -179,7 +179,7 @@ export default function OpportunityLearnings({ opportunityId, currentUserId, isA
             <button
               key={c} type="button" onClick={() => setFilter(c)}
               className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all ${
-                filter === c ? CATS[c].badge : 'border-slate-700 text-slate-400 hover:border-slate-500 hover:text-slate-300'
+                filter === c ? CATS[c].badge : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[var(--crm-border)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
               }`}
             >
               {CATS[c].label} ({learnings.filter(l => l.category === c).length})
@@ -202,7 +202,7 @@ export default function OpportunityLearnings({ opportunityId, currentUserId, isA
               <button
                 type="button"
                 onClick={() => setShowForm(true)}
-                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/15 border border-cyan-500/35 text-cyan-300 hover:bg-cyan-500/25 transition-colors"
+                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/15 border border-cyan-500/35 text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/25 transition-colors"
               >
                 <Plus className="h-3.5 w-3.5" /> Registrar primeiro aprendizado
               </button>
@@ -234,7 +234,7 @@ export default function OpportunityLearnings({ opportunityId, currentUserId, isA
                         type="button"
                         onClick={() => handleDelete(l.id)}
                         title="Excluir"
-                        className="flex-shrink-0 p-1.5 rounded-lg border border-red-500/30 text-red-400 hover:bg-red-500/15 transition-colors opacity-0 group-hover:opacity-100"
+                        className="flex-shrink-0 p-1.5 rounded-lg border border-red-500/30 text-red-700 dark:text-red-400 hover:bg-red-500/15 transition-colors opacity-0 group-hover:opacity-100"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
                       </button>

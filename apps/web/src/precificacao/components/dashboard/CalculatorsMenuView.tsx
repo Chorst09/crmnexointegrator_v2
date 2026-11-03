@@ -38,41 +38,41 @@ const CalculatorCard = ({ title, description, icon, calculatorId, color, onNavig
 
   return (
     <div
-      className={`bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-xl ${hoverShadow} hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-slate-700/50 h-full cursor-pointer group overflow-hidden relative`}
+      className={`bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl ${hoverShadow} hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] h-full cursor-pointer group overflow-hidden relative`}
       onClick={() => onNavigate(calculatorId)}
     >
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
       <div className="relative p-6">
         <div className="flex items-center mb-4">
           <div className={`p-3 rounded-xl bg-gradient-to-br ${gradient} shadow-lg mr-4`}>
-            <div className="text-white">{icon}</div>
+            <div className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{icon}</div>
           </div>
-          <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors">{title}</h3>
+          <h3 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">{title}</h3>
         </div>
-        <p className="text-slate-300 mb-6 leading-relaxed">{description}</p>
-        <div className="flex items-center text-cyan-400 font-semibold group-hover:text-cyan-300 transition-colors">
+        <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] mb-6 leading-relaxed">{description}</p>
+        <div className="flex items-center text-cyan-700 dark:text-cyan-400 font-semibold group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
           Acessar calculadora
           <ChevronRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
         </div>
       </div>
-      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-white/5 to-transparent rounded-bl-full" />
-      <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-white/5 to-transparent rounded-tr-full" />
+      <div className="absolute top-0 right-0 w-20 h-20 bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_0.05)] to-transparent rounded-bl-full" />
+      <div className="absolute bottom-0 left-0 w-16 h-16 bg-gradient-to-tr from-[rgb(var(--crm-surface-rgb)_/_0.05)] to-transparent rounded-tr-full" />
     </div>
   );
 };
 
 const CalculatorsMenuView = ({ onNavigateToCalculator }: CalculatorsMenuViewProps) => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 space-y-8">
       <div data-section="calculadoras">
         <div className="mb-8">
           <div className="flex items-center gap-4">
             <div className="rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 p-3 shadow-lg">
-              <Calculator className="h-8 w-8 text-white" />
+              <Calculator className="h-8 w-8 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-white">Calculadoras</h2>
-              <p className="text-slate-400">Acesse rapidamente cada simulador</p>
+              <h2 className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Calculadoras</h2>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Acesse rapidamente cada simulador</p>
             </div>
           </div>
         </div>
@@ -129,7 +129,7 @@ const CalculatorsMenuView = ({ onNavigateToCalculator }: CalculatorsMenuViewProp
           <CalculatorCard
             title="Rede Man/MPLS Radio"
             description="Calcule valores para internet via rádio"
-            icon={<Wifi className="w-5 h-5 text-cyan-200" />}
+            icon={<Wifi className="w-5 h-5 text-cyan-700 dark:text-cyan-200" />}
             calculatorId="calculator-internet-man-radio"
             color="border-l-system-gradient"
             onNavigate={onNavigateToCalculator}

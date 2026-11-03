@@ -8,60 +8,60 @@ import { cn } from '@/lib/utils';
 // Classes de tema centralizadas
 export const calculatorTheme = {
   // Containers principais
-  container: 'container mx-auto p-6 bg-slate-950 text-white min-h-screen',
+  container: "container mx-auto p-6 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] min-h-screen",
   
   // Cards
-  card: 'bg-slate-900/80 border-slate-800 text-white',
+  card: "bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]",
   cardContent: 'p-6',
   
   // Inputs
-  input: 'bg-slate-800 border-slate-700 text-white placeholder-slate-400',
+  input: "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]",
   
   // Buttons
   button: {
     primary: 'bg-blue-600 hover:bg-blue-700 text-white',
-    secondary: 'bg-slate-700 hover:bg-slate-600 text-white',
-    outline: 'border-slate-600 text-slate-300 hover:bg-slate-700',
+    secondary: "bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]",
+    outline: "border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]",
     danger: 'bg-red-600 hover:bg-red-700 text-white',
     success: 'bg-green-600 hover:bg-green-700 text-white'
   },
   
   // Tables
   table: {
-    header: 'border-slate-700',
-    row: 'border-slate-800 hover:bg-slate-800/50',
-    cell: 'text-slate-300'
+    header: "border-[var(--crm-border)]",
+    row: "border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]",
+    cell: "text-[rgb(var(--crm-ink-rgb)_/_1)]"
   },
   
   // Status colors
   status: {
-    success: 'text-green-400',
-    error: 'text-red-400',
-    warning: 'text-yellow-400',
-    info: 'text-blue-400'
+    success: "text-green-700 dark:text-green-400",
+    error: "text-red-700 dark:text-red-400",
+    warning: "text-yellow-700 dark:text-yellow-400",
+    info: "text-blue-700 dark:text-blue-400"
   },
   
   // Backgrounds
   background: {
-    primary: 'bg-slate-950',
-    secondary: 'bg-slate-900',
-    accent: 'bg-slate-800',
-    muted: 'bg-slate-700'
+    primary: "bg-[rgb(var(--crm-surface-2-rgb)_/_1)]",
+    secondary: "bg-[rgb(var(--crm-surface-2-rgb)_/_1)]",
+    accent: "bg-[rgb(var(--crm-surface-rgb)_/_1)]",
+    muted: "bg-[rgb(var(--crm-surface-rgb)_/_1)]"
   },
   
   // Borders
   border: {
-    primary: 'border-slate-800',
-    secondary: 'border-slate-700',
-    accent: 'border-slate-600'
+    primary: "border-[var(--crm-border)]",
+    secondary: "border-[var(--crm-border)]",
+    accent: "border-[var(--crm-border)]"
   },
   
   // Text colors
   text: {
-    primary: 'text-white',
-    secondary: 'text-slate-300',
-    muted: 'text-slate-400',
-    accent: 'text-slate-200'
+    primary: "text-[rgb(var(--crm-ink-rgb)_/_1)]",
+    secondary: "text-[rgb(var(--crm-ink-rgb)_/_1)]",
+    muted: "text-[rgb(var(--crm-muted-rgb)_/_1)]",
+    accent: "text-[rgb(var(--crm-ink-rgb)_/_1)]"
   }
 };
 
@@ -119,7 +119,7 @@ interface ThemedTableProps {
 
 export const ThemedTable: React.FC<ThemedTableProps> = ({ children, className }) => (
   <div className={cn('overflow-x-auto', className)}>
-    <table className="w-full text-white">
+    <table className="w-full text-[rgb(var(--crm-ink-rgb)_/_1)]">
       {children}
     </table>
   </div>
@@ -199,10 +199,10 @@ export const ThemedAlert: React.FC<ThemedAlertProps> = ({
   className 
 }) => {
   const alertStyles = {
-    success: 'bg-green-900/50 border-green-700 text-green-300',
-    error: 'bg-red-900/50 border-red-700 text-red-300',
-    warning: 'bg-yellow-900/50 border-yellow-700 text-yellow-300',
-    info: 'bg-blue-900/50 border-blue-700 text-blue-300'
+    success: "bg-green-50/50 dark:bg-green-900/50 border-green-200 dark:border-green-700 text-green-700 dark:text-green-300",
+    error: "bg-red-50/50 dark:bg-red-900/50 border-red-200 dark:border-red-700 text-red-700 dark:text-red-300",
+    warning: "bg-yellow-50/50 dark:bg-yellow-900/50 border-yellow-200 dark:border-yellow-700 text-yellow-700 dark:text-yellow-300",
+    info: "bg-blue-50/50 dark:bg-blue-900/50 border-blue-200 dark:border-blue-700 text-blue-700 dark:text-blue-300"
   };
 
   const iconMap = {

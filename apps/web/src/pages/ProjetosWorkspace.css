@@ -1,17 +1,18 @@
 .project-management-embed {
-  --pm-bg: #070b16;
-  --pm-bg-elevated: #070b16;
-  --pm-surface: #111827;
-  --pm-surface-strong: #0d1423;
-  --pm-border: #263345;
-  --pm-accent: #ff7a00;
+  --pm-bg: var(--crm-bg-base);
+  --pm-bg-elevated: var(--crm-bg-base-2);
+  --pm-surface: var(--crm-surface);
+  --pm-surface-strong: var(--crm-surface-2);
+  --pm-border: var(--crm-border);
+  --pm-accent: #2563eb;
+  --pm-accent-text: #2563eb;
   --pm-success: #22c55e;
   width: 100%;
   max-width: 100vw;
   height: 100vh;
   overflow: hidden;
-  color-scheme: dark;
-  background: var(--pm-bg);
+  color: var(--crm-ink);
+  background: var(--crm-workspace-background);
 }
 
 .project-management-embed > div {
@@ -28,3 +29,20 @@
 }
 
 
+
+.dark .project-management-embed {
+  --pm-accent-text: #93c5fd;
+}
+
+/* Match Dashboard Geral: translucent panels over the shared burgundy/teal canvas. */
+.project-management-embed [class~="bg-[var(--crm-surface)]"] {
+  background: var(--crm-workspace-panel);
+}
+.dark .project-management-embed > div > nav {
+  background: linear-gradient(180deg, rgba(5,7,13,0.78), rgba(7,27,37,0.72));
+}
+.dark .project-management-embed > div > aside {
+  background:
+    radial-gradient(ellipse at 92% 0%, rgba(37,196,218,0.16), transparent 42%),
+    linear-gradient(180deg, rgba(5,7,13,0.82), rgba(7,27,37,0.88));
+}

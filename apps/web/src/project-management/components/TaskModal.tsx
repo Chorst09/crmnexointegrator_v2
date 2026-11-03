@@ -231,25 +231,25 @@ export default function TaskModal({
     pdf.save(fileName);
   };
 
-  const fieldClass = "w-full rounded-md border border-[#374151] bg-[#070b16] px-3 py-2 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#ff7a00] focus:ring-2 focus:ring-[#ff7a00]/20";
-  const labelClass = "mb-1.5 flex items-center gap-2 text-xs font-semibold text-slate-500";
+  const fieldClass = "w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#ff7a00] focus:ring-2 focus:ring-[#ff7a00]/20";
+  const labelClass = "mb-1.5 flex items-center gap-2 text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="flex h-[90vh] w-full max-w-[1240px] overflow-hidden rounded-lg border border-[#263345] bg-[#070b16] text-slate-300 shadow-2xl">
-        <div className="flex h-full w-[65%] flex-col border-r border-[#263345] bg-[#111827]">
+      <div className="flex h-[90vh] w-full max-w-[1240px] overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-2xl">
+        <div className="flex h-full w-[65%] flex-col border-r border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
           <div className="flex h-12 shrink-0 items-center justify-between px-6 text-xs">
-            <div className="mt-2 flex items-center gap-2 text-slate-400">
-              <span className="flex items-center gap-1 rounded border border-[#263345] px-2 py-1">
+            <div className="mt-2 flex items-center gap-2 text-[rgb(var(--crm-muted-rgb)_/_1)]">
+              <span className="flex items-center gap-1 rounded border border-[var(--crm-border)] px-2 py-1">
                 <CheckSquare className="h-3.5 w-3.5" /> Fase <ChevronRight className="h-3 w-3" />
               </span>
-              <Maximize2 className="h-4 w-4 text-slate-500" />
+              <Maximize2 className="h-4 w-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
             </div>
-            <div className="flex items-center gap-4 text-slate-500">
+            <div className="flex items-center gap-4 text-[rgb(var(--crm-muted-rgb)_/_1)]">
               <button
                 type="button"
                 onClick={exportToPDF}
-                className="flex items-center gap-1.5 rounded-md border border-[#263345] bg-[#070b16] px-3 py-1.5 text-xs font-semibold text-slate-300 transition-colors hover:border-[#ff7a00] hover:text-white"
+                className="flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-1.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:border-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 title="Exportar fase para PDF"
               >
                 <FileDown className="h-3.5 w-3.5" />
@@ -263,17 +263,17 @@ export default function TaskModal({
           </div>
 
           <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-            <label className="mb-2 block text-[11px] font-bold uppercase tracking-wide text-slate-500">
+            <label className="mb-2 block text-[11px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">
               Nome da fase
             </label>
             <input
               value={draft.title}
               onChange={(e) => persist({ title: e.target.value })}
-              className="mb-6 w-full rounded-md border border-[#263345] bg-[#070b16] px-3 py-2 text-2xl font-black leading-snug text-white outline-none transition-colors placeholder:text-slate-600 hover:border-[#374151] focus:border-[#ff7a00] focus:ring-2 focus:ring-[#ff7a00]/20"
+              className="mb-6 w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-2xl font-black leading-snug text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[var(--crm-border)] focus:border-[#ff7a00] focus:ring-2 focus:ring-[#ff7a00]/20"
               placeholder="Nome da fase"
             />
 
-            <div className="mb-8 rounded-lg border border-[#263345] bg-[#070b16] p-3 text-sm text-slate-400">
+            <div className="mb-8 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-[#18c8df]" />
                 <span>Peça ao Brain uma apresentação, documento ou protótipo desta fase</span>
@@ -377,7 +377,7 @@ export default function TaskModal({
             </label>
 
             {/* Matriz RACI */}
-            <div className="mb-8 rounded-lg border border-[#263345] bg-[#070b16] p-5">
+            <div className="mb-8 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5">
               <RACIMatrix
                 users={assignableUsers}
                 value={{
@@ -390,13 +390,13 @@ export default function TaskModal({
               />
             </div>
 
-            <div className="rounded-lg border border-[#263345] bg-[#070b16] p-4">
+            <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
               <div className="mb-3 flex items-center justify-between">
-                <h3 className="text-sm font-bold text-slate-100">Campos adicionais</h3>
+                <h3 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Campos adicionais</h3>
                 <button
                   type="button"
                   onClick={() => persist({ customFields: [...(draft.customFields || []), { id: `cf-${Date.now()}`, name: '', value: '' }] })}
-                  className="flex items-center gap-1.5 rounded-md border border-[#374151] px-3 py-1.5 text-xs font-semibold text-slate-300 hover:border-[#ff7a00] hover:text-white"
+                  className="flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] px-3 py-1.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <Plus className="h-3.5 w-3.5" /> Campo
                 </button>
@@ -419,34 +419,34 @@ export default function TaskModal({
                     <button
                       type="button"
                       onClick={() => persist({ customFields: (draft.customFields || []).filter(item => item.id !== field.id) })}
-                      className="rounded-md border border-[#374151] px-3 text-slate-400 hover:border-red-500 hover:text-red-300"
+                      className="rounded-md border border-[var(--crm-border)] px-3 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-red-500 hover:text-red-700 dark:hover:text-red-300"
                     >
                       <X className="h-4 w-4" />
                     </button>
                   </div>
                 ))}
                 {(!draft.customFields || draft.customFields.length === 0) && (
-                  <p className="text-sm text-slate-500">Nenhum campo adicional cadastrado.</p>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum campo adicional cadastrado.</p>
                 )}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="flex h-full w-[35%] flex-col bg-[#070b16]">
-          <div className="flex h-12 shrink-0 items-center justify-between border-b border-[#263345] px-4 text-slate-400">
-            <span className="font-semibold text-slate-200">Acompanhamentos</span>
+        <div className="flex h-full w-[35%] flex-col bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
+          <div className="flex h-12 shrink-0 items-center justify-between border-b border-[var(--crm-border)] px-4 text-[rgb(var(--crm-muted-rgb)_/_1)]">
+            <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Acompanhamentos</span>
             <div className="flex items-center gap-4">
               <Search className="h-4 w-4" />
               <Bell className="h-4 w-4" />
               <Filter className="h-4 w-4" />
-              <div className="mx-1 h-4 w-px bg-slate-700" />
-              <X className="h-5 w-5 cursor-pointer hover:text-slate-200" onClick={onClose} />
+              <div className="mx-1 h-4 w-px bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
+              <X className="h-5 w-5 cursor-pointer hover:text-[rgb(var(--crm-ink-rgb)_/_1)]" onClick={onClose} />
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 text-sm custom-scrollbar">
-            <div className="mb-6 space-y-3 text-xs text-slate-500">
+            <div className="mb-6 space-y-3 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
               <div className="flex items-center justify-between">
                 <span>Fase criada</span>
                 <span>{formatTime(draft.createdAt)}</span>
@@ -458,33 +458,33 @@ export default function TaskModal({
             </div>
 
             {/* Matriz RACI - Resumo Visual */}
-            <div className="mb-6 rounded-lg border border-[#263345] bg-[#111827] p-4">
-              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-slate-400">Matriz RACI</h4>
+            <div className="mb-6 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
+              <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)]">Matriz RACI</h4>
               
               {/* Responsible */}
               <div className="mb-3">
                 <div className="mb-1.5 flex items-center gap-2">
                   <div className="flex h-5 w-5 items-center justify-center rounded-md border border-blue-500/30 bg-blue-500/10">
-                    <span className="text-[10px] font-bold text-blue-400">R</span>
+                    <span className="text-[10px] font-bold text-blue-700 dark:text-blue-400">R</span>
                   </div>
-                  <span className="text-xs font-semibold text-slate-300">Responsável</span>
+                  <span className="text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Responsável</span>
                 </div>
                 {(draft.responsibleIds && draft.responsibleIds.length > 0) ? (
                   <div className="flex flex-wrap gap-1.5 pl-7">
                     {draft.responsibleIds.map(userId => {
                       const user = assignableUsers.find(u => u.id === userId);
                       return user ? (
-                        <div key={userId} className="flex items-center gap-1 rounded-md bg-[#070b16] border border-[#263345] px-2 py-0.5">
-                          <div className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-white ${user.color || 'bg-slate-600'}`}>
+                        <div key={userId} className="flex items-center gap-1 rounded-md bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] px-2 py-0.5">
+                          <div className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] ${user.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}`}>
                             {user.initials}
                           </div>
-                          <span className="text-[11px] text-slate-300">{user.name}</span>
+                          <span className="text-[11px] text-[rgb(var(--crm-ink-rgb)_/_1)]">{user.name}</span>
                         </div>
                       ) : null;
                     })}
                   </div>
                 ) : (
-                  <p className="pl-7 text-[11px] italic text-slate-600">Nenhum responsável</p>
+                  <p className="pl-7 text-[11px] italic text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum responsável</p>
                 )}
               </div>
 
@@ -492,26 +492,26 @@ export default function TaskModal({
               <div className="mb-3">
                 <div className="mb-1.5 flex items-center gap-2">
                   <div className="flex h-5 w-5 items-center justify-center rounded-md border border-purple-500/30 bg-purple-500/10">
-                    <span className="text-[10px] font-bold text-purple-400">A</span>
+                    <span className="text-[10px] font-bold text-purple-700 dark:text-purple-400">A</span>
                   </div>
-                  <span className="text-xs font-semibold text-slate-300">Aprovador</span>
+                  <span className="text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Aprovador</span>
                 </div>
                 {draft.accountableId ? (
                   <div className="pl-7">
                     {(() => {
                       const user = assignableUsers.find(u => u.id === draft.accountableId);
                       return user ? (
-                        <div className="inline-flex items-center gap-1 rounded-md bg-[#070b16] border border-[#263345] px-2 py-0.5">
-                          <div className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-white ${user.color || 'bg-slate-600'}`}>
+                        <div className="inline-flex items-center gap-1 rounded-md bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] px-2 py-0.5">
+                          <div className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] ${user.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}`}>
                             {user.initials}
                           </div>
-                          <span className="text-[11px] text-slate-300">{user.name}</span>
+                          <span className="text-[11px] text-[rgb(var(--crm-ink-rgb)_/_1)]">{user.name}</span>
                         </div>
                       ) : null;
                     })()}
                   </div>
                 ) : (
-                  <p className="pl-7 text-[11px] italic text-slate-600">Nenhum aprovador</p>
+                  <p className="pl-7 text-[11px] italic text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum aprovador</p>
                 )}
               </div>
 
@@ -519,26 +519,26 @@ export default function TaskModal({
               <div className="mb-3">
                 <div className="mb-1.5 flex items-center gap-2">
                   <div className="flex h-5 w-5 items-center justify-center rounded-md border border-green-500/30 bg-green-500/10">
-                    <span className="text-[10px] font-bold text-green-400">C</span>
+                    <span className="text-[10px] font-bold text-green-700 dark:text-green-400">C</span>
                   </div>
-                  <span className="text-xs font-semibold text-slate-300">Consultado</span>
+                  <span className="text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Consultado</span>
                 </div>
                 {(draft.consultedIds && draft.consultedIds.length > 0) ? (
                   <div className="flex flex-wrap gap-1.5 pl-7">
                     {draft.consultedIds.map(userId => {
                       const user = assignableUsers.find(u => u.id === userId);
                       return user ? (
-                        <div key={userId} className="flex items-center gap-1 rounded-md bg-[#070b16] border border-[#263345] px-2 py-0.5">
-                          <div className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-white ${user.color || 'bg-slate-600'}`}>
+                        <div key={userId} className="flex items-center gap-1 rounded-md bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] px-2 py-0.5">
+                          <div className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] ${user.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}`}>
                             {user.initials}
                           </div>
-                          <span className="text-[11px] text-slate-300">{user.name}</span>
+                          <span className="text-[11px] text-[rgb(var(--crm-ink-rgb)_/_1)]">{user.name}</span>
                         </div>
                       ) : null;
                     })}
                   </div>
                 ) : (
-                  <p className="pl-7 text-[11px] italic text-slate-600">Nenhum consultado</p>
+                  <p className="pl-7 text-[11px] italic text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum consultado</p>
                 )}
               </div>
 
@@ -546,26 +546,26 @@ export default function TaskModal({
               <div>
                 <div className="mb-1.5 flex items-center gap-2">
                   <div className="flex h-5 w-5 items-center justify-center rounded-md border border-orange-500/30 bg-orange-500/10">
-                    <span className="text-[10px] font-bold text-orange-400">I</span>
+                    <span className="text-[10px] font-bold text-orange-700 dark:text-orange-400">I</span>
                   </div>
-                  <span className="text-xs font-semibold text-slate-300">Informado</span>
+                  <span className="text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Informado</span>
                 </div>
                 {(draft.informedIds && draft.informedIds.length > 0) ? (
                   <div className="flex flex-wrap gap-1.5 pl-7">
                     {draft.informedIds.map(userId => {
                       const user = assignableUsers.find(u => u.id === userId);
                       return user ? (
-                        <div key={userId} className="flex items-center gap-1 rounded-md bg-[#070b16] border border-[#263345] px-2 py-0.5">
-                          <div className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-white ${user.color || 'bg-slate-600'}`}>
+                        <div key={userId} className="flex items-center gap-1 rounded-md bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] px-2 py-0.5">
+                          <div className={`flex h-4 w-4 items-center justify-center rounded-full text-[8px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] ${user.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}`}>
                             {user.initials}
                           </div>
-                          <span className="text-[11px] text-slate-300">{user.name}</span>
+                          <span className="text-[11px] text-[rgb(var(--crm-ink-rgb)_/_1)]">{user.name}</span>
                         </div>
                       ) : null;
                     })}
                   </div>
                 ) : (
-                  <p className="pl-7 text-[11px] italic text-slate-600">Nenhum informado</p>
+                  <p className="pl-7 text-[11px] italic text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum informado</p>
                 )}
               </div>
             </div>
@@ -573,47 +573,47 @@ export default function TaskModal({
             <div className="space-y-5">
               {followUps.map(item => (
                 <div key={item.id} className="flex gap-3">
-                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#ff7a00] text-xs font-bold text-white">
+                  <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#ff7a00] text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     CH
                   </div>
-                  <div className="min-w-0 flex-1 rounded-lg border border-[#263345] bg-[#111827] p-3">
+                  <div className="min-w-0 flex-1 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3">
                     <div className="mb-1 flex items-center gap-2">
-                      <span className="font-semibold text-slate-200">{item.author}</span>
-                      <span className="text-xs text-slate-500">{formatTime(item.createdAt)}</span>
+                      <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.author}</span>
+                      <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{formatTime(item.createdAt)}</span>
                     </div>
-                    <p className="whitespace-pre-wrap break-words text-slate-300">{item.text}</p>
+                    <p className="whitespace-pre-wrap break-words text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.text}</p>
                   </div>
                 </div>
               ))}
 
               {followUps.length === 0 && (
-                <div className="rounded-lg border border-dashed border-[#374151] bg-[#111827]/60 p-6 text-center text-slate-500">
+                <div className="rounded-lg border border-dashed border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-6 text-center text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   Nenhum acompanhamento registrado nesta fase.
                 </div>
               )}
             </div>
           </div>
 
-          <div className="border-t border-[#263345] bg-[#070b16] p-4">
-            <div className="rounded-md border border-[#374151] bg-[#111827] p-3 transition-colors focus-within:border-[#ff7a00]">
+          <div className="border-t border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
+            <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3 transition-colors focus-within:border-[#ff7a00]">
               <textarea
                 value={followUpText}
                 onChange={(e) => setFollowUpText(e.target.value)}
                 placeholder="Registrar acompanhamento, decisão, impedimento ou próxima ação..."
-                className="mb-3 min-h-[92px] w-full resize-none bg-transparent text-sm text-slate-200 outline-none placeholder:text-slate-600"
+                className="mb-3 min-h-[92px] w-full resize-none bg-transparent text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)]"
               />
-              <div className="flex items-center justify-between text-slate-400">
+              <div className="flex items-center justify-between text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 <div className="flex items-center gap-2">
-                  <button className="flex h-7 w-7 items-center justify-center rounded hover:bg-[#1f2937]"><Plus className="h-4 w-4" /></button>
-                  <button className="flex h-7 w-7 items-center justify-center rounded hover:bg-[#1f2937]"><Smile className="h-4 w-4" /></button>
-                  <button className="flex h-7 w-7 items-center justify-center rounded hover:bg-[#1f2937]"><ImageIcon className="h-4 w-4" /></button>
-                  <button className="flex h-7 w-7 items-center justify-center rounded hover:bg-[#1f2937]"><Paperclip className="h-4 w-4" /></button>
+                  <button className="flex h-7 w-7 items-center justify-center rounded hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"><Plus className="h-4 w-4" /></button>
+                  <button className="flex h-7 w-7 items-center justify-center rounded hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"><Smile className="h-4 w-4" /></button>
+                  <button className="flex h-7 w-7 items-center justify-center rounded hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"><ImageIcon className="h-4 w-4" /></button>
+                  <button className="flex h-7 w-7 items-center justify-center rounded hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"><Paperclip className="h-4 w-4" /></button>
                 </div>
                 <button
                   type="button"
                   onClick={addFollowUp}
                   disabled={!followUpText.trim()}
-                  className="rounded-md bg-[#ff7a00] px-4 py-2 text-xs font-black text-white transition-colors hover:bg-[#f6b40b] hover:text-[#050914] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-md bg-[#ff7a00] px-4 py-2 text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   Adicionar
                 </button>

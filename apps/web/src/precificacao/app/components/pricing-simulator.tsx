@@ -28,36 +28,36 @@ export function PricingSimulator({ results, params, onAddToBudget }: SimulatorPr
           </div>
         </div>
 
-        <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 relative overflow-hidden flex flex-col justify-between">
+        <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] p-8 rounded-3xl shadow-sm border border-[var(--crm-border)] relative overflow-hidden flex flex-col justify-between">
            <div className="flex justify-between items-start">
              <div>
-               <p className="text-slate-400 font-medium mb-1 text-xs uppercase tracking-widest">Investimento Inicial (Setup)</p>
-               <p className="text-3xl font-bold text-slate-800 mt-2 font-headline">{formatCurrency(results.totalUpfrontCost)}</p>
+               <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium mb-1 text-xs uppercase tracking-widest">Investimento Inicial (Setup)</p>
+               <p className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2 font-headline">{formatCurrency(results.totalUpfrontCost)}</p>
              </div>
-             <div className="bg-indigo-50 p-2 rounded-xl text-primary">
+             <div className="bg-indigo-50 dark:bg-indigo-950 p-2 rounded-xl text-primary">
                <Zap size={20} />
              </div>
            </div>
-           <div className="mt-8 pt-6 border-t border-slate-100 space-y-3">
+           <div className="mt-8 pt-6 border-t border-[var(--crm-border)] space-y-3">
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Custo Base Mensal (CPV + Amort.):</span>
-                <span className="font-semibold text-slate-700">{formatCurrency(results.baseMonthlyCost)}</span>
+                <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Custo Base Mensal (CPV + Amort.):</span>
+                <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(results.baseMonthlyCost)}</span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-slate-500">Amortização do Setup:</span>
-                <span className="font-semibold text-slate-700">{formatCurrency(results.monthlyAmortization)}/mês</span>
+                <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Amortização do Setup:</span>
+                <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(results.monthlyAmortization)}/mês</span>
               </div>
            </div>
         </div>
       </div>
 
-      <div className="bg-white border border-indigo-100 p-6 rounded-3xl flex items-start space-x-5 shadow-sm">
-        <div className="bg-indigo-50 p-3 rounded-2xl text-primary shrink-0 shadow-inner">
+      <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-indigo-100 dark:border-indigo-800 p-6 rounded-3xl flex items-start space-x-5 shadow-sm">
+        <div className="bg-indigo-50 dark:bg-indigo-950 p-3 rounded-2xl text-primary shrink-0 shadow-inner">
           <Activity size={24} />
         </div>
         <div>
-          <h4 className="font-bold text-slate-800 mb-1.5 font-headline">Racional de Precificação</h4>
-          <p className="text-sm text-slate-600 leading-relaxed">
+          <h4 className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5 font-headline">Racional de Precificação</h4>
+          <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] leading-relaxed">
             O investimento de <strong>{formatCurrency(results.totalUpfrontCost)}</strong> está sendo amortizado em <strong>{params.durationMonths} meses</strong> (<strong>{formatCurrency(results.monthlyAmortization)}/mês</strong>). 
             Somado ao custo recorrente mensal de <strong>{formatCurrency(results.totalMonthlyRecurringCost)}</strong>, chegamos ao custo base de <strong>{formatCurrency(results.baseMonthlyCost)}</strong>.
             Aplicando o markup de <strong>{params.markupPercentage}%</strong>, o preço alvo foi definido em <strong>{formatCurrency(results.finalMonthlyPrice)}</strong>.

@@ -179,7 +179,7 @@ const STATUS_STYLES = {
   PROPOSTA_EM_PREPARACAO: 'bg-amber-500/10 text-amber-700 dark:text-amber-200 border-amber-500/30',
   ENVIADA: 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-200 border-emerald-500/30',
   SUSPENSA: 'bg-orange-500/10 text-orange-700 dark:text-orange-200 border-orange-500/30',
-  ENCERRADA: 'bg-slate-500/10 text-slate-700 dark:text-slate-200 border-slate-500/30'
+  ENCERRADA: "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
 };
 
 const TYPE_LABELS = {
@@ -230,7 +230,7 @@ const DASHBOARD_FUNNEL_META = [
   { id: 'PROPOSTA_ENVIADA', label: 'Proposta enviada', width: 90, gradient: 'from-[#f8b313] to-[#f39b0a]' },
   { id: 'HABILITACAO', label: 'Habilitação', width: 80, gradient: 'from-[#21c88f] to-[#1ab385]' },
   { id: 'RECURSO', label: 'Recurso', width: 70, gradient: 'from-[#24c7e7] to-[#1faed0]' },
-  { id: 'SUSPENSO', label: 'Suspenso', width: 65, gradient: 'from-[#a0aec0] to-[#8b9bb0]' },
+  { id: 'SUSPENSO', label: 'Suspenso', width: 65, gradient: "from-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-rgb)_/_1)]" },
   { id: 'HOMOLOGADO', label: 'Homologado', width: 60, gradient: 'from-[#4b87f3] to-[#3b79e8]' },
   { id: 'CONCLUIDO', label: 'Concluído', width: 50, gradient: 'from-[#8b61ff] to-[#7b53ef]' },
   { id: 'GANHO', label: 'Ganho', width: 44, gradient: 'from-[#36d483] to-[#2bc47a]' },
@@ -361,23 +361,23 @@ const renderB2GResourceSummary = (item) => {
   if (!summary) return null;
 
   return (
-    <div className="mb-3 rounded-xl border border-red-400/30 bg-red-500/10 p-3 text-xs text-red-50">
-      <div className="flex items-center gap-2 font-black uppercase tracking-[0.08em] text-red-200">
+    <div className="mb-3 rounded-xl border border-red-400/30 bg-red-500/10 p-3 text-xs text-red-700 dark:text-red-50">
+      <div className="flex items-center gap-2 font-black uppercase tracking-[0.08em] text-red-700 dark:text-red-200">
         <MessageSquare className="h-3.5 w-3.5" />
         {summary.type}
       </div>
       {summary.description && (
-        <p className="mt-2 line-clamp-3 whitespace-pre-wrap leading-relaxed text-red-50/90">
+        <p className="mt-2 line-clamp-3 whitespace-pre-wrap leading-relaxed text-red-700/90 dark:text-red-50/90">
           {summary.description}
         </p>
       )}
       {summary.mainPoints && (
-        <p className="mt-2 line-clamp-3 whitespace-pre-wrap leading-relaxed text-red-100/85">
+        <p className="mt-2 line-clamp-3 whitespace-pre-wrap leading-relaxed text-red-700/85 dark:text-red-100/85">
           Pontos: {summary.mainPoints}
         </p>
       )}
       {(summary.deadline || summary.responsible) && (
-        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-red-100/80">
+        <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-red-700/80 dark:text-red-100/80">
           {summary.deadline && <span>Prazo: {formatDateFlexible(summary.deadline)}</span>}
           {summary.responsible && <span>Responsavel: {summary.responsible}</span>}
         </div>
@@ -626,23 +626,23 @@ const renderStageDecisionSummary = (opportunity, { compact = false } = {}) => {
 
   return (
     <div className={[
-      'rounded-xl border bg-cyan-500/10 text-cyan-50',
+      "rounded-xl border bg-cyan-500/10 text-cyan-700 dark:text-cyan-50",
       compact ? 'mb-3 border-cyan-400/25 p-3' : 'border-cyan-400/35 p-4'
     ].join(' ')}>
-      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.08em] text-cyan-200">
+      <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.08em] text-cyan-700 dark:text-cyan-200">
         <MessageSquare className="h-3.5 w-3.5" />
         Decisão: {summary.decisionLabel}
       </div>
       {summary.description && (
         <p className={[
-          'mt-2 leading-relaxed text-cyan-50/90 whitespace-pre-wrap',
+          "mt-2 leading-relaxed text-cyan-700/90 dark:text-cyan-50/90 whitespace-pre-wrap",
           compact ? 'line-clamp-3 text-xs' : 'text-sm'
         ].join(' ')}>
           {summary.description}
         </p>
       )}
       {detailLines.length > 0 && (
-        <div className={compact ? 'mt-2 space-y-1 text-xs text-cyan-100/80' : 'mt-3 grid gap-2 text-sm text-cyan-100/85 sm:grid-cols-2'}>
+        <div className={compact ? "mt-2 space-y-1 text-xs text-cyan-700/80 dark:text-cyan-100/80" : "mt-3 grid gap-2 text-sm text-cyan-700/85 dark:text-cyan-100/85 sm:grid-cols-2"}>
           {detailLines.map((line) => (
             <div key={line} className="line-clamp-2">{line}</div>
           ))}
@@ -4511,15 +4511,15 @@ export default function B2GEditais() {
 
   const dashboardOutcomeBadgeClass = (columnId) => {
     if (columnId === 'GANHO') {
-      return 'border-emerald-400/45 bg-emerald-400/14 text-emerald-100';
+      return "border-emerald-400/45 bg-emerald-400/14 text-emerald-700 dark:text-emerald-100";
     }
     if (columnId === 'PERDIDO' || columnId === 'NO_GO') {
-      return 'border-rose-400/45 bg-rose-400/16 text-rose-100';
+      return "border-rose-400/45 bg-rose-400/16 text-rose-700 dark:text-rose-100";
     }
     if (columnId === 'SUSPENSO') {
-      return 'border-amber-300/50 bg-amber-300/14 text-amber-100';
+      return "border-amber-300/50 bg-amber-300/14 text-amber-700 dark:text-amber-100";
     }
-    return 'border-[#76beff66] bg-[#0b2141] text-[#d5e8ff]';
+    return "border-[#76beff66] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]";
   };
 
   const renderAdvancedFilters = ({
@@ -4604,15 +4604,15 @@ export default function B2GEditais() {
         className={[
           'space-y-6',
           dashboardPresentationMode
-            ? 'h-screen overflow-y-auto overflow-x-hidden scroll-smooth bg-[#041a38] p-4 pb-28 sm:p-6'
+            ? "h-screen overflow-y-auto overflow-x-hidden scroll-smooth bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4 pb-28 sm:p-6"
             : ''
         ].join(' ')}
       >
         <section
-          className="relative overflow-hidden rounded-[20px] border border-[#79c2ff52] p-3 text-[#dbeeff] shadow-[0_36px_70px_-50px_rgba(6,20,45,0.96)] lg:p-4"
+          className="relative overflow-hidden rounded-[20px] border border-[#79c2ff52] p-3 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_36px_70px_-50px_rgba(6,20,45,0.96)] lg:p-4"
           style={{
             background:
-              'linear-gradient(130deg, rgba(12,46,85,0.96) 0%, rgba(8,30,58,0.97) 48%, rgba(19,58,101,0.95) 100%)'
+              "linear-gradient(130deg, rgb(var(--crm-surface-rgb) / 0.96) 0%, rgb(var(--crm-surface-2-rgb) / 0.97) 48%, rgb(var(--crm-surface-rgb) / 0.95) 100%)"
           }}
         >
           <div className="pointer-events-none absolute -left-20 top-16 h-64 w-64 rounded-full bg-[#88c3ff24] blur-[80px]" />
@@ -4622,7 +4622,7 @@ export default function B2GEditais() {
           <button
             type="button"
             onClick={handleDashboardFullscreen}
-            className="absolute right-3 top-3 z-20 inline-flex items-center gap-1.5 rounded-lg border border-[#84c5ff3d] bg-[#0b1f3d]/90 px-2.5 py-1.5 text-xs font-semibold text-[#edf7ff] transition-colors hover:bg-[#12305a]"
+            className="absolute right-3 top-3 z-20 inline-flex items-center gap-1.5 rounded-lg border border-[#84c5ff3d] bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] px-2.5 py-1.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
           >
             <Maximize2 className="h-3.5 w-3.5" />
             Apresentação
@@ -4630,7 +4630,7 @@ export default function B2GEditais() {
 
           <div className="relative grid gap-4 xl:grid-cols-[1.25fr_0.75fr]">
             <div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#79beff5c] bg-[#295f9f47] px-3 py-1.5 text-xs font-semibold text-[#d6edff]">
+              <div className="inline-flex items-center gap-2 rounded-full border border-[#79beff5c] bg-[#295f9f47] px-3 py-1.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 <Zap className="h-3.5 w-3.5 text-[#7dd8ff]" />
                 Visão Comercial Estratégica
               </div>
@@ -4654,7 +4654,7 @@ export default function B2GEditais() {
                 <button
                   type="button"
                   onClick={() => navigate('/b2g-relatorios')}
-                  className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#7ab8ff66] bg-[#0a1e3d]/95 px-4 text-xs font-semibold text-[#e6f2ff] transition-colors hover:bg-[#123263] sm:text-sm"
+                  className="inline-flex h-10 items-center gap-2 rounded-lg border border-[#7ab8ff66] bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] px-4 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] sm:text-sm"
                 >
                   <ArrowUpRight className="h-4 w-4" />
                   Relatórios
@@ -4663,7 +4663,7 @@ export default function B2GEditais() {
                   <select
                     value={dashboardPeriod}
                     onChange={(e) => setDashboardPeriod(e.target.value)}
-                    className="h-10 rounded-lg border border-[#7ab8ff66] bg-[#0a1e3d]/95 px-2.5 py-1.5 text-xs font-medium text-[#e6f2ff] focus:outline-none focus:border-[#8fd1ff]"
+                    className="h-10 rounded-lg border border-[#7ab8ff66] bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] px-2.5 py-1.5 text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:border-[#8fd1ff]"
                   >
                     {PERIOD_OPTIONS.map((opt) => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -4672,7 +4672,7 @@ export default function B2GEditais() {
                   <button
                     type="button"
                     onClick={() => { loadNotices({ preserveSelection: true }); loadSupportData(); }}
-                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#7ab8ff66] bg-[#0a1e3d]/95 text-[#e6f2ff] transition-colors hover:bg-[#123263]"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#7ab8ff66] bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                     title="Atualizar dados do dashboard"
                   >
                     <RefreshCcw className="h-4 w-4" />
@@ -4686,7 +4686,7 @@ export default function B2GEditais() {
                 className="rounded-xl border border-[#7ec3ff45] p-3"
                 style={{
                   background:
-                    'linear-gradient(150deg, rgba(27,72,123,0.82) 0%, rgba(18,45,87,0.9) 72%, rgba(12,32,62,0.98) 100%)'
+                    "linear-gradient(150deg, rgba(27,72,123,0.82) 0%, rgb(var(--crm-surface-rgb) / 0.9) 72%, rgb(var(--crm-surface-2-rgb) / 0.98) 100%)"
                 }}
               >
                 <div className="text-xs uppercase tracking-[0.12em] text-[#8bb3d7]">
@@ -4709,7 +4709,7 @@ export default function B2GEditais() {
                 className="rounded-xl border border-[#7ec3ff45] p-3"
                 style={{
                   background:
-                    'linear-gradient(150deg, rgba(24,62,106,0.8) 0%, rgba(14,37,74,0.92) 76%, rgba(9,26,54,0.98) 100%)'
+                    "linear-gradient(150deg, rgb(var(--crm-surface-rgb) / 0.8) 0%, rgb(var(--crm-surface-rgb) / 0.92) 76%, rgb(var(--crm-surface-2-rgb) / 0.98) 100%)"
                 }}
               >
                 <div className="text-xs uppercase tracking-[0.12em] text-[#9bb8d7]">
@@ -4736,7 +4736,7 @@ export default function B2GEditais() {
                   size="small"
                   colorTheme="magenta"
                 />
-                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-lg font-black text-[#ecf5ff]">
+                <div className="absolute bottom-1 left-1/2 -translate-x-1/2 text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   {(Number(dashboardForecastScore) || 0).toFixed(1)}%
                 </div>
               </div>
@@ -4787,12 +4787,12 @@ export default function B2GEditais() {
 
         <section className="grid gap-5 xl:grid-cols-[1.9fr_1fr]">
           <div
-            className="rounded-[20px] border border-[#78c5ff50] p-5 text-[#d9edff] lg:p-6"
-            style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+            className="rounded-[20px] border border-[#78c5ff50] p-5 text-[rgb(var(--crm-ink-rgb)_/_1)] lg:p-6"
+            style={{ background: "linear-gradient(140deg, rgb(var(--crm-surface-rgb) / 0.93), rgb(var(--crm-surface-2-rgb) / 0.96))" }}
           >
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg md:text-xl font-black leading-tight text-[#dcecff]">Funil de Vendas Estratégico</h3>
+                <h3 className="text-lg md:text-xl font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">Funil de Vendas Estratégico</h3>
                 <p className="mt-1 text-sm font-medium text-[#aac6e4]">Distribuição das oportunidades por fase</p>
               </div>
               <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl border border-[#8dc8ff59] bg-[#2b5f925e]">
@@ -4810,13 +4810,13 @@ export default function B2GEditais() {
           </div>
 
           <div
-            className="rounded-[20px] border border-[#78c5ff50] p-5 text-[#d9edff] lg:p-6"
-            style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+            className="rounded-[20px] border border-[#78c5ff50] p-5 text-[rgb(var(--crm-ink-rgb)_/_1)] lg:p-6"
+            style={{ background: "linear-gradient(140deg, rgb(var(--crm-surface-rgb) / 0.93), rgb(var(--crm-surface-2-rgb) / 0.96))" }}
           >
             <div className="flex items-start justify-between gap-4">
               <div>
                 <div className="text-base font-bold uppercase tracking-[0.1em] text-[#66c3ff]">Projeção Comercial</div>
-                <h3 className="mt-2 text-lg md:text-xl font-black leading-tight text-[#dcecff]">Previsões de Venda</h3>
+                <h3 className="mt-2 text-lg md:text-xl font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">Previsões de Venda</h3>
                 <p className="mt-1 text-sm font-medium leading-tight text-[#aac6e4]">
                   Composição do pipeline por origem
                   <br />
@@ -4825,7 +4825,7 @@ export default function B2GEditais() {
               </div>
 
               <div className="rounded-2xl bg-[#6f84b852] px-4 py-3 text-center">
-                <div className="text-sm font-bold uppercase leading-tight tracking-[0.08em] text-[#c6d6ea]">Taxa de Conversão</div>
+                <div className="text-sm font-bold uppercase leading-tight tracking-[0.08em] text-[rgb(var(--crm-ink-rgb)_/_1)]">Taxa de Conversão</div>
                 <div className="mt-1 text-lg md:text-xl font-black leading-none text-[#66d7ea]">
                   {dashboardTotals.winRate.toFixed(1)}%
                 </div>
@@ -4850,13 +4850,13 @@ export default function B2GEditais() {
             <div className="mt-4 grid grid-cols-2 gap-2">
               <div className="rounded-2xl bg-[#3fa3bb4f] px-4 py-4 text-center">
                 <div className="text-sm font-bold uppercase tracking-[0.08em] text-[#bad8e9]">Total projetado</div>
-                <div className="mt-2 text-base md:text-lg font-black text-[#dcecff]">
+                <div className="mt-2 text-base md:text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   {formatCurrency(dashboardTotals.projectedValue)}
                 </div>
               </div>
               <div className="rounded-2xl bg-[#7e85bf5a] px-4 py-4 text-center">
-                <div className="text-sm font-bold uppercase tracking-[0.08em] text-[#cad4ea]">Projetos ativos</div>
-                <div className="mt-2 text-base md:text-lg font-black text-[#dcecff]">
+                <div className="text-sm font-bold uppercase tracking-[0.08em] text-[rgb(var(--crm-ink-rgb)_/_1)]">Projetos ativos</div>
+                <div className="mt-2 text-base md:text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   {dashboardTotals.openCount} Oportunidades
                 </div>
               </div>
@@ -4865,8 +4865,8 @@ export default function B2GEditais() {
         </section>
 
         <section
-          className="rounded-[22px] border border-[#78c5ff50] p-4 text-[#d9edff] lg:p-6"
-          style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+          className="rounded-[22px] border border-[#78c5ff50] p-4 text-[rgb(var(--crm-ink-rgb)_/_1)] lg:p-6"
+          style={{ background: "linear-gradient(140deg, rgb(var(--crm-surface-rgb) / 0.93), rgb(var(--crm-surface-2-rgb) / 0.96))" }}
         >
           <style>
             {`
@@ -4901,29 +4901,29 @@ export default function B2GEditais() {
             `}
           </style>
 
-          <h3 className="text-lg font-black leading-tight text-[#dcecff]">Probabilidade de Ganho (%)</h3>
+          <h3 className="text-lg font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">Probabilidade de Ganho (%)</h3>
           <p className="mt-1 text-sm font-medium text-[#aac6e4]">
             Distribuição por faixas com participação e volume financeiro do pipeline.
           </p>
 
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-            <div className="rounded-xl border border-[#74b9f353] bg-[linear-gradient(145deg,rgba(13,43,80,0.98),rgba(7,25,53,0.96))] px-3 py-2.5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.85)]">
+            <div className="rounded-xl border border-[#74b9f353] bg-[linear-gradient(145deg,rgb(var(--crm-surface-rgb)_/_0.98),rgb(var(--crm-surface-2-rgb)_/_0.96))] px-3 py-2.5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.85)]">
               <div className="text-[11px] font-semibold uppercase text-[#9fb9d7]">Total de opps</div>
-              <div className="mt-1 text-xl font-black text-[#e3f0ff]">{dashboardProbabilitySummary.totalOpps}</div>
+              <div className="mt-1 text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{dashboardProbabilitySummary.totalOpps}</div>
             </div>
-            <div className="rounded-xl border border-[#74b9f353] bg-[linear-gradient(145deg,rgba(13,43,80,0.98),rgba(7,25,53,0.96))] px-3 py-2.5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.85)]">
+            <div className="rounded-xl border border-[#74b9f353] bg-[linear-gradient(145deg,rgb(var(--crm-surface-rgb)_/_0.98),rgb(var(--crm-surface-2-rgb)_/_0.96))] px-3 py-2.5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.85)]">
               <div className="text-[11px] font-semibold uppercase text-[#9fb9d7]">Média</div>
-              <div className="mt-1 text-xl font-black text-[#e3f0ff]">{dashboardProbabilitySummary.avg.toFixed(1)}%</div>
+              <div className="mt-1 text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{dashboardProbabilitySummary.avg.toFixed(1)}%</div>
             </div>
-            <div className="rounded-xl border border-[#74b9f353] bg-[linear-gradient(145deg,rgba(13,43,80,0.98),rgba(7,25,53,0.96))] px-3 py-2.5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.85)]">
+            <div className="rounded-xl border border-[#74b9f353] bg-[linear-gradient(145deg,rgb(var(--crm-surface-rgb)_/_0.98),rgb(var(--crm-surface-2-rgb)_/_0.96))] px-3 py-2.5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.85)]">
               <div className="text-[11px] font-semibold uppercase text-[#9fb9d7]">Mediana</div>
-              <div className="mt-1 text-xl font-black text-[#e3f0ff]">{dashboardProbabilitySummary.median.toFixed(1)}%</div>
+              <div className="mt-1 text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{dashboardProbabilitySummary.median.toFixed(1)}%</div>
             </div>
-            <div className="rounded-xl border border-[#8adba77a] bg-[linear-gradient(145deg,rgba(81,140,128,0.72),rgba(25,71,66,0.58))] px-3 py-2.5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.85)]">
+            <div className="rounded-xl border border-[#8adba77a] bg-[linear-gradient(145deg,rgba(81,140,128,0.72),rgb(var(--crm-surface-rgb)_/_0.58))] px-3 py-2.5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.85)]">
               <div className="text-[11px] font-semibold uppercase text-[#42c592]">Alta confiança</div>
               <div className="mt-1 text-xl font-black text-[#13b981]">{dashboardProbabilitySummary.highConfidence}</div>
             </div>
-            <div className="rounded-xl border border-[#f2db6b95] bg-[linear-gradient(145deg,rgba(142,122,93,0.74),rgba(82,63,49,0.58))] px-3 py-2.5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.85)]">
+            <div className="rounded-xl border border-[#f2db6b95] bg-[linear-gradient(145deg,rgba(142,122,93,0.74),rgb(var(--crm-surface-rgb)_/_0.58))] px-3 py-2.5 shadow-[0_18px_40px_-28px_rgba(0,0,0,0.85)]">
               <div className="text-[11px] font-semibold uppercase text-[#f18a36]">Baixa confiança</div>
               <div className="mt-1 text-xl font-black text-[#f07819]">{dashboardProbabilitySummary.lowConfidence}</div>
           </div>
@@ -4948,13 +4948,13 @@ export default function B2GEditais() {
                         style={{ background: level.palette[2] }}
                       />
                       <div
-                        className="relative flex h-full flex-col items-center justify-center overflow-hidden rounded-[18px] border border-white/25 px-4 text-center shadow-[0_24px_48px_-28px_rgba(0,0,0,0.95)]"
+                        className="relative flex h-full flex-col items-center justify-center overflow-hidden rounded-[18px] border border-[var(--crm-border)] px-4 text-center shadow-[0_24px_48px_-28px_rgba(0,0,0,0.95)]"
                         style={{
                           background: `linear-gradient(135deg, ${level.palette[0]} 0%, ${level.palette[1]} 55%, ${level.palette[2]} 100%)`,
                           color: level.text
                         }}
                       >
-                        <div className="absolute left-4 right-4 top-3 h-1.5 rounded-full bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.42),transparent)] opacity-75" />
+                        <div className="absolute left-4 right-4 top-3 h-1.5 rounded-full bg-[linear-gradient(90deg,transparent,rgb(var(--crm-surface-rgb)_/_0.42),transparent)] opacity-75" />
                         <div className="text-base font-black leading-none md:text-lg">{level.label}</div>
                         <div className="mt-1 text-xs font-bold md:text-sm">{level.count} oportunidade(s)</div>
                       </div>
@@ -4962,27 +4962,27 @@ export default function B2GEditais() {
                   </div>
                   <div className="text-right">
                     <div className="text-xs font-bold uppercase tracking-[0.08em] text-[#9fb9d7]">Pipeline</div>
-                    <div className="text-sm font-black text-[#dcecff] md:text-base">{formatCurrencyNoCents(level.value)}</div>
+                    <div className="text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] md:text-base">{formatCurrencyNoCents(level.value)}</div>
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="mt-4 rounded-2xl border border-[#74b9f353] bg-[#0b2243]/75 px-4 py-3 text-sm md:text-base font-medium text-[#c7dff9]">
+          <div className="mt-4 rounded-2xl border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_0.75)] px-4 py-3 text-sm md:text-base font-medium text-[#c7dff9]">
             Pipeline total analisado nas faixas:
             {' '}
-            <span className="font-black text-[#e5f1ff]">{formatCurrencyNoCents(dashboardProbabilitySummary.totalValue)}</span>
+            <span className="font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrencyNoCents(dashboardProbabilitySummary.totalValue)}</span>
           </div>
         </section>
 
         <section
-          className="rounded-[22px] border border-[#78c5ff50] p-4 text-[#d9edff] lg:p-6"
-          style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+          className="rounded-[22px] border border-[#78c5ff50] p-4 text-[rgb(var(--crm-ink-rgb)_/_1)] lg:p-6"
+          style={{ background: "linear-gradient(140deg, rgb(var(--crm-surface-rgb) / 0.93), rgb(var(--crm-surface-2-rgb) / 0.96))" }}
         >
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div>
-              <h3 className="flex items-center gap-2 text-lg font-black leading-tight text-[#dcecff]">
+              <h3 className="flex items-center gap-2 text-lg font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 <Thermometer className="h-5 w-5 text-[#74c5ff]" />
                 Temperatura do Negócio por Edital
               </h3>
@@ -4994,7 +4994,7 @@ export default function B2GEditais() {
             <select
               value={dashboardPhaseFilter}
               onChange={(event) => setDashboardPhaseFilter(event.target.value)}
-            className="h-11 min-w-[260px] rounded-xl border border-[#77bff968] bg-[#091b37] px-4 text-sm font-medium text-[#d8ebff]"
+            className="h-11 min-w-[260px] rounded-xl border border-[#77bff968] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-4 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]"
             >
               {dashboardPhaseOptions.map((option) => (
                 <option key={option.value} value={option.value}>
@@ -5016,8 +5016,8 @@ export default function B2GEditais() {
                   className={[
                     'inline-flex h-10 items-center gap-2 rounded-xl border px-3 text-xs md:text-sm font-semibold transition-colors',
                     selected
-                      ? 'border-[#87d5ff] bg-[#67c3f6] text-[#10385f]'
-                      : 'border-[#78c3ff4f] bg-[#0b2141] text-[#d3e7ff] hover:bg-[#12345f]'
+                      ? "border-[#87d5ff] bg-[#67c3f6] text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                      : "border-[#78c3ff4f] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                   ].join(' ')}
                 >
                   <Icon className="h-5 w-5" />
@@ -5028,28 +5028,28 @@ export default function B2GEditais() {
           </div>
 
           <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-            <div className="rounded-xl border border-[#74b9f353] bg-[#0b2243] px-3 py-2.5">
+            <div className="rounded-xl border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5">
               <div className="text-[11px] font-semibold uppercase text-[#9fb9d7]">Editais filtrados</div>
-              <div className="mt-1 text-xl font-black text-[#e3f0ff]">{dashboardTemperatureStats.total}</div>
+              <div className="mt-1 text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{dashboardTemperatureStats.total}</div>
             </div>
-            <div className="rounded-xl border border-[#74b9f353] bg-[#0b2243] px-3 py-2.5">
+            <div className="rounded-xl border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5">
               <div className="text-[11px] font-semibold uppercase text-[#9fb9d7]">Valor total</div>
-              <div className="mt-1 text-xl font-black text-[#e3f0ff]">{formatCurrencyNoCents(dashboardTemperatureStats.totalValue)}</div>
+              <div className="mt-1 text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrencyNoCents(dashboardTemperatureStats.totalValue)}</div>
             </div>
-            <div className="rounded-xl border border-[#74b9f353] bg-[#0b2243] px-3 py-2.5">
+            <div className="rounded-xl border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5">
               <div className="text-[11px] font-semibold uppercase text-[#9fb9d7]">Ticket médio</div>
-              <div className="mt-1 text-xl font-black text-[#e3f0ff]">{formatCurrencyNoCents(dashboardTemperatureStats.avgTicket)}</div>
+              <div className="mt-1 text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrencyNoCents(dashboardTemperatureStats.avgTicket)}</div>
             </div>
-            <div className="rounded-xl border border-[#74b9f353] bg-[#0b2243] px-3 py-2.5">
+            <div className="rounded-xl border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5">
               <div className="text-[11px] font-semibold uppercase text-[#9fb9d7]">Maior edital</div>
-              <div className="mt-1 text-xl font-black text-[#e3f0ff]">{formatCurrencyNoCents(dashboardTemperatureStats.biggestValue)}</div>
+              <div className="mt-1 text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrencyNoCents(dashboardTemperatureStats.biggestValue)}</div>
             </div>
           </div>
 
           {/* Lista de oportunidades ao filtrar por temperatura */}
           {dashboardTemperatureFilter !== 'ALL' && (
-            <div className="mt-4 rounded-[18px] border border-[#74b9f353] bg-[#0b2243]/85 p-4">
-              <h4 className="mb-3 text-base font-black text-[#dcecff]">
+            <div className="mt-4 rounded-[18px] border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_0.85)] p-4">
+              <h4 className="mb-3 text-base font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Oportunidades com temperatura {dashboardTemperatureFilter}%
                 <span className="ml-2 text-sm font-medium text-[#8fd1ff]">({dashboardTemperatureRows.length})</span>
               </h4>
@@ -5072,13 +5072,13 @@ export default function B2GEditais() {
                     </thead>
                     <tbody>
                       {dashboardTemperatureRows.map((item) => (
-                        <tr key={item.id} className="border-b border-[#74b9f322] transition-colors hover:bg-[#0b2243]/50">
-                          <td className="px-2 py-2 font-medium text-[#eaf4ff] max-w-[200px] truncate">{item.__title}</td>
+                        <tr key={item.id} className="border-b border-[#74b9f322] transition-colors hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)]">
+                          <td className="px-2 py-2 font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] max-w-[200px] truncate">{item.__title}</td>
                           <td className="px-2 py-2 text-[#aac6e4] max-w-[160px] truncate">{item.__organization}</td>
                           <td className="px-2 py-2 text-[#aac6e4]">{item.owner?.name || '-'}</td>
                           <td className="px-2 py-2 text-right font-semibold text-[#5eb0ff]">{formatCurrencyNoCents(item.__value)}</td>
                           <td className="px-2 py-2 text-center">
-                            <span className="inline-block rounded-full border border-[#74b9f353] bg-[#0b2243]/75 px-2 py-0.5 text-[9px]">
+                            <span className="inline-block rounded-full border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_0.75)] px-2 py-0.5 text-[9px]">
                               {item.__stageLabel}
                             </span>
                           </td>
@@ -5110,8 +5110,8 @@ export default function B2GEditais() {
           )}
 
           <div className="mt-5 grid gap-4 xl:grid-cols-[1.95fr_0.95fr]">
-            <div className="rounded-[18px] border border-[#74b9f353] bg-[#0b2243]/85 p-4">
-              <h4 className="text-lg md:text-xl font-black text-[#dcecff]">Top editais por valor</h4>
+            <div className="rounded-[18px] border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_0.85)] p-4">
+              <h4 className="text-lg md:text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Top editais por valor</h4>
 
               {dashboardTopEditais.length === 0 ? (
                 <div className="mt-6 rounded-xl border border-dashed border-[#74b9f353] p-8 text-center text-base md:text-lg xl:text-xl italic text-[#a9c6e3]">
@@ -5147,8 +5147,8 @@ export default function B2GEditais() {
               )}
             </div>
 
-            <div className="rounded-[18px] border border-[#74b9f353] bg-[#0b2243]/85 p-4">
-              <h4 className="text-lg md:text-xl font-black text-[#dcecff]">Valor por fase</h4>
+            <div className="rounded-[18px] border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_0.85)] p-4">
+              <h4 className="text-lg md:text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Valor por fase</h4>
               <div className="mt-5 space-y-4">
                 {dashboardStageValueRows.map((item) => {
                   const width = (item.value / dashboardStageValueMax) * 100;
@@ -5159,7 +5159,7 @@ export default function B2GEditais() {
                         <span>{item.label}</span>
                         <span>{formatCurrencyAxisK(item.value)}</span>
                       </div>
-                      <div className="h-5 rounded-full bg-[#143055]">
+                      <div className="h-5 rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)]">
                         <div
                           className={[
                             'h-5 rounded-full bg-gradient-to-r transition-all duration-500',
@@ -5179,12 +5179,12 @@ export default function B2GEditais() {
         {/* Valor Mensal por Projeto */}
         {monthlyProjectData.months.length > 0 && (
           <section
-            className="rounded-[22px] border border-[#78c5ff50] p-5 text-[#d9edff] lg:p-6"
-            style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+            className="rounded-[22px] border border-[#78c5ff50] p-5 text-[rgb(var(--crm-ink-rgb)_/_1)] lg:p-6"
+            style={{ background: "linear-gradient(140deg, rgb(var(--crm-surface-rgb) / 0.93), rgb(var(--crm-surface-2-rgb) / 0.96))" }}
           >
             <div className="mb-4 flex items-start justify-between">
               <div>
-                <h3 className="text-xl md:text-2xl font-black leading-tight text-[#dcecff]">
+                <h3 className="text-xl md:text-2xl font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Valor Mensal por Projeto
                 </h3>
                 <p className="mt-1 text-sm md:text-base font-medium text-[#aac6e4]">
@@ -5221,7 +5221,7 @@ export default function B2GEditais() {
                       }
                     },
                     tooltip: {
-                      backgroundColor: 'rgba(5, 16, 34, 0.94)',
+                      backgroundColor: "rgb(var(--crm-surface-2-rgb) / 0.94)",
                       titleColor: '#e8f4ff',
                       bodyColor: '#d3e6fb',
                       borderColor: 'rgba(125, 176, 234, 0.35)',
@@ -5261,24 +5261,24 @@ export default function B2GEditais() {
         )}
 
         <section
-          className="rounded-[22px] border border-[#78c5ff50] p-4 text-[#d9edff] lg:p-6"
-          style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+          className="rounded-[22px] border border-[#78c5ff50] p-4 text-[rgb(var(--crm-ink-rgb)_/_1)] lg:p-6"
+          style={{ background: "linear-gradient(140deg, rgb(var(--crm-surface-rgb) / 0.93), rgb(var(--crm-surface-2-rgb) / 0.96))" }}
         >
-          <h3 className="text-lg font-black leading-tight text-[#dcecff]">Editais e valores</h3>
+          <h3 className="text-lg font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">Editais e valores</h3>
           <div className="mt-4 max-h-[420px] space-y-2 overflow-y-auto pr-2">
             {listRows.map((item) => (
               <div
                 key={item.id}
-                className="flex flex-col justify-between gap-3 rounded-xl border border-[#74b9f353] bg-[#0b2243]/80 px-3 py-2.5 lg:flex-row lg:items-start"
+                className="flex flex-col justify-between gap-3 rounded-xl border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] px-3 py-2.5 lg:flex-row lg:items-start"
               >
                 <div className="min-w-0">
-                  <div className="line-clamp-1 text-sm font-bold text-[#e6f2ff]">{item.__title}</div>
+                  <div className="line-clamp-1 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.__title}</div>
                   <div className="line-clamp-1 text-xs text-[#adc8e4]">{item.referenceCode || item.__title}</div>
                   <div className="line-clamp-1 text-xs text-[#9eb9d6]">{item.__organization}</div>
                 </div>
 
                 <div className="text-right">
-                  <div className="text-base font-black text-[#e6f2ff]">{formatCurrencyNoCents(item.__value)}</div>
+                  <div className="text-base font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrencyNoCents(item.__value)}</div>
                   <span
                     className={[
                       'inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-bold',
@@ -5301,10 +5301,10 @@ export default function B2GEditais() {
 
         <section className="grid gap-4 lg:grid-cols-2">
           <div
-            className="rounded-[22px] border border-[#78c5ff50] p-5 text-[#d9edff]"
-            style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+            className="rounded-[22px] border border-[#78c5ff50] p-5 text-[rgb(var(--crm-ink-rgb)_/_1)]"
+            style={{ background: "linear-gradient(140deg, rgb(var(--crm-surface-rgb) / 0.93), rgb(var(--crm-surface-2-rgb) / 0.96))" }}
           >
-            <h3 className="flex items-center gap-2 text-lg font-black leading-tight text-[#dcecff]">
+            <h3 className="flex items-center gap-2 text-lg font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">
               <AlertTriangle className="h-5 w-5 text-[#4cc8ff]" />
               Prazos Críticos
             </h3>
@@ -5317,8 +5317,8 @@ export default function B2GEditais() {
             ) : (
               <div className="mt-4 space-y-2">
                 {dashboardCriticalDeadlines.map((item) => (
-                  <div key={item.id} className="rounded-xl border border-[#74b9f353] bg-[#0b2243]/75 px-3 py-2">
-                    <div className="line-clamp-1 text-sm font-semibold text-[#e6f2ff]">{item.title}</div>
+                  <div key={item.id} className="rounded-xl border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_0.75)] px-3 py-2">
+                    <div className="line-clamp-1 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.title}</div>
                     <div className="text-xs text-[#a7c4e2]">
                       {item.organization} • abertura {formatDateFlexible(item.proposalDueDate)}
                     </div>
@@ -5330,32 +5330,32 @@ export default function B2GEditais() {
             <button
               type="button"
               onClick={() => navigate('/b2g-atividades')}
-              className="mt-6 w-full rounded-xl border border-[#7abfff66] bg-[#091c37] py-3 text-sm md:text-base font-medium text-[#dbeeff] transition-colors hover:bg-[#12315b]"
+              className="mt-6 w-full rounded-xl border border-[#7abfff66] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] py-3 text-sm md:text-base font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
             >
               Ver agenda completa
             </button>
           </div>
 
           <div
-            className="rounded-[22px] border border-[#78c5ff50] p-5 text-[#d9edff]"
-            style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+            className="rounded-[22px] border border-[#78c5ff50] p-5 text-[rgb(var(--crm-ink-rgb)_/_1)]"
+            style={{ background: "linear-gradient(140deg, rgb(var(--crm-surface-rgb) / 0.93), rgb(var(--crm-surface-2-rgb) / 0.96))" }}
           >
             <div className="flex items-start justify-between">
               <div>
-                <h3 className="text-lg font-black leading-tight text-[#dcecff]">Resultados Recentes</h3>
+                <h3 className="text-lg font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">Resultados Recentes</h3>
                 <p className="mt-1 text-sm text-[#aac6e4]">Últimas decisões e homologações.</p>
               </div>
               <History className="h-6 w-6 text-[#9cb9d8]" />
             </div>
 
             {primaryResult ? (
-              <div className="mt-5 rounded-xl border border-[#74b9f353] bg-[#0b2243]/82 p-3">
+              <div className="mt-5 rounded-xl border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_0.82)] p-3">
                 <div className="flex items-start gap-4">
                   <div className="inline-flex h-11 w-11 items-center justify-center rounded-full bg-[#a62a613f]">
                     <Gavel className="h-5 w-5 text-[#ff7da3]" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="line-clamp-1 text-sm font-bold text-[#e6f2ff]">
+                    <div className="line-clamp-1 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       {primaryResult.__organization}
                     </div>
                     <div className="line-clamp-1 text-xs text-[#afcae4]">
@@ -5363,7 +5363,7 @@ export default function B2GEditais() {
                     </div>
                   </div>
                   <div className="text-right">
-                    <div className="text-base font-black text-[#e6f2ff]">{formatCurrencyNoCents(primaryResult.__value)}</div>
+                    <div className="text-base font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrencyNoCents(primaryResult.__value)}</div>
                     <span
                       className={[
                         'inline-flex rounded-full border px-2.5 py-0.5 text-xs font-bold',
@@ -5384,10 +5384,10 @@ export default function B2GEditais() {
         </section>
 
         <section
-          className="rounded-[22px] border border-[#78c5ff50] p-5 text-[#d9edff]"
-          style={{ background: 'linear-gradient(140deg, rgba(14,47,87,0.93), rgba(8,29,58,0.96))' }}
+          className="rounded-[22px] border border-[#78c5ff50] p-5 text-[rgb(var(--crm-ink-rgb)_/_1)]"
+          style={{ background: "linear-gradient(140deg, rgb(var(--crm-surface-rgb) / 0.93), rgb(var(--crm-surface-2-rgb) / 0.96))" }}
         >
-          <h3 className="flex items-center gap-2 text-lg font-black leading-tight text-[#dcecff]">
+          <h3 className="flex items-center gap-2 text-lg font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">
             <Workflow className="h-5 w-5 text-[#4cc8ff]" />
             SLA do Fluxo Pré-vendas
           </h3>
@@ -5396,30 +5396,30 @@ export default function B2GEditais() {
           </p>
 
           <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-            <div className="rounded-xl border border-[#74b9f353] bg-[#0b2243] px-3 py-2.5">
+            <div className="rounded-xl border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5">
               <div className="text-[11px] font-semibold uppercase text-[#9fb9d7]">Abertas</div>
-              <div className="mt-1 text-xl font-black text-[#e3f0ff]">{dashboardSlaStats.open}</div>
+              <div className="mt-1 text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{dashboardSlaStats.open}</div>
             </div>
-            <div className="rounded-xl border border-[#f0a2ad8e] bg-[#b7bec85e] px-3 py-2.5">
+            <div className="rounded-xl border border-[#f0a2ad8e] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 py-2.5">
               <div className="text-[11px] font-semibold uppercase text-[#e54465]">Atrasadas</div>
               <div className="mt-1 text-xl font-black text-[#dc1f45]">{dashboardSlaStats.overdue}</div>
             </div>
-            <div className="rounded-xl border border-[#f0df858e] bg-[#bec6cb65] px-3 py-2.5">
+            <div className="rounded-xl border border-[#f0df858e] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 py-2.5">
               <div className="text-[11px] font-semibold uppercase text-[#cc6700]">Vence 24h</div>
               <div className="mt-1 text-xl font-black text-[#bf5f00]">{dashboardSlaStats.due24h}</div>
             </div>
-            <div className="rounded-xl border border-[#8ed0ef8e] bg-[#b7c4d267] px-3 py-2.5">
+            <div className="rounded-xl border border-[#8ed0ef8e] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 py-2.5">
               <div className="text-[11px] font-semibold uppercase text-[#2089ca]">Vence 48h</div>
               <div className="mt-1 text-xl font-black text-[#1178b8]">{dashboardSlaStats.due48h}</div>
             </div>
-            <div className="rounded-xl border border-[#b8a2ef8e] bg-[#b8bfd868] px-3 py-2.5">
+            <div className="rounded-xl border border-[#b8a2ef8e] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 py-2.5">
               <div className="text-[11px] font-semibold uppercase text-[#7138f2]">Em revisão</div>
               <div className="mt-1 text-xl font-black text-[#6428ef]">{dashboardSlaStats.inReview}</div>
             </div>
           </div>
 
-          <div className="mt-5 rounded-xl border border-[#74b9f353] bg-[#0b2243]/72 p-4">
-            <div className="text-sm font-semibold text-[#dcecff]">Demandas críticas e próximas do vencimento</div>
+          <div className="mt-5 rounded-xl border border-[#74b9f353] bg-[rgb(var(--crm-surface-2-rgb)_/_0.72)] p-4">
+            <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Demandas críticas e próximas do vencimento</div>
             <p className="mt-2 text-sm text-[#a9c6e3]">
               {dashboardCriticalActivity
                 ? `${dashboardCriticalActivity.subject || 'Atividade sem título'} • vence em ${formatDateFlexible(dashboardCriticalActivity.dueDate)}`
@@ -5431,7 +5431,7 @@ export default function B2GEditais() {
             <button
               type="button"
               onClick={() => navigate('/b2g-atividades')}
-              className="inline-flex items-center gap-3 rounded-xl border border-[#7abfff66] bg-[#091c37] px-6 py-3 text-sm md:text-base font-medium text-[#dbeeff] transition-colors hover:bg-[#12315b]"
+              className="inline-flex items-center gap-3 rounded-xl border border-[#7abfff66] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-6 py-3 text-sm md:text-base font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
             >
               Abrir fluxo
               <ArrowUpRight className="h-5 w-5" />
@@ -5574,7 +5574,7 @@ export default function B2GEditais() {
     return (
       <div
         ref={dashboardPresentationRef}
-        className={dashboardPresentationMode ? 'h-screen overflow-y-auto overflow-x-hidden bg-[#0b1322] p-2 pb-24' : ''}
+        className={dashboardPresentationMode ? "h-screen overflow-y-auto overflow-x-hidden bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-2 pb-24" : ''}
       >
         <PipelineDashboardModel
           title="Dashboard Estratégico B2G"
@@ -5681,25 +5681,25 @@ export default function B2GEditais() {
 
         {(opportunityOpeningAlertsLoading || opportunityOpeningAlerts.length > 0) && (
           <section className="mt-5 px-2">
-            <div className="dashboard-card border border-[#f6b40b66] bg-[#10213f]/92 p-5 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
+            <div className="dashboard-card border border-[#f6b40b66] bg-[rgb(var(--crm-surface-2-rgb)_/_0.92)] p-5 shadow-[0_18px_45px_rgba(0,0,0,0.22)]">
               <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <h3 className="flex items-center gap-2 text-lg font-black text-[#f4f7fb]">
+                  <h3 className="flex items-center gap-2 text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     <AlertTriangle className="h-5 w-5 text-[#f6b40b]" />
                     Alertas de abertura
                   </h3>
-                  <p className="mt-1 text-sm text-[#9fb1c8]">
+                  <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     Oportunidades B2G com abertura próxima.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setShowOpportunityAlertsModal(true)}
-                  className="inline-flex items-center gap-2 rounded-xl border border-[#f6b40b77] bg-[#2a210b] px-4 py-2 text-sm font-bold text-[#ffe9a8] transition hover:bg-[#3b2f10]"
+                  className="inline-flex items-center gap-2 rounded-xl border border-[#f6b40b77] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-4 py-2 text-sm font-bold text-[#ffe9a8] transition hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                 >
                   Ver todos
                   {opportunityOpeningAlerts.length > 0 ? (
-                    <span className="rounded-full bg-[#f6b40b] px-2 py-0.5 text-xs text-[#07101f]">
+                    <span className="rounded-full bg-[#f6b40b] px-2 py-0.5 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       {opportunityOpeningAlerts.length}
                     </span>
                   ) : null}
@@ -5707,7 +5707,7 @@ export default function B2GEditais() {
               </div>
 
               {opportunityOpeningAlertsLoading ? (
-                <div className="flex items-center gap-2 rounded-xl border border-[#2b3f5f] bg-[#081326] px-4 py-3 text-sm text-[#9fb1c8]">
+                <div className="flex items-center gap-2 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-4 py-3 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Carregando alertas...
                 </div>
@@ -5718,14 +5718,14 @@ export default function B2GEditais() {
                       type="button"
                       key={alert.opportunityId || alert.id}
                       onClick={() => navigate(`/b2g-oportunidades?clientType=B2G&opportunityId=${alert.opportunityId || alert.id}&mode=view`)}
-                      className="rounded-xl border border-[#f6b40b55] bg-[#07101f]/75 p-4 text-left transition hover:border-[#f6b40b] hover:bg-[#111d34]"
+                      className="rounded-xl border border-[#f6b40b55] bg-[rgb(var(--crm-surface-2-rgb)_/_0.75)] p-4 text-left transition hover:border-[#f6b40b] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <strong className="block truncate text-sm font-black text-[#f4f7fb]">
+                          <strong className="block truncate text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             {alert.title || alert.projectName || 'Oportunidade sem título'}
                           </strong>
-                          <p className="mt-1 truncate text-xs font-semibold text-[#9fb1c8]">
+                          <p className="mt-1 truncate text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
                             {alert.company?.name || 'Órgão não informado'}
                           </p>
                         </div>
@@ -5733,7 +5733,7 @@ export default function B2GEditais() {
                           {alert.alertLabel || 'Abertura'}
                         </span>
                       </div>
-                      <p className="mt-3 text-sm font-semibold text-[#dbe7f5]">
+                      <p className="mt-3 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         {formatDateFlexible(alert.openingDate)}
                       </p>
                     </button>
@@ -5805,7 +5805,7 @@ export default function B2GEditais() {
                 {
                   data: b2gOpportunityCharts.stageRows.map((row) => row.value),
                   backgroundColor: ['#ff7a00', '#f6b40b', '#22c55e', '#18c8df', '#1f7fe5', '#ef4444', '#34d399', '#fb923c'],
-                  borderColor: '#050914',
+                  borderColor: "var(--crm-border)",
                   borderWidth: 2
                 }
               ]
@@ -5836,27 +5836,27 @@ export default function B2GEditais() {
           <div className="dashboard-card p-6">
             <div className="mb-4 flex items-center justify-between gap-3">
               <div>
-                <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-200">Prioridade B2G</h3>
-                <p className="mt-1 text-xs text-slate-500">Prazos mais próximos com maior impacto comercial</p>
+                <h3 className="text-sm font-semibold uppercase tracking-wider text-[rgb(var(--crm-ink-rgb)_/_1)]">Prioridade B2G</h3>
+                <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Prazos mais próximos com maior impacto comercial</p>
               </div>
-              <AlertTriangle className="h-4 w-4 text-slate-400" />
+              <AlertTriangle className="h-4 w-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
             </div>
             <div className="space-y-2">
               {b2gOpportunityCharts.criticalRows.length > 0 ? b2gOpportunityCharts.criticalRows.map((item, index) => (
-                <div key={item.id || `critical-b2g-${index}`} className="rounded-lg border border-slate-500/20 bg-slate-500/10 p-3">
+                <div key={item.id || `critical-b2g-${index}`} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.1)] p-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-slate-100">{item.__title}</p>
-                      <p className="mt-1 text-xs text-slate-400">{item.__organization} • prazo {formatDateFlexible(item.proposalDueDate || item.openingDate || item.dueDate)}</p>
+                      <p className="truncate text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.__title}</p>
+                      <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.__organization} • prazo {formatDateFlexible(item.proposalDueDate || item.openingDate || item.dueDate)}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-black text-cyan-200">{formatCurrencyNoCents(item.__value)}</p>
-                      <p className="mt-1 text-[10px] text-slate-400">{item.__probability}%</p>
+                      <p className="text-xs font-black text-cyan-700 dark:text-cyan-200">{formatCurrencyNoCents(item.__value)}</p>
+                      <p className="mt-1 text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.__probability}%</p>
                     </div>
                   </div>
                 </div>
               )) : (
-                <div className="grid min-h-[120px] place-items-center rounded-lg border border-dashed border-slate-500/25 text-sm text-slate-500">
+                <div className="grid min-h-[120px] place-items-center rounded-lg border border-dashed border-[var(--crm-border)] text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   Nenhuma prioridade crítica no filtro atual.
                 </div>
               )}
@@ -6155,7 +6155,7 @@ export default function B2GEditais() {
               <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <h3 className="flex items-center gap-2 text-base font-black text-[var(--crm-ink)]">
-                    <AlertTriangle className="h-4 w-4 text-orange-400" />
+                    <AlertTriangle className="h-4 w-4 text-orange-700 dark:text-orange-400" />
                     Alertas de abertura
                   </h3>
                   <p className="text-xs text-[var(--crm-muted)]">Oportunidades em proposta com abertura nos próximos 5 dias.</p>
@@ -6188,7 +6188,7 @@ export default function B2GEditais() {
                           <div className="truncate text-sm font-black text-[var(--crm-ink)]">{alert.title || 'Oportunidade B2G'}</div>
                           <div className="mt-1 truncate text-xs text-[var(--crm-muted)]">{alert.company?.name || 'Órgão não informado'}</div>
                         </div>
-                        <span className="shrink-0 rounded-full bg-orange-500/20 px-2 py-1 text-[11px] font-black text-orange-200">
+                        <span className="shrink-0 rounded-full bg-orange-500/20 px-2 py-1 text-[11px] font-black text-orange-700 dark:text-orange-200">
                           {alert.daysUntilOpening === 0 ? 'Hoje' : `${alert.daysUntilOpening}d`}
                         </span>
                       </div>
@@ -6340,7 +6340,7 @@ export default function B2GEditais() {
                                     </button>
                                   </div>
 
-                                  <p className="mb-3 text-base font-extrabold text-emerald-400">
+                                  <p className="mb-3 text-base font-extrabold text-emerald-700 dark:text-emerald-400">
                                     {formatCurrency(item.value)}
                                   </p>
 
@@ -6447,7 +6447,7 @@ export default function B2GEditais() {
                                             handleDeleteOpportunity(item);
                                           }}
                                           disabled={deletingOpportunityId === item.id}
-                                          className="flex items-center justify-center rounded-xl border border-red-500/30 p-1.5 text-red-400 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-70"
+                                          className="flex items-center justify-center rounded-xl border border-red-500/30 p-1.5 text-red-700 dark:text-red-400 transition-colors hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-70"
                                           title="Excluir"
                                         >
                                           {deletingOpportunityId === item.id ? (
@@ -7685,7 +7685,7 @@ export default function B2GEditais() {
                 onClick={() => setActivitiesViewMode('kanban')}
                 className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold ${
                   activitiesViewMode === 'kanban'
-                    ? 'bg-[var(--crm-accent)] text-white'
+                    ? "bg-[var(--crm-accent)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)]'
                 }`}
               >
@@ -7697,7 +7697,7 @@ export default function B2GEditais() {
                 onClick={() => setActivitiesViewMode('list')}
                 className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold ${
                   activitiesViewMode === 'list'
-                    ? 'bg-[var(--crm-accent)] text-white'
+                    ? "bg-[var(--crm-accent)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)]'
                 }`}
               >

@@ -292,7 +292,7 @@ export default function RateiosSalvos() {
           </div>
           <div>
             <h1 className="text-3xl font-extrabold tracking-tight text-blue-500">Rateios Salvos</h1>
-            <p className="text-slate-400">
+            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">
               Histórico de rateios executados e salvos no sistema.
             </p>
           </div>
@@ -314,23 +314,23 @@ export default function RateiosSalvos() {
       </div>
 
       <div className="relative">
-        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           placeholder="Buscar por nome, NF ou emitente..."
-          className="h-14 w-full rounded-xl border border-slate-700 bg-slate-900/80 pl-12 text-base text-slate-100 shadow-sm focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+          className="h-14 w-full rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] pl-12 text-base text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm focus:border-blue-500/50 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
         />
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-blue-500/20 bg-slate-900/80">
+      <div className="overflow-hidden rounded-xl border border-blue-500/20 bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)]">
         <div className="p-0">
           {filtered.length === 0 ? (
             <div className="flex min-h-[360px] flex-col items-center justify-center gap-5 p-8 text-center">
-              <FolderOpen className="h-16 w-16 text-slate-400/50" />
+              <FolderOpen className="h-16 w-16 text-[rgb(var(--crm-muted-rgb)_/_0.5)]" />
               <div>
                 <h2 className="text-xl font-bold">Nenhum rateio salvo ainda</h2>
-                <p className="mt-2 text-slate-400">
+                <p className="mt-2 text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   Execute um rateio no módulo "Ratear Produtos" e clique em "Salvar".
                 </p>
               </div>
@@ -386,17 +386,17 @@ function RateioCard({
   const products = visibleResults.slice(0, 4);
 
   return (
-    <div className="rounded-xl border border-blue-500/25 bg-slate-950/50 p-5 shadow-sm transition hover:border-blue-500/45">
+    <div className="rounded-xl border border-blue-500/25 bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] p-5 shadow-sm transition hover:border-blue-500/45">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-3">
-            <h2 className="max-w-full truncate text-xl font-extrabold text-slate-100">{rateio.nome}</h2>
+            <h2 className="max-w-full truncate text-xl font-extrabold text-[rgb(var(--crm-ink-rgb)_/_1)]">{rateio.nome}</h2>
             <span className="inline-flex items-center gap-1 rounded-full border border-blue-500/40 bg-blue-500/10 px-3 py-1 font-mono text-xs font-bold text-blue-500">
               NF #{rateio.snapshot?.nf?.numero || "-"}
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-slate-700 px-3 py-1 text-xs font-bold text-slate-200">{methodLabel(rateio.metodo)}</span>
+            <span className="inline-flex items-center gap-1 rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 py-1 text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{methodLabel(rateio.metodo)}</span>
           </div>
-          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-400">
+          <div className="mt-3 flex flex-wrap gap-x-6 gap-y-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
             <span className="inline-flex items-center gap-2">
               <Calendar className="h-4 w-4" />
               {formatDateTime(rateio.data)}
@@ -407,7 +407,7 @@ function RateioCard({
           </div>
         </div>
         <div className="flex shrink-0 flex-wrap gap-2">
-          <button className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-slate-700 px-4 py-2 text-sm font-bold text-slate-200 shadow-sm transition hover:bg-slate-600" onClick={onView}>
+          <button className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-2 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm transition hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]" onClick={onView}>
             <Eye className="h-4 w-4" />
             Ver
           </button>
@@ -415,7 +415,7 @@ function RateioCard({
             <Printer className="h-4 w-4" />
             PDF
           </button>
-          <button className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-500/40 bg-transparent px-3 py-2 text-red-400 shadow-sm transition hover:bg-red-500/10" onClick={onDelete} aria-label="Excluir rateio">
+          <button className="inline-flex items-center justify-center gap-2 rounded-lg border border-red-500/40 bg-transparent px-3 py-2 text-red-700 dark:text-red-400 shadow-sm transition hover:bg-red-500/10" onClick={onDelete} aria-label="Excluir rateio">
             <Trash2 className="h-4 w-4" />
           </button>
         </div>
@@ -433,12 +433,12 @@ function RateioCard({
       {isLocacao ? (
         <div className="mt-4 rounded-lg border border-emerald-500/25 bg-emerald-500/10 p-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span className="text-sm font-bold text-emerald-200">Total para o período do contrato</span>
-            <span className="font-mono text-xl font-black text-emerald-400">
+            <span className="text-sm font-bold text-emerald-700 dark:text-emerald-200">Total para o período do contrato</span>
+            <span className="font-mono text-xl font-black text-emerald-700 dark:text-emerald-400">
               {periodMonths > 0 ? currency(monthlyTotal * periodMonths) : "-"}
             </span>
           </div>
-          <p className="mt-1 text-xs text-emerald-200/75">
+          <p className="mt-1 text-xs text-emerald-700/75 dark:text-emerald-200/75">
             {periodMonths > 0 ? `${currency(monthlyTotal)} mensal x ${periodMonths} meses` : "Prazo do contrato não informado no rateio salvo."}
           </p>
         </div>
@@ -446,7 +446,7 @@ function RateioCard({
 
       {products.length > 0 ? (
         <div className="mt-5">
-          <p className="mb-3 text-xs font-extrabold uppercase tracking-wide text-slate-400">Produtos alvo</p>
+          <p className="mb-3 text-xs font-extrabold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Produtos alvo</p>
           <div className="flex flex-wrap gap-2">
             {products.map((item, index) => (
               <span
@@ -454,14 +454,14 @@ function RateioCard({
                 className="rounded-md border border-blue-500/25 bg-blue-500/10 px-3 py-2 text-sm"
               >
                 <strong>{item.prod?.desc || "Produto"}</strong>
-                <span className="ml-2 text-slate-400">Valor rateado:</span>
+                <span className="ml-2 text-[rgb(var(--crm-muted-rgb)_/_1)]">Valor rateado:</span>
                 <span className="ml-1 font-mono font-bold text-amber-500">{money(itemRateadoTotal(item))}</span>
-                <span className="mx-1 text-slate-400">· Unit:</span>
+                <span className="mx-1 text-[rgb(var(--crm-muted-rgb)_/_1)]">· Unit:</span>
                 <span className="font-mono font-bold text-emerald-500">{money(itemUnitRateado(item))}</span>
               </span>
             ))}
             {visibleResults.length > products.length ? (
-              <span className="rounded-md border bg-slate-700/40 px-3 py-2 text-sm text-slate-400">
+              <span className="rounded-md border bg-[rgb(var(--crm-surface-rgb)_/_0.4)] px-3 py-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 +{visibleResults.length - products.length} produto(s)
               </span>
             ) : null}
@@ -488,20 +488,20 @@ function RateioPreviewModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-xl border border-blue-500/30 bg-slate-950 text-slate-100 shadow-2xl">
+      <div className="flex max-h-[90vh] w-full max-w-6xl flex-col overflow-hidden rounded-xl border border-blue-500/30 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-2xl">
         <div className="flex flex-col gap-4 bg-gradient-to-r from-blue-500 to-blue-700 p-6 md:flex-row md:items-start md:justify-between">
           <div>
             <h2 className="text-2xl font-extrabold">{rateio.nome}</h2>
-            <p className="mt-2 text-sm text-blue-100">
+            <p className="mt-2 text-sm text-blue-700 dark:text-blue-100">
               NF #{rateio.snapshot?.nf?.numero || "-"} · {rateio.snapshot?.nf?.emitente || "-"} · {formatDateTime(rateio.data)}
             </p>
           </div>
           <div className="flex gap-2">
-            <button className="inline-flex items-center justify-center gap-2 rounded-lg bg-white/20 px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-white/30" onClick={onPrint}>
+            <button className="inline-flex items-center justify-center gap-2 rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_0.2)] px-4 py-2 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm transition hover:bg-[rgb(var(--crm-surface-rgb)_/_0.3)]" onClick={onPrint}>
               <Printer className="h-4 w-4" />
               PDF
             </button>
-            <button className="inline-flex items-center justify-center rounded-lg p-2 text-white transition hover:bg-white/20" onClick={onClose} aria-label="Fechar">
+            <button className="inline-flex items-center justify-center rounded-lg p-2 text-[rgb(var(--crm-ink-rgb)_/_1)] transition hover:bg-[rgb(var(--crm-surface-rgb)_/_0.2)]" onClick={onClose} aria-label="Fechar">
               <X className="h-5 w-5" />
             </button>
           </div>
@@ -515,62 +515,62 @@ function RateioPreviewModal({
             <Metric label={isLocacao ? "Cálculo mensal" : "Total rateado"} value={currency(monthlyTotal)} tone="emerald" />
           </div>
 
-          <div className="mt-6 overflow-hidden rounded-xl border border-slate-700">
-            <div className="border-b border-slate-700 bg-slate-900 px-5 py-4">
+          <div className="mt-6 overflow-hidden rounded-xl border border-[var(--crm-border)]">
+            <div className="border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-5 py-4">
               <h3 className="text-sm font-extrabold uppercase tracking-wide">Resultado do Rateio — Produtos Alvo</h3>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[920px] text-sm">
-                <thead className="bg-slate-800 text-xs uppercase text-slate-400">
+                <thead className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-xs uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   <tr>
                     <th className="px-4 py-3 text-left">SKU</th>
                     <th className="px-4 py-3 text-left">Produto</th>
                     <th className="px-4 py-3 text-center">Qtd</th>
                     <th className="px-4 py-3 text-right">Valor Orig.</th>
                     <th className="px-4 py-3 text-right">Desp. Rat.</th>
-                    <th className="bg-amber-50 px-4 py-3 text-right text-slate-500">Valor Rateado Total</th>
-                    <th className="bg-emerald-50 px-4 py-3 text-right text-slate-500">Valor Unit.</th>
+                    <th className="bg-amber-50 dark:bg-amber-950 px-4 py-3 text-right text-[rgb(var(--crm-muted-rgb)_/_1)]">Valor Rateado Total</th>
+                    <th className="bg-emerald-50 dark:bg-emerald-950 px-4 py-3 text-right text-[rgb(var(--crm-muted-rgb)_/_1)]">Valor Unit.</th>
                     <th className="px-4 py-3 text-center">Margem Proposta</th>
                   </tr>
                 </thead>
                 <tbody>
                   {visibleResults.map((item, index) => (
-                    <tr key={`${item.prod?.sku || item.prod?.desc || "item"}-${index}`} className="border-t border-slate-800">
+                    <tr key={`${item.prod?.sku || item.prod?.desc || "item"}-${index}`} className="border-t border-[var(--crm-border)]">
                       <td className="px-4 py-4">
-                        <span className="rounded bg-blue-500/15 px-2 py-1 font-mono text-xs text-blue-400">{item.prod?.sku || "-"}</span>
+                        <span className="rounded bg-blue-500/15 px-2 py-1 font-mono text-xs text-blue-700 dark:text-blue-400">{item.prod?.sku || "-"}</span>
                       </td>
                       <td className="px-4 py-4 font-bold">
                         {item.prod?.desc || "-"}
                         {item.composedSourceSkus?.length ? (
-                          <small className="mt-1 block text-xs font-medium text-slate-400">
+                          <small className="mt-1 block text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
                             Inclui: {item.composedSourceSkus.join(", ")}
                           </small>
                         ) : null}
                       </td>
                       <td className="px-4 py-4 text-center">{item.prod?.qty || 0}</td>
-                      <td className="px-4 py-4 text-right font-mono text-slate-400">{currency(item.prod?.preco)}</td>
-                      <td className="px-4 py-4 text-right font-mono text-rose-400">{currency(item.expenseRat)}</td>
-                      <td className="bg-amber-50 px-4 py-4 text-right font-mono font-bold text-amber-500">
+                      <td className="px-4 py-4 text-right font-mono text-[rgb(var(--crm-muted-rgb)_/_1)]">{currency(item.prod?.preco)}</td>
+                      <td className="px-4 py-4 text-right font-mono text-rose-700 dark:text-rose-400">{currency(item.expenseRat)}</td>
+                      <td className="bg-amber-50 dark:bg-amber-950 px-4 py-4 text-right font-mono font-bold text-amber-500">
                         {currency(itemRateadoTotal(item))}
-                        <small className="mt-1 block text-[10px] font-semibold text-amber-700">
+                        <small className="mt-1 block text-[10px] font-semibold text-amber-700 dark:text-amber-300">
                           {calculationLine(item)}
                         </small>
                       </td>
-                      <td className="bg-emerald-50 px-4 py-4 text-right font-mono font-bold text-emerald-600">{currency(itemUnitRateado(item))}</td>
+                      <td className="bg-emerald-50 dark:bg-emerald-950 px-4 py-4 text-right font-mono font-bold text-emerald-600">{currency(itemUnitRateado(item))}</td>
                       <td className="px-4 py-4 text-center">
-                        <span className="rounded-full bg-emerald-200 px-3 py-1 text-xs font-black text-emerald-800">
+                        <span className="rounded-full bg-emerald-200 dark:bg-emerald-950 px-3 py-1 text-xs font-black text-emerald-800 dark:text-emerald-300">
                           {percent(item.mgNova)}
                         </span>
                       </td>
                     </tr>
                   ))}
                 </tbody>
-                <tfoot className="border-t border-slate-700 bg-slate-900">
+                <tfoot className="border-t border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
                   <tr>
-                    <td colSpan={5} className="px-4 py-4 text-right text-xs font-black uppercase text-slate-400">
+                    <td colSpan={5} className="px-4 py-4 text-right text-xs font-black uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">
                       {isLocacao ? "Cálculo mensal" : "Total rateado"}
                     </td>
-                    <td className="bg-amber-50 px-4 py-4 text-right font-mono text-base font-black text-amber-500">
+                    <td className="bg-amber-50 dark:bg-amber-950 px-4 py-4 text-right font-mono text-base font-black text-amber-500">
                       {currency(monthlyTotal)}
                     </td>
                     <td colSpan={2} />
@@ -584,41 +584,41 @@ function RateioPreviewModal({
             <div className="mt-6 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-black uppercase text-emerald-200/80">Total para o período do contrato</p>
-                  <p className="mt-1 text-sm text-emerald-200/75">
+                  <p className="text-xs font-black uppercase text-emerald-700/80 dark:text-emerald-200/80">Total para o período do contrato</p>
+                  <p className="mt-1 text-sm text-emerald-700/75 dark:text-emerald-200/75">
                     {periodMonths > 0 ? `${currency(monthlyTotal)} mensal x ${periodMonths} meses` : "Prazo do contrato não informado no rateio salvo."}
                   </p>
                 </div>
-                <p className="font-mono text-2xl font-black text-emerald-400">
+                <p className="font-mono text-2xl font-black text-emerald-700 dark:text-emerald-400">
                   {periodMonths > 0 ? currency(monthlyTotal * periodMonths) : "-"}
                 </p>
               </div>
             </div>
           ) : null}
 
-          <div className="mt-6 grid gap-4 rounded-xl border border-slate-700 bg-slate-900 p-5 md:grid-cols-2">
+          <div className="mt-6 grid gap-4 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 md:grid-cols-2">
             <div className="space-y-3">
-              <p><strong>Responsável:</strong> <span className="text-slate-300">{rateio.snapshot?.responsavel || "-"}</span></p>
-              <p><strong>Justificativa:</strong> <span className="text-slate-300">{rateio.snapshot?.justificativa || "-"}</span></p>
+              <p><strong>Responsável:</strong> <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{rateio.snapshot?.responsavel || "-"}</span></p>
+              <p><strong>Justificativa:</strong> <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{rateio.snapshot?.justificativa || "-"}</span></p>
             </div>
             <div className="space-y-3">
-              <p><strong>Método:</strong> <span className="text-slate-300">{methodLabel(rateio.metodo)}</span></p>
-              <p><strong>Total venda:</strong> <span className="font-mono text-emerald-400">{currency(originalValue)}</span></p>
-              <p><strong>Cálculo mensal:</strong> <span className="font-mono text-emerald-400">{currency(monthlyTotal)}</span></p>
+              <p><strong>Método:</strong> <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{methodLabel(rateio.metodo)}</span></p>
+              <p><strong>Total venda:</strong> <span className="font-mono text-emerald-700 dark:text-emerald-400">{currency(originalValue)}</span></p>
+              <p><strong>Cálculo mensal:</strong> <span className="font-mono text-emerald-700 dark:text-emerald-400">{currency(monthlyTotal)}</span></p>
               {isLocacao ? (
                 <p>
                   <strong>Total contrato:</strong>{" "}
-                  <span className="font-mono text-emerald-400">
+                  <span className="font-mono text-emerald-700 dark:text-emerald-400">
                     {periodMonths > 0 ? currency(monthlyTotal * periodMonths) : "-"}
                   </span>
-                  {periodMonths > 0 ? <span className="text-slate-400"> ({periodMonths} meses)</span> : null}
+                  {periodMonths > 0 ? <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]"> ({periodMonths} meses)</span> : null}
                 </p>
               ) : null}
             </div>
           </div>
 
           <div className="mt-6 flex flex-wrap justify-end gap-3">
-            <button className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-700 bg-transparent px-4 py-2 text-sm font-bold text-slate-100 shadow-sm transition hover:bg-slate-600" onClick={onLoad}>
+            <button className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--crm-border)] bg-transparent px-4 py-2 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm transition hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]" onClick={onLoad}>
               <History className="mr-2 h-4 w-4" />
               Carregar para edição
             </button>
@@ -647,13 +647,13 @@ function Kpi({
   };
 
   return (
-    <div className={`rounded-xl border ${tones[tone]} bg-slate-900/80 p-6`}>
+    <div className={`rounded-xl border ${tones[tone]} bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-6`}>
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm font-semibold text-slate-400">{title}</p>
+          <p className="text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">{title}</p>
           <p className="mt-3 text-2xl font-black">{value}</p>
         </div>
-        <div className="rounded-lg bg-slate-900/40 p-3 [&_svg]:h-6 [&_svg]:w-6">{icon}</div>
+        <div className="rounded-lg bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] p-3 [&_svg]:h-6 [&_svg]:w-6">{icon}</div>
       </div>
     </div>
   );
@@ -665,17 +665,17 @@ function Metric({
   tone = "default",
 }) {
   const tones = {
-    default: "text-slate-100",
+    default: "text-[rgb(var(--crm-ink-rgb)_/_1)]",
     blue: "text-blue-500",
-    rose: "text-rose-400",
-    amber: "text-amber-400",
-    emerald: "text-emerald-400",
-    indigo: "text-indigo-400",
+    rose: "text-rose-700 dark:text-rose-400",
+    amber: "text-amber-700 dark:text-amber-400",
+    emerald: "text-emerald-700 dark:text-emerald-400",
+    indigo: "text-indigo-700 dark:text-indigo-400",
   };
 
   return (
-    <div className="rounded-md border bg-slate-800/30 p-3 text-center">
-      <p className="text-xs font-extrabold uppercase text-slate-400">{label}</p>
+    <div className="rounded-md border bg-[rgb(var(--crm-surface-rgb)_/_0.3)] p-3 text-center">
+      <p className="text-xs font-extrabold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">{label}</p>
       <p className={`mt-2 font-mono text-lg font-black ${tones[tone]}`}>{value}</p>
     </div>
   );

@@ -62,7 +62,7 @@ export function EditableCell({
 
   if (disabled) {
     return (
-      <div className={cn("text-right text-white text-sm", className)}>
+      <div className={cn("text-right text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm", className)}>
         {value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{suffix}
       </div>
     );
@@ -75,7 +75,7 @@ export function EditableCell({
           value={editValue}
           onChange={(e) => setEditValue(e.target.value)}
           onKeyDown={handleKeyDown}
-          className="h-8 w-20 text-sm bg-slate-800 border-slate-600 text-white"
+          className="h-8 w-20 text-sm bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
           type="number"
           step="0.01"
           min="0"
@@ -87,7 +87,7 @@ export function EditableCell({
           variant="ghost"
           onClick={handleSave}
           disabled={isSaving}
-          className="h-6 w-6 p-0 text-green-400 hover:text-green-300"
+          className="h-6 w-6 p-0 text-green-700 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300"
         >
           <Check className="h-3 w-3" />
         </Button>
@@ -96,7 +96,7 @@ export function EditableCell({
           variant="ghost"
           onClick={handleCancel}
           disabled={isSaving}
-          className="h-6 w-6 p-0 text-red-400 hover:text-red-300"
+          className="h-6 w-6 p-0 text-red-700 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
         >
           <X className="h-3 w-3" />
         </Button>
@@ -107,15 +107,15 @@ export function EditableCell({
   return (
     <div 
       className={cn(
-        "group flex items-center justify-end gap-2 cursor-pointer hover:bg-slate-800/50 px-2 py-1 rounded",
+        "group flex items-center justify-end gap-2 cursor-pointer hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] px-2 py-1 rounded",
         className
       )}
       onClick={() => setIsEditing(true)}
     >
-      <span className="text-white text-sm">
+      <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">
         {value.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}{suffix}
       </span>
-      <Edit className="h-3 w-3 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+      <Edit className="h-3 w-3 text-[rgb(var(--crm-muted-rgb)_/_1)] opacity-0 group-hover:opacity-100 transition-opacity" />
     </div>
   );
 }

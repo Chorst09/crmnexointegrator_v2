@@ -252,18 +252,18 @@ export default function ProjectRACIMatrixView({ issues, users, onUpdateIssue }: 
   };
 
   return (
-    <div className="h-full bg-[#070b16] flex flex-col text-slate-300">
+    <div className="h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] flex flex-col text-[rgb(var(--crm-ink-rgb)_/_1)]">
       <div className="flex-1 overflow-auto p-6 space-y-6">
         
         {/* Top Header Card */}
-        <div className="relative overflow-hidden rounded-lg border border-[#263345] bg-[#111827] px-6 py-5">
+        <div className="relative overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-6 py-5">
           <div className="absolute right-10 top-0 h-24 w-24 rounded-full bg-[#ff7a00]/10 blur-2xl" />
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h2 className="text-xl font-black text-white flex items-center gap-2">
+              <h2 className="text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-2">
                 📋 Matriz RACI do Projeto
               </h2>
-              <p className="mt-1 text-xs text-slate-400 max-w-2xl leading-relaxed">
+              <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] max-w-2xl leading-relaxed">
                 Ferramenta de gestão usada para definir e esclarecer papéis e responsabilidades para cada fase e atividade do projeto. 
                 Garante que não haja conflitos de liderança e que toda a equipe saiba exatamente o seu papel.
               </p>
@@ -271,7 +271,7 @@ export default function ProjectRACIMatrixView({ issues, users, onUpdateIssue }: 
             <button
               onClick={exportToPDF}
               disabled={isExportingPDF || issues.length === 0}
-              className="flex items-center gap-2 bg-[#ff7a00] hover:bg-[#f6b40b] hover:text-[#050914] text-white font-black text-xs px-4 py-2 rounded-md shadow-[0_0_15px_rgba(255,122,0,0.15)] transition-colors self-start sm:self-center disabled:opacity-55 disabled:cursor-not-allowed cursor-pointer"
+              className="flex items-center gap-2 bg-[#ff7a00] hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-black text-xs px-4 py-2 rounded-md shadow-[0_0_15px_rgba(255,122,0,0.15)] transition-colors self-start sm:self-center disabled:opacity-55 disabled:cursor-not-allowed cursor-pointer"
             >
               <FileDown className="w-4 h-4" />
               {isExportingPDF ? 'Gerando PDF...' : 'Visualizar em PDF'}
@@ -280,53 +280,53 @@ export default function ProjectRACIMatrixView({ issues, users, onUpdateIssue }: 
         </div>
 
         {/* Legend Indicator */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-[#0d1423]/40 border border-[#263345]/50 rounded-lg p-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border border-[var(--crm-border)] rounded-lg p-3">
           {Object.entries(roleStyles).map(([key, style]) => (
-            <div key={key} className="flex gap-2.5 items-start p-2.5 rounded border border-[#263345] bg-[#111827]/30">
+            <div key={key} className="flex gap-2.5 items-start p-2.5 rounded border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)]">
               <span className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs flex-shrink-0 ${style.color}`}>
                 {key}
               </span>
               <div className="min-w-0">
-                <p className="text-xs font-black text-slate-100">{style.label.split(' (')[0]}</p>
-                <p className="text-[10px] text-slate-500 leading-tight truncate">{style.text}</p>
+                <p className="text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{style.label.split(' (')[0]}</p>
+                <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] leading-tight truncate">{style.text}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Matrix Main Grid Table */}
-        <div className="border border-[#263345] rounded-xl overflow-hidden bg-[#111827]">
+        <div className="border border-[var(--crm-border)] rounded-xl overflow-hidden bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
           {issues.length > 0 && users.length > 0 ? (
             <div className="overflow-x-auto custom-scrollbar">
               <table className="w-full border-collapse text-left text-sm whitespace-nowrap">
-                <thead className="bg-[#0d1423] border-b border-[#263345] text-slate-400">
+                <thead className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   <tr>
                     <th className="px-6 py-4 font-black text-xs uppercase tracking-wider min-w-[240px]">Fases do Projeto / Entregáveis</th>
                     {users.map(user => (
                       <th key={user.id} className="px-4 py-4 font-black text-xs uppercase tracking-wider text-center min-w-[120px]">
                         <div className="flex flex-col items-center gap-1.5">
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow ${user.color || 'bg-slate-700'}`}>
+                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow ${user.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}`}>
                             {user.initials || user.name.substring(0,2).toUpperCase()}
                           </div>
-                          <span className="text-slate-300 truncate max-w-[110px]" title={user.name}>{user.name.split(' ')[0]}</span>
-                          <span className="text-[9px] text-slate-500 font-semibold truncate max-w-[110px]">{user.role || 'Membro'}</span>
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] truncate max-w-[110px]" title={user.name}>{user.name.split(' ')[0]}</span>
+                          <span className="text-[9px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-semibold truncate max-w-[110px]">{user.role || 'Membro'}</span>
                         </div>
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[#1e293b]">
+                <tbody className="divide-y divide-[var(--crm-border)]">
                   {issues.map((issue) => (
-                    <tr key={issue.id} className="hover:bg-[#152033]/25 transition-colors">
+                    <tr key={issue.id} className="hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.25)] transition-colors">
                       {/* Issue name column */}
                       <td className="px-6 py-4.5">
                         <div className="flex items-center gap-2.5">
-                          <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-[#070b16] border border-[#263345] text-slate-400">
+                          <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]">
                             {issue.key || `PRJ-${issue.id.substring(0,3).toUpperCase()}`}
                           </span>
                           <div className="min-w-0">
-                            <p className="font-bold text-slate-200 truncate max-w-[320px]" title={issue.title}>{issue.title}</p>
-                            <p className="text-[10px] text-slate-500 truncate max-w-[320px]">{issue.status} · Prioridade {issue.priority}</p>
+                            <p className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] truncate max-w-[320px]" title={issue.title}>{issue.title}</p>
+                            <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] truncate max-w-[320px]">{issue.status} · Prioridade {issue.priority}</p>
                           </div>
                         </div>
                       </td>
@@ -350,7 +350,7 @@ export default function ProjectRACIMatrixView({ issues, users, onUpdateIssue }: 
                               ) : (
                                 <button
                                   onClick={() => setActiveCell(isCellOpen ? null : { issueId: issue.id, userId: user.id })}
-                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-600 hover:text-slate-300 bg-transparent hover:bg-[#1e293b]/40 border border-dashed border-[#263345] hover:border-slate-500 transition-all cursor-pointer font-bold text-base"
+                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] bg-transparent hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] border border-dashed border-[var(--crm-border)] hover:border-[var(--crm-border)] transition-all cursor-pointer font-bold text-base"
                                   title={`Atribuir papel para ${user.name}`}
                                 >
                                   +
@@ -360,9 +360,9 @@ export default function ProjectRACIMatrixView({ issues, users, onUpdateIssue }: 
 
                             {/* Dropdown Selector for RACI */}
                             {isCellOpen && (
-                              <div className="absolute left-1/2 -translate-x-1/2 mt-2 z-30 w-52 rounded-lg border border-[#263345] bg-[#070b16] p-2 shadow-2xl animate-in fade-in zoom-in-95 duration-100">
-                                <div className="mb-1 px-2.5 py-1 text-left border-b border-[#263345] pb-1.5">
-                                  <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wide">Papel de {user.name.split(' ')[0]}</p>
+                              <div className="absolute left-1/2 -translate-x-1/2 mt-2 z-30 w-52 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-2 shadow-2xl animate-in fade-in zoom-in-95 duration-100">
+                                <div className="mb-1 px-2.5 py-1 text-left border-b border-[var(--crm-border)] pb-1.5">
+                                  <p className="text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wide">Papel de {user.name.split(' ')[0]}</p>
                                 </div>
                                 <div className="space-y-0.5">
                                   {Object.entries(roleStyles).map(([key, style]) => {
@@ -371,7 +371,7 @@ export default function ProjectRACIMatrixView({ issues, users, onUpdateIssue }: 
                                       <button
                                         key={key}
                                         onClick={() => handleSetRole(issue, user.id, key as any)}
-                                        className="w-full flex items-center justify-between rounded px-2.5 py-1.5 text-left text-xs font-semibold text-slate-300 hover:bg-[#111827] hover:text-white transition-colors"
+                                        className="w-full flex items-center justify-between rounded px-2.5 py-1.5 text-left text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors"
                                       >
                                         <div className="flex items-center gap-2">
                                           <span className={`w-5 h-5 rounded flex items-center justify-center font-bold text-[10px] ${style.color}`}>
@@ -379,13 +379,13 @@ export default function ProjectRACIMatrixView({ issues, users, onUpdateIssue }: 
                                           </span>
                                           <span className="truncate max-w-[120px]">{style.label.split(' (')[0]}</span>
                                         </div>
-                                        {isCurrent && <Check className="w-3.5 h-3.5 text-cyan-400" />}
+                                        {isCurrent && <Check className="w-3.5 h-3.5 text-cyan-700 dark:text-cyan-400" />}
                                       </button>
                                     );
                                   })}
                                   <button
                                     onClick={() => handleSetRole(issue, user.id, null)}
-                                    className="w-full rounded px-2.5 py-1.5 text-left text-xs font-semibold text-red-400 hover:bg-red-950/20 transition-colors"
+                                    className="w-full rounded px-2.5 py-1.5 text-left text-xs font-semibold text-red-700 dark:text-red-400 hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors"
                                   >
                                     Limpar Atribuição
                                   </button>
@@ -402,9 +402,9 @@ export default function ProjectRACIMatrixView({ issues, users, onUpdateIssue }: 
             </div>
           ) : (
             <div className="p-10 text-center space-y-2">
-              <ShieldAlert className="w-10 h-10 text-slate-500 mx-auto" />
-              <p className="font-bold text-slate-300">Nenhuma fase ou usuário na equipe</p>
-              <p className="text-xs text-slate-500">Certifique-se de ter fases cadastradas e equipe adicionada neste projeto.</p>
+              <ShieldAlert className="w-10 h-10 text-[rgb(var(--crm-muted-rgb)_/_1)] mx-auto" />
+              <p className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhuma fase ou usuário na equipe</p>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Certifique-se de ter fases cadastradas e equipe adicionada neste projeto.</p>
             </div>
           )}
         </div>

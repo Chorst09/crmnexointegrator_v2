@@ -37,7 +37,7 @@ const CRM_PLATFORMS = [
     description: 'Sincronize contatos, leads, oportunidades e atividades com o Zoho CRM.',
     logo: '🟠',
     color: 'from-orange-500/20 to-orange-600/10 border-orange-500/30',
-    badgeColor: 'bg-orange-500/20 text-orange-300',
+    badgeColor: "bg-orange-500/20 text-orange-700 dark:text-orange-300",
     docsUrl: 'https://www.zoho.com/crm/developer/docs/api/v6/',
     features: ['Contatos e Leads', 'Oportunidades', 'Atividades', 'Relatórios'],
     fields: [
@@ -53,7 +53,7 @@ const CRM_PLATFORMS = [
     description: 'Integre com o Bitrix24 para sincronizar CRM, tarefas e comunicações.',
     logo: '🔵',
     color: 'from-blue-500/20 to-blue-600/10 border-blue-500/30',
-    badgeColor: 'bg-blue-500/20 text-blue-300',
+    badgeColor: "bg-blue-500/20 text-blue-700 dark:text-blue-300",
     docsUrl: 'https://training.bitrix24.com/rest_help/',
     features: ['Leads e Negócios', 'Contatos e Empresas', 'Tarefas', 'Webhooks'],
     fields: [
@@ -67,7 +67,7 @@ const CRM_PLATFORMS = [
     description: 'Receba leads e cadastros comerciais vindos do ERP TOTVS no B2B Lead Management.',
     logo: '🟣',
     color: 'from-violet-500/20 to-violet-600/10 border-violet-500/30',
-    badgeColor: 'bg-violet-500/20 text-violet-300',
+    badgeColor: "bg-violet-500/20 text-violet-700 dark:text-violet-300",
     docsUrl: 'https://tdn.totvs.com/',
     features: ['Clientes e Leads', 'Dados fiscais', 'CNPJ e cadastro', 'Sincronização via API'],
     fields: [
@@ -82,7 +82,7 @@ const CRM_PLATFORMS = [
     description: 'Integre com o IXC para sincronizar clientes, contratos e dados comerciais no CRM.',
     logo: '🔷',
     color: 'from-cyan-500/20 to-sky-600/10 border-cyan-500/30',
-    badgeColor: 'bg-cyan-500/20 text-cyan-300',
+    badgeColor: "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300",
     docsUrl: 'https://wiki.ixcsoft.com.br/',
     features: ['Clientes e contratos', 'Planos e serviços', 'Status financeiro', 'Sincronização via API'],
     fields: [
@@ -100,7 +100,7 @@ const CRM_PLATFORMS = [
     description: 'Conecte com o Pipedrive para sincronizar pipeline, contatos e negócios.',
     logo: '🟢',
     color: 'from-green-500/20 to-green-600/10 border-green-500/30',
-    badgeColor: 'bg-green-500/20 text-green-300',
+    badgeColor: "bg-green-500/20 text-green-700 dark:text-green-300",
     docsUrl: 'https://developers.pipedrive.com/docs/api/v1',
     features: ['Pipeline de Vendas', 'Contatos', 'Negócios', 'Atividades'],
     fields: [
@@ -114,7 +114,7 @@ const CRM_PLATFORMS = [
     description: 'Sincronize contatos, empresas, negócios e campanhas com o HubSpot.',
     logo: '🟡',
     color: 'from-yellow-500/20 to-yellow-600/10 border-yellow-500/30',
-    badgeColor: 'bg-yellow-500/20 text-yellow-300',
+    badgeColor: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300",
     docsUrl: 'https://developers.hubspot.com/docs/api/overview',
     features: ['Contatos e Empresas', 'Negócios', 'Marketing', 'Relatórios'],
     fields: [
@@ -125,10 +125,10 @@ const CRM_PLATFORMS = [
 ];
 
 const STATUS_COLORS = {
-  connected: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-  disconnected: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
-  error: 'bg-rose-500/20 text-rose-300 border-rose-500/30',
-  pending: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
+  connected: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
+  disconnected: "bg-[rgb(var(--crm-surface-rgb)_/_0.2)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]",
+  error: "bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/30",
+  pending: "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30",
 };
 
 const TYPE_META = {
@@ -208,7 +208,7 @@ function PlatformCard({ platform, config, onSave, onTest }) {
         {/* Features */}
         <div className="mt-3 flex flex-wrap gap-1.5">
           {platform.features.map(f => (
-            <span key={f} className="rounded-full bg-white/10 px-2 py-0.5 text-xs text-[var(--crm-muted)]">{f}</span>
+            <span key={f} className="rounded-full bg-[rgb(var(--crm-surface-rgb)_/_0.1)] px-2 py-0.5 text-xs text-[var(--crm-muted)]">{f}</span>
           ))}
         </div>
 
@@ -265,7 +265,7 @@ function PlatformCard({ platform, config, onSave, onTest }) {
           </div>
 
           {testResult && (
-            <div className={`flex items-center gap-2 rounded-xl border p-3 text-sm ${testResult.success ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' : 'border-rose-500/30 bg-rose-500/10 text-rose-300'}`}>
+            <div className={`flex items-center gap-2 rounded-xl border p-3 text-sm ${testResult.success ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" : "border-rose-500/30 bg-rose-500/10 text-rose-700 dark:text-rose-300"}`}>
               {testResult.success ? <CheckCircle2 className="h-4 w-4 shrink-0" /> : <XCircle className="h-4 w-4 shrink-0" />}
               {testResult.message}
             </div>
@@ -486,7 +486,7 @@ export default function Integracoes() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-all ${
                 activeTab === tab.id
-                  ? 'bg-[var(--crm-accent)] text-white shadow-sm'
+                  ? "bg-[var(--crm-accent)] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm"
                   : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)]'
               }`}
             >
@@ -501,10 +501,10 @@ export default function Integracoes() {
       {activeTab === 'crm' && (
         <div className="space-y-4">
           <div className="flex items-center gap-2 rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4">
-            <AlertCircle className="h-5 w-5 shrink-0 text-amber-400" />
+            <AlertCircle className="h-5 w-5 shrink-0 text-amber-700 dark:text-amber-400" />
             <div>
-              <p className="text-sm font-semibold text-amber-300">Integrações com backend ativo</p>
-              <p className="text-xs text-amber-400/80 mt-0.5">
+              <p className="text-sm font-semibold text-amber-700 dark:text-amber-300">Integrações com backend ativo</p>
+              <p className="text-xs text-amber-700/80 dark:text-amber-400/80 mt-0.5">
                 As credenciais são persistidas no servidor e o teste valida a configuração antes de marcar o card como conectado.
                 A sincronização automática completa continua em evolução por conector.
               </p>
@@ -538,9 +538,9 @@ export default function Integracoes() {
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
-                { phase: 'Fase 1 — Em breve', items: ['Zoho CRM — Sincronização de contatos', 'Bitrix24 — Leads e negócios', 'IXC Software — Clientes e contratos'], color: 'border-blue-500/30 bg-blue-500/10 text-blue-300' },
-                { phase: 'Fase 2 — Planejado', items: ['HubSpot — Marketing e CRM', 'Salesforce — Enterprise', 'RD Station — Marketing'], color: 'border-purple-500/30 bg-purple-500/10 text-purple-300' },
-                { phase: 'Fase 3 — Futuro', items: ['WhatsApp Business API', 'Google Workspace', 'Microsoft 365'], color: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300' },
+                { phase: 'Fase 1 — Em breve', items: ['Zoho CRM — Sincronização de contatos', 'Bitrix24 — Leads e negócios', 'IXC Software — Clientes e contratos'], color: "border-blue-500/30 bg-blue-500/10 text-blue-700 dark:text-blue-300" },
+                { phase: 'Fase 2 — Planejado', items: ['HubSpot — Marketing e CRM', 'Salesforce — Enterprise', 'RD Station — Marketing'], color: "border-purple-500/30 bg-purple-500/10 text-purple-700 dark:text-purple-300" },
+                { phase: 'Fase 3 — Futuro', items: ['WhatsApp Business API', 'Google Workspace', 'Microsoft 365'], color: "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300" },
               ].map(phase => (
                 <div key={phase.phase} className={`rounded-xl border p-3 ${phase.color}`}>
                   <p className="text-xs font-bold mb-2">{phase.phase}</p>
@@ -590,7 +590,7 @@ export default function Integracoes() {
                         <p className="font-semibold text-[var(--crm-ink)] truncate">{item.name}</p>
                         <p className="text-xs text-[var(--crm-muted)]">{meta.label}</p>
                       </div>
-                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${item.isActive ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-500/20 text-slate-300'}`}>
+                      <span className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${item.isActive ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300" : "bg-[rgb(var(--crm-surface-rgb)_/_0.2)] text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         {item.isActive ? 'Ativa' : 'Inativa'}
                       </span>
                     </div>

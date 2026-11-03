@@ -252,30 +252,30 @@ export default function DashboardHome() {
   ];
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(ellipse_at_0%_0%,rgba(125,54,18,0.46)_0%,rgba(66,20,22,0.30)_18%,transparent_42%),radial-gradient(ellipse_at_94%_4%,rgba(31,112,124,0.46)_0%,rgba(15,58,66,0.25)_24%,transparent_48%),radial-gradient(ellipse_at_43%_100%,rgba(13,67,94,0.34)_0%,transparent_44%),linear-gradient(180deg,#07080f_0%,#080a12_52%,#07111b_100%)] text-[var(--crm-ink)]">
+    <div className="min-h-screen bg-[radial-gradient(ellipse_at_0%_0%,rgba(125,54,18,0.46)_0%,rgb(var(--crm-surface-2-rgb)_/_0.3)_18%,transparent_42%),radial-gradient(ellipse_at_94%_4%,rgba(31,112,124,0.46)_0%,rgb(var(--crm-surface-rgb)_/_0.25)_24%,transparent_48%),radial-gradient(ellipse_at_43%_100%,rgb(var(--crm-surface-rgb)_/_0.34)_0%,transparent_44%),linear-gradient(180deg,rgb(var(--crm-surface-2-rgb)_/_1)_0%,rgb(var(--crm-surface-2-rgb)_/_1)_52%,rgb(var(--crm-surface-2-rgb)_/_1)_100%)] text-[var(--crm-ink)]">
       {/* Header/Navbar */}
-      <header className="border-b border-[#0b2a35]/70 bg-[#070a12]/78 backdrop-blur-2xl">
+      <header className="border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.78)] backdrop-blur-2xl">
         <div className="container mx-auto flex items-center justify-between px-4 py-4 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-200/18 bg-[linear-gradient(135deg,#242230_0%,#0b2430_54%,#8a3f17_100%)] text-white font-bold shadow-[0_14px_34px_-24px_rgba(34,211,238,0.75)]">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-200/18 dark:border-cyan-800/18 bg-[linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_1)_0%,rgb(var(--crm-surface-2-rgb)_/_1)_54%,#8a3f17_100%)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold shadow-[0_14px_34px_-24px_rgba(34,211,238,0.75)]">
               CRM
             </div>
             <div>
-              <div className="text-lg font-bold text-white">CRM NEXOS</div>
-              <div className="text-xs text-slate-400">Gestão Comercial Completa</div>
+              <div className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">CRM NEXOS</div>
+              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Gestão Comercial Completa</div>
             </div>
           </div>
           
           <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/login')}
-              className="rounded-xl border border-cyan-200/28 bg-[#07111d]/72 px-6 py-2 font-semibold text-cyan-100 transition-all hover:border-cyan-200/50 hover:bg-[#102033]/84"
+              className="rounded-xl border border-cyan-200/28 dark:border-cyan-800/28 bg-[rgb(var(--crm-surface-2-rgb)_/_0.72)] px-6 py-2 font-semibold text-cyan-700 dark:text-cyan-100 transition-all hover:border-cyan-200/50 dark:hover:border-cyan-800/50 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.84)]"
             >
               Entrar
             </button>
             <button
               onClick={() => document.getElementById('plans-section')?.scrollIntoView({ behavior: 'smooth' })}
-              className="rounded-xl bg-[linear-gradient(105deg,#ff7a00_0%,#35c2d8_58%,#123348_100%)] px-6 py-2 font-semibold text-[#07111b] shadow-[0_16px_36px_-24px_rgba(255,122,0,0.75)] transition-all hover:scale-105 hover:shadow-xl"
+              className="rounded-xl bg-[linear-gradient(105deg,#ff7a00_0%,#35c2d8_58%,rgb(var(--crm-surface-rgb)_/_1)_100%)] px-6 py-2 font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_16px_36px_-24px_rgba(255,122,0,0.75)] transition-all hover:scale-105 hover:shadow-xl"
             >
               Ver Planos
             </button>
@@ -285,13 +285,13 @@ export default function DashboardHome() {
 
       <div className="container mx-auto space-y-16 px-4 py-12 lg:px-8 lg:py-20">
       {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-3xl border border-cyan-200/14 bg-[radial-gradient(ellipse_at_0%_0%,rgba(125,54,18,0.58)_0%,rgba(66,20,22,0.28)_24%,transparent_50%),radial-gradient(ellipse_at_92%_0%,rgba(35,196,218,0.42)_0%,rgba(15,58,66,0.24)_28%,transparent_55%),radial-gradient(ellipse_at_48%_100%,rgba(12,67,94,0.48)_0%,transparent_46%),linear-gradient(135deg,#07080f_0%,#080a12_48%,#071b25_100%)] p-8 text-white shadow-[0_28px_70px_-44px_rgba(34,211,238,0.55)] lg:p-16">
+      <section className="relative overflow-hidden rounded-3xl border border-cyan-200/14 dark:border-cyan-800/14 bg-[radial-gradient(ellipse_at_0%_0%,rgba(125,54,18,0.58)_0%,rgb(var(--crm-surface-2-rgb)_/_0.28)_24%,transparent_50%),radial-gradient(ellipse_at_92%_0%,rgba(35,196,218,0.42)_0%,rgb(var(--crm-surface-rgb)_/_0.24)_28%,transparent_55%),radial-gradient(ellipse_at_48%_100%,rgb(var(--crm-surface-rgb)_/_0.48)_0%,transparent_46%),linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_1)_0%,rgb(var(--crm-surface-2-rgb)_/_1)_48%,rgb(var(--crm-surface-2-rgb)_/_1)_100%)] p-8 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_28px_70px_-44px_rgba(34,211,238,0.55)] lg:p-16">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30" />
         <div className="absolute inset-x-16 top-0 h-px bg-[linear-gradient(90deg,transparent,rgba(125,238,255,0.42),transparent)]" />
         
         <div className="relative z-10 grid gap-8 lg:grid-cols-2 lg:items-center">
           <div>
-            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200/16 bg-white/[0.08] px-4 py-2 text-sm font-semibold text-cyan-50 backdrop-blur-sm">
+            <div className="inline-flex items-center gap-2 rounded-full border border-cyan-200/16 dark:border-cyan-800/16 bg-[rgb(var(--crm-surface-rgb)_/_0.08)] px-4 py-2 text-sm font-semibold text-cyan-700 dark:text-cyan-50 backdrop-blur-sm">
               <Rocket className="h-4 w-4" />
               Plataforma Completa de CRM
             </div>
@@ -300,19 +300,19 @@ export default function DashboardHome() {
               Gestão Comercial Completa para B2B e B2G
             </h1>
             
-            <p className="mt-4 text-lg text-white/90 lg:text-xl">
+            <p className="mt-4 text-lg text-[rgb(var(--crm-ink-rgb)_/_0.9)] lg:text-xl">
               Conecte sua equipe, processos e resultados. Gerencie vendas corporativas, licitações públicas e pré-vendas em uma única plataforma integrada.
             </p>
             
             <div className="mt-8 flex flex-wrap gap-4">
               <button
                 onClick={() => document.getElementById('plans-section')?.scrollIntoView({ behavior: 'smooth' })}
-                className="rounded-xl bg-white px-8 py-4 font-semibold text-[#07111b] transition-all hover:scale-105 hover:shadow-xl"
+                className="rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] px-8 py-4 font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-all hover:scale-105 hover:shadow-xl"
               >
                 Ver Planos
               </button>
               <button
-                className="rounded-xl border border-cyan-100/26 bg-white/[0.06] px-8 py-4 font-semibold backdrop-blur-sm transition-all hover:bg-white/[0.12]"
+                className="rounded-xl border border-cyan-100/26 dark:border-cyan-800/26 bg-[rgb(var(--crm-surface-rgb)_/_0.06)] px-8 py-4 font-semibold backdrop-blur-sm transition-all hover:bg-[rgb(var(--crm-surface-rgb)_/_0.12)]"
               >
                 Ver Demonstração
               </button>
@@ -322,23 +322,23 @@ export default function DashboardHome() {
           <div className="hidden lg:block">
             <div className="relative">
               <div className="absolute inset-0 rounded-3xl bg-[linear-gradient(135deg,rgba(255,122,0,0.18),rgba(34,211,238,0.16))] backdrop-blur-xl" />
-              <div className="relative rounded-3xl border border-cyan-200/16 bg-[#07111d]/46 p-8 backdrop-blur-xl">
+              <div className="relative rounded-3xl border border-cyan-200/16 dark:border-cyan-800/16 bg-[rgb(var(--crm-surface-2-rgb)_/_0.46)] p-8 backdrop-blur-xl">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.10] p-4 backdrop-blur-sm">
+                  <div className="rounded-2xl border border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-rgb)_/_0.1)] p-4 backdrop-blur-sm">
                     <div className="text-3xl font-black">127</div>
-                    <div className="mt-1 text-sm text-white/80">Oportunidades</div>
+                    <div className="mt-1 text-sm text-[rgb(var(--crm-ink-rgb)_/_0.8)]">Oportunidades</div>
                   </div>
-                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.10] p-4 backdrop-blur-sm">
+                  <div className="rounded-2xl border border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-rgb)_/_0.1)] p-4 backdrop-blur-sm">
                     <div className="text-3xl font-black">43</div>
-                    <div className="mt-1 text-sm text-white/80">Editais</div>
+                    <div className="mt-1 text-sm text-[rgb(var(--crm-ink-rgb)_/_0.8)]">Editais</div>
                   </div>
-                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.10] p-4 backdrop-blur-sm">
+                  <div className="rounded-2xl border border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-rgb)_/_0.1)] p-4 backdrop-blur-sm">
                     <div className="text-3xl font-black">8.4%</div>
-                    <div className="mt-1 text-sm text-white/80">Conversão</div>
+                    <div className="mt-1 text-sm text-[rgb(var(--crm-ink-rgb)_/_0.8)]">Conversão</div>
                   </div>
-                  <div className="rounded-2xl border border-white/[0.06] bg-white/[0.10] p-4 backdrop-blur-sm">
+                  <div className="rounded-2xl border border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-rgb)_/_0.1)] p-4 backdrop-blur-sm">
                     <div className="text-3xl font-black">24</div>
-                    <div className="mt-1 text-sm text-white/80">Vendedores</div>
+                    <div className="mt-1 text-sm text-[rgb(var(--crm-ink-rgb)_/_0.8)]">Vendedores</div>
                   </div>
                 </div>
               </div>
@@ -364,7 +364,7 @@ export default function DashboardHome() {
             return (
               <div
                 key={product.id}
-                className="group relative overflow-hidden rounded-3xl border border-cyan-200/12 bg-[#07111d]/72 text-slate-100 shadow-[0_24px_60px_-44px_rgba(34,211,238,0.42)] backdrop-blur-xl transition-all duration-500 hover:border-cyan-200/22 hover:shadow-2xl"
+                className="group relative overflow-hidden rounded-3xl border border-cyan-200/12 dark:border-cyan-800/12 bg-[rgb(var(--crm-surface-2-rgb)_/_0.72)] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_24px_60px_-44px_rgba(34,211,238,0.42)] backdrop-blur-xl transition-all duration-500 hover:border-cyan-200/22 dark:hover:border-cyan-800/22 hover:shadow-2xl"
               >
                 {/* Background Gradient */}
                 <div
@@ -377,20 +377,20 @@ export default function DashboardHome() {
                   <div className={!isEven ? 'lg:col-start-2' : ''}>
                     <div className="flex items-center gap-3">
                       <div
-                        className={`rounded-2xl bg-gradient-to-br ${product.gradient} p-4 text-white shadow-xl`}
+                        className={`rounded-2xl bg-gradient-to-br ${product.gradient} p-4 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-xl`}
                       >
                         <Icon className="h-8 w-8" />
                       </div>
                     </div>
 
-                    <h3 className="mt-6 text-3xl font-black text-white">
+                    <h3 className="mt-6 text-3xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       {product.name}
                     </h3>
                     <p className={`text-lg font-semibold bg-gradient-to-r ${product.gradient} bg-clip-text text-transparent`}>
                       {product.tagline}
                     </p>
                     
-                    <p className="mt-4 text-base leading-relaxed text-slate-400">
+                    <p className="mt-4 text-base leading-relaxed text-[rgb(var(--crm-muted-rgb)_/_1)]">
                       {product.longDescription}
                     </p>
 
@@ -399,8 +399,8 @@ export default function DashboardHome() {
                       {product.features.map((feature, idx) => {
                         const FeatureIcon = feature.icon;
                         return (
-                          <div key={idx} className="flex items-center gap-2 text-sm text-slate-200">
-                            <div className={`rounded-lg bg-gradient-to-br ${product.gradient} p-1.5 text-white`}>
+                          <div key={idx} className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                            <div className={`rounded-lg bg-gradient-to-br ${product.gradient} p-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)]`}>
                               <FeatureIcon className="h-3.5 w-3.5" />
                             </div>
                             {feature.text}
@@ -412,10 +412,10 @@ export default function DashboardHome() {
                     {/* Stats */}
                     <div className="mt-6 grid grid-cols-3 gap-4">
                       {product.stats.map((stat, idx) => (
-                        <div key={idx} className="rounded-xl border border-cyan-200/10 bg-white/[0.055] p-3 backdrop-blur-sm">
-                          <div className="text-xl font-black text-white">{stat.value}</div>
-                          <div className="text-xs text-slate-400">{stat.label}</div>
-                          <div className="mt-1 text-xs font-semibold text-emerald-300">{stat.trend}</div>
+                        <div key={idx} className="rounded-xl border border-cyan-200/10 dark:border-cyan-800/10 bg-[rgb(var(--crm-surface-rgb)_/_0.055)] p-3 backdrop-blur-sm">
+                          <div className="text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{stat.value}</div>
+                          <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{stat.label}</div>
+                          <div className="mt-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">{stat.trend}</div>
                         </div>
                       ))}
                     </div>
@@ -437,7 +437,7 @@ export default function DashboardHome() {
                   <div className={`${!isEven ? 'lg:col-start-1 lg:row-start-1' : ''}`}>
                     <div className="relative">
                       <div className={`absolute inset-0 rounded-3xl bg-gradient-to-br ${product.gradient} opacity-20 blur-3xl`} />
-                      <div className="relative overflow-hidden rounded-3xl border border-cyan-200/12 bg-[#07111d]/72 backdrop-blur-sm">
+                      <div className="relative overflow-hidden rounded-3xl border border-cyan-200/12 dark:border-cyan-800/12 bg-[rgb(var(--crm-surface-2-rgb)_/_0.72)] backdrop-blur-sm">
                         <img 
                           src={product.imageUrl} 
                           alt={product.name}
@@ -455,10 +455,10 @@ export default function DashboardHome() {
       </section>
 
       {/* Plans Section */}
-      <section id="plans-section" className="rounded-3xl border border-cyan-200/12 bg-[radial-gradient(ellipse_at_0%_0%,rgba(125,54,18,0.20)_0%,transparent_45%),radial-gradient(ellipse_at_100%_0%,rgba(34,211,238,0.18)_0%,transparent_48%),linear-gradient(135deg,rgba(7,17,29,0.84),rgba(6,9,17,0.88))] p-8 shadow-[0_24px_60px_-44px_rgba(34,211,238,0.42)] backdrop-blur-xl lg:p-12">
+      <section id="plans-section" className="rounded-3xl border border-cyan-200/12 dark:border-cyan-800/12 bg-[radial-gradient(ellipse_at_0%_0%,rgba(125,54,18,0.20)_0%,transparent_45%),radial-gradient(ellipse_at_100%_0%,rgba(34,211,238,0.18)_0%,transparent_48%),linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_0.84),rgb(var(--crm-surface-2-rgb)_/_0.88))] p-8 shadow-[0_24px_60px_-44px_rgba(34,211,238,0.42)] backdrop-blur-xl lg:p-12">
         <div className="mb-8 text-center">
-          <h2 className="text-3xl font-black text-white">Planos e Preços</h2>
-          <p className="mt-2 text-lg text-slate-400">
+          <h2 className="text-3xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Planos e Preços</h2>
+          <p className="mt-2 text-lg text-[rgb(var(--crm-muted-rgb)_/_1)]">
             Escolha o plano ideal para o tamanho da sua operação
           </p>
         </div>
@@ -473,36 +473,36 @@ export default function DashboardHome() {
                 className={`
                   relative overflow-hidden rounded-2xl border p-6 transition-all duration-300
                   ${plan.highlight
-                    ? 'scale-105 border-cyan-200/24 bg-[#07111d]/86 shadow-2xl'
-                    : 'border-cyan-200/10 bg-white/[0.055] backdrop-blur-sm hover:border-cyan-200/20 hover:shadow-lg'
+                    ? "scale-105 border-cyan-200/24 dark:border-cyan-800/24 bg-[rgb(var(--crm-surface-2-rgb)_/_0.86)] shadow-2xl"
+                    : "border-cyan-200/10 dark:border-cyan-800/10 bg-[rgb(var(--crm-surface-rgb)_/_0.055)] backdrop-blur-sm hover:border-cyan-200/20 dark:hover:border-cyan-800/20 hover:shadow-lg"
                   }
                 `}
               >
                 {plan.highlight && (
-                  <div className="absolute right-4 top-4 rounded-full bg-[linear-gradient(105deg,#ff7a00,#35c2d8)] px-3 py-1 text-xs font-bold text-[#07111b] shadow-lg">
+                  <div className="absolute right-4 top-4 rounded-full bg-[linear-gradient(105deg,#ff7a00,#35c2d8)] px-3 py-1 text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-lg">
                     Mais Popular
                   </div>
                 )}
 
                 <div className="flex items-center gap-3">
-                  <div className={`rounded-xl p-3 ${plan.highlight ? 'bg-gradient-to-br from-orange-500 via-cyan-400 to-teal-500 text-[#07111b]' : 'bg-white/[0.08] text-cyan-100'}`}>
+                  <div className={`rounded-xl p-3 ${plan.highlight ? "bg-gradient-to-br from-orange-500 via-cyan-400 to-teal-500 text-[rgb(var(--crm-ink-rgb)_/_1)]" : "bg-[rgb(var(--crm-surface-rgb)_/_0.08)] text-cyan-700 dark:text-cyan-100"}`}>
                     <Icon className="h-6 w-6" />
                   </div>
-                  <h3 className="text-2xl font-black text-white">{plan.name}</h3>
+                  <h3 className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{plan.name}</h3>
                 </div>
 
                 <div className="mt-6">
                   <div className="flex items-baseline gap-1">
-                    <span className="text-4xl font-black text-white">{plan.price}</span>
-                    <span className="text-sm text-slate-400">{plan.period}</span>
+                    <span className="text-4xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{plan.price}</span>
+                    <span className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">{plan.period}</span>
                   </div>
-                  <p className="mt-2 text-sm text-slate-400">{plan.description}</p>
+                  <p className="mt-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">{plan.description}</p>
                 </div>
 
                 <ul className="mt-6 space-y-3">
                   {plan.features.map((feature, idx) => (
-                    <li key={idx} className="flex items-start gap-2 text-sm text-slate-200">
-                      <CheckCircle2 className={`mt-0.5 h-5 w-5 flex-shrink-0 ${plan.highlight ? 'text-cyan-300' : 'text-emerald-300'}`} />
+                    <li key={idx} className="flex items-start gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                      <CheckCircle2 className={`mt-0.5 h-5 w-5 flex-shrink-0 ${plan.highlight ? "text-cyan-700 dark:text-cyan-300" : "text-emerald-700 dark:text-emerald-300"}`} />
                       {feature}
                     </li>
                   ))}
@@ -513,8 +513,8 @@ export default function DashboardHome() {
                     className={`
                       mt-8 w-full rounded-xl py-3 font-semibold transition-all
                       ${plan.highlight
-                        ? 'bg-[linear-gradient(105deg,#ff7a00,#35c2d8)] text-[#07111b] shadow-lg hover:scale-105 hover:shadow-xl'
-                        : 'border border-cyan-200/16 bg-[#07111d]/72 text-cyan-100 hover:border-cyan-200/36 hover:text-white'
+                        ? "bg-[linear-gradient(105deg,#ff7a00,#35c2d8)] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-lg hover:scale-105 hover:shadow-xl"
+                        : "border border-cyan-200/16 dark:border-cyan-800/16 bg-[rgb(var(--crm-surface-2-rgb)_/_0.72)] text-cyan-700 dark:text-cyan-100 hover:border-cyan-200/36 dark:hover:border-cyan-800/36 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       }
                     `}
                   >
@@ -527,50 +527,50 @@ export default function DashboardHome() {
 
         {/* Additional Info */}
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-xl border border-cyan-200/10 bg-white/[0.055] p-4 text-center backdrop-blur-sm">
-            <Shield className="mx-auto h-8 w-8 text-cyan-300" />
-            <div className="mt-2 font-semibold text-white">Segurança</div>
-            <div className="mt-1 text-xs text-slate-400">Dados criptografados</div>
+          <div className="rounded-xl border border-cyan-200/10 dark:border-cyan-800/10 bg-[rgb(var(--crm-surface-rgb)_/_0.055)] p-4 text-center backdrop-blur-sm">
+            <Shield className="mx-auto h-8 w-8 text-cyan-700 dark:text-cyan-300" />
+            <div className="mt-2 font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Segurança</div>
+            <div className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Dados criptografados</div>
           </div>
-          <div className="rounded-xl border border-cyan-200/10 bg-white/[0.055] p-4 text-center backdrop-blur-sm">
+          <div className="rounded-xl border border-cyan-200/10 dark:border-cyan-800/10 bg-[rgb(var(--crm-surface-rgb)_/_0.055)] p-4 text-center backdrop-blur-sm">
             <Zap className="mx-auto h-8 w-8 text-yellow-500" />
-            <div className="mt-2 font-semibold text-white">Performance</div>
-            <div className="mt-1 text-xs text-slate-400">99.9% uptime</div>
+            <div className="mt-2 font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Performance</div>
+            <div className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">99.9% uptime</div>
           </div>
-          <div className="rounded-xl border border-cyan-200/10 bg-white/[0.055] p-4 text-center backdrop-blur-sm">
-            <Users className="mx-auto h-8 w-8 text-emerald-300" />
-            <div className="mt-2 font-semibold text-white">Suporte</div>
-            <div className="mt-1 text-xs text-slate-400">Equipe dedicada</div>
+          <div className="rounded-xl border border-cyan-200/10 dark:border-cyan-800/10 bg-[rgb(var(--crm-surface-rgb)_/_0.055)] p-4 text-center backdrop-blur-sm">
+            <Users className="mx-auto h-8 w-8 text-emerald-700 dark:text-emerald-300" />
+            <div className="mt-2 font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Suporte</div>
+            <div className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Equipe dedicada</div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="relative overflow-hidden rounded-3xl border border-cyan-200/14 bg-[radial-gradient(ellipse_at_0%_0%,rgba(125,54,18,0.42)_0%,transparent_48%),radial-gradient(ellipse_at_100%_0%,rgba(34,211,238,0.34)_0%,transparent_52%),linear-gradient(135deg,#07080f,#071b25)] p-8 text-center text-white shadow-[0_28px_70px_-44px_rgba(34,211,238,0.55)] lg:p-12">
+      <section className="relative overflow-hidden rounded-3xl border border-cyan-200/14 dark:border-cyan-800/14 bg-[radial-gradient(ellipse_at_0%_0%,rgba(125,54,18,0.42)_0%,transparent_48%),radial-gradient(ellipse_at_100%_0%,rgba(34,211,238,0.34)_0%,transparent_52%),linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_1),rgb(var(--crm-surface-2-rgb)_/_1))] p-8 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_28px_70px_-44px_rgba(34,211,238,0.55)] lg:p-12">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGRlZnM+PHBhdHRlcm4gaWQ9ImdyaWQiIHdpZHRoPSI2MCIgaGVpZ2h0PSI2MCIgcGF0dGVyblVuaXRzPSJ1c2VyU3BhY2VPblVzZSI+PHBhdGggZD0iTSAxMCAwIEwgMCAwIDAgMTAiIGZpbGw9Im5vbmUiIHN0cm9rZT0id2hpdGUiIHN0cm9rZS1vcGFjaXR5PSIwLjEiIHN0cm9rZS13aWR0aD0iMSIvPjwvcGF0dGVybj48L2RlZnM+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgZmlsbD0idXJsKCNncmlkKSIvPjwvc3ZnPg==')] opacity-30" />
         
         <div className="relative z-10">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-cyan-200/16 bg-white/[0.08] backdrop-blur-sm">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl border border-cyan-200/16 dark:border-cyan-800/16 bg-[rgb(var(--crm-surface-rgb)_/_0.08)] backdrop-blur-sm">
             <Users className="h-8 w-8" />
           </div>
           
           <h3 className="mt-6 text-3xl font-black">
             Precisa de ajuda para escolher?
           </h3>
-          <p className="mx-auto mt-3 max-w-2xl text-lg text-white/90">
+          <p className="mx-auto mt-3 max-w-2xl text-lg text-[rgb(var(--crm-ink-rgb)_/_0.9)]">
             Nossa equipe está pronta para ajudar você a encontrar a melhor solução para seu negócio. Agende uma demonstração gratuita e conheça todos os recursos.
           </p>
           
           <div className="mt-8 flex flex-wrap justify-center gap-4">
             <button 
               onClick={() => navigate('/login')}
-              className="rounded-xl bg-white px-8 py-4 font-semibold text-[#07111b] transition-all hover:scale-105 hover:shadow-xl"
+              className="rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] px-8 py-4 font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-all hover:scale-105 hover:shadow-xl"
             >
               Agendar demonstração
             </button>
             <button 
               onClick={() => navigate('/login')}
-              className="rounded-xl border border-cyan-100/26 bg-white/[0.06] px-8 py-4 font-semibold backdrop-blur-sm transition-all hover:bg-white/[0.12]"
+              className="rounded-xl border border-cyan-100/26 dark:border-cyan-800/26 bg-[rgb(var(--crm-surface-rgb)_/_0.06)] px-8 py-4 font-semibold backdrop-blur-sm transition-all hover:bg-[rgb(var(--crm-surface-rgb)_/_0.12)]"
             >
               Falar com especialista
             </button>
@@ -580,7 +580,7 @@ export default function DashboardHome() {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-[#0b2a35]/70 bg-[#070a12]/78 backdrop-blur-2xl">
+      <footer className="border-t border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.78)] backdrop-blur-2xl">
         <div className="container mx-auto px-4 py-8 text-center lg:px-8">
           <div className="text-sm text-[var(--crm-muted)]">
             © 2026 CRM NEXOS. Todos os direitos reservados.

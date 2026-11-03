@@ -288,33 +288,33 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#011116] overflow-y-auto" id="editais-analisados-container">
+    <div className="flex-1 flex flex-col h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-y-auto" id="editais-analisados-container">
       {/* Toast Notification */}
       {notification && (
-        <div className="fixed bottom-6 right-6 z-50 bg-slate-900 dark:bg-slate-800 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 dark:border-slate-600 animate-in fade-in slide-in-from-bottom-2">
-          <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+        <div className="fixed bottom-6 right-6 z-50 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 border border-[var(--crm-border)] dark:border-[var(--crm-border)] animate-in fade-in slide-in-from-bottom-2">
+          <CheckCircle2 className="w-5 h-5 text-emerald-700 dark:text-emerald-400 flex-shrink-0" />
           <span className="text-sm font-medium">{notification}</span>
         </div>
       )}
 
       {/* Header */}
-      <div className="bg-[#011419] border-b border-[#07323e] px-8 py-6">
+      <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)] px-8 py-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 border border-emerald-200 dark:border-emerald-800/50">
                 <FileCheck className="w-3.5 h-3.5 text-emerald-700 dark:text-emerald-400" /> Repositório de Editais Analisados
               </span>
-              <span className="text-slate-400 text-xs">•</span>
-              <span className="text-xs text-slate-400 font-medium">Persistência Permanente</span>
+              <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">•</span>
+              <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium">Persistência Permanente</span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1.5 flex items-center gap-2">
+            <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1.5 flex items-center gap-2">
               Editais Analisados
               <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
                 {totalEditais} {totalEditais === 1 ? 'edital' : 'editais'}
               </span>
             </h1>
-            <p className="text-sm text-slate-400 mt-0.5">
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">
               Consulta, gestão e exportação das Fichas Técnicas Executivas e Matrizes de Itens processadas pelo motor documental.
             </p>
           </div>
@@ -323,10 +323,10 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
             <button
               onClick={carregarFichas}
               disabled={loading}
-              className="px-3.5 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/60 rounded-lg transition-colors flex items-center gap-2 shadow-sm"
+              className="px-3.5 py-2 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] rounded-lg transition-colors flex items-center gap-2 shadow-sm"
               title="Recarregar lista de editais salvos"
             >
-              <RefreshCw className={`w-4 h-4 text-slate-400 ${loading ? 'animate-spin' : ''}`} />
+              <RefreshCw className={`w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)] ${loading ? 'animate-spin' : ''}`} />
               Atualizar
             </button>
 
@@ -342,20 +342,20 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
 
         {/* Dashboard de Métricas Chave */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-4 shadow-sm">
+          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">Editais Salvos</span>
+              <span className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Editais Salvos</span>
               <div className="p-2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-cyan-400 rounded-lg">
                 <FileCheck className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">{totalEditais}</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Fichas técnicas registradas</p>
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">{totalEditais}</p>
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Fichas técnicas registradas</p>
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-4 shadow-sm">
+          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">Volume Total Estimado</span>
+              <span className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Volume Total Estimado</span>
               <div className="p-2 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-lg">
                 <DollarSign className="w-4 h-4" />
               </div>
@@ -363,49 +363,49 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
             <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 mt-1 truncate" title={formatarMoeda(fichas.some(f => f.valor_estimado_total !== null && f.valor_estimado_total !== undefined) ? valorTotalMapeado : null)}>
               {formatarMoeda(fichas.some(f => f.valor_estimado_total !== null && f.valor_estimado_total !== undefined) ? valorTotalMapeado : null)}
             </p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Soma dos orçamentos de referência</p>
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Soma dos orçamentos de referência</p>
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-4 shadow-sm">
+          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">Itens Catalografados</span>
+              <span className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Itens Catalografados</span>
               <div className="p-2 bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 rounded-lg">
                 <Layers className="w-4 h-4" />
               </div>
             </div>
-            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">{totalItensExtraidos}</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Itens mapeados nas matrizes do TR</p>
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">{totalItensExtraidos}</p>
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Itens mapeados nas matrizes do TR</p>
           </div>
 
-          <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-4 shadow-sm">
+          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-medium text-slate-400">Alertas de Risco Crítico</span>
+              <span className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Alertas de Risco Crítico</span>
               <div className="p-2 bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 rounded-lg">
                 <ShieldAlert className="w-4 h-4" />
               </div>
             </div>
             <p className="text-2xl font-bold text-amber-700 dark:text-amber-400 mt-1">{totalComAmostraOuRisco}</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Exigem Amostra/PoC ou Vistoria</p>
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Exigem Amostra/PoC ou Vistoria</p>
           </div>
         </div>
       </div>
 
       {/* Barra de Filtros e Busca */}
-      <div className="px-8 py-5 border-b border-[#07323e] bg-[#011419] sticky top-0 z-10 shadow-xs">
+      <div className="px-8 py-5 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] sticky top-0 z-10 shadow-xs">
         <div className="flex flex-col md:flex-row items-center justify-between gap-3">
           <div className="relative w-full md:w-96">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
             <input
               type="text"
               placeholder="Buscar por órgão, ID, objeto, tags ou itens..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 text-sm bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder-slate-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-slate-800 transition-all"
+              className="w-full pl-10 pr-4 py-2 text-sm bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:focus:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-all"
             />
             {searchTerm && (
               <button
                 onClick={() => setSearchTerm('')}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-slate-600 dark:hover:text-slate-300"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
               >
                 Limpar
               </button>
@@ -418,8 +418,8 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
               onClick={() => setFilterRisco('todos')}
               className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors whitespace-nowrap ${
                 filterRisco === 'todos'
-                  ? 'bg-slate-900 dark:bg-blue-600 text-white'
-                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                  ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] dark:bg-blue-600 text-[var(--crm-ink)] dark:text-white"
+                  : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
               }`}
             >
               Todos ({fichas.length})
@@ -458,12 +458,12 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
             </button>
 
             {/* Sort Selector */}
-            <div className="flex items-center gap-1 ml-auto md:ml-2 pl-2 border-l border-[#07323e]">
-              <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
+            <div className="flex items-center gap-1 ml-auto md:ml-2 pl-2 border-l border-[var(--crm-border)]">
+              <ArrowUpDown className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
-                className="text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg px-2.5 py-1.5 text-slate-700 dark:text-slate-200 focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
+                className="text-xs bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg px-2.5 py-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-blue-500 font-medium"
               >
                 <option value="recente">Mais recentes</option>
                 <option value="maior_valor">Maior valor estimado</option>
@@ -478,18 +478,18 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
       {/* Lista de Fichas Técnicas Analisadas */}
       <div className="flex-1 p-8 space-y-6">
         {loading ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-[#011419] rounded-2xl border border-[#07323e] shadow-sm">
+          <div className="flex flex-col items-center justify-center py-20 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl border border-[var(--crm-border)] shadow-sm">
             <RefreshCw className="w-8 h-8 text-blue-600 dark:text-blue-400 animate-spin mb-3" />
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">Carregando editais analisados...</p>
-            <p className="text-xs text-slate-400 mt-1">Sincronizando com a base local e repositório</p>
+            <p className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Carregando editais analisados...</p>
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">Sincronizando com a base local e repositório</p>
           </div>
         ) : fichasFiltradas.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 bg-[#011419] rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 text-center px-6">
+          <div className="flex flex-col items-center justify-center py-20 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl border border-dashed border-[var(--crm-border)] dark:border-[var(--crm-border)] text-center px-6">
             <div className="p-4 bg-blue-50 dark:bg-blue-950/60 rounded-2xl text-blue-600 dark:text-blue-400 mb-4">
               <FileCheck className="w-10 h-10" />
             </div>
-            <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Nenhum edital analisado encontrado</h3>
-            <p className="text-sm text-slate-400 max-w-md mt-1.5">
+            <h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum edital analisado encontrado</h3>
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] max-w-md mt-1.5">
               {searchTerm || filterRisco !== 'todos'
                 ? 'Nenhum edital salvo corresponde aos critérios de busca ou filtros selecionados.'
                 : 'Você ainda não analisou nenhum edital ou termo de referência. Faça o processamento para registrar a Ficha Técnica aqui.'}
@@ -498,7 +498,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
               {(searchTerm || filterRisco !== 'todos') && (
                 <button
                   onClick={() => { setSearchTerm(''); setFilterRisco('todos'); }}
-                  className="px-4 py-2 text-sm font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                  className="px-4 py-2 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg transition-colors"
                 >
                   Limpar Filtros
                 </button>
@@ -526,16 +526,16 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
               return (
                 <div
                   key={ficha.id_licitacao}
-                  className="bg-[#011419] rounded-2xl border border-[#07323e] shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+                  className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl border border-[var(--crm-border)] shadow-sm hover:shadow-md transition-shadow overflow-hidden"
                   id={`card-analisado-${ficha.id_licitacao}`}
                 >
                   {/* Top Bar do Card */}
-                  <div className="p-6 border-b border-slate-100 dark:border-slate-800">
+                  <div className="p-6 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                     <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                       <div className="space-y-2 flex-1">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <span className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 text-xs font-semibold px-2.5 py-1 rounded-md border border-slate-200 dark:border-slate-700 flex items-center gap-1.5 font-mono">
-                            <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                          <span className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-semibold px-2.5 py-1 rounded-md border border-[var(--crm-border)] dark:border-[var(--crm-border)] flex items-center gap-1.5 font-mono">
+                            <Building2 className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                             {ficha.id_licitacao}
                           </span>
                           <span className="bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 text-xs font-semibold px-2.5 py-1 rounded-md border border-blue-100 dark:border-blue-900/60">
@@ -551,19 +551,19 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                               <ShieldAlert className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" /> Vistoria Técnica Obrigatória
                             </span>
                           )}
-                          <span className="text-xs text-slate-400 dark:text-slate-500 ml-auto flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-slate-400" />
+                          <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] ml-auto flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                             Analisado em: {formatarDataAmigavel(ficha.data_processamento)}
                           </span>
                         </div>
 
                         {ficha.analysisStatus === 'requires_reanalysis' && <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-500">Análise antiga inválida. Abra na bancada e anexe novamente o PDF original para reanalisar. Valores e exigências padronizados foram desconsiderados.</div>}
                         {ficha.analysisStatus !== 'requires_reanalysis' && ficha.analysisWarnings?.length > 0 && <p className="text-xs text-amber-500">{ficha.analysisWarnings.join(' ')}</p>}
-                        <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                        <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] leading-snug">
                           {ficha.orgao_comprador}
                         </h2>
 
-                        <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed line-clamp-2">
+                        <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed line-clamp-2">
                           {ficha.resumo_executivo}
                         </p>
 
@@ -571,8 +571,8 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                         {ficha.tags_classificacao && ficha.tags_classificacao.length > 0 && (
                           <div className="flex items-center gap-1.5 flex-wrap pt-1">
                             {ficha.tags_classificacao.map((tg, idx) => (
-                              <span key={idx} className="bg-slate-50 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[11px] px-2 py-0.5 rounded-full border border-slate-200 dark:border-slate-700 flex items-center gap-1">
-                                <Tag className="w-2.5 h-2.5 text-slate-400" /> {tg}
+                              <span key={idx} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-[11px] px-2 py-0.5 rounded-full border border-[var(--crm-border)] dark:border-[var(--crm-border)] flex items-center gap-1">
+                                <Tag className="w-2.5 h-2.5 text-[rgb(var(--crm-muted-rgb)_/_1)]" /> {tg}
                               </span>
                             ))}
                           </div>
@@ -580,23 +580,23 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                       </div>
 
                       {/* Resumo Financeiro no Topo do Card */}
-                      <div className="bg-slate-50 dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700/80 rounded-xl p-4 lg:w-72 flex-shrink-0 flex flex-col justify-between">
+                      <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 lg:w-72 flex-shrink-0 flex flex-col justify-between">
                         <div>
-                          <span className="text-[11px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500">
+                          <span className="text-[11px] uppercase tracking-wider font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
                             Valor Estimado Total
                           </span>
                           <p className="text-xl font-black text-emerald-700 dark:text-emerald-400 mt-0.5">
                             {ficha.pricesWithheld ? 'Não informado na minuta' : formatarMoeda(ficha.valor_estimado_total)}
                           </p>
                         </div>
-                        <div className="mt-3 pt-3 border-t border-slate-200/60 dark:border-slate-750 space-y-1 text-xs text-slate-400">
+                        <div className="mt-3 pt-3 border-t border-[var(--crm-border)] dark:border-slate-750 space-y-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                           <div className="flex justify-between">
                             <span>Itens na Matriz:</span>
-                            <strong className="text-white">{ficha.matriz_itens?.length || 0} itens</strong>
+                            <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{ficha.matriz_itens?.length || 0} itens</strong>
                           </div>
                           <div className="flex justify-between">
                             <span>Critério:</span>
-                            <span className="text-white truncate max-w-[130px]" title={ficha.criterio_julgamento}>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] truncate max-w-[130px]" title={ficha.criterio_julgamento}>
                               {ficha.criterio_julgamento || 'Menor Preço'}
                             </span>
                           </div>
@@ -605,28 +605,28 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                     </div>
 
                     {/* Grid de Prazos e Datas */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-slate-100 dark:border-slate-800 text-xs">
-                      <div className="bg-slate-50/60 dark:bg-slate-800/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
-                        <span className="text-slate-400 dark:text-slate-500 block font-medium">Data de Abertura:</span>
-                        <strong className="text-white text-xs mt-0.5 block truncate">
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4 pt-4 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] text-xs">
+                      <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2.5 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                        <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] block font-medium">Data de Abertura:</span>
+                        <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs mt-0.5 block truncate">
                           {ficha.data_abertura || '-'}
                         </strong>
                       </div>
-                      <div className="bg-slate-50/60 dark:bg-slate-800/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
-                        <span className="text-slate-400 dark:text-slate-500 block font-medium">Limite para Propostas:</span>
-                        <strong className="text-white text-xs mt-0.5 block truncate">
+                      <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2.5 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                        <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] block font-medium">Limite para Propostas:</span>
+                        <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs mt-0.5 block truncate">
                           {ficha.data_limite_proposta || '-'}
                         </strong>
                       </div>
-                      <div className="bg-slate-50/60 dark:bg-slate-800/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
-                        <span className="text-slate-400 dark:text-slate-500 block font-medium">Impugnação / Esclarecimento:</span>
-                        <strong className="text-white text-xs mt-0.5 block truncate" title={ficha.data_fim_impugnacao}>
+                      <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2.5 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                        <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] block font-medium">Impugnação / Esclarecimento:</span>
+                        <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs mt-0.5 block truncate" title={ficha.data_fim_impugnacao}>
                           {ficha.data_fim_impugnacao || 'Até 3 dias úteis'}
                         </strong>
                       </div>
-                      <div className="bg-slate-50/60 dark:bg-slate-800/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
-                        <span className="text-slate-400 dark:text-slate-500 block font-medium">Vigência Contratual:</span>
-                        <strong className="text-white text-xs mt-0.5 block truncate" title={ficha.prazos_e_locais?.vigencia_contrato}>
+                      <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2.5 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                        <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] block font-medium">Vigência Contratual:</span>
+                        <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs mt-0.5 block truncate" title={ficha.prazos_e_locais?.vigencia_contrato}>
                           {ficha.prazos_e_locais?.vigencia_contrato || 'Não identificado'}
                         </strong>
                       </div>
@@ -635,15 +635,15 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
 
                   {/* Seção Expansível com Detalhes: Matriz, Habilitação e Riscos */}
                   {isExpanded && (
-                    <div className="p-6 bg-slate-50/50 dark:bg-slate-900/60 border-b border-[#07323e]">
+                    <div className="p-6 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border-b border-[var(--crm-border)]">
                       {/* Sub-Tabs de navegação interna */}
-                      <div className="flex items-center gap-2 border-b border-[#07323e] pb-3 mb-4 flex-wrap">
+                      <div className="flex items-center gap-2 border-b border-[var(--crm-border)] pb-3 mb-4 flex-wrap">
                         <button
                           onClick={() => setActiveTabByCard(prev => ({ ...prev, [ficha.id_licitacao]: 'itens' }))}
                           className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                             activeTab === 'itens'
                               ? 'bg-blue-600 text-white shadow-xs'
-                              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+                              : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)]"
                           }`}
                         >
                           <Layers className="w-3.5 h-3.5" /> Matriz de Itens do TR ({ficha.matriz_itens?.length || 0})
@@ -653,7 +653,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                           className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                             activeTab === 'habilitacao'
                               ? 'bg-blue-600 text-white shadow-xs'
-                              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+                              : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)]"
                           }`}
                         >
                           <FileText className="w-3.5 h-3.5" /> Requisitos de Habilitação
@@ -663,7 +663,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                           className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                             activeTab === 'riscos'
                               ? 'bg-blue-600 text-white shadow-xs'
-                              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+                              : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)]"
                           }`}
                         >
                           <ShieldAlert className="w-3.5 h-3.5" /> Frentes de Risco & Penalidades
@@ -673,7 +673,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                           className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                             activeTab === 'resumo'
                               ? 'bg-blue-600 text-white shadow-xs'
-                              : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700'
+                              : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)]"
                           }`}
                         >
                           <FileSearch className="w-3.5 h-3.5" /> Resumo Executivo Integral
@@ -682,11 +682,11 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
 
                       {/* Tab Content: Matriz de Itens */}
                       {activeTab === 'itens' && (
-                        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700/80 overflow-hidden shadow-xs">
+                        <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] overflow-hidden shadow-xs">
                           <div className="overflow-x-auto">
                             <table className="w-full text-left text-xs border-collapse">
                               <thead>
-                                <tr className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-b border-slate-200 dark:border-slate-700 font-semibold">
+                                <tr className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] font-semibold">
                                   <th className="py-2.5 px-3 w-12 text-center">Item</th>
                                   <th className="py-2.5 px-3 w-32">Código</th>
                                   <th className="py-2.5 px-4">Especificação Sucinta</th>
@@ -696,26 +696,26 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                                   <th className="py-2.5 px-4 w-32 text-right">Vlr. Total</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                              <tbody className="divide-y divide-[var(--crm-border)] dark:divide-[var(--crm-border)]">
                                 {ficha.matriz_itens && ficha.matriz_itens.length > 0 ? (
                                   ficha.matriz_itens.map((it, idx) => (
-                                    <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
-                                      <td className="py-2.5 px-3 text-center font-bold text-slate-700 dark:text-slate-200 bg-[#02181f]">
+                                    <tr key={idx} className="hover:bg-[rgb(var(--crm-surface-rgb)_/_0.8)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] transition-colors">
+                                      <td className="py-2.5 px-3 text-center font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
                                         {it.item_numero || idx + 1}
                                       </td>
                                       <td className="py-2.5 px-3 font-mono text-[11px] text-blue-700 dark:text-blue-400">
                                         {it.codigo_catalogo || '-'}
                                       </td>
-                                      <td className="py-2.5 px-4 text-white font-medium leading-snug">
+                                      <td className="py-2.5 px-4 text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium leading-snug">
                                         {it.especificacao_sucinta}
                                       </td>
-                                      <td className="py-2.5 px-3 text-center font-medium text-slate-600 dark:text-slate-300">
+                                      <td className="py-2.5 px-3 text-center font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                         {it.unidade}
                                       </td>
-                                      <td className="py-2.5 px-3 text-right font-bold text-slate-800 dark:text-slate-100">
+                                      <td className="py-2.5 px-3 text-right font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                         {it.quantitativo}
                                       </td>
-                                      <td className="py-2.5 px-4 text-right text-slate-600 dark:text-slate-300 font-mono">
+                                      <td className="py-2.5 px-4 text-right text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] font-mono">
                                         {formatarMoeda(it.valor_estimado_unitario)}
                                       </td>
                                       <td className="py-2.5 px-4 text-right font-bold text-emerald-700 dark:text-emerald-400 font-mono">
@@ -725,7 +725,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                                   ))
                                 ) : (
                                   <tr>
-                                    <td colSpan={7} className="text-center py-6 text-slate-400">
+                                    <td colSpan={7} className="text-center py-6 text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                       Nenhum item discriminado na matriz.
                                     </td>
                                   </tr>
@@ -739,31 +739,31 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                       {/* Tab Content: Requisitos de Habilitação */}
                       {activeTab === 'habilitacao' && (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80">
-                            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                            <h4 className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-2 flex items-center gap-1.5">
                               <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> Qualificação Técnica & Atestados
                             </h4>
-                            <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
+                            <ul className="space-y-1.5 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               {ficha.requisitos_habilitacao?.atestados_capacidade_tecnica?.map((at, i) => (
                                 <li key={i} className="flex items-start gap-2">
                                   <span className="text-blue-500 font-bold">•</span>
                                   <span>{at}</span>
                                 </li>
-                              )) || <li className="text-slate-400">Nenhum atestado específico listado.</li>}
+                              )) || <li className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum atestado específico listado.</li>}
                             </ul>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80">
-                            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                            <h4 className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-2 flex items-center gap-1.5">
                               <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" /> Qualificação Econômico-Financeira
                             </h4>
-                            <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
+                            <div className="space-y-1.5 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               {ficha.requisitos_habilitacao?.exigencias_contabeis?.map((idxC, i) => (
-                                <div key={i} className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-slate-800 last:border-none">
-                                  <span className="font-medium text-slate-200">{idxC.nome_indice}:</span>
+                                <div key={i} className="flex justify-between items-center py-1 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] last:border-none">
+                                  <span className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">{idxC.nome_indice}:</span>
                                   <span className="font-mono font-bold text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950/60 px-2 py-0.5 rounded">{idxC.regra}</span>
                                 </div>
-                              )) || <p className="text-slate-400">Sem índices contábeis fixados.</p>}
+                              )) || <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Sem índices contábeis fixados.</p>}
                             </div>
                           </div>
                         </div>
@@ -772,47 +772,47 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                       {/* Tab Content: Frentes de Risco & Penalidades */}
                       {activeTab === 'riscos' && (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80">
+                          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                             <h4 className="text-xs font-bold text-rose-800 dark:text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                               <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" /> Cláusulas Punitivas & Multas
                             </h4>
-                            <ul className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
+                            <ul className="space-y-1.5 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               {ficha.pontos_de_atencao_risco?.clausulas_punitivas_multas?.map((cl, i) => (
                                 <li key={i} className="flex items-start gap-2">
                                   <span className="text-rose-500 font-bold">•</span>
                                   <span>{cl}</span>
                                 </li>
-                              )) || <li className="text-slate-400">Regras padrão da Lei 14.133/2021.</li>}
+                              )) || <li className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Regras padrão da Lei 14.133/2021.</li>}
                             </ul>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80">
+                          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                             <h4 className="text-xs font-bold text-amber-800 dark:text-amber-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                               <ShieldAlert className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" /> Amostra / PoC & Garantias
                             </h4>
-                            <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                            <div className="space-y-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               <div>
-                                <span className="font-semibold text-slate-700 dark:text-slate-200 block">Exigência de Amostra/PoC:</span>
+                                <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] block">Exigência de Amostra/PoC:</span>
                                 <p className="mt-0.5">{ficha.pontos_de_atencao_risco?.exigencia_amostra_poc || 'Não identificado.'}</p>
                               </div>
-                              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                                <span className="font-semibold text-slate-700 dark:text-slate-200 block">Garantia Contratual:</span>
+                              <div className="pt-2 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                                <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] block">Garantia Contratual:</span>
                                 <p className="mt-0.5">{ficha.pontos_de_atencao_risco?.garantia_contratual || 'Não identificado.'}</p>
                               </div>
                             </div>
                           </div>
 
-                          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-slate-200 dark:border-slate-700/80">
-                            <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                            <h4 className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-2 flex items-center gap-1.5">
                               <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" /> Prazos & Locais de Entrega
                             </h4>
-                            <div className="space-y-2 text-xs text-slate-600 dark:text-slate-300">
+                            <div className="space-y-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               <div>
-                                <span className="font-semibold text-slate-700 dark:text-slate-200 block">Prazo de Início/Entrega:</span>
+                                <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] block">Prazo de Início/Entrega:</span>
                                 <p className="mt-0.5">{ficha.prazos_e_locais?.prazo_inicio_entrega || '-'}</p>
                               </div>
-                              <div className="pt-2 border-t border-slate-100 dark:border-slate-800">
-                                <span className="font-semibold text-slate-700 dark:text-slate-200 block">Locais de Prestação:</span>
+                              <div className="pt-2 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                                <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] block">Locais de Prestação:</span>
                                 <p className="mt-0.5">{ficha.prazos_e_locais?.locais_prestacao_entrega?.join(', ') || '-'}</p>
                               </div>
                             </div>
@@ -822,8 +822,8 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
 
                       {/* Tab Content: Resumo Executivo Integral */}
                       {activeTab === 'resumo' && (
-                        <div className="bg-white dark:bg-slate-800 p-5 rounded-xl border border-slate-200 dark:border-slate-700/80 text-xs leading-relaxed text-slate-200 space-y-3">
-                          <h4 className="font-bold text-slate-900 dark:text-slate-100 text-sm">Resumo do Objeto e Condições Gerais</h4>
+                        <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] text-xs leading-relaxed text-[rgb(var(--crm-ink-rgb)_/_1)] space-y-3">
+                          <h4 className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">Resumo do Objeto e Condições Gerais</h4>
                           <p>{ficha.resumo_executivo}</p>
                           <div className="p-3 bg-blue-50/60 dark:bg-blue-950/40 rounded-lg border border-blue-100 dark:border-blue-900/60 text-blue-900 dark:text-blue-300 flex items-center gap-2 mt-2">
                             <Sparkles className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0" />
@@ -835,19 +835,19 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                   )}
 
                   {/* Barra de Ações Inferior do Card */}
-                  <div className="bg-slate-50 dark:bg-slate-800/80 px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 text-xs border-t border-slate-100 dark:border-slate-700">
+                  <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.8)] px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 text-xs border-t border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                     {/* Botão de Toggle Expandir */}
                     <button
                       onClick={() => handleToggleExpand(ficha.id_licitacao)}
-                      className="text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 font-medium flex items-center gap-1 transition-colors"
+                      className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium flex items-center gap-1 transition-colors"
                     >
                       {isExpanded ? (
                         <>
-                          <ChevronUp className="w-4 h-4 text-slate-400" /> Ocultar Matriz & Detalhes
+                          <ChevronUp className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" /> Ocultar Matriz & Detalhes
                         </>
                       ) : (
                         <>
-                          <ChevronDown className="w-4 h-4 text-slate-400" /> Ver Matriz de Itens ({ficha.matriz_itens?.length || 0}) & Riscos
+                          <ChevronDown className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" /> Ver Matriz de Itens ({ficha.matriz_itens?.length || 0}) & Riscos
                         </>
                       )}
                     </button>
@@ -865,7 +865,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                           </button>
                           <button
                             onClick={() => setDeleteConfirmId(null)}
-                            className="text-slate-300 hover:text-slate-900 dark:hover:text-slate-200 px-2 py-1 transition-colors"
+                            className="text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] px-2 py-1 transition-colors"
                           >
                             Cancelar
                           </button>
@@ -874,28 +874,28 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                         <>
                           <button
                             onClick={() => handleCopiarJson(ficha)}
-                            className="px-3 py-1.5 text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors flex items-center gap-1.5 shadow-2xs"
+                            className="px-3 py-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg font-medium transition-colors flex items-center gap-1.5 shadow-2xs"
                             title="Copiar estrutura JSON completa"
                           >
-                            <Copy className="w-3.5 h-3.5 text-slate-400" />
+                            <Copy className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                             {copiedId === ficha.id_licitacao ? 'Copiado!' : 'JSON'}
                           </button>
 
                           <button
                             onClick={() => handleVisualizarPdf(ficha)}
-                            className="px-3 py-1.5 text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors flex items-center gap-1.5 shadow-2xs"
+                            className="px-3 py-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg font-medium transition-colors flex items-center gap-1.5 shadow-2xs"
                             title="Visualizar relatório em PDF"
                           >
-                            <Eye className="w-3.5 h-3.5 text-slate-300" />
+                            <Eye className="w-3.5 h-3.5 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                             Visualizar PDF
                           </button>
 
                           <button
                             onClick={() => handleDownloadPdf(ficha)}
-                            className="px-3 py-1.5 text-slate-200 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg font-medium transition-colors flex items-center gap-1.5 shadow-2xs"
+                            className="px-3 py-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg font-medium transition-colors flex items-center gap-1.5 shadow-2xs"
                             title="Baixar PDF da Ficha Técnica"
                           >
-                            <Download className="w-3.5 h-3.5 text-slate-300" />
+                            <Download className="w-3.5 h-3.5 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                             Baixar PDF
                           </button>
 
@@ -920,7 +920,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                               : handleConverterOportunidadeB2G(ficha)
                             }
                             disabled={isConvertingThis}
-                            className={`px-3.5 py-1.5 text-white rounded-lg font-semibold transition-colors flex items-center gap-1.5 shadow-xs disabled:opacity-70 disabled:cursor-wait ${
+                            className={`px-3.5 py-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg font-semibold transition-colors flex items-center gap-1.5 shadow-xs disabled:opacity-70 disabled:cursor-wait ${
                               convertedOpportunityId
                                 ? 'bg-emerald-600 hover:bg-emerald-700'
                                 : 'bg-cyan-600 hover:bg-cyan-700'
@@ -939,7 +939,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
 
                           <button
                             onClick={() => setDeleteConfirmId(ficha.id_licitacao)}
-                            className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/60 rounded-lg transition-colors ml-1"
+                            className="p-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950 dark:hover:bg-rose-50/60 dark:hover:bg-rose-950/60 rounded-lg transition-colors ml-1"
                             title="Remover este edital dos analisados"
                           >
                             <Trash2 className="w-4 h-4" />

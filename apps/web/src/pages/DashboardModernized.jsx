@@ -15,7 +15,8 @@ import {
   Target,
   BarChart3,
   Zap,
-  Clock
+  Clock,
+  CheckCircle
 } from 'lucide-react';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
 import DashboardKPICard from '../components/DashboardKPICard';
@@ -96,12 +97,12 @@ const DashboardModernized = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center">
+      <div className="min-h-screen bg-[rgb(var(--crm-surface-2-rgb)_/_1)] flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin mb-4">
-            <Zap size={48} className="text-cyan-400" />
+            <Zap size={48} className="text-cyan-700 dark:text-cyan-400" />
           </div>
-          <p className="text-slate-300">Carregando dashboard...</p>
+          <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Carregando dashboard...</p>
         </div>
       </div>
     );
@@ -111,21 +112,16 @@ const DashboardModernized = () => {
   const charts = dashboardData?.charts || {};
 
   return (
-    <div className="min-h-screen bg-slate-900 p-6">
-      <style>
-        {`
-          @import url('/src/styles/dashboardEffects.css');
-        `}
-      </style>
+    <div className="min-h-screen bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6">
 
       {/* Header */}
       <div className="mb-8 animate-slide-in-right">
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-white mb-2">
+            <h1 className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
               Dashboards de Negócios
             </h1>
-            <p className="text-slate-400">
+            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">
               Visão consolidada de vendas, pipeline e performance
             </p>
           </div>
@@ -134,23 +130,23 @@ const DashboardModernized = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className={`p-2 rounded-lg border border-slate-700 hover:border-cyan-500 transition-all ${refreshing ? 'opacity-50' : ''}`}
+              className={`p-2 rounded-lg border border-[var(--crm-border)] hover:border-cyan-500 transition-all ${refreshing ? 'opacity-50' : ''}`}
             >
               <RefreshCw
                 size={20}
-                className={`text-slate-300 ${refreshing ? 'animate-rotate' : ''}`}
+                className={`text-[rgb(var(--crm-ink-rgb)_/_1)] ${refreshing ? 'animate-rotate' : ''}`}
               />
             </button>
 
             <button
               onClick={handleExport}
-              className="p-2 rounded-lg border border-slate-700 hover:border-cyan-500 transition-all"
+              className="p-2 rounded-lg border border-[var(--crm-border)] hover:border-cyan-500 transition-all"
             >
-              <Download size={20} className="text-slate-300" />
+              <Download size={20} className="text-[rgb(var(--crm-ink-rgb)_/_1)]" />
             </button>
 
-            <button className="p-2 rounded-lg border border-slate-700 hover:border-cyan-500 transition-all">
-              <Settings size={20} className="text-slate-300" />
+            <button className="p-2 rounded-lg border border-[var(--crm-border)] hover:border-cyan-500 transition-all">
+              <Settings size={20} className="text-[rgb(var(--crm-ink-rgb)_/_1)]" />
             </button>
           </div>
         </div>
@@ -158,13 +154,13 @@ const DashboardModernized = () => {
         {/* Filtros */}
         <div className="flex gap-4 flex-wrap">
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-2">
+            <label className="block text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-2">
               Período
             </label>
             <select
               value={timeRange}
               onChange={(e) => setTimeRange(e.target.value)}
-              className="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm hover:border-cyan-500 transition-colors"
+              className="px-3 py-2 rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm hover:border-cyan-500 transition-colors"
             >
               <option value="30d">Últimos 30 dias</option>
               <option value="month">Mês atual</option>
@@ -174,13 +170,13 @@ const DashboardModernized = () => {
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-400 mb-2">
+            <label className="block text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-2">
               Gerente de Vendas
             </label>
             <select
               value={selectedManager}
               onChange={(e) => setSelectedManager(e.target.value)}
-              className="px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white text-sm hover:border-cyan-500 transition-colors"
+              className="px-3 py-2 rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm hover:border-cyan-500 transition-colors"
             >
               <option value="">Todos</option>
               {users.map((user) => (
@@ -346,11 +342,11 @@ const DashboardModernized = () => {
         {/* Funil de Vendas */}
         <div className="lg:col-span-2">
           <div className="dashboard-card">
-            <div className="p-6 border-b border-slate-500/20">
-              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider">
+            <div className="p-6 border-b border-[var(--crm-border)]">
+              <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                 Funil de Vendas
               </h3>
-              <p className="text-xs text-slate-500 mt-1">
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                 Distribuição de oportunidades por estágio
               </p>
             </div>
@@ -361,7 +357,7 @@ const DashboardModernized = () => {
         {/* Termômetro de Temperatura */}
         <div>
           <div className="dashboard-card p-6">
-            <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wider mb-6">
+            <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-6">
               Temperatura do Pipeline
             </h3>
             <div className="flex justify-center">
@@ -370,7 +366,7 @@ const DashboardModernized = () => {
                 size={200}
               />
             </div>
-            <p className="text-xs text-slate-500 text-center mt-4">
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] text-center mt-4">
               {kpis.businessTemperature || 65}% - {getTemperatureLabel(kpis.businessTemperature || 65)}
             </p>
           </div>

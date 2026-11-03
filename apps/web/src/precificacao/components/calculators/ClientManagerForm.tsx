@@ -121,15 +121,15 @@ export function ClientManagerForm({
     }, [companies, clientData.name]);
 
     return (
-        <div className="container mx-auto p-6 bg-slate-950 text-white min-h-screen">
+        <div className="container mx-auto p-6 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] min-h-screen">
             <div className="mb-8">
-                <h1 className="text-3xl font-bold text-white mb-2">{title}</h1>
-                <p className="text-slate-400">{subtitle}</p>
+                <h1 className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">{title}</h1>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">{subtitle}</p>
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Dados do Cliente */}
-                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     <CardHeader>
                         <CardTitle>Dados do Cliente</CardTitle>
                     </CardHeader>
@@ -147,15 +147,15 @@ export function ClientManagerForm({
                                         setClientPickerOpen(true);
                                     }}
                                     onBlur={() => window.setTimeout(() => setClientPickerOpen(false), 180)}
-                                    className="bg-slate-800 border-slate-700 text-white"
+                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                     placeholder="Pesquisar ou cadastrar cliente"
                                     required
                                 />
                                 {clientPickerOpen && (
-                                    <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-md border border-slate-700 bg-slate-900 shadow-xl">
+                                    <div className="absolute left-0 right-0 top-full z-50 mt-2 overflow-hidden rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-xl">
                                         <div className="max-h-64 overflow-y-auto py-1">
                                             {loadingCompanies ? (
-                                                <div className="px-3 py-2 text-sm text-slate-400">Carregando empresas...</div>
+                                                <div className="px-3 py-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando empresas...</div>
                                             ) : filteredCompanies.length > 0 ? (
                                                 filteredCompanies.map(company => {
                                                     const primaryContact = Array.isArray(company.contacts)
@@ -167,24 +167,24 @@ export function ClientManagerForm({
                                                             type="button"
                                                             onMouseDown={(event) => event.preventDefault()}
                                                             onClick={() => selectCompany(company)}
-                                                            className="block w-full px-3 py-2 text-left hover:bg-slate-800"
+                                                            className="block w-full px-3 py-2 text-left hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                                         >
-                                                            <span className="block text-sm font-semibold text-white">{company.name || 'Empresa sem nome'}</span>
-                                                            <span className="block text-xs text-slate-400">
+                                                            <span className="block text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{company.name || 'Empresa sem nome'}</span>
+                                                            <span className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                                                 {[primaryContact?.name, primaryContact?.email, primaryContact?.phone].filter(Boolean).join(' - ') || 'Sem contato cadastrado'}
                                                             </span>
                                                         </button>
                                                     );
                                                 })
                                             ) : (
-                                                <div className="px-3 py-2 text-sm text-slate-400">Nenhuma empresa encontrada.</div>
+                                                <div className="px-3 py-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhuma empresa encontrada.</div>
                                             )}
                                         </div>
                                         <button
                                             type="button"
                                             onMouseDown={(event) => event.preventDefault()}
                                             onClick={openCompanyRegister}
-                                            className="flex w-full items-center justify-between border-t border-slate-700 px-3 py-2 text-left text-sm font-semibold text-blue-300 hover:bg-slate-800"
+                                            className="flex w-full items-center justify-between border-t border-[var(--crm-border)] px-3 py-2 text-left text-sm font-semibold text-blue-700 dark:text-blue-300 hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                         >
                                             Cadastrar novo cliente em B2B - Empresas
                                             <span>+</span>
@@ -199,7 +199,7 @@ export function ClientManagerForm({
                                 id="client-contact"
                                 value={clientData.contact}
                                 onChange={(e) => onClientDataChange({ ...clientData, contact: e.target.value })}
-                                className="bg-slate-800 border-slate-700 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                 placeholder="Contato do cliente"
                             />
                         </div>
@@ -209,7 +209,7 @@ export function ClientManagerForm({
                                 id="project-name"
                                 value={clientData.projectName}
                                 onChange={(e) => onClientDataChange({ ...clientData, projectName: e.target.value })}
-                                className="bg-slate-800 border-slate-700 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                 placeholder="Nome do projeto"
                             />
                         </div>
@@ -220,7 +220,7 @@ export function ClientManagerForm({
                                 type="email"
                                 value={clientData.email}
                                 onChange={(e) => onClientDataChange({ ...clientData, email: e.target.value })}
-                                className="bg-slate-800 border-slate-700 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                 placeholder="email@cliente.com"
                                 required
                             />
@@ -231,7 +231,7 @@ export function ClientManagerForm({
                                 id="client-phone"
                                 value={clientData.phone}
                                 onChange={(e) => onClientDataChange({ ...clientData, phone: e.target.value })}
-                                className="bg-slate-800 border-slate-700 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                 placeholder="(11) 99999-9999"
                             />
                         </div>
@@ -239,7 +239,7 @@ export function ClientManagerForm({
                 </Card>
 
                 {/* Dados do Gerente de Contas */}
-                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     <CardHeader>
                         <CardTitle>Dados do Gerente de Contas</CardTitle>
                     </CardHeader>
@@ -250,7 +250,7 @@ export function ClientManagerForm({
                                 id="manager-name"
                                 value={accountManagerData.name}
                                 onChange={(e) => onAccountManagerDataChange({ ...accountManagerData, name: e.target.value })}
-                                className="bg-slate-800 border-slate-700 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                 placeholder="Nome completo do gerente"
                                 required
                             />
@@ -262,7 +262,7 @@ export function ClientManagerForm({
                                 type="email"
                                 value={accountManagerData.email}
                                 onChange={(e) => onAccountManagerDataChange({ ...accountManagerData, email: e.target.value })}
-                                className="bg-slate-800 border-slate-700 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                 placeholder="gerente@empresa.com"
                                 required
                             />
@@ -273,7 +273,7 @@ export function ClientManagerForm({
                                 id="manager-phone"
                                 value={accountManagerData.phone}
                                 onChange={(e) => onAccountManagerDataChange({ ...accountManagerData, phone: e.target.value })}
-                                className="bg-slate-800 border-slate-700 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                 placeholder="(11) 99999-9999"
                             />
                         </div>
@@ -285,7 +285,7 @@ export function ClientManagerForm({
                 <Button 
                     variant="outline" 
                     onClick={onBack}
-                    className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                    className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                 >
                     ← Voltar
                 </Button>

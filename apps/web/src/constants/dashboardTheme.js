@@ -8,11 +8,11 @@
 export const DASHBOARD_COLORS = {
   // Cores de fundo
   background: {
-    primary: '#050914',
-    secondary: '#070b16',
-    tertiary: '#0d1423',
-    card: 'rgba(17, 24, 39, 0.96)',
-    overlay: 'rgba(5, 9, 20, 0.92)'
+    primary: 'var(--crm-bg-base)',
+    secondary: 'var(--crm-bg-base-2)',
+    tertiary: 'var(--crm-surface-2)',
+    card: 'var(--crm-surface)',
+    overlay: 'var(--crm-surface)'
   },
 
   // Paleta market intelligence baseada no print de referência
@@ -77,17 +77,17 @@ export const DASHBOARD_COLORS = {
 
   // Textos
   text: {
-    primary: '#f4f7fb',
-    secondary: '#cbd5e1',
-    tertiary: '#8f9caf',
-    muted: '#64748b'
+    primary: 'var(--crm-ink)',
+    secondary: 'var(--crm-muted)',
+    tertiary: 'var(--crm-muted)',
+    muted: 'var(--crm-muted)'
   },
 
   // Bordas e divisores
   border: {
-    light: 'rgba(55, 65, 81, 0.55)',
-    medium: 'rgba(75, 85, 99, 0.75)',
-    bright: 'rgba(24, 200, 223, 0.26)'
+    light: 'var(--crm-border)',
+    medium: 'var(--crm-border)',
+    bright: 'var(--crm-border)'
   }
 };
 
@@ -134,21 +134,21 @@ export const CHART_CONFIG = {
       y: {
         beginAtZero: true,
         grid: {
-          color: 'rgba(255, 255, 255, 0.05)',
+          color: "rgb(var(--crm-ink-rgb) / 0.05)",
           drawBorder: false
         },
         ticks: {
-          color: '#b0b0c0',
+          color: "rgb(var(--crm-muted-rgb) / 1)",
           font: { size: 11, weight: '500' }
         }
       },
       x: {
         grid: {
-          color: 'rgba(255, 255, 255, 0.02)',
+          color: "rgb(var(--crm-ink-rgb) / 0.02)",
           drawBorder: false
         },
         ticks: {
-          color: '#b0b0c0',
+          color: "rgb(var(--crm-muted-rgb) / 1)",
           font: { size: 11, weight: '500' }
         }
       }
@@ -157,7 +157,7 @@ export const CHART_CONFIG = {
     plugins: {
       legend: {
         labels: {
-          color: '#b0b0c0',
+          color: "rgb(var(--crm-muted-rgb) / 1)",
           font: { size: 12, weight: '500' },
           padding: 15,
           usePointStyle: true
@@ -165,7 +165,7 @@ export const CHART_CONFIG = {
       },
 
       tooltip: {
-        backgroundColor: 'rgba(15, 15, 30, 0.95)',
+        backgroundColor: "rgb(var(--crm-surface-2-rgb) / 0.95)",
         titleColor: '#ffffff',
         bodyColor: '#b0b0c0',
         borderColor: 'rgba(0, 217, 255, 0.3)',

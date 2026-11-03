@@ -1,6 +1,5 @@
 import { ArrowLeft, X } from 'lucide-react';
 import { createPortal } from 'react-dom';
-import { useTheme } from '../theme/ThemeProvider';
 
 const Modal = ({
   isOpen,
@@ -20,29 +19,21 @@ const Modal = ({
 }) => {
   if (!isOpen) return null;
 
-  const { resolvedTheme } = useTheme();
-
   const handleOverlayClick = (e) => {
     if (closeOnOverlayClick && e.target === e.currentTarget) {
       onClose();
     }
   };
 
-  const isDarkMode =
-    backgroundColor === 'dark' ||
-    (backgroundColor === 'auto' && resolvedTheme === 'dark');
-
   const bgOverrideClass =
     backgroundColor === 'dark'
-      ? 'bg-slate-950'
+      ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
       : backgroundColor === 'white'
-        ? 'bg-white'
+        ? "bg-[rgb(var(--crm-surface-rgb)_/_1)]"
         : '';
 
-  const textClass = isDarkMode ? 'text-slate-100' : 'text-gray-900 dark:text-gray-100';
-  const buttonClass = isDarkMode
-    ? 'text-slate-300 hover:text-white hover:bg-white/5'
-    : 'text-gray-500 hover:text-gray-900 hover:bg-black/5';
+  const textClass = 'text-[var(--crm-ink)]';
+  const buttonClass = 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)] hover:bg-[var(--crm-surface-2)]';
 
   const isFullSize = size === 'full';
   const maxWidthClass = size === 'large' ? 'max-w-4xl w-full' : 'max-w-2xl w-full';
@@ -58,6 +49,9 @@ const Modal = ({
       onClick={handleOverlayClick}
     >
       <div 
+        role="dialog"
+        aria-modal="true"
+        aria-label={title || 'Janela'}
         className={[
           'crm-panel w-full overflow-hidden flex flex-col',
           isFullSize ? 'h-[100dvh] max-w-none max-h-none rounded-none border-0' : `${maxWidthClass} max-h-[92vh]`,

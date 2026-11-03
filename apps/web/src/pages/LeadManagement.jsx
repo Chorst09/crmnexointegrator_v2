@@ -509,7 +509,7 @@ export default function LeadManagement() {
               : 'Identificando leads nao atendidos e redistribuindo...'}
           </p>
           <div className="mt-5 crm-panel-muted p-3">
-            <div className="h-2 w-full rounded-full bg-black/10 dark:bg-white/10 overflow-hidden">
+            <div className="h-2 w-full rounded-full bg-black/10 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.1)] overflow-hidden">
               <div className="h-2 rounded-full bg-[rgb(var(--crm-accent-rgb)_/_0.85)] animate-pulse" style={{ width: '60%' }} />
             </div>
             <p className="mt-2 text-xs text-[var(--crm-muted)]">Esta operacao pode levar alguns minutos</p>
@@ -700,7 +700,7 @@ export default function LeadManagement() {
                   </p>
                 </div>
                 <span
-                  className="rounded-full px-3 py-1 text-xs font-bold text-white"
+                  className="rounded-full px-3 py-1 text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   style={{ backgroundColor: getScoreColor(selectedLead.leadScore || 0) }}
                 >
                   {selectedLead.status || 'LEAD'}
@@ -920,8 +920,8 @@ export default function LeadManagement() {
           <GradientCard gradient="indigo" className="p-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100">Ações Rápidas</h3>
-                <p className="text-gray-600 dark:text-slate-200 text-sm">Operações em lote para otimizar o processo</p>
+                <h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Ações Rápidas</h3>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">Operações em lote para otimizar o processo</p>
               </div>
               <div className="p-3 rounded-xl bg-indigo-100 dark:bg-indigo-400/10">
                 <Zap className="w-6 h-6 text-indigo-600 dark:text-indigo-200" />
@@ -932,14 +932,14 @@ export default function LeadManagement() {
               <button
                 onClick={recalculateAllScores}
                 disabled={processingScores || processingDistribution}
-                className="crm-card flex items-center justify-center gap-3 p-4 border-2 border-blue-200 dark:border-blue-400/40 hover:border-blue-400 hover:bg-blue-50 dark:hover:border-blue-300/70 dark:hover:bg-blue-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="crm-card flex items-center justify-center gap-3 p-4 border-2 border-blue-200 dark:border-blue-400/40 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 dark:hover:border-blue-300/70 dark:hover:bg-blue-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <RefreshCw className={`w-5 h-5 text-blue-600 dark:text-blue-200 ${processingScores ? 'animate-spin' : ''}`} />
                 <div className="text-left">
-                  <div className="font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {processingScores ? 'Recalculando...' : 'Recalcular Todos os Scores'}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-slate-200">
+                  <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Atualiza a pontuação de todas as empresas
                   </div>
                 </div>
@@ -948,14 +948,14 @@ export default function LeadManagement() {
               <button
                 onClick={redistributeUnattended}
                 disabled={processingScores || processingDistribution}
-                className="crm-card flex items-center justify-center gap-3 p-4 border-2 border-green-200 dark:border-emerald-400/40 hover:border-green-400 hover:bg-green-50 dark:hover:border-emerald-300/70 dark:hover:bg-emerald-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="crm-card flex items-center justify-center gap-3 p-4 border-2 border-green-200 dark:border-green-800 dark:border-emerald-400/40 hover:border-green-400 hover:bg-green-50 dark:hover:bg-green-950 dark:hover:border-emerald-300/70 dark:hover:bg-emerald-500/10 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Shuffle className={`w-5 h-5 text-green-600 dark:text-emerald-200 ${processingDistribution ? 'animate-spin' : ''}`} />
                 <div className="text-left">
-                  <div className="font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {processingDistribution ? 'Redistribuindo...' : 'Redistribuir Leads Ociosos'}
                   </div>
-                  <div className="text-sm text-gray-600 dark:text-slate-200">
+                  <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Reatribui leads não atendidos há 3+ dias
                   </div>
                 </div>
@@ -967,8 +967,8 @@ export default function LeadManagement() {
           <GradientCard gradient="blue" className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Leads por Lead Score</h2>
-                <p className="text-gray-600 dark:text-slate-200 mt-1">Clique em um lead para converter em oportunidade ou registrar No Go</p>
+                <h2 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Leads por Lead Score</h2>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">Clique em um lead para converter em oportunidade ou registrar No Go</p>
               </div>
               <div className="p-3 rounded-xl bg-blue-100 dark:bg-blue-400/10">
                 <BarChart3 className="w-6 h-6 text-blue-600 dark:text-blue-200" />
@@ -977,7 +977,7 @@ export default function LeadManagement() {
             
             <div className="space-y-3">
               {companies.filter((company) => company.status === 'LEAD').length === 0 && (
-                <div className="crm-card p-4 text-sm text-gray-600 dark:text-slate-200">
+                <div className="crm-card p-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Nenhum lead em aberto para análise.
                 </div>
               )}
@@ -1002,23 +1002,23 @@ export default function LeadManagement() {
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         {company.name}
                       </h3>
                       
                       <span
-                        className="px-3 py-1 rounded-full text-xs font-bold text-white"
+                        className="px-3 py-1 rounded-full text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]"
                         style={{ backgroundColor: getScoreColor(company.leadScore) }}
                       >
                         {company.leadScore} - {getScoreLabel(company.leadScore)}
                       </span>
                       
-                      <span className="text-sm text-gray-500 dark:text-slate-200">
+                      <span className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         {company.segment || 'Sem segmento'}
                       </span>
                     </div>
                     
-                    <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-slate-200">
+                    <div className="flex items-center gap-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       <span className="flex items-center gap-1">
                         <Target className="w-4 h-4" />
                         {company.opportunities?.length || 0} oportunidades
@@ -1047,7 +1047,7 @@ export default function LeadManagement() {
                         onChange={(e) => setCompanyProjectName(company.id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
-                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-[#1c2f4a] text-gray-900 dark:text-slate-100 text-sm min-w-[230px]"
+                        className="px-3 py-2 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm min-w-[230px]"
                         placeholder="Nome do projeto"
                       />
                       <select
@@ -1055,7 +1055,7 @@ export default function LeadManagement() {
                         onChange={(e) => setCompanyProjectClientType(company.id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
-                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-[#1c2f4a] text-gray-900 dark:text-slate-100 text-sm min-w-[190px]"
+                        className="px-3 py-2 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm min-w-[190px]"
                       >
                         {PROJECT_CLIENT_TYPE_OPTIONS.map((option) => (
                           <option key={option.value} value={option.value}>
@@ -1068,7 +1068,7 @@ export default function LeadManagement() {
                         onChange={(e) => setCompanySeller(company.id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
-                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-[#1c2f4a] text-gray-900 dark:text-slate-100 text-sm min-w-[220px]"
+                        className="px-3 py-2 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm min-w-[220px]"
                       >
                         <option value="">Automático ({selectedStrategy})</option>
                         {sellers.map((seller) => (
@@ -1112,21 +1112,21 @@ export default function LeadManagement() {
           <GradientCard gradient="green" className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Estratégia de Distribuição</h2>
-                <p className="text-gray-600 dark:text-slate-200 mt-1">Configure como os leads são distribuídos para os vendedores</p>
+                <h2 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Estratégia de Distribuição</h2>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">Configure como os leads são distribuídos para os vendedores</p>
               </div>
-              <div className="p-3 rounded-xl bg-green-100 dark:bg-emerald-400/10">
+              <div className="p-3 rounded-xl bg-green-100 dark:bg-green-950 dark:bg-emerald-400/10">
                 <Settings className="w-6 h-6 text-green-600 dark:text-emerald-200" />
               </div>
             </div>
             
             <div className="crm-card p-4">
               <div className="flex items-center gap-4 mb-4">
-                <label className="text-sm font-semibold text-gray-700 dark:text-slate-100">Estratégia Padrão:</label>
+                <label className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Estratégia Padrão:</label>
                 <select
                   value={selectedStrategy}
                   onChange={(e) => setSelectedStrategy(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 dark:border-white/20 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:focus:ring-emerald-400/60 dark:focus:border-emerald-400/60 min-w-[250px] bg-white dark:bg-[#1c2f4a] text-gray-900 dark:text-slate-100"
+                  className="px-3 py-2 border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 dark:focus:ring-emerald-400/60 dark:focus:border-emerald-400/60 min-w-[250px] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <option value="ROUND_ROBIN">🔄 Round Robin</option>
                   <option value="LOAD_BALANCE">⚖️ Balanceamento de Carga</option>
@@ -1135,13 +1135,13 @@ export default function LeadManagement() {
                 </select>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-gray-600 dark:text-slate-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 <div className="p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg border border-blue-200 dark:border-blue-400/30">
                   <strong className="text-blue-800 dark:text-blue-200">Round Robin:</strong>
                   <p className="mt-1">Distribuição sequencial entre vendedores</p>
                 </div>
-                <div className="p-3 bg-green-50 dark:bg-emerald-500/10 rounded-lg border border-green-200 dark:border-emerald-400/30">
-                  <strong className="text-green-800 dark:text-emerald-200">Balanceamento de Carga:</strong>
+                <div className="p-3 bg-green-50 dark:bg-green-950 dark:bg-emerald-500/10 rounded-lg border border-green-200 dark:border-green-800 dark:border-emerald-400/30">
+                  <strong className="text-green-800 dark:text-green-300 dark:text-emerald-200">Balanceamento de Carga:</strong>
                   <p className="mt-1">Atribui ao vendedor com menos oportunidades</p>
                 </div>
                 <div className="p-3 bg-purple-50 dark:bg-purple-500/10 rounded-lg border border-purple-200 dark:border-purple-400/30">
@@ -1160,8 +1160,8 @@ export default function LeadManagement() {
           <GradientCard gradient="purple" className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Status dos Vendedores</h2>
-                <p className="text-gray-600 dark:text-slate-200 mt-1">Carga de trabalho e performance atual</p>
+                <h2 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Status dos Vendedores</h2>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">Carga de trabalho e performance atual</p>
               </div>
               <div className="p-3 rounded-xl bg-purple-100 dark:bg-purple-400/10">
                 <Users className="w-6 h-6 text-purple-600 dark:text-purple-200" />
@@ -1179,10 +1179,10 @@ export default function LeadManagement() {
                       {seller.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                      <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         {seller.name}
                       </h3>
-                      <div className="flex items-center gap-4 text-sm text-gray-600 dark:text-slate-200">
+                      <div className="flex items-center gap-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <span>{seller.email}</span>
                         <span className="flex items-center gap-1">
                           <span className="w-2 h-2 bg-green-500 rounded-full"></span>
@@ -1198,7 +1198,7 @@ export default function LeadManagement() {
                         <div className="text-2xl font-bold text-blue-600">
                           {seller.activeOpportunities || 0}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-slate-200">
+                        <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           Oportunidades
                         </div>
                       </div>
@@ -1209,7 +1209,7 @@ export default function LeadManagement() {
                             maximumFractionDigits: 0 
                           })}
                         </div>
-                        <div className="text-xs text-gray-500 dark:text-slate-200">
+                        <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           Pipeline
                         </div>
                       </div>
@@ -1224,8 +1224,8 @@ export default function LeadManagement() {
           <GradientCard gradient="orange" className="p-6">
             <div className="flex items-center justify-between mb-6">
               <div>
-                <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Leads Pendentes</h2>
-                <p className="text-gray-600 dark:text-slate-200 mt-1">Distribua ou exclua leads diretamente</p>
+                <h2 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Leads Pendentes</h2>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">Distribua ou exclua leads diretamente</p>
               </div>
               <div className="p-3 rounded-xl bg-orange-100 dark:bg-orange-400/10">
                 <Target className="w-6 h-6 text-orange-600 dark:text-orange-200" />
@@ -1234,7 +1234,7 @@ export default function LeadManagement() {
 
             <div className="space-y-3">
               {companies.filter((company) => company.status === 'LEAD').length === 0 && (
-                <div className="crm-card p-4 text-sm text-gray-600 dark:text-slate-200">
+                <div className="crm-card p-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Nenhum lead pendente para distribuição.
                 </div>
               )}
@@ -1258,11 +1258,11 @@ export default function LeadManagement() {
                     className="crm-card flex cursor-pointer items-center justify-between p-4 hover:shadow-md dark:hover:shadow-soft-xl transition-all duration-200 hover:border-[rgb(var(--crm-accent-rgb)_/_0.45)]"
                   >
                     <div>
-                      <div className="text-base font-semibold text-gray-900 dark:text-gray-100">{company.name}</div>
-                      <div className="text-sm text-gray-600 dark:text-slate-200 mt-1">
+                      <div className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{company.name}</div>
+                      <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
                         Score {company.leadScore} • {company.segment || 'Sem segmento'}
                       </div>
-                      <div className="mt-1 flex items-center gap-1 text-xs text-gray-600 dark:text-slate-200">
+                      <div className="mt-1 flex items-center gap-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <Calendar className="h-3.5 w-3.5" />
                         Entrada: {formatDateBR(company.leadEntryDate || company.createdAt)}
                       </div>
@@ -1277,7 +1277,7 @@ export default function LeadManagement() {
                         onChange={(e) => setCompanyProjectName(company.id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
-                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-[#1c2f4a] text-gray-900 dark:text-slate-100 text-sm min-w-[230px]"
+                        className="px-3 py-2 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm min-w-[230px]"
                         placeholder="Nome do projeto"
                       />
                       <select
@@ -1285,7 +1285,7 @@ export default function LeadManagement() {
                         onChange={(e) => setCompanyProjectClientType(company.id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
-                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-[#1c2f4a] text-gray-900 dark:text-slate-100 text-sm min-w-[190px]"
+                        className="px-3 py-2 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm min-w-[190px]"
                       >
                         {PROJECT_CLIENT_TYPE_OPTIONS.map((option) => (
                           <option key={option.value} value={option.value}>
@@ -1298,7 +1298,7 @@ export default function LeadManagement() {
                         onChange={(e) => setCompanySeller(company.id, e.target.value)}
                         onClick={(e) => e.stopPropagation()}
                         onKeyDown={(e) => e.stopPropagation()}
-                        className="px-3 py-2 rounded-lg border border-gray-300 dark:border-white/20 bg-white dark:bg-[#1c2f4a] text-gray-900 dark:text-slate-100 text-sm min-w-[220px]"
+                        className="px-3 py-2 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm min-w-[220px]"
                       >
                         <option value="">Automático ({selectedStrategy})</option>
                         {sellers.map((seller) => (

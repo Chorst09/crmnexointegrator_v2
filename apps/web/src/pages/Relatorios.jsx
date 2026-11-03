@@ -607,10 +607,10 @@ export default function Relatorios() {
         labels: { usePointStyle: true, padding: 18, color: chartTextColor, font: { size: 12 } }
       },
       tooltip: {
-        backgroundColor: "rgba(15, 23, 42, 0.94)",
+        backgroundColor: "rgb(var(--crm-surface-2-rgb) / 0.94)",
         titleColor: "white",
         bodyColor: "white",
-        borderColor: "rgba(255, 255, 255, 0.12)",
+        borderColor: "rgb(var(--crm-ink-rgb) / 0.12)",
         borderWidth: 1,
         cornerRadius: 10
       }
@@ -1070,7 +1070,7 @@ export default function Relatorios() {
                 <h3 className="text-xl font-bold text-[var(--crm-ink)]">Receita e Pipeline</h3>
                 <p className="text-sm text-[var(--crm-muted)]">Evolução por mês no período filtrado.</p>
               </div>
-              <TrendingUp className="w-6 h-6 text-sky-300" />
+              <TrendingUp className="w-6 h-6 text-sky-700 dark:text-sky-300" />
             </div>
             <div className="h-80">
               <Line data={revenueData} options={chartOptions} />
@@ -1083,7 +1083,7 @@ export default function Relatorios() {
                 <h3 className="text-xl font-bold text-[var(--crm-ink)]">Funil por Etapa</h3>
                 <p className="text-sm text-[var(--crm-muted)]">Valor consolidado por status comercial.</p>
               </div>
-              <Layers3 className="w-6 h-6 text-indigo-300" />
+              <Layers3 className="w-6 h-6 text-indigo-700 dark:text-indigo-300" />
             </div>
             <div className="h-80">
               <Bar data={stageData} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, legend: { display: false } } }} />
@@ -1144,7 +1144,7 @@ export default function Relatorios() {
                   <h3 className="text-xl font-bold text-[var(--crm-ink)]">Projetos ao Longo do Tempo</h3>
                   <p className="text-sm text-[var(--crm-muted)]">Andamento e conclusões por mês.</p>
                 </div>
-                <TrendingUp className="w-6 h-6 text-sky-300" />
+                <TrendingUp className="w-6 h-6 text-sky-700 dark:text-sky-300" />
               </div>
               <div className="h-80">
                 <Line data={projectTimelineData} options={chartOptions} />
@@ -1157,7 +1157,7 @@ export default function Relatorios() {
                   <h3 className="text-xl font-bold text-[var(--crm-ink)]">Projetos por Fase</h3>
                   <p className="text-sm text-[var(--crm-muted)]">Distribuição entre setup, kickoff, execução e encerramento.</p>
                 </div>
-                <Layers3 className="w-6 h-6 text-orange-300" />
+                <Layers3 className="w-6 h-6 text-orange-700 dark:text-orange-300" />
               </div>
               <div className="h-80">
                 <Bar data={projectPhaseData} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, legend: { display: false } } }} />
@@ -1192,7 +1192,7 @@ export default function Relatorios() {
                   <h3 className="text-xl font-bold text-[var(--crm-ink)]">Kickoffs ao Longo do Tempo</h3>
                   <p className="text-sm text-[var(--crm-muted)]">Agenda e realização por mês.</p>
                 </div>
-                <TrendingUp className="w-6 h-6 text-orange-300" />
+                <TrendingUp className="w-6 h-6 text-orange-700 dark:text-orange-300" />
               </div>
               <div className="h-80">
                 <Line data={kickoffTimelineData} options={chartOptions} />
@@ -1205,7 +1205,7 @@ export default function Relatorios() {
                   <h3 className="text-xl font-bold text-[var(--crm-ink)]">Kickoff por Fase</h3>
                   <p className="text-sm text-[var(--crm-muted)]">Interno, externo e etapas comerciais conectadas.</p>
                 </div>
-                <Rocket className="w-6 h-6 text-emerald-300" />
+                <Rocket className="w-6 h-6 text-emerald-700 dark:text-emerald-300" />
               </div>
               <div className="h-80">
                 <Bar data={kickoffPhaseData} options={{ ...chartOptions, plugins: { ...chartOptions.plugins, legend: { display: false } } }} />
@@ -1300,7 +1300,7 @@ export default function Relatorios() {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-emerald-300">{formatCurrency(seller.revenue)}</p>
+                      <p className="font-bold text-emerald-700 dark:text-emerald-300">{formatCurrency(seller.revenue)}</p>
                       <p className="text-xs text-[var(--crm-muted)]">{formatCurrency(seller.weighted)} forecast</p>
                     </div>
                   </div>
@@ -1343,7 +1343,7 @@ export default function Relatorios() {
             {
               key: "stage",
               label: "Etapa",
-              render: (item) => <span className="rounded-full bg-sky-500/10 px-3 py-1 text-xs font-bold text-sky-200">{STAGE_LABELS[item.stage] || item.stage}</span>
+              render: (item) => <span className="rounded-full bg-sky-500/10 px-3 py-1 text-xs font-bold text-sky-700 dark:text-sky-200">{STAGE_LABELS[item.stage] || item.stage}</span>
             },
             {
               key: "owner",
@@ -1396,7 +1396,7 @@ export default function Relatorios() {
             {
               key: "phase",
               label: "Fase",
-              render: (item) => <span className="rounded-full bg-orange-500/10 px-3 py-1 text-xs font-bold text-orange-200">{PROJECT_PHASE_LABELS[item.phase] || item.phase}</span>
+              render: (item) => <span className="rounded-full bg-orange-500/10 px-3 py-1 text-xs font-bold text-orange-700 dark:text-orange-200">{PROJECT_PHASE_LABELS[item.phase] || item.phase}</span>
             },
             {
               key: "status",
@@ -1416,7 +1416,7 @@ export default function Relatorios() {
             {
               key: "health",
               label: "Saúde",
-              render: (item) => <span className="font-bold text-emerald-300">{numberValue(item.healthScore)}%</span>
+              render: (item) => <span className="font-bold text-emerald-700 dark:text-emerald-300">{numberValue(item.healthScore)}%</span>
             },
             {
               key: "plannedEndDate",
@@ -1454,7 +1454,7 @@ export default function Relatorios() {
             {
               key: "phase",
               label: "Fase",
-              render: (item) => <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-200">{KICKOFF_PHASE_LABELS[item.phase] || item.phase}</span>
+              render: (item) => <span className="rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-200">{KICKOFF_PHASE_LABELS[item.phase] || item.phase}</span>
             },
             {
               key: "status",
@@ -1479,7 +1479,7 @@ export default function Relatorios() {
             {
               key: "actions",
               label: "Ações",
-              render: (item) => <span className="font-bold text-orange-200">{numberValue(item._count?.actionItems)}</span>
+              render: (item) => <span className="font-bold text-orange-700 dark:text-orange-200">{numberValue(item._count?.actionItems)}</span>
             }
           ]}
           searchTerm={filters.search}
@@ -1499,9 +1499,9 @@ export default function Relatorios() {
 
 const Insight = ({ title, value, detail, tone = "slate" }) => {
   const toneClass = {
-    green: "text-emerald-300 bg-emerald-500/10 border-emerald-400/20",
-    red: "text-red-300 bg-red-500/10 border-red-400/20",
-    amber: "text-amber-200 bg-amber-500/10 border-amber-400/20",
+    green: "text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 border-emerald-400/20",
+    red: "text-red-700 dark:text-red-300 bg-red-500/10 border-red-400/20",
+    amber: "text-amber-700 dark:text-amber-200 bg-amber-500/10 border-amber-400/20",
     slate: "text-[var(--crm-ink)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.62)] border-[color:var(--crm-border)]"
   }[tone] || "text-[var(--crm-ink)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.62)] border-[color:var(--crm-border)]";
 

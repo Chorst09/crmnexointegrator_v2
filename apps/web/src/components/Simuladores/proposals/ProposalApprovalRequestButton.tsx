@@ -357,11 +357,11 @@ export function ProposalApprovalRequestButton({
           </DialogHeader>
 
           {isLoadingEligibility ? (
-            <p className="text-sm text-slate-500">Validando critérios de aprovação...</p>
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Validando critérios de aprovação...</p>
           ) : eligibility ? (
             <div className="space-y-3">
-              <div className="rounded-md border border-slate-200 p-3 text-sm">
-                <p className="font-semibold text-slate-700">Critérios detectados:</p>
+              <div className="rounded-md border border-[var(--crm-border)] p-3 text-sm">
+                <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Critérios detectados:</p>
                 {eligibility.reasons.length > 0 ? (
                   <ul className="mt-2 list-disc space-y-1 pl-4">
                     {eligibility.reasons.map((reason, index) => (
@@ -372,23 +372,23 @@ export function ProposalApprovalRequestButton({
                     ))}
                   </ul>
                 ) : (
-                  <p className="mt-2 text-slate-500">Nenhum critério crítico encontrado.</p>
+                  <p className="mt-2 text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum critério crítico encontrado.</p>
                 )}
               </div>
 
               {eligibility.hasPendingWorkflow && (
-                <div className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+                <div className="rounded-md border border-amber-300 bg-amber-50 dark:bg-amber-950 p-3 text-sm text-amber-800 dark:text-amber-300">
                   Já existe aprovação pendente para esta proposta (workflow: {eligibility.pendingWorkflow?.id}). Clique
                   em confirmar para reenviar o e-mail.
                 </div>
               )}
 
               {!eligibility.requiresApproval && !eligibility.hasPendingWorkflow && (
-                <div className="rounded-md border border-amber-200 bg-amber-50 p-3">
+                <div className="rounded-md border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950 p-3">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <p className="text-sm font-semibold text-amber-800">Aprovação manual</p>
-                      <p className="text-xs text-amber-700">
+                      <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">Aprovação manual</p>
+                      <p className="text-xs text-amber-700 dark:text-amber-300">
                         A proposta está dentro do padrão. Ative para enviar mesmo assim.
                       </p>
                     </div>
@@ -402,7 +402,7 @@ export function ProposalApprovalRequestButton({
               )}
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">E-mail do aprovador</label>
+                <label className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">E-mail do aprovador</label>
                 <Input
                   type="email"
                   placeholder="aprovador@empresa.com"
@@ -412,7 +412,7 @@ export function ProposalApprovalRequestButton({
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-700">Observações (opcional)</label>
+                <label className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Observações (opcional)</label>
                 <Textarea
                   rows={3}
                   placeholder="Contexto adicional para o aprovador..."

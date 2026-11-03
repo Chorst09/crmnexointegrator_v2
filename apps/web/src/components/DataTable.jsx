@@ -94,7 +94,7 @@ const DataTable = ({
             </thead>
             <tbody className="divide-y divide-[color:var(--crm-border)]">
               {data.map((item, index) => (
-                <tr key={item.id || index} className="hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                <tr key={item.id || index} className="hover:bg-black/5 dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] transition-colors">
                   {columns.map((column) => {
                     const cellValue = item ? item[column.key] : undefined;
                     let renderedContent = null;
@@ -172,7 +172,7 @@ const DataTable = ({
         <div className="text-center py-12">
           {emptyState || (
             <>
-              <div className="w-12 h-12 text-gray-400 mx-auto mb-4">📋</div>
+              <div className="w-12 h-12 text-[rgb(var(--crm-muted-rgb)_/_1)] mx-auto mb-4">📋</div>
               <h3 className="text-lg font-semibold text-[var(--crm-ink)] mb-2">Nenhum item encontrado</h3>
               <p className="text-[var(--crm-muted)]">
                 {searchTerm || statusFilter 

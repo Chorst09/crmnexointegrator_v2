@@ -156,9 +156,9 @@ export default function ProjetosV2() {
               <div key={i} className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${styles.card} p-4 transition-all hover:shadow-lg`}>
                 <div className="flex items-start justify-between">
                   <div>
-                    <p className="text-xs font-medium text-slate-600 dark:text-slate-400 uppercase tracking-wide">{kpi.label}</p>
-                    <p className="text-2xl font-bold text-slate-900 dark:text-white mt-2">{kpi.value}</p>
-                    <p className="text-xs text-slate-500 mt-1">{kpi.trend}</p>
+                    <p className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wide">{kpi.label}</p>
+                    <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2">{kpi.value}</p>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">{kpi.trend}</p>
                   </div>
                   <div className={`p-3 rounded-lg ${styles.iconBg}`}>
                     <Icon size={24} className={styles.iconColor} />
@@ -174,7 +174,7 @@ export default function ProjetosV2() {
       <div className="crm-panel p-4 space-y-4">
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
             <input type="text" placeholder="Buscar por nome ou número..." value={search} onChange={e => setSearch(e.target.value)} className="crm-input pl-9 w-full" />
           </div>
           <select value={filterStatus} onChange={e => setFilterStatus(e.target.value)} className="crm-input w-auto">
@@ -188,11 +188,11 @@ export default function ProjetosV2() {
             <option value="B2B">🏢 B2B</option>
             <option value="B2G">🏛️ B2G</option>
           </select>
-          <div className="flex gap-1 border border-slate-300 dark:border-slate-600 rounded-lg p-1">
-            <button onClick={() => setViewMode('grid')} className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'text-slate-500'}`}>
+          <div className="flex gap-1 border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg p-1">
+            <button onClick={() => setViewMode('grid')} className={`p-2 rounded ${viewMode === 'grid' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
               <Grid size={18} />
             </button>
-            <button onClick={() => setViewMode('list')} className={`p-2 rounded ${viewMode === 'list' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : 'text-slate-500'}`}>
+            <button onClick={() => setViewMode('list')} className={`p-2 rounded ${viewMode === 'list' ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
               <List size={18} />
             </button>
           </div>
@@ -201,13 +201,13 @@ export default function ProjetosV2() {
 
       {/* Projetos Grid/List */}
       {loading ? (
-        <div className="p-12 text-center text-slate-500">Carregando projetos...</div>
+        <div className="p-12 text-center text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando projetos...</div>
       ) : filtered.length === 0 ? (
         <div className="crm-panel p-12 text-center space-y-4">
-          <FolderKanban size={48} className="mx-auto opacity-30 text-slate-400" />
+          <FolderKanban size={48} className="mx-auto opacity-30 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
           <div>
-            <p className="font-semibold text-slate-700 dark:text-slate-300">Nenhum projeto encontrado</p>
-            <p className="text-sm text-slate-500 mt-1">Clique em "Novo Projeto" para começar</p>
+            <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum projeto encontrado</p>
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">Clique em "Novo Projeto" para começar</p>
           </div>
         </div>
       ) : viewMode === 'grid' ? (
@@ -220,7 +220,7 @@ export default function ProjetosV2() {
         <div className="crm-panel overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+              <tr className="border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]">
                 <th className="text-left p-3 font-semibold">Projeto</th>
                 <th className="text-left p-3 font-semibold">Cliente</th>
                 <th className="text-left p-3 font-semibold">Status</th>
@@ -231,27 +231,27 @@ export default function ProjetosV2() {
             </thead>
             <tbody>
               {filtered.map(p => (
-                <tr key={p.id} className="border-b border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer" onClick={() => navigate(`/projetos/${p.id}`)}>
+                <tr key={p.id} className="border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] transition-colors cursor-pointer" onClick={() => navigate(`/projetos/${p.id}`)}>
                   <td className="p-3">
                     <div>
-                      <p className="font-semibold text-slate-900 dark:text-white">{p.name}</p>
-                      <p className="text-xs text-slate-500">{p.number}</p>
+                      <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{p.name}</p>
+                      <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{p.number}</p>
                     </div>
                   </td>
-                  <td className="p-3 text-slate-700 dark:text-slate-300">{p.company?.name || '-'}</td>
+                  <td className="p-3 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{p.company?.name || '-'}</td>
                   <td className="p-3">
-                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800">
+                    <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-semibold bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]">
                       {statusMetrics[p.status]?.icon} {statusMetrics[p.status]?.label}
                     </span>
                   </td>
                   <td className="p-3">
-                    <div className="w-32 h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+                    <div className="w-32 h-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-full overflow-hidden">
                       <div className="h-full bg-blue-500" style={{width: `${p.progressPercent||0}%`}} />
                     </div>
                   </td>
-                  <td className="p-3 text-slate-700 dark:text-slate-300">{p.projectManager?.name || '-'}</td>
+                  <td className="p-3 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{p.projectManager?.name || '-'}</td>
                   <td className="p-3 text-right">
-                    <button onClick={(e) => { e.stopPropagation(); navigate(`/projetos/${p.id}`); }} className="text-blue-600 hover:text-blue-700 font-medium">
+                    <button onClick={(e) => { e.stopPropagation(); navigate(`/projetos/${p.id}`); }} className="text-blue-600 hover:text-blue-700 dark:hover:text-blue-300 font-medium">
                       Abrir →
                     </button>
                   </td>
@@ -266,9 +266,9 @@ export default function ProjetosV2() {
       {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={() => setShowCreateModal(false)}>
           <div className="crm-panel w-full max-w-2xl max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-            <div className="p-6 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between sticky top-0 bg-white dark:bg-slate-900 z-10">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2"><FolderKanban size={24} /> Novo Projeto</h2>
-              <button onClick={() => setShowCreateModal(false)} className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800"><X size={20} /></button>
+            <div className="p-6 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] flex items-center justify-between sticky top-0 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] z-10">
+              <h2 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-2"><FolderKanban size={24} /> Novo Projeto</h2>
+              <button onClick={() => setShowCreateModal(false)} className="p-1 rounded hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"><X size={20} /></button>
             </div>
             <form onSubmit={handleCreate} className="p-6 space-y-4">
               {error && <div className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-700 rounded-lg text-sm text-red-600 dark:text-red-400">{error}</div>}

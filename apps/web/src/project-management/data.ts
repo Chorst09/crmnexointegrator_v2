@@ -2,18 +2,18 @@ import { Issue, User, Column, ActivityLog } from './types';
 
 export const mockUsers: User[] = [
   { id: 'u1', name: 'Carlos Horst', initials: 'CH', color: 'bg-[#ff7a00]', role: 'Admin', email: 'chorst@example.com' },
-  { id: 'u2', name: 'User 2', initials: 'U2', color: 'bg-zinc-600', role: 'Membro', email: 'user2@example.com' },
+  { id: 'u2', name: 'User 2', initials: 'U2', color: "bg-[rgb(var(--crm-surface-rgb)_/_1)]", role: 'Membro', email: 'user2@example.com' },
   { id: 'u3', name: 'Ana Silva', initials: 'AS', color: 'bg-emerald-500', role: 'Convidado', email: 'ana@example.com' },
 ];
 
 export const mockColumns: Column[] = [
-  { id: 'PENDENTE', title: 'PENDENTE', colorClass: 'text-slate-400 bg-[#111827]', iconType: 'dashed' },
-  { id: 'PLANEJAMENTO', title: 'PLANEJAMENTO', colorClass: 'text-slate-300 bg-[#111827]', iconType: 'circle' },
-  { id: 'EM PROGRESSO', title: 'EM PROGRESSO', colorClass: 'text-white bg-[#3b82f6]', iconType: 'circle' },
-  { id: 'EM RISCO', title: 'EM RISCO', colorClass: 'text-white bg-[#d97706]', iconType: 'circle' },
-  { id: 'ATUALIZAÇÃO NECESSÁRIA', title: 'ATUALIZAÇÃO NECESSÁRIA', colorClass: 'text-slate-900 bg-[#eab308]', iconType: 'circle' },
-  { id: 'EM ESPERA', title: 'EM ESPERA', colorClass: 'text-white bg-[#374151]', iconType: 'circle' },
-  { id: 'CONCLUÍDO', title: 'CONCLUÍDO', colorClass: 'text-white bg-[#22c55e]', iconType: 'check' },
+  { id: 'PENDENTE', title: 'PENDENTE', colorClass: "text-[rgb(var(--crm-muted-rgb)_/_1)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]", iconType: 'dashed' },
+  { id: 'PLANEJAMENTO', title: 'PLANEJAMENTO', colorClass: "text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]", iconType: 'circle' },
+  { id: 'EM PROGRESSO', title: 'EM PROGRESSO', colorClass: "text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#3b82f6]", iconType: 'circle' },
+  { id: 'EM RISCO', title: 'EM RISCO', colorClass: "text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#d97706]", iconType: 'circle' },
+  { id: 'ATUALIZAÇÃO NECESSÁRIA', title: 'ATUALIZAÇÃO NECESSÁRIA', colorClass: "text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#eab308]", iconType: 'circle' },
+  { id: 'EM ESPERA', title: 'EM ESPERA', colorClass: "text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)]", iconType: 'circle' },
+  { id: 'CONCLUÍDO', title: 'CONCLUÍDO', colorClass: "text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#22c55e]", iconType: 'check' },
   { id: 'CANCELADO', title: 'CANCELADO', colorClass: 'text-white bg-red-500', iconType: 'check' },
 ];
 

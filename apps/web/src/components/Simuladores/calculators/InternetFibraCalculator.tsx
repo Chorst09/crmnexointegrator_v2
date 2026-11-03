@@ -1773,7 +1773,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
     return (
         <div className="p-4 md:p-8">
             {viewMode === 'search' ? (
-                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     <CardHeader>
                         <Button
                             variant="outline"
@@ -1793,7 +1793,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                 placeholder="Buscar por cliente ou ID..."
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
-                                className="bg-slate-800 border-slate-700 text-white"
+                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                             />
                             <Button onClick={createNewProposal} className="bg-blue-600 hover:bg-blue-700">
                                 <Plus className="h-4 w-4 mr-2" />Nova Proposta
@@ -1802,19 +1802,19 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                         <div className="overflow-x-auto">
                             <Table>
                                 <TableHeader>
-                                    <TableRow className="border-slate-700">
-                                        <TableHead className="text-white">ID</TableHead>
-                                        <TableHead className="text-white">Cliente</TableHead>
-                                        <TableHead className="text-white">Nome do Projeto</TableHead>
-                                        <TableHead className="text-white">Data</TableHead>
-                                        <TableHead className="text-white">Total Mensal</TableHead>
-                                        <TableHead className="text-white">Status</TableHead>
-                                        <TableHead className="text-white">Ações</TableHead>
+                                    <TableRow className="border-[var(--crm-border)]">
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">ID</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Cliente</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Nome do Projeto</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Data</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Total Mensal</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Status</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Ações</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
                                     {filteredProposals.map((p) => (
-                                        <TableRow key={p.id} className="border-slate-800">
+                                        <TableRow key={p.id} className="border-[var(--crm-border)]">
                                             <TableCell>{p.baseId || p.id}</TableCell>
                                             <TableCell>{typeof p.client === 'string' ? p.client : p.client?.name || 'Cliente não informado'} (v{p.version})</TableCell>
                                             <TableCell>{
@@ -1868,7 +1868,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                     <div className="flex justify-end gap-2 mb-4 no-print">
                         <button 
                             onClick={() => setViewMode('search')}
-                            className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50"
+                            className="px-4 py-2 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded-md hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                         >
                             ← Voltar
                         </button>
@@ -1880,18 +1880,18 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                         </button>
                     </div>
                     
-                    <Card className="bg-white border-gray-300 text-black print:shadow-none proposal-view">
+                    <Card className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] print:shadow-none proposal-view">
                         <CardHeader className="print:pb-2">
                             <div className="mb-4 print:mb-2">
-                                <h1 className="text-2xl font-bold text-gray-900">Proposta Comercial</h1>
-                                <p className="text-gray-600">Internet via Fibra Óptica</p>
+                                <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Proposta Comercial</h1>
+                                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Internet via Fibra Óptica</p>
                             </div>
                         </CardHeader>
                     <CardContent className="space-y-6 print:space-y-4">
                         {/* Dados do Cliente, Projeto e Gerente */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:gap-4">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Dados do Cliente</h3>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Dados do Cliente</h3>
                                 <div className="space-y-2 text-sm">
                                     <p><strong>Nome:</strong> {
                                         typeof currentProposal.client === 'object' && currentProposal.client?.name
@@ -1917,20 +1917,20 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                 </div>
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Nome do Projeto</h3>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Nome do Projeto</h3>
                                 <div className="space-y-2 text-sm">
                                     <p className="font-medium text-base">{
                                         typeof currentProposal.client === 'object' && currentProposal.client?.projectName
                                             ? currentProposal.client.projectName
                                             : (currentProposal.clientData?.projectName || currentProposal.metadata?.clientData?.projectName) || 'Projeto não informado'
                                     }</p>
-                                    <p className="text-gray-600 text-xs mt-2">
+                                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs mt-2">
                                         <strong>ID da Proposta:</strong> {currentProposal.base_id || currentProposal.baseId || currentProposal.id}
                                     </p>
-                                    <p className="text-gray-600 text-xs">
+                                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">
                                         <strong>Versão:</strong> v{currentProposal.version || 1}
                                     </p>
-                                    <p className="text-gray-600 text-xs">
+                                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">
                                         <strong>Período do Contrato:</strong> {(() => {
                                             const products = (currentProposal.items || currentProposal.products || []) as any[];
                                             const firstProduct = products[0];
@@ -1947,7 +1947,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                 </div>
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Gerente de Contas</h3>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Gerente de Contas</h3>
                                 <div className="space-y-2 text-sm">
                                     <p><strong>Nome:</strong> {(() => { const am = currentProposal.accountManager; if (!am) return 'N/A'; if (typeof am === 'string') { try { return JSON.parse(am)?.name || am; } catch { return am; } } return am?.name || currentProposal.metadata?.accountManager?.name || 'N/A'; })()}</p>
                                     <p><strong>Email:</strong> {(() => { const am = currentProposal.accountManager; if (typeof am === 'string') { try { return JSON.parse(am)?.email || 'N/A'; } catch { return 'N/A'; } } return am?.email || currentProposal.metadata?.accountManager?.email || 'N/A'; })()}</p>
@@ -1958,13 +1958,13 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
 
                         {/* Produtos */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Produtos e Serviços</h3>
+                            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Produtos e Serviços</h3>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="text-gray-900">Descrição</TableHead>
-                                        <TableHead className="text-gray-900">Setup</TableHead>
-                                        <TableHead className="text-gray-900">Mensal</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Descrição</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Setup</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Mensal</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -1982,8 +1982,8 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                         {/* Histórico de Descontos Aplicados - Logo após produtos */}
                         {((currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) || ((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0) && (
                             <div className="border-t pt-4 print:pt-2">
-                                <div className="p-4 bg-orange-50 border border-orange-300 rounded">
-                                    <h4 className="font-semibold text-orange-800 mb-3 flex items-center">
+                                <div className="p-4 bg-orange-50 dark:bg-orange-950 border border-orange-300 rounded">
+                                    <h4 className="font-semibold text-orange-800 dark:text-orange-300 mb-3 flex items-center">
                                         📋 Histórico de Descontos Aplicados
                                     </h4>
                                     <div className="grid grid-cols-2 gap-4 text-sm">
@@ -2007,12 +2007,12 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
 
                         {/* Resumo Financeiro */}
                         <div className="border-t pt-4 print:pt-2">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Resumo Financeiro</h3>
+                            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Resumo Financeiro</h3>
 
                             {/* Descontos Aplicados - Valores detalhados */}
                             {((currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) || ((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0) && (
-                                <div className="mb-4 p-4 bg-amber-50 border border-amber-300 rounded">
-                                    <h4 className="font-semibold text-amber-800 mb-3 flex items-center">
+                                <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-950 border border-amber-300 rounded">
+                                    <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-3 flex items-center">
                                         💰 Descontos Aplicados
                                     </h4>
                                     <div className="space-y-2 text-sm">
@@ -2022,14 +2022,14 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                         </div>
                                         
                                         {(currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) && (
-                                            <div className="flex justify-between text-orange-700">
+                                            <div className="flex justify-between text-orange-700 dark:text-orange-300">
                                                 <span><strong>Desconto Vendedor (5%):</strong></span>
                                                 <span className="font-semibold">-{formatCurrency(((currentProposal.baseTotalMonthly || currentProposal.metadata?.baseTotalMonthly || currentProposal.totalMonthly || currentProposal.metadata?.totalMonthly || 0) * 0.05))}</span>
                                             </div>
                                         )}
 
                                         {((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0 && (
-                                            <div className="flex justify-between text-orange-700">
+                                            <div className="flex justify-between text-orange-700 dark:text-orange-300">
                                                 <span><strong>Desconto Diretor ({(currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0}%) - Apenas Mensal:</strong></span>
                                                 <span className="font-semibold">-{formatCurrency((((currentProposal.baseTotalMonthly || currentProposal.metadata?.baseTotalMonthly || currentProposal.totalMonthly || currentProposal.metadata?.totalMonthly || 0) * (currentProposal.applySalespersonDiscount ? 0.95 : 1)) * ((currentProposal.appliedDirectorDiscountPercentage || 0) / 100)))}</span>
                                             </div>
@@ -2038,7 +2038,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                         <div className="pt-2 mt-2 border-t border-amber-300">
                                             <div className="flex justify-between font-semibold">
                                                 <span>Valor Final (Mensal com desconto):</span>
-                                                <span className="text-green-700">{formatCurrency(currentProposal.totalMonthly || 0)}</span>
+                                                <span className="text-green-700 dark:text-green-300">{formatCurrency(currentProposal.totalMonthly || 0)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -2046,11 +2046,11 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                             )}
 
                             {/* Resumo de Valores - Layout conforme print */}
-                            <div className="space-y-3 mb-4 p-4 bg-slate-800 rounded-lg text-white">
+                            <div className="space-y-3 mb-4 p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                 {/* Valor Original do Cliente (se for cliente existente) */}
                                 {(currentProposal.isExistingClient || currentProposal.previousMonthlyFee) && currentProposal.previousMonthlyFee && currentProposal.previousMonthlyFee > 0 && (
                                     <>
-                                        <div className="flex justify-between items-center py-3 border-b border-slate-600">
+                                        <div className="flex justify-between items-center py-3 border-b border-[var(--crm-border)]">
                                             <span className="text-base flex items-center">
                                                 <span className="mr-2">💰</span>
                                                 <strong>Valor Original do Cliente:</strong>
@@ -2080,8 +2080,8 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                     <>
                                         <div className={`mt-4 p-4 rounded-lg border-2 ${
                                             (currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0
-                                                ? 'bg-red-900/30 border-red-500'
-                                                : 'bg-green-900/30 border-green-500'
+                                                ? "bg-red-50/30 dark:bg-red-900/30 border-red-500"
+                                                : "bg-green-50/30 dark:bg-green-900/30 border-green-500"
                                         }`}>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-base flex items-center">
@@ -2090,8 +2090,8 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                 </span>
                                                 <span className={`font-bold text-3xl ${
                                                     (currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0
-                                                        ? 'text-red-400'
-                                                        : 'text-green-400'
+                                                        ? "text-red-700 dark:text-red-400"
+                                                        : "text-green-700 dark:text-green-400"
                                                 }`}>
                                                     {(currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0 ? '+' : ''}
                                                     {formatCurrency((currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee)}
@@ -2115,7 +2115,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                         {/* Payback Info se disponível */}
                         {(currentProposal.items || currentProposal.products || []).some(p => p.setup > 0) && (
                             <div className="border-t pt-4 print:pt-2">
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Análise de Payback</h3>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Análise de Payback</h3>
                                 {(() => {
                                     const proposalProducts = (currentProposal.items || currentProposal.products || []) as any[];
                                     const firstProduct = proposalProducts[0];
@@ -2183,18 +2183,18 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                     <div className="mb-6">
                         <div className="flex items-center justify-between mb-4">
                             <div>
-                                <h1 className="text-3xl font-bold text-white">{currentProposal ? 'Editar Proposta' : 'Nova Proposta'}</h1>
-                                <p className="text-slate-400 mt-2">Configure e calcule os custos para links de fibra</p>
+                                <h1 className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{currentProposal ? 'Editar Proposta' : 'Nova Proposta'}</h1>
+                                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Configure e calcule os custos para links de fibra</p>
                             </div>
                             <div className="flex gap-2">
-                                <Button variant="outline" onClick={cancelAction} className="border-slate-600 text-slate-300 hover:bg-slate-700">
+                                <Button variant="outline" onClick={cancelAction} className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]">
                                     ← Voltar para Busca
                                 </Button>
                                 {onBackToDashboard && (
                                     <Button
                                         variant="outline"
                                         onClick={onBackToDashboard}
-                                        className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                                        className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                     >
                                         ← Dashboard
                                     </Button>
@@ -2205,7 +2205,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                     </div>
 
                     <Tabs defaultValue="calculator" className="w-full">
-                        <TabsList className={`grid w-full grid-cols-5 bg-slate-800`}>
+                        <TabsList className={`grid w-full grid-cols-5 bg-[rgb(var(--crm-surface-rgb)_/_1)]`}>
                             <TabsTrigger value="calculator">Calculadora</TabsTrigger>
                             {canEditCommissions && (
                                 <TabsTrigger value="prices">Tabela de Preços</TabsTrigger>
@@ -2220,7 +2220,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                         </TabsList>
                         <TabsContent value="calculator" key={`calculator-${componentKey}`}>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-6">
-                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                     <CardHeader><CardTitle>Calculadora</CardTitle></CardHeader>
                                     <CardContent className="space-y-4">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2262,7 +2262,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                     setHasChanged(true);
                                                 }}
                                                 placeholder="0.00"
-                                                className="bg-slate-800"
+                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                             />
                                         </div>
                                         <div className="space-y-2">
@@ -2284,22 +2284,22 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                         value={previousMonthlyFee}
                                                         onChange={setPreviousMonthlyFee}
                                                         placeholder="0,00"
-                                                        className="bg-slate-800"
+                                                        className="bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                                     />
                                                 </div>
                                                 {previousMonthlyFee > 0 && result && (
-                                                    <div className="p-3 bg-slate-800/50 rounded-lg border border-slate-700">
+                                                    <div className="p-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] rounded-lg border border-[var(--crm-border)]">
                                                         <div className="flex justify-between items-center">
-                                                            <span className="text-sm text-slate-300">Diferença de Valor:</span>
+                                                            <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Diferença de Valor:</span>
                                                             <span className={`font-semibold ${result.monthlyPrice - previousMonthlyFee >= 0
-                                                                ? 'text-green-400'
-                                                                : 'text-red-400'
+                                                                ? "text-green-700 dark:text-green-400"
+                                                                : "text-red-700 dark:text-red-400"
                                                                 }`}>
                                                                 {result.monthlyPrice - previousMonthlyFee >= 0 ? '+' : ''}
                                                                 {formatCurrency(result.monthlyPrice - previousMonthlyFee)}
                                                             </span>
                                                         </div>
-                                                        <div className="text-xs text-slate-400 mt-1">
+                                                        <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                                                             {result.monthlyPrice - previousMonthlyFee >= 0
                                                                 ? 'Aumento na mensalidade'
                                                                 : 'Redução na mensalidade'
@@ -2341,7 +2341,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                         setLastMilePercentage(Math.min(100, Math.max(0, value)));
                                                     }}
                                                     placeholder="1.75"
-                                                    className="bg-slate-800 border-slate-700 text-white"
+                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                 />
                                             </div>
                                         )}
@@ -2366,8 +2366,8 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
 
                                         {/* Seção de Resultado e Validação de Payback */}
                                         {result && (
-                                            <div className="space-y-3 p-4 bg-slate-800 rounded-lg border border-slate-700">
-                                                <h4 className="text-lg font-semibold text-white">Resultado do Cálculo</h4>
+                                            <div className="space-y-3 p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg border border-[var(--crm-border)]">
+                                                <h4 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Resultado do Cálculo</h4>
                                                 <div className="space-y-2">
                                                     <div className="flex justify-between">
                                                         <span>Valor Mensal:</span>
@@ -2395,12 +2395,12 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
 
                                                 {/* Alerta de Payback */}
                                                 {includeInstallation && !result.paybackValidation.isValid && (
-                                                    <div className="p-3 bg-red-900/50 border border-red-700 rounded-lg">
+                                                    <div className="p-3 bg-red-50/50 dark:bg-red-900/50 border border-red-200 dark:border-red-700 rounded-lg">
                                                         <div className="flex items-center space-x-2">
                                                             <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                                                            <span className="font-semibold text-red-400">⚠️ Payback acima do permitido!</span>
+                                                            <span className="font-semibold text-red-700 dark:text-red-400">⚠️ Payback acima do permitido!</span>
                                                         </div>
-                                                        <p className="text-sm text-red-300 mt-1">
+                                                        <p className="text-sm text-red-700 dark:text-red-300 mt-1">
                                                             O payback de {result.paybackValidation.actualPayback} meses excede o limite de {result.paybackValidation.maxPayback} meses para contratos de {contractTerm} meses.
                                                         </p>
                                                     </div>
@@ -2408,12 +2408,12 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
 
                                                 {/* Alerta de Sucesso */}
                                                 {includeInstallation && result.paybackValidation.isValid && (
-                                                    <div className="p-3 bg-green-900/50 border border-green-700 rounded-lg">
+                                                    <div className="p-3 bg-green-50/50 dark:bg-green-900/50 border border-green-200 dark:border-green-700 rounded-lg">
                                                         <div className="flex items-center space-x-2">
                                                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                                            <span className="font-semibold text-green-400">✅ Payback dentro do limite!</span>
+                                                            <span className="font-semibold text-green-700 dark:text-green-400">✅ Payback dentro do limite!</span>
                                                         </div>
-                                                        <p className="text-sm text-green-300 mt-1">
+                                                        <p className="text-sm text-green-700 dark:text-green-300 mt-1">
                                                             O payback de {result.paybackValidation.actualPayback} meses está dentro do limite de {result.paybackValidation.maxPayback} meses.
                                                         </p>
                                                     </div>
@@ -2425,16 +2425,16 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                     </CardContent>
                                 </Card>
 
-                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                     <CardHeader><CardTitle>Resumo da Proposta</CardTitle></CardHeader>
                                     <CardContent>
                                         <div className="mb-4">
                                             <Label htmlFor="proposal-status" className="mb-2 block">Status da Proposta</Label>
                                             <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                                                <SelectTrigger id="proposal-status" className="bg-slate-800 border-slate-700 text-white">
+                                                <SelectTrigger id="proposal-status" className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <SelectValue placeholder="Selecione o status" />
                                                 </SelectTrigger>
-                                                <SelectContent className="bg-slate-800 text-white">
+                                                <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <SelectItem value="Aguardando Aprovação Diretoria">Aguardando Aprovação Diretoria</SelectItem>
                                                     <SelectItem value="Aguardando Aprovação do Cliente">Aguardando Aprovação do Cliente</SelectItem>
                                                     <SelectItem value="Proposta Enviada">Proposta Enviada</SelectItem>
@@ -2448,10 +2448,10 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                         <div className="mb-4">
                                             <Label htmlFor="proposal-temperature" className="mb-2 block">Temperatura do Negócio</Label>
                                             <Select value={selectedForecastTemperature} onValueChange={setSelectedForecastTemperature}>
-                                                <SelectTrigger id="proposal-temperature" className="bg-slate-800 border-slate-700 text-white">
+                                                <SelectTrigger id="proposal-temperature" className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <SelectValue placeholder="Selecione a temperatura" />
                                                 </SelectTrigger>
-                                                <SelectContent className="bg-slate-800 text-white">
+                                                <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <SelectItem value="0">0%</SelectItem>
                                                     <SelectItem value="25">25%</SelectItem>
                                                     <SelectItem value="50">50%</SelectItem>
@@ -2468,21 +2468,21 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                 value={proposalChanges}
                                                 onChange={(e) => setProposalChanges(e.target.value)}
                                                 placeholder="Descreva as alterações feitas nesta versão da proposta..."
-                                                className="w-full p-3 bg-slate-800 border border-slate-700 text-white rounded-md resize-none"
+                                                className="w-full p-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-md resize-none"
                                                 rows={3}
                                             />
                                         </div>
                                         {/* Debug: addedProducts.length: {addedProducts.length} */}
                                         {addedProducts.length === 0 ? (
-                                            <p className="text-slate-400">Nenhum produto adicionado.</p>
+                                            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum produto adicionado.</p>
                                         ) : (
                                             <div className="space-y-4">
                                                 <div className="max-h-60 overflow-y-auto pr-2 space-y-4">
                                                     {addedProducts.map((product) => (
-                                                        <div key={product.id} className="p-3 bg-slate-800 rounded-lg">
+                                                        <div key={product.id} className="p-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg">
                                                             <div className="flex justify-between items-start">
                                                                 <p className="font-semibold flex-1 pr-2">{product.description}</p>
-                                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveProduct(product.id)} className="text-red-400 hover:bg-red-900/50 h-7 w-7">
+                                                                <Button variant="ghost" size="icon" onClick={() => handleRemoveProduct(product.id)} className="text-red-700 dark:text-red-400 hover:bg-red-50/50 dark:hover:bg-red-900/50 h-7 w-7">
                                                                     <Trash2 className="h-4 w-4" />
                                                                 </Button>
                                                             </div>
@@ -2497,42 +2497,42 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                 {/* Histórico de Descontos Aplicados */}
                                                 {currentProposal && ((currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) || ((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0) && (
                                                     <div className="p-4 bg-gradient-to-br from-orange-950/80 to-orange-900/60 border-2 border-orange-600 rounded-lg">
-                                                        <h4 className="font-semibold text-orange-400 mb-3 flex items-center text-base">
+                                                        <h4 className="font-semibold text-orange-700 dark:text-orange-400 mb-3 flex items-center text-base">
                                                             📋 Histórico de Descontos Aplicados
                                                         </h4>
                                                         <div className="space-y-2 text-sm">
                                                             <div className="flex justify-between">
-                                                                <span className="text-slate-200">Versão:</span>
-                                                                <span className="text-orange-400 font-bold">v{currentProposal.version || 1}</span>
+                                                                <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Versão:</span>
+                                                                <span className="text-orange-700 dark:text-orange-400 font-bold">v{currentProposal.version || 1}</span>
                                                             </div>
                                                             
                                                             {(currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) && (
                                                                 <div className="flex justify-between">
-                                                                    <span className="text-slate-200">Desconto Vendedor:</span>
-                                                                    <span className="text-orange-400 font-bold">5%</span>
+                                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Desconto Vendedor:</span>
+                                                                    <span className="text-orange-700 dark:text-orange-400 font-bold">5%</span>
                                                                 </div>
                                                             )}
 
                                                             {((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0 && (
                                                                 <div className="flex justify-between">
-                                                                    <span className="text-slate-200">Desconto Diretor:</span>
-                                                                    <span className="text-orange-400 font-bold">{(currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0}%</span>
+                                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Desconto Diretor:</span>
+                                                                    <span className="text-orange-700 dark:text-orange-400 font-bold">{(currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0}%</span>
                                                                 </div>
                                                             )}
                                                             
                                                             <Separator className="my-2 bg-orange-600/50" />
                                                             <div className="flex justify-between">
-                                                                <span className="text-slate-200">Data de Criação:</span>
-                                                                <span className="text-orange-400 font-semibold">{new Date(currentProposal.createdAt).toLocaleDateString('pt-BR')}</span>
+                                                                <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Data de Criação:</span>
+                                                                <span className="text-orange-700 dark:text-orange-400 font-semibold">{new Date(currentProposal.createdAt).toLocaleDateString('pt-BR')}</span>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 )}
                                                 
-                                                <Separator className="my-4 bg-slate-700" />
+                                                <Separator className="my-4 bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
 
                                                 {/* Controles de Desconto */}
-                                                <div className="space-y-4 p-4 bg-slate-800 rounded-lg">
+                                                <div className="space-y-4 p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg">
                                                     {(!isDirector && !isAdmin) && (
                                                         <div className="flex items-center space-x-2">
                                                             <Checkbox
@@ -2559,7 +2559,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                                     placeholder="0-100"
                                                                     min="0"
                                                                     max="100"
-                                                                    className="bg-slate-700 border-slate-600 text-white"
+                                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                 />
                                                             </div>
                                                         </div>
@@ -2576,16 +2576,16 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                     )}
                                                 </div>
 
-                                                <Separator className="my-4 bg-slate-700" />
+                                                <Separator className="my-4 bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
                                                 <div className="space-y-2">
                                                     {/* Valor Original do Cliente (se for cliente existente) */}
                                                     {isExistingClient && previousMonthlyFee > 0 && (
                                                         <>
-                                                            <div className="flex justify-between text-slate-300 bg-slate-800/50 p-2 rounded">
+                                                            <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_0.5)] p-2 rounded">
                                                                 <span className="font-medium">💰 Valor Original do Cliente:</span>
                                                                 <span className="font-bold">{formatCurrency(previousMonthlyFee)}</span>
                                                             </div>
-                                                            <Separator className="my-2 bg-slate-700" />
+                                                            <Separator className="my-2 bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
                                                         </>
                                                     )}
                                                     
@@ -2594,13 +2594,13 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                         <span>{formatCurrency(addedProducts.reduce((sum, p) => sum + p.monthly, 0))}</span>
                                                     </div>
                                                     {applySalespersonDiscount && (
-                                                        <div className="flex justify-between text-orange-400">
+                                                        <div className="flex justify-between text-orange-700 dark:text-orange-400">
                                                             <span>Desconto Vendedor (5%):</span>
                                                             <span>-{formatCurrency((addedProducts.reduce((sum, p) => sum + p.monthly, 0)) * 0.05)}</span>
                                                         </div>
                                                     )}
                                                     {appliedDirectorDiscountPercentage > 0 && (
-                                                        <div className="flex justify-between text-orange-400">
+                                                        <div className="flex justify-between text-orange-700 dark:text-orange-400">
                                                             <span>Desconto Diretor ({appliedDirectorDiscountPercentage}%) - Apenas Mensal:</span>
                                                             <span>-{formatCurrency(addedProducts.reduce((sum, p) => sum + p.monthly, 0) * (applySalespersonDiscount ? 0.95 : 1) * (appliedDirectorDiscountPercentage / 100))}</span>
                                                         </div>
@@ -2617,23 +2617,23 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                     {/* Diferença de Valor (se for cliente existente) */}
                                                     {isExistingClient && previousMonthlyFee > 0 && (
                                                         <>
-                                                            <Separator className="my-2 bg-slate-700" />
+                                                            <Separator className="my-2 bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
                                                             <div className={`flex justify-between p-3 rounded-lg ${
                                                                 applyDiscounts(addedProducts.reduce((sum, p) => sum + p.monthly, 0)) - previousMonthlyFee >= 0
-                                                                    ? 'bg-red-900/30 border border-red-700/50'
-                                                                    : 'bg-green-900/30 border border-green-700/50'
+                                                                    ? "bg-red-50/30 dark:bg-red-900/30 border border-red-200/50 dark:border-red-700/50"
+                                                                    : "bg-green-50/30 dark:bg-green-900/30 border border-green-200/50 dark:border-green-700/50"
                                                             }`}>
-                                                                <span className="font-bold text-white">📊 Diferença de Valor:</span>
+                                                                <span className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">📊 Diferença de Valor:</span>
                                                                 <span className={`font-bold text-lg ${
                                                                     applyDiscounts(addedProducts.reduce((sum, p) => sum + p.monthly, 0)) - previousMonthlyFee >= 0
-                                                                        ? 'text-red-400'
-                                                                        : 'text-green-400'
+                                                                        ? "text-red-700 dark:text-red-400"
+                                                                        : "text-green-700 dark:text-green-400"
                                                                 }`}>
                                                                     {applyDiscounts(addedProducts.reduce((sum, p) => sum + p.monthly, 0)) - previousMonthlyFee >= 0 ? '+' : ''}
                                                                     {formatCurrency(applyDiscounts(addedProducts.reduce((sum, p) => sum + p.monthly, 0)) - previousMonthlyFee)}
                                                                 </span>
                                                             </div>
-                                                            <div className="text-xs text-slate-400 text-center">
+                                                            <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] text-center">
                                                                 {applyDiscounts(addedProducts.reduce((sum, p) => sum + p.monthly, 0)) - previousMonthlyFee >= 0
                                                                     ? '⬆️ Aumento na mensalidade'
                                                                     : '⬇️ Economia na mensalidade'
@@ -2642,15 +2642,15 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                         </>
                                                     )}
 
-                                                    <div className="flex justify-between text-lg font-bold mt-2 pt-2 border-t border-slate-700">
+                                                    <div className="flex justify-between text-lg font-bold mt-2 pt-2 border-t border-[var(--crm-border)]">
                                                         <span>Total Anual {(applySalespersonDiscount || appliedDirectorDiscountPercentage > 0) ? '(com desconto)' : ''}:</span>
                                                         <span>{formatCurrency(applyDiscounts(addedProducts.reduce((sum, p) => sum + p.monthly, 0)) * 12)}</span>
                                                     </div>
 
                                                     {/* Payback Information */}
                                                     {result && includeInstallation && (
-                                                        <div className="mt-4 pt-4 border-t border-slate-700">
-                                                            <h4 className="text-sm font-semibold text-slate-300 mb-2">Informações de Payback</h4>
+                                                        <div className="mt-4 pt-4 border-t border-[var(--crm-border)]">
+                                                            <h4 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Informações de Payback</h4>
                                                             <div className="space-y-2 text-sm">
                                                                 <div className="flex justify-between">
                                                                     <span>Payback Calculado:</span>
@@ -2662,7 +2662,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                                 </div>
                                                                 <div className="flex justify-between">
                                                                     <span>Status:</span>
-                                                                    <span className={`font-semibold ${result.paybackValidation.isValid ? 'text-green-400' : 'text-red-400'}`}>
+                                                                    <span className={`font-semibold ${result.paybackValidation.isValid ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                                         {result.paybackValidation.isValid ? '✅ Dentro do limite' : '⚠️ Acima do limite'}
                                                                     </span>
                                                                 </div>
@@ -2671,7 +2671,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                     )}
                                                 </div>
                                                 <div className="flex justify-end space-x-2 mt-4">
-                                                    <Button variant="outline" onClick={clearForm} className="border-slate-600 text-slate-300 hover:bg-slate-700">
+                                                    <Button variant="outline" onClick={clearForm} className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]">
                                                         Limpar Tudo
                                                     </Button>
                                                     {/* Botão "Salvar como Nova Versão" - Sempre cria uma nova versão da proposta */}
@@ -2736,7 +2736,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                 <div className="space-y-6 mt-6">
 
                                     {/* DRE - Demonstrativo de Resultado do Exercício */}
-                                    <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                    <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                         <CardHeader>
                                             <CardTitle className="flex items-center">
                                                 <div className="w-4 h-4 bg-blue-500 mr-2"></div>
@@ -2747,68 +2747,68 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                     <CardContent className="overflow-x-auto">
                                         <Table>
                                             <TableHeader>
-                                                <TableRow className="border-slate-700">
-                                                    <TableHead className="text-white">Descrição</TableHead>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Descrição</TableHead>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableHead key={period} className="text-right text-white">{period} Meses</TableHead>
+                                                        <TableHead key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{period} Meses</TableHead>
                                                     ))}
                                                 </TableRow>
                                             </TableHeader>
                                             <TableBody>
-                                                <TableRow className="border-slate-800 bg-green-900/30">
-                                                    <TableCell className="text-white font-semibold">Receita Total do Período</TableCell>
+                                                <TableRow className="border-[var(--crm-border)] bg-green-50/30 dark:bg-green-900/30">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Receita Total do Período</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].receitaMensal)}</TableCell>
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].receitaMensal)}</TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white">Receita - Taxa Instalação</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Receita - Taxa Instalação</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].receitaInstalacao)}</TableCell>
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].receitaInstalacao)}</TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800 bg-blue-900/30">
-                                                    <TableCell className="text-white font-semibold">Total</TableCell>
+                                                <TableRow className="border-[var(--crm-border)] bg-blue-50/30 dark:bg-blue-900/30">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Total</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].receitaTotalPrimeiromes)}</TableCell>
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].receitaTotalPrimeiromes)}</TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white">Custo de banda</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Custo de banda</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].custoBanda)}</TableCell>
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].custoBanda)}</TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white">Custo Fibra</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Custo Fibra</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].custoFibra)}</TableCell>
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].custoFibra)}</TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white">Fundraising</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Fundraising</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].fundraising)}</TableCell>
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].fundraising)}</TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white">Last Mile</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Last Mile</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].lastMile)}</TableCell>
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].lastMile)}</TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white">Simples Nacional</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Simples Nacional</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].simplesNacional)}</TableCell>
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].simplesNacional)}</TableCell>
                                                     ))}
                                                 </TableRow>
 
                                                 {isExistingClient && previousMonthlyFee > 0 && (
-                                                    <TableRow className="border-slate-800 bg-yellow-900/30">
-                                                        <TableCell className="text-white font-semibold">Diferença de Valores Contrato</TableCell>
+                                                    <TableRow className="border-[var(--crm-border)] bg-yellow-50/30 dark:bg-yellow-900/30">
+                                                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Diferença de Valores Contrato</TableCell>
                                                         {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                            <TableCell key={period} className="text-right text-white font-semibold">
+                                                            <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">
                                                                 {dreCalculations[period].diferencaValoresContrato >= 0 ? '+' : ''}
                                                                 {formatCurrency(dreCalculations[period].diferencaValoresContrato)}
                                                             </TableCell>
@@ -2817,87 +2817,87 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                 )}
 
                                                 {includeReferralPartner && (
-                                                    <TableRow className="border-slate-800">
-                                                        <TableCell className="text-white">Comissão Parceiro Indicador</TableCell>
+                                                    <TableRow className="border-[var(--crm-border)]">
+                                                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão Parceiro Indicador</TableCell>
                                                         {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                            <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].comissaoParceiroIndicador)}</TableCell>
+                                                            <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].comissaoParceiroIndicador)}</TableCell>
                                                         ))}
                                                     </TableRow>
                                                 )}
                                                 {includeInfluencerPartner && (
-                                                    <TableRow className="border-slate-800">
-                                                        <TableCell className="text-white">Comissão Parceiro Influenciador</TableCell>
+                                                    <TableRow className="border-[var(--crm-border)]">
+                                                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão Parceiro Influenciador</TableCell>
                                                         {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                            <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].comissaoParceiroInfluenciador)}</TableCell>
+                                                            <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].comissaoParceiroInfluenciador)}</TableCell>
                                                         ))}
                                                     </TableRow>
                                                 )}
-	                                                <TableRow className="border-slate-800">
-	                                                    <TableCell className="text-white">
+	                                                <TableRow className="border-[var(--crm-border)]">
+	                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">
 	                                                        {(includeReferralPartner || includeInfluencerPartner) ? 'Comissão Canal/Vendedor' : 'Comissão Vendedor'}
 	                                                    </TableCell>
 	                                                    {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-	                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].comissaoVendedor)}</TableCell>
+	                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].comissaoVendedor)}</TableCell>
 	                                                    ))}
 	                                                </TableRow>
-	                                                <TableRow className="border-slate-800">
-	                                                    <TableCell className="text-white">Comissão Diretor</TableCell>
+	                                                <TableRow className="border-[var(--crm-border)]">
+	                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão Diretor</TableCell>
 	                                                    {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-	                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].comissaoDiretor)}</TableCell>
+	                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].comissaoDiretor)}</TableCell>
 	                                                    ))}
 	                                                </TableRow>
-	                                                <TableRow className="border-slate-800">
-	                                                    <TableCell className="text-white">Custo / Despesa</TableCell>
+	                                                <TableRow className="border-[var(--crm-border)]">
+	                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Custo / Despesa</TableCell>
 	                                                    {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-	                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].custoDespesa)}</TableCell>
+	                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].custoDespesa)}</TableCell>
 	                                                    ))}
 	                                                </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white">Total de Custos</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Total de Custos</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">{formatCurrency(dreCalculations[period].totalCost)}</TableCell>
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(dreCalculations[period].totalCost)}</TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800 bg-green-900/50">
-                                                    <TableCell className="text-white font-bold">Balance</TableCell>
+                                                <TableRow className="border-[var(--crm-border)] bg-green-50/50 dark:bg-green-900/50">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold">Balance</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className={`text-right font-bold ${dreCalculations[period].balance >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                        <TableCell key={period} className={`text-right font-bold ${dreCalculations[period].balance >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                             {formatCurrency(dreCalculations[period].balance)}
                                                         </TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white">Margem Líquida</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Margem Líquida</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">{formatPercentage(dreCalculations[period].margemLiquida)}</TableCell>
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatPercentage(dreCalculations[period].margemLiquida)}</TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white">Markup</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Markup</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">{formatPercentage(dreCalculations[period].markup)}</TableCell>
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatPercentage(dreCalculations[period].markup)}</TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white font-semibold">Rentabilidade %</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Rentabilidade %</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className={`text-right font-semibold ${dreCalculations[period].rentabilidade >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                        <TableCell key={period} className={`text-right font-semibold ${dreCalculations[period].rentabilidade >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                             {dreCalculations[period].rentabilidade.toFixed(2)}%
                                                         </TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white font-semibold">Lucratividade</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Lucratividade</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className={`text-right font-semibold ${dreCalculations[period].lucratividade >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                        <TableCell key={period} className={`text-right font-semibold ${dreCalculations[period].lucratividade >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                             {dreCalculations[period].lucratividade.toFixed(2)}%
                                                         </TableCell>
                                                     ))}
                                                 </TableRow>
-                                                <TableRow className="border-slate-800">
-                                                    <TableCell className="text-white font-semibold">Payback (meses)</TableCell>
+                                                <TableRow className="border-[var(--crm-border)]">
+                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Payback (meses)</TableCell>
                                                     {[12, 24, 36, 48, 60].filter(period => period <= contractTerm).map(period => (
-                                                        <TableCell key={period} className="text-right text-white">
+                                                        <TableCell key={period} className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                             {dreCalculations[period].paybackMonths > 0 ? `${dreCalculations[period].paybackMonths} meses` : 'N/A'}
                                                         </TableCell>
                                                     ))}
@@ -2906,7 +2906,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                         </Table>
 
                                         {/* Resumo Executivo */}
-                                        <div className="mt-6 pt-4 border-t border-slate-700">
+                                        <div className="mt-6 pt-4 border-t border-[var(--crm-border)]">
                                             <div className="flex justify-between items-center mb-4">
                                                 <h3 className="text-lg font-semibold">Resumo Executivo</h3>
                                                 <div className="flex gap-2">
@@ -2944,7 +2944,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                                 }
                                                             }, 100);
                                                         }}
-                                                        className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                                                        className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                                     >
                                                         <Download className="h-4 w-4 mr-1" />
                                                         Exportar CSV
@@ -2953,7 +2953,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                         variant="outline"
                                                         size="sm"
                                                         onClick={handlePrint}
-                                                        className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                                                        className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                                     >
                                                         <FileText className="h-4 w-4 mr-1" />
                                                         Imprimir
@@ -2962,9 +2962,9 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                             </div>
 
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                                                <div className="bg-slate-800/50 p-4 rounded-lg">
-                                                    <h4 className="text-sm font-medium text-slate-300 mb-2">Melhor Período</h4>
-                                                    <div className="text-xl font-bold text-green-400">
+                                                <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] p-4 rounded-lg">
+                                                    <h4 className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Melhor Período</h4>
+                                                    <div className="text-xl font-bold text-green-700 dark:text-green-400">
                                                         {(() => {
                                                             const periods = [12, 24, 36, 48, 60];
                                                             const bestPeriod = periods.reduce((best, current) =>
@@ -2973,7 +2973,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                             return `${bestPeriod} meses`;
                                                         })()}
                                                     </div>
-                                                    <div className="text-sm text-slate-400">
+                                                    <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                                         {(() => {
                                                             const periods = [12, 24, 36, 48, 60];
                                                             const bestPeriod = periods.reduce((best, current) =>
@@ -2984,33 +2984,33 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                     </div>
                                                 </div>
 
-                                                <div className="bg-slate-800/50 p-4 rounded-lg">
-                                                    <h4 className="text-sm font-medium text-slate-300 mb-2">Receita Média</h4>
-                                                    <div className="text-xl font-bold text-blue-400">
+                                                <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] p-4 rounded-lg">
+                                                    <h4 className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Receita Média</h4>
+                                                    <div className="text-xl font-bold text-blue-700 dark:text-blue-400">
                                                         {formatCurrency(
                                                             [12, 24, 36, 48, 60].reduce((sum, period) =>
                                                                 sum + dreCalculations[period].receitaMensal, 0
                                                             ) / 5
                                                         )}
                                                     </div>
-                                                    <div className="text-sm text-slate-400">Por mês</div>
+                                                    <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Por mês</div>
                                                 </div>
 
-                                                <div className="bg-slate-800/50 p-4 rounded-lg">
-                                                    <h4 className="text-sm font-medium text-slate-300 mb-2">Payback Calculado</h4>
-                                                    <div className="text-xl font-bold text-purple-400">
+                                                <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] p-4 rounded-lg">
+                                                    <h4 className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Payback Calculado</h4>
+                                                    <div className="text-xl font-bold text-purple-700 dark:text-purple-400">
                                                         {(() => {
                                                             const currentPayback = dreCalculations[contractTerm]?.paybackMonths ?? 0;
                                                             return currentPayback > 0 ? `${currentPayback} meses` : '0 meses';
                                                         })()}
                                                     </div>
-                                                    <div className="text-sm text-slate-400">Tempo de retorno</div>
+                                                    <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Tempo de retorno</div>
                                                 </div>
                                             </div>
 
                                             {/* Gráfico de Rentabilidade Simples */}
-                                            <div className="bg-slate-800/50 p-4 rounded-lg mb-4">
-                                                <h4 className="text-sm font-medium text-slate-300 mb-3">Rentabilidade por Período</h4>
+                                            <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] p-4 rounded-lg mb-4">
+                                                <h4 className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Rentabilidade por Período</h4>
                                                 <div className="flex items-end justify-between h-20 gap-2">
                                                     {[12, 24, 36, 48, 60].map(period => {
                                                         const rentabilidade = dreCalculations[period].rentabilidade;
@@ -3024,8 +3024,8 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                                         }`}
                                                                     style={{ height: `${Math.abs(height)}%`, minHeight: '4px' }}
                                                                 ></div>
-                                                                <div className="text-xs text-slate-400 mt-1">{period}m</div>
-                                                                <div className="text-xs font-medium text-white">
+                                                                <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">{period}m</div>
+                                                                <div className="text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                     {rentabilidade.toFixed(1)}%
                                                                 </div>
                                                             </div>
@@ -3078,15 +3078,15 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                     }
 
                                                     return alerts.map((alert, index) => (
-                                                        <div key={index} className={`p-3 rounded-lg border-l-4 ${alert.type === 'success' ? 'bg-green-900/20 border-green-500' :
-                                                            alert.type === 'warning' ? 'bg-yellow-900/20 border-yellow-500' :
-                                                                'bg-blue-900/20 border-blue-500'
+                                                        <div key={index} className={`p-3 rounded-lg border-l-4 ${alert.type === 'success' ? "bg-green-50/20 dark:bg-green-900/20 border-green-500" :
+                                                            alert.type === 'warning' ? "bg-yellow-50/20 dark:bg-yellow-900/20 border-yellow-500" :
+                                                                "bg-blue-50/20 dark:bg-blue-900/20 border-blue-500"
                                                             }`}>
                                                             <div className="flex items-start gap-3">
                                                                 <span className="text-lg">{alert.icon}</span>
                                                                 <div>
-                                                                    <h5 className="font-medium text-white">{alert.title}</h5>
-                                                                    <p className="text-sm text-slate-300 mt-1">{alert.message}</p>
+                                                                    <h5 className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">{alert.title}</h5>
+                                                                    <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">{alert.message}</p>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -3098,7 +3098,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                 </Card>
 
                                 {/* Tabela de Impostos Editável */}
-                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                     <CardHeader>
                                         <div className="flex justify-between items-center">
                                             <div>
@@ -3112,7 +3112,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={() => setIsEditingTaxes(!isEditingTaxes)}
-                                                className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                                                className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                             >
                                                 {isEditingTaxes ? 'Salvar' : 'Editar'}
                                             </Button>
@@ -3131,7 +3131,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                         setTaxRates(prev => ({ ...prev, simplesNacional: parseFloat(e.target.value) || 0 }));
                                                     }}
                                                     disabled={!isEditingTaxes}
-                                                    className="bg-slate-800 border-slate-700"
+                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                 />
                                             </div>
                                             <div className="space-y-2">
@@ -3145,7 +3145,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                         setTaxRates(prev => ({ ...prev, banda: parseFloat(e.target.value) || 0 }));
                                                     }}
                                                     disabled={!isEditingTaxes}
-                                                    className="bg-slate-800 border-slate-700"
+                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                 />
                                             </div>
                                             <div className="space-y-2">
@@ -3159,7 +3159,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                         setTaxRates(prev => ({ ...prev, custoDesp: parseFloat(e.target.value) || 0 }));
                                                     }}
                                                     disabled={!isEditingTaxes}
-                                                    className="bg-slate-800 border-slate-700"
+                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                 />
                                             </div>
                                         </div>
@@ -3170,9 +3170,9 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
 
 
                             {/* Resultado Final */}
-                            <Card className="border-green-500 bg-gradient-to-r from-slate-900 to-green-900/20">
+                            <Card className="border-green-500 bg-gradient-to-r from-[rgb(var(--crm-surface-2-rgb)_/_1)] to-green-900/20">
                                 <CardHeader className="bg-gradient-to-r from-green-800 to-green-700 py-4">
-                                    <CardTitle className="text-xl font-bold text-white flex items-center">
+                                    <CardTitle className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center">
                                         <div className="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
                                         Resultado Final
                                     </CardTitle>
@@ -3181,77 +3181,77 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                     <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                         {/* RECEITA */}
                                         <div className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 p-4 rounded-lg border border-blue-500/30">
-                                            <h3 className="text-sm font-semibold text-blue-300 mb-3 uppercase tracking-wide">RECEITA</h3>
+                                            <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-3 uppercase tracking-wide">RECEITA</h3>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-300">Mensal:</span>
-                                                    <span className="text-blue-300 font-semibold">{formatCurrency(dreCalculations.receitaBruta)}</span>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Mensal:</span>
+                                                    <span className="text-blue-700 dark:text-blue-300 font-semibold">{formatCurrency(dreCalculations.receitaBruta)}</span>
                                                 </div>
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-300">Anual:</span>
-                                                    <span className="text-blue-300 font-semibold">{formatCurrency(dreCalculations.receitaBruta * 12)}</span>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Anual:</span>
+                                                    <span className="text-blue-700 dark:text-blue-300 font-semibold">{formatCurrency(dreCalculations.receitaBruta * 12)}</span>
                                                 </div>
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-300">Setup:</span>
-                                                    <span className="text-blue-300 font-semibold">{formatCurrency(dreCalculations.taxaInstalacao)}</span>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Setup:</span>
+                                                    <span className="text-blue-700 dark:text-blue-300 font-semibold">{formatCurrency(dreCalculations.taxaInstalacao)}</span>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* CUSTOS */}
                                         <div className="bg-gradient-to-br from-red-900/50 to-red-800/30 p-4 rounded-lg border border-red-500/30">
-                                            <h3 className="text-sm font-semibold text-red-300 mb-3 uppercase tracking-wide">CUSTOS</h3>
+                                            <h3 className="text-sm font-semibold text-red-700 dark:text-red-300 mb-3 uppercase tracking-wide">CUSTOS</h3>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-300">Banda:</span>
-                                                    <span className="text-red-300 font-semibold">{formatCurrency(dreCalculations.custoBanda)}</span>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Banda:</span>
+                                                    <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(dreCalculations.custoBanda)}</span>
                                                 </div>
 	                                                <div className="flex justify-between text-sm">
-	                                                    <span className="text-gray-300">Comissão Vendedor:</span>
-	                                                    <span className="text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoVendedor)}</span>
+	                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão Vendedor:</span>
+	                                                    <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoVendedor)}</span>
 	                                                </div>
 	                                                <div className="flex justify-between text-sm">
-	                                                    <span className="text-gray-300">Comissão Diretor:</span>
-	                                                    <span className="text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoDiretor)}</span>
+	                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão Diretor:</span>
+	                                                    <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoDiretor)}</span>
 	                                                </div>
 	                                                {includeReferralPartner && (
 	                                                    <div className="flex justify-between text-sm">
-	                                                        <span className="text-gray-300">Comissão P. Indicador:</span>
-	                                                        <span className="text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoParceiroIndicador)}</span>
+	                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão P. Indicador:</span>
+	                                                        <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoParceiroIndicador)}</span>
 	                                                    </div>
 	                                                )}
                                                 {includeInfluencerPartner && (
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">Comissão P. Influenciador:</span>
-                                                        <span className="text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoParceiroInfluenciador)}</span>
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão P. Influenciador:</span>
+                                                        <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoParceiroInfluenciador)}</span>
                                                     </div>
                                                 )}
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-300">Impostos:</span>
-                                                    <span className="text-red-300 font-semibold">{formatCurrency(dreCalculations.totalImpostos)}</span>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Impostos:</span>
+                                                    <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(dreCalculations.totalImpostos)}</span>
                                                 </div>
                                             </div>
                                         </div>
 
                                         {/* LUCRO */}
                                         <div className="bg-gradient-to-br from-green-900/50 to-green-800/30 p-4 rounded-lg border border-green-500/30">
-                                            <h3 className="text-sm font-semibold text-green-300 mb-3 uppercase tracking-wide">LUCRO</h3>
+                                            <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 mb-3 uppercase tracking-wide">LUCRO</h3>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-300">Operacional:</span>
-                                                    <span className={`font-semibold ${dreCalculations.lucroOperacional >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Operacional:</span>
+                                                    <span className={`font-semibold ${dreCalculations.lucroOperacional >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
                                                         {formatCurrency(dreCalculations.lucroOperacional)}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-300">Líquido:</span>
-                                                    <span className={`font-semibold ${dreCalculations.lucroLiquido >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Líquido:</span>
+                                                    <span className={`font-semibold ${dreCalculations.lucroLiquido >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
                                                         {formatCurrency(dreCalculations.lucroLiquido)}
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-300">Anual:</span>
-                                                    <span className={`font-semibold ${dreCalculations.lucroLiquido >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Anual:</span>
+                                                    <span className={`font-semibold ${dreCalculations.lucroLiquido >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
                                                         {formatCurrency(dreCalculations.lucroLiquido * 12)}
                                                     </span>
                                                 </div>
@@ -3260,23 +3260,23 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
 
                                         {/* INDICADORES */}
                                         <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 p-4 rounded-lg border border-purple-500/30">
-                                            <h3 className="text-sm font-semibold text-purple-300 mb-3 uppercase tracking-wide">INDICADORES</h3>
+                                            <h3 className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-3 uppercase tracking-wide">INDICADORES</h3>
                                             <div className="space-y-2">
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-300">Margem:</span>
-                                                    <span className={`font-semibold ${dreCalculations.rentabilidade >= 0 ? 'text-purple-300' : 'text-red-300'}`}>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Margem:</span>
+                                                    <span className={`font-semibold ${dreCalculations.rentabilidade >= 0 ? "text-purple-700 dark:text-purple-300" : "text-red-700 dark:text-red-300"}`}>
                                                         {dreCalculations.rentabilidade.toFixed(1)}%
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-300">Payback:</span>
-                                                    <span className="text-purple-300 font-semibold">
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Payback:</span>
+                                                    <span className="text-purple-700 dark:text-purple-300 font-semibold">
                                                         {dreCalculations.paybackMeses}m
                                                     </span>
                                                 </div>
                                                 <div className="flex justify-between text-sm">
-                                                    <span className="text-gray-300">ROI Anual:</span>
-                                                    <span className={`font-semibold ${dreCalculations.rentabilidade >= 0 ? 'text-purple-300' : 'text-red-300'}`}>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">ROI Anual:</span>
+                                                    <span className={`font-semibold ${dreCalculations.rentabilidade >= 0 ? "text-purple-700 dark:text-purple-300" : "text-red-700 dark:text-red-300"}`}>
                                                         {(dreCalculations.rentabilidade * 12).toFixed(1)}%
                                                     </span>
                                                 </div>
@@ -3285,29 +3285,29 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                     </div>
 
                                     {/* Resumo Executivo */}
-                                    <div className="mt-6 pt-6 border-t border-slate-700">
+                                    <div className="mt-6 pt-6 border-t border-[var(--crm-border)]">
                                         <div className="flex items-center mb-4">
                                             <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                                            <h3 className="text-lg font-semibold text-white">Resumo Executivo</h3>
+                                            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Resumo Executivo</h3>
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                             <div className="text-center">
-                                                <div className="text-2xl font-bold text-green-400">
+                                                <div className="text-2xl font-bold text-green-700 dark:text-green-400">
                                                     {formatCurrency(dreCalculations.receitaBruta * 12)}
                                                 </div>
-                                                <div className="text-sm text-slate-400">Receita Total (12m)</div>
+                                                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Receita Total (12m)</div>
                                             </div>
                                             <div className="text-center">
-                                                <div className={`text-2xl font-bold ${dreCalculations.lucroLiquido >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                <div className={`text-2xl font-bold ${dreCalculations.lucroLiquido >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                     {formatCurrency(dreCalculations.lucroLiquido * 12)}
                                                 </div>
-                                                <div className="text-sm text-slate-400">Lucro Total (12m)</div>
+                                                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Lucro Total (12m)</div>
                                             </div>
                                             <div className="text-center">
-                                                <div className={`text-2xl font-bold ${dreCalculations.rentabilidade >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                <div className={`text-2xl font-bold ${dreCalculations.rentabilidade >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                     {dreCalculations.rentabilidade.toFixed(1)}%
                                                 </div>
-                                                <div className="text-sm text-slate-400">Margem Líquida</div>
+                                                <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Margem Líquida</div>
                                             </div>
                                         </div>
                                     </div>
@@ -3317,29 +3317,29 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                         )}
                         {canEditCommissions && (
                             <TabsContent value="prices">
-                                <Card className="bg-slate-900/80 border-slate-800 text-white mt-4">
+                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] mt-4">
                                     <CardHeader>
-                                        <CardTitle className="text-white">Tabela de Preços - Internet Fibra</CardTitle>
+                                        <CardTitle className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Tabela de Preços - Internet Fibra</CardTitle>
                                         <CardDescription>Atualize os preços conforme necessário</CardDescription>
                                     </CardHeader>
                                     <CardContent>
                                         <div className="overflow-x-auto">
                                             <Table>
                                                 <TableHeader>
-                                                    <TableRow className="border-slate-700">
-                                                        <TableHead className="text-white">Velocidade</TableHead>
-                                                        <TableHead className="text-right text-white">12 meses</TableHead>
-                                                        <TableHead className="text-right text-white">24 meses</TableHead>
-                                                        <TableHead className="text-right text-white">36 meses</TableHead>
-                                                        <TableHead className="text-right text-white">48 meses</TableHead>
-                                                        <TableHead className="text-right text-white">60 meses</TableHead>
-                                                        <TableHead className="text-right text-white">Taxa de Instalação</TableHead>
-                                                        <TableHead className="text-right text-white">Custo Fibra</TableHead>
+                                                    <TableRow className="border-[var(--crm-border)]">
+                                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Velocidade</TableHead>
+                                                        <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">12 meses</TableHead>
+                                                        <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">24 meses</TableHead>
+                                                        <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">36 meses</TableHead>
+                                                        <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">48 meses</TableHead>
+                                                        <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">60 meses</TableHead>
+                                                        <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">Taxa de Instalação</TableHead>
+                                                        <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">Custo Fibra</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
                                                     {fibraPlans.map((plan, index) => (
-                                                        <TableRow key={plan.speed} className="border-slate-800">
+                                                        <TableRow key={plan.speed} className="border-[var(--crm-border)]">
                                                             <TableCell className="font-medium">{plan.description}</TableCell>
                                                             <TableCell>
                                                                 <Input
@@ -3348,7 +3348,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                                     value={plan.price12 || ''}
                                                                     onChange={(e) => handlePriceChange(index, 'price12', e.target.value)}
                                                                     placeholder="0.00"
-                                                                    className="text-right bg-slate-800 border-slate-700"
+                                                                    className="text-right bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                 />
                                                             </TableCell>
                                                             <TableCell>
@@ -3358,7 +3358,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                                     value={plan.price24 || ''}
                                                                     onChange={(e) => handlePriceChange(index, 'price24', e.target.value)}
                                                                     placeholder="0.00"
-                                                                    className="text-right bg-slate-800 border-slate-700"
+                                                                    className="text-right bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                 />
                                                             </TableCell>
                                                             <TableCell>
@@ -3368,7 +3368,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                                     value={plan.price36 || ''}
                                                                     onChange={(e) => handlePriceChange(index, 'price36', e.target.value)}
                                                                     placeholder="0.00"
-                                                                    className="text-right bg-slate-800 border-slate-700"
+                                                                    className="text-right bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                 />
                                                             </TableCell>
                                                             <TableCell>
@@ -3378,7 +3378,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                                     value={plan.price48 || ''}
                                                                     onChange={(e) => handlePriceChange(index, 'price48', e.target.value)}
                                                                     placeholder="0.00"
-                                                                    className="text-right bg-slate-800 border-slate-700"
+                                                                    className="text-right bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                 />
                                                             </TableCell>
                                                             <TableCell>
@@ -3388,7 +3388,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                                     value={plan.price60 || ''}
                                                                     onChange={(e) => handlePriceChange(index, 'price60', e.target.value)}
                                                                     placeholder="0.00"
-                                                                    className="text-right bg-slate-800 border-slate-700"
+                                                                    className="text-right bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                 />
                                                             </TableCell>
                                                             <TableCell>
@@ -3398,7 +3398,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                                     value={plan.installationCost || ''}
                                                                     onChange={(e) => handlePriceChange(index, 'installationCost', e.target.value)}
                                                                     placeholder="0.00"
-                                                                    className="text-right bg-slate-800 border-slate-700"
+                                                                    className="text-right bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                 />
                                                             </TableCell>
                                                             <TableCell>
@@ -3408,7 +3408,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                                     value={plan.fiberCost || ''}
                                                                     onChange={(e) => handlePriceChange(index, 'fiberCost', e.target.value)}
                                                                     placeholder="0.00"
-                                                                    className="text-right bg-slate-800 border-slate-700"
+                                                                    className="text-right bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                 />
                                                             </TableCell>
                                                         </TableRow>
@@ -3425,8 +3425,8 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
 
                                         {/* Informações de Contrato */}
                                         <div className="mt-8">
-                                            <h3 className="text-xl font-semibold mb-4 text-white">Informações de Contrato</h3>
-                                            <div className="space-y-2 text-white">
+                                            <h3 className="text-xl font-semibold mb-4 text-[rgb(var(--crm-ink-rgb)_/_1)]">Informações de Contrato</h3>
+                                            <div className="space-y-2 text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                 <p>Contratos de 12 meses - Payback 08 meses</p>
                                                 <p>Contratos de 24 meses - Payback 10 meses</p>
                                                 <p>Contratos de 36 meses - Payback 11 meses</p>

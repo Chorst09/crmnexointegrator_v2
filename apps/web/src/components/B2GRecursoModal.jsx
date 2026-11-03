@@ -104,7 +104,7 @@ const B2GRecursoModal = ({
       <div className="space-y-5 p-2">
         {/* Header */}
         <div className="flex items-center gap-3 p-4 rounded-xl border border-amber-400/40 bg-amber-500/10">
-          <AlertTriangle className="h-6 w-6 text-amber-400 flex-shrink-0" />
+          <AlertTriangle className="h-6 w-6 text-amber-700 dark:text-amber-400 flex-shrink-0" />
           <div>
             <p className="text-sm font-semibold text-[color:var(--crm-text)]">
               Registro de Recurso

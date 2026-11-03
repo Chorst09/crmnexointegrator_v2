@@ -42,15 +42,15 @@ export default function B2GOpportunityAlerts({ isOpen, onClose }) {
   const visibleAlerts = alerts.filter((alert) => !dismissedIds.has(alert.opportunityId));
 
   const getAlertColor = (alertType) => {
-    if (alertType === 'TODAY') return 'bg-red-500/20 border-red-500/50 text-red-400';
-    if (alertType === 'TOMORROW') return 'bg-orange-500/20 border-orange-500/50 text-orange-400';
-    return 'bg-yellow-500/20 border-yellow-500/50 text-yellow-400';
+    if (alertType === 'TODAY') return "bg-red-500/20 border-red-500/50 text-red-700 dark:text-red-400";
+    if (alertType === 'TOMORROW') return "bg-orange-500/20 border-orange-500/50 text-orange-700 dark:text-orange-400";
+    return "bg-yellow-500/20 border-yellow-500/50 text-yellow-700 dark:text-yellow-400";
   };
 
   const getAlertBadge = (alertType) => {
-    if (alertType === 'TODAY') return { label: 'HOJE', color: 'bg-red-500/40 text-red-300' };
-    if (alertType === 'TOMORROW') return { label: 'AMANHÃ', color: 'bg-orange-500/40 text-orange-300' };
-    return { label: 'EM BREVE', color: 'bg-yellow-500/40 text-yellow-300' };
+    if (alertType === 'TODAY') return { label: 'HOJE', color: "bg-red-500/40 text-red-700 dark:text-red-300" };
+    if (alertType === 'TOMORROW') return { label: 'AMANHÃ', color: "bg-orange-500/40 text-orange-700 dark:text-orange-300" };
+    return { label: 'EM BREVE', color: "bg-yellow-500/40 text-yellow-700 dark:text-yellow-300" };
   };
 
   const formatDate = (date) => {
@@ -68,25 +68,25 @@ export default function B2GOpportunityAlerts({ isOpen, onClose }) {
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-end lg:items-center lg:justify-end lg:p-4">
       <div
-        className="w-full lg:max-w-lg h-[80vh] lg:h-auto lg:max-h-[80vh] bg-slate-950 rounded-t-3xl lg:rounded-2xl border border-slate-700 flex flex-col overflow-hidden shadow-2xl"
+        className="w-full lg:max-w-lg h-[80vh] lg:h-auto lg:max-h-[80vh] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-t-3xl lg:rounded-2xl border border-[var(--crm-border)] flex flex-col overflow-hidden shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b border-slate-700 px-6 py-4 shrink-0">
+        <div className="flex items-center justify-between gap-3 border-b border-[var(--crm-border)] px-6 py-4 shrink-0">
           <div className="flex items-center gap-3">
             <div className="rounded-lg bg-orange-500/20 p-2">
-              <Bell className="h-5 w-5 text-orange-400" />
+              <Bell className="h-5 w-5 text-orange-700 dark:text-orange-400" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-white">Alertas de Abertura</h2>
-              <p className="text-xs text-slate-400">
+              <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Alertas de Abertura</h2>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 {visibleAlerts.length} oportunidade{visibleAlerts.length !== 1 ? 's' : ''} com abertura próxima
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-all"
+            className="rounded-lg p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-all"
           >
             <X className="h-5 w-5" />
           </button>
@@ -95,18 +95,18 @@ export default function B2GOpportunityAlerts({ isOpen, onClose }) {
         {/* Content */}
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="flex items-center justify-center h-full text-slate-400">
+            <div className="flex items-center justify-center h-full text-[rgb(var(--crm-muted-rgb)_/_1)]">
               <div className="animate-spin">
                 <Bell className="h-6 w-6" />
               </div>
             </div>
           ) : error ? (
-            <div className="p-6 text-center text-red-400">
+            <div className="p-6 text-center text-red-700 dark:text-red-400">
               <AlertTriangle className="h-8 w-8 mx-auto mb-2 opacity-50" />
               <p>{error}</p>
             </div>
           ) : visibleAlerts.length === 0 ? (
-            <div className="p-6 text-center text-slate-400">
+            <div className="p-6 text-center text-[rgb(var(--crm-muted-rgb)_/_1)]">
               <Bell className="h-8 w-8 mx-auto mb-2 opacity-30" />
               <p>Nenhum alerta no momento</p>
             </div>
@@ -124,7 +124,7 @@ export default function B2GOpportunityAlerts({ isOpen, onClose }) {
                       <div className="flex items-start gap-2 flex-1 min-w-0">
                         <AlertTriangle className="h-4 w-4 mt-0.5 shrink-0" />
                         <div className="min-w-0 flex-1">
-                          <h3 className="font-bold text-sm text-white truncate">{alert.title}</h3>
+                          <h3 className="font-bold text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">{alert.title}</h3>
                           <p className="text-xs opacity-80 truncate">{alert.company?.name || 'Sem empresa'}</p>
                         </div>
                       </div>
@@ -158,14 +158,14 @@ export default function B2GOpportunityAlerts({ isOpen, onClose }) {
                           // Navegar para edição da oportunidade
                           window.location.href = `/b2g-oportunidades?clientType=B2G&opportunityId=${encodeURIComponent(alert.opportunityId)}&mode=view`;
                         }}
-                        className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-slate-700/50 hover:bg-slate-600/50 px-3 py-2 text-xs font-semibold transition-all"
+                        className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_0.5)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] px-3 py-2 text-xs font-semibold transition-all"
                       >
                         Ver
                         <ChevronRight className="h-3.5 w-3.5" />
                       </button>
                       <button
                         onClick={() => handleDismiss(alert.opportunityId)}
-                        className="px-3 py-2 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-xs font-semibold transition-all"
+                        className="px-3 py-2 rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_0.3)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] text-xs font-semibold transition-all"
                       >
                         Descartar
                       </button>
@@ -179,8 +179,8 @@ export default function B2GOpportunityAlerts({ isOpen, onClose }) {
 
         {/* Footer */}
         {visibleAlerts.length > 0 && (
-          <div className="border-t border-slate-700 px-6 py-3 shrink-0 bg-slate-900/50">
-            <p className="text-xs text-slate-400 text-center">
+          <div className="border-t border-[var(--crm-border)] px-6 py-3 shrink-0 bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)]">
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] text-center">
               Atualize os prazos para não perder as oportunidades
             </p>
           </div>

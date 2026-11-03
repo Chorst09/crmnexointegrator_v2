@@ -131,104 +131,104 @@ export default function Sidebar({
       id: 'geral',
       title: 'VISÃO GERAL',
       icon: Gauge,
-      accent: 'from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-white shadow-cyan-500/35',
+      accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35",
       items: [
-        { path: '/dashboard-geral', label: 'Dashboard Geral', icon: ChartNoAxesCombined, accent: 'from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-white shadow-cyan-500/35', description: 'Visão consolidada de todos os módulos' },
+        { path: '/dashboard-geral', label: 'Dashboard Geral', icon: ChartNoAxesCombined, accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35", description: 'Visão consolidada de todos os módulos' },
       ]
     },
     {
       id: 'vendas',
       title: 'B2B PRIVADO',
       icon: Radar,
-      accent: 'from-orange-300/95 via-amber-400/90 to-cyan-400/85 text-slate-950 shadow-orange-500/30',
+      accent: "from-orange-300/95 via-amber-400/90 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30",
       items: [
-        { path: '/dashboard', label: 'Dashboard B2B', icon: Gauge, accent: 'from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-white shadow-cyan-500/35', description: 'Visao geral do negocio' },
-        { path: '/empresas', label: 'Empresas', icon: Building2, accent: 'from-sky-300/95 via-cyan-400/85 to-teal-300/90 text-slate-950 shadow-cyan-500/30', description: 'Clientes e prospects' },
-        { path: '/leads', label: 'Lead', icon: ContactRound, accent: 'from-lime-300/95 via-emerald-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30', description: 'Gestao de leads' },
-        { path: '/oportunidades', label: 'Oportunidades', icon: Radar, accent: 'from-orange-300/95 via-amber-400/90 to-cyan-400/85 text-slate-950 shadow-orange-500/30', description: 'Funil e negociacoes' },
-        { path: '/atividades', label: 'Atividades', icon: CalendarCheck2, accent: 'from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30', description: 'Tarefas e agenda' },
-        { path: '/b2b-kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: 'from-rose-300/95 via-orange-400/90 to-amber-300/90 text-slate-950 shadow-orange-500/30', description: 'Reuniões estratégicas do projeto' },
-        { path: '/simuladores', label: 'Simuladores', icon: Calculator, accent: 'from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-white shadow-fuchsia-500/25', description: 'Dashboard, Precificação e Propostas' },
-        { path: '/propostas', label: 'Propostas', icon: FileSignature, accent: 'from-amber-200/95 via-orange-400/90 to-rose-400/85 text-slate-950 shadow-orange-500/30', description: 'Cotas e propostas' },
-        { path: '/templates-propostas', label: 'Templates', icon: Palette, accent: 'from-fuchsia-300/95 via-rose-400/85 to-orange-300/90 text-white shadow-rose-500/25', description: 'Templates de proposta' },
-        { path: '/contratos', label: 'Contratos', icon: ShieldCheck, accent: 'from-blue-300/95 via-indigo-400/85 to-cyan-400/85 text-white shadow-blue-500/30', description: 'Contratos e SLA' }
+        { path: '/dashboard', label: 'Dashboard B2B', icon: Gauge, accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35", description: 'Visao geral do negocio' },
+        { path: '/empresas', label: 'Empresas', icon: Building2, accent: "from-sky-300/95 via-cyan-400/85 to-teal-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/30", description: 'Clientes e prospects' },
+        { path: '/leads', label: 'Lead', icon: ContactRound, accent: "from-lime-300/95 via-emerald-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Gestao de leads' },
+        { path: '/oportunidades', label: 'Oportunidades', icon: Radar, accent: "from-orange-300/95 via-amber-400/90 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Funil e negociacoes' },
+        { path: '/atividades', label: 'Atividades', icon: CalendarCheck2, accent: "from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Tarefas e agenda' },
+        { path: '/b2b-kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: "from-rose-300/95 via-orange-400/90 to-amber-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Reuniões estratégicas do projeto' },
+        { path: '/simuladores', label: 'Simuladores', icon: Calculator, accent: "from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-fuchsia-500/25", description: 'Dashboard, Precificação e Propostas' },
+        { path: '/propostas', label: 'Propostas', icon: FileSignature, accent: "from-amber-200/95 via-orange-400/90 to-rose-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Cotas e propostas' },
+        { path: '/templates-propostas', label: 'Templates', icon: Palette, accent: "from-fuchsia-300/95 via-rose-400/85 to-orange-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-rose-500/25", description: 'Templates de proposta' },
+        { path: '/contratos', label: 'Contratos', icon: ShieldCheck, accent: "from-blue-300/95 via-indigo-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Contratos e SLA' }
       ]
     },
     {
       id: 'b2g',
       title: 'B2G GOVERNO',
       icon: Landmark,
-      accent: 'from-amber-200/95 via-yellow-400/90 to-sky-400/80 text-slate-950 shadow-amber-500/30',
+      accent: "from-amber-200/95 via-yellow-400/90 to-sky-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-amber-500/30",
       items: [
-        { path: '/b2g-dashboard', label: 'Dashboard', icon: ChartNoAxesCombined, accent: 'from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-white shadow-cyan-500/35', description: 'Visão estratégica B2G' },
-        { path: '/b2g-orgaos', label: 'Órgãos', icon: Landmark, accent: 'from-amber-200/95 via-yellow-400/90 to-sky-400/80 text-slate-950 shadow-amber-500/30', description: 'Cadastro de órgãos governamentais' },
-        { path: '/b2g-buscar-editais', label: 'Buscar Editais', icon: Search, accent: 'from-sky-300/95 via-cyan-400/85 to-emerald-300/90 text-slate-950 shadow-cyan-500/30', description: 'Licitações Core Platform - Busca avançada e inteligência PNCP' },
-        { path: '/b2g-leads', label: 'Leads', icon: UsersRound, accent: 'from-lime-300/95 via-emerald-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30', description: 'Órgãos e contas no radar' },
-        { path: '/b2g-oportunidades', label: 'Oportunidades', icon: Gavel, accent: 'from-orange-300/95 via-amber-400/90 to-yellow-300/85 text-slate-950 shadow-orange-500/30', description: 'Pipeline de licitações' },
-        { path: '/b2g-kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: 'from-rose-300/95 via-orange-400/90 to-amber-300/90 text-slate-950 shadow-orange-500/30', description: 'Reuniões estratégicas do projeto' },
-        { path: '/b2g-atas', label: 'Atas de Registro de Preços', icon: Archive, accent: 'from-yellow-200/95 via-amber-400/90 to-orange-400/85 text-slate-950 shadow-amber-500/30', description: 'Controle de atas RP' },
-        { path: '/b2g-atividades', label: 'Atividades', icon: Workflow, accent: 'from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30', description: 'Agenda operacional B2G' },
-        { path: '/b2g-documentacao', label: 'Documentação', icon: BookOpenCheck, accent: 'from-blue-200/95 via-cyan-400/85 to-teal-300/90 text-slate-950 shadow-cyan-500/30', description: 'Checklist documental' },
-        { path: '/b2g-relatorios', label: 'Relatórios Estratégicos', icon: LineChart, accent: 'from-cyan-300/95 via-blue-400/85 to-indigo-400/85 text-white shadow-blue-500/30', description: 'Indicadores e decisões' },
-        { path: '/b2g-historico', label: 'Histórico', icon: History, accent: 'from-slate-200/95 via-sky-300/85 to-cyan-400/80 text-slate-950 shadow-sky-500/25', description: 'Linha do tempo do edital' }
+        { path: '/b2g-dashboard', label: 'Dashboard', icon: ChartNoAxesCombined, accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35", description: 'Visão estratégica B2G' },
+        { path: '/b2g-orgaos', label: 'Órgãos', icon: Landmark, accent: "from-amber-200/95 via-yellow-400/90 to-sky-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-amber-500/30", description: 'Cadastro de órgãos governamentais' },
+        { path: '/b2g-buscar-editais', label: 'Buscar Editais', icon: Search, accent: "from-sky-300/95 via-cyan-400/85 to-emerald-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/30", description: 'Licitações Core Platform - Busca avançada e inteligência PNCP' },
+        { path: '/b2g-leads', label: 'Leads', icon: UsersRound, accent: "from-lime-300/95 via-emerald-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Órgãos e contas no radar' },
+        { path: '/b2g-oportunidades', label: 'Oportunidades', icon: Gavel, accent: "from-orange-300/95 via-amber-400/90 to-yellow-300/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Pipeline de licitações' },
+        { path: '/b2g-kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: "from-rose-300/95 via-orange-400/90 to-amber-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Reuniões estratégicas do projeto' },
+        { path: '/b2g-atas', label: 'Atas de Registro de Preços', icon: Archive, accent: "from-yellow-200/95 via-amber-400/90 to-orange-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-amber-500/30", description: 'Controle de atas RP' },
+        { path: '/b2g-atividades', label: 'Atividades', icon: Workflow, accent: "from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Agenda operacional B2G' },
+        { path: '/b2g-documentacao', label: 'Documentação', icon: BookOpenCheck, accent: "from-blue-200/95 via-cyan-400/85 to-teal-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/30", description: 'Checklist documental' },
+        { path: '/b2g-relatorios', label: 'Relatórios Estratégicos', icon: LineChart, accent: "from-cyan-300/95 via-blue-400/85 to-indigo-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Indicadores e decisões' },
+        { path: '/b2g-historico', label: 'Histórico', icon: History, accent: "from-[rgb(var(--crm-surface-rgb)_/_0.95)] via-sky-300/85 to-cyan-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sky-500/25", description: 'Linha do tempo do edital' }
       ]
     },
     {
       id: 'prevendas',
       title: 'Pre-Vendas',
       icon: Rocket,
-      accent: 'from-rose-300/95 via-orange-400/90 to-amber-300/90 text-slate-950 shadow-orange-500/30',
+      accent: "from-rose-300/95 via-orange-400/90 to-amber-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30",
       items: [
-        { path: '/pre-vendas', label: 'Dashboard', icon: LayoutDashboard, accent: 'from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-white shadow-cyan-500/35', description: 'Visao geral pre-vendas' },
-        { path: '/solicitacoes', label: 'Solicitacoes', icon: ClipboardCheck, accent: 'from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30', description: 'Solicitacoes recebidas' },
-        { path: '/orcamentos', label: 'Orçamentos', icon: BadgeDollarSign, accent: 'from-yellow-200/95 via-amber-400/90 to-orange-400/85 text-slate-950 shadow-amber-500/30', description: 'Cotações registradas no fluxo' },
-        { path: '/prevendas-distribuidores', label: 'Distribuidores', icon: Network, accent: 'from-sky-300/95 via-cyan-400/85 to-teal-300/90 text-slate-950 shadow-cyan-500/30', description: 'Base de distribuidores homologados' },
-        { path: '/prevendas-fornecedores', label: 'Fornecedores', icon: Package, accent: 'from-indigo-300/95 via-blue-400/85 to-cyan-400/85 text-white shadow-blue-500/30', description: 'Base de fornecedores homologados' },
-        { path: '/prevendas-registro-oportunidades', label: 'Registro de Oportunidades', icon: Radar, accent: 'from-orange-300/95 via-amber-400/90 to-cyan-400/85 text-slate-950 shadow-orange-500/30', description: 'Registro técnico para Pré-Vendas' },
-        { path: '/calculadoras', label: 'Calculadoras', icon: Calculator, accent: 'from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-white shadow-fuchsia-500/25', description: 'Venda, locacao e servicos' },
-        { path: '/ratear-produtos', label: 'Ratear Produtos', icon: GitBranch, accent: 'from-lime-300/95 via-emerald-400/85 to-sky-400/85 text-slate-950 shadow-emerald-500/30', description: 'Rateio de despesas por produto' },
-        { path: '/rateios-salvos', label: 'Rateios Salvos', icon: History, accent: 'from-slate-200/95 via-sky-300/85 to-cyan-400/80 text-slate-950 shadow-sky-500/25', description: 'Historico de rateios executados' },
-        { path: '/gestao-pocs', label: 'Gestão de POCs', icon: Beaker, accent: 'from-rose-300/95 via-fuchsia-400/85 to-violet-400/85 text-white shadow-fuchsia-500/25', description: 'Planejamento e validação de provas de conceito' }
+        { path: '/pre-vendas', label: 'Dashboard', icon: LayoutDashboard, accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35", description: 'Visao geral pre-vendas' },
+        { path: '/solicitacoes', label: 'Solicitacoes', icon: ClipboardCheck, accent: "from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Solicitacoes recebidas' },
+        { path: '/orcamentos', label: 'Orçamentos', icon: BadgeDollarSign, accent: "from-yellow-200/95 via-amber-400/90 to-orange-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-amber-500/30", description: 'Cotações registradas no fluxo' },
+        { path: '/prevendas-distribuidores', label: 'Distribuidores', icon: Network, accent: "from-sky-300/95 via-cyan-400/85 to-teal-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/30", description: 'Base de distribuidores homologados' },
+        { path: '/prevendas-fornecedores', label: 'Fornecedores', icon: Package, accent: "from-indigo-300/95 via-blue-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Base de fornecedores homologados' },
+        { path: '/prevendas-registro-oportunidades', label: 'Registro de Oportunidades', icon: Radar, accent: "from-orange-300/95 via-amber-400/90 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Registro técnico para Pré-Vendas' },
+        { path: '/calculadoras', label: 'Calculadoras', icon: Calculator, accent: "from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-fuchsia-500/25", description: 'Venda, locacao e servicos' },
+        { path: '/ratear-produtos', label: 'Ratear Produtos', icon: GitBranch, accent: "from-lime-300/95 via-emerald-400/85 to-sky-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Rateio de despesas por produto' },
+        { path: '/rateios-salvos', label: 'Rateios Salvos', icon: History, accent: "from-[rgb(var(--crm-surface-rgb)_/_0.95)] via-sky-300/85 to-cyan-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sky-500/25", description: 'Historico de rateios executados' },
+        { path: '/gestao-pocs', label: 'Gestão de POCs', icon: Beaker, accent: "from-rose-300/95 via-fuchsia-400/85 to-violet-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-fuchsia-500/25", description: 'Planejamento e validação de provas de conceito' }
       ]
     },
     {
       id: 'gestao',
       title: 'Gestao',
       icon: FolderKanban,
-      accent: 'from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30',
+      accent: "from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30",
       items: [
-        { path: '/produtos', label: 'Produtos', icon: Package, accent: 'from-indigo-300/95 via-blue-400/85 to-cyan-400/85 text-white shadow-blue-500/30', description: 'Catalogo e itens' },
-        { path: '/vendedores', label: 'Vendedores', icon: UsersRound, accent: 'from-lime-300/95 via-emerald-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30', description: 'Equipe e cadastro' },
-        { path: '/analise-financeira', label: 'Análise Financeira', icon: BarChart3, accent: 'from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-white shadow-cyan-500/35', description: 'Dashboard financeiro e análise' },
-        { path: '/comissoes', label: 'Comissoes', icon: Coins, accent: 'from-yellow-200/95 via-amber-400/90 to-orange-400/85 text-slate-950 shadow-amber-500/30', description: 'Pagamentos e regras' },
-        { path: '/metas-performance', label: 'Metas & Performance', icon: Trophy, accent: 'from-orange-300/95 via-amber-400/90 to-yellow-300/85 text-slate-950 shadow-orange-500/30', description: 'Metas e indicadores' },
-        { path: '/kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: 'from-rose-300/95 via-orange-400/90 to-amber-300/90 text-slate-950 shadow-orange-500/30', description: 'Reuniões estratégicas do projeto' },
-        { path: '/projetos', label: 'Gestão de Projetos', icon: FolderKanban, accent: 'from-teal-300/95 via-emerald-400/85 to-green-400/85 text-slate-950 shadow-emerald-500/30', description: 'Gestão de projetos e entregas' },
-        { path: '/pos-venda', label: 'Pos-Venda', icon: Handshake, accent: 'from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-slate-950 shadow-emerald-500/30', description: 'Relacionamento e suporte' },
-        { path: '/relatorios', label: 'Relatorios', icon: ChartNoAxesCombined, accent: 'from-cyan-300/95 via-blue-400/85 to-indigo-400/85 text-white shadow-blue-500/30', description: 'Analises e metricas' }
+        { path: '/produtos', label: 'Produtos', icon: Package, accent: "from-indigo-300/95 via-blue-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Catalogo e itens' },
+        { path: '/vendedores', label: 'Vendedores', icon: UsersRound, accent: "from-lime-300/95 via-emerald-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Equipe e cadastro' },
+        { path: '/analise-financeira', label: 'Análise Financeira', icon: BarChart3, accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35", description: 'Dashboard financeiro e análise' },
+        { path: '/comissoes', label: 'Comissoes', icon: Coins, accent: "from-yellow-200/95 via-amber-400/90 to-orange-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-amber-500/30", description: 'Pagamentos e regras' },
+        { path: '/metas-performance', label: 'Metas & Performance', icon: Trophy, accent: "from-orange-300/95 via-amber-400/90 to-yellow-300/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Metas e indicadores' },
+        { path: '/kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: "from-rose-300/95 via-orange-400/90 to-amber-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Reuniões estratégicas do projeto' },
+        { path: '/projetos', label: 'Gestão de Projetos', icon: FolderKanban, accent: "from-teal-300/95 via-emerald-400/85 to-green-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Gestão de projetos e entregas' },
+        { path: '/pos-venda', label: 'Pos-Venda', icon: Handshake, accent: "from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Relacionamento e suporte' },
+        { path: '/relatorios', label: 'Relatorios', icon: ChartNoAxesCombined, accent: "from-cyan-300/95 via-blue-400/85 to-indigo-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Analises e metricas' }
       ]
     },
     {
       id: 'automacao',
       title: 'Automação / Integrações',
       icon: PlugZap,
-      accent: 'from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-white shadow-fuchsia-500/25',
+      accent: "from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-fuchsia-500/25",
       items: [
-        { path: '/automacoes', label: 'Workflows', icon: Workflow, accent: 'from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-white shadow-fuchsia-500/25', description: 'Regras e automacoes' },
-        { path: '/integracoes', label: 'Integracoes', icon: PlugZap, accent: 'from-sky-300/95 via-cyan-400/85 to-emerald-300/90 text-slate-950 shadow-cyan-500/30', description: 'APIs e conectores' }
+        { path: '/automacoes', label: 'Workflows', icon: Workflow, accent: "from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-fuchsia-500/25", description: 'Regras e automacoes' },
+        { path: '/integracoes', label: 'Integracoes', icon: PlugZap, accent: "from-sky-300/95 via-cyan-400/85 to-emerald-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/30", description: 'APIs e conectores' }
       ]
     },
     {
       id: 'administracao',
       title: 'Administracao',
       icon: ShieldCheck,
-      accent: 'from-blue-300/95 via-indigo-400/85 to-cyan-400/85 text-white shadow-blue-500/30',
+      accent: "from-blue-300/95 via-indigo-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30",
       items: [
         {
           path: '/administracao',
           label: 'Administracao',
           icon: ShieldCheck,
-          accent: 'from-blue-300/95 via-indigo-400/85 to-cyan-400/85 text-white shadow-blue-500/30',
+          accent: "from-blue-300/95 via-indigo-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30",
           description: 'Gestao global de empresas, planos e licenciamento (MASTER)'
         }
       ]
@@ -237,16 +237,16 @@ export default function Sidebar({
       id: 'configuracao',
       title: 'Configuracoes',
       icon: SlidersHorizontal,
-      accent: 'from-slate-200/95 via-sky-300/85 to-cyan-400/80 text-slate-950 shadow-sky-500/25',
+      accent: "from-[rgb(var(--crm-surface-rgb)_/_0.95)] via-sky-300/85 to-cyan-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sky-500/25",
       items: [
         {
           path: '/configuracoes',
           label: 'Configuracoes',
           icon: SlidersHorizontal,
-          accent: 'from-slate-200/95 via-sky-300/85 to-cyan-400/80 text-slate-950 shadow-sky-500/25',
+          accent: "from-[rgb(var(--crm-surface-rgb)_/_0.95)] via-sky-300/85 to-cyan-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sky-500/25",
           description: 'Gerencie suas preferências e configurações da empresa'
         },
-        { path: '/funcionalidades-avancadas', label: 'Avancado', icon: Settings2, accent: 'from-violet-300/95 via-blue-400/85 to-cyan-400/85 text-white shadow-blue-500/30', description: 'Configuracoes avancadas' }
+        { path: '/funcionalidades-avancadas', label: 'Avancado', icon: Settings2, accent: "from-violet-300/95 via-blue-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Configuracoes avancadas' }
       ]
     }
   ]), []);
@@ -414,7 +414,7 @@ export default function Sidebar({
 
   const NavItem = ({ item }) => {
     const Icon = item.icon;
-    const iconAccent = item.accent || 'from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-white shadow-cyan-500/35';
+    const iconAccent = item.accent || "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35";
 
     return (
       <NavLink
@@ -426,8 +426,8 @@ export default function Sidebar({
           collapsed ? 'items-start gap-3 px-3 py-2.5 lg:items-center lg:justify-center lg:gap-0 lg:px-2' : 'items-start gap-3 px-3 py-2.5',
           'border transition-all duration-300 ease-out',
           isActive
-            ? 'border-cyan-200/45 bg-[linear-gradient(115deg,rgba(35,194,216,0.34)_0%,rgba(29,78,216,0.18)_44%,rgba(5,9,18,0.44)_100%)] text-white shadow-[0_18px_36px_-26px_rgba(34,211,238,0.95)]'
-            : 'border-white/[0.055] bg-[#081321]/55 text-slate-100/82 hover:border-cyan-200/24 hover:bg-[#102033]/82 hover:text-white'
+            ? "border-cyan-200/45 dark:border-cyan-800/45 bg-[linear-gradient(115deg,rgba(35,194,216,0.34)_0%,rgba(29,78,216,0.18)_44%,rgb(var(--crm-surface-2-rgb)_/_0.44)_100%)] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_18px_36px_-26px_rgba(34,211,238,0.95)]"
+            : "border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] text-[rgb(var(--crm-ink-rgb)_/_0.82)] hover:border-cyan-200/24 dark:hover:border-cyan-800/24 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.82)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
         ].join(' ')}
       >
         {({ isActive }) => (
@@ -435,7 +435,7 @@ export default function Sidebar({
             <span
               className={[
                 'absolute inset-y-2 left-0 w-1 rounded-r-full transition-opacity duration-300',
-                isActive ? 'bg-cyan-200 opacity-100 shadow-[0_0_18px_rgba(103,232,249,0.8)]' : 'opacity-0 group-hover:opacity-70 bg-cyan-100/70'
+                isActive ? "bg-cyan-200 dark:bg-cyan-950 opacity-100 shadow-[0_0_18px_rgba(103,232,249,0.8)]" : "opacity-0 group-hover:opacity-70 bg-cyan-100/70 dark:bg-cyan-950/70"
               ].join(' ')}
             />
 
@@ -444,12 +444,12 @@ export default function Sidebar({
                 'relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border transition-all duration-300',
                 collapsed ? 'mt-0.5 lg:mt-0' : 'mt-0.5',
                 isActive
-                  ? `border-white/55 bg-gradient-to-br ${iconAccent} shadow-lg`
-                  : 'border-white/[0.14] bg-slate-100/[0.08] text-slate-200 shadow-inner shadow-white/[0.03] group-hover:border-white/35 group-hover:bg-slate-100/[0.13] group-hover:text-white'
+                  ? `border-[var(--crm-border)] bg-gradient-to-br ${iconAccent} shadow-lg`
+                  : "border-[rgb(var(--crm-ink-rgb)_/_0.14)] bg-[rgb(var(--crm-surface-rgb)_/_0.08)] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-inner shadow-white/[0.03] group-hover:border-[var(--crm-border)] group-hover:bg-[rgb(var(--crm-surface-rgb)_/_0.13)] group-hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
               ].join(' ')}
             >
               <span className={['absolute inset-0 opacity-0 transition-opacity duration-300', isActive ? 'opacity-100' : 'group-hover:opacity-100', `bg-gradient-to-br ${iconAccent}`].join(' ')} />
-              <span className="absolute inset-px rounded-2xl border border-white/20" />
+              <span className="absolute inset-px rounded-2xl border border-[var(--crm-border)]" />
               <Icon
                 strokeWidth={2.35}
                 className={[
@@ -461,7 +461,7 @@ export default function Sidebar({
 
             <span className={collapsed ? 'min-w-0 flex-1 lg:hidden' : 'min-w-0 flex-1'}>
               <span className="block text-sm font-semibold leading-5">{item.label}</span>
-              <span className="mt-0.5 block truncate text-xs leading-4 text-slate-300/85">{item.description}</span>
+              <span className="mt-0.5 block truncate text-xs leading-4 text-[rgb(var(--crm-ink-rgb)_/_0.85)]">{item.description}</span>
             </span>
           </>
         )}
@@ -471,10 +471,10 @@ export default function Sidebar({
 
   const SidebarInner = () => (
     <div className="relative z-10 flex h-full flex-col">
-      <div className={['relative overflow-hidden border-b border-[#0b2a35]/70 py-5', collapsed ? 'px-5 lg:px-3' : 'px-5'].join(' ')}>
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_88%_0%,rgba(35,211,238,0.20)_0%,transparent_48%),linear-gradient(180deg,rgba(13,31,48,0.72)_0%,rgba(5,10,18,0.18)_100%)]" />
+      <div className={["relative overflow-hidden border-b border-[var(--crm-border)] py-5", collapsed ? 'px-5 lg:px-3' : 'px-5'].join(' ')}>
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_88%_0%,rgba(35,211,238,0.20)_0%,transparent_48%),linear-gradient(180deg,rgb(var(--crm-surface-2-rgb)_/_0.72)_0%,rgb(var(--crm-surface-2-rgb)_/_0.18)_100%)]" />
 
-        <div className={['relative flex items-center justify-center overflow-hidden rounded-[22px] border border-[#0b2a35]/70 bg-[linear-gradient(135deg,rgba(12,35,54,0.88)_0%,rgba(8,18,31,0.92)_54%,rgba(20,67,79,0.72)_100%)] shadow-[0_22px_48px_-34px_rgba(34,211,238,0.62)]', collapsed ? 'h-[4.6rem] lg:h-14' : 'h-[4.6rem]'].join(' ')}>
+        <div className={["relative flex items-center justify-center overflow-hidden rounded-[22px] border border-[var(--crm-border)] bg-[linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_0.88)_0%,rgb(var(--crm-surface-2-rgb)_/_0.92)_54%,rgb(var(--crm-surface-rgb)_/_0.72)_100%)] shadow-[0_22px_48px_-34px_rgba(34,211,238,0.62)]", collapsed ? 'h-[4.6rem] lg:h-14' : 'h-[4.6rem]'].join(' ')}>
           {resolvePublicUrl(branding.logoUrl) ? (
             <img
               src={resolvePublicUrl(branding.logoUrl)}
@@ -487,22 +487,22 @@ export default function Sidebar({
                 <div className="relative h-11 w-[4.85rem] shrink-0">
                   <div className="absolute left-0 top-0.5 h-10 w-10 rounded-full border-[8px] border-[#25c6de] shadow-[0_0_24px_rgba(37,198,222,0.30)]" />
                   <div className="absolute left-[2.1rem] top-0.5 h-10 w-10 rounded-full border-[8px] border-[#ff961f] shadow-[0_0_24px_rgba(255,150,31,0.22)]" />
-                  <div className="absolute left-[1.42rem] top-[0.57rem] flex h-8 w-8 items-center justify-center rounded-full border border-cyan-100/18 bg-[#09233a] text-[9px] font-black text-[#dcecff] shadow-[inset_0_0_18px_rgba(34,211,238,0.12)]">
+                  <div className="absolute left-[1.42rem] top-[0.57rem] flex h-8 w-8 items-center justify-center rounded-full border border-cyan-100/18 dark:border-cyan-800/18 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[9px] font-black text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[inset_0_0_18px_rgba(34,211,238,0.12)]">
                     AI
                   </div>
                 </div>
                 <div className="min-w-0">
-                  <div className="truncate text-[13px] font-black leading-none tracking-[0.01em] text-white">
+                  <div className="truncate text-[13px] font-black leading-none tracking-[0.01em] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     ChorstConsult
                   </div>
-                  <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.24em] text-cyan-100/62">
+                  <div className="mt-1 text-[9px] font-bold uppercase tracking-[0.24em] text-cyan-700/62 dark:text-cyan-100/62">
                     Nexos AI
                   </div>
                 </div>
               </div>
 
               {collapsed ? (
-                <div className="relative z-10 hidden h-10 w-10 items-center justify-center rounded-full border border-cyan-200/35 bg-[#09233a] text-[10px] font-black text-[#dcecff] shadow-inner shadow-cyan-950/40 lg:flex">
+                <div className="relative z-10 hidden h-10 w-10 items-center justify-center rounded-full border border-cyan-200/35 dark:border-cyan-800/35 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[10px] font-black text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-inner shadow-cyan-950/40 lg:flex">
                   AI
                 </div>
               ) : null}
@@ -513,7 +513,7 @@ export default function Sidebar({
         <button
           type="button"
           onClick={onToggleCollapsed}
-          className="absolute right-2 top-2 z-20 hidden h-9 w-9 items-center justify-center rounded-xl border border-cyan-300/28 bg-[#061524]/95 text-cyan-100 shadow-[0_12px_28px_-18px_rgba(34,211,238,0.95)] transition hover:border-cyan-200/60 hover:bg-[#102b40] lg:inline-flex"
+          className="absolute right-2 top-2 z-20 hidden h-9 w-9 items-center justify-center rounded-xl border border-cyan-300/28 bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] text-cyan-700 dark:text-cyan-100 shadow-[0_12px_28px_-18px_rgba(34,211,238,0.95)] transition hover:border-cyan-200/60 dark:hover:border-cyan-800/60 hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] lg:inline-flex"
           aria-pressed={collapsed}
           aria-label={collapsed ? 'Expandir módulos' : 'Recolher módulos'}
           title={collapsed ? 'Expandir módulos' : 'Recolher módulos'}
@@ -530,7 +530,7 @@ export default function Sidebar({
       >
         {filteredMenuSections.map((section) => {
           const SectionIcon = section.icon;
-          const sectionAccent = section.accent || 'from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-white shadow-cyan-500/35';
+          const sectionAccent = section.accent || "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35";
           const isOpen = !!expandedSections[section.id];
 
           return (
@@ -543,8 +543,8 @@ export default function Sidebar({
                   'w-full flex items-center rounded-2xl py-2.5',
                   collapsed ? 'justify-between gap-3 px-3 lg:justify-center lg:gap-0 lg:px-2' : 'justify-between gap-3 px-3',
                   'text-left text-[11px] font-bold uppercase tracking-[0.14em]',
-                  'border border-white/[0.05] bg-[#081321]/50 text-slate-300/90',
-                  'transition-all duration-300 hover:border-cyan-200/22 hover:bg-[#102033]/76 hover:text-white'
+                  "border border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] text-[rgb(var(--crm-ink-rgb)_/_0.9)]",
+                  "transition-all duration-300 hover:border-cyan-200/22 dark:hover:border-cyan-800/22 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.76)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 ].join(' ')}
                 aria-expanded={isOpen}
               >
@@ -553,8 +553,8 @@ export default function Sidebar({
                     className={[
                       'relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-2xl border transition-all duration-300',
                       isOpen
-                        ? `border-white/45 bg-gradient-to-br ${sectionAccent} shadow-lg`
-                        : 'border-white/[0.14] bg-white/[0.07] text-slate-300 group-hover:border-white/30 group-hover:text-white'
+                        ? `border-[var(--crm-border)] bg-gradient-to-br ${sectionAccent} shadow-lg`
+                        : "border-[rgb(var(--crm-ink-rgb)_/_0.14)] bg-[rgb(var(--crm-surface-rgb)_/_0.07)] text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:border-[var(--crm-border)] group-hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     ].join(' ')}
                   >
                     <span className={['absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100', `bg-gradient-to-br ${sectionAccent}`, isOpen ? 'opacity-100' : ''].join(' ')} />
@@ -565,7 +565,7 @@ export default function Sidebar({
 
                 <ChevronDown
                   className={[
-                    'h-4 w-4 text-white/80 transition-transform duration-300',
+                    "h-4 w-4 text-[rgb(var(--crm-ink-rgb)_/_0.8)] transition-transform duration-300",
                     collapsed ? 'lg:hidden' : '',
                     isOpen ? 'rotate-180' : 'rotate-0'
                   ].join(' ')}
@@ -591,10 +591,10 @@ export default function Sidebar({
         })}
       </nav>
 
-      <div className="relative overflow-hidden border-t border-[#0b2a35]/70 px-3 py-3">
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(9,20,33,0.12)_0%,rgba(20,61,72,0.28)_100%)]" />
-        <div className="relative rounded-xl border border-cyan-200/[0.055] bg-[#06111d]/56 px-3 py-2 text-center text-[10px] text-slate-300/70 shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]">
-          <div className={collapsed ? 'font-semibold text-cyan-50/80 lg:text-[9px]' : 'font-semibold text-cyan-50/80'}>
+      <div className="relative overflow-hidden border-t border-[var(--crm-border)] px-3 py-3">
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgb(var(--crm-surface-2-rgb)_/_0.12)_0%,rgb(var(--crm-surface-rgb)_/_0.28)_100%)]" />
+        <div className="relative rounded-xl border border-cyan-200/[0.055] bg-[rgb(var(--crm-surface-2-rgb)_/_0.56)] px-3 py-2 text-center text-[10px] text-[rgb(var(--crm-ink-rgb)_/_0.7)] shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]">
+          <div className={collapsed ? "font-semibold text-cyan-700/80 dark:text-cyan-50/80 lg:text-[9px]" : "font-semibold text-cyan-700/80 dark:text-cyan-50/80"}>
             <span className={collapsed ? 'lg:hidden' : ''}>{branding.appName || 'CRM NEXOS'}</span>
             <span className={collapsed ? 'hidden lg:inline' : 'hidden'}>NEXOS</span> v2
           </div>
@@ -610,7 +610,7 @@ export default function Sidebar({
     <>
       <div
         className={[
-          'fixed inset-0 z-30 bg-slate-950/65 backdrop-blur-sm transition-opacity lg:hidden',
+          "fixed inset-0 z-30 bg-[rgb(var(--crm-surface-2-rgb)_/_0.65)] backdrop-blur-sm transition-opacity lg:hidden",
           showOverlay ? 'opacity-100' : 'pointer-events-none opacity-0'
         ].join(' ')}
         onClick={() => onOpenChange(false)}
@@ -624,13 +624,13 @@ export default function Sidebar({
           'transform transition-[transform,width] duration-300 will-change-transform',
           open ? 'translate-x-0' : '-translate-x-full',
           'lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:z-20 lg:max-w-none',
-          'flex flex-col overflow-hidden text-white',
-          'bg-[radial-gradient(ellipse_at_92%_0%,rgba(37,196,218,0.24)_0%,transparent_42%),radial-gradient(ellipse_at_0%_18%,rgba(51,15,28,0.38)_0%,transparent_46%),linear-gradient(180deg,#05070d_0%,#07101c_48%,#071b25_100%)]',
-          'border-r border-[#0b2a35]/70 shadow-[18px_0_52px_-36px_rgba(34,211,238,0.62)]'
+          "flex flex-col overflow-hidden text-[rgb(var(--crm-ink-rgb)_/_1)]",
+          "bg-[radial-gradient(ellipse_at_92%_0%,rgba(37,196,218,0.24)_0%,transparent_42%),radial-gradient(ellipse_at_0%_18%,rgb(var(--crm-surface-2-rgb)_/_0.38)_0%,transparent_46%),linear-gradient(180deg,rgb(var(--crm-surface-2-rgb)_/_1)_0%,rgb(var(--crm-surface-2-rgb)_/_1)_48%,rgb(var(--crm-surface-2-rgb)_/_1)_100%)]",
+          "border-r border-[var(--crm-border)] shadow-[18px_0_52px_-36px_rgba(34,211,238,0.62)]"
         ].join(' ')}
       >
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(35,211,238,0.08)_0%,transparent_42%),linear-gradient(180deg,rgba(255,255,255,0.025)_0%,transparent_32%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(35,211,238,0.08)_0%,transparent_42%),linear-gradient(180deg,rgb(var(--crm-surface-rgb)_/_0.025)_0%,transparent_32%)]" />
           <div className="absolute inset-0 crm-dotgrid opacity-[0.14]" />
         </div>
 

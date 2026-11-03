@@ -230,7 +230,7 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 space-y-8">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div className="flex items-center space-x-4">
           {onBackToTop && (
@@ -239,17 +239,17 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
               className="flex items-center shrink-0 bg-blue-600 border-2 border-blue-500 text-white hover:bg-blue-700 hover:border-blue-600 font-medium shadow-md"
               aria-label="Voltar para as calculadoras"
             >
-              <ArrowLeft className="h-4 w-4 mr-2 text-white" />
-              <span className="text-white">Voltar</span>
+              <ArrowLeft className="h-4 w-4 mr-2 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+              <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Voltar</span>
             </Button>
           )}
           <div className="flex items-center gap-4">
             <div className="p-3 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl shadow-lg">
-              <FileText className="h-8 w-8 text-white" />
+              <FileText className="h-8 w-8 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-white">Propostas</h1>
-              <p className="text-slate-400">
+              <h1 className="text-3xl font-bold tracking-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">Propostas</h1>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 Visualize e gerencie as propostas geradas nas calculadoras
               </p>
             </div>
@@ -260,96 +260,96 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
 
       {/* Estatísticas Modernas */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-xl hover:shadow-blue-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-slate-700/50 group overflow-hidden relative">
+        <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-blue-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800 opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
           <div className="relative p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 shadow-lg">
-                <FileText className="h-6 w-6 text-white" />
+                <FileText className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-white group-hover:text-cyan-300 transition-colors">
+                <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
                   {proposals.length}
                 </div>
               </div>
             </div>
             <div>
-              <h3 className="text-white font-semibold mb-1 group-hover:text-cyan-300 transition-colors">
+              <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold mb-1 group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
                 Total de Propostas
               </h3>
-              <p className="text-slate-400 text-sm">Todas as propostas</p>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm">Todas as propostas</p>
             </div>
           </div>
-          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/5 to-transparent rounded-bl-full" />
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_0.05)] to-transparent rounded-bl-full" />
         </div>
 
-        <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-xl hover:shadow-green-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-slate-700/50 group overflow-hidden relative">
+        <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-green-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-green-800 opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
           <div className="relative p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-green-600 to-green-800 shadow-lg">
-                <DollarSign className="h-6 w-6 text-white" />
+                <DollarSign className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-white group-hover:text-cyan-300 transition-colors">
+                <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
                   {formatCurrency(proposals.reduce((sum, p) => sum + (p.value || 0), 0))}
                 </div>
               </div>
             </div>
             <div>
-              <h3 className="text-white font-semibold mb-1 group-hover:text-cyan-300 transition-colors">
+              <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold mb-1 group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
                 Valor Total
               </h3>
-              <p className="text-slate-400 text-sm">Soma de todas as propostas</p>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm">Soma de todas as propostas</p>
             </div>
           </div>
-          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/5 to-transparent rounded-bl-full" />
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_0.05)] to-transparent rounded-bl-full" />
         </div>
 
-        <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-xl hover:shadow-emerald-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-slate-700/50 group overflow-hidden relative">
+        <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-emerald-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-emerald-800 opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
           <div className="relative p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 shadow-lg">
-                <User className="h-6 w-6 text-white" />
+                <User className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
               </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-white group-hover:text-cyan-300 transition-colors">
+                  <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
                   {proposals.filter((p) => isApprovedStatus(p.status)).length}
                 </div>
               </div>
             </div>
             <div>
-              <h3 className="text-white font-semibold mb-1 group-hover:text-cyan-300 transition-colors">
+              <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold mb-1 group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
                 Aprovadas
               </h3>
-              <p className="text-slate-400 text-sm">Propostas aprovadas</p>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm">Propostas aprovadas</p>
             </div>
           </div>
-          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/5 to-transparent rounded-bl-full" />
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_0.05)] to-transparent rounded-bl-full" />
         </div>
 
-        <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-xl hover:shadow-yellow-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-slate-700/50 group overflow-hidden relative">
+        <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-yellow-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-yellow-600 to-yellow-800 opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
           <div className="relative p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-600 to-yellow-800 shadow-lg">
-                <Calendar className="h-6 w-6 text-white" />
+                <Calendar className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
               </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-white group-hover:text-cyan-300 transition-colors">
+                  <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
                   {proposals.filter((p) => isPendingApprovalStatus(p.status)).length}
                 </div>
               </div>
             </div>
             <div>
-              <h3 className="text-white font-semibold mb-1 group-hover:text-cyan-300 transition-colors">
+              <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold mb-1 group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
                 Enviadas p/ Aprovação
               </h3>
-              <p className="text-slate-400 text-sm">Aguardando aprovação</p>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm">Aguardando aprovação</p>
             </div>
           </div>
-          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/5 to-transparent rounded-bl-full" />
+          <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_0.05)] to-transparent rounded-bl-full" />
         </div>
       </div>
 
@@ -360,15 +360,15 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleApplyFilters()}
-          className="max-w-sm bg-slate-800/50 border-slate-600 text-white placeholder:text-slate-400 focus:border-cyan-400"
+          className="max-w-sm bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-cyan-400"
         />
         
         <div className="flex items-center gap-2">
-          <User className="h-4 w-4 text-slate-400" />
+          <User className="h-4 w-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
           <select
             value={selectedAccountManager}
             onChange={(e) => setSelectedAccountManager(e.target.value)}
-            className="bg-slate-800/50 border border-slate-600 text-white rounded-md px-3 py-2 focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 min-w-[200px]"
+            className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-md px-3 py-2 focus:border-cyan-400 focus:outline-none focus:ring-1 focus:ring-cyan-400 min-w-[200px]"
           >
             <option value="all">Todos os Gerentes</option>
             {accountManagers.map((manager) => (
@@ -391,7 +391,7 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
             variant="ghost"
             size="sm"
             onClick={handleClearFilters}
-            className="text-slate-400 hover:text-white hover:bg-slate-700/50"
+            className="text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
           >
             Limpar Filtros
           </Button>
@@ -399,13 +399,13 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
       </div>
 
       {/* Tabela de Propostas Moderna */}
-      <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl shadow-xl border border-slate-700/50 overflow-hidden">
-        <div className="p-6 border-b border-slate-700/50">
+      <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl border border-[var(--crm-border)] overflow-hidden">
+        <div className="p-6 border-b border-[var(--crm-border)]">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg">
-              <FileText className="h-5 w-5 text-white" />
+              <FileText className="h-5 w-5 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
             </div>
-            <h3 className="text-xl font-bold text-white">Lista de Propostas</h3>
+            <h3 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Lista de Propostas</h3>
           </div>
         </div>
         <div className="p-6">
@@ -414,18 +414,18 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="border-slate-700 hover:bg-slate-800/50">
-                  <TableHead className="text-slate-300">Título</TableHead>
-                  <TableHead className="text-slate-300">Cliente</TableHead>
-                  <TableHead className="text-slate-300">Gerente de Conta</TableHead>
-                  <TableHead className="text-slate-300">Produto</TableHead>
-                  <TableHead className="text-slate-300">Valor</TableHead>
-                  <TableHead className="text-slate-300">Descontos</TableHead>
-                  <TableHead className="text-slate-300">Status</TableHead>
-                  <TableHead className="text-slate-300">Logs</TableHead>
-                  <TableHead className="text-slate-300">Data de Criação</TableHead>
-                  <TableHead className="text-slate-300">Validade</TableHead>
-                  <TableHead className="text-right text-slate-300">Ações</TableHead>
+                <TableRow className="border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
+                  <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Título</TableHead>
+                  <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Cliente</TableHead>
+                  <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Gerente de Conta</TableHead>
+                  <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Produto</TableHead>
+                  <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Valor</TableHead>
+                  <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Descontos</TableHead>
+                  <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Status</TableHead>
+                  <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Logs</TableHead>
+                  <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Data de Criação</TableHead>
+                  <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Validade</TableHead>
+                  <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -449,23 +449,23 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
                   }
                   
                   return (
-                    <TableRow key={proposal.id} className="border-slate-700 hover:bg-slate-800/30 transition-colors">
-                      <TableCell className="font-medium text-white">{proposal.title}</TableCell>
-                      <TableCell className="text-slate-300">{typeof proposal.client === 'string' ? proposal.client : proposal.client?.name || 'N/A'}</TableCell>
-                      <TableCell className="text-slate-300">{typeof proposal.accountManager === 'string' ? proposal.accountManager : proposal.accountManager?.name || 'N/A'}</TableCell>
-                      <TableCell className="text-slate-300">{getProductName(proposal.type)}</TableCell>
-                      <TableCell className="text-slate-300">{formatCurrency(proposal.value || 0)}</TableCell>
-                      <TableCell className="text-slate-300">
+                    <TableRow key={proposal.id} className="border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.3)] transition-colors">
+                      <TableCell className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">{proposal.title}</TableCell>
+                      <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{typeof proposal.client === 'string' ? proposal.client : proposal.client?.name || 'N/A'}</TableCell>
+                      <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{typeof proposal.accountManager === 'string' ? proposal.accountManager : proposal.accountManager?.name || 'N/A'}</TableCell>
+                      <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{getProductName(proposal.type)}</TableCell>
+                      <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(proposal.value || 0)}</TableCell>
+                      <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         {hasDiscounts ? (
                           <div className="flex flex-col gap-1">
                             {discounts.map((discount, idx) => (
-                              <Badge key={idx} className="bg-green-600/20 text-green-300 border-green-500/30 text-xs">
+                              <Badge key={idx} className="bg-green-600/20 text-green-700 dark:text-green-300 border-green-500/30 text-xs">
                                 {discount}
                               </Badge>
                             ))}
                           </div>
                         ) : (
-                          <span className="text-slate-500 text-xs">Sem descontos</span>
+                          <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">Sem descontos</span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -477,15 +477,15 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
                           proposalTitle={proposal.title}
                         />
                       </TableCell>
-                      <TableCell className="text-slate-300">{formatDate(proposal.date)}</TableCell>
-                      <TableCell className="text-slate-300">{formatDate(proposal.expiryDate)}</TableCell>
+                      <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatDate(proposal.date)}</TableCell>
+                      <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatDate(proposal.expiryDate)}</TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => handleViewCommercialProposal(proposal)}
-                            className="flex items-center text-cyan-400 hover:text-cyan-300 hover:bg-slate-700/50"
+                            className="flex items-center text-cyan-700 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
                           >
                             <FileText className="h-4 w-4 mr-1" />
                             <span>Ver</span>
@@ -495,7 +495,7 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
                               variant="ghost"
                               size="sm"
                               onClick={() => handleNavigateToCalculator(proposal)}
-                              className="flex items-center text-blue-400 hover:text-blue-300 hover:bg-slate-700/50"
+                              className="flex items-center text-blue-700 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
                             >
                               <Calculator className="h-4 w-4 mr-1" />
                               <span>Calcular</span>
@@ -509,7 +509,7 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleEdit(proposal)}
-                                  className="text-yellow-400 hover:text-yellow-300 hover:bg-slate-700/50"
+                                  className="text-yellow-700 dark:text-yellow-400 hover:text-yellow-700 dark:hover:text-yellow-300 hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
                                 >
                                   <Edit className="h-4 w-4" />
                                 </Button>
@@ -519,7 +519,7 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => onDelete(proposal.id)}
-                                  className="text-red-400 hover:text-red-300 hover:bg-slate-700/50"
+                                  className="text-red-700 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </Button>
@@ -538,12 +538,12 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
           {filteredProposals.length === 0 && (
             <div className="text-center py-12">
               <div className="flex flex-col items-center gap-4">
-                <div className="p-4 bg-slate-800/50 rounded-full">
-                  <FileText className="h-12 w-12 text-slate-500" />
+                <div className="p-4 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] rounded-full">
+                  <FileText className="h-12 w-12 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-white mb-2">Nenhuma proposta encontrada</h3>
-                  <p className="text-slate-400">
+                  <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Nenhuma proposta encontrada</h3>
+                  <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     {proposals.length === 0 
                       ? "Você ainda não possui propostas salvas. Use as calculadoras para gerar suas propostas!" 
                       : "Nenhuma proposta corresponde aos critérios de busca."}
@@ -592,7 +592,7 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
 
       {/* Diálogo da Proposta Comercial */}
       <Dialog open={showCommercialProposal} onOpenChange={setShowCommercialProposal}>
-        <DialogContent className="max-w-7xl max-h-[96vh] p-0 overflow-y-auto bg-slate-950 border-slate-800 text-white">
+        <DialogContent className="max-w-7xl max-h-[96vh] p-0 overflow-y-auto bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
           <CommercialProposalView
             partners={partners}
             proposal={selectedProposal}

@@ -53,7 +53,7 @@ const panelOptions = {
   plugins: {
     legend: { display: false },
     tooltip: {
-      backgroundColor: 'rgba(5, 9, 20, 0.96)',
+      backgroundColor: "rgb(var(--crm-surface-2-rgb) / 0.96)",
       borderColor: 'rgba(255, 122, 0, 0.34)',
       borderWidth: 1,
       titleColor: '#f4f7fb',
@@ -285,11 +285,11 @@ function TemporalAreaChart({ chart }) {
           legend: {
             display: true,
             align: 'end',
-            labels: { color: '#cbd5e1', usePointStyle: true, pointStyle: 'circle', boxWidth: 7, padding: 12, font: { size: 10, weight: '700' } }
+            labels: { color: "rgb(var(--crm-ink-rgb) / 1)", usePointStyle: true, pointStyle: 'circle', boxWidth: 7, padding: 12, font: { size: 10, weight: '700' } }
           }
         },
         scales: {
-          x: { grid: { color: 'rgba(75,85,99,0.22)' }, border: { display: false }, ticks: { color: TEXT_COLOR, font: { size: 9, weight: '700' }, maxRotation: 0 } },
+          x: { grid: { color: "rgb(var(--crm-muted-rgb) / 0.22)" }, border: { display: false }, ticks: { color: TEXT_COLOR, font: { size: 9, weight: '700' }, maxRotation: 0 } },
           y: { beginAtZero: true, grid: { color: GRID_COLOR }, border: { display: false }, ticks: { color: TEXT_COLOR, font: { size: 9 }, precision: chart?.unit === 'count' ? 0 : undefined, callback: compactNumber } }
         }
       }}
@@ -304,7 +304,7 @@ function HealthDonut({ value = 0, label = 'Saúde' }) {
     datasets: [{
       data: [score, 100 - score],
       backgroundColor: [color, '#1f2937'],
-      borderColor: '#050914',
+      borderColor: "var(--crm-border)",
       borderWidth: 3,
       hoverOffset: 0
     }]

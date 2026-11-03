@@ -250,7 +250,7 @@ function getInitials(name?: string, email?: string) {
 }
 
 function mapTeamMemberToUser(member: ProjectTeamMember, index = 0): User {
-  const colors = ['bg-[#ff7a00]', 'bg-[#18c8df]', 'bg-[#22c55e]', 'bg-[#f6b40b]', 'bg-[#3b82f6]', 'bg-zinc-600'];
+  const colors = ['bg-[#ff7a00]', 'bg-[#18c8df]', 'bg-[#22c55e]', 'bg-[#f6b40b]', 'bg-[#3b82f6]', "bg-[rgb(var(--crm-surface-rgb)_/_1)]"];
   const name = member.user?.name || 'Usuario sem nome';
   const email = member.user?.email || '';
   return {
@@ -1315,12 +1315,12 @@ export default function App({ onBack }: { onBack?: () => void }) {
   };
 
   return (
-    <div className="flex h-screen bg-[#050914] font-sans overflow-hidden text-slate-300 text-sm">
+    <div className="flex h-screen bg-[rgb(var(--crm-surface-2-rgb)_/_1)] font-sans overflow-hidden text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">
 
       {/* Far Left Thin Navigation */}
       {!isDashboardFocus && (
-      <nav className="w-16 bg-[#050914] flex-shrink-0 flex flex-col items-center py-4 border-r border-[#263345] z-30">
-        <div className="w-8 h-8 bg-[#22c55e] rounded text-white flex items-center justify-center font-bold mb-6 cursor-pointer shadow-[0_0_22px_rgba(34,197,94,0.25)]">
+      <nav className="w-16 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] flex-shrink-0 flex flex-col items-center py-4 border-r border-[var(--crm-border)] z-30">
+        <div className="w-8 h-8 bg-[#22c55e] rounded text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center justify-center font-bold mb-6 cursor-pointer shadow-[0_0_22px_rgba(34,197,94,0.25)]">
           C
         </div>
 
@@ -1338,17 +1338,17 @@ export default function App({ onBack }: { onBack?: () => void }) {
 
       {/* Second Sidebar (Spaces) */}
       {globalView === 'spaces' && !isDashboardFocus && (
-        <aside className="w-[280px] bg-[#111827] flex-shrink-0 flex flex-col h-full border-r border-[#263345] z-20">
-          <div className="p-4 flex items-center justify-between border-b border-[#263345] bg-[linear-gradient(90deg,rgba(255,122,0,0.13),transparent)]">
-          <h2 className="font-semibold text-slate-100">Projetos</h2>
-          <button onClick={() => setIsCreatingSpace(true)} className="bg-[#ff7a00] hover:bg-[#f6b40b] text-white hover:text-[#050914] text-xs font-semibold px-3 py-2 rounded flex items-center gap-1 transition-colors">
+        <aside className="w-[280px] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] flex-shrink-0 flex flex-col h-full border-r border-[var(--crm-border)] z-20">
+          <div className="p-4 flex items-center justify-between border-b border-[var(--crm-border)] bg-[linear-gradient(90deg,rgba(255,122,0,0.13),transparent)]">
+          <h2 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Projetos</h2>
+          <button onClick={() => setIsCreatingSpace(true)} className="bg-[#ff7a00] hover:bg-[#f6b40b] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-semibold px-3 py-2 rounded flex items-center gap-1 transition-colors">
             <Plus className="w-3 h-3" /> Criar
           </button>
         </div>
 
         <div className="p-3 flex-1 overflow-y-auto">
           <div
-            className="flex items-center gap-2 text-slate-400 hover:bg-[#1f2937] p-1.5 rounded cursor-pointer mb-4"
+            className="flex items-center gap-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] p-1.5 rounded cursor-pointer mb-4"
             onClick={() => setGlobalView('home')}
           >
             <LayoutTemplate className="w-4 h-4" />
@@ -1359,40 +1359,40 @@ export default function App({ onBack }: { onBack?: () => void }) {
             {spaces.map(space => (
               <div key={space.id}>
                 <div
-                  className={cn("flex items-center justify-between p-2 rounded cursor-pointer group", activeSpaceId === space.id ? "bg-[#263345] text-slate-100 ring-1 ring-[#ff7a00]/35" : "text-slate-300 hover:bg-[#1f2937]")}
+                  className={cn("flex items-center justify-between p-2 rounded cursor-pointer group", activeSpaceId === space.id ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] ring-1 ring-[#ff7a00]/35" : "text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]")}
                   onClick={() => setActiveSpaceId(space.id)}
                 >
                   <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
-                    <div className={cn("w-4 h-4 rounded-sm text-[8px] flex items-center justify-center font-bold text-white flex-shrink-0", space.color)}>{space.initial}</div>
+                    <div className={cn("w-4 h-4 rounded-sm text-[8px] flex items-center justify-center font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] flex-shrink-0", space.color)}>{space.initial}</div>
                     <div className="min-w-0 flex-1">
-                      <span className="block truncate font-medium text-sm text-slate-200" title={space.name}>{space.name}</span>
-                      <span className="block truncate text-[10px] text-slate-500">{space.client || space.status || 'Projeto'}</span>
+                      <span className="block truncate font-medium text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]" title={space.name}>{space.name}</span>
+                      <span className="block truncate text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{space.client || space.status || 'Projeto'}</span>
                     </div>
                   </div>
                   <ChevronDown
-                    className={cn("w-4 h-4 transition-transform", expandedSpaces[space.id] ? "rotate-180 text-slate-300" : "opacity-0 group-hover:opacity-100")}
+                    className={cn("w-4 h-4 transition-transform", expandedSpaces[space.id] ? "rotate-180 text-[rgb(var(--crm-ink-rgb)_/_1)]" : "opacity-0 group-hover:opacity-100")}
                     onClick={(e) => { e.stopPropagation(); toggleSpace(space.id); }}
                   />
                 </div>
 
                 {expandedSpaces[space.id] && (
-                  <div className="ml-5 mt-1 border-l border-slate-700 pl-2 flex flex-col gap-1">
+                  <div className="ml-5 mt-1 border-l border-[var(--crm-border)] pl-2 flex flex-col gap-1">
                     <div
-                      className={cn("flex items-center justify-between p-1.5 rounded cursor-pointer", activeView === 'list' && activeSpaceId === space.id ? 'bg-[#263345] text-slate-100' : 'text-slate-400 hover:bg-[#1f2937]')}
+                      className={cn("flex items-center justify-between p-1.5 rounded cursor-pointer", activeView === 'list' && activeSpaceId === space.id ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]")}
                       onClick={() => { setActiveView('list'); setActiveSpaceId(space.id); }}
                     >
                       <div className="flex items-center gap-2">
                         <ListIcon className="w-4 h-4" />
                         <span className="text-sm">Fases</span>
                       </div>
-                      <span className="text-xs text-slate-500">{getProjectIssueCount(space.id)}</span>
+                      <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{getProjectIssueCount(space.id)}</span>
                     </div>
                   </div>
                 )}
               </div>
             ))}
 
-            <div onClick={() => setIsCreatingSpace(true)} className="flex items-center gap-2 text-slate-500 hover:text-[#ffb15c] p-1.5 ml-5 rounded cursor-pointer mt-1">
+            <div onClick={() => setIsCreatingSpace(true)} className="flex items-center gap-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[#ffb15c] p-1.5 ml-5 rounded cursor-pointer mt-1">
               <Plus className="w-3.5 h-3.5" />
               <span className="text-sm">Novo Projeto</span>
             </div>
@@ -1402,51 +1402,51 @@ export default function App({ onBack }: { onBack?: () => void }) {
       )}
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 bg-[#070b16]">
+      <main className="flex-1 flex flex-col min-w-0 bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
 
         {/* Top Global Bar */}
         {!isDashboardFocus && (
-        <header className="h-12 border-b border-[#263345] px-4 flex items-center justify-between bg-[#111827] flex-shrink-0">
+        <header className="h-12 border-b border-[var(--crm-border)] px-4 flex items-center justify-between bg-[rgb(var(--crm-surface-2-rgb)_/_1)] flex-shrink-0">
           <div className="flex items-center gap-2">
             {onBack && (
               <button
                 type="button"
                 onClick={onBack}
-                className="flex h-8 items-center gap-1.5 rounded-md border border-[#374151] px-2.5 text-xs font-semibold text-slate-300 transition-colors hover:border-[#ff7a00] hover:bg-[#1f2937] hover:text-white"
+                className="flex h-8 items-center gap-1.5 rounded-md border border-[var(--crm-border)] px-2.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:border-[#ff7a00] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 title="Voltar ao CRM"
               >
                 <ArrowLeft className="h-4 w-4" />
                 Voltar
               </button>
             )}
-            <div className="flex items-center gap-2 cursor-pointer hover:bg-[#1f2937] px-2 py-1 rounded transition-colors">
-              <div className="w-5 h-5 bg-[#22c55e] rounded text-white flex items-center justify-center font-bold text-xs">C</div>
-              <span className="font-semibold text-slate-200">Gestão de Projetos</span>
-              <ChevronDown className="w-4 h-4 text-slate-500" />
+            <div className="flex items-center gap-2 cursor-pointer hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1 rounded transition-colors">
+              <div className="w-5 h-5 bg-[#22c55e] rounded text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center justify-center font-bold text-xs">C</div>
+              <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Gestão de Projetos</span>
+              <ChevronDown className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
             </div>
           </div>
 
           <div className="flex-1 max-w-lg mx-4 flex items-center gap-2">
             <div className="flex-1 relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-3.5 w-3.5 text-slate-500" />
+                <Search className="h-3.5 w-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
               </div>
               <input
                 type="text"
-                className="block w-full pl-8 pr-3 py-1 bg-[#0d1423] border border-[#374151] rounded-md text-slate-300 placeholder-slate-500 focus:outline-none focus:border-[#ff7a00] text-xs transition-colors"
+                className="block w-full pl-8 pr-3 py-1 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:border-[#ff7a00] text-xs transition-colors"
                 placeholder="Pesquisar ⌘ K"
                 onClick={() => alert('Pesquisa global ativada. Use ⌘ K para buscar fases, documentos ou pessoas.')}
               />
             </div>
-            <button onClick={() => alert('Abrindo painel de Chat com IA...')} className="bg-[#0d1423] hover:bg-[#1f2937] border border-[#374151] text-slate-300 px-3 py-1 rounded-md text-xs font-medium flex items-center gap-2 transition-colors">
-              Chats com IA <Sparkles className="w-3.5 h-3.5 text-teal-400" />
+            <button onClick={() => alert('Abrindo painel de Chat com IA...')} className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] px-3 py-1 rounded-md text-xs font-medium flex items-center gap-2 transition-colors">
+              Chats com IA <Sparkles className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
             </button>
           </div>
 
-          <div className="flex items-center gap-3 text-slate-400">
-            <CheckCircle2 onClick={() => setGlobalView('planned')} className="w-5 h-5 hover:text-slate-200 cursor-pointer" />
-            <Bell onClick={() => alert('Painel de Notificações')} className="w-5 h-5 hover:text-slate-200 cursor-pointer" />
-            <div onClick={() => alert('Menu do Perfil')} className="w-6 h-6 rounded-full bg-[#ff7a00] flex items-center justify-center text-white text-xs font-bold ring-2 ring-[#111827] cursor-pointer">
+          <div className="flex items-center gap-3 text-[rgb(var(--crm-muted-rgb)_/_1)]">
+            <CheckCircle2 onClick={() => setGlobalView('planned')} className="w-5 h-5 hover:text-[rgb(var(--crm-ink-rgb)_/_1)] cursor-pointer" />
+            <Bell onClick={() => alert('Painel de Notificações')} className="w-5 h-5 hover:text-[rgb(var(--crm-ink-rgb)_/_1)] cursor-pointer" />
+            <div onClick={() => alert('Menu do Perfil')} className="w-6 h-6 rounded-full bg-[#ff7a00] flex items-center justify-center text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-bold ring-2 ring-[#111827] cursor-pointer">
               CH
             </div>
           </div>
@@ -1455,7 +1455,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
 
         {globalView === 'spaces' ? (
           isDashboardFocus ? (
-            <div className="flex-1 overflow-hidden bg-[#070b16]">
+            <div className="flex-1 overflow-hidden bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
               <Dashboard
                 projects={spaces}
                 issues={issues}
@@ -1468,25 +1468,25 @@ export default function App({ onBack }: { onBack?: () => void }) {
           ) : (
           <>
             {/* Project Header & Tabs */}
-            <div className="bg-[#111827] border-b border-[#263345] flex-shrink-0">
+            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)] flex-shrink-0">
           <div className="px-6 pt-4 pb-0 flex flex-col gap-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xl font-bold text-slate-200 min-w-0 flex-1 mr-4">
-                <div className={cn("w-5 h-5 rounded-sm text-[10px] flex items-center justify-center font-bold text-white mr-1 flex-shrink-0", activeProject?.color || "bg-slate-700")}>
+              <div className="flex items-center gap-2 text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] min-w-0 flex-1 mr-4">
+                <div className={cn("w-5 h-5 rounded-sm text-[10px] flex items-center justify-center font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mr-1 flex-shrink-0", activeProject?.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]")}>
                   {activeProject?.initial || "P"}
                 </div>
                 <span className="truncate max-w-[300px] sm:max-w-[500px] md:max-w-[750px] lg:max-w-[950px]" title={activeProject?.name || "Projetos"}>
                   {activeProject?.name || (isLoadingProjects ? "Carregando projetos..." : "Projetos")}
                 </span>
-                <span className="text-slate-500 font-normal flex-shrink-0">/</span>
-                <ListIcon className="w-5 h-5 text-slate-400 ml-1 flex-shrink-0" /> <span className="flex-shrink-0">Fases</span>
-                <ChevronDown className="w-5 h-5 text-slate-500 cursor-pointer flex-shrink-0" />
+                <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] font-normal flex-shrink-0">/</span>
+                <ListIcon className="w-5 h-5 text-[rgb(var(--crm-muted-rgb)_/_1)] ml-1 flex-shrink-0" /> <span className="flex-shrink-0">Fases</span>
+                <ChevronDown className="w-5 h-5 text-[rgb(var(--crm-muted-rgb)_/_1)] cursor-pointer flex-shrink-0" />
               </div>
 
-              <div className="flex items-center gap-4 text-xs font-medium text-slate-400">
-                <button onClick={() => setIsAgentsModalOpen(true)} className="hover:text-slate-200 flex items-center gap-1 transition-colors"><Users2 className="w-4 h-4 text-cyan-400" /> Agentes</button>
-                <button onClick={() => setIsBrainModalOpen(true)} className="hover:text-slate-200 flex items-center gap-1 transition-colors"><Sparkles className="w-4 h-4 text-teal-400" /> Brain</button>
-                <button onClick={handleOpenShareModal} className="hover:text-slate-200 flex items-center gap-1 transition-colors"><Users className="w-4 h-4 text-orange-400" /> Compartilhar</button>
+              <div className="flex items-center gap-4 text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                <button onClick={() => setIsAgentsModalOpen(true)} className="hover:text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-1 transition-colors"><Users2 className="w-4 h-4 text-cyan-700 dark:text-cyan-400" /> Agentes</button>
+                <button onClick={() => setIsBrainModalOpen(true)} className="hover:text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-1 transition-colors"><Sparkles className="w-4 h-4 text-teal-700 dark:text-teal-400" /> Brain</button>
+                <button onClick={handleOpenShareModal} className="hover:text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-1 transition-colors"><Users className="w-4 h-4 text-orange-700 dark:text-orange-400" /> Compartilhar</button>
               </div>
             </div>
 
@@ -1500,7 +1500,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
               <Tab icon={CheckCircle2} label="Matriz RACI" active={activeView === 'raci'} onClick={() => setActiveView('raci')} />
               <Tab icon={Activity} label="Atividade" active={activeView === 'activity'} onClick={() => setActiveView('activity')} />
               <Tab icon={ListIcon} label="Carga de trabalho" active={activeView === 'workload'} onClick={() => setActiveView('workload')} />
-              <div className="flex items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer pb-2">
+              <div className="flex items-center gap-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] cursor-pointer pb-2">
                 <Plus className="w-4 h-4" /> Visualização
               </div>
             </div>
@@ -1508,39 +1508,39 @@ export default function App({ onBack }: { onBack?: () => void }) {
         </div>
 
         {/* Toolbar */}
-        <div className="px-6 py-3 flex flex-col gap-3 flex-shrink-0 bg-[#070b16] border-b border-[#263345]">
+        <div className="px-6 py-3 flex flex-col gap-3 flex-shrink-0 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)]">
           {activeProject && (
             <div className="grid gap-3 lg:grid-cols-[1.2fr_1fr_1fr]">
-              <div className="rounded-lg border border-[#263345] bg-[#111827] p-3">
-                <p className="text-[10px] font-bold uppercase tracking-wide text-[#8f9caf]">Escopo</p>
-                <p className="mt-1 line-clamp-2 text-xs text-slate-200">{activeProject.scope || 'Escopo ainda não informado.'}</p>
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Escopo</p>
+                <p className="mt-1 line-clamp-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">{activeProject.scope || 'Escopo ainda não informado.'}</p>
               </div>
-              <div className="rounded-lg border border-[#263345] bg-[#111827] p-3">
-                <p className="text-[10px] font-bold uppercase tracking-wide text-[#8f9caf]">Objetivo</p>
-                <p className="mt-1 line-clamp-2 text-xs text-slate-200">{activeProject.objective || 'Objetivo ainda não informado.'}</p>
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Objetivo</p>
+                <p className="mt-1 line-clamp-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">{activeProject.objective || 'Objetivo ainda não informado.'}</p>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg border border-[#263345] bg-[linear-gradient(140deg,rgba(255,122,0,0.16),rgba(17,24,39,0.98))] p-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-[#8f9caf]">Status</p>
+                <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(255,122,0,0.16),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Status</p>
                   <p className="mt-1 text-sm font-black text-[#ffb15c]">{PROJECT_STATUS_LABELS[activeProject.status || 'PLANEJADO']}</p>
                 </div>
-                <div className="rounded-lg border border-[#263345] bg-[linear-gradient(140deg,rgba(34,197,94,0.14),rgba(17,24,39,0.98))] p-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-[#8f9caf]">Fases</p>
+                <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(34,197,94,0.14),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Fases</p>
                   <p className="mt-1 text-sm font-black text-[#22c55e]">{activeProjectIssues.length}</p>
                 </div>
               </div>
             </div>
           )}
           <div className="flex items-center gap-3">
-            <button onClick={() => alert('Controles de Visão (Filtros, Agrupamento)')} className="bg-[#111827] hover:bg-[#1f2937] text-slate-200 px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 border border-[#374151]">
+            <button onClick={() => alert('Controles de Visão (Filtros, Agrupamento)')} className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 border border-[var(--crm-border)]">
               <LayersIcon className="w-4 h-4 text-[#ff7a00]" /> Controles
             </button>
 
-          <div className="ml-auto flex items-center gap-3 text-slate-400">
-            <button onClick={() => alert('Busca específica na lista atual')} className="hover:bg-[#111827] p-1.5 rounded"><Search className="w-4 h-4" /></button>
-            <button onClick={() => alert('Configurações da visualização atual')} className="hover:bg-[#111827] p-1.5 rounded"><Settings className="w-4 h-4" /></button>
-            <div className="h-4 w-px bg-slate-700 mx-1"></div>
-            <button onClick={handleCreateTask} className="bg-[#ff7a00] hover:bg-[#f6b40b] text-white hover:text-[#050914] px-4 py-1.5 rounded-md text-xs font-semibold flex items-center gap-2 transition-colors">
+          <div className="ml-auto flex items-center gap-3 text-[rgb(var(--crm-muted-rgb)_/_1)]">
+            <button onClick={() => alert('Busca específica na lista atual')} className="hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-1.5 rounded"><Search className="w-4 h-4" /></button>
+            <button onClick={() => alert('Configurações da visualização atual')} className="hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-1.5 rounded"><Settings className="w-4 h-4" /></button>
+            <div className="h-4 w-px bg-[rgb(var(--crm-surface-rgb)_/_1)] mx-1"></div>
+            <button onClick={handleCreateTask} className="bg-[#ff7a00] hover:bg-[#f6b40b] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] px-4 py-1.5 rounded-md text-xs font-semibold flex items-center gap-2 transition-colors">
               <Plus className="w-3.5 h-3.5" /> Fase <ChevronDown className="w-3 h-3 ml-1" />
             </button>
           </div>
@@ -1548,18 +1548,18 @@ export default function App({ onBack }: { onBack?: () => void }) {
         </div>
 
         {/* View Renderer */}
-        <div className="flex-1 overflow-hidden relative bg-[#070b16]">
+        <div className="flex-1 overflow-hidden relative bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
           {projectLoadError && (
             <div className="m-6 rounded-md border border-[#ff7a00]/35 bg-[#ff7a00]/10 px-4 py-3 text-sm font-semibold text-[#ffb15c]">
               {projectLoadError}
             </div>
           )}
           {!isLoadingProjects && spaces.length === 0 && !projectLoadError && (
-            <div className="m-6 rounded-lg border border-[#263345] bg-[#111827] p-8 text-center">
+            <div className="m-6 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-8 text-center">
               <Briefcase className="mx-auto mb-3 h-10 w-10 text-[#ff7a00]" />
-              <h2 className="text-lg font-black text-slate-100">Nenhum projeto cadastrado</h2>
-              <p className="mt-2 text-sm text-slate-500">Crie o primeiro projeto para iniciar o planejamento.</p>
-              <button onClick={() => setIsCreatingSpace(true)} className="mt-5 inline-flex items-center gap-2 rounded-md bg-[#ff7a00] px-4 py-2 text-sm font-black text-white hover:bg-[#f6b40b] hover:text-[#050914]">
+              <h2 className="text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum projeto cadastrado</h2>
+              <p className="mt-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Crie o primeiro projeto para iniciar o planejamento.</p>
+              <button onClick={() => setIsCreatingSpace(true)} className="mt-5 inline-flex items-center gap-2 rounded-md bg-[#ff7a00] px-4 py-2 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 <Plus className="h-4 w-4" />
                 Novo Projeto
               </button>
@@ -1596,7 +1596,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
           </>
           )
         ) : (
-          <div className="flex-1 overflow-hidden relative bg-[#070b16]">
+          <div className="flex-1 overflow-hidden relative bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
             {globalView === 'home' && (
               <HomeView
                 projects={spaces}
@@ -1711,17 +1711,17 @@ export default function App({ onBack }: { onBack?: () => void }) {
       {/* --- AGENTES AI MODAL --- */}
       {isAgentsModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md">
-          <div className="flex max-h-[85vh] w-full max-w-4xl overflow-hidden rounded-xl border border-cyan-500/30 bg-[#0b1020] shadow-[0_0_50px_rgba(24,200,223,0.15)]">
+          <div className="flex max-h-[85vh] w-full max-w-4xl overflow-hidden rounded-xl border border-cyan-500/30 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-[0_0_50px_rgba(24,200,223,0.15)]">
             {/* Header */}
-            <div className="relative border-b border-[#263345] bg-[linear-gradient(90deg,rgba(24,200,223,0.1),transparent)] px-6 py-4 flex items-center justify-between">
+            <div className="relative border-b border-[var(--crm-border)] bg-[linear-gradient(90deg,rgba(24,200,223,0.1),transparent)] px-6 py-4 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <Users2 className="h-5 w-5 text-cyan-400" />
+                <Users2 className="h-5 w-5 text-cyan-700 dark:text-cyan-400" />
                 <div>
-                  <h3 className="text-lg font-black text-slate-100">Agentes de Inteligência Artificial Ativos</h3>
-                  <p className="text-xs text-slate-400">Automatizações cognitivas e monitoramento de governança para este projeto.</p>
+                  <h3 className="text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Agentes de Inteligência Artificial Ativos</h3>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Automatizações cognitivas e monitoramento de governança para este projeto.</p>
                 </div>
               </div>
-              <button onClick={() => { setIsAgentsModalOpen(false); setAgentResponse(null); }} className="rounded-md border border-[#374151] p-1.5 text-slate-400 hover:text-white transition-colors">
+              <button onClick={() => { setIsAgentsModalOpen(false); setAgentResponse(null); }} className="rounded-md border border-[var(--crm-border)] p-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
                 <X className="h-4 w-4" />
               </button>
             </div>
@@ -1734,7 +1734,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
                     name: 'Agente PMI/PMBOK Architect',
                     role: 'Gerência de Projetos',
                     status: 'Ativo',
-                    color: 'text-emerald-400 bg-emerald-400/10 border-emerald-400/20',
+                    color: "text-emerald-700 dark:text-emerald-400 bg-emerald-400/10 border-emerald-400/20",
                     desc: 'Analisa o cronograma e escopo de forma contínua para sugerir caminhos críticos e zelar pelas restrições do PMI.',
                     prompt: 'Você é o Agente PMI/PMBOK Architect. Analise o projeto atual e gere uma auditoria de conformidade com o PMBOK (Caminho Crítico, restrições e premissas recomendadas).'
                   },
@@ -1742,7 +1742,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
                     name: 'Agente Analista Financeiro & SLA',
                     role: 'Controladoria de Contratos',
                     status: 'Disponível',
-                    color: 'text-cyan-400 bg-cyan-400/10 border-cyan-400/20',
+                    color: "text-cyan-700 dark:text-cyan-400 bg-cyan-400/10 border-cyan-400/20",
                     desc: 'Identifica desvios em custos, faturamento das fases e descumprimento de prazos/SLAs pactuados.',
                     prompt: 'Você é o Agente Analista Financeiro & SLA. Analise o orçamento, faturamento das fases e cronograma para identificar riscos de desvio financeiro e de SLA com recomendações de prevenção.'
                   },
@@ -1750,21 +1750,21 @@ export default function App({ onBack }: { onBack?: () => void }) {
                     name: 'Agente Redator Comercial de Propostas',
                     role: 'Vendas & Pré-Vendas',
                     status: 'Disponível',
-                    color: 'text-purple-400 bg-purple-400/10 border-purple-400/20',
+                    color: "text-purple-700 dark:text-purple-400 bg-purple-400/10 border-purple-400/20",
                     desc: 'Gera escopos descritivos, propostas de projetos e materiais de kickoff com base nos editais anexados.',
                     prompt: 'Você é o Agente Redator Comercial de Propostas. Escreva uma proposta comercial formal de kickoff de projeto com base nos dados fornecidos do escopo e entregáveis.'
                   }
                 ].map((agent, i) => (
-                  <div key={i} className="p-3.5 rounded-lg border border-[#263345] bg-[#111827]/40 flex flex-col justify-between gap-3">
+                  <div key={i} className="p-3.5 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] flex flex-col justify-between gap-3">
                     <div className="space-y-1">
                       <div className="flex items-center justify-between gap-2">
-                        <h4 className="text-xs font-bold text-slate-100">{agent.name}</h4>
+                        <h4 className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{agent.name}</h4>
                         <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border ${agent.color}`}>
                           {agent.status}
                         </span>
                       </div>
-                      <p className="text-[10px] text-cyan-400/80 font-medium">{agent.role}</p>
-                      <p className="text-[11px] text-slate-400 leading-relaxed">{agent.desc}</p>
+                      <p className="text-[10px] text-cyan-700/80 dark:text-cyan-400/80 font-medium">{agent.role}</p>
+                      <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] leading-relaxed">{agent.desc}</p>
                     </div>
                     <div className="flex items-center gap-2 mt-1">
                       <button
@@ -1780,16 +1780,16 @@ export default function App({ onBack }: { onBack?: () => void }) {
               </div>
 
               {/* Right Column - Results Display */}
-              <div className="lg:col-span-7 flex flex-col h-full min-h-[300px] border border-[#263345] bg-[#070b16] rounded-lg overflow-hidden">
-                <div className="px-4 py-2 border-b border-[#263345] bg-[#111827]/60 flex items-center justify-between">
-                  <span className="text-xs font-bold text-slate-300">Terminal do Agente</span>
+              <div className="lg:col-span-7 flex flex-col h-full min-h-[300px] border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-lg overflow-hidden">
+                <div className="px-4 py-2 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] flex items-center justify-between">
+                  <span className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Terminal do Agente</span>
                   {agentResponse && (
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(agentResponse);
                         alert('Resultados copiados!');
                       }}
-                      className="text-[10px] px-2 py-1 bg-cyan-950/40 text-cyan-400 hover:text-cyan-300 border border-cyan-800/40 rounded transition-colors font-bold"
+                      className="text-[10px] px-2 py-1 bg-cyan-50/40 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 border border-cyan-200/40 dark:border-cyan-800/40 rounded transition-colors font-bold"
                     >
                       Copiar Resposta
                     </button>
@@ -1798,23 +1798,23 @@ export default function App({ onBack }: { onBack?: () => void }) {
 
                 <div className="flex-1 overflow-y-auto p-4 custom-scrollbar text-xs">
                   {executingAgent ? (
-                    <div className="h-full flex flex-col items-center justify-center space-y-3 text-slate-400 animate-pulse">
-                      <div className="w-9 h-9 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-lg">
+                    <div className="h-full flex flex-col items-center justify-center space-y-3 text-[rgb(var(--crm-muted-rgb)_/_1)] animate-pulse">
+                      <div className="w-9 h-9 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-700 dark:text-cyan-400 text-lg">
                         🧠
                       </div>
                       <div className="flex flex-col items-center space-y-1.5">
-                        <p className="font-bold text-slate-300">Agente "{executingAgent}" trabalhando...</p>
-                        <p className="text-[11px] text-slate-500 text-center max-w-xs">Analisando escopo, orçamento, objetivos e fases do projeto com o modelo de governança.</p>
+                        <p className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Agente "{executingAgent}" trabalhando...</p>
+                        <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] text-center max-w-xs">Analisando escopo, orçamento, objetivos e fases do projeto com o modelo de governança.</p>
                       </div>
                     </div>
                   ) : agentResponse ? (
-                    <div className="space-y-3 text-slate-300 leading-relaxed whitespace-pre-wrap font-sans">
+                    <div className="space-y-3 text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed whitespace-pre-wrap font-sans">
                       {agentResponse.split('**').map((chunk, index) =>
-                        index % 2 === 1 ? <strong key={index} className="font-bold text-cyan-300">{chunk}</strong> : chunk
+                        index % 2 === 1 ? <strong key={index} className="font-bold text-cyan-700 dark:text-cyan-300">{chunk}</strong> : chunk
                       )}
                     </div>
                   ) : (
-                    <div className="h-full flex flex-col items-center justify-center text-slate-500 space-y-2">
+                    <div className="h-full flex flex-col items-center justify-center text-[rgb(var(--crm-muted-rgb)_/_1)] space-y-2">
                       <span>🧠</span>
                       <p className="text-center text-[11px] max-w-xs">Selecione um agente cognitivo na lista à esquerda e clique em "Executar Agente IA" para ver a análise estratégica detalhada.</p>
                     </div>
@@ -1823,9 +1823,9 @@ export default function App({ onBack }: { onBack?: () => void }) {
               </div>
             </div>
             {/* Footer */}
-            <div className="border-t border-[#263345] bg-[#111827] px-6 py-4 flex items-center justify-between flex-shrink-0">
-              <span className="text-[11px] text-slate-500 font-medium">CRM Nexos Core Agents Engine v3.0</span>
-              <button onClick={() => { setIsAgentsModalOpen(false); setAgentResponse(null); }} className="rounded-md border border-[#374151] px-4 py-1.5 text-xs font-semibold text-slate-300 hover:bg-[#1f2937] hover:text-white transition-all">
+            <div className="border-t border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-6 py-4 flex items-center justify-between flex-shrink-0">
+              <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium">CRM Nexos Core Agents Engine v3.0</span>
+              <button onClick={() => { setIsAgentsModalOpen(false); setAgentResponse(null); }} className="rounded-md border border-[var(--crm-border)] px-4 py-1.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-all">
                 Fechar
               </button>
             </div>
@@ -1836,37 +1836,37 @@ export default function App({ onBack }: { onBack?: () => void }) {
       {/* --- COMPARTILHAR MODAL --- */}
       {isShareModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md">
-          <div className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-xl border border-orange-500/30 bg-[#0b1020] shadow-[0_0_50px_rgba(255,122,0,0.1)]">
+          <div className="flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-xl border border-orange-500/30 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-[0_0_50px_rgba(255,122,0,0.1)]">
             {/* Header */}
-            <div className="relative border-b border-[#263345] bg-[linear-gradient(90deg,rgba(255,122,0,0.1),transparent)] px-6 py-4 flex items-center justify-between flex-shrink-0">
+            <div className="relative border-b border-[var(--crm-border)] bg-[linear-gradient(90deg,rgba(255,122,0,0.1),transparent)] px-6 py-4 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-2.5">
-                <Users className="h-5 w-5 text-orange-400" />
+                <Users className="h-5 w-5 text-orange-700 dark:text-orange-400" />
                 <div>
-                  <h3 className="text-lg font-black text-slate-100 font-sans">Compartilhar Projeto</h3>
-                  <p className="text-xs text-slate-400">Gerencie quem tem acesso a este projeto.</p>
+                  <h3 className="text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)] font-sans">Compartilhar Projeto</h3>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Gerencie quem tem acesso a este projeto.</p>
                 </div>
               </div>
-              <button onClick={() => setIsShareModalOpen(false)} className="rounded-md border border-[#374151] p-1.5 text-slate-400 hover:text-white transition-colors">
+              <button onClick={() => setIsShareModalOpen(false)} className="rounded-md border border-[var(--crm-border)] p-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
                 <X className="h-4 w-4" />
               </button>
             </div>
             {/* Body */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
               {/* Copy Link Section */}
-              <div className="p-3 rounded-lg border border-[#263345] bg-[#111827]/50 space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Link de Acesso Direto</label>
+              <div className="p-3 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] space-y-2">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)]">Link de Acesso Direto</label>
                 <div className="flex gap-2">
                   <input
                     readOnly
                     value={`${window.location.origin}/projetos?invite=${activeProject?.id || 'general'}`}
-                    className="flex-1 bg-[#070b16] text-xs px-2.5 py-1.5 rounded border border-[#263345] text-slate-400 outline-none select-all truncate"
+                    className="flex-1 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-xs px-2.5 py-1.5 rounded border border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] outline-none select-all truncate"
                   />
                   <button
                     onClick={() => {
                       navigator.clipboard.writeText(`${window.location.origin}/projetos?invite=${activeProject?.id || 'general'}`);
                       alert('Link copiado para a área de transferência!');
                     }}
-                    className="px-3 py-1.5 bg-[#ff7a00] hover:bg-[#f6b40b] text-white hover:text-slate-950 font-bold rounded text-xs transition-all whitespace-nowrap cursor-pointer"
+                    className="px-3 py-1.5 bg-[#ff7a00] hover:bg-[#f6b40b] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold rounded text-xs transition-all whitespace-nowrap cursor-pointer"
                   >
                     Copiar
                   </button>
@@ -1874,13 +1874,13 @@ export default function App({ onBack }: { onBack?: () => void }) {
               </div>
 
               {/* Add New Member Section */}
-              <div className="p-3.5 rounded-lg border border-[#263345] bg-[#111827]/30 space-y-2.5">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Adicionar Membro à Equipe</label>
+              <div className="p-3.5 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] space-y-2.5">
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)]">Adicionar Membro à Equipe</label>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <select
                     value={selectedNewMemberId}
                     onChange={(e) => setSelectedNewMemberId(e.target.value)}
-                    className="flex-1 bg-[#070b16] border border-[#263345] rounded text-xs px-2.5 py-1.5 text-slate-200"
+                    className="flex-1 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded text-xs px-2.5 py-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   >
                     <option value="">Selecione um usuário...</option>
                     {users
@@ -1893,7 +1893,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
                   <select
                     value={selectedNewMemberRole}
                     onChange={(e) => setSelectedNewMemberRole(e.target.value)}
-                    className="bg-[#070b16] border border-[#263345] rounded text-xs px-2 py-1.5 text-slate-200"
+                    className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded text-xs px-2 py-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   >
                     <option>Editor</option>
                     <option>Administrador</option>
@@ -1902,7 +1902,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
                   <button
                     onClick={handleAddTeamMember}
                     disabled={isAddingTeamMember || !selectedNewMemberId}
-                    className="px-3 py-1.5 bg-[#ff7a00] hover:bg-[#f6b40b] hover:text-[#050914] text-white font-bold rounded text-xs transition-all whitespace-nowrap cursor-pointer disabled:opacity-50"
+                    className="px-3 py-1.5 bg-[#ff7a00] hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold rounded text-xs transition-all whitespace-nowrap cursor-pointer disabled:opacity-50"
                   >
                     {isAddingTeamMember ? 'Salvando...' : 'Adicionar'}
                   </button>
@@ -1911,27 +1911,27 @@ export default function App({ onBack }: { onBack?: () => void }) {
 
               {/* Members List */}
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Integrantes Ativos ({projectTeam.length})</label>
+                <label className="text-[10px] font-bold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)]">Integrantes Ativos ({projectTeam.length})</label>
                 <div className="space-y-1.5 max-h-[30vh] overflow-y-auto pr-1 custom-scrollbar">
                   {projectTeam.length > 0 ? (
                     projectTeam.map((m, i) => (
-                      <div key={i} className="flex items-center justify-between p-2.5 rounded bg-[#111827]/30 border border-[#263345]/50 text-xs">
+                      <div key={i} className="flex items-center justify-between p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] border border-[var(--crm-border)] text-xs">
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-7 h-7 rounded-full bg-slate-700 flex items-center justify-center font-bold text-[10px] text-white flex-shrink-0">
+                          <div className="w-7 h-7 rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)] flex items-center justify-center font-bold text-[10px] text-[rgb(var(--crm-ink-rgb)_/_1)] flex-shrink-0">
                             {String(m.user?.name || 'U').slice(0, 2).toUpperCase()}
                           </div>
                           <div className="min-w-0">
-                            <p className="font-bold text-slate-200 truncate">{m.user?.name || 'Membro do Projeto'}</p>
-                            <p className="text-[10px] text-slate-500 truncate">{m.user?.email || 'Membro do CRM'}</p>
+                            <p className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">{m.user?.name || 'Membro do Projeto'}</p>
+                            <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] truncate">{m.user?.email || 'Membro do CRM'}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] font-bold bg-[#111827] border border-[#263345] px-2 py-0.5 rounded text-slate-300">
+                          <span className="text-[10px] font-bold bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] px-2 py-0.5 rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             {m.role || 'Editor'}
                           </span>
                           <button
                             onClick={() => handleRemoveTeamMember(m.id)}
-                            className="p-1 rounded text-slate-500 hover:text-red-400 hover:bg-red-950/20 transition-all"
+                            className="p-1 rounded text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-red-700 dark:hover:text-red-400 hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-all"
                             title="Remover da equipe"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1940,14 +1940,14 @@ export default function App({ onBack }: { onBack?: () => void }) {
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs text-slate-500 text-center py-4">Nenhum membro específico cadastrado na equipe. O gerente do projeto é o proprietário principal.</p>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] text-center py-4">Nenhum membro específico cadastrado na equipe. O gerente do projeto é o proprietário principal.</p>
                   )}
                 </div>
               </div>
             </div>
             {/* Footer */}
-            <div className="border-t border-[#263345] bg-[#111827] px-6 py-4 flex items-center justify-end flex-shrink-0">
-              <button onClick={() => setIsShareModalOpen(false)} className="rounded-md bg-[#ff7a00] hover:bg-[#f6b40b] hover:text-slate-950 px-5 py-2 text-xs font-black text-white transition-all shadow-[0_0_15px_rgba(255,122,0,0.15)]">
+            <div className="border-t border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-6 py-4 flex items-center justify-end flex-shrink-0">
+              <button onClick={() => setIsShareModalOpen(false)} className="rounded-md bg-[#ff7a00] hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] px-5 py-2 text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-all shadow-[0_0_15px_rgba(255,122,0,0.15)]">
                 Pronto
               </button>
             </div>
@@ -1958,60 +1958,60 @@ export default function App({ onBack }: { onBack?: () => void }) {
       {/* --- CLICKUP BRAIN MODAL --- */}
       {isBrainModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 p-4 backdrop-blur-md">
-          <div className="flex h-[85vh] w-full max-w-4xl overflow-hidden rounded-xl border border-teal-500/30 bg-[#0b1020] shadow-[0_0_50px_rgba(24,200,223,0.2)]">
+          <div className="flex h-[85vh] w-full max-w-4xl overflow-hidden rounded-xl border border-teal-500/30 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-[0_0_50px_rgba(24,200,223,0.2)]">
             {/* Sidebar info */}
-            <div className="hidden md:flex w-64 bg-[#111827]/70 border-r border-[#263345] p-5 flex-col justify-between">
+            <div className="hidden md:flex w-64 bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] border-r border-[var(--crm-border)] p-5 flex-col justify-between">
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-teal-400 animate-pulse" />
-                  <span className="font-black text-slate-100 uppercase tracking-widest text-xs">Atalhos Brain</span>
+                  <Sparkles className="w-5 h-5 text-teal-700 dark:text-teal-400 animate-pulse" />
+                  <span className="font-black text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-widest text-xs">Atalhos Brain</span>
                 </div>
-                <p className="text-xs text-slate-400 leading-relaxed">
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] leading-relaxed">
                   O Brain tem acesso completo à sua estrutura de fases, objetivo, escopo e restrições para oferecer insights instantâneos.
                 </p>
                 <div className="space-y-2 pt-2">
                   <button
                     onClick={() => handleQueryBrain('Por favor, faça um resumo estratégico e detalhado dos objetivos, escopo e premissas deste projeto.')}
                     disabled={isBrainLoading}
-                    className="w-full text-left p-2.5 rounded bg-[#070b16] hover:bg-teal-950/20 border border-[#263345] hover:border-teal-400/40 text-xs text-slate-300 font-semibold transition-all duration-200"
+                    className="w-full text-left p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:bg-teal-50/20 dark:hover:bg-teal-950/20 border border-[var(--crm-border)] hover:border-teal-400/40 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold transition-all duration-200"
                   >
                     📊 Resumir Status
                   </button>
                   <button
                     onClick={() => handleQueryBrain('Analise as fraquezas do escopo e sugira 3 riscos graves do PMI com as respectivas contramedidas.')}
                     disabled={isBrainLoading}
-                    className="w-full text-left p-2.5 rounded bg-[#070b16] hover:bg-teal-950/20 border border-[#263345] hover:border-teal-400/40 text-xs text-slate-300 font-semibold transition-all duration-200"
+                    className="w-full text-left p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:bg-teal-50/20 dark:hover:bg-teal-950/20 border border-[var(--crm-border)] hover:border-teal-400/40 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold transition-all duration-200"
                   >
                     ⚠️ Avaliar Riscos
                   </button>
                   <button
                     onClick={() => handleQueryBrain('Sugerir 3 melhorias e entregáveis adicionais fundamentais para este tipo de projeto obter sucesso.')}
                     disabled={isBrainLoading}
-                    className="w-full text-left p-2.5 rounded bg-[#070b16] hover:bg-teal-950/20 border border-[#263345] hover:border-teal-400/40 text-xs text-slate-300 font-semibold transition-all duration-200"
+                    className="w-full text-left p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:bg-teal-50/20 dark:hover:bg-teal-950/20 border border-[var(--crm-border)] hover:border-teal-400/40 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold transition-all duration-200"
                   >
                     🛠️ Sugerir Melhorias
                   </button>
                 </div>
               </div>
-              <div className="text-[10px] text-slate-500 font-mono">
+              <div className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-mono">
                 Powered by Gemini 3.8 Flash
               </div>
             </div>
 
             {/* Chat Area */}
-            <div className="flex-1 flex flex-col h-full bg-[#050914]">
+            <div className="flex-1 flex flex-col h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
               {/* Header */}
-              <div className="px-6 py-4 border-b border-[#263345] bg-[#111827] flex items-center justify-between">
+              <div className="px-6 py-4 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-teal-400" />
+                    <Sparkles className="w-4 h-4 text-teal-700 dark:text-teal-400" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-slate-100">CRM Nexos Brain</h3>
-                    <p className="text-[10px] text-slate-400">Ativo sobre: <span className="text-teal-400 font-bold">{activeProject?.name || 'Projeto Geral'}</span></p>
+                    <h3 className="text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">CRM Nexos Brain</h3>
+                    <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)]">Ativo sobre: <span className="text-teal-700 dark:text-teal-400 font-bold">{activeProject?.name || 'Projeto Geral'}</span></p>
                   </div>
                 </div>
-                <button onClick={() => setIsBrainModalOpen(false)} className="rounded-md border border-[#374151] p-1.5 text-slate-400 hover:text-white transition-colors">
+                <button onClick={() => setIsBrainModalOpen(false)} className="rounded-md border border-[var(--crm-border)] p-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
                   <X className="h-4 w-4" />
                 </button>
               </div>
@@ -2024,20 +2024,20 @@ export default function App({ onBack }: { onBack?: () => void }) {
                       "w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold flex-shrink-0 border",
                       msg.role === 'user'
                         ? "bg-[#ff7a00]/10 border-[#ff7a00]/30 text-[#ff7a00]"
-                        : "bg-teal-500/10 border-teal-500/30 text-teal-400"
+                        : "bg-teal-500/10 border-teal-500/30 text-teal-700 dark:text-teal-400"
                     )}>
                       {msg.role === 'user' ? 'CH' : '🧠'}
                     </div>
                     <div className={cn(
                       "p-3.5 rounded-lg text-xs leading-relaxed space-y-2 border",
                       msg.role === 'user'
-                        ? "bg-[#111827]/40 border-[#263345] text-slate-200"
-                        : "bg-[#111827]/70 border-teal-500/20 text-slate-300 shadow-[0_0_15px_rgba(24,200,223,0.03)]"
+                        ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                        : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] border-teal-500/20 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_0_15px_rgba(24,200,223,0.03)]"
                     )}>
                       {/* Simple markdown-style highlight formatter for bold text */}
                       <p className="whitespace-pre-line">
                         {msg.text.split('**').map((chunk, index) =>
-                          index % 2 === 1 ? <strong key={index} className="font-bold text-teal-300">{chunk}</strong> : chunk
+                          index % 2 === 1 ? <strong key={index} className="font-bold text-teal-700 dark:text-teal-300">{chunk}</strong> : chunk
                         )}
                       </p>
                     </div>
@@ -2046,15 +2046,15 @@ export default function App({ onBack }: { onBack?: () => void }) {
 
                 {isBrainLoading && (
                   <div className="flex gap-3 max-w-[85%] mr-auto items-center animate-pulse">
-                    <div className="w-7 h-7 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400">
+                    <div className="w-7 h-7 rounded-full bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-700 dark:text-teal-400">
                       🧠
                     </div>
-                    <div className="p-3.5 rounded-lg bg-[#111827]/70 border border-teal-500/20 text-slate-500 text-xs">
+                    <div className="p-3.5 rounded-lg bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] border border-teal-500/20 text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">
                       <div className="flex gap-1.5 items-center">
                         <span className="w-2 h-2 rounded-full bg-teal-400 animate-bounce"></span>
                         <span className="w-2 h-2 rounded-full bg-teal-400 animate-bounce [animation-delay:0.2s]"></span>
                         <span className="w-2 h-2 rounded-full bg-teal-400 animate-bounce [animation-delay:0.4s]"></span>
-                        <span className="text-[10px] font-bold text-slate-400 ml-1">O Brain está consultando o projeto no servidor...</span>
+                        <span className="text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] ml-1">O Brain está consultando o projeto no servidor...</span>
                       </div>
                     </div>
                   </div>
@@ -2062,7 +2062,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
               </div>
 
               {/* Chat Input */}
-              <div className="p-4 border-t border-[#263345] bg-[#111827]">
+              <div className="p-4 border-t border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
@@ -2076,12 +2076,12 @@ export default function App({ onBack }: { onBack?: () => void }) {
                     value={brainInput}
                     onChange={(e) => setBrainInput(e.target.value)}
                     placeholder={isBrainLoading ? "Aguarde o Brain responder..." : "Pergunte ao Brain sobre escopo, cronograma, riscos..."}
-                    className="flex-1 bg-[#050914] text-xs px-3 py-2.5 rounded border border-[#263345] focus:border-teal-400 text-slate-200 outline-none placeholder:text-slate-600 disabled:opacity-60"
+                    className="flex-1 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-xs px-3 py-2.5 rounded border border-[var(--crm-border)] focus:border-teal-400 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] disabled:opacity-60"
                   />
                   <button
                     type="submit"
                     disabled={isBrainLoading || !brainInput.trim()}
-                    className="px-5 py-2.5 bg-teal-600 hover:bg-teal-500 disabled:bg-[#263345] text-white hover:text-slate-950 font-bold rounded text-xs transition-all whitespace-nowrap cursor-pointer shadow-[0_0_15px_rgba(20,184,166,0.15)] disabled:shadow-none"
+                    className="px-5 py-2.5 bg-teal-600 hover:bg-teal-500 disabled:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-white hover:text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold rounded text-xs transition-all whitespace-nowrap cursor-pointer shadow-[0_0_15px_rgba(20,184,166,0.15)] disabled:shadow-none"
                   >
                     Enviar
                   </button>
@@ -2126,8 +2126,8 @@ function ProjectCreateModal({
   const [aiFileInputKey, setAiFileInputKey] = useState(0);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [aiError, setAiError] = useState('');
-  const fieldClass = "w-full rounded-md border border-[#374151] bg-[#070b16] px-3 py-2 text-sm text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-[#ff7a00] focus:ring-2 focus:ring-[#ff7a00]/20";
-  const labelClass = "text-[11px] font-bold uppercase tracking-wide text-[#8f9caf]";
+  const fieldClass = "w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#ff7a00] focus:ring-2 focus:ring-[#ff7a00]/20";
+  const labelClass = "text-[11px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]";
   const filteredCompanies = companies.filter((company) => !company.clientType || String(company.clientType).toUpperCase() === form.type);
   const filteredUsers = users.filter((user) => {
     if (form.type === 'B2G') return user.accessB2G || ['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR', 'USER_B2G'].includes(String(user.role || '').toUpperCase());
@@ -2201,30 +2201,30 @@ function ProjectCreateModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-      <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-[#374151] bg-[#0b1020] shadow-2xl">
-        <div className="relative overflow-hidden border-b border-[#263345] bg-[radial-gradient(circle_at_12%_0%,rgba(255,122,0,0.28),transparent_28%),linear-gradient(120deg,#111827,#070b16_58%,#111827)] px-6 py-5">
+      <div className="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-2xl">
+        <div className="relative overflow-hidden border-b border-[var(--crm-border)] bg-[radial-gradient(circle_at_12%_0%,rgba(255,122,0,0.28),transparent_28%),linear-gradient(120deg,rgb(var(--crm-surface-2-rgb)_/_1),rgb(var(--crm-surface-2-rgb)_/_1)_58%,rgb(var(--crm-surface-2-rgb)_/_1))] px-6 py-5">
           <div className="absolute right-10 top-0 h-24 w-24 rounded-full bg-[#22c55e]/10 blur-2xl" />
           <div className="relative flex items-start justify-between gap-4">
             <div>
               <div className="mb-2 flex items-center gap-2">
-                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[#ff7a00] text-white shadow-[0_0_24px_rgba(255,122,0,0.28)]">
+                <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_0_24px_rgba(255,122,0,0.28)]">
                   <Briefcase className="h-5 w-5" />
                 </span>
                 <span className="rounded-full border border-[#f6b40b]/40 bg-[#f6b40b]/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#f6b40b]">
                   {mode === 'edit' ? 'Editar projeto' : 'Novo projeto'}
                 </span>
               </div>
-              <h2 className="text-2xl font-black text-slate-100">
+              <h2 className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 {mode === 'edit' ? 'Editar cadastro do projeto' : 'Cadastro completo do projeto'}
               </h2>
-              <p className="mt-1 max-w-2xl text-sm text-slate-400">
+              <p className="mt-1 max-w-2xl text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 {mode === 'edit' ? 'Atualize escopo, objetivo, responsáveis e governança do projeto.' : 'Escopo, objetivo, responsáveis e critérios entram antes da criação das fases.'}
               </p>
             </div>
             <button
               type="button"
               onClick={onCancel}
-              className="rounded-md border border-[#374151] bg-[#111827]/80 p-2 text-slate-400 transition-colors hover:border-[#ff7a00] hover:text-white"
+              className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:border-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
             >
               <X className="h-5 w-5" />
             </button>
@@ -2232,13 +2232,13 @@ function ProjectCreateModal({
         </div>
 
         {/* Tabs Bar */}
-        <div className="bg-[#111827]/80 border-b border-[#263345] px-6 py-2.5 flex gap-5 flex-shrink-0">
+        <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-b border-[var(--crm-border)] px-6 py-2.5 flex gap-5 flex-shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab('general')}
             className={cn(
               "pb-1 text-xs font-black uppercase tracking-wider transition-all border-b-2 px-1 flex items-center gap-1.5",
-              activeTab === 'general' ? "border-[#ff7a00] text-slate-100" : "border-transparent text-slate-500 hover:text-slate-300"
+              activeTab === 'general' ? "border-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "border-transparent text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
             )}
           >
             <span>💼</span> Cadastro Geral
@@ -2248,7 +2248,7 @@ function ProjectCreateModal({
             onClick={() => setActiveTab('scope')}
             className={cn(
               "pb-1 text-xs font-black uppercase tracking-wider transition-all border-b-2 px-1 flex items-center gap-1.5",
-              activeTab === 'scope' ? "border-[#ff7a00] text-slate-100" : "border-transparent text-slate-500 hover:text-slate-300"
+              activeTab === 'scope' ? "border-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "border-transparent text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
             )}
           >
             <span>🎯</span> Objetivo e Escopo (IA)
@@ -2258,7 +2258,7 @@ function ProjectCreateModal({
             onClick={() => setActiveTab('details')}
             className={cn(
               "pb-1 text-xs font-black uppercase tracking-wider transition-all border-b-2 px-1 flex items-center gap-1.5",
-              activeTab === 'details' ? "border-[#ff7a00] text-slate-100" : "border-transparent text-slate-500 hover:text-slate-300"
+              activeTab === 'details' ? "border-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "border-transparent text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
             )}
           >
             <span>📋</span> Entregas, Riscos e Notas
@@ -2373,14 +2373,14 @@ function ProjectCreateModal({
           {activeTab === 'scope' && (
             <div className="space-y-5">
               {mode === 'create' && (
-                <div className="rounded-lg border border-[#263345] bg-[#111827] p-4">
+                <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
                   <div className="mb-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <p className="flex items-center gap-2 text-sm font-black text-slate-100">
+                      <p className="flex items-center gap-2 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <Sparkles className="h-4 w-4 text-[#18c8df]" />
                         Analisar com IA PMBOK/PMI
                       </p>
-                      <p className="mt-1 text-xs text-slate-500">Anexe o edital/projeto ou cole o conteúdo para preencher requisitos, escopo e fases.</p>
+                      <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Anexe o edital/projeto ou cole o conteúdo para preencher requisitos, escopo e fases.</p>
                     </div>
                     <div className="flex flex-col gap-2 sm:flex-row">
                       <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-md border border-[#18c8df]/45 bg-[#18c8df]/10 px-4 py-2 text-xs font-black text-[#67e8f9] transition-colors hover:border-[#67e8f9] hover:bg-[#18c8df]/15">
@@ -2402,7 +2402,7 @@ function ProjectCreateModal({
                         type="button"
                         onClick={handleAnalyzeWithAi}
                         disabled={isAnalyzing}
-                        className="inline-flex items-center justify-center gap-2 rounded-md bg-[#18c8df] px-4 py-2 text-xs font-black text-[#050914] transition-colors hover:bg-[#67e8f9] disabled:cursor-not-allowed disabled:opacity-60"
+                        className="inline-flex items-center justify-center gap-2 rounded-md bg-[#18c8df] px-4 py-2 text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#67e8f9] disabled:cursor-not-allowed disabled:opacity-60"
                       >
                         <Sparkles className="h-3.5 w-3.5" />
                         {isAnalyzing ? 'Analisando...' : 'Gerar requisitos e fases'}
@@ -2410,11 +2410,11 @@ function ProjectCreateModal({
                     </div>
                   </div>
                   {aiFile && (
-                    <div className="mb-3 flex items-center justify-between gap-3 rounded-md border border-[#263345] bg-[#070b16] px-3 py-2">
+                    <div className="mb-3 flex items-center justify-between gap-3 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2">
                       <div className="flex min-w-0 items-center gap-2">
                         <FileText className="h-4 w-4 flex-shrink-0 text-[#18c8df]" />
-                        <span className="truncate text-xs font-semibold text-slate-300">{aiFile.name}</span>
-                        <span className="text-[11px] text-slate-600">{Math.max(1, Math.round(aiFile.size / 1024))} KB</span>
+                        <span className="truncate text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{aiFile.name}</span>
+                        <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{Math.max(1, Math.round(aiFile.size / 1024))} KB</span>
                       </div>
                       <button
                         type="button"
@@ -2423,7 +2423,7 @@ function ProjectCreateModal({
                           setAiFileInputKey((value) => value + 1);
                           setAiError('');
                         }}
-                        className="rounded-md p-1 text-slate-500 transition-colors hover:bg-[#1f2937] hover:text-white"
+                        className="rounded-md p-1 text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                         title="Remover anexo"
                       >
                         <X className="h-4 w-4" />
@@ -2440,7 +2440,7 @@ function ProjectCreateModal({
                     placeholder="Opcional: cole aqui também trechos do edital, termo de referência, requisitos técnicos, prazos e entregáveis..."
                   />
                   {aiError && (
-                    <div className="mt-3 rounded-md border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-200">
+                    <div className="mt-3 rounded-md border border-red-500/35 bg-red-500/10 px-3 py-2 text-xs font-semibold text-red-700 dark:text-red-200">
                       {aiError}
                     </div>
                   )}
@@ -2448,13 +2448,13 @@ function ProjectCreateModal({
                     <div className="mt-4 rounded-md border border-[#18c8df]/25 bg-[#18c8df]/5 p-3">
                       <div className="mb-3 flex items-center justify-between gap-3">
                         <p className="text-xs font-black uppercase tracking-wide text-[#18c8df]">{generatedPhases.length} fases geradas</p>
-                        <span className="text-[11px] font-semibold text-slate-500">Serão criadas junto com o projeto</span>
+                        <span className="text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">Serão criadas junto com o projeto</span>
                       </div>
                       <div className="grid gap-2 md:grid-cols-2">
                         {generatedPhases.map((phase, index) => (
-                          <div key={`${phase.name}-${index}`} className="rounded-md border border-[#263345] bg-[#070b16] p-3">
-                            <p className="text-xs font-black text-slate-100">{index + 1}. {phase.name}</p>
-                            <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-slate-500">{phase.description || phase.deliverable || 'Fase gerada pela IA.'}</p>
+                          <div key={`${phase.name}-${index}`} className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3">
+                            <p className="text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{index + 1}. {phase.name}</p>
+                            <p className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-[rgb(var(--crm-muted-rgb)_/_1)]">{phase.description || phase.deliverable || 'Fase gerada pela IA.'}</p>
                             {phase.pmbokProcessGroup && (
                               <p className="mt-2 text-[11px] font-bold text-[#67e8f9]">{phase.pmbokProcessGroup}</p>
                             )}
@@ -2508,25 +2508,25 @@ function ProjectCreateModal({
           )}
 
           <div className="mt-5 grid gap-3 md:grid-cols-3">
-            <div className="rounded-lg border border-[#374151] bg-[linear-gradient(140deg,rgba(255,122,0,0.16),rgba(17,24,39,0.96))] p-3">
+            <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(255,122,0,0.16),rgb(var(--crm-surface-2-rgb)_/_0.96))] p-3">
               <Target className="mb-3 h-5 w-5 text-[#ff7a00]" />
-              <p className="text-xs font-bold text-slate-100">Objetivo definido</p>
-              <p className="mt-1 text-[11px] text-slate-500">{form.objective.trim() ? 'Pronto para validação executiva.' : 'Pendente'}</p>
+              <p className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Objetivo definido</p>
+              <p className="mt-1 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{form.objective.trim() ? 'Pronto para validação executiva.' : 'Pendente'}</p>
             </div>
-            <div className="rounded-lg border border-[#374151] bg-[linear-gradient(140deg,rgba(246,180,11,0.14),rgba(17,24,39,0.96))] p-3">
+            <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(246,180,11,0.14),rgb(var(--crm-surface-2-rgb)_/_0.96))] p-3">
               <FileText className="mb-3 h-5 w-5 text-[#f6b40b]" />
-              <p className="text-xs font-bold text-slate-100">Escopo registrado</p>
-              <p className="mt-1 text-[11px] text-slate-500">{form.scope.trim() ? 'Base para montar as fases.' : 'Pendente'}</p>
+              <p className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Escopo registrado</p>
+              <p className="mt-1 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{form.scope.trim() ? 'Base para montar as fases.' : 'Pendente'}</p>
             </div>
-            <div className="rounded-lg border border-[#374151] bg-[linear-gradient(140deg,rgba(34,197,94,0.14),rgba(17,24,39,0.96))] p-3">
+            <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(34,197,94,0.14),rgb(var(--crm-surface-2-rgb)_/_0.96))] p-3">
               <CheckCircle2 className="mb-3 h-5 w-5 text-[#22c55e]" />
-              <p className="text-xs font-bold text-slate-100">Governança</p>
-              <p className="mt-1 text-[11px] text-slate-500">{form.manager.trim() || form.sponsor.trim() ? 'Responsáveis informados.' : 'Pendente'}</p>
+              <p className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Governança</p>
+              <p className="mt-1 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{form.manager.trim() || form.sponsor.trim() ? 'Responsáveis informados.' : 'Pendente'}</p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center justify-between border-t border-[#263345] bg-[#111827] px-6 py-4 flex-shrink-0">
+        <div className="flex items-center justify-between border-t border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-6 py-4 flex-shrink-0">
           <div className="flex gap-2">
             {activeTab !== 'general' && (
               <button
@@ -2535,7 +2535,7 @@ function ProjectCreateModal({
                   if (activeTab === 'scope') setActiveTab('general');
                   else if (activeTab === 'details') setActiveTab('scope');
                 }}
-                className="rounded-md border border-[#374151] px-4 py-2 text-xs font-semibold text-slate-300 hover:text-white transition-all hover:bg-[#1f2937]"
+                className="rounded-md border border-[var(--crm-border)] px-4 py-2 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-all hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
               >
                 Voltar
               </button>
@@ -2547,7 +2547,7 @@ function ProjectCreateModal({
                   if (activeTab === 'general') setActiveTab('scope');
                   else if (activeTab === 'scope') setActiveTab('details');
                 }}
-                className="rounded-md border border-[#ff7a00]/50 bg-[#ff7a00]/10 px-4 py-2 text-xs font-semibold text-[#ff7a00] hover:text-white transition-all hover:bg-[#ff7a00]/25"
+                className="rounded-md border border-[#ff7a00]/50 bg-[#ff7a00]/10 px-4 py-2 text-xs font-semibold text-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-all hover:bg-[#ff7a00]/25"
               >
                 Próximo Passo
               </button>
@@ -2555,10 +2555,10 @@ function ProjectCreateModal({
           </div>
 
           <div className="flex gap-3">
-            <button type="button" onClick={onCancel} className="rounded-md border border-[#374151] px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-[#1f2937] hover:text-white">
+            <button type="button" onClick={onCancel} className="rounded-md border border-[var(--crm-border)] px-4 py-2 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
               Cancelar
             </button>
-            <button type="button" onClick={onSubmit} className="rounded-md bg-[#ff7a00] px-5 py-2 text-sm font-black text-white shadow-[0_0_24px_rgba(255,122,0,0.2)] transition-colors hover:bg-[#f6b40b] hover:text-[#050914]">
+            <button type="button" onClick={onSubmit} className="rounded-md bg-[#ff7a00] px-5 py-2 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_0_24px_rgba(255,122,0,0.2)] transition-colors hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
               {mode === 'edit' ? 'Salvar alterações' : 'Criar projeto'}
             </button>
           </div>
@@ -2575,7 +2575,7 @@ function NavItem({ icon: Icon, label, active, onClick }: { icon: any, label: str
       onClick={onClick}
       className={cn(
         "flex flex-col items-center justify-center gap-1 w-full py-2 px-1 rounded-md transition-colors group",
-      active ? "text-[#ff7a00] bg-[#ff7a00]/10" : "text-slate-500 hover:text-slate-300 hover:bg-[#263345]"
+      active ? "text-[#ff7a00] bg-[#ff7a00]/10" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
     )}>
       <Icon className="w-5 h-5" />
       <span className="text-[10px] font-medium leading-none">{label}</span>
@@ -2589,7 +2589,7 @@ function Tab({ icon: Icon, label, active, onClick }: { icon: any, label: string,
       onClick={onClick}
       className={cn(
         "flex items-center gap-1.5 pb-2 border-b-2 transition-colors whitespace-nowrap",
-        active ? "border-[#ff7a00] text-slate-200" : "border-transparent text-slate-400 hover:text-slate-200 hover:border-slate-600"
+        active ? "border-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "border-transparent text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-[var(--crm-border)]"
       )}
     >
       <Icon className={cn("w-4 h-4", active ? "text-[#ff7a00]" : "")} />

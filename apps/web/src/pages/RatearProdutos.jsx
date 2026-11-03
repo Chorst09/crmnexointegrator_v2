@@ -1,3 +1,4 @@
+import './RatearProdutos.css';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   BarChart3,
@@ -549,7 +550,6 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
 
   return (
     <div className="rp-app">
-      <style>{`${styles}${designEnhancements}`}</style>
 
       <header className="rp-header">
         <div>
@@ -558,7 +558,7 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
         </div>
         <div className="rp-actions">
           <span className="rp-badge rp-blue" style={{fontFamily:'monospace',fontSize:'11px'}}>{rateioName}</span>
-          <button className="rp-btn" style={{background:'#7c3aed',color:'#fff'}} onClick={novoRateio}><Plus size={15} /> Novo Rateio</button>
+          <button className="rp-btn" style={{background:'#7c3aed',color:"rgb(var(--crm-ink-rgb) / 1)"}} onClick={novoRateio}><Plus size={15} /> Novo Rateio</button>
           <button className="rp-btn rp-btn-light" onClick={() => setShowImportModal(true)}><Receipt size={15} /> Importar Proposta</button>
           <button className="rp-btn rp-btn-light" onClick={salvarRateio}><Check size={15} /> Salvar</button>
           <button className="rp-btn rp-btn-light" onClick={() => setShowSavedModal(true)}><History size={15} /> Salvos ({savedRateios.length})</button>
@@ -852,7 +852,7 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
         {tab === 'config' && (
           <>
             {/* Sub-tabs dentro de Config */}
-            <div style={{display:'flex',gap:'8px',marginBottom:'16px',borderBottom:'1px solid #334155',paddingBottom:'8px'}}>
+            <div style={{display:'flex',gap:'8px',marginBottom:'16px',borderBottom:"1px solid var(--crm-border)",paddingBottom:'8px'}}>
               {[
                 ['geral','Configurações Gerais',Settings],
                 ['auditoria','Auditoria',History],
@@ -882,7 +882,7 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
                     <button className="rp-btn rp-danger" onClick={() => setAuditLog([])}><Trash2 size={15} /> Limpar log</button>
                   </div>
                   {auditLog.length === 0
-                    ? <p style={{color:'#64748b',fontSize:'13px',padding:'12px 0'}}>Nenhuma entrada de auditoria registrada.</p>
+                    ? <p style={{color:"rgb(var(--crm-muted-rgb) / 1)",fontSize:'13px',padding:'12px 0'}}>Nenhuma entrada de auditoria registrada.</p>
                     : auditLog.map((entry, i) => (
                       <div key={i} className="rp-audit-entry">
                         <span className="rp-audit-ts">{entry.ts}</span>
@@ -1136,8 +1136,8 @@ function ResultTable({ result, compact = false, title }) {
               {hasComposition && <th className="num">Valor Componentes</th>}
               <th className="num">{hasComposition ? 'Valor Rateado Total' : 'Desp. Rateada'}</th>
               {hasComposition && <th className="num">Desp. Acessoria</th>}
-              <th className="num" style={{background:'#e8f0fb',color:'#1a4f8a'}}>Valor Unit. Rateado</th>
-              <th className="num" style={{background:'#eaf4ee',color:'#2d7a4f'}}>Valor Total {billingLabel}</th>
+              <th className="num" style={{background:"rgb(var(--crm-surface-rgb) / 1)",color:'#1a4f8a'}}>Valor Unit. Rateado</th>
+              <th className="num" style={{background:"rgb(var(--crm-surface-rgb) / 1)",color:'#2d7a4f'}}>Valor Total {billingLabel}</th>
               {!compact && <>
                 <th className="num">Margem Proposta</th>
               </>}
@@ -1161,11 +1161,11 @@ function ResultTable({ result, compact = false, title }) {
                   {hasComposition && <td className="num">{item.sourceCostTotal ? fmt(item.sourceCostTotal) : '-'}</td>}
                   <td className="num strong-warn">{fmt(item.rat)}</td>
                   {hasComposition && <td className="num">{fmt(item.expenseRat)}</td>}
-                  <td className="num" style={{background:'#f0f7ff'}}>
+                  <td className="num" style={{background:"rgb(var(--crm-surface-rgb) / 1)"}}>
                     <strong>{fmt(item.novoCusto)}</strong>
                     {hasComposition && <small className="rp-row-note">base {fmt(item.prod.custo)} + {fmt(item.ratUnit)}</small>}
                   </td>
-                  <td className="num" style={{background:'#f0fdf4'}}>
+                  <td className="num" style={{background:"rgb(var(--crm-surface-rgb) / 1)"}}>
                     <strong style={{color:'#2d7a4f'}}>{fmt(custoTotalFinal)}</strong>
                     <small className="rp-row-note">x {item.prod.qty} un.</small>
                   </td>
@@ -1183,23 +1183,23 @@ function ResultTable({ result, compact = false, title }) {
           {displayItems.length >= 1 && (
             <tfoot>
               <tr>
-                <td colSpan={hasComposition ? 7 : 5} style={{textAlign:'right',fontWeight:800,fontSize:'12px',color:'#6b7280',textTransform:'uppercase'}}>
+                <td colSpan={hasComposition ? 7 : 5} style={{textAlign:'right',fontWeight:800,fontSize:'12px',color:"rgb(var(--crm-muted-rgb) / 1)",textTransform:'uppercase'}}>
                   Total dos Alvos ({billingLabel})
                 </td>
-                <td className="num" style={{background:'#e8f0fb',fontWeight:800,color:'#1a4f8a',fontSize:'14px'}}>
+                <td className="num" style={{background:"rgb(var(--crm-surface-rgb) / 1)",fontWeight:800,color:'#1a4f8a',fontSize:'14px'}}>
                   {fmt(weightedUnitAverage)}
                 </td>
-                <td className="num" style={{background:'#f0fdf4',fontWeight:800,color:'#2d7a4f',fontSize:'14px'}}>
+                <td className="num" style={{background:"rgb(var(--crm-surface-rgb) / 1)",fontWeight:800,color:'#2d7a4f',fontSize:'14px'}}>
                   {fmt(finalTargetTotal)}
                 </td>
                 {!compact && <td />}
                 <td />
               </tr>
               <tr>
-                <td colSpan={hasComposition ? 7 : 5} style={{textAlign:'right',fontSize:'11px',color:'#6b7280'}}>
+                <td colSpan={hasComposition ? 7 : 5} style={{textAlign:'right',fontSize:'11px',color:"rgb(var(--crm-muted-rgb) / 1)"}}>
                   Verificacao: custo proprio + componentes + despesas dos produtos alvo
                 </td>
-                <td colSpan={2} style={{background:'#fef3dc',fontWeight:800,color:'#8a5a00',fontSize:'12px',textAlign:'right',padding:'6px 8px'}}>
+                <td colSpan={2} style={{background:"rgb(var(--crm-surface-rgb) / 1)",fontWeight:800,color:'#8a5a00',fontSize:'12px',textAlign:'right',padding:'6px 8px'}}>
                   {fmt(finalTargetTotal)}
                 </td>
                 {!compact && <td />}
@@ -1385,49 +1385,49 @@ function ImportPropostaModal({ onImport, onClose }) {
   );
   const typeLabel = (t) => ({ venda: 'Venda', locacao: 'Locação', servicos: 'Serviços' }[t] || t);
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999,padding:'16px'}}>
-      <div style={{background:'#fff',borderRadius:'12px',width:'100%',maxWidth:'700px',maxHeight:'85vh',display:'flex',flexDirection:'column',boxShadow:'0 20px 60px rgba(0,0,0,0.3)'}}>
-        <div style={{background:'linear-gradient(135deg,#1a4f8a,#0f766e)',color:'#fff',padding:'20px 24px',borderRadius:'12px 12px 0 0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+    <div style={{position:'fixed',inset:0,background:"rgb(var(--crm-surface-2-rgb) / 0.6)",display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999,padding:'16px'}}>
+      <div style={{background:"rgb(var(--crm-surface-rgb) / 1)",borderRadius:'12px',width:'100%',maxWidth:'700px',maxHeight:'85vh',display:'flex',flexDirection:'column',boxShadow:'0 20px 60px rgba(0,0,0,0.3)'}}>
+        <div style={{background:"linear-gradient(135deg,#1a4f8a,rgb(var(--crm-surface-rgb) / 1))",color:'#fff',padding:'20px 24px',borderRadius:'12px 12px 0 0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <div>
             <div style={{fontSize:'16px',fontWeight:800}}>📋 Importar Proposta</div>
             <div style={{fontSize:'11px',opacity:0.8,marginTop:'2px'}}>Selecione uma proposta da Calculadora para usar como base do rateio</div>
           </div>
-          <button onClick={onClose} style={{background:'rgba(255,255,255,0.2)',border:'none',color:'#fff',borderRadius:'6px',padding:'6px 10px',cursor:'pointer',fontSize:'16px'}}>✕</button>
+          <button onClick={onClose} style={{background:"rgb(var(--crm-surface-rgb) / 0.2)",border:'none',color:"rgb(var(--crm-ink-rgb) / 1)",borderRadius:'6px',padding:'6px 10px',cursor:'pointer',fontSize:'16px'}}>✕</button>
         </div>
-        <div style={{padding:'16px 24px',borderBottom:'1px solid #e2e6ed'}}>
+        <div style={{padding:'16px 24px',borderBottom:"1px solid var(--crm-border)"}}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por número, cliente ou empresa..."
-            style={{width:'100%',border:'1px solid #c8cfd9',borderRadius:'8px',padding:'10px 14px',fontSize:'13px',boxSizing:'border-box'}} />
+            style={{width:'100%',border:"1px solid var(--crm-border)",borderRadius:'8px',padding:'10px 14px',fontSize:'13px',boxSizing:'border-box'}} />
         </div>
         <div style={{flex:1,overflowY:'auto',padding:'12px 24px'}}>
           {filtered.length === 0 ? (
-            <div style={{textAlign:'center',padding:'32px',color:'#6b7280'}}>
+            <div style={{textAlign:'center',padding:'32px',color:"rgb(var(--crm-muted-rgb) / 1)"}}>
               {proposals.length === 0 ? 'Nenhuma proposta salva na Calculadora. Crie e salve uma proposta em Calculadora primeiro.' : 'Nenhuma proposta encontrada.'}
             </div>
           ) : filtered.map(p => (
             <div key={p.id} onClick={() => onImport(p)}
-              style={{border:'1px solid #e2e6ed',borderRadius:'10px',padding:'14px 16px',marginBottom:'10px',cursor:'pointer',transition:'all 0.15s'}}
+              style={{border:"1px solid var(--crm-border)",borderRadius:'10px',padding:'14px 16px',marginBottom:'10px',cursor:'pointer',transition:'all 0.15s'}}
               onMouseEnter={e => (e.currentTarget.style.borderColor = '#3b7dd8', e.currentTarget.style.background = '#f0f7ff')}
               onMouseLeave={e => (e.currentTarget.style.borderColor = '#e2e6ed', e.currentTarget.style.background = '#fff')}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start'}}>
                 <div>
-                  <div style={{fontWeight:800,fontSize:'14px',color:'#1a1f2e'}}>#{p.proposalNumber}</div>
-                  <div style={{fontSize:'12px',color:'#6b7280',marginTop:'2px'}}>{p.clientInfo?.company || p.clientInfo?.name}</div>
+                  <div style={{fontWeight:800,fontSize:'14px',color:"rgb(var(--crm-ink-rgb) / 1)"}}>#{p.proposalNumber}</div>
+                  <div style={{fontSize:'12px',color:"rgb(var(--crm-muted-rgb) / 1)",marginTop:'2px'}}>{p.clientInfo?.company || p.clientInfo?.name}</div>
                 </div>
                 <div style={{textAlign:'right'}}>
                   <div style={{fontWeight:800,color:'#1a4f8a',fontFamily:'monospace'}}>
                     {p.totalValue?.toLocaleString('pt-BR', {style:'currency',currency:'BRL'})}
                   </div>
-                  <div style={{fontSize:'11px',color:'#6b7280'}}>{typeLabel(p.operationType)} · {p.quoteItems?.length} itens</div>
+                  <div style={{fontSize:'11px',color:"rgb(var(--crm-muted-rgb) / 1)"}}>{typeLabel(p.operationType)} · {p.quoteItems?.length} itens</div>
                 </div>
               </div>
-              <div style={{fontSize:'11px',color:'#9ca3af',marginTop:'6px'}}>
+              <div style={{fontSize:'11px',color:"rgb(var(--crm-muted-rgb) / 1)",marginTop:'6px'}}>
                 {new Date(p.createdAt).toLocaleDateString('pt-BR')} · Clique para importar
               </div>
             </div>
           ))}
         </div>
-        <div style={{padding:'12px 24px',borderTop:'1px solid #e2e6ed',textAlign:'right'}}>
-          <button onClick={onClose} style={{border:'1px solid #c8cfd9',background:'#fff',borderRadius:'6px',padding:'8px 16px',cursor:'pointer',fontWeight:700}}>Cancelar</button>
+        <div style={{padding:'12px 24px',borderTop:"1px solid var(--crm-border)",textAlign:'right'}}>
+          <button onClick={onClose} style={{border:"1px solid var(--crm-border)",background:"rgb(var(--crm-surface-rgb) / 1)",borderRadius:'6px',padding:'8px 16px',cursor:'pointer',fontWeight:700}}>Cancelar</button>
         </div>
       </div>
     </div>
@@ -1437,24 +1437,24 @@ function ImportPropostaModal({ onImport, onClose }) {
 // ── MODAL RATEIOS SALVOS ─────────────────────────────────────────────────────
 function SavedRateiosModal({ savedRateios, onLoad, onDelete, onPrint, onClose }) {
   return (
-    <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.6)',display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999,padding:'16px'}}>
-      <div style={{background:'#fff',borderRadius:'12px',width:'100%',maxWidth:'800px',maxHeight:'85vh',display:'flex',flexDirection:'column',boxShadow:'0 20px 60px rgba(0,0,0,0.3)'}}>
+    <div style={{position:'fixed',inset:0,background:"rgb(var(--crm-surface-2-rgb) / 0.6)",display:'flex',alignItems:'center',justifyContent:'center',zIndex:9999,padding:'16px'}}>
+      <div style={{background:"rgb(var(--crm-surface-rgb) / 1)",borderRadius:'12px',width:'100%',maxWidth:'800px',maxHeight:'85vh',display:'flex',flexDirection:'column',boxShadow:'0 20px 60px rgba(0,0,0,0.3)'}}>
         <div style={{background:'linear-gradient(135deg,#4c1d95,#7c3aed)',color:'#fff',padding:'20px 24px',borderRadius:'12px 12px 0 0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <div>
             <div style={{fontSize:'16px',fontWeight:800}}>📁 Rateios Salvos</div>
             <div style={{fontSize:'11px',opacity:0.8,marginTop:'2px'}}>{savedRateios.length} rateio(s) salvo(s)</div>
           </div>
-          <button onClick={onClose} style={{background:'rgba(255,255,255,0.2)',border:'none',color:'#fff',borderRadius:'6px',padding:'6px 10px',cursor:'pointer',fontSize:'16px'}}>✕</button>
+          <button onClick={onClose} style={{background:"rgb(var(--crm-surface-rgb) / 0.2)",border:'none',color:"rgb(var(--crm-ink-rgb) / 1)",borderRadius:'6px',padding:'6px 10px',cursor:'pointer',fontSize:'16px'}}>✕</button>
         </div>
         <div style={{flex:1,overflowY:'auto',padding:'16px 24px'}}>
           {savedRateios.length === 0 ? (
-            <div style={{textAlign:'center',padding:'40px',color:'#6b7280'}}>Nenhum rateio salvo ainda. Execute um rateio e clique em "Salvar".</div>
+            <div style={{textAlign:'center',padding:'40px',color:"rgb(var(--crm-muted-rgb) / 1)"}}>Nenhum rateio salvo ainda. Execute um rateio e clique em "Salvar".</div>
           ) : savedRateios.map((r) => (
-            <div key={r.id} style={{border:'1px solid #e2e6ed',borderRadius:'10px',padding:'16px',marginBottom:'12px'}}>
+            <div key={r.id} style={{border:"1px solid var(--crm-border)",borderRadius:'10px',padding:'16px',marginBottom:'12px'}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',marginBottom:'10px'}}>
                 <div>
-                  <div style={{fontWeight:800,fontSize:'14px',color:'#1a1f2e'}}>{r.nome}</div>
-                  <div style={{fontSize:'11px',color:'#6b7280',marginTop:'2px'}}>{r.data} · NF #{r.snapshot?.nf?.numero}</div>
+                  <div style={{fontWeight:800,fontSize:'14px',color:"rgb(var(--crm-ink-rgb) / 1)"}}>{r.nome}</div>
+                  <div style={{fontSize:'11px',color:"rgb(var(--crm-muted-rgb) / 1)",marginTop:'2px'}}>{r.data} · NF #{r.snapshot?.nf?.numero}</div>
                 </div>
                 <button onClick={() => onDelete(r.id)} style={{background:'transparent',border:'1px solid #efb7b7',color:'#8a2020',borderRadius:'6px',padding:'4px 8px',cursor:'pointer',fontSize:'11px',fontWeight:700}}>Excluir</button>
               </div>
@@ -1465,105 +1465,27 @@ function SavedRateiosModal({ savedRateios, onLoad, onDelete, onPrint, onClose })
                   {label:'Custo Total',value:r.resumo?.totalCusto?.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})},
                   {label:'Margem',value:`${((r.resumo?.margem||0)*100).toFixed(2)}%`},
                 ].map((k,i) => (
-                  <div key={i} style={{background:'#f8f9fb',border:'1px solid #e2e6ed',borderRadius:'8px',padding:'10px',textAlign:'center'}}>
-                    <div style={{fontSize:'10px',color:'#6b7280',fontWeight:700,textTransform:'uppercase'}}>{k.label}</div>
+                  <div key={i} style={{background:"rgb(var(--crm-surface-rgb) / 1)",border:"1px solid var(--crm-border)",borderRadius:'8px',padding:'10px',textAlign:'center'}}>
+                    <div style={{fontSize:'10px',color:"rgb(var(--crm-muted-rgb) / 1)",fontWeight:700,textTransform:'uppercase'}}>{k.label}</div>
                     <div style={{fontSize:'15px',fontWeight:800,marginTop:'4px',fontFamily:'monospace'}}>{k.value}</div>
                   </div>
                 ))}
               </div>
               <div style={{display:'flex',gap:'8px'}}>
-                <button onClick={() => onLoad(r)} style={{flex:1,background:'#e8f0fb',border:'1px solid #3b7dd8',color:'#1a4f8a',borderRadius:'6px',padding:'8px',cursor:'pointer',fontWeight:700,fontSize:'12px'}}>
+                <button onClick={() => onLoad(r)} style={{flex:1,background:"rgb(var(--crm-surface-rgb) / 1)",border:'1px solid #3b7dd8',color:'#1a4f8a',borderRadius:'6px',padding:'8px',cursor:'pointer',fontWeight:700,fontSize:'12px'}}>
                   ✏️ Carregar para Edição
                 </button>
-                <button onClick={() => onPrint(r)} style={{flex:1,background:'#eaf4ee',border:'1px solid #2d7a4f',color:'#2d7a4f',borderRadius:'6px',padding:'8px',cursor:'pointer',fontWeight:700,fontSize:'12px'}}>
+                <button onClick={() => onPrint(r)} style={{flex:1,background:"rgb(var(--crm-surface-rgb) / 1)",border:'1px solid #2d7a4f',color:'#2d7a4f',borderRadius:'6px',padding:'8px',cursor:'pointer',fontWeight:700,fontSize:'12px'}}>
                   🖨️ Imprimir PDF
                 </button>
               </div>
             </div>
           ))}
         </div>
-        <div style={{padding:'12px 24px',borderTop:'1px solid #e2e6ed',textAlign:'right'}}>
-          <button onClick={onClose} style={{border:'1px solid #c8cfd9',background:'#fff',borderRadius:'6px',padding:'8px 16px',cursor:'pointer',fontWeight:700}}>Fechar</button>
+        <div style={{padding:'12px 24px',borderTop:"1px solid var(--crm-border)",textAlign:'right'}}>
+          <button onClick={onClose} style={{border:"1px solid var(--crm-border)",background:"rgb(var(--crm-surface-rgb) / 1)",borderRadius:'6px',padding:'8px 16px',cursor:'pointer',fontWeight:700}}>Fechar</button>
         </div>
       </div>
     </div>
   );
 }
-
-const styles = `.rp-app{min-height:100vh;background:#0b1120;color:#e2e8f0;font-family:Segoe UI,system-ui,-apple-system,sans-serif;font-size:13.5px}.rp-header{position:sticky;top:0;z-index:20;background:linear-gradient(135deg,#0f172a,#1e3a5f);color:#e2e8f0;padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;box-shadow:0 4px 20px rgba(0,0,0,.4);border-bottom:1px solid rgba(255,255,255,.08)}.rp-brand{display:flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:#fff}.rp-brand span{font-size:11px;opacity:.65;background:rgba(255,255,255,.1);padding:2px 8px;border-radius:20px}.rp-sub{font-size:11px;opacity:.6;margin-top:2px;color:#94a3b8}.rp-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.rp-nav{display:flex;overflow-x:auto;background:#0f172a;border-bottom:1px solid rgba(255,255,255,.08);padding:0 16px}.rp-tab{display:flex;align-items:center;gap:6px;border:0;background:transparent;color:#64748b;padding:11px 16px;border-bottom:3px solid transparent;white-space:nowrap;font-weight:600;font-size:12.5px;cursor:pointer}.rp-tab:hover{background:rgba(255,255,255,.05);color:#cbd5e1}.rp-tab.active{color:#38bdf8;border-bottom-color:#38bdf8}.rp-main{max-width:1280px;margin:0 auto;padding:20px 24px 42px}.rp-card{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:16px 18px;margin-bottom:14px;box-shadow:0 2px 8px rgba(0,0,0,.3)}.rp-card-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}.rp-card h3{font-size:12px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.05em;margin:0}.rp-grid{display:grid;gap:12px}.rp-grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}.rp-grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}.rp-grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}.rp-field{display:flex;flex-direction:column;gap:4px;color:#94a3b8;font-size:11.5px;font-weight:700}.rp-field.wide{grid-column:span 2}.rp-field input,.rp-field select,.rp-table input,.rp-table select,.rp-weight input{border:1px solid rgba(255,255,255,.12);background:#1e293b;color:#e2e8f0;border-radius:6px;padding:7px 9px;font-size:13px;min-width:0}.rp-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid rgba(255,255,255,.15);background:#1e293b;color:#e2e8f0;border-radius:8px;padding:7px 12px;font-size:12.5px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s}.rp-btn:hover{background:#334155;border-color:rgba(255,255,255,.25)}.rp-primary{background:#1d4ed8!important;color:#fff!important;border-color:#1d4ed8!important}.rp-success{background:#065f46!important;color:#6ee7b7!important;border-color:#065f46!important}.rp-danger{background:transparent!important;color:#f87171!important;border-color:rgba(248,113,113,.4)!important}.rp-btn-light{background:rgba(255,255,255,.1);color:#e2e8f0;border-color:rgba(255,255,255,.2)}.rp-btn-light:hover{background:rgba(255,255,255,.18)}.rp-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px}.rp-segment{display:flex}.rp-segment button{border:1px solid rgba(255,255,255,.12);background:#1e293b;padding:6px 11px;font-size:12px;font-weight:700;color:#64748b;cursor:pointer}.rp-segment button:first-child{border-radius:6px 0 0 6px}.rp-segment button:last-child{border-radius:0 6px 6px 0}.rp-segment button.active{background:#1d4ed8;color:#fff;border-color:#1d4ed8}.rp-form-panel{background:#0f172a;border:1px dashed rgba(255,255,255,.12);border-radius:8px;padding:14px;margin-bottom:12px}.rp-alert{border-radius:8px;padding:10px 12px;margin:10px 0;border:1px solid;font-size:12.5px}.rp-alert.info{background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.3);color:#7dd3fc}.rp-alert.warn{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.3);color:#fcd34d}.rp-alert.ok{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.3);color:#6ee7b7}.rp-alert.err{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.3);color:#fca5a5}.rp-table-wrap{overflow:auto;border:1px solid rgba(255,255,255,.08);border-radius:10px}.rp-table{width:100%;border-collapse:collapse;min-width:900px}.rp-table th{background:#0f172a;color:#64748b;text-transform:uppercase;font-size:10.5px;letter-spacing:.04em;text-align:left;padding:10px 8px;border-bottom:1px solid rgba(255,255,255,.08)}.rp-table td{padding:9px 8px;border-bottom:1px solid rgba(255,255,255,.05);vertical-align:middle;color:#cbd5e1}.rp-table tr:hover td{background:rgba(255,255,255,.03)}.rp-table tfoot td{font-weight:800;background:#0f172a;color:#e2e8f0}.rp-table .num,.num{text-align:right;font-variant-numeric:tabular-nums}.num-input{text-align:right;width:110px}.empty{text-align:center;color:#475569;padding:24px!important}.rp-badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:2px 8px;font-size:11px;font-weight:800}.rp-blue{background:rgba(56,189,248,.15);color:#38bdf8;border:1px solid rgba(56,189,248,.3)}.rp-green{background:rgba(52,211,153,.12);color:#34d399;border:1px solid rgba(52,211,153,.3)}.rp-amber{background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.3)}.rp-red{background:rgba(248,113,113,.12);color:#f87171;border:1px solid rgba(248,113,113,.3)}.rp-gray{background:rgba(100,116,139,.15);color:#94a3b8;border:1px solid rgba(100,116,139,.3)}.rp-kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}.rp-kpi{background:#111827;border:1px solid rgba(255,255,255,.08);border-radius:10px;padding:14px}.rp-kpi span{display:block;color:#64748b;font-size:11px;margin-bottom:5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}.rp-kpi strong{font-size:21px;font-weight:800;color:#e2e8f0}.rp-kpi.hi{background:rgba(29,78,216,.15);border-color:rgba(29,78,216,.3)}.rp-kpi.ok{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.25)}.rp-kpi.warn{background:rgba(251,191,36,.08);border-color:rgba(251,191,36,.25)}.rp-kpi.err{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.25)}.rp-wizard{display:flex;align-items:center;gap:8px;margin-bottom:14px;color:#475569}.rp-wizard-step{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;white-space:nowrap}.rp-wizard-step span{width:23px;height:23px;border-radius:999px;background:#1e293b;border:1px solid rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:#64748b}.rp-wizard-step.active{color:#38bdf8}.rp-wizard-step.active span{background:#1d4ed8;color:#fff;border-color:#1d4ed8}.rp-wizard-step.done{color:#34d399}.rp-wizard-step.done span{background:#065f46;color:#6ee7b7;border-color:#065f46}.rp-wizard-line{height:1px;flex:1;min-width:22px;background:rgba(255,255,255,.08)}.rp-mode-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.rp-mode-card{text-align:left;border:1px solid rgba(255,255,255,.08);background:#1e293b;border-radius:10px;padding:14px;cursor:pointer;transition:all .15s}.rp-mode-card:hover{border-color:rgba(56,189,248,.4);background:#1e3a5f}.rp-mode-card.active{border-color:#38bdf8;background:rgba(56,189,248,.1);box-shadow:inset 0 3px 0 #38bdf8}.rp-mode-card strong{display:block;color:#e2e8f0}.rp-mode-card span{display:block;color:#64748b;font-size:12px;margin:7px 0}.rp-mode-card small{display:block;color:#38bdf8;font-weight:800}.rp-weight-list{display:grid;gap:8px}.rp-weight{display:grid;grid-template-columns:auto 1fr 90px;gap:10px;align-items:center}.rp-icon-btn{border:1px solid rgba(255,255,255,.12);background:#1e293b;border-radius:6px;width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:#94a3b8}.rp-icon-btn:hover{background:#334155}.rp-icon-btn.danger{color:#f87171;border-color:rgba(248,113,113,.3)}.strong-warn{color:#fbbf24;font-weight:800}.rp-progress{height:6px;background:#1e293b;border-radius:999px;margin-top:4px;overflow:hidden}.rp-progress span{display:block;height:100%;background:linear-gradient(90deg,#1d4ed8,#38bdf8);border-radius:999px}.rp-detail-row{display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.06);padding:10px 0;gap:12px}.rp-detail-row small{color:#64748b;text-align:right}.rp-side{display:grid;grid-template-columns:280px 1fr;gap:14px}.rp-audit{border-bottom:1px solid rgba(255,255,255,.06);padding:12px 0}.rp-audit p{margin:8px 0 4px;color:#cbd5e1}.rp-audit small{color:#64748b}.rp-feature{background:#0f172a;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:14px}.rp-feature strong{display:block;color:#e2e8f0}.rp-feature span{display:block;color:#64748b;margin-top:6px}.rp-code{background:#0f172a;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:14px;margin-top:14px;overflow:auto;color:#94a3b8;font-family:monospace;font-size:12px}.rp-footer{background:#0f172a;border-top:1px solid rgba(255,255,255,.08);color:#475569;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;padding:10px 24px;font-size:11.5px}.rp-result-actions{justify-content:flex-end;margin-bottom:10px}.rp-source-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px;margin-top:12px}.rp-scope-title{font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase;letter-spacing:.04em;margin-top:14px}.rp-source-card{border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:11px;display:grid;grid-template-columns:auto auto 1fr;gap:8px;align-items:center;cursor:pointer;background:#1e293b;transition:all .15s}.rp-source-card:hover{border-color:rgba(56,189,248,.4);background:#1e3a5f}.rp-source-card.active{background:rgba(56,189,248,.1);border-color:#38bdf8}.rp-source-card.disabled{opacity:.4;cursor:not-allowed}.rp-source-card strong{grid-column:2 / -1;font-size:12.5px;color:#e2e8f0}.rp-source-card small{grid-column:2 / -1;color:#64748b}.rp-composition-summary{background:#0f172a;border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:10px 12px}.rp-composition-summary span,.rp-composition-summary small{display:block;color:#64748b;font-size:11px}.rp-composition-summary strong{font-size:20px;color:#e2e8f0}.rp-composition-box{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.25);border-radius:8px;padding:12px;margin-top:12px}.rp-composition-box span{display:block;color:#38bdf8;font-size:11px;font-weight:800}.rp-composition-box strong{display:block;margin-top:4px;color:#e2e8f0}.rp-scope-users{margin-top:12px}.rp-row-note{display:block;color:#475569;font-size:10.5px;margin-top:3px;text-align:left}.rp-audit-entry{border-bottom:1px solid rgba(255,255,255,.06);padding:8px 0;font-size:12px;color:#94a3b8}.rp-audit-ts{color:#38bdf8;margin-right:8px;font-family:monospace}.rp-audit-hash{display:block;color:#475569;font-family:monospace;font-size:10px;margin-top:4px}@media(max-width:900px){.rp-header{align-items:flex-start;flex-direction:column}.rp-grid-2,.rp-grid-3,.rp-grid-4,.rp-mode-grid,.rp-side{grid-template-columns:1fr}.rp-main{padding:16px}.rp-wizard{align-items:flex-start;flex-direction:column}.rp-wizard-line{display:none}.rp-table{min-width:760px}}`;
-
-const designEnhancements = `
-.rp-app{background:#0a1020;color:#e5edf8;border-radius:18px;overflow:hidden;box-shadow:0 24px 70px rgba(2,6,23,.28);}
-.rp-header{position:relative;top:auto;max-width:1280px;margin:16px auto 0;border-radius:16px;padding:18px 20px;background:linear-gradient(135deg,#132033 0%,#17363c 58%,#332f18 100%);box-shadow:0 18px 48px rgba(2,6,23,.32);border:1px solid rgba(148,163,184,.20);}
-.rp-brand{font-size:18px;letter-spacing:0;}
-.rp-brand span{border:1px solid rgba(148,163,184,.28);background:rgba(15,23,42,.42);color:#cbd5e1;}
-.rp-sub{font-size:12.5px;color:#b6c2d2;opacity:1;}
-.rp-nav{position:sticky;top:0;z-index:18;max-width:1280px;margin:12px auto 0;border:1px solid rgba(148,163,184,.16);border-radius:14px;background:rgba(13,20,36,.92);backdrop-filter:blur(14px);box-shadow:0 12px 34px rgba(2,6,23,.24);padding:6px;}
-.rp-tab{border-radius:10px;border-bottom:0;padding:9px 14px;color:#90a0b6;letter-spacing:0;}
-.rp-tab:hover{background:rgba(148,163,184,.10);color:#e5edf8;}
-.rp-tab.active{background:#e5edf8;color:#0f172a;box-shadow:0 8px 20px rgba(229,237,248,.16);border-bottom-color:transparent;}
-.rp-main{max-width:1280px;padding:18px 18px 44px;}
-.rp-card{background:linear-gradient(180deg,rgba(19,29,48,.92),rgba(14,22,38,.96));border-color:rgba(148,163,184,.16);border-radius:12px;padding:18px 20px;margin-bottom:16px;box-shadow:0 14px 36px rgba(2,6,23,.18);}
-.rp-card-head{padding-bottom:10px;border-bottom:1px solid rgba(148,163,184,.10);}
-.rp-card h3{color:#aebbd0;font-size:11.5px;letter-spacing:.12em;}
-.rp-field{color:#aebbd0;letter-spacing:.02em;}
-.rp-field input,.rp-field select,.rp-table input,.rp-table select,.rp-weight input{height:38px;border-color:rgba(148,163,184,.22);background:#101a2c;color:#f8fafc;border-radius:9px;padding:8px 10px;}
-.rp-field input:focus,.rp-field select:focus,.rp-table input:focus,.rp-table select:focus,.rp-weight input:focus{outline:2px solid rgba(45,212,191,.35);border-color:#2dd4bf;}
-.rp-btn{min-height:36px;border-radius:10px;border-color:rgba(148,163,184,.22);background:#142033;color:#dbe7f6;box-shadow:0 1px 0 rgba(255,255,255,.04) inset;}
-.rp-btn:hover{background:#1c2a42;border-color:rgba(203,213,225,.34);transform:translateY(-1px);}
-.rp-btn:disabled{cursor:not-allowed;opacity:.45;transform:none;}
-.rp-primary{background:#2563eb!important;border-color:#3b82f6!important;}
-.rp-success{background:#047857!important;border-color:#10b981!important;color:#ecfdf5!important;}
-.rp-danger{background:rgba(185,28,28,.10)!important;}
-.rp-btn-light{background:rgba(226,232,240,.10);border-color:rgba(226,232,240,.18);}
-.rp-segment{background:#0b1220;border:1px solid rgba(148,163,184,.16);border-radius:11px;padding:3px;gap:3px;}
-.rp-segment button{border:0;border-radius:8px!important;background:transparent;color:#9aa8bb;}
-.rp-segment button.active{background:#2dd4bf;color:#05201d;box-shadow:0 8px 18px rgba(45,212,191,.18);}
-.rp-alert{border-radius:10px;line-height:1.45;}
-.rp-alert.info{background:rgba(14,116,144,.16);border-color:rgba(34,211,238,.28);color:#a5f3fc;}
-.rp-alert.warn{background:rgba(180,83,9,.14);border-color:rgba(245,158,11,.28);color:#fde68a;}
-.rp-alert.ok{background:rgba(4,120,87,.16);border-color:rgba(16,185,129,.30);color:#bbf7d0;}
-.rp-alert.err{background:rgba(190,18,60,.13);border-color:rgba(244,63,94,.30);color:#fecdd3;}
-.rp-wizard{background:rgba(15,23,42,.58);border:1px solid rgba(148,163,184,.12);border-radius:14px;padding:10px 12px;margin-bottom:16px;}
-.rp-wizard-step{color:#8493a8;}
-.rp-wizard-step span{background:#101a2c;border-color:rgba(148,163,184,.18);}
-.rp-wizard-step.active{color:#67e8f9;}
-.rp-wizard-step.active span{background:#0891b2;border-color:#22d3ee;}
-.rp-wizard-step.done{color:#86efac;}
-.rp-kpi-grid{grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;}
-.rp-kpi{background:#101a2c;border-color:rgba(148,163,184,.14);border-radius:12px;padding:15px 16px;}
-.rp-kpi span{color:#98a7ba;letter-spacing:.08em;}
-.rp-kpi strong{font-size:22px;color:#f8fafc;letter-spacing:0;}
-.rp-kpi.hi{background:rgba(37,99,235,.18);border-color:rgba(96,165,250,.32);}
-.rp-kpi.ok{background:rgba(4,120,87,.16);border-color:rgba(52,211,153,.28);}
-.rp-kpi.warn{background:rgba(180,83,9,.14);border-color:rgba(251,191,36,.25);}
-.rp-mode-grid{gap:12px;}
-.rp-mode-card{min-height:116px;background:#101a2c;border-color:rgba(148,163,184,.16);border-radius:12px;padding:16px;}
-.rp-mode-card:hover{background:#17243a;border-color:rgba(45,212,191,.35);}
-.rp-mode-card.active{background:rgba(13,148,136,.16);border-color:#2dd4bf;box-shadow:inset 0 4px 0 #2dd4bf;}
-.rp-mode-card span{color:#9aa8bb;line-height:1.35;}
-.rp-mode-card small{color:#5eead4;}
-.rp-table-wrap{border-color:rgba(148,163,184,.16);border-radius:12px;background:#0d1627;}
-.rp-table th{position:sticky;top:0;z-index:1;background:#111c2f;color:#98a7ba;padding:11px 10px;}
-.rp-table td{padding:11px 10px;color:#d7e2f0;border-bottom-color:rgba(148,163,184,.08);}
-.rp-table tr:hover td{background:rgba(45,212,191,.045);}
-.rp-table tfoot td{background:#111c2f;}
-.rp-badge{border-radius:8px;padding:3px 8px;}
-.rp-blue{background:rgba(14,165,233,.14);color:#7dd3fc;border-color:rgba(125,211,252,.28);}
-.rp-green{background:rgba(34,197,94,.14);color:#86efac;border-color:rgba(134,239,172,.28);}
-.rp-amber{background:rgba(245,158,11,.14);color:#fcd34d;border-color:rgba(252,211,77,.30);}
-.rp-red{background:rgba(244,63,94,.14);color:#fda4af;border-color:rgba(253,164,175,.30);}
-.rp-gray{background:rgba(148,163,184,.12);color:#cbd5e1;border-color:rgba(203,213,225,.22);}
-.rp-source-grid{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;}
-.rp-source-card{border-radius:12px;background:#101a2c;border-color:rgba(148,163,184,.15);padding:13px;min-height:92px;}
-.rp-source-card:hover{background:#17243a;border-color:rgba(45,212,191,.34);}
-.rp-source-card.active{background:rgba(13,148,136,.16);border-color:#2dd4bf;}
-.rp-source-card.disabled{opacity:.38;}
-.rp-composition-summary{background:#101a2c;border-color:rgba(148,163,184,.15);border-radius:12px;padding:14px;}
-.rp-composition-summary strong{font-size:24px;color:#f8fafc;}
-.rp-composition-box{background:rgba(13,148,136,.12);border-color:rgba(45,212,191,.26);border-radius:12px;}
-.rp-detail-row{background:#101a2c;border:1px solid rgba(148,163,184,.10);border-radius:10px;margin-bottom:8px;padding:11px 12px;}
-.rp-form-panel{background:#0d1627;border-color:rgba(148,163,184,.20);border-radius:12px;}
-.rp-footer{max-width:1280px;margin:0 auto 18px;border:1px solid rgba(148,163,184,.14);border-radius:12px;background:#0d1627;padding:12px 16px;}
-@media(max-width:900px){.rp-header,.rp-nav{margin-left:12px;margin-right:12px}.rp-header{border-radius:14px}.rp-main{padding:14px 12px 36px}.rp-card{padding:15px}.rp-tab{padding:8px 10px}.rp-kpi-grid{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}.rp-table{min-width:820px}}
-`;

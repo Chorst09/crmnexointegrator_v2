@@ -232,7 +232,7 @@ export default function Propostas() {
             ) : (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-[color:var(--crm-border)]">
-                  <thead className="bg-black/5 dark:bg-white/5">
+                  <thead className="bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--crm-muted)]">Número</th>
                       <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wide text-[var(--crm-muted)]">Cliente</th>
@@ -247,7 +247,7 @@ export default function Propostas() {
                       const cover = proposal?.draft?.cover || {};
                       const proposalNumber = getCommercialProposalNumber(proposal) || '-';
                       return (
-                        <tr key={proposal.id} className="hover:bg-black/5 dark:hover:bg-white/5">
+                        <tr key={proposal.id} className="hover:bg-black/5 dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]">
                           <td className="px-6 py-4 text-sm font-semibold text-[var(--crm-ink)]">{proposalNumber}</td>
                           <td className="px-6 py-4">
                             <div className="font-semibold text-[var(--crm-ink)]">{cover.clientName || proposal.title || 'Proposta sem nome'}</div>
@@ -290,7 +290,7 @@ export default function Propostas() {
           </div>
         </>
       ) : (
-        <div className="rounded-2xl bg-slate-900 px-6 py-8 text-slate-100">
+        <div className="rounded-2xl bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-6 py-8 text-[rgb(var(--crm-ink-rgb)_/_1)]">
           <CommercialProposalPresentationView
             key={editorSession}
             initialProposalId={editorProposalId}
