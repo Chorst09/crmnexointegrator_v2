@@ -39,8 +39,8 @@ export function AIAnalysis({ results, params }: AIAnalysisProps) {
   };
 
   return (
-    <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
-      <CardHeader className="bg-slate-50/50 border-b border-slate-100">
+    <Card className="rounded-3xl border-[var(--crm-border)] shadow-sm overflow-hidden">
+      <CardHeader className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border-b border-[var(--crm-border)]">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xl font-bold flex items-center font-headline">
@@ -62,25 +62,25 @@ export function AIAnalysis({ results, params }: AIAnalysisProps) {
       <CardContent className="p-8">
         {!analysis && !loading && (
           <div className="text-center py-10">
-            <div className="inline-flex p-4 bg-indigo-50 rounded-full mb-4">
+            <div className="inline-flex p-4 bg-indigo-50 dark:bg-indigo-950 rounded-full mb-4">
               <Sparkles className="w-8 h-8 text-primary/40" />
             </div>
-            <p className="text-slate-500 text-sm max-w-sm mx-auto">Clique no botão acima para permitir que nossa IA analise os detalhes deste contrato e gere recomendações de precificação.</p>
+            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm max-w-sm mx-auto">Clique no botão acima para permitir que nossa IA analise os detalhes deste contrato e gere recomendações de precificação.</p>
           </div>
         )}
         
         {loading && (
           <div className="space-y-4">
-            <div className="h-4 bg-slate-100 rounded-full w-3/4 animate-pulse" />
-            <div className="h-4 bg-slate-100 rounded-full w-full animate-pulse" />
-            <div className="h-4 bg-slate-100 rounded-full w-5/6 animate-pulse" />
-            <div className="h-4 bg-slate-100 rounded-full w-2/3 animate-pulse" />
+            <div className="h-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-full w-3/4 animate-pulse" />
+            <div className="h-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-full w-full animate-pulse" />
+            <div className="h-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-full w-5/6 animate-pulse" />
+            <div className="h-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-full w-2/3 animate-pulse" />
           </div>
         )}
 
         {analysis && !loading && (
           <div className="prose prose-slate max-w-none">
-            <div className="whitespace-pre-wrap text-slate-700 text-sm leading-relaxed font-medium">
+            <div className="whitespace-pre-wrap text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm leading-relaxed font-medium">
               {analysis}
             </div>
           </div>

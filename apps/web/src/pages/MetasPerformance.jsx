@@ -164,12 +164,12 @@ export default function MetasPerformance() {
 
   const getStatusColor = (status) => {
     const colors = {
-      ACHIEVED: 'text-green-600 bg-green-100',
-      ON_TRACK: 'text-blue-600 bg-blue-100',
-      AT_RISK: 'text-yellow-600 bg-yellow-100',
-      BEHIND: 'text-red-600 bg-red-100'
+      ACHIEVED: "text-green-600 bg-green-100 dark:bg-green-950",
+      ON_TRACK: "text-blue-600 bg-blue-100 dark:bg-blue-950",
+      AT_RISK: "text-yellow-600 bg-yellow-100 dark:bg-yellow-950",
+      BEHIND: "text-red-600 bg-red-100 dark:bg-red-950"
     };
-    return colors[status] || 'text-gray-600 bg-gray-100 dark:text-slate-200 dark:bg-slate-700/50';
+    return colors[status] || "text-[rgb(var(--crm-muted-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]";
   };
 
   const getStatusText = (status) => {
@@ -199,8 +199,8 @@ export default function MetasPerformance() {
       label: 'Vendedor',
       render: (item) => (
         <div>
-          <div className="font-medium text-gray-900 dark:text-gray-100">{item.seller?.name || '-'}</div>
-          <div className="text-sm text-gray-500 dark:text-slate-200">{item.seller?.region?.name || 'Sem regiao'}</div>
+          <div className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.seller?.name || '-'}</div>
+          <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.seller?.region?.name || 'Sem regiao'}</div>
         </div>
       )
     },
@@ -219,7 +219,7 @@ export default function MetasPerformance() {
       label: 'Progresso',
       render: (item) => (
         <div className="flex items-center">
-          <div className="mr-2 h-2 flex-1 rounded-full bg-gray-200 dark:bg-white/10">
+          <div className="mr-2 h-2 flex-1 rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.1)]">
             <div
               className="h-2 rounded-full bg-blue-600 transition-all duration-300"
               style={{ width: `${Math.min(item.progress || 0, 100)}%` }}
@@ -251,8 +251,8 @@ export default function MetasPerformance() {
       label: 'Vendedor',
       render: (item) => (
         <div>
-          <div className="font-medium text-gray-900 dark:text-gray-100">{item.seller?.name || '-'}</div>
-          <div className="text-sm text-gray-500 dark:text-slate-200">{item.seller?.region?.name || 'Sem regiao'}</div>
+          <div className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.seller?.name || '-'}</div>
+          <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.seller?.region?.name || 'Sem regiao'}</div>
         </div>
       )
     },
@@ -294,8 +294,8 @@ export default function MetasPerformance() {
       label: 'Nome',
       render: (item) => (
         <div>
-          <div className="font-medium text-gray-900 dark:text-gray-100">{item.name}</div>
-          <div className="text-sm text-gray-500 dark:text-slate-200">{item.description}</div>
+          <div className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.name}</div>
+          <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.description}</div>
         </div>
       )
     },
@@ -303,7 +303,7 @@ export default function MetasPerformance() {
       key: 'type',
       label: 'Tipo',
       render: (item) => (
-        <span className="rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">
+        <span className="rounded-full bg-blue-100 dark:bg-blue-950 px-2 py-1 text-xs font-medium text-blue-800 dark:text-blue-300">
           {item.type}
         </span>
       )
@@ -319,10 +319,10 @@ export default function MetasPerformance() {
       render: (item) => (
         <span className={`rounded-full px-2 py-1 text-xs font-medium ${
           item.priority === 'HIGH'
-            ? 'bg-red-100 text-red-800'
+            ? "bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300"
             : item.priority === 'MEDIUM'
-              ? 'bg-yellow-100 text-yellow-800'
-              : 'bg-green-100 text-green-800'
+              ? "bg-yellow-100 dark:bg-yellow-950 text-yellow-800 dark:text-yellow-300"
+              : "bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300"
         }`}>
           {item.priority}
         </span>
@@ -334,8 +334,8 @@ export default function MetasPerformance() {
       render: (item) => (
         <span className={`rounded-full px-2 py-1 text-xs font-medium ${
           item.isActive
-            ? 'bg-green-100 text-green-800'
-            : 'bg-gray-100 text-gray-800 dark:bg-slate-700/50 dark:text-slate-100'
+            ? "bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300"
+            : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
         }`}>
           {item.isActive ? 'Ativo' : 'Inativo'}
         </span>
@@ -440,7 +440,7 @@ export default function MetasPerformance() {
         />
       </div>
 
-      <div className="border-b border-gray-200 dark:border-blue-500/20">
+      <div className="border-b border-[var(--crm-border)] dark:border-blue-500/20">
         <nav className="-mb-px flex space-x-8">
           {[
             { id: 'metas', label: 'Metas de Vendas', icon: '🎯' },
@@ -453,7 +453,7 @@ export default function MetasPerformance() {
               className={`flex items-center gap-2 border-b-2 px-1 py-2 text-sm font-medium ${
                 activeTab === tab.id
                   ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 dark:border-blue-500/30 dark:text-slate-200 dark:hover:border-blue-400/50 dark:hover:text-slate-100'
+                  : "border-transparent text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[var(--crm-border)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:border-blue-500/30 dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:border-blue-400/50 dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
               }`}
             >
               <span>{tab.icon}</span>
@@ -467,8 +467,8 @@ export default function MetasPerformance() {
         {activeTab === 'metas' && (
           <div className="p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Metas de Vendas</h2>
-              <div className="text-sm text-gray-500 dark:text-slate-200">
+              <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Metas de Vendas</h2>
+              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 {salesTargets.length} metas cadastradas
               </div>
             </div>
@@ -483,8 +483,8 @@ export default function MetasPerformance() {
         {activeTab === 'comissoes' && (
           <div className="p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Comissao por Vendedor</h2>
-              <div className="text-sm text-gray-500 dark:text-slate-200">
+              <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissao por Vendedor</h2>
+              <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Total ganho: {formatCurrency(totalCommissions)} | Pendentes: {formatCurrency(totalPendingCommissions)} | Pagas: {formatCurrency(totalPaidCommissions)}
               </div>
             </div>
@@ -499,7 +499,7 @@ export default function MetasPerformance() {
         {activeTab === 'workflows' && (
           <div className="p-6">
             <div className="mb-4 flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Workflows Avancados</h2>
+              <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Workflows Avancados</h2>
               <button
                 onClick={() => {
                   setModalType('workflow');
@@ -528,14 +528,14 @@ export default function MetasPerformance() {
         {modalType === 'meta' ? (
           <form onSubmit={handleSaveTarget} className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-100">
+              <label className="mb-1 block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Vendedor *
               </label>
               <select
                 required
                 value={formData.sellerId}
                 onChange={(e) => setFormData({ ...formData, sellerId: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-[var(--crm-border)] px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione um vendedor</option>
                 {sellers.map((seller) => (
@@ -553,7 +553,7 @@ export default function MetasPerformance() {
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-100">
+                <label className="mb-1 block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Meta Valor (R$) *
                 </label>
                 <input
@@ -563,12 +563,12 @@ export default function MetasPerformance() {
                   required
                   value={formData.targetValue}
                   onChange={(e) => setFormData({ ...formData, targetValue: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-[var(--crm-border)] px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-100">
+                <label className="mb-1 block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Meta Negocios
                 </label>
                 <input
@@ -576,14 +576,14 @@ export default function MetasPerformance() {
                   min="0"
                   value={formData.targetDeals}
                   onChange={(e) => setFormData({ ...formData, targetDeals: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-[var(--crm-border)] px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-100">
+                <label className="mb-1 block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Data Inicio *
                 </label>
                 <input
@@ -591,12 +591,12 @@ export default function MetasPerformance() {
                   required
                   value={formData.startDate}
                   onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-[var(--crm-border)] px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
 
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-100">
+                <label className="mb-1 block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Data Fim *
                 </label>
                 <input
@@ -604,26 +604,26 @@ export default function MetasPerformance() {
                   required
                   value={formData.endDate}
                   onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                  className="w-full rounded-lg border border-[var(--crm-border)] px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 />
               </div>
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-100">
+              <label className="mb-1 block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Descricao
               </label>
               <textarea
                 value={formData.description}
                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-[var(--crm-border)] px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 rows="3"
                 placeholder="Descricao da meta..."
               />
             </div>
 
             <div>
-              <label className="mb-1 block text-sm font-medium text-gray-700 dark:text-slate-100">
+              <label className="mb-1 block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Bonus (%)
               </label>
               <input
@@ -632,7 +632,7 @@ export default function MetasPerformance() {
                 min="0"
                 value={formData.bonusPercentage}
                 onChange={(e) => setFormData({ ...formData, bonusPercentage: e.target.value })}
-                className="w-full rounded-lg border border-gray-300 px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                className="w-full rounded-lg border border-[var(--crm-border)] px-3 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
                 placeholder="Ex: 5.0"
               />
             </div>
@@ -647,7 +647,7 @@ export default function MetasPerformance() {
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-lg bg-gray-200 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-300 dark:bg-slate-700/60 dark:text-slate-100 dark:hover:bg-slate-600/70"
+                className="rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
               >
                 Cancelar
               </button>
@@ -662,13 +662,13 @@ export default function MetasPerformance() {
           </form>
         ) : (
           <div className="space-y-4">
-            <p className="text-gray-600 dark:text-slate-200">
+            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
               Funcionalidade de criacao de workflows em desenvolvimento...
             </p>
             <div className="flex justify-end">
               <button
                 onClick={closeModal}
-                className="rounded-lg bg-gray-300 px-4 py-2 text-gray-700 transition-colors hover:bg-gray-400 dark:bg-slate-700/60 dark:text-slate-100 dark:hover:bg-slate-600/70"
+                className="rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
               >
                 Fechar
               </button>

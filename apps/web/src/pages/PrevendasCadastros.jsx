@@ -172,33 +172,33 @@ export const getOpportunityFabricante = (item, fornMap) => {
 export const getFabricanteBadgeStyle = (fabricanteName) => {
   const norm = String(fabricanteName || '').toUpperCase();
   if (norm.includes('DELL')) {
-    return 'border-blue-500/60 bg-blue-600/25 text-blue-300 shadow-sm shadow-blue-900/40 ring-1 ring-blue-400/30';
+    return "border-blue-500/60 bg-blue-600/25 text-blue-700 dark:text-blue-300 shadow-sm shadow-blue-900/40 ring-1 ring-blue-400/30";
   }
   if (norm.includes('LENOVO')) {
-    return 'border-red-500/60 bg-red-600/25 text-red-300 shadow-sm shadow-red-900/40 ring-1 ring-red-400/30';
+    return "border-red-500/60 bg-red-600/25 text-red-700 dark:text-red-300 shadow-sm shadow-red-900/40 ring-1 ring-red-400/30";
   }
   if (norm.includes('HP') || norm.includes('HPE')) {
-    return 'border-cyan-500/60 bg-cyan-600/25 text-cyan-300 shadow-sm shadow-cyan-900/40 ring-1 ring-cyan-400/30';
+    return "border-cyan-500/60 bg-cyan-600/25 text-cyan-700 dark:text-cyan-300 shadow-sm shadow-cyan-900/40 ring-1 ring-cyan-400/30";
   }
   if (norm.includes('CISCO')) {
-    return 'border-sky-500/60 bg-sky-600/25 text-sky-300 shadow-sm shadow-sky-900/40 ring-1 ring-sky-400/30';
+    return "border-sky-500/60 bg-sky-600/25 text-sky-700 dark:text-sky-300 shadow-sm shadow-sky-900/40 ring-1 ring-sky-400/30";
   }
   if (norm.includes('FORTINET')) {
-    return 'border-emerald-500/60 bg-emerald-600/25 text-emerald-300 shadow-sm shadow-emerald-900/40 ring-1 ring-emerald-400/30';
+    return "border-emerald-500/60 bg-emerald-600/25 text-emerald-700 dark:text-emerald-300 shadow-sm shadow-emerald-900/40 ring-1 ring-emerald-400/30";
   }
   if (norm.includes('ARUBA')) {
-    return 'border-orange-500/60 bg-orange-600/25 text-orange-300 shadow-sm shadow-orange-900/40 ring-1 ring-orange-400/30';
+    return "border-orange-500/60 bg-orange-600/25 text-orange-700 dark:text-orange-300 shadow-sm shadow-orange-900/40 ring-1 ring-orange-400/30";
   }
   if (norm.includes('HUAWEI')) {
-    return 'border-rose-500/60 bg-rose-600/25 text-rose-300 shadow-sm shadow-rose-900/40 ring-1 ring-rose-400/30';
+    return "border-rose-500/60 bg-rose-600/25 text-rose-700 dark:text-rose-300 shadow-sm shadow-rose-900/40 ring-1 ring-rose-400/30";
   }
   if (norm.includes('MICROSOFT')) {
-    return 'border-teal-500/60 bg-teal-600/25 text-teal-300 shadow-sm shadow-teal-900/40 ring-1 ring-teal-400/30';
+    return "border-teal-500/60 bg-teal-600/25 text-teal-700 dark:text-teal-300 shadow-sm shadow-teal-900/40 ring-1 ring-teal-400/30";
   }
   if (norm.includes('SOPHOS')) {
-    return 'border-indigo-500/60 bg-indigo-600/25 text-indigo-300 shadow-sm shadow-indigo-900/40 ring-1 ring-indigo-400/30';
+    return "border-indigo-500/60 bg-indigo-600/25 text-indigo-700 dark:text-indigo-300 shadow-sm shadow-indigo-900/40 ring-1 ring-indigo-400/30";
   }
-  return 'border-amber-500/60 bg-amber-500/25 text-amber-300 shadow-sm shadow-amber-900/40 ring-1 ring-amber-400/30';
+  return "border-amber-500/60 bg-amber-500/25 text-amber-700 dark:text-amber-300 shadow-sm shadow-amber-900/40 ring-1 ring-amber-400/30";
 };
 
 const OPPORTUNITY_TERM_OPTIONS = ['12', '24', '36', '48', '60'];
@@ -314,12 +314,12 @@ const getValidityInfo = (value) => {
 };
 
 const validityBadgeClass = (tone) => {
-  if (tone === 'red') return 'bg-red-500/20 text-red-300 border-red-500/30';
-  if (tone === 'rose') return 'bg-rose-500/20 text-rose-300 border-rose-500/30';
-  if (tone === 'amber') return 'bg-amber-500/20 text-amber-300 border-amber-500/30';
-  if (tone === 'yellow') return 'bg-yellow-500/20 text-yellow-300 border-yellow-500/30';
-  if (tone === 'emerald') return 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30';
-  return 'bg-slate-500/20 text-slate-300 border-slate-500/30';
+  if (tone === 'red') return "bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/30";
+  if (tone === 'rose') return "bg-rose-500/20 text-rose-700 dark:text-rose-300 border-rose-500/30";
+  if (tone === 'amber') return "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30";
+  if (tone === 'yellow') return "bg-yellow-500/20 text-yellow-700 dark:text-yellow-300 border-yellow-500/30";
+  if (tone === 'emerald') return "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30";
+  return "bg-[rgb(var(--crm-surface-rgb)_/_0.2)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]";
 };
 
 const normalizeRegistryPayload = (payload) => {
@@ -335,23 +335,23 @@ const normalizeRegistryPayload = (payload) => {
 const badgeClassForStatus = (status) => {
   const key = asString(status).toUpperCase();
   if (['ATIVO', 'ABERTA', 'GANHA', 'PRECIFICADA'].includes(key)) {
-    return 'border-emerald-500/40 bg-emerald-500/20 text-emerald-100';
+    return "border-emerald-500/40 bg-emerald-500/20 text-emerald-700 dark:text-emerald-100";
   }
   if (['EM_ANALISE', 'EM_COTACAO'].includes(key)) {
-    return 'border-amber-500/40 bg-amber-500/20 text-amber-100';
+    return "border-amber-500/40 bg-amber-500/20 text-amber-700 dark:text-amber-100";
   }
   if (['INATIVO', 'PERDIDA', 'BLOQUEADO'].includes(key)) {
-    return 'border-rose-500/40 bg-rose-500/20 text-rose-100';
+    return "border-rose-500/40 bg-rose-500/20 text-rose-700 dark:text-rose-100";
   }
-  return 'border-slate-500/40 bg-slate-500/20 text-slate-100';
+  return "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.2)] text-[rgb(var(--crm-ink-rgb)_/_1)]";
 };
 
 const badgeClassForPriority = (priority) => {
   const key = asString(priority).toUpperCase();
-  if (key === 'URGENT' || key === 'URGENTE') return 'border-rose-500/40 bg-rose-500/20 text-rose-100';
-  if (key === 'HIGH' || key === 'ALTA') return 'border-amber-500/40 bg-amber-500/20 text-amber-100';
-  if (key === 'LOW' || key === 'BAIXA') return 'border-emerald-500/40 bg-emerald-500/20 text-emerald-100';
-  return 'border-sky-500/40 bg-sky-500/20 text-sky-100';
+  if (key === 'URGENT' || key === 'URGENTE') return "border-rose-500/40 bg-rose-500/20 text-rose-700 dark:text-rose-100";
+  if (key === 'HIGH' || key === 'ALTA') return "border-amber-500/40 bg-amber-500/20 text-amber-700 dark:text-amber-100";
+  if (key === 'LOW' || key === 'BAIXA') return "border-emerald-500/40 bg-emerald-500/20 text-emerald-700 dark:text-emerald-100";
+  return "border-sky-500/40 bg-sky-500/20 text-sky-700 dark:text-sky-100";
 };
 
 const priorityLabel = (value) => {
@@ -368,7 +368,7 @@ const pdfValidityColors = {
   amber: { bg: '#fef3c7', border: '#f59e0b', text: '#92400e' },
   yellow: { bg: '#fef9c3', border: '#eab308', text: '#854d0e' },
   emerald: { bg: '#dcfce7', border: '#22c55e', text: '#166534' },
-  slate: { bg: '#f1f5f9', border: '#94a3b8', text: '#334155' }
+  slate: { bg: '#f1f5f9', border: "var(--crm-border)", text: '#334155' }
 };
 
 export default function PrevendasCadastros({ forcedTab = null }) {
@@ -1252,7 +1252,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
     }));
   };
 
-  const inputClassName = 'w-full rounded-lg border border-slate-600/50 bg-slate-950/60 px-3 py-2 text-white placeholder-slate-500 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50';
+  const inputClassName = "w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50";
 
   const handleLogoFileChange = (event) => {
     const file = event.target.files?.[0];
@@ -1280,9 +1280,9 @@ export default function PrevendasCadastros({ forcedTab = null }) {
   };
 
   const renderLogoUploader = (label = 'Logo') => (
-    <div className="rounded-xl border border-slate-700/60 bg-slate-950/35 p-4">
+    <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] p-4">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-        <div className="flex h-24 w-32 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-600/60 bg-slate-900/70">
+        <div className="flex h-24 w-32 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)]">
           {partnerForm.logoUrl ? (
             <img
               src={partnerForm.logoUrl}
@@ -1290,14 +1290,14 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               className="h-full w-full object-contain p-2"
             />
           ) : (
-            <Image className="h-9 w-9 text-slate-500" />
+            <Image className="h-9 w-9 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium text-slate-300">{label}</p>
-          <p className="mt-1 text-xs text-slate-500">PNG, JPG, SVG ou WebP até 1 MB.</p>
+          <p className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">{label}</p>
+          <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">PNG, JPG, SVG ou WebP até 1 MB.</p>
           <div className="mt-3 flex flex-wrap gap-2">
-            <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-4 py-2 text-sm font-medium text-cyan-100 hover:bg-cyan-500/30">
+            <label className="inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-4 py-2 text-sm font-medium text-cyan-700 dark:text-cyan-100 hover:bg-cyan-500/30">
               <Upload className="h-4 w-4" />
               Inserir logo
               <input
@@ -1311,7 +1311,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               <button
                 type="button"
                 onClick={() => setPartnerForm((prev) => ({ ...prev, logoUrl: '' }))}
-                className="rounded-lg border border-rose-500/40 px-4 py-2 text-sm font-medium text-rose-100 hover:bg-rose-500/20"
+                className="rounded-lg border border-rose-500/40 px-4 py-2 text-sm font-medium text-rose-700 dark:text-rose-100 hover:bg-rose-500/20"
               >
                 Remover
               </button>
@@ -1324,7 +1324,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
   const renderPartnerLogo = (item, sizeClassName = 'h-14 w-20') => (
     item.logoUrl || item.logo ? (
-      <div className={`${sizeClassName} flex shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-600/50 bg-white/95`}>
+      <div className={`${sizeClassName} flex shrink-0 items-center justify-center overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.95)]`}>
         <img
           src={item.logoUrl || item.logo}
           alt={`Logo ${item.nome || 'parceiro'}`}
@@ -1332,8 +1332,8 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         />
       </div>
     ) : (
-      <div className={`${sizeClassName} flex shrink-0 items-center justify-center rounded-lg border border-slate-700/60 bg-slate-900/60`}>
-        <Image className="h-6 w-6 text-slate-500" />
+      <div className={`${sizeClassName} flex shrink-0 items-center justify-center rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)]`}>
+        <Image className="h-6 w-6 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
       </div>
     )
   );
@@ -1343,22 +1343,22 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       <button
         type="button"
         onClick={closeModal}
-        className="absolute -right-2 -top-2 rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white"
+        className="absolute -right-2 -top-2 rounded-lg p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
         aria-label="Fechar modal"
       >
         <X className="h-5 w-5" />
       </button>
 
       <div>
-        <h2 className="text-3xl font-semibold text-white">{editingItem ? 'Editar Distribuidor' : 'Novo Distribuidor'}</h2>
-        <p className="mt-1 text-slate-400">Cadastre dados de contato, acessos e marcas atendidas.</p>
+        <h2 className="text-3xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{editingItem ? 'Editar Distribuidor' : 'Novo Distribuidor'}</h2>
+        <p className="mt-1 text-[rgb(var(--crm-muted-rgb)_/_1)]">Cadastre dados de contato, acessos e marcas atendidas.</p>
       </div>
 
       {renderLogoUploader('Logo do distribuidor')}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Nome</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Nome</span>
           <input
             type="text"
             value={partnerForm.nome}
@@ -1368,7 +1368,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Marcas (separe por vírgula)</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Marcas (separe por vírgula)</span>
           <input
             type="text"
             value={partnerForm.marcasText}
@@ -1381,7 +1381,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Account Manager</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Account Manager</span>
           <input
             type="text"
             value={partnerForm.accountManager}
@@ -1391,7 +1391,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">E-mail</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">E-mail</span>
           <input
             type="email"
             value={partnerForm.email}
@@ -1401,7 +1401,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Telefone</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Telefone</span>
           <input
             type="text"
             value={partnerForm.telefone}
@@ -1411,7 +1411,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Status</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Status</span>
           <select
             value={partnerForm.status}
             onChange={(event) => setPartnerForm((prev) => ({ ...prev, status: event.target.value }))}
@@ -1425,7 +1425,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Portal (URL)</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Portal (URL)</span>
           <input
             type="text"
             value={partnerForm.portalUrl}
@@ -1436,7 +1436,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Login Portal</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Login Portal</span>
           <input
             type="text"
             value={partnerForm.portalLogin}
@@ -1446,7 +1446,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Senha Portal</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Senha Portal</span>
           <input
             type="text"
             value={partnerForm.portalSenha}
@@ -1456,7 +1456,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">E-commerce (URL)</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">E-commerce (URL)</span>
           <input
             type="text"
             value={partnerForm.ecommerceUrl}
@@ -1467,7 +1467,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Login E-commerce</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Login E-commerce</span>
           <input
             type="text"
             value={partnerForm.ecommerceLogin}
@@ -1479,7 +1479,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Senha E-commerce</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Senha E-commerce</span>
           <input
             type="text"
             value={partnerForm.ecommerceSenha}
@@ -1489,7 +1489,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Produtos Principais (vírgula)</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Produtos Principais (vírgula)</span>
           <input
             type="text"
             value={partnerForm.produtosPrincipaisText}
@@ -1502,22 +1502,22 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
       <div className="space-y-3">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <h3 className="text-base font-semibold text-white">Vendedores Responsáveis</h3>
+          <h3 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Vendedores Responsáveis</h3>
           <button
             type="button"
             onClick={addSeller}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-600/40 bg-slate-700/60 px-4 py-2 text-sm font-medium text-slate-100 hover:bg-slate-700"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] px-4 py-2 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
           >
             <Plus className="h-4 w-4" /> Adicionar Vendedor
           </button>
         </div>
 
         {partnerForm.vendedoresResponsaveis.length === 0 ? (
-          <p className="text-sm text-slate-400">Nenhum vendedor adicionado.</p>
+          <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum vendedor adicionado.</p>
         ) : (
           <div className="space-y-3">
             {partnerForm.vendedoresResponsaveis.map((seller, index) => (
-              <div key={`seller-${index}`} className="grid grid-cols-1 gap-3 rounded-lg border border-slate-700/60 bg-slate-950/30 p-3 lg:grid-cols-[0.8fr_1fr_1fr_1fr_auto]">
+              <div key={`seller-${index}`} className="grid grid-cols-1 gap-3 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] p-3 lg:grid-cols-[0.8fr_1fr_1fr_1fr_auto]">
                 <input
                   type="text"
                   value={seller.marca || ''}
@@ -1549,7 +1549,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 <button
                   type="button"
                   onClick={() => removeSeller(index)}
-                  className="inline-flex items-center justify-center rounded-lg border border-rose-500/40 px-3 py-2 text-rose-100 hover:bg-rose-500/20"
+                  className="inline-flex items-center justify-center rounded-lg border border-rose-500/40 px-3 py-2 text-rose-700 dark:text-rose-100 hover:bg-rose-500/20"
                   aria-label="Remover vendedor"
                 >
                   <Trash2 className="h-4 w-4" />
@@ -1561,11 +1561,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       </div>
 
       <label className="block space-y-1.5">
-        <span className="text-sm font-medium text-slate-300">Notas</span>
+        <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Notas</span>
         <textarea
           value={partnerForm.observacoes}
           onChange={(event) => setPartnerForm((prev) => ({ ...prev, observacoes: event.target.value }))}
-          className="min-h-[120px] w-full rounded-lg border border-slate-600/50 bg-slate-950/60 px-3 py-2 text-white placeholder-slate-500 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+          className="min-h-[120px] w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
         />
       </label>
 
@@ -1573,7 +1573,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         <button
           type="button"
           onClick={closeModal}
-          className="rounded-lg border border-slate-500/40 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800/40"
+          className="rounded-lg border border-[var(--crm-border)] px-4 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)]"
         >
           Cancelar
         </button>
@@ -1581,7 +1581,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           type="button"
           onClick={submitPartner}
           disabled={saving}
-          className="rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-4 py-2 text-sm text-cyan-100 hover:bg-cyan-500/30 disabled:opacity-60"
+          className="rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-4 py-2 text-sm text-cyan-700 dark:text-cyan-100 hover:bg-cyan-500/30 disabled:opacity-60"
         >
           {saving ? 'Salvando...' : 'Salvar cadastro'}
         </button>
@@ -1594,22 +1594,22 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       <button
         type="button"
         onClick={closeModal}
-        className="absolute -right-2 -top-2 rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white"
+        className="absolute -right-2 -top-2 rounded-lg p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
         aria-label="Fechar modal"
       >
         <X className="h-5 w-5" />
       </button>
 
       <div>
-        <h2 className="text-3xl font-semibold text-white">{editingItem ? 'Editar Fornecedor' : 'Novo Fornecedor'}</h2>
-        <p className="mt-1 text-slate-400">Cadastre os dados principais, informações de portal e procedimentos de RO.</p>
+        <h2 className="text-3xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{editingItem ? 'Editar Fornecedor' : 'Novo Fornecedor'}</h2>
+        <p className="mt-1 text-[rgb(var(--crm-muted-rgb)_/_1)]">Cadastre os dados principais, informações de portal e procedimentos de RO.</p>
       </div>
 
       {renderLogoUploader('Logo do fornecedor')}
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[2fr_1fr]">
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Nome</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Nome</span>
           <input
             type="text"
             value={partnerForm.nome}
@@ -1619,7 +1619,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Status</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Status</span>
           <select
             value={partnerForm.status}
             onChange={(event) => setPartnerForm((prev) => ({ ...prev, status: event.target.value }))}
@@ -1635,7 +1635,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Portal / Partner</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Portal / Partner</span>
           <input
             type="text"
             value={partnerForm.portalPartnerUrl}
@@ -1646,7 +1646,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Login Portal / Partner</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Login Portal / Partner</span>
           <input
             type="text"
             value={partnerForm.portalPartnerLogin}
@@ -1656,7 +1656,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Senha Portal / Partner</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Senha Portal / Partner</span>
           <input
             type="text"
             value={partnerForm.portalPartnerSenha}
@@ -1666,7 +1666,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Portal de Treinamentos</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Portal de Treinamentos</span>
           <input
             type="text"
             value={partnerForm.treinamentoUrl}
@@ -1677,7 +1677,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Login Portal de Treinamentos</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Login Portal de Treinamentos</span>
           <input
             type="text"
             value={partnerForm.treinamentoLogin}
@@ -1687,7 +1687,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Senha Portal de Treinamentos</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Senha Portal de Treinamentos</span>
           <input
             type="text"
             value={partnerForm.treinamentoSenha}
@@ -1697,7 +1697,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Contato Principal</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Contato Principal</span>
           <input
             type="text"
             value={partnerForm.contatoPrincipal}
@@ -1707,7 +1707,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">E-mail Contato Principal</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">E-mail Contato Principal</span>
           <input
             type="email"
             value={partnerForm.emailContatoPrincipal}
@@ -1717,7 +1717,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Telefone Contato Principal</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Telefone Contato Principal</span>
           <input
             type="text"
             value={partnerForm.telefoneContatoPrincipal}
@@ -1727,7 +1727,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Contato Cotações</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Contato Cotações</span>
           <input
             type="text"
             value={partnerForm.contatoCotacoes}
@@ -1737,7 +1737,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">E-mail Contato Cotações</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">E-mail Contato Cotações</span>
           <input
             type="email"
             value={partnerForm.emailContatoCotacoes}
@@ -1747,7 +1747,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Telefone Contato Cotações</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Telefone Contato Cotações</span>
           <input
             type="text"
             value={partnerForm.telefoneContatoCotacoes}
@@ -1758,7 +1758,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       </div>
 
       <label className="block space-y-1.5">
-        <span className="text-sm font-medium text-slate-300">Produtos/Serviços Oferecidos (vírgula)</span>
+        <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Produtos/Serviços Oferecidos (vírgula)</span>
         <input
           type="text"
           value={partnerForm.produtosServicosText}
@@ -1769,10 +1769,10 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       </label>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-white">Documentos e Procedimentos</h3>
+        <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Documentos e Procedimentos</h3>
 
         <label className="block space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Template RO (URL)</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Template RO (URL)</span>
           <input
             type="text"
             value={partnerForm.templateRoUrl}
@@ -1783,22 +1783,22 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </label>
 
         <label className="block space-y-1.5">
-          <span className="text-sm font-medium text-slate-300">Procedimento para RO</span>
+          <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Procedimento para RO</span>
           <textarea
             value={partnerForm.procedimentoRo}
             onChange={(event) => setPartnerForm((prev) => ({ ...prev, procedimentoRo: event.target.value }))}
-            className="min-h-[150px] w-full rounded-lg border border-slate-600/50 bg-slate-950/60 px-3 py-2 text-white placeholder-slate-500 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+            className="min-h-[150px] w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
             placeholder="Descreva o passo a passo..."
           />
         </label>
       </div>
 
       <label className="block space-y-1.5">
-        <span className="text-sm font-medium text-slate-300">Notas</span>
+        <span className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Notas</span>
         <textarea
           value={partnerForm.observacoes}
           onChange={(event) => setPartnerForm((prev) => ({ ...prev, observacoes: event.target.value }))}
-          className="min-h-[120px] w-full rounded-lg border border-slate-600/50 bg-slate-950/60 px-3 py-2 text-white placeholder-slate-500 focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+          className="min-h-[120px] w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
         />
       </label>
 
@@ -1807,7 +1807,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           type="button"
           onClick={submitPartner}
           disabled={saving}
-          className="rounded-lg bg-sky-400 px-8 py-3 text-base font-medium text-slate-950 hover:bg-sky-300 disabled:opacity-60"
+          className="rounded-lg bg-sky-400 px-8 py-3 text-base font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-sky-300 disabled:opacity-60"
         >
           {saving ? 'Salvando...' : 'Salvar Fornecedor'}
         </button>
@@ -1818,7 +1818,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
   const renderPillList = (items, emptyText, className = 'from-orange-500/45 via-cyan-400/35 to-emerald-400/30') => {
     const values = Array.isArray(items) ? items.filter(Boolean) : [];
     if (values.length === 0) {
-      return <p className="text-base text-slate-400">{emptyText}</p>;
+      return <p className="text-base text-[rgb(var(--crm-muted-rgb)_/_1)]">{emptyText}</p>;
     }
 
     return (
@@ -1826,7 +1826,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         {values.map((item) => (
           <span
             key={item}
-            className={`rounded-full border border-white/10 bg-gradient-to-r ${className} px-4 py-2 text-sm font-semibold text-white backdrop-blur-md`}
+            className={`rounded-full border border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-gradient-to-r ${className} px-4 py-2 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] backdrop-blur-md`}
           >
             {item}
           </span>
@@ -1836,10 +1836,10 @@ export default function PrevendasCadastros({ forcedTab = null }) {
   };
 
   const renderPortalCard = ({ title, url, login, icon: Icon }) => (
-    <div className="crm-gradient-glass group min-h-[220px] rounded-lg p-6 text-slate-100">
+    <div className="crm-gradient-glass group min-h-[220px] rounded-lg p-6 text-[rgb(var(--crm-ink-rgb)_/_1)]">
       <div className="relative z-10">
-        <div className="mb-7 flex items-center gap-4 text-3xl font-bold text-cyan-50">
-          <span className="crm-gradient-icon flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-white">
+        <div className="mb-7 flex items-center gap-4 text-3xl font-bold text-cyan-700 dark:text-cyan-50">
+          <span className="crm-gradient-icon flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-[rgb(var(--crm-ink-rgb)_/_1)]">
             <Icon className="h-7 w-7" />
           </span>
           <span>{title}</span>
@@ -1849,15 +1849,15 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           href={url}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex items-center gap-2 break-all text-xl font-bold text-cyan-100 hover:text-white"
+          className="inline-flex items-center gap-2 break-all text-xl font-bold text-cyan-700 dark:text-cyan-100 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
         >
           {url}
           <ExternalLink className="h-4 w-4 shrink-0" />
         </a>
       ) : (
-        <p className="text-xl font-semibold text-slate-300">URL não informada.</p>
+        <p className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">URL não informada.</p>
       )}
-        <p className="mt-8 text-lg text-white">
+        <p className="mt-8 text-lg text-[rgb(var(--crm-ink-rgb)_/_1)]">
           <span className="font-bold">Usuário:</span> {login || '-'}
         </p>
       </div>
@@ -1874,11 +1874,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
     const sellers = Array.isArray(item.vendedoresResponsaveis) ? item.vendedoresResponsaveis : [];
 
     return (
-      <div className="relative space-y-8 bg-slate-950 text-white">
+      <div className="relative space-y-8 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
         <button
           type="button"
           onClick={closeDistributorView}
-          className="absolute -right-4 -top-4 rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white"
+          className="absolute -right-4 -top-4 rounded-lg p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
           aria-label="Fechar modal"
         >
           <X className="h-6 w-6" />
@@ -1886,13 +1886,13 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
-            <Eye className="h-8 w-8 text-sky-400" />
-            <h2 className="text-3xl font-semibold text-white">Visualizar Distribuidor: {item.nome || '-'}</h2>
+            <Eye className="h-8 w-8 text-sky-700 dark:text-sky-400" />
+            <h2 className="text-3xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Visualizar Distribuidor: {item.nome || '-'}</h2>
           </div>
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-flex items-center justify-center gap-3 rounded-lg border border-slate-600/70 px-5 py-3 text-lg text-slate-100 hover:bg-slate-800/70"
+            className="inline-flex items-center justify-center gap-3 rounded-lg border border-[var(--crm-border)] px-5 py-3 text-lg text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
           >
             <FileDown className="h-5 w-5" /> Imprimir PDF
           </button>
@@ -1903,11 +1903,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
             <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center">
               {renderPartnerLogo(item, 'h-24 w-36')}
               <div className="min-w-0">
-                <h3 className="break-words text-5xl font-semibold text-white">{item.nome || '-'}</h3>
-                <p className="mt-4 text-3xl text-cyan-50">Distribuidor</p>
+                <h3 className="break-words text-5xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.nome || '-'}</h3>
+                <p className="mt-4 text-3xl text-cyan-700 dark:text-cyan-50">Distribuidor</p>
               </div>
             </div>
-            <span className="w-fit rounded-full border border-emerald-200/25 bg-emerald-400/24 px-8 py-4 text-3xl font-semibold text-white shadow-[0_18px_44px_-24px_rgba(16,185,129,0.75)] backdrop-blur-md">
+            <span className="w-fit rounded-full border border-emerald-200/25 dark:border-emerald-800/25 bg-emerald-400/24 px-8 py-4 text-3xl font-semibold text-white shadow-[0_18px_44px_-24px_rgba(16,185,129,0.75)] backdrop-blur-md">
               {statusLabel}
             </span>
           </div>
@@ -1925,28 +1925,28 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 <div className="relative flex h-16 w-16 items-center justify-center">
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400 to-teal-500 opacity-20 blur-md"></div>
                   <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                    <User className="h-7 w-7 text-white" />
+                    <User className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white">Informações de Contato</h3>
+                <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Informações de Contato</h3>
               </div>
               
               <div className="space-y-5">
                 <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="text-sm font-medium text-slate-400">Contato Principal</p>
-                  <p className="mt-1 text-xl font-bold text-white">{contactName}</p>
+                  <p className="text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Contato Principal</p>
+                  <p className="mt-1 text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{contactName}</p>
                 </div>
                 <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-slate-400">
+                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     <Mail className="h-4 w-4" /> Email
                   </p>
-                  <p className="mt-1 break-all text-lg font-semibold text-white">{item.email || '-'}</p>
+                  <p className="mt-1 break-all text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.email || '-'}</p>
                 </div>
                 <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-slate-400">
+                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     <Phone className="h-4 w-4" /> Telefone
                   </p>
-                  <p className="mt-1 text-lg font-semibold text-white">{item.telefone || '-'}</p>
+                  <p className="mt-1 text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.telefone || '-'}</p>
                 </div>
               </div>
             </div>
@@ -1963,19 +1963,19 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 <div className="relative flex h-16 w-16 items-center justify-center">
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 opacity-20 blur-md"></div>
                   <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                    <Package className="h-7 w-7 text-white" />
+                    <Package className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white">Produtos/Serviços</h3>
+                <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Produtos/Serviços</h3>
               </div>
               
               <div className="space-y-5">
                 <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="mb-3 text-sm font-medium text-slate-400">Marcas</p>
+                  <p className="mb-3 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Marcas</p>
                   {renderPillList(brands, 'Sem marcas informadas.')}
                 </div>
                 <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="mb-3 text-sm font-medium text-slate-400">Produtos Principais</p>
+                  <p className="mb-3 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Produtos Principais</p>
                   {renderPillList(item.produtosPrincipais, 'Sem produtos principais informados.')}
                 </div>
               </div>
@@ -1992,10 +1992,10 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               <div className="relative flex h-16 w-16 items-center justify-center">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400 to-teal-500 opacity-20 blur-md"></div>
                 <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                  <Globe2 className="h-7 w-7 text-white" />
+                  <Globe2 className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-white">Informações do Portal</h3>
+              <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Informações do Portal</h3>
             </div>
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
             {renderPortalCard({
@@ -2003,14 +2003,14 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               url: item.portalUrl,
               login: item.portalLogin,
               icon: Link2,
-              accentClass: 'text-cyan-50'
+              accentClass: "text-cyan-700 dark:text-cyan-50"
             })}
             {renderPortalCard({
               title: 'E-commerce',
               url: item.ecommerceUrl,
               login: item.ecommerceLogin,
               icon: ShoppingCart,
-              accentClass: 'text-teal-50'
+              accentClass: "text-teal-700 dark:text-teal-50"
             })}
           </div>
           </div>
@@ -2024,14 +2024,14 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               <div className="relative flex h-16 w-16 items-center justify-center">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 opacity-20 blur-md"></div>
                 <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                  <Users className="h-7 w-7 text-white" />
+                  <Users className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-white">Vendedores Responsáveis</h3>
+              <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Vendedores Responsáveis</h3>
             </div>
 
           {sellers.length === 0 ? (
-            <p className="text-lg text-slate-400">Nenhum vendedor adicionado.</p>
+            <p className="text-lg text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum vendedor adicionado.</p>
           ) : (
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
               {sellers.map((seller, index) => {
@@ -2039,15 +2039,15 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 return (
                   <div key={`${seller.nome || 'seller'}-${index}`} className="crm-gradient-field rounded-xl border-l-4 border-cyan-300/45 p-7">
                     {sellerTag && (
-                      <span className="mb-5 inline-flex rounded-full border border-cyan-200/20 bg-cyan-300/18 px-5 py-2 text-lg font-semibold text-cyan-50 backdrop-blur-md">
+                      <span className="mb-5 inline-flex rounded-full border border-cyan-200/20 dark:border-cyan-800/20 bg-cyan-300/18 px-5 py-2 text-lg font-semibold text-cyan-700 dark:text-cyan-50 backdrop-blur-md">
                         {sellerTag}
                       </span>
                     )}
-                    <h4 className="text-3xl font-semibold text-white">{seller.nome || '-'}</h4>
-                    <p className="mt-5 flex items-center gap-3 text-lg text-slate-200">
+                    <h4 className="text-3xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{seller.nome || '-'}</h4>
+                    <p className="mt-5 flex items-center gap-3 text-lg text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       <Phone className="h-5 w-5 text-emerald-500" /> {seller.telefone || '-'}
                     </p>
-                    <p className="mt-5 flex items-center gap-3 break-all text-lg text-slate-200">
+                    <p className="mt-5 flex items-center gap-3 break-all text-lg text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       <Mail className="h-5 w-5 shrink-0 text-violet-500" /> {seller.email || '-'}
                     </p>
                   </div>
@@ -2059,8 +2059,8 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </section>
 
         <section className="crm-gradient-section rounded-2xl p-7">
-          <h3 className="text-2xl font-bold text-white">Observações</h3>
-          <p className="mt-5 whitespace-pre-wrap text-lg text-slate-400">{item.observacoes || 'Sem observações.'}</p>
+          <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Observações</h3>
+          <p className="mt-5 whitespace-pre-wrap text-lg text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.observacoes || 'Sem observações.'}</p>
         </section>
       </div>
     );
@@ -2076,11 +2076,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       : item.categorias;
 
     return (
-      <div className="relative space-y-8 bg-slate-950 text-white">
+      <div className="relative space-y-8 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
         <button
           type="button"
           onClick={closeSupplierView}
-          className="absolute -right-4 -top-4 rounded-lg p-2 text-slate-400 hover:bg-white/5 hover:text-white"
+          className="absolute -right-4 -top-4 rounded-lg p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
           aria-label="Fechar modal"
         >
           <X className="h-6 w-6" />
@@ -2088,13 +2088,13 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-3">
-            <Eye className="h-8 w-8 text-sky-400" />
-            <h2 className="text-3xl font-semibold text-white">Visualizar Fornecedor: {item.nome || '-'}</h2>
+            <Eye className="h-8 w-8 text-sky-700 dark:text-sky-400" />
+            <h2 className="text-3xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Visualizar Fornecedor: {item.nome || '-'}</h2>
           </div>
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-flex items-center justify-center gap-3 rounded-lg border border-slate-600/70 px-5 py-3 text-lg text-slate-100 hover:bg-slate-800/70"
+            className="inline-flex items-center justify-center gap-3 rounded-lg border border-[var(--crm-border)] px-5 py-3 text-lg text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
           >
             <FileDown className="h-5 w-5" /> Imprimir PDF
           </button>
@@ -2105,11 +2105,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
             <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center">
               {renderPartnerLogo(item, 'h-24 w-36')}
               <div className="min-w-0">
-                <h3 className="break-words text-5xl font-semibold text-white">{item.nome || '-'}</h3>
-                <p className="mt-4 text-3xl text-cyan-100">Fornecedor</p>
+                <h3 className="break-words text-5xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.nome || '-'}</h3>
+                <p className="mt-4 text-3xl text-cyan-700 dark:text-cyan-100">Fornecedor</p>
               </div>
             </div>
-            <span className="w-fit rounded-full border border-emerald-200/25 bg-emerald-400/24 px-8 py-4 text-3xl font-semibold text-white shadow-[0_18px_44px_-24px_rgba(16,185,129,0.75)] backdrop-blur-md">
+            <span className="w-fit rounded-full border border-emerald-200/25 dark:border-emerald-800/25 bg-emerald-400/24 px-8 py-4 text-3xl font-semibold text-white shadow-[0_18px_44px_-24px_rgba(16,185,129,0.75)] backdrop-blur-md">
               {statusLabel}
             </span>
           </div>
@@ -2123,10 +2123,10 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               <div className="relative flex h-16 w-16 items-center justify-center">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500 to-teal-600 opacity-20 blur-md"></div>
                 <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                  <Globe2 className="h-7 w-7 text-white" />
+                  <Globe2 className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-white">Informações de Portal</h3>
+              <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Informações de Portal</h3>
             </div>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               {renderPortalCard({
@@ -2134,14 +2134,14 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 url: item.portalPartnerUrl,
                 login: item.portalPartnerLogin,
                 icon: Link2,
-                accentClass: 'text-blue-800'
+                accentClass: "text-blue-800 dark:text-blue-300"
               })}
               {renderPortalCard({
                 title: 'Portal de Treinamentos',
                 url: item.treinamentoUrl,
                 login: item.treinamentoLogin,
                 icon: Globe2,
-                accentClass: 'text-cyan-800'
+                accentClass: "text-cyan-800 dark:text-cyan-300"
               })}
             </div>
           </div>
@@ -2157,28 +2157,28 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 <div className="relative flex h-16 w-16 items-center justify-center">
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500 to-teal-600 opacity-20 blur-md"></div>
                   <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                    <User className="h-7 w-7 text-white" />
+                    <User className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white">Contato Principal</h3>
+                <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Contato Principal</h3>
               </div>
               
               <div className="space-y-5">
                 <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="text-sm font-medium text-slate-400">Nome</p>
-                  <p className="mt-1 text-xl font-bold text-white">{item.contatoPrincipal || item.contato || '-'}</p>
+                  <p className="text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Nome</p>
+                  <p className="mt-1 text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.contatoPrincipal || item.contato || '-'}</p>
                 </div>
                 <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-slate-400">
+                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     <Mail className="h-4 w-4" /> Email
                   </p>
-                  <p className="mt-1 break-all text-lg font-semibold text-white">{item.emailContatoPrincipal || item.email || '-'}</p>
+                  <p className="mt-1 break-all text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.emailContatoPrincipal || item.email || '-'}</p>
                 </div>
                 <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-slate-400">
+                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     <Phone className="h-4 w-4" /> Telefone
                   </p>
-                  <p className="mt-1 text-lg font-semibold text-white">{item.telefoneContatoPrincipal || item.telefone || '-'}</p>
+                  <p className="mt-1 text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.telefoneContatoPrincipal || item.telefone || '-'}</p>
                 </div>
               </div>
             </div>
@@ -2193,28 +2193,28 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 <div className="relative flex h-16 w-16 items-center justify-center">
                   <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 opacity-20 blur-md"></div>
                   <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                    <Users className="h-7 w-7 text-white" />
+                    <Users className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                   </div>
                 </div>
-                <h3 className="text-2xl font-bold text-white">Contato Cotações</h3>
+                <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Contato Cotações</h3>
               </div>
               
               <div className="space-y-5">
                 <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="text-sm font-medium text-slate-400">Nome</p>
-                  <p className="mt-1 text-xl font-bold text-white">{item.contatoCotacoes || '-'}</p>
+                  <p className="text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Nome</p>
+                  <p className="mt-1 text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.contatoCotacoes || '-'}</p>
                 </div>
                 <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-slate-400">
+                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     <Mail className="h-4 w-4" /> Email
                   </p>
-                  <p className="mt-1 break-all text-lg font-semibold text-white">{item.emailContatoCotacoes || '-'}</p>
+                  <p className="mt-1 break-all text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.emailContatoCotacoes || '-'}</p>
                 </div>
                 <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-slate-400">
+                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     <Phone className="h-4 w-4" /> Telefone
                   </p>
-                  <p className="mt-1 text-lg font-semibold text-white">{item.telefoneContatoCotacoes || '-'}</p>
+                  <p className="mt-1 text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.telefoneContatoCotacoes || '-'}</p>
                 </div>
               </div>
             </div>
@@ -2229,10 +2229,10 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               <div className="relative flex h-16 w-16 items-center justify-center">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500 to-teal-600 opacity-20 blur-md"></div>
                 <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                  <Package className="h-7 w-7 text-white" />
+                  <Package className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-white">Produtos/Serviços Oferecidos</h3>
+              <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Produtos/Serviços Oferecidos</h3>
             </div>
             <div className="crm-gradient-field rounded-lg p-4">
               {renderPillList(products, 'Sem produtos/serviços informados.', 'from-orange-500/45 via-cyan-400/35 to-emerald-400/30')}
@@ -2248,41 +2248,41 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               <div className="relative flex h-16 w-16 items-center justify-center">
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 opacity-20 blur-md"></div>
                 <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                  <ClipboardList className="h-7 w-7 text-white" />
+                  <ClipboardList className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                 </div>
               </div>
-              <h3 className="text-2xl font-bold text-white">Documentos e Procedimentos</h3>
+              <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Documentos e Procedimentos</h3>
             </div>
 
           <div className="space-y-6">
             <div>
-              <p className="mb-2 text-lg text-slate-400">Template RO</p>
+              <p className="mb-2 text-lg text-[rgb(var(--crm-muted-rgb)_/_1)]">Template RO</p>
               {item.templateRoUrl ? (
                 <a
                   href={item.templateRoUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 break-all text-xl font-bold text-sky-300 hover:text-sky-200"
+                  className="inline-flex items-center gap-2 break-all text-xl font-bold text-sky-700 dark:text-sky-300 hover:text-sky-700 dark:hover:text-sky-200"
                 >
                   {item.templateRoUrl}
                   <ExternalLink className="h-4 w-4 shrink-0" />
                 </a>
               ) : (
-                <p className="text-xl text-slate-400">Template RO não informado.</p>
+                <p className="text-xl text-[rgb(var(--crm-muted-rgb)_/_1)]">Template RO não informado.</p>
               )}
             </div>
 
             <div>
-              <p className="mb-2 text-lg text-slate-400">Procedimento para RO</p>
-              <p className="whitespace-pre-wrap text-xl text-slate-100">{item.procedimentoRo || 'Procedimento não informado.'}</p>
+              <p className="mb-2 text-lg text-[rgb(var(--crm-muted-rgb)_/_1)]">Procedimento para RO</p>
+              <p className="whitespace-pre-wrap text-xl text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.procedimentoRo || 'Procedimento não informado.'}</p>
             </div>
           </div>
           </div>
         </section>
 
         <section className="crm-gradient-section rounded-2xl p-7">
-          <h3 className="text-2xl font-bold text-white">Observações</h3>
-          <p className="mt-5 whitespace-pre-wrap text-lg text-slate-400">{item.observacoes || 'Sem observações.'}</p>
+          <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Observações</h3>
+          <p className="mt-5 whitespace-pre-wrap text-lg text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.observacoes || 'Sem observações.'}</p>
         </section>
       </div>
     );
@@ -2290,7 +2290,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
   const renderPartnerCards = (type) => {
     if (activeRows.length === 0) {
-      return <div className="py-12 text-center text-slate-400">Nenhum cadastro encontrado.</div>;
+      return <div className="py-12 text-center text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum cadastro encontrado.</div>;
     }
 
     return (
@@ -2302,22 +2302,22 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 {renderPartnerLogo(item)}
                 <div className="min-w-0 flex-1">
                   <div className="mb-1 flex flex-wrap items-center gap-2">
-                    <span className="text-base font-semibold text-white">{item.nome}</span>
+                    <span className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.nome}</span>
                     <span className={`rounded-full border px-2 py-0.5 text-[11px] ${badgeClassForStatus(item.status)}`}>
                       {item.status || 'ATIVO'}
                     </span>
                   </div>
 
-                  <p className="text-sm text-slate-300">
+                  <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {item.razaoSocial || 'Razão social não informada'}
                     {item.cnpj ? ` • CNPJ ${item.cnpj}` : ''}
                   </p>
 
-                  <p className="mt-1 text-sm text-slate-300">
+                  <p className="mt-1 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Contato: {item.contato || '-'} • {item.email || '-'} • {item.telefone || '-'}
                   </p>
 
-                  <p className="mt-1 text-xs text-slate-400">
+                  <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     {item.cidade || '-'} / {item.estado || '-'}
                     {item.site ? ` • ${item.site}` : ''}
                   </p>
@@ -2327,7 +2327,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                       {item.categorias.map((categoria) => (
                         <span
                           key={`${item.id}-${categoria}`}
-                          className="rounded-full border border-cyan-300/25 bg-cyan-300/12 px-2 py-0.5 text-[11px] text-cyan-100"
+                          className="rounded-full border border-cyan-300/25 bg-cyan-300/12 px-2 py-0.5 text-[11px] text-cyan-700 dark:text-cyan-100"
                         >
                           {categoria}
                         </span>
@@ -2342,7 +2342,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                   <button
                     type="button"
                     onClick={() => setViewingDistributor(item)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-sky-500/50 px-3 py-2 text-xs text-sky-100 hover:bg-sky-500/20"
+                    className="inline-flex items-center gap-1 rounded-lg border border-sky-500/50 px-3 py-2 text-xs text-sky-700 dark:text-sky-100 hover:bg-sky-500/20"
                   >
                     <Eye className="h-3.5 w-3.5" /> Visualizar
                   </button>
@@ -2351,7 +2351,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                   <button
                     type="button"
                     onClick={() => setViewingSupplier(item)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-sky-500/50 px-3 py-2 text-xs text-sky-100 hover:bg-sky-500/20"
+                    className="inline-flex items-center gap-1 rounded-lg border border-sky-500/50 px-3 py-2 text-xs text-sky-700 dark:text-sky-100 hover:bg-sky-500/20"
                   >
                     <Eye className="h-3.5 w-3.5" /> Visualizar
                   </button>
@@ -2359,14 +2359,14 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 <button
                   type="button"
                   onClick={() => openEditModal(type, item)}
-                  className="rounded-lg border border-slate-500/40 px-3 py-2 text-xs text-slate-100 hover:bg-slate-800/40"
+                  className="rounded-lg border border-[var(--crm-border)] px-3 py-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)]"
                 >
                   Editar
                 </button>
                 <button
                   type="button"
                   onClick={() => deleteItem(type, item)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-rose-500/50 px-3 py-2 text-xs text-rose-100 hover:bg-rose-500/20"
+                  className="inline-flex items-center gap-1 rounded-lg border border-rose-500/50 px-3 py-2 text-xs text-rose-700 dark:text-rose-100 hover:bg-rose-500/20"
                   disabled={saving}
                 >
                   <Trash2 className="h-3.5 w-3.5" /> Excluir
@@ -2382,10 +2382,10 @@ export default function PrevendasCadastros({ forcedTab = null }) {
   const renderOpportunityCards = () => {
     if (activeRows.length === 0) {
       return (
-        <div className="py-16 text-center text-slate-400">
-          <Tag className="mx-auto h-12 w-12 text-slate-600 mb-3" />
-          <p className="text-base font-medium text-slate-300">Nenhum registro de oportunidade encontrado.</p>
-          <p className="text-xs text-slate-500 mt-1">Tente ajustar a busca ou os filtros de Fabricante e Status acima.</p>
+        <div className="py-16 text-center text-[rgb(var(--crm-muted-rgb)_/_1)]">
+          <Tag className="mx-auto h-12 w-12 text-[rgb(var(--crm-muted-rgb)_/_1)] mb-3" />
+          <p className="text-base font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum registro de oportunidade encontrado.</p>
+          <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">Tente ajustar a busca ou os filtros de Fabricante e Status acima.</p>
         </div>
       );
     }
@@ -2399,9 +2399,9 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           const oppFabricante = getOpportunityFabricante(item, fornMap);
 
           return (
-            <div key={item.id} className="crm-gradient-glass rounded-xl p-4 border border-slate-700/60 transition-all duration-200 hover:border-slate-500/60 shadow-lg">
+            <div key={item.id} className="crm-gradient-glass rounded-xl p-4 border border-[var(--crm-border)] transition-all duration-200 hover:border-[var(--crm-border)] shadow-lg">
               {/* DESTAQUE PRINCIPAL DO FABRICANTE / FORNECEDOR / RO */}
-              <div className="mb-3 flex flex-wrap items-center justify-between gap-2.5 border-b border-slate-700/60 pb-3">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2.5 border-b border-[var(--crm-border)] pb-3">
                 <div className="flex flex-wrap items-center gap-2">
                   {/* BADGE DESTAQUE DO FABRICANTE */}
                   <div
@@ -2412,16 +2412,16 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                   </div>
 
                   {item.numeroOportunidade && (
-                    <div className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/80 bg-slate-900/90 px-3 py-1 text-xs font-mono text-slate-200">
-                      <span className="text-slate-500 font-sans text-[11px] font-semibold">Nº RO:</span>
-                      <span className="font-bold text-sky-400">{item.numeroOportunidade}</span>
+                    <div className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] px-3 py-1 text-xs font-mono text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                      <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] font-sans text-[11px] font-semibold">Nº RO:</span>
+                      <span className="font-bold text-sky-700 dark:text-sky-400">{item.numeroOportunidade}</span>
                     </div>
                   )}
 
                   {item.produto && (
-                    <div className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700/60 bg-slate-800/60 px-2.5 py-1 text-xs text-slate-300">
-                      <Package className="h-3.5 w-3.5 text-cyan-400" />
-                      <span className="font-medium text-slate-200">{item.produto}</span>
+                    <div className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] px-2.5 py-1 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                      <Package className="h-3.5 w-3.5 text-cyan-700 dark:text-cyan-400" />
+                      <span className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.produto}</span>
                     </div>
                   )}
                 </div>
@@ -2439,43 +2439,43 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                 <div className="min-w-0 flex-1">
                   <div className="mb-2">
-                    <h4 className="text-base font-bold text-white tracking-tight">{item.titulo || 'Sem título'}</h4>
+                    <h4 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] tracking-tight">{item.titulo || 'Sem título'}</h4>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 py-1.5 text-xs">
-                    <div className="rounded-lg bg-slate-900/50 border border-slate-800 p-2.5">
-                      <span className="text-slate-400 block text-[11px] font-medium">Cliente / Solicitante</span>
-                      <span className="font-semibold text-slate-200 text-sm block truncate">{item.cliente || '-'}</span>
-                      <span className="text-[11px] text-slate-500 block mt-0.5">
+                    <div className="rounded-lg bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] border border-[var(--crm-border)] p-2.5">
+                      <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] block text-[11px] font-medium">Cliente / Solicitante</span>
+                      <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm block truncate">{item.cliente || '-'}</span>
+                      <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] block mt-0.5">
                         Origem: {item.origem || 'B2B'} • Modalidade: {item.modalidade || 'VENDA'}
                       </span>
                     </div>
 
                     {item.gerenteConta && (
-                      <div className="rounded-lg bg-slate-900/50 border border-slate-800 p-2.5">
-                        <span className="text-slate-400 block text-[11px] font-medium">Gerente de Contas</span>
-                        <span className="font-semibold text-slate-200 text-sm block truncate">{item.gerenteConta}</span>
+                      <div className="rounded-lg bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] border border-[var(--crm-border)] p-2.5">
+                        <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] block text-[11px] font-medium">Gerente de Contas</span>
+                        <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm block truncate">{item.gerenteConta}</span>
                       </div>
                     )}
 
-                    <div className="rounded-lg bg-slate-900/50 border border-slate-800 p-2.5">
-                      <span className="text-slate-400 block text-[11px] font-medium">Valor Estimado / Prazo</span>
-                      <span className="font-bold text-emerald-400 text-sm block">{toCurrency(item.valorEstimado)}</span>
-                      <span className="text-[11px] text-slate-400 block mt-0.5">
+                    <div className="rounded-lg bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] border border-[var(--crm-border)] p-2.5">
+                      <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] block text-[11px] font-medium">Valor Estimado / Prazo</span>
+                      <span className="font-bold text-emerald-700 dark:text-emerald-400 text-sm block">{toCurrency(item.valorEstimado)}</span>
+                      <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] block mt-0.5">
                         Prazo: {formatOpportunityTerm(item.prazo)}
                       </span>
                     </div>
 
-                    <div className="rounded-lg bg-slate-900/50 border border-slate-800 p-2.5">
-                      <span className="text-slate-400 block text-[11px] font-medium">Validade do Registro (RO)</span>
+                    <div className="rounded-lg bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] border border-[var(--crm-border)] p-2.5">
+                      <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] block text-[11px] font-medium">Validade do Registro (RO)</span>
                       <div className="flex items-center gap-1.5 mt-0.5">
                         <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${validityBadgeClass(validity.tone)}`}>
                           {validity.label}
                         </span>
-                        <span className="text-slate-300 font-mono text-xs">{toDateBr(item.dataValidade)}</span>
+                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-mono text-xs">{toDateBr(item.dataValidade)}</span>
                       </div>
                       {item.dataAbertura && (
-                        <span className="text-[11px] text-slate-500 block mt-0.5">
+                        <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] block mt-0.5">
                           Abertura: {toDateBr(item.dataAbertura)}
                         </span>
                       )}
@@ -2483,20 +2483,20 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                   </div>
 
                   {item.oportunidadeId && (
-                    <div className="mt-2 flex items-center gap-2 text-xs text-sky-300">
-                      <Link2 className="w-3.5 h-3.5 text-sky-400" />
-                      <span>Pipeline Comercial: <strong className="text-white">{item.oportunidadeId}</strong></span>
+                    <div className="mt-2 flex items-center gap-2 text-xs text-sky-700 dark:text-sky-300">
+                      <Link2 className="w-3.5 h-3.5 text-sky-700 dark:text-sky-400" />
+                      <span>Pipeline Comercial: <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.oportunidadeId}</strong></span>
                     </div>
                   )}
 
                   <div className="mt-2.5 flex flex-wrap gap-3 text-xs">
                     {linkedDistributors.length > 0 && (
-                      <div className="flex items-center gap-1.5 text-slate-400">
-                        <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                      <div className="flex items-center gap-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                        <Building2 className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                         <span>Distribuidores:</span>
                         <div className="flex flex-wrap gap-1">
                           {linkedDistributors.map((d) => (
-                            <span key={d} className="rounded bg-slate-800/80 border border-slate-700 px-1.5 py-0.5 text-slate-300 font-medium">
+                            <span key={d} className="rounded bg-[rgb(var(--crm-surface-rgb)_/_0.8)] border border-[var(--crm-border)] px-1.5 py-0.5 text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium">
                               {d}
                             </span>
                           ))}
@@ -2505,12 +2505,12 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                     )}
 
                     {linkedSuppliers.length > 0 && (
-                      <div className="flex items-center gap-1.5 text-slate-400">
-                        <Package className="w-3.5 h-3.5 text-slate-500" />
+                      <div className="flex items-center gap-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                        <Package className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                         <span>Fornecedores:</span>
                         <div className="flex flex-wrap gap-1">
                           {linkedSuppliers.map((s) => (
-                            <span key={s} className="rounded bg-sky-950/60 border border-sky-800/50 px-1.5 py-0.5 text-sky-300 font-medium">
+                            <span key={s} className="rounded bg-sky-50/60 dark:bg-sky-950/60 border border-sky-200/50 dark:border-sky-800/50 px-1.5 py-0.5 text-sky-700 dark:text-sky-300 font-medium">
                               {s}
                             </span>
                           ))}
@@ -2520,8 +2520,8 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                   </div>
 
                   {item.observacoes && (
-                    <div className="mt-2.5 rounded-lg border border-slate-800/80 bg-slate-950/50 p-2.5 text-xs text-slate-400">
-                      <strong className="text-slate-300">Obs:</strong> {item.observacoes}
+                    <div className="mt-2.5 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] p-2.5 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                      <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Obs:</strong> {item.observacoes}
                     </div>
                   )}
                 </div>
@@ -2531,21 +2531,21 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                     type="button"
                     onClick={() => handleViewOpportunityPdf(item)}
                     title="Visualizar registro em PDF"
-                    className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/50 bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/25 transition-colors"
+                    className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/50 bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-100 hover:bg-emerald-500/25 transition-colors"
                   >
                     <FileText className="h-3.5 w-3.5" /> PDF
                   </button>
                   <button
                     type="button"
                     onClick={() => openEditModal(TAB_KEYS.OPORTUNIDADES, item)}
-                    className="rounded-lg border border-slate-500/40 px-3 py-2 text-xs font-medium text-slate-100 hover:bg-slate-800/40 transition-colors"
+                    className="rounded-lg border border-[var(--crm-border)] px-3 py-2 text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] transition-colors"
                   >
                     Editar
                   </button>
                   <button
                     type="button"
                     onClick={() => deleteItem(TAB_KEYS.OPORTUNIDADES, item)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-rose-500/50 px-3 py-2 text-xs font-medium text-rose-100 hover:bg-rose-500/20 transition-colors"
+                    className="inline-flex items-center gap-1 rounded-lg border border-rose-500/50 px-3 py-2 text-xs font-medium text-rose-700 dark:text-rose-100 hover:bg-rose-500/20 transition-colors"
                     disabled={saving}
                   >
                     <Trash2 className="h-3.5 w-3.5" /> Excluir
@@ -2615,8 +2615,8 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                     className={[
                       'inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition-colors',
                       isActive
-                        ? 'border-sky-400/50 bg-sky-500/20 text-sky-100'
-                        : 'border-slate-500/40 bg-slate-900/40 text-slate-200 hover:bg-slate-800/50'
+                        ? "border-sky-400/50 bg-sky-500/20 text-sky-700 dark:text-sky-100"
+                        : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
                     ].join(' ')}
                   >
                     <Icon className="h-4 w-4" /> {tab.label}
@@ -2624,7 +2624,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 );
               })
             ) : (
-              <div className="inline-flex items-center gap-2 rounded-lg border border-sky-400/50 bg-sky-500/20 px-3 py-2 text-sm text-sky-100">
+              <div className="inline-flex items-center gap-2 rounded-lg border border-sky-400/50 bg-sky-500/20 px-3 py-2 text-sm text-sky-700 dark:text-sky-100">
                 <ActiveTabIcon className="h-4 w-4" /> {activeTabMeta.label}
               </div>
             )}
@@ -2633,7 +2633,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           <button
             type="button"
             onClick={() => openCreateModal(currentTab)}
-            className="inline-flex items-center justify-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-4 py-2 text-sm font-medium text-cyan-100 hover:bg-cyan-500/30"
+            className="inline-flex items-center justify-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-4 py-2 text-sm font-medium text-cyan-700 dark:text-cyan-100 hover:bg-cyan-500/30"
           >
             <Plus className="h-4 w-4" /> {pageMeta.createLabel}
           </button>
@@ -2642,7 +2642,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         <div className="mt-4 flex flex-col gap-3">
           <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center">
             <div className="relative flex-1">
-              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
               <input
                 type="text"
                 value={searchTerm}
@@ -2652,7 +2652,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                     ? 'Buscar por título, cliente, fabricante (ex: DELL, LENOVO), RO, produto ou status...'
                     : 'Buscar por nome, CNPJ, contato, cidade, status ou categoria...'
                 }
-                className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 py-2.5 pl-10 pr-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+                className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] py-2.5 pl-10 pr-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-sky-500/50"
               />
             </div>
 
@@ -2660,11 +2660,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               <div className="flex flex-wrap items-center gap-2">
                 {/* SELECT FILTRO POR FABRICANTE */}
                 <div className="flex items-center gap-1.5">
-                  <Tag className="h-4 w-4 text-amber-400 shrink-0" />
+                  <Tag className="h-4 w-4 text-amber-700 dark:text-amber-400 shrink-0" />
                   <select
                     value={selectedFabricanteFilter}
                     onChange={(e) => setSelectedFabricanteFilter(e.target.value)}
-                    className="rounded-lg border border-slate-600/50 bg-slate-900/90 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50"
+                    className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] px-3 py-2 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-amber-500/50"
                   >
                     <option value="ALL">Todos os Fabricantes (RO)</option>
                     {availableFabricantes.map((f) => (
@@ -2679,7 +2679,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 <select
                   value={selectedStatusFilter}
                   onChange={(e) => setSelectedStatusFilter(e.target.value)}
-                  className="rounded-lg border border-slate-600/50 bg-slate-900/90 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+                  className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] px-3 py-2 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-sky-500/50"
                 >
                   <option value="ALL">Todos os Status</option>
                   <option value="ABERTA">Aberta</option>
@@ -2695,7 +2695,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 <select
                   value={selectedOrigemFilter}
                   onChange={(e) => setSelectedOrigemFilter(e.target.value)}
-                  className="rounded-lg border border-slate-600/50 bg-slate-900/90 px-3 py-2 text-xs font-semibold text-white focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+                  className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] px-3 py-2 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
                 >
                   <option value="ALL">Todas as Origens</option>
                   <option value="B2B">B2B Privado</option>
@@ -2713,7 +2713,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                       setSelectedOrigemFilter('ALL');
                       setSearchTerm('');
                     }}
-                    className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-2.5 py-1.5 text-xs font-medium text-rose-200 hover:bg-rose-500/20 transition-colors"
+                    className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-2.5 py-1.5 text-xs font-medium text-rose-700 dark:text-rose-200 hover:bg-rose-500/20 transition-colors"
                   >
                     Limpar filtros
                   </button>
@@ -2724,9 +2724,9 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
           {/* CHIPS RÁPIDOS DE FILTRO POR FABRICANTE (DELL, LENOVO, HP, CISCO, ETC) */}
           {currentTab === TAB_KEYS.OPORTUNIDADES && (
-            <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-800/80">
-              <span className="text-xs font-semibold text-slate-400 flex items-center gap-1 mr-1">
-                <Filter className="h-3 w-3 text-sky-400" /> Filtrar por Fabricante:
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-[var(--crm-border)]">
+              <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center gap-1 mr-1">
+                <Filter className="h-3 w-3 text-sky-700 dark:text-sky-400" /> Filtrar por Fabricante:
               </span>
               <button
                 type="button"
@@ -2734,7 +2734,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all ${
                   selectedFabricanteFilter === 'ALL'
                     ? 'bg-sky-500 text-white shadow-sm shadow-sky-500/40 font-bold'
-                    : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:bg-slate-800 hover:text-white'
+                    : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 }`}
               >
                 Todos ({(registry.oportunidades || []).length})
@@ -2749,12 +2749,12 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                     className={`rounded-lg px-2.5 py-1 text-xs font-bold uppercase transition-all flex items-center gap-1.5 ${
                       isSelected
                         ? `${getFabricanteBadgeStyle(f.name)} ring-2 ring-white/60 font-black scale-105`
-                        : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:border-slate-500 hover:text-white'
+                        : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-[var(--crm-border)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     }`}
                   >
                     <span>RO {f.name}</span>
                     {f.count > 0 && (
-                      <span className="rounded-full bg-slate-800/90 px-1.5 py-0.2 text-[10px] text-slate-300">
+                      <span className="rounded-full bg-[rgb(var(--crm-surface-rgb)_/_0.9)] px-1.5 py-0.2 text-[10px] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         {f.count}
                       </span>
                     )}
@@ -2766,9 +2766,9 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
           {/* CHIPS RÁPIDOS DE FILTRO POR ORIGEM (B2B / B2G) */}
           {currentTab === TAB_KEYS.OPORTUNIDADES && (
-            <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-slate-800/80">
-              <span className="text-xs font-semibold text-slate-400 flex items-center gap-1 mr-1">
-                <Filter className="h-3 w-3 text-emerald-400" /> Filtrar por Origem:
+            <div className="flex flex-wrap items-center gap-1.5 pt-1 border-t border-[var(--crm-border)]">
+              <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center gap-1 mr-1">
+                <Filter className="h-3 w-3 text-emerald-700 dark:text-emerald-400" /> Filtrar por Origem:
               </span>
               {[
                 { value: 'ALL', label: 'Todas', count: (registry.oportunidades || []).length },
@@ -2782,13 +2782,13 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                   ? opt.count
                   : (registry.oportunidades || []).filter((item) => String(item.origem || 'B2B').toUpperCase() === opt.value).length;
                 const colorMap = {
-                  orange: isSelected ? 'bg-orange-500 text-white shadow-orange-500/40' : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:border-orange-500/50 hover:text-orange-200',
-                  green: isSelected ? 'bg-emerald-500 text-white shadow-emerald-500/40' : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:border-emerald-500/50 hover:text-emerald-200',
-                  sky: isSelected ? 'bg-sky-500 text-white shadow-sky-500/40' : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:border-sky-500/50 hover:text-sky-200',
-                  purple: isSelected ? 'bg-purple-500 text-white shadow-purple-500/40' : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:border-purple-500/50 hover:text-purple-200'
+                  orange: isSelected ? 'bg-orange-500 text-white shadow-orange-500/40' : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-orange-500/50 hover:text-orange-700 dark:hover:text-orange-200",
+                  green: isSelected ? 'bg-emerald-500 text-white shadow-emerald-500/40' : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-emerald-500/50 hover:text-emerald-700 dark:hover:text-emerald-200",
+                  sky: isSelected ? 'bg-sky-500 text-white shadow-sky-500/40' : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-sky-500/50 hover:text-sky-700 dark:hover:text-sky-200",
+                  purple: isSelected ? 'bg-purple-500 text-white shadow-purple-500/40' : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-purple-500/50 hover:text-purple-700 dark:hover:text-purple-200"
                 };
                 const cls = opt.value === 'ALL'
-                  ? (isSelected ? 'bg-sky-500 text-white shadow-sm shadow-sky-500/40 font-bold' : 'bg-slate-900/60 border border-slate-700/60 text-slate-300 hover:bg-slate-800 hover:text-white')
+                  ? (isSelected ? 'bg-sky-500 text-white shadow-sm shadow-sky-500/40 font-bold' : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]")
                   : colorMap[opt.color];
                 return (
                   <button
@@ -2798,7 +2798,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                     className={`rounded-lg px-2.5 py-1 text-xs font-semibold transition-all flex items-center gap-1.5 ${cls}`}
                   >
                     <span>{opt.label}</span>
-                    <span className="rounded-full bg-slate-800/90 px-1.5 py-0.5 text-[10px] text-slate-300">{count}</span>
+                    <span className="rounded-full bg-[rgb(var(--crm-surface-rgb)_/_0.9)] px-1.5 py-0.5 text-[10px] text-[rgb(var(--crm-ink-rgb)_/_1)]">{count}</span>
                   </button>
                 );
               })}
@@ -2812,7 +2812,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           ? (
             <div className="py-12 text-center">
               <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-sky-500 border-t-transparent" />
-              <p className="mt-3 text-sm text-slate-400">Carregando dados...</p>
+              <p className="mt-3 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando dados...</p>
             </div>
           )
           : currentTab === TAB_KEYS.OPORTUNIDADES
@@ -2835,44 +2835,44 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Nome *</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Nome *</span>
                 <input
                   type="text"
                   value={partnerForm.nome}
                   onChange={(event) => setPartnerForm((prev) => ({ ...prev, nome: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   placeholder="Nome do parceiro"
                 />
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Razão social</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Razão social</span>
                 <input
                   type="text"
                   value={partnerForm.razaoSocial}
                   onChange={(event) => setPartnerForm((prev) => ({ ...prev, razaoSocial: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   placeholder="Razão social"
                 />
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">CNPJ</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">CNPJ</span>
                 <input
                   type="text"
                   value={partnerForm.cnpj}
                   onChange={(event) => setPartnerForm((prev) => ({ ...prev, cnpj: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   placeholder="00.000.000/0000-00"
                 />
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Status</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Status</span>
                 <select
                   value={partnerForm.status}
                   onChange={(event) => setPartnerForm((prev) => ({ ...prev, status: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <option value="ATIVO">Ativo</option>
                   <option value="EM_HOMOLOGACAO">Em homologação</option>
@@ -2882,89 +2882,89 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Contato principal</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Contato principal</span>
                 <input
                   type="text"
                   value={partnerForm.contato}
                   onChange={(event) => setPartnerForm((prev) => ({ ...prev, contato: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   placeholder="Nome do contato"
                 />
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">E-mail</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">E-mail</span>
                 <input
                   type="email"
                   value={partnerForm.email}
                   onChange={(event) => setPartnerForm((prev) => ({ ...prev, email: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   placeholder="contato@empresa.com"
                 />
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Telefone</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Telefone</span>
                 <input
                   type="text"
                   value={partnerForm.telefone}
                   onChange={(event) => setPartnerForm((prev) => ({ ...prev, telefone: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   placeholder="(11) 99999-9999"
                 />
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Site</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Site</span>
                 <input
                   type="text"
                   value={partnerForm.site}
                   onChange={(event) => setPartnerForm((prev) => ({ ...prev, site: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   placeholder="https://..."
                 />
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Cidade</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Cidade</span>
                 <input
                   type="text"
                   value={partnerForm.cidade}
                   onChange={(event) => setPartnerForm((prev) => ({ ...prev, cidade: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   placeholder="Cidade"
                 />
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Estado</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Estado</span>
                 <input
                   type="text"
                   value={partnerForm.estado}
                   onChange={(event) => setPartnerForm((prev) => ({ ...prev, estado: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   placeholder="UF"
                 />
               </label>
             </div>
 
             <label className="block space-y-1">
-              <span className="text-sm text-slate-300">Categorias (separe por vírgula)</span>
+              <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Categorias (separe por vírgula)</span>
               <input
                 type="text"
                 value={partnerForm.categoriasText}
                 onChange={(event) => setPartnerForm((prev) => ({ ...prev, categoriasText: event.target.value }))}
-                className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 placeholder="Hardware, Software, Serviços"
               />
             </label>
 
             <label className="block space-y-1">
-              <span className="text-sm text-slate-300">Observações</span>
+              <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Observações</span>
               <textarea
                 value={partnerForm.observacoes}
                 onChange={(event) => setPartnerForm((prev) => ({ ...prev, observacoes: event.target.value }))}
-                className="min-h-[110px] w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                className="min-h-[110px] w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 placeholder="Dados comerciais, condições e observações"
               />
             </label>
@@ -2973,7 +2973,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-lg border border-slate-500/40 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800/40"
+                className="rounded-lg border border-[var(--crm-border)] px-4 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)]"
               >
                 Cancelar
               </button>
@@ -2981,7 +2981,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 type="button"
                 onClick={submitPartner}
                 disabled={saving}
-                className="rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-4 py-2 text-sm text-cyan-100 hover:bg-cyan-500/30 disabled:opacity-60"
+                className="rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-4 py-2 text-sm text-cyan-700 dark:text-cyan-100 hover:bg-cyan-500/30 disabled:opacity-60"
               >
                 {saving ? 'Salvando...' : 'Salvar cadastro'}
               </button>
@@ -2991,29 +2991,29 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div className="space-y-3 md:col-span-2">
-                <span className="text-sm text-slate-300">Oportunidade do Pipeline (opcional)</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Oportunidade do Pipeline (opcional)</span>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   <label className="space-y-1">
-                    <span className="text-sm text-slate-300">Tipo de oportunidade</span>
-                    <select value={pipelineType} onChange={(event) => handlePipelineTypeChange(event.target.value)} className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white">
+                    <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Tipo de oportunidade</span>
+                    <select value={pipelineType} onChange={(event) => handlePipelineTypeChange(event.target.value)} className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       <option value="B2B">B2B · Empresas</option>
                       <option value="B2G">B2G · Governo</option>
                     </select>
                   </label>
                   <label className="space-y-1 md:col-span-2">
-                    <span className="text-sm text-slate-300">Buscar oportunidade</span>
+                    <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Buscar oportunidade</span>
                     <div className="relative">
-                      <Search aria-hidden="true" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-                      <input type="search" value={pipelineSearch} onChange={(event) => setPipelineSearch(event.target.value)} placeholder="Digite o número, título ou cliente" className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 pl-10 pr-3 py-2 text-white" />
+                      <Search aria-hidden="true" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[rgb(var(--crm-muted-rgb)_/_1)] pointer-events-none" />
+                      <input type="search" value={pipelineSearch} onChange={(event) => setPipelineSearch(event.target.value)} placeholder="Digite o número, título ou cliente" className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] pl-10 pr-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                     </div>
                   </label>
                 </div>
                 <label className="block space-y-1">
-                  <span className="text-sm text-slate-300">Selecionar oportunidade {pipelineType}</span>
+                  <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Selecionar oportunidade {pipelineType}</span>
                 <select
                   value={opportunityForm.oportunidadeId}
                   onChange={(event) => handlePickPipelineOpportunity(event.target.value)}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <option value="">{matchingPipelineOpportunities.length ? 'Selecionar oportunidade existente' : 'Nenhuma oportunidade encontrada'}</option>
                   {opportunityForm.oportunidadeId && !matchingPipelineOpportunities.some((entry) => entry.id === opportunityForm.oportunidadeId) && <option value={opportunityForm.oportunidadeId}>{opportunityForm.titulo} • {opportunityForm.cliente || 'Sem cliente'}</option>}
@@ -3024,37 +3024,37 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                   ))}
                 </select>
                 </label>
-                <p role="status" className="text-xs text-slate-400">{matchingPipelineOpportunities.length} oportunidade(s) encontrada(s). Ao selecionar, o cliente será preenchido automaticamente.</p>
+                <p role="status" className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{matchingPipelineOpportunities.length} oportunidade(s) encontrada(s). Ao selecionar, o cliente será preenchido automaticamente.</p>
               </div>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Título *</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Título *</span>
                 <input
                   type="text"
                   value={opportunityForm.titulo}
                   onChange={(event) => setOpportunityForm((prev) => ({ ...prev, titulo: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   placeholder="Título da oportunidade"
                 />
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Cliente</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Cliente</span>
                 <input
                   type="text"
                   value={opportunityForm.cliente}
                   onChange={(event) => setOpportunityForm((prev) => ({ ...prev, cliente: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   placeholder="Nome do cliente"
                 />
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Gerente de Contas</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Gerente de Contas</span>
                 <select
                   value={opportunityForm.gerenteConta}
                   onChange={(event) => setOpportunityForm((prev) => ({ ...prev, gerenteConta: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <option value="">Selecionar gerente de contas</option>
                   {users.map((u) => (
@@ -3064,11 +3064,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Origem</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Origem</span>
                 <select
                   value={opportunityForm.origem}
                   onChange={(event) => ['B2B', 'B2G'].includes(event.target.value) ? handlePipelineTypeChange(event.target.value) : setOpportunityForm((prev) => ({ ...prev, origem: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <option value="B2B">B2B</option>
                   <option value="B2G">B2G</option>
@@ -3078,11 +3078,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Modalidade</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Modalidade</span>
                 <select
                   value={opportunityForm.modalidade}
                   onChange={(event) => setOpportunityForm((prev) => ({ ...prev, modalidade: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <option value="VENDA">Venda</option>
                   <option value="LOCACAO">Locação</option>
@@ -3092,23 +3092,23 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Valor estimado (R$)</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Valor estimado (R$)</span>
                 <input
                   type="number"
                   min="0"
                   step="0.01"
                   value={opportunityForm.valorEstimado}
                   onChange={(event) => setOpportunityForm((prev) => ({ ...prev, valorEstimado: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 />
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Prazo</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Prazo</span>
                 <select
                   value={opportunityForm.prazo}
                   onChange={(event) => setOpportunityForm((prev) => ({ ...prev, prazo: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <option value="">Selecionar prazo</option>
                   {OPPORTUNITY_TERM_OPTIONS.map((months) => (
@@ -3118,11 +3118,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Status</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Status</span>
                 <select
                   value={opportunityForm.status}
                   onChange={(event) => setOpportunityForm((prev) => ({ ...prev, status: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <option value="ABERTA">Aberta</option>
                   <option value="EM_ANALISE">Em análise</option>
@@ -3135,11 +3135,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               </label>
 
               <label className="space-y-1">
-                <span className="text-sm text-slate-300">Prioridade</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Prioridade</span>
                 <select
                   value={opportunityForm.prioridade}
                   onChange={(event) => setOpportunityForm((prev) => ({ ...prev, prioridade: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <option value="LOW">Baixa</option>
                   <option value="MEDIUM">Média</option>
@@ -3149,13 +3149,13 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               </label>
             </div>
 
-            <div className="space-y-3 rounded-lg border border-slate-600/50 bg-slate-900/20 p-3">
+            <div className="space-y-3 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.2)] p-3">
               <label className="block space-y-1">
-                <span className="text-sm text-slate-300">Status de aprovação</span>
+                <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Status de aprovação</span>
                 <select
                   value={opportunityForm.statusAprovacao}
                   onChange={(event) => setOpportunityForm((prev) => ({ ...prev, statusAprovacao: event.target.value }))}
-                  className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <option value="AGUARDANDO_APROVACAO">Aguardando aprovação</option>
                   <option value="APROVADO">Aprovado</option>
@@ -3164,32 +3164,32 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               </label>
               {opportunityForm.statusAprovacao === 'NEGADO' && (
                 <label className="block space-y-1">
-                  <span className="text-sm text-slate-300">Motivo da negativa *</span>
+                  <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Motivo da negativa *</span>
                   <textarea
                     required
                     value={opportunityForm.motivoNegativa}
                     onChange={(event) => setOpportunityForm((prev) => ({ ...prev, motivoNegativa: event.target.value }))}
-                    className="min-h-[100px] w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                    className="min-h-[100px] w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     placeholder="Informe por que o registro de oportunidade foi negado"
                   />
                 </label>
               )}
             </div>
 
-            <div className="mt-2 rounded-lg border border-sky-600/30 bg-sky-900/20 p-3">
-              <p className="mb-3 text-sm font-semibold text-sky-200 flex items-center gap-1.5">
-                <Tag className="w-4 h-4 text-amber-400" /> Registro no Fornecedor (RO)
+            <div className="mt-2 rounded-lg border border-sky-600/30 bg-sky-50/20 dark:bg-sky-900/20 p-3">
+              <p className="mb-3 text-sm font-semibold text-sky-700 dark:text-sky-200 flex items-center gap-1.5">
+                <Tag className="w-4 h-4 text-amber-700 dark:text-amber-400" /> Registro no Fornecedor (RO)
               </p>
 
               {/* CAMPO FABRICANTE / FORNECEDOR EM DESTAQUE */}
-              <div className="mb-3.5 rounded-lg border border-amber-500/40 bg-slate-900/80 p-3 shadow-inner">
+              <div className="mb-3.5 rounded-lg border border-amber-500/40 bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-3 shadow-inner">
                 <label className="space-y-1 block">
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-bold text-amber-300 flex items-center gap-1.5">
+                    <span className="text-sm font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
                       <Tag className="w-3.5 h-3.5" /> Fabricante / Fornecedor (Ex.: DELL, LENOVO, FORTINET, CISCO, HP)
                     </span>
                     {opportunityForm.fabricante && (
-                      <span className="text-xs text-amber-400 font-extrabold uppercase tracking-wide">
+                      <span className="text-xs text-amber-700 dark:text-amber-400 font-extrabold uppercase tracking-wide">
                         RO {opportunityForm.fabricante}
                       </span>
                     )}
@@ -3198,12 +3198,12 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                     type="text"
                     value={opportunityForm.fabricante}
                     onChange={(event) => setOpportunityForm((prev) => ({ ...prev, fabricante: event.target.value.toUpperCase() }))}
-                    className="w-full rounded-lg border border-amber-500/60 bg-slate-950/80 px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-amber-400 focus:ring-1 focus:ring-amber-400 font-bold uppercase tracking-wide"
+                    className="w-full rounded-lg border border-amber-500/60 bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-amber-400 focus:ring-1 focus:ring-amber-400 font-bold uppercase tracking-wide"
                     placeholder="Ex.: DELL, LENOVO, CISCO, HP, FORTINET"
                   />
                 </label>
                 <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                  <span className="text-[11px] text-slate-400 font-medium">Marcas rápidas:</span>
+                  <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium">Marcas rápidas:</span>
                   {['DELL', 'LENOVO', 'HP', 'CISCO', 'FORTINET', 'ARUBA', 'HUAWEI', 'MICROSOFT'].map((brand) => (
                     <button
                       key={brand}
@@ -3211,8 +3211,8 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                       onClick={() => setOpportunityForm((prev) => ({ ...prev, fabricante: brand }))}
                       className={`rounded px-2.5 py-0.5 text-xs font-bold transition-all ${
                         opportunityForm.fabricante === brand
-                          ? 'bg-amber-500 text-slate-950 shadow-sm scale-105'
-                          : 'bg-slate-800/90 text-slate-300 hover:bg-slate-700 hover:text-white border border-slate-700'
+                          ? "bg-amber-500 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm scale-105"
+                          : "bg-[rgb(var(--crm-surface-rgb)_/_0.9)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)]"
                       }`}
                     >
                       {brand}
@@ -3223,58 +3223,58 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <label className="space-y-1">
-                  <span className="text-sm text-slate-300">Número da oportunidade / RO</span>
+                  <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Número da oportunidade / RO</span>
                   <input
                     type="text"
                     value={opportunityForm.numeroOportunidade}
                     onChange={(event) => setOpportunityForm((prev) => ({ ...prev, numeroOportunidade: event.target.value }))}
-                    className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                    className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     placeholder="Ex.: DELL-2026-001234"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-sm text-slate-300">Produto</span>
+                  <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Produto</span>
                   <input
                     type="text"
                     value={opportunityForm.produto}
                     onChange={(event) => setOpportunityForm((prev) => ({ ...prev, produto: event.target.value }))}
-                    className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                    className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     placeholder="Ex.: PowerEdge R750"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-sm text-slate-300">Data de abertura</span>
+                  <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Data de abertura</span>
                   <input
                     type="date"
                     value={opportunityForm.dataAbertura}
                     onChange={(event) => setOpportunityForm((prev) => ({ ...prev, dataAbertura: event.target.value }))}
-                    className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                    className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   />
                 </label>
 
                 <label className="space-y-1">
-                  <span className="text-sm text-slate-300">Data de validade</span>
+                  <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Data de validade</span>
                   <input
                     type="date"
                     value={opportunityForm.dataValidade}
                     onChange={(event) => setOpportunityForm((prev) => ({ ...prev, dataValidade: event.target.value }))}
-                    className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                    className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   />
                 </label>
               </div>
             </div>
 
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-              <div className="rounded-lg border border-slate-600/50 bg-slate-900/30 p-3">
-                <p className="mb-2 text-sm font-medium text-slate-200">Distribuidores vinculados</p>
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] p-3">
+                <p className="mb-2 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Distribuidores vinculados</p>
                 <div className="max-h-36 space-y-1 overflow-y-auto pr-1">
                   {registry.distribuidores.length === 0 ? (
-                    <p className="text-xs text-slate-400">Nenhum distribuidor cadastrado.</p>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum distribuidor cadastrado.</p>
                   ) : (
                     registry.distribuidores.map((item) => (
-                      <label key={item.id} className="flex items-center gap-2 text-sm text-slate-200">
+                      <label key={item.id} className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <input
                           type="checkbox"
                           checked={opportunityForm.distribuidorIds.includes(item.id)}
@@ -3294,14 +3294,14 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 </div>
               </div>
 
-              <div className="rounded-lg border border-slate-600/50 bg-slate-900/30 p-3">
-                <p className="mb-2 text-sm font-medium text-slate-200">Fornecedores vinculados</p>
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] p-3">
+                <p className="mb-2 text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Fornecedores vinculados</p>
                 <div className="max-h-36 space-y-1 overflow-y-auto pr-1">
                   {registry.fornecedores.length === 0 ? (
-                    <p className="text-xs text-slate-400">Nenhum fornecedor cadastrado.</p>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum fornecedor cadastrado.</p>
                   ) : (
                     registry.fornecedores.map((item) => (
-                      <label key={item.id} className="flex items-center gap-2 text-sm text-slate-200">
+                      <label key={item.id} className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <input
                           type="checkbox"
                           checked={opportunityForm.fornecedorIds.includes(item.id)}
@@ -3330,11 +3330,11 @@ export default function PrevendasCadastros({ forcedTab = null }) {
             </div>
 
             <label className="block space-y-1">
-              <span className="text-sm text-slate-300">Observações</span>
+              <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Observações</span>
               <textarea
                 value={opportunityForm.observacoes}
                 onChange={(event) => setOpportunityForm((prev) => ({ ...prev, observacoes: event.target.value }))}
-                className="min-h-[110px] w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                className="min-h-[110px] w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 placeholder="Detalhes de escopo, pendências e próximos passos"
               />
             </label>
@@ -3343,7 +3343,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
               <button
                 type="button"
                 onClick={closeModal}
-                className="rounded-lg border border-slate-500/40 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800/40"
+                className="rounded-lg border border-[var(--crm-border)] px-4 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)]"
               >
                 Cancelar
               </button>
@@ -3351,7 +3351,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 type="button"
                 onClick={submitOpportunityRegistry}
                 disabled={saving}
-                className="rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-4 py-2 text-sm text-cyan-100 hover:bg-cyan-500/30 disabled:opacity-60"
+                className="rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-4 py-2 text-sm text-cyan-700 dark:text-cyan-100 hover:bg-cyan-500/30 disabled:opacity-60"
               >
                 {saving ? 'Salvando...' : 'Salvar registro'}
               </button>
@@ -3366,7 +3366,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         title=""
         showCloseButton={false}
         size="large"
-        panelClassName="max-w-[calc(100vw-1rem)] xl:max-w-7xl bg-slate-950"
+        panelClassName="max-w-[calc(100vw-1rem)] xl:max-w-7xl bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
         contentClassName="p-4 sm:p-6"
       >
         {renderDistributorView()}
@@ -3378,7 +3378,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         title=""
         showCloseButton={false}
         size="large"
-        panelClassName="max-w-[calc(100vw-1rem)] xl:max-w-7xl bg-slate-950"
+        panelClassName="max-w-[calc(100vw-1rem)] xl:max-w-7xl bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
         contentClassName="p-4 sm:p-6"
       >
         {renderSupplierView()}
@@ -3386,31 +3386,31 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div className="crm-card rounded-xl p-4">
-          <div className="flex items-center gap-2 text-sm text-slate-300">
+          <div className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
             <CalendarDays className="h-4 w-4" /> Última atualização
           </div>
-          <p className="mt-2 text-lg font-semibold text-white">
+          <p className="mt-2 text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
             {loading ? '-' : `${toDateBr(new Date().toISOString())}`}
           </p>
-          <p className="text-xs text-slate-400">Dados centralizados para equipe de Pré-Vendas.</p>
+          <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Dados centralizados para equipe de Pré-Vendas.</p>
         </div>
 
         <div className="crm-card rounded-xl p-4">
-          <div className="flex items-center gap-2 text-sm text-slate-300">
+          <div className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
             <DollarSign className="h-4 w-4" /> Valor potencial registrado
           </div>
-          <p className="mt-2 text-lg font-semibold text-white">
+          <p className="mt-2 text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
             {toCurrency((registry.oportunidades || []).reduce((acc, item) => acc + Number(item.valorEstimado || 0), 0))}
           </p>
-          <p className="text-xs text-slate-400">Somatório de oportunidades no registro de Pré-Vendas.</p>
+          <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Somatório de oportunidades no registro de Pré-Vendas.</p>
         </div>
 
         <div className="crm-card rounded-xl p-4">
-          <div className="flex items-center gap-2 text-sm text-slate-300">
+          <div className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
             <Target className="h-4 w-4" /> Oportunidades no pipeline
           </div>
-          <p className="mt-2 text-lg font-semibold text-white">{pipelineOpportunities.length}</p>
-          <p className="text-xs text-slate-400">Base comercial disponível para vincular ao Pré-Vendas.</p>
+          <p className="mt-2 text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{pipelineOpportunities.length}</p>
+          <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Base comercial disponível para vincular ao Pré-Vendas.</p>
         </div>
       </div>
     </div>

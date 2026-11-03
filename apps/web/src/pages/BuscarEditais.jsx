@@ -3,7 +3,7 @@
  * Módulo completo de Licitações B2G - 100% baseado em licitacoes_codigo
  * Com tema dark/teal customizado
  */
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search,
@@ -23,6 +23,7 @@ import { AnaliseEditaisPage } from './licitacoes_components/AnaliseEditaisPage';
 import { EditaisAnalisadosPage } from './licitacoes_components/EditaisAnalisadosPage';
 import { PipelineMonitor } from './licitacoes_components/PipelineMonitor';
 import { ThemeProvider } from './licitacoes_components/context/ThemeContext';
+import { ThemeToggle } from './licitacoes_components/ThemeToggle';
 
 const cn = (...classes) => classes.filter(Boolean).join(' ');
 
@@ -30,18 +31,6 @@ export default function BuscarEditais() {
   const navigate = useNavigate();
   const [currentView, setCurrentView] = useState('search');
   const [fichaParaBancada, setFichaParaBancada] = useState(null);
-
-  // Forçar tema dark ao montar
-  useEffect(() => {
-    try {
-      localStorage.setItem('licitacoes_app_theme', 'dark');
-      document.documentElement.classList.add('dark');
-      document.body.classList.add('dark');
-      document.documentElement.setAttribute('data-theme', 'dark');
-    } catch (e) {
-      console.warn('Erro ao forçar tema dark:', e);
-    }
-  }, []);
 
   const navigation = [
     { 
@@ -90,24 +79,24 @@ export default function BuscarEditais() {
 
   return (
     <ThemeProvider>
-      <div className="flex h-full bg-[#011116] text-slate-100 overflow-hidden dark">
+      <div className="flex h-full bg-[var(--crm-bg-base)] text-[var(--crm-ink)] overflow-hidden">
         {/* Sidebar com tema escuro/teal */}
-        <aside className="w-72 flex flex-col h-full flex-shrink-0 bg-[#011015] border-r border-[#07323e] shadow-xl">
+        <aside className="w-72 flex flex-col h-full flex-shrink-0 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-r border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xl">
           {/* Brand */}
-          <div className="p-4 border-b border-[#07323e]">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-[#02181f] border border-[#083d4a]">
+          <div className="p-4 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+            <div className="flex items-center gap-3 p-3 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
               <div className="relative flex items-center justify-center w-9 h-6">
                 <div className="absolute left-0 w-5 h-5 rounded-full border-2 border-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.4)]" />
                 <div className="absolute right-0 w-5 h-5 rounded-full border-2 border-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
-                <div className="relative z-10 w-3.5 h-3.5 rounded-full bg-[#011116] border border-cyan-300/60 flex items-center justify-center text-[6px] font-black text-white">
+                <div className="relative z-10 w-3.5 h-3.5 rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-cyan-300/60 flex items-center justify-center text-[6px] font-black text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   AI
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="font-bold text-xs tracking-tight text-white leading-tight">
+                <span className="font-bold text-xs tracking-tight text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] leading-tight">
                   ChorstConsult
                 </span>
-                <span className="text-[9px] font-extrabold tracking-[0.2em] text-cyan-400 uppercase leading-none mt-0.5">
+                <span className="text-[9px] font-extrabold tracking-[0.2em] text-cyan-700 dark:text-cyan-400 uppercase leading-none mt-0.5">
                   NEXOS AI
                 </span>
               </div>
@@ -118,7 +107,7 @@ export default function BuscarEditais() {
           <div className="px-3 pt-3">
             <button
               onClick={() => navigate('/b2g-dashboard')}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#02171d] hover:bg-[#03242c] border border-[#073541] hover:border-cyan-400 text-cyan-400 hover:text-white transition-all text-xs font-black tracking-wider uppercase cursor-pointer group shadow-md"
+              className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] hover:border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-all text-xs font-black tracking-wider uppercase cursor-pointer group shadow-md"
             >
               <ArrowLeft className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-0.5" />
               <span>Voltar ao CRM</span>
@@ -138,8 +127,8 @@ export default function BuscarEditais() {
                   className={cn(
                     "relative w-full rounded-xl py-3 px-3 flex items-center gap-3 text-left transition-all cursor-pointer group",
                     isActive 
-                      ? "bg-[#03242c] border border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.15)] text-white font-semibold" 
-                      : "bg-[#02171d] hover:bg-[#03222a] border border-[#073541] hover:border-[#0c4e5e] text-slate-200 hover:text-white"
+                      ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.15)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold"
+                      : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] hover:border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   )}
                 >
                   {isActive && (
@@ -149,8 +138,8 @@ export default function BuscarEditais() {
                   <div className={cn(
                     "w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 transition-all",
                     isActive
-                      ? "bg-[#01161d] border border-cyan-400 text-cyan-300"
-                      : "bg-[#011419] text-cyan-400 border border-[#083540] group-hover:border-[#0c4a59] group-hover:text-cyan-300"
+                      ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-cyan-400 text-cyan-700 dark:text-cyan-300"
+                      : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-cyan-700 dark:text-cyan-400 border border-[var(--crm-border)] dark:border-[var(--crm-border)] group-hover:border-[var(--crm-border)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300"
                   )}>
                     <Icon className="w-4 h-4" />
                   </div>
@@ -158,13 +147,13 @@ export default function BuscarEditais() {
                   <div className="flex-1 min-w-0">
                     <div className={cn(
                       "text-xs font-bold leading-tight truncate",
-                      isActive ? "text-white" : "text-white"
+                      isActive ? "text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     )}>
                       {item.name}
                     </div>
                     <div className={cn(
                       "text-[10px] leading-tight mt-0.5 truncate",
-                      isActive ? "text-cyan-200" : "text-[#7bb0bc] group-hover:text-cyan-100"
+                      isActive ? "text-cyan-700 dark:text-cyan-200" : "text-[#7bb0bc] group-hover:text-cyan-700 dark:group-hover:text-cyan-100"
                     )}>
                       {item.subtitle}
                     </div>
@@ -175,8 +164,9 @@ export default function BuscarEditais() {
           </div>
 
           {/* Footer */}
-          <div className="p-3 border-t border-[#07323e] bg-[#011217]">
-            <div className="flex items-center justify-between px-1 text-[9px] text-slate-500 font-medium">
+          <div className="p-3 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
+            <ThemeToggle className="mb-3 w-full" />
+            <div className="flex items-center justify-between px-1 text-[9px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium">
               <span>DOUBLE TI & TELECOM</span>
               <span>v2 • © 2026</span>
             </div>
@@ -184,7 +174,7 @@ export default function BuscarEditais() {
         </aside>
 
         {/* Main Content com fundo escuro */}
-        <main className="flex-1 overflow-hidden bg-gradient-to-br from-[#042027]/90 via-[#031a22]/90 to-[#011116]/95">
+        <main className="flex-1 overflow-hidden bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_0.9)] via-[rgb(var(--crm-surface-2-rgb)_/_0.9)] to-[rgb(var(--crm-surface-2-rgb)_/_0.95)]">
           {currentView === 'analytics' && (
             <AnalyticsDashboard onNavigate={(view) => setCurrentView(view)} />
           )}

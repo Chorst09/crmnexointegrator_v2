@@ -121,11 +121,11 @@ const DashboardKPICard = ({
         {/* Header */}
         <div className={`flex items-start justify-between ${isCompact ? 'mb-2.5' : 'mb-4'}`}>
           <div>
-            <p className={`${isCompact ? 'text-[10px]' : 'text-xs'} font-semibold uppercase tracking-wider text-slate-400 mb-1`}>
+            <p className={`${isCompact ? 'text-[10px]' : 'text-xs'} font-semibold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1`}>
               {title}
             </p>
             {subtitle && (
-              <p className={`${isCompact ? 'text-[11px]' : 'text-xs'} leading-snug text-slate-500`}>{subtitle}</p>
+              <p className={`${isCompact ? 'text-[11px]' : 'text-xs'} leading-snug text-[rgb(var(--crm-muted-rgb)_/_1)]`}>{subtitle}</p>
             )}
           </div>
 
@@ -163,7 +163,7 @@ const DashboardKPICard = ({
               {hasNumericValue ? formatValue(displayValue) : (displayValue || '-')}
             </span>
             {unit && (
-              <span className="text-sm font-medium text-slate-400">
+              <span className="text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 {unit}
               </span>
             )}
@@ -184,7 +184,7 @@ const DashboardKPICard = ({
                 {trend > 0 ? '+' : ''}{(Number(trend) || 0).toFixed(1)}%
               </span>
               {trendLabel && (
-                <span className="text-xs text-slate-500">{trendLabel}</span>
+                <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{trendLabel}</span>
               )}
             </div>
           )}

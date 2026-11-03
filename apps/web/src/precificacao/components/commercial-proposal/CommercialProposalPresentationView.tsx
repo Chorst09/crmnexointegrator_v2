@@ -2314,7 +2314,7 @@ export default function CommercialProposalPresentationView({
         fontFamily: 'Poppins',
         gridSpan: 1,
         hMerge: false,
-        borderColor: '#9BA9BB'
+        borderColor: "var(--crm-border)"
       };
 
       const cloneCell = (cell?: PreviewTableCell, overrides: Partial<PreviewTableCell> = {}): PreviewTableCell => ({
@@ -2337,7 +2337,7 @@ export default function CommercialProposalPresentationView({
             text: cell.hMerge ? '' : headerLabels[index] ?? cell.text,
             bold: true,
             align: 'ctr',
-            color: '#FFFFFF',
+            color: "rgb(var(--crm-ink-rgb) / 1)",
             backgroundColor: '#3A597D'
           })
         );
@@ -2383,7 +2383,7 @@ export default function CommercialProposalPresentationView({
         const totalCells = totalTemplate.cells.map(cell =>
           cloneCell(cell, {
             text: cell.hMerge ? '' : cell.text,
-            color: '#FFFFFF',
+            color: "rgb(var(--crm-ink-rgb) / 1)",
             backgroundColor: '#3A597D'
           })
         );
@@ -2400,7 +2400,7 @@ export default function CommercialProposalPresentationView({
             text: 'Total:',
             align: 'r',
             bold: true,
-            color: '#FFFFFF',
+            color: "rgb(var(--crm-ink-rgb) / 1)",
             backgroundColor: '#3A597D'
           });
         }
@@ -2409,7 +2409,7 @@ export default function CommercialProposalPresentationView({
             text: investmentTotals.monthly,
             align: 'r',
             bold: true,
-            color: '#FFFFFF',
+            color: "rgb(var(--crm-ink-rgb) / 1)",
             backgroundColor: '#3A597D'
           });
         }
@@ -2418,7 +2418,7 @@ export default function CommercialProposalPresentationView({
             text: investmentTotals.contract,
             align: 'r',
             bold: true,
-            color: '#FFFFFF',
+            color: "rgb(var(--crm-ink-rgb) / 1)",
             backgroundColor: '#3A597D'
           });
         }
@@ -2433,7 +2433,7 @@ export default function CommercialProposalPresentationView({
         const installationCells = installationTemplate.cells.map(cell =>
           cloneCell(cell, {
             text: cell.hMerge ? '' : cell.text,
-            color: '#FFFFFF',
+            color: "rgb(var(--crm-ink-rgb) / 1)",
             backgroundColor: '#3A597D'
           })
         );
@@ -2449,7 +2449,7 @@ export default function CommercialProposalPresentationView({
             text: 'Taxa de Instalação',
             align: 'r',
             bold: true,
-            color: '#FFFFFF',
+            color: "rgb(var(--crm-ink-rgb) / 1)",
             backgroundColor: '#3A597D'
           });
         }
@@ -2458,7 +2458,7 @@ export default function CommercialProposalPresentationView({
             text: formatCurrencyText(installationFee),
             align: 'ctr',
             bold: true,
-            color: '#FFFFFF',
+            color: "rgb(var(--crm-ink-rgb) / 1)",
             backgroundColor: '#3A597D'
           });
         }
@@ -2514,7 +2514,7 @@ export default function CommercialProposalPresentationView({
       };
 
       return (
-        <div key={`preview-slide-${slideNumber}`} className="mx-auto w-full max-w-[760px] rounded-md border bg-white shadow-sm" style={{ fontFamily: PREVIEW_FONT_STACK }}>
+        <div key={`preview-slide-${slideNumber}`} className="mx-auto w-full max-w-[760px] rounded-md border bg-[rgb(var(--crm-surface-rgb)_/_1)] shadow-sm" style={{ fontFamily: PREVIEW_FONT_STACK }}>
           <div className="border-b bg-muted/20 px-3 py-1.5 text-xs font-semibold text-muted-foreground">
             {SLIDE_TITLES[slideNumber] ?? `Slide ${slideNumber}`}
           </div>
@@ -2775,7 +2775,7 @@ export default function CommercialProposalPresentationView({
               className="bg-gradient-to-r from-cyan-600 via-blue-600 to-indigo-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold shadow-lg shadow-cyan-950/40"
               disabled={loading || Boolean(error) || isWorking}
             >
-              <FileText className="mr-2 h-4 w-4 text-cyan-200" />
+              <FileText className="mr-2 h-4 w-4 text-cyan-700 dark:text-cyan-200" />
               Gerar PDF Oficial (10 Lâminas)
             </Button>
 
@@ -2930,7 +2930,7 @@ export default function CommercialProposalPresentationView({
               variant="outline"
               size="sm"
               onClick={() => setReloadKey(k => k + 1)}
-              className="gap-2 bg-white"
+              className="gap-2 bg-[rgb(var(--crm-surface-rgb)_/_1)]"
             >
               <RefreshCw className="h-4 w-4" />
               Tentar Novamente

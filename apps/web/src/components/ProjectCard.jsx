@@ -25,17 +25,17 @@ export default function ProjectCard({ project, onClick }) {
   return (
     <div
       onClick={onClick}
-      className={`group relative overflow-hidden rounded-xl border border-slate-200 dark:border-slate-700 bg-gradient-to-br ${healthScoreClass} transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer`}
+      className={`group relative overflow-hidden rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-gradient-to-br ${healthScoreClass} transition-all duration-300 hover:shadow-xl hover:-translate-y-1 cursor-pointer`}
     >
       {/* Header com status gradient */}
-      <div className={`h-2 w-full ${color === 'slate' ? 'bg-gradient-to-r from-slate-400 to-slate-600' : color === 'blue' ? 'bg-gradient-to-r from-blue-400 to-cyan-600' : color === 'yellow' ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : color === 'green' ? 'bg-gradient-to-r from-green-400 to-emerald-600' : 'bg-gradient-to-r from-red-400 to-rose-600'}`} />
+      <div className={`h-2 w-full ${color === 'slate' ? "bg-gradient-to-r from-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-rgb)_/_1)]" : color === 'blue' ? 'bg-gradient-to-r from-blue-400 to-cyan-600' : color === 'yellow' ? 'bg-gradient-to-r from-yellow-400 to-amber-600' : color === 'green' ? 'bg-gradient-to-r from-green-400 to-emerald-600' : 'bg-gradient-to-r from-red-400 to-rose-600'}`} />
 
       <div className="p-5 space-y-4">
         {/* Top section: Número + Status */}
         <div className="flex items-start justify-between">
           <div>
-            <p className="text-xs font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider">{project.number}</p>
-            <h3 className="font-bold text-lg text-slate-900 dark:text-white group-hover:text-blue-600 transition-colors">{project.name}</h3>
+            <p className="text-xs font-mono text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">{project.number}</p>
+            <h3 className="font-bold text-lg text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-blue-600 transition-colors">{project.name}</h3>
           </div>
           <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
             project.type === 'B2G' 
@@ -47,15 +47,15 @@ export default function ProjectCard({ project, onClick }) {
         </div>
 
         {/* Cliente */}
-        <p className="text-sm text-slate-600 dark:text-slate-300 truncate">{project.company?.name || 'Sem cliente'}</p>
+        <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">{project.company?.name || 'Sem cliente'}</p>
 
         {/* Progresso */}
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-medium text-slate-700 dark:text-slate-300">Progresso</span>
-            <span className="font-bold text-slate-900 dark:text-white">{project.progressPercent || 0}%</span>
+            <span className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Progresso</span>
+            <span className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{project.progressPercent || 0}%</span>
           </div>
-          <div className="h-2 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden">
+          <div className="h-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-blue-400 to-cyan-500 transition-all duration-500"
               style={{ width: `${project.progressPercent || 0}%` }}
@@ -64,13 +64,13 @@ export default function ProjectCard({ project, onClick }) {
         </div>
 
         {/* Health Score + KPIs */}
-        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-slate-200 dark:border-slate-600">
+        <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)]">
           <div className="flex items-center gap-2">
             <div className={`p-2 rounded-lg ${project.healthScore >= 80 ? 'bg-green-100 dark:bg-green-900/30' : project.healthScore >= 60 ? 'bg-yellow-100 dark:bg-yellow-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
               <TrendingUp size={16} className={healthColor(project.healthScore)} />
             </div>
             <div className="text-xs">
-              <p className="text-slate-500 dark:text-slate-400">Health</p>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Health</p>
               <p className={`font-bold text-lg ${healthColor(project.healthScore)}`}>{project.healthScore || 75}</p>
             </div>
           </div>
@@ -79,14 +79,14 @@ export default function ProjectCard({ project, onClick }) {
               <Clock size={16} className="text-orange-600 dark:text-orange-400" />
             </div>
             <div className="text-xs">
-              <p className="text-slate-500 dark:text-slate-400">Fase</p>
-              <p className="font-semibold text-slate-900 dark:text-white truncate max-w-[80px]">{project.phase?.replace(/_/g, ' ') || '-'}</p>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Fase</p>
+              <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] truncate max-w-[80px]">{project.phase?.replace(/_/g, ' ') || '-'}</p>
             </div>
           </div>
         </div>
 
         {/* Gestor */}
-        <div className="flex items-center gap-2 pt-2 text-xs text-slate-600 dark:text-slate-400">
+        <div className="flex items-center gap-2 pt-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
           <Users size={14} />
           <span className="truncate">{project.projectManager?.name || 'Sem gestor'}</span>
         </div>

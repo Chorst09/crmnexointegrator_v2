@@ -525,22 +525,22 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#011116] overflow-y-auto">
+    <div className="flex-1 flex flex-col h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-y-auto">
       {/* Header */}
-      <div className="bg-[#011419] border-b border-[#07323e] px-8 py-5">
+      <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)] px-8 py-5">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <div className="flex items-center gap-2">
               <span className="bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300 dark:border dark:border-indigo-800 text-xs font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5" /> Módulo de Inteligência Documental
               </span>
-              <span className="text-slate-400 dark:text-slate-500 text-xs">• Lei 14.133/2021</span>
+              <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">• Lei 14.133/2021</span>
               <span className="bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300 dark:border dark:border-emerald-800 text-[11px] font-medium px-2 py-0.5 rounded-full">
                 Suporta PDF & Word (.docx/.doc)
               </span>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">Análise de Editais & Termos de Referência (TR)</h1>
-            <p className="text-sm text-slate-400 mt-0.5">
+            <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">Análise de Editais & Termos de Referência (TR)</h1>
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">
               Selecione ou faça upload de documentos em <strong>PDF</strong> ou <strong>Word (.docx/.doc)</strong> para extrair a Ficha Técnica Executiva, Matriz de Itens do TR e Riscos.
             </p>
           </div>
@@ -562,7 +562,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2",
                 activeTab === 'workbench'
                   ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
               )}
             >
               <FileSearch className="w-4 h-4" /> Workbench & Ficha Técnica
@@ -573,7 +573,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2",
                 activeTab === 'architecture'
                   ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
               )}
             >
               <Layers className="w-4 h-4" /> Arquitetura do Pipeline
@@ -584,7 +584,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                 "px-4 py-2 text-sm font-medium rounded-lg transition-colors flex items-center gap-2",
                 activeTab === 'code'
                   ? "bg-blue-600 text-white shadow-sm"
-                  : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                  : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
               )}
             >
               <Code2 className="w-4 h-4" /> Código Python 3.11+
@@ -598,16 +598,16 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
         {activeTab === 'workbench' && (
           <>
             {/* Card de Entrada: Upload de Arquivos ou Seleção de Editais do Sistema */}
-            <div className="bg-[#011419] p-6 rounded-xl border border-[#07323e] shadow-sm">
-              <div className="flex items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-4 mb-5">
+            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm">
+              <div className="flex items-center justify-between border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] pb-4 mb-5">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Fonte dos Documentos:</span>
-                  <div className="inline-flex bg-slate-100 dark:bg-slate-800 p-1 rounded-lg">
+                  <span className="text-xs font-semibold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)]">Fonte dos Documentos:</span>
+                  <div className="inline-flex bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] p-1 rounded-lg">
                     <button
                       onClick={() => setInputMode('upload')}
                       className={cn(
                         "px-3 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5",
-                        inputMode === 'upload' ? "bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-sm" : "text-slate-300 hover:text-slate-900 dark:hover:text-slate-200"
+                        inputMode === 'upload' ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-blue-700 dark:text-blue-300 shadow-sm" : "text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       )}
                     >
                       <Upload className="w-3.5 h-3.5" /> Enviar PDF ou Word (.docx/.doc)
@@ -616,7 +616,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                       onClick={() => setInputMode('licitacao')}
                       className={cn(
                         "px-3 py-1.5 text-xs font-semibold rounded-md transition-all flex items-center gap-1.5",
-                        inputMode === 'licitacao' ? "bg-white dark:bg-slate-700 text-blue-700 dark:text-blue-300 shadow-sm" : "text-slate-300 hover:text-slate-900 dark:hover:text-slate-200"
+                        inputMode === 'licitacao' ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-blue-700 dark:text-blue-300 shadow-sm" : "text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       )}
                     >
                       <Database className="w-3.5 h-3.5" /> Editais Cadastrados / PNCP
@@ -647,7 +647,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                       "border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all",
                       isDragging 
                         ? "border-blue-500 bg-blue-50/60 dark:bg-blue-950/30 ring-4 ring-blue-500/10" 
-                        : "border-slate-300 dark:border-slate-700 hover:border-blue-400 dark:hover:border-blue-500 bg-[#02181f] hover:bg-slate-50 dark:hover:bg-slate-800/70"
+                        : "border-[var(--crm-border)] dark:border-[var(--crm-border)] hover:border-blue-400 dark:hover:border-blue-500 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
                     )}
                   >
                     <input
@@ -664,10 +664,10 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                         <Upload className="w-6 h-6" />
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                        <p className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           Clique para selecionar ou arraste o <span className="text-blue-600 dark:text-blue-400">Edital</span> ou <span className="text-blue-600 dark:text-blue-400">Termo de Referência (TR)</span>
                         </p>
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                           Formatos aceitos: <strong>PDF (.pdf)</strong> e <strong>Word (.docx, .doc)</strong> até 50MB. Pode enviar os 2 arquivos juntos!
                         </p>
                       </div>
@@ -677,7 +677,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                   {/* Lista de Arquivos Selecionados */}
                   {uploadedFiles.length > 0 && (
                     <div className="space-y-2">
-                      <span className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+                      <span className="text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider block">
                         Arquivos Prontos para Análise ({uploadedFiles.length}):
                       </span>
 
@@ -685,7 +685,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                         {uploadedFiles.map(file => (
                           <div 
                             key={file.id} 
-                            className="p-3 bg-white dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-lg shadow-sm flex items-center justify-between"
+                            className="p-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.9)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg shadow-sm flex items-center justify-between"
                           >
                             <div className="flex items-center gap-3 min-w-0 pr-2">
                               <div className={cn(
@@ -695,17 +695,17 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                                 {file.extensao}
                               </div>
                               <div className="min-w-0">
-                                <p className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate" title={file.name}>
+                                <p className="text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] truncate" title={file.name}>
                                   {file.name}
                                 </p>
                                 <div className="flex items-center gap-2 mt-0.5">
-                                  <span className="text-[11px] text-slate-400">{formatFileSize(file.size)}</span>
-                                  <span className="text-slate-300 dark:text-slate-600">•</span>
+                                  <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{formatFileSize(file.size)}</span>
+                                  <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">•</span>
                                   <span className={cn(
                                     "text-[10px] font-semibold px-1.5 py-0.2 rounded",
                                     file.tipoDetectado === 'EDITAL' && "bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300",
                                     file.tipoDetectado === 'TERMO_REFERENCIA' && "bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300",
-                                    file.tipoDetectado === 'ANEXO_GERAL' && "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300"
+                                    file.tipoDetectado === 'ANEXO_GERAL' && "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                   )}>
                                     {file.tipoDetectado === 'EDITAL' ? 'Edital Principal' : file.tipoDetectado === 'TERMO_REFERENCIA' ? 'Termo de Referência' : 'Anexo Geral'}
                                   </span>
@@ -715,7 +715,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
                             <button
                               onClick={() => handleRemoveFile(file.id)}
-                              className="p-1 text-slate-400 hover:text-red-600 dark:hover:text-red-400 rounded-md hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
+                              className="p-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-red-600 dark:hover:text-red-700 dark:hover:text-red-400 rounded-md hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors"
                               title="Remover arquivo"
                             >
                               <X className="w-4 h-4" />
@@ -731,16 +731,16 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
               {/* Modo 2: Seleção de Editais Cadastrados */}
               {inputMode === 'licitacao' && (
                 <div>
-                  <label className="text-xs font-semibold text-slate-200 uppercase tracking-wider block mb-2">
+                  <label className="text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider block mb-2">
                     Selecione um Certame do Sistema
                   </label>
                   <select
                     value={selectedLicitacaoId}
                     onChange={(e) => setSelectedLicitacaoId(e.target.value)}
-                    className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                    className="w-full bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   >
                     {licitacoes.map(lic => (
-                      <option key={lic.id} value={lic.id} className="dark:bg-slate-800 dark:text-slate-100">
+                      <option key={lic.id} value={lic.id} className="dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         {lic.orgao} ({lic.uf || 'BR'}) - {lic.objeto_resumo?.slice(0, 80)}...
                       </option>
                     ))}
@@ -749,8 +749,8 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
               )}
 
               {/* Ação Principal: Botão de Processamento */}
-              <div className="mt-6 pt-5 border-t border-slate-100 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-2 text-xs text-slate-400">
+              <div className="mt-6 pt-5 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex items-center gap-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <span>Pipeline com OCR seletivo e Extração estruturada conforme Lei nº 14.133/2021.</span>
                 </div>
@@ -776,7 +776,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
               {/* Barra de Progresso Interativa */}
               {isProcessing && (
-                <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-800">
+                <div className="mt-6 pt-6 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                   <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                     {steps.map((step, idx) => {
                       const isPast = idx < currentStep;
@@ -788,18 +788,18 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                             "p-3 rounded-lg border text-xs transition-all",
                             isCurrent && "bg-indigo-50 dark:bg-indigo-950/50 border-indigo-300 dark:border-indigo-700 ring-2 ring-indigo-500/20",
                             isPast && "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800",
-                            !isPast && !isCurrent && "bg-slate-50 dark:bg-slate-800/50 border-slate-200 dark:border-slate-700 text-slate-400 dark:text-slate-500"
+                            !isPast && !isCurrent && "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border-[var(--crm-border)] dark:border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]"
                           )}
                         >
                           <div className="flex items-center gap-1.5 font-semibold mb-1">
                             {isPast && <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />}
                             {isCurrent && <RefreshCw className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 animate-spin flex-shrink-0" />}
-                            {!isPast && !isCurrent && <Clock className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500 flex-shrink-0" />}
-                            <span className={isCurrent ? "text-indigo-900 dark:text-indigo-300" : isPast ? "text-emerald-900 dark:text-emerald-300" : "text-slate-400"}>
+                            {!isPast && !isCurrent && <Clock className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] flex-shrink-0" />}
+                            <span className={isCurrent ? "text-indigo-900 dark:text-indigo-300" : isPast ? "text-emerald-900 dark:text-emerald-300" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}>
                               {step.title}
                             </span>
                           </div>
-                          <p className="text-[11px] leading-snug text-slate-300">{step.desc}</p>
+                          <p className="text-[11px] leading-snug text-[rgb(var(--crm-ink-rgb)_/_1)]">{step.desc}</p>
                         </div>
                       );
                     })}
@@ -827,7 +827,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                       {onNavigateToAnalisados && (
                         <button
                           onClick={onNavigateToAnalisados}
-                          className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
+                          className="px-3.5 py-1.5 bg-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-800 text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs cursor-pointer"
                         >
                           <FileCheck className="w-4 h-4" />
                           Ver em Editais Analisados
@@ -845,16 +845,16 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                 )}
 
                 {/* Cabeçalho da Ficha */}
-                <div className="bg-[#011419] p-6 rounded-xl border border-[#07323e] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div>
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300 dark:border dark:border-blue-800">
                         {fichaTecnica.modalidade_contratacao}
                       </span>
-                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:border dark:border-slate-700">
+                      <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:border dark:border-[var(--crm-border)]">
                         Critério: {fichaTecnica.criterio_julgamento}
                       </span>
-                      <span className="text-xs font-mono text-slate-400">
+                      <span className="text-xs font-mono text-[rgb(var(--crm-muted-rgb)_/_1)]">
                         {fichaTecnica.id_licitacao}
                       </span>
                       {fonteExtracao && (
@@ -863,14 +863,14 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                         </span>
                       )}
                     </div>
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-slate-100">{fichaTecnica.orgao_comprador}</h2>
-                    <div className="flex items-center gap-4 text-xs text-slate-400 mt-2">
+                    <h2 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{fichaTecnica.orgao_comprador}</h2>
+                    <div className="flex items-center gap-4 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">
                       <span className="flex items-center gap-1">
-                        <FileText className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                        <FileText className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                         Edital: {fichaTecnica.documentos_origem?.edital || 'edital.pdf'}
                       </span>
                       <span className="flex items-center gap-1">
-                        <FileText className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                        <FileText className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                         TR: {fichaTecnica.documentos_origem?.termo_referencia || 'termo_referencia.docx'}
                       </span>
                     </div>
@@ -912,7 +912,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
                     <button
                       onClick={handleCopyJson}
-                      className="px-3.5 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors"
+                      className="px-3.5 py-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors"
                       title="Copiar JSON compatível com Pydantic v2"
                     >
                       {copiedJson ? (
@@ -921,7 +921,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                         </>
                       ) : (
                         <>
-                          <Copy className="w-4 h-4 text-slate-400" /> Copiar JSON Estrito
+                          <Copy className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" /> Copiar JSON Estrito
                         </>
                       )}
                     </button>
@@ -929,38 +929,38 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                 </div>
 
                 {/* Painel Destacado: Datas Críticas, Prazos e Metadados Financeiros */}
-                <div className="bg-[#011419] rounded-xl border border-blue-200/80 dark:border-blue-900/60 shadow-sm overflow-hidden">
+                <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-xl border border-blue-200/80 dark:border-blue-900/60 shadow-sm overflow-hidden">
                   <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 text-white">
                     <div className="flex items-center gap-2.5">
-                      <div className="p-1.5 rounded-lg bg-blue-800/80 border border-blue-700/60">
-                        <Calendar className="w-4 h-4 text-blue-300" />
+                      <div className="p-1.5 rounded-lg bg-blue-50/80 dark:bg-blue-800/80 border border-blue-200/60 dark:border-blue-700/60">
+                        <Calendar className="w-4 h-4 text-blue-700 dark:text-blue-300" />
                       </div>
                       <div>
                         <h3 className="text-sm font-bold tracking-wide uppercase">
                           Cronograma Crítico & Prazos da Licitação
                         </h3>
-                        <p className="text-[11px] text-blue-200">
+                        <p className="text-[11px] text-blue-700 dark:text-blue-200">
                           Conformidade com a Lei Federal nº 14.133/2021 e regras do certame
                         </p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-1 rounded-md bg-blue-800/80 border border-blue-700/50 text-[11px] font-medium text-blue-200">
+                      <span className="px-2.5 py-1 rounded-md bg-blue-50/80 dark:bg-blue-800/80 border border-blue-200/50 dark:border-blue-700/50 text-[11px] font-medium text-blue-700 dark:text-blue-200">
                         Portal: {fichaTecnica.portal_compras || 'Não identificado'}
                       </span>
-                      <span className="px-2.5 py-1 rounded-md bg-indigo-800/80 border border-indigo-700/50 text-[11px] font-semibold text-emerald-300">
+                      <span className="px-2.5 py-1 rounded-md bg-indigo-50/80 dark:bg-indigo-800/80 border border-indigo-200/50 dark:border-indigo-700/50 text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
                         Modo: {fichaTecnica.modo_disputa || 'Não identificado'}
                       </span>
                     </div>
                   </div>
 
-                  <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-slate-50/50 dark:bg-slate-900/50">
+                  <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)]">
                     {/* 1. Data de Abertura */}
-                    <div className="bg-white dark:bg-slate-800/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col justify-between">
+                    <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.9)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs flex flex-col justify-between">
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                          <span className="text-xs font-bold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)]">
                             Abertura da Sessão
                           </span>
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/60 dark:text-blue-300 dark:border-blue-800">
@@ -968,19 +968,19 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           </span>
                         </div>
                         <div className="flex items-baseline gap-2 mt-1">
-                          <span className="text-base font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                          <span className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] leading-snug">
                             {fichaTecnica.data_abertura || 'Consulte o Edital'}
                           </span>
                         </div>
                       </div>
-                      <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center gap-1.5 text-[11px] text-slate-400">
+                      <div className="mt-3 pt-2.5 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] flex items-center gap-1.5 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">
                         <Clock className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400 flex-shrink-0" />
                         <span>Início da etapa competitiva</span>
                       </div>
                     </div>
 
                     {/* 2. Limite para Envio de Propostas */}
-                    <div className="bg-white dark:bg-slate-800/90 p-4 rounded-xl border border-rose-200/80 dark:border-rose-900/60 shadow-xs flex flex-col justify-between">
+                    <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.9)] p-4 rounded-xl border border-rose-200/80 dark:border-rose-900/60 shadow-xs flex flex-col justify-between">
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-xs font-bold uppercase tracking-wider text-rose-700 dark:text-rose-400">
@@ -991,7 +991,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           </span>
                         </div>
                         <div className="flex items-baseline gap-2 mt-1">
-                          <span className="text-base font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                          <span className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] leading-snug">
                             {fichaTecnica.data_limite_proposta || 'Não identificado'}
                           </span>
                         </div>
@@ -1003,28 +1003,28 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                     </div>
 
                     {/* 3. Limite de Esclarecimentos & Impugnação */}
-                    <div className="bg-white dark:bg-slate-800/90 p-4 rounded-xl border border-slate-200 dark:border-slate-700 shadow-xs flex flex-col justify-between">
+                    <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.9)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs flex flex-col justify-between">
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                          <span className="text-xs font-bold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)]">
                             Impugnação & Dúvidas
                           </span>
                           <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-800">
                             Lei 14.133
                           </span>
                         </div>
-                        <div className="text-xs text-white font-medium mt-1 leading-relaxed">
+                        <div className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium mt-1 leading-relaxed">
                           {fichaTecnica.data_fim_esclarecimento || 'Não identificado'}
                         </div>
                       </div>
-                      <div className="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-700/60 flex items-center gap-1.5 text-[11px] text-slate-400">
+                      <div className="mt-3 pt-2.5 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] flex items-center gap-1.5 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">
                         <ShieldAlert className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400 flex-shrink-0" />
                         <span>Art. 164 da Lei 14.133/2021</span>
                       </div>
                     </div>
 
                     {/* 4. Valor Total Estimado */}
-                    <div className="bg-white dark:bg-slate-800/90 p-4 rounded-xl border border-emerald-200/80 dark:border-emerald-900/60 shadow-xs flex flex-col justify-between">
+                    <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.9)] p-4 rounded-xl border border-emerald-200/80 dark:border-emerald-900/60 shadow-xs flex flex-col justify-between">
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
                           <span className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-400">
@@ -1038,7 +1038,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           {formatarMoeda(fichaTecnica.valor_estimado_total)}
                         </div>
                       </div>
-                      <div className="mt-3 pt-2.5 border-t border-emerald-100/70 dark:border-emerald-900/50 flex items-center gap-1.5 text-[11px] text-slate-400">
+                      <div className="mt-3 pt-2.5 border-t border-emerald-100/70 dark:border-emerald-900/50 flex items-center gap-1.5 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">
                         <DollarSign className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                         <span>Critério: {fichaTecnica.criterio_julgamento}</span>
                       </div>
@@ -1047,16 +1047,16 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                 </div>
 
                 {/* 1. Resumo Executivo (até 3 parágrafos) */}
-                <div className="bg-[#011419] p-6 rounded-xl border border-[#07323e] shadow-sm">
+                <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm">
                   <div className="flex items-center gap-2 mb-3">
                     <div className="p-1.5 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 rounded-lg">
                       <Sparkles className="w-4 h-4" />
                     </div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                    <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                       Resumo Executivo (Síntese da Contratação)
                     </h3>
                   </div>
-                  <div className="text-slate-200 text-sm leading-relaxed space-y-3 whitespace-pre-line bg-slate-50 dark:bg-slate-800/60 p-4 rounded-xl border border-slate-100 dark:border-slate-700/60">
+                  <div className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm leading-relaxed space-y-3 whitespace-pre-line bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                     {fichaTecnica.resumo_executivo}
                   </div>
                 </div>
@@ -1064,24 +1064,24 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                 {/* Grid Duplo: Habilitação e Prazos/Locais */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {/* 2. Requisitos de Habilitação */}
-                  <div className="bg-[#011419] p-6 rounded-xl border border-[#07323e] shadow-sm flex flex-col">
+                  <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm flex flex-col">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="p-1.5 bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 rounded-lg">
                         <CheckCircle2 className="w-4 h-4" />
                       </div>
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                      <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                         Requisitos de Habilitação (Lei 14.133/2021)
                       </h3>
                     </div>
 
                     <div className="space-y-4 flex-1">
                       <div>
-                        <span className="text-xs font-semibold text-slate-400 uppercase block mb-1.5">
+                        <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1.5">
                           Atestados de Capacidade Técnica
                         </span>
-                        <ul className="space-y-1.5 text-xs text-slate-200">
+                        <ul className="space-y-1.5 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {(fichaTecnica.requisitos_habilitacao?.atestados_capacidade_tecnica || []).map((att, i) => (
-                            <li key={i} className="flex items-start gap-2 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700/60">
+                            <li key={i} className="flex items-start gap-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2.5 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                               <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
                               <span>{att}</span>
                             </li>
@@ -1090,13 +1090,13 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                       </div>
 
                       <div>
-                        <span className="text-xs font-semibold text-slate-400 uppercase block mb-1.5">
+                        <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1.5">
                           Índices Contábeis e Econômicos Exigidos
                         </span>
                         <div className="grid grid-cols-2 gap-2">
                           {(fichaTecnica.requisitos_habilitacao?.exigencias_contabeis || []).map((ind, i) => (
-                            <div key={i} className="bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-lg border border-slate-100 dark:border-slate-700/60 text-xs">
-                              <span className="font-semibold text-slate-900 dark:text-slate-100 block">{ind.nome_indice}</span>
+                            <div key={i} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2.5 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)] text-xs">
+                              <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] block">{ind.nome_indice}</span>
                               <span className="text-emerald-700 dark:text-emerald-400 font-mono mt-0.5 block">{ind.regra}</span>
                             </div>
                           ))}
@@ -1104,12 +1104,12 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                       </div>
 
                       <div>
-                        <span className="text-xs font-semibold text-slate-400 uppercase block mb-1.5">
+                        <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1.5">
                           Certidões e Registros Específicos
                         </span>
                         <div className="flex flex-wrap gap-1.5">
                           {(fichaTecnica.requisitos_habilitacao?.certidoes_e_registros_especificos || []).map((cert, i) => (
-                            <span key={i} className="text-[11px] bg-slate-100 dark:bg-slate-800 text-slate-200 px-2 py-1 rounded-md border border-slate-200 dark:border-slate-700">
+                            <span key={i} className="text-[11px] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] px-2 py-1 rounded-md border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                               {cert}
                             </span>
                           ))}
@@ -1119,46 +1119,46 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                   </div>
 
                   {/* 3. Prazos, Execução e Locais */}
-                  <div className="bg-[#011419] p-6 rounded-xl border border-[#07323e] shadow-sm flex flex-col">
+                  <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm flex flex-col">
                     <div className="flex items-center gap-2 mb-4">
                       <div className="p-1.5 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 rounded-lg">
                         <Clock className="w-4 h-4" />
                       </div>
-                      <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                      <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                         Prazos de Execução, Vigência e Locais
                       </h3>
                     </div>
 
                     <div className="space-y-4 flex-1">
-                      <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-700/60">
-                        <span className="text-xs text-slate-400 block mb-1">Prazo para Início / Entrega</span>
-                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-3 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                        <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] block mb-1">Prazo para Início / Entrega</span>
+                        <span className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {fichaTecnica.prazos_e_locais?.prazo_inicio_entrega || 'Não identificado'}
                         </span>
                       </div>
 
-                      <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-700/60">
-                        <span className="text-xs text-slate-400 block mb-1">Vigência Contratual</span>
-                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-3 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                        <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] block mb-1">Vigência Contratual</span>
+                        <span className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {fichaTecnica.prazos_e_locais?.vigencia_contrato || 'Não identificado'}
                         </span>
                       </div>
 
-                      <div className="bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg border border-slate-100 dark:border-slate-700/60">
-                        <span className="text-xs text-slate-400 block mb-1">Regime de Execução</span>
-                        <span className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                      <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-3 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                        <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] block mb-1">Regime de Execução</span>
+                        <span className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {fichaTecnica.prazos_e_locais?.regime_execucao || 'Não identificado'}
                         </span>
                       </div>
 
                       <div>
-                        <span className="text-xs font-semibold text-slate-400 uppercase block mb-1.5">
+                        <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1.5">
                           Locais de Prestação / Entrega
                         </span>
-                        <div className="space-y-1 text-xs text-slate-200">
+                        <div className="space-y-1 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {(fichaTecnica.prazos_e_locais?.locais_prestacao_entrega || []).map((loc, i) => (
-                            <div key={i} className="flex items-center gap-1.5 bg-slate-50 dark:bg-slate-800/60 p-2 rounded border border-slate-100 dark:border-slate-700/60">
-                              <MapPin className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+                            <div key={i} className="flex items-center gap-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2 rounded border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                              <MapPin className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                               <span>{loc}</span>
                             </div>
                           ))}
@@ -1169,44 +1169,44 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                 </div>
 
                 {/* 4. Pontos de Atenção e Matriz de Riscos */}
-                <div className="bg-[#011419] p-6 rounded-xl border border-[#07323e] shadow-sm">
+                <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm">
                   <div className="flex items-center gap-2 mb-4">
                     <div className="p-1.5 bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 rounded-lg">
                       <ShieldAlert className="w-4 h-4" />
                     </div>
-                    <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                    <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                       Matriz de Risco & Cláusulas Críticas (Auditoria Preventiva)
                     </h3>
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                     {/* Amostras / PoC */}
-                    <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
-                      <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Exigência de Amostra / PoC</span>
-                      <p className="text-xs text-white leading-relaxed">
+                    <div className="p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)]">
+                      <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1">Exigência de Amostra / PoC</span>
+                      <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                         {fichaTecnica.pontos_de_atencao_risco?.exigencia_amostra_poc || "Não identificado."}
                       </p>
                     </div>
 
                     {/* Vistoria */}
-                    <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
-                      <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Regra de Vistoria Técnica</span>
-                      <p className="text-xs text-white leading-relaxed">
+                    <div className="p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)]">
+                      <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1">Regra de Vistoria Técnica</span>
+                      <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                         {fichaTecnica.pontos_de_atencao_risco?.regras_vistoria?.detalhes_e_prazo || "Não identificado."}
                       </p>
                     </div>
 
                     {/* Garantia Contratual */}
-                    <div className="p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60">
-                      <span className="text-xs font-semibold text-slate-400 uppercase block mb-1">Garantia Contratual</span>
-                      <p className="text-xs text-white leading-relaxed">
+                    <div className="p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)]">
+                      <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1">Garantia Contratual</span>
+                      <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                         {fichaTecnica.pontos_de_atencao_risco?.garantia_contratual || "Não identificado."}
                       </p>
                     </div>
                   </div>
 
                   <div>
-                    <span className="text-xs font-semibold text-slate-400 uppercase block mb-2">Cláusulas Punitivas e Sanções</span>
+                    <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-2">Cláusulas Punitivas e Sanções</span>
                     <div className="space-y-1.5">
                       {(fichaTecnica.pontos_de_atencao_risco?.clausulas_punitivas_multas || []).map((pun, i) => (
                         <div key={i} className="text-xs text-rose-900 dark:text-rose-300 bg-rose-50/70 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/60 p-2.5 rounded-lg flex items-start gap-2">
@@ -1219,7 +1219,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                 </div>
 
                 {/* 5. Matriz de Itens do TR */}
-                <div className="bg-[#011419] p-6 rounded-xl border border-[#07323e] shadow-sm">
+                <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm">
                   {/* Banner de Feedback de Salvamento */}
                   {feedbackSalvo && (
                     <div className="mb-4 p-3 bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200 rounded-xl text-xs font-medium flex items-center justify-between shadow-xs animate-in fade-in">
@@ -1233,21 +1233,21 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                     </div>
                   )}
 
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-slate-100 dark:border-slate-800">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                     <div className="flex items-center gap-2 flex-wrap">
                       <div className="p-1.5 bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 rounded-lg">
                         <Boxes className="w-4 h-4" />
                       </div>
                       <div>
-                        <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                        <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                           Matriz de Itens e Quantitativos (Extraídos do TR)
                         </h3>
-                        <p className="text-[11px] text-slate-400">
+                        <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">
                           Edite os itens, unidades, quantitativos e valores antes de salvar ou exportar em PDF
                         </p>
                       </div>
                       <div className="flex items-center gap-1.5 ml-1">
-                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-200 font-medium">
+                        <span className="text-xs px-2.5 py-0.5 rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium">
                           {isModoEdicaoTabela ? itensRascunho.length : (fichaTecnica.matriz_itens?.length || 0)} itens
                         </span>
                         {isModoEdicaoTabela && (
@@ -1264,7 +1264,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           <button
                             type="button"
                             onClick={handleIniciarEdicaoTabela}
-                            className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
+                            className="px-3 py-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
                             title="Editar diretamente nas células da tabela"
                           >
                             <Pencil className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
@@ -1310,7 +1310,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           <button
                             type="button"
                             onClick={handleCancelarEdicaoTabela}
-                            className="px-3 py-1.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors shadow-xs"
+                            className="px-3 py-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors shadow-xs"
                             title="Descartar alterações não salvas"
                           >
                             <RotateCcw className="w-3.5 h-3.5" />
@@ -1334,7 +1334,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse">
                       <thead>
-                        <tr className="border-b border-[#07323e] text-xs font-semibold text-slate-400 uppercase bg-slate-50 dark:bg-slate-800/60">
+                        <tr className="border-b border-[var(--crm-border)] text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)]">
                           <th className="py-2.5 px-3 w-14">Item</th>
                           <th className="py-2.5 px-3 w-32">Código/CATMAT</th>
                           <th className="py-2.5 px-3">Especificação Sucinta</th>
@@ -1347,17 +1347,17 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                       </thead>
 
                       {!isModoEdicaoTabela ? (
-                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs text-slate-200">
+                        <tbody className="divide-y divide-[var(--crm-border)] dark:divide-[var(--crm-border)] text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {(fichaTecnica.matriz_itens || []).map((it, idx) => (
-                            <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors group">
-                              <td className="py-3 px-3 font-semibold text-slate-900 dark:text-slate-100">{it.item_numero || idx + 1}</td>
-                              <td className="py-3 px-3 font-mono text-slate-400">{it.codigo_catalogo || '-'}</td>
-                              <td className="py-3 px-3 max-w-md font-medium text-slate-900 dark:text-slate-200 leading-relaxed">
+                            <tr key={idx} className="hover:bg-[rgb(var(--crm-surface-rgb)_/_0.8)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] transition-colors group">
+                              <td className="py-3 px-3 font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{it.item_numero || idx + 1}</td>
+                              <td className="py-3 px-3 font-mono text-[rgb(var(--crm-muted-rgb)_/_1)]">{it.codigo_catalogo || '-'}</td>
+                              <td className="py-3 px-3 max-w-md font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                                 {it.especificacao_sucinta}
                               </td>
-                              <td className="py-3 px-3 uppercase font-semibold text-slate-300">{it.unidade}</td>
-                              <td className="py-3 px-3 text-right font-semibold text-slate-900 dark:text-slate-100">{it.quantitativo}</td>
-                              <td className="py-3 px-3 text-right text-slate-600 dark:text-slate-300">
+                              <td className="py-3 px-3 uppercase font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{it.unidade}</td>
+                              <td className="py-3 px-3 text-right font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{it.quantitativo}</td>
+                              <td className="py-3 px-3 text-right text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                 {it.valor_estimado_unitario ? new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(it.valor_estimado_unitario) : '-'}
                               </td>
                               <td className="py-3 px-3 text-right font-bold text-emerald-700 dark:text-emerald-400">
@@ -1368,7 +1368,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                                   <button
                                     type="button"
                                     onClick={() => handleAbrirEditarItem(it)}
-                                    className="p-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950/60 rounded-lg transition-colors"
+                                    className="p-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950 dark:hover:bg-blue-50/60 dark:hover:bg-blue-950/60 rounded-lg transition-colors"
                                     title="Editar este item"
                                   >
                                     <Pencil className="w-3.5 h-3.5" />
@@ -1381,7 +1381,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                                         handleExcluirItem(num);
                                       }
                                     }}
-                                    className="p-1.5 text-rose-500 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/60 rounded-lg transition-colors"
+                                    className="p-1.5 text-rose-500 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950 dark:hover:bg-rose-50/60 dark:hover:bg-rose-950/60 rounded-lg transition-colors"
                                     title="Excluir este item"
                                   >
                                     <Trash2 className="w-3.5 h-3.5" />
@@ -1392,16 +1392,16 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                           ))}
                         </tbody>
                       ) : (
-                        <tbody className="divide-y divide-slate-200 dark:divide-slate-700 text-xs text-slate-200 bg-slate-50/40 dark:bg-slate-800">
+                        <tbody className="divide-y divide-[var(--crm-border)] dark:divide-[var(--crm-border)] text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_0.4)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]">
                           {itensRascunho.map((it, idx) => (
-                            <tr key={idx} className="hover:bg-blue-50/30 dark:hover:bg-blue-950/20 transition-colors">
+                            <tr key={idx} className="hover:bg-blue-50/30 dark:hover:bg-blue-950/30 dark:hover:bg-blue-50/20 dark:hover:bg-blue-950/20 transition-colors">
                               <td className="py-2 px-2 align-top">
                                 <input
                                   type="number"
                                   min="1"
                                   value={it.item_numero}
                                   onChange={(e) => handleAlterarItemRascunho(idx, 'item_numero', parseInt(e.target.value) || 1)}
-                                  className="w-14 px-2 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg text-center font-bold text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800"
+                                  className="w-14 px-2 py-1.5 border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg text-center font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:ring-2 focus:ring-blue-500 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                 />
                               </td>
                               <td className="py-2 px-2 align-top">
@@ -1410,7 +1410,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                                   value={it.codigo_catalogo || ''}
                                   onChange={(e) => handleAlterarItemRascunho(idx, 'codigo_catalogo', e.target.value)}
                                   placeholder="CATSER/CATMAT"
-                                  className="w-28 px-2 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg font-mono text-[11px] text-slate-200 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800"
+                                  className="w-28 px-2 py-1.5 border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg font-mono text-[11px] text-[rgb(var(--crm-ink-rgb)_/_1)] focus:ring-2 focus:ring-blue-500 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                 />
                               </td>
                               <td className="py-2 px-2 align-top">
@@ -1419,7 +1419,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                                   value={it.especificacao_sucinta}
                                   onChange={(e) => handleAlterarItemRascunho(idx, 'especificacao_sucinta', e.target.value)}
                                   placeholder="Descrição do item conforme TR..."
-                                  className="w-full px-2 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg text-xs leading-relaxed text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 resize-y bg-white dark:bg-slate-800"
+                                  className="w-full px-2 py-1.5 border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg text-xs leading-relaxed text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:ring-2 focus:ring-blue-500 resize-y bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                   required
                                 />
                               </td>
@@ -1429,7 +1429,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                                   value={it.unidade}
                                   onChange={(e) => handleAlterarItemRascunho(idx, 'unidade', e.target.value.toUpperCase())}
                                   placeholder="UN, MÊS"
-                                  className="w-16 px-2 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg text-center uppercase font-bold text-xs text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800"
+                                  className="w-16 px-2 py-1.5 border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg text-center uppercase font-bold text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:ring-2 focus:ring-blue-500 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                   required
                                 />
                               </td>
@@ -1439,7 +1439,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                                   min="1"
                                   value={it.quantitativo}
                                   onChange={(e) => handleAlterarItemRascunho(idx, 'quantitativo', parseFloat(e.target.value) || 1)}
-                                  className="w-20 px-2 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg text-right font-bold text-xs text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800"
+                                  className="w-20 px-2 py-1.5 border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg text-right font-bold text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:ring-2 focus:ring-blue-500 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                   required
                                 />
                               </td>
@@ -1450,7 +1450,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                                   step="0.01"
                                   value={it.valor_estimado_unitario ?? 0}
                                   onChange={(e) => handleAlterarItemRascunho(idx, 'valor_estimado_unitario', parseFloat(e.target.value) || 0)}
-                                  className="w-32 px-2 py-1.5 border border-slate-300 dark:border-slate-700 rounded-lg text-right font-semibold text-xs text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-blue-500 bg-white dark:bg-slate-800"
+                                  className="w-32 px-2 py-1.5 border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg text-right font-semibold text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:ring-2 focus:ring-blue-500 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                 />
                               </td>
                               <td className="py-2 px-2 align-top">
@@ -1467,7 +1467,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                                 <button
                                   type="button"
                                   onClick={() => handleRemoverLinhaRascunho(idx)}
-                                  className="p-1.5 text-rose-500 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950/60 rounded-lg transition-colors"
+                                  className="p-1.5 text-rose-500 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 hover:bg-rose-50 dark:hover:bg-rose-950 dark:hover:bg-rose-50/60 dark:hover:bg-rose-950/60 rounded-lg transition-colors"
                                   title="Remover linha"
                                 >
                                   <Trash2 className="w-4 h-4" />
@@ -1480,7 +1480,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
                       {/* Linha de Totais da Matriz */}
                       <tfoot>
-                        <tr className="border-t-2 border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 font-semibold text-xs text-slate-900 dark:text-slate-100">
+                        <tr className="border-t-2 border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] font-semibold text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           <td colSpan={6} className="py-3 px-3 text-right uppercase tracking-wider font-bold">
                             Total Geral da Matriz de Itens:
                           </td>
@@ -1509,8 +1509,8 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
                   {/* Barra de Ações Inferior durante Modo de Edição em Tabela */}
                   {isModoEdicaoTabela && (
-                    <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 flex flex-wrap items-center justify-between gap-3 bg-blue-50/50 dark:bg-blue-950/40 p-4 rounded-xl">
-                      <div className="text-xs text-slate-600 dark:text-slate-300">
+                    <div className="mt-4 pt-4 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] flex flex-wrap items-center justify-between gap-3 bg-blue-50/50 dark:bg-blue-950/40 p-4 rounded-xl">
+                      <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         Total calculado em tempo real:{' '}
                         <strong className="text-emerald-800 dark:text-emerald-400 text-sm">
                           {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
@@ -1524,7 +1524,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                         <button
                           type="button"
                           onClick={handleAdicionarLinhaRascunho}
-                          className="px-3.5 py-2 bg-white dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
+                          className="px-3.5 py-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-xs"
                         >
                           <Plus className="w-4 h-4" />
                           <span>Adicionar Outro Item</span>
@@ -1532,7 +1532,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                         <button
                           type="button"
                           onClick={handleCancelarEdicaoTabela}
-                          className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-200 rounded-lg text-xs font-medium transition-colors"
+                          className="px-4 py-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg text-xs font-medium transition-colors"
                         >
                           Cancelar
                         </button>
@@ -1555,60 +1555,60 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
 
         {activeTab === 'architecture' && (
           <div className="space-y-6">
-            <div className="bg-[#011419] p-6 rounded-xl border border-[#07323e] shadow-sm">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100 mb-2">Visão Arquitetural do Submódulo</h2>
-              <p className="text-sm text-slate-300 leading-relaxed mb-6">
+            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm">
+              <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Visão Arquitetural do Submódulo</h2>
+              <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed mb-6">
                 O submódulo foi desenhado em 4 camadas desacopladas e resilientes para suportar downloads massivos,
                 PDFs e documentos Word (.docx/.doc) com centenas de páginas e extração com custo de token otimizado.
               </p>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="p-5 rounded-xl border border-[#07323e] bg-slate-50 dark:bg-slate-800 flex flex-col justify-between">
+                <div className="p-5 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] flex flex-col justify-between">
                   <div>
                     <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 flex items-center justify-center font-bold text-sm mb-3">
                       1
                     </div>
-                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm mb-1">Download & Classificação</h3>
-                    <p className="text-xs text-slate-300 leading-relaxed">
+                    <h3 className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm mb-1">Download & Classificação</h3>
+                    <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                       Download assíncrono com <code>httpx</code> e retry exponencial. Classificador heurístico e regex para separar <strong>Edital Principal</strong> de <strong>Termo de Referência</strong> em PDF ou Word.
                     </p>
                   </div>
                   <span className="text-[11px] text-blue-600 dark:text-blue-400 font-mono mt-4 block">downloader_classifier.py</span>
                 </div>
 
-                <div className="p-5 rounded-xl border border-[#07323e] bg-slate-50 dark:bg-slate-800 flex flex-col justify-between">
+                <div className="p-5 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] flex flex-col justify-between">
                   <div>
                     <div className="w-8 h-8 rounded-lg bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 flex items-center justify-center font-bold text-sm mb-3">
                       2
                     </div>
-                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm mb-1">Text Chunker Semântico</h3>
-                    <p className="text-xs text-slate-300 leading-relaxed">
+                    <h3 className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm mb-1">Text Chunker Semântico</h3>
+                    <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                       Streaming de páginas com <code>pdfplumber</code> (com fallback de OCR por página via <code>pytesseract</code>) e parsing de Word com <code>python-docx</code>. Isola seções da Lei 14.133/2021.
                     </p>
                   </div>
                   <span className="text-[11px] text-indigo-600 dark:text-indigo-400 font-mono mt-4 block">chunker_extractor.py</span>
                 </div>
 
-                <div className="p-5 rounded-xl border border-[#07323e] bg-slate-50 dark:bg-slate-800 flex flex-col justify-between">
+                <div className="p-5 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] flex flex-col justify-between">
                   <div>
                     <div className="w-8 h-8 rounded-lg bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-400 flex items-center justify-center font-bold text-sm mb-3">
                       3
                     </div>
-                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm mb-1">Sumarização LLM</h3>
-                    <p className="text-xs text-slate-300 leading-relaxed">
+                    <h3 className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm mb-1">Sumarização LLM</h3>
+                    <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                       Schemas estritos com <code>pydantic</code> v2 e invocação de LLMs via <strong>Extração estruturada</strong> (JSON Schema Mode), garantindo extração determinística sem alucinações.
                     </p>
                   </div>
                   <span className="text-[11px] text-violet-600 dark:text-violet-400 font-mono mt-4 block">summarizer.py</span>
                 </div>
 
-                <div className="p-5 rounded-xl border border-[#07323e] bg-slate-50 dark:bg-slate-800 flex flex-col justify-between">
+                <div className="p-5 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] flex flex-col justify-between">
                   <div>
                     <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 flex items-center justify-center font-bold text-sm mb-3">
                       4
                     </div>
-                    <h3 className="font-bold text-slate-900 dark:text-slate-100 text-sm mb-1">Sync com Elasticsearch</h3>
-                    <p className="text-xs text-slate-300 leading-relaxed">
+                    <h3 className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm mb-1">Sync com Elasticsearch</h3>
+                    <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                       Upsert no índice <code>licitacoes</code>. Indexa o resumo executivo no analyzer em português, matriz de itens no array <code>nested</code> e tags de risco em campos keyword.
                     </p>
                   </div>
@@ -1618,25 +1618,25 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
             </div>
 
             {/* Suporte a Documentos Word (.docx e .doc) */}
-            <div className="bg-[#011419] p-6 rounded-xl border border-[#07323e] shadow-sm">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">
+            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm">
+              <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-3">
                 Suporte Híbrido a Formatos (PDF & Microsoft Word)
               </h3>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-200">
-                <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <span className="font-semibold text-slate-900 dark:text-slate-100 block mb-1">1. Word .docx e .doc</span>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                  <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] block mb-1">1. Word .docx e .doc</span>
                   <p className="leading-relaxed">
                     Muitos Termos de Referência e anexos de órgãos municipais são emitidos em Word (.docx). O extrator utiliza <code>python-docx</code> no backend e <code>mammoth</code> no servidor web para extrair parágrafos e tabelas intactas.
                   </p>
                 </div>
-                <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <span className="font-semibold text-slate-900 dark:text-slate-100 block mb-1">2. PDFs Digitais (Vetoriais)</span>
+                <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                  <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] block mb-1">2. PDFs Digitais (Vetoriais)</span>
                   <p className="leading-relaxed">
                     Processamento direto e veloz com <code>pdfplumber</code> e <code>pdf-parse</code>, recuperando a hierarquia de títulos, artigos, cláusulas contratuais e colunas de tabelas.
                   </p>
                 </div>
-                <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl border border-slate-100 dark:border-slate-800">
-                  <span className="font-semibold text-slate-900 dark:text-slate-100 block mb-1">3. PDFs Digitalizados (OCR)</span>
+                <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+                  <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] block mb-1">3. PDFs Digitalizados (OCR)</span>
                   <p className="leading-relaxed">
                     Fallback automático por página via <code>pytesseract</code> quando o texto nativo estiver ausente ou corrompido, garantindo que nenhum edital fique sem processamento.
                   </p>
@@ -1647,11 +1647,11 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
         )}
 
         {activeTab === 'code' && (
-          <div className="bg-[#011419] p-6 rounded-xl border border-[#07323e] shadow-sm space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[#07323e] pb-3">
+          <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm space-y-4">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--crm-border)] pb-3">
               <div>
-                <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">Módulos Python 3.11+ Prontos para Produção</h2>
-                <p className="text-xs text-slate-400">Arquivos localizados no diretório <code className="text-indigo-600 dark:text-indigo-400">/backend/analysis/</code></p>
+                <h2 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Módulos Python 3.11+ Prontos para Produção</h2>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Arquivos localizados no diretório <code className="text-indigo-600 dark:text-indigo-400">/backend/analysis/</code></p>
               </div>
 
               <div className="flex flex-wrap gap-1.5">
@@ -1669,8 +1669,8 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                     className={cn(
                       "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
                       codeTab === tab.id
-                        ? "bg-slate-900 dark:bg-blue-600 text-white"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"
+                        ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] dark:bg-blue-600 text-[var(--crm-ink)] dark:text-white"
+                        : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                     )}
                   >
                     {tab.label}
@@ -1680,7 +1680,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
             </div>
 
             {/* Visualizador de Código das Peças */}
-            <div className="bg-slate-950 text-slate-200 p-4 rounded-xl font-mono text-xs overflow-x-auto max-h-[600px] border border-slate-800">
+            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] p-4 rounded-xl font-mono text-xs overflow-x-auto max-h-[600px] border border-[var(--crm-border)]">
               {codeTab === 'pipeline' && (
                 <pre>{`# backend/analysis/pipeline.py
 import asyncio

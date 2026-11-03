@@ -740,25 +740,25 @@ const B2GAnaliseEditaisTR = () => {
       case 'resumo especificações':
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
-            <h3 className="text-white font-bold text-lg flex items-center gap-3">
-              <Info className="w-5 h-5 text-sky-400" /> Detalhamento Técnico do TR
+            <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold text-lg flex items-center gap-3">
+              <Info className="w-5 h-5 text-sky-700 dark:text-sky-400" /> Detalhamento Técnico do TR
             </h3>
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/55 p-6 text-sm leading-relaxed text-slate-300 whitespace-pre-wrap">
+            <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] p-6 text-sm leading-relaxed text-[rgb(var(--crm-ink-rgb)_/_1)] whitespace-pre-wrap">
               {result.resumo_especificacoes || 'Não foi possível consolidar as especificações técnicas detalhadas.'}
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="rounded-2xl border border-sky-500/10 bg-sky-500/5 p-5">
-                <h4 className="text-[10px] font-black text-sky-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                <h4 className="text-[10px] font-black text-sky-700 dark:text-sky-400 uppercase tracking-widest mb-2 flex items-center gap-2">
                   <ShieldAlert className="w-3 h-3" /> Conformidade Normativa
                 </h4>
-                <p className="text-xs text-slate-400 leading-relaxed">Verifique se as certificações exigidas no resumo acima estão vigentes para sua empresa.</p>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] leading-relaxed">Verifique se as certificações exigidas no resumo acima estão vigentes para sua empresa.</p>
               </div>
               <div className="rounded-2xl border border-emerald-500/10 bg-emerald-500/5 p-5">
-                <h4 className="text-[10px] font-black text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-2">
+                <h4 className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 uppercase tracking-widest mb-2 flex items-center gap-2">
                   <ListChecks className="w-3 h-3" /> Próximos Passos
                 </h4>
-                <p className="text-xs text-slate-400 leading-relaxed">Utilize o resumo acima para solicitar cotações precisas com seus fornecedores habituais.</p>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] leading-relaxed">Utilize o resumo acima para solicitar cotações precisas com seus fornecedores habituais.</p>
               </div>
             </div>
           </div>
@@ -767,46 +767,46 @@ const B2GAnaliseEditaisTR = () => {
         return (
           <div className="space-y-8 animate-in fade-in slide-in-from-right-4 duration-500">
             <section>
-              <h3 className="text-white font-bold text-lg mb-6 flex items-center gap-2">Identificação do Certame</h3>
+              <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold text-lg mb-6 flex items-center gap-2">Identificação do Certame</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 {result.identificacao?.data_sessao && (
-                  <div className="flex items-start gap-4 rounded-2xl border border-slate-800 bg-slate-900/55 p-5">
-                    <div className="rounded-xl bg-slate-800 p-3 text-sky-300 shadow-inner"><Calendar className="w-5 h-5" /></div>
+                  <div className="flex items-start gap-4 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] p-5">
+                    <div className="rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-3 text-sky-700 dark:text-sky-300 shadow-inner"><Calendar className="w-5 h-5" /></div>
                     <div>
-                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Data da Sessão</span>
-                      <p className="text-white font-bold text-base mt-1">{result.identificacao.data_sessao}</p>
+                      <span className="text-[9px] font-black text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-widest">Data da Sessão</span>
+                      <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold text-base mt-1">{result.identificacao.data_sessao}</p>
                     </div>
                   </div>
                 )}
-                <div className="flex items-start gap-4 rounded-2xl border border-slate-800 bg-slate-900/55 p-5">
-                  <div className="rounded-xl bg-slate-800 p-3 text-sky-300 shadow-inner"><Building2 className="w-5 h-5" /></div>
+                <div className="flex items-start gap-4 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] p-5">
+                  <div className="rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-3 text-sky-700 dark:text-sky-300 shadow-inner"><Building2 className="w-5 h-5" /></div>
                   <div>
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Órgão Licitante</span>
-                    <p className="text-white font-bold text-base mt-1">{result.identificacao?.orgao || 'Não identificado'}</p>
+                    <span className="text-[9px] font-black text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-widest">Órgão Licitante</span>
+                    <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold text-base mt-1">{result.identificacao?.orgao || 'Não identificado'}</p>
                   </div>
                 </div>
               </div>
               <div className="space-y-8">
                 {result.identificacao?.modalidade && (
                   <div>
-                    <label className="text-[10px] font-black text-slate-500 uppercase mb-3 block tracking-widest">Modalidade do Processo</label>
-                    <div className="inline-block bg-sky-500/10 text-sky-400 border border-sky-500/20 px-4 py-2 rounded-xl text-xs font-bold">
+                    <label className="text-[10px] font-black text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase mb-3 block tracking-widest">Modalidade do Processo</label>
+                    <div className="inline-block bg-sky-500/10 text-sky-700 dark:text-sky-400 border border-sky-500/20 px-4 py-2 rounded-xl text-xs font-bold">
                       {result.identificacao.modalidade}
                     </div>
                   </div>
                 )}
                 {result.identificacao?.portal && (
                   <div>
-                    <label className="text-[10px] font-black text-slate-500 uppercase mb-3 block tracking-widest">Plataforma Eletrônica</label>
-                    <div className="flex items-center gap-3 rounded-xl border border-slate-800 bg-slate-900/55 p-4">
+                    <label className="text-[10px] font-black text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase mb-3 block tracking-widest">Plataforma Eletrônica</label>
+                    <div className="flex items-center gap-3 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] p-4">
                       <Globe className="w-4 h-4 text-sky-500" />
-                      <p className="text-sky-400 text-sm font-bold">{result.identificacao.portal}</p>
+                      <p className="text-sky-700 dark:text-sky-400 text-sm font-bold">{result.identificacao.portal}</p>
                     </div>
                   </div>
                 )}
                 <div>
-                  <label className="text-[10px] font-black text-slate-500 uppercase mb-3 block tracking-widest">Objeto Principal Analisado</label>
-                  <p className="rounded-2xl border border-slate-800/70 bg-slate-900/45 p-5 text-sm leading-relaxed text-slate-300 shadow-inner italic">
+                  <label className="text-[10px] font-black text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase mb-3 block tracking-widest">Objeto Principal Analisado</label>
+                  <p className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.45)] p-5 text-sm leading-relaxed text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-inner italic">
                     "{result.identificacao?.objeto || 'Resumo não disponível.'}"
                   </p>
                 </div>
@@ -818,78 +818,78 @@ const B2GAnaliseEditaisTR = () => {
         return (
           <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-white font-bold text-lg">
+              <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold text-lg">
                 {result?._tipo === 'tr' ? 'Itens Identificados no TR' : 'Catálogo Técnico de Itens'}
               </h3>
-              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-800 px-3 py-1 rounded-full">
+              <span className="text-[10px] font-black text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-widest bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 py-1 rounded-full">
                 {result.itens_tr?.length || 0} Itens Mapeados
               </span>
             </div>
             {result.itens_tr?.map((item, i) => (
-              <div key={i} className="flex flex-col gap-4 rounded-2xl border border-slate-800 bg-slate-900/55 p-5 transition-all hover:bg-slate-800/60 group">
-                <div className="flex justify-between items-center border-b border-slate-800 pb-4">
+              <div key={i} className="flex flex-col gap-4 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] p-5 transition-all hover:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] group">
+                <div className="flex justify-between items-center border-b border-[var(--crm-border)] pb-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center text-sky-400 font-black text-xs">
+                    <div className="w-8 h-8 rounded-lg bg-sky-500/10 flex items-center justify-center text-sky-700 dark:text-sky-400 font-black text-xs">
                       {i + 1}
                     </div>
-                    <div className="text-sm text-white font-black uppercase tracking-tight">{item.item}</div>
+                    <div className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] font-black uppercase tracking-tight">{item.item}</div>
                   </div>
                   {result?._tipo !== 'tr' && (
-                    <div className="text-xs font-black text-sky-400 bg-sky-500/10 px-4 py-1.5 rounded-full border border-sky-500/20 shadow-lg shadow-sky-500/5">
+                    <div className="text-xs font-black text-sky-700 dark:text-sky-400 bg-sky-500/10 px-4 py-1.5 rounded-full border border-sky-500/20 shadow-lg shadow-sky-500/5">
                       Qtd: {item.qtd}
                     </div>
                   )}
                 </div>
                 {result?._tipo !== 'tr' && (
-                  <div className="text-xs text-slate-400 leading-relaxed font-medium bg-black/30 p-5 rounded-2xl border border-slate-800/50">
+                  <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] leading-relaxed font-medium bg-black/30 p-5 rounded-2xl border border-[var(--crm-border)]">
                     {item.desc}
                   </div>
                 )}
               </div>
-            )) || <p className="text-slate-500 italic p-10 text-center">Nenhum item processado no catálogo.</p>}
+            )) || <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] italic p-10 text-center">Nenhum item processado no catálogo.</p>}
           </div>
         );
       case 'prazos':
         return (
           <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
             {result.prazos?.map((p, i) => (
-              <div key={i} className="flex items-start gap-4 rounded-2xl border border-slate-800 bg-slate-900/55 p-5">
-                <div className="rounded-xl bg-sky-500/10 p-3 text-sky-300"><Clock className="w-5 h-5" /></div>
+              <div key={i} className="flex items-start gap-4 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] p-5">
+                <div className="rounded-xl bg-sky-500/10 p-3 text-sky-700 dark:text-sky-300"><Clock className="w-5 h-5" /></div>
                 <div>
-                  <h4 className="text-white font-black text-sm uppercase tracking-tight">{p.titulo}</h4>
-                  <p className="text-slate-400 text-xs mt-2 leading-relaxed">{p.descricao}</p>
+                  <h4 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-black text-sm uppercase tracking-tight">{p.titulo}</h4>
+                  <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs mt-2 leading-relaxed">{p.descricao}</p>
                 </div>
               </div>
-            )) || <p className="text-slate-500 italic">Cronograma não detalhado no documento.</p>}
+            )) || <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] italic">Cronograma não detalhado no documento.</p>}
           </div>
         );
       case 'exigencias':
         return (
           <div className="space-y-3 animate-in fade-in slide-in-from-right-4 duration-500">
             {result.exigencias?.map((e, i) => (
-              <div key={i} className="flex items-start gap-4 rounded-2xl border border-slate-800 bg-slate-900/55 p-5">
-                <div className="mt-1 rounded-xl bg-emerald-500/10 p-2 text-emerald-300"><ListChecks className="w-4 h-4" /></div>
+              <div key={i} className="flex items-start gap-4 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] p-5">
+                <div className="mt-1 rounded-xl bg-emerald-500/10 p-2 text-emerald-700 dark:text-emerald-300"><ListChecks className="w-4 h-4" /></div>
                 <div>
                   <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">{e.categoria}</span>
-                  <p className="text-slate-300 text-sm mt-1 font-medium">{e.requisito}</p>
+                  <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm mt-1 font-medium">{e.requisito}</p>
                 </div>
               </div>
-            )) || <p className="text-slate-500 italic">Exigências de qualificação não encontradas.</p>}
+            )) || <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] italic">Exigências de qualificação não encontradas.</p>}
           </div>
         );
       case 'documentação':
         return (
           <div className="space-y-3 animate-in fade-in slide-in-from-right-4 duration-500">
-            <h3 className="text-white font-bold text-lg mb-4">Checklist de Documentação Obrigatória</h3>
+            <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold text-lg mb-4">Checklist de Documentação Obrigatória</h3>
             {result.documentacao?.map((doc, i) => (
-              <div key={i} className="flex items-center justify-between rounded-2xl border border-slate-800 bg-slate-900/55 p-5">
+              <div key={i} className="flex items-center justify-between rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] p-5">
                 <div className="flex items-center gap-4">
-                  <div className={`p-3 rounded-2xl ${doc.obrigatorio ? 'bg-sky-500/10 text-sky-400 shadow-lg shadow-sky-500/5' : 'bg-slate-800 text-slate-500'}`}>
+                  <div className={`p-3 rounded-2xl ${doc.obrigatorio ? "bg-sky-500/10 text-sky-700 dark:text-sky-400 shadow-lg shadow-sky-500/5" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                     <FileCheck className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">{doc.tipo}</span>
-                    <p className="text-sm font-bold text-slate-200 mt-1">{doc.doc}</p>
+                    <span className="text-[9px] font-black text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-widest">{doc.tipo}</span>
+                    <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">{doc.doc}</p>
                   </div>
                 </div>
                 {doc.obrigatorio && (
@@ -899,29 +899,29 @@ const B2GAnaliseEditaisTR = () => {
                   </div>
                 )}
               </div>
-            )) || <p className="text-slate-500 italic">Nenhum documento listado na análise.</p>}
+            )) || <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] italic">Nenhum documento listado na análise.</p>}
           </div>
         );
       case 'riscos / ia':
         return (
           <div className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-500">
-            <h3 className="text-white font-bold text-lg mb-4">Mapa de Riscos e Fragilidades</h3>
+            <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold text-lg mb-4">Mapa de Riscos e Fragilidades</h3>
             {result.riscos?.map((r, i) => (
               <div key={i} className="flex items-start gap-5 rounded-2xl border border-red-500/20 bg-red-500/5 p-5">
-                <div className={`shrink-0 rounded-xl p-4 ${r.severidade === 'alta' ? 'bg-red-500/20 text-red-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                <div className={`shrink-0 rounded-xl p-4 ${r.severidade === 'alta' ? "bg-red-500/20 text-red-700 dark:text-red-400" : "bg-amber-500/20 text-amber-700 dark:text-amber-400"}`}>
                   <ShieldAlert className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="flex items-center gap-3">
-                    <h4 className="text-white font-black uppercase text-sm tracking-tight">{r.titulo}</h4>
-                    <span className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest ${r.severidade === 'alta' ? 'bg-red-500 text-white' : 'bg-amber-500 text-black'}`}>
+                    <h4 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-black uppercase text-sm tracking-tight">{r.titulo}</h4>
+                    <span className={`text-[8px] px-2 py-0.5 rounded-full font-black uppercase tracking-widest ${r.severidade === 'alta' ? 'bg-red-500 text-white' : "bg-amber-500 text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                       {r.severidade}
                     </span>
                   </div>
-                  <p className="text-slate-400 text-xs mt-3 leading-relaxed italic">"{r.descricao}"</p>
+                  <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs mt-3 leading-relaxed italic">"{r.descricao}"</p>
                 </div>
               </div>
-            )) || <p className="text-slate-500 italic">Nenhum risco técnico mapeado automaticamente.</p>}
+            )) || <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] italic">Nenhum risco técnico mapeado automaticamente.</p>}
           </div>
         );
       default:
@@ -931,17 +931,17 @@ const B2GAnaliseEditaisTR = () => {
 
   const MetricCard = ({ icon: Icon, label, value, tone = 'sky' }) => {
     const tones = {
-      sky: 'border-sky-400/15 bg-sky-400/10 text-sky-300',
-      emerald: 'border-emerald-400/15 bg-emerald-400/10 text-emerald-300',
-      amber: 'border-amber-400/15 bg-amber-400/10 text-amber-300'
+      sky: "border-sky-400/15 bg-sky-400/10 text-sky-700 dark:text-sky-300",
+      emerald: "border-emerald-400/15 bg-emerald-400/10 text-emerald-700 dark:text-emerald-300",
+      amber: "border-amber-400/15 bg-amber-400/10 text-amber-700 dark:text-amber-300"
     };
 
     return (
-      <div className="rounded-2xl border border-slate-800/80 bg-slate-900/55 p-5 shadow-[0_18px_36px_-30px_rgba(15,23,42,0.95)]">
+      <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] p-5 shadow-[0_18px_36px_-30px_rgba(15,23,42,0.95)]">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">{label}</p>
-            <h4 className="mt-2 text-4xl font-black leading-none text-white">{value}</h4>
+            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[rgb(var(--crm-muted-rgb)_/_1)]">{label}</p>
+            <h4 className="mt-2 text-4xl font-black leading-none text-[rgb(var(--crm-ink-rgb)_/_1)]">{value}</h4>
           </div>
           <div className={`flex h-12 w-12 items-center justify-center rounded-xl border ${tones[tone] || tones.sky}`}>
             <Icon className="h-6 w-6" />
@@ -952,58 +952,58 @@ const B2GAnaliseEditaisTR = () => {
   };
 
   const Sidebar = () => (
-    <div className="w-64 shrink-0 border-r border-slate-800/80 bg-[#101723] p-6 shadow-2xl z-30">
+    <div className="w-64 shrink-0 border-r border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 shadow-2xl z-30">
       <div className="mb-8 flex items-center gap-3">
-        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500 text-[#08111f] shadow-lg shadow-sky-500/20">
+        <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sky-500 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-lg shadow-sky-500/20">
           <Layers className="h-6 w-6" />
         </div>
         <div>
-          <div className="text-lg font-black tracking-tight text-white">Analisa.ai</div>
-          <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-sky-300/70">B2G Intelligence</div>
+          <div className="text-lg font-black tracking-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">Analisa.ai</div>
+          <div className="text-[10px] font-bold uppercase tracking-[0.24em] text-sky-700/70 dark:text-sky-300/70">B2G Intelligence</div>
         </div>
       </div>
       <nav className="space-y-2">
-        <button onClick={() => setView('dashboard')} className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all ${view === 'dashboard' ? 'bg-sky-500/10 text-sky-300 border border-sky-400/20 shadow-lg shadow-sky-500/5' : 'text-slate-500 hover:bg-slate-800/60 hover:text-slate-300'}`}>
+        <button onClick={() => setView('dashboard')} className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all ${view === 'dashboard' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-400/20 shadow-lg shadow-sky-500/5" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
           <LayoutDashboard className="h-5 w-5" /> Dashboard
         </button>
-        <button onClick={() => setView('history')} className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all ${view === 'history' ? 'bg-sky-500/10 text-sky-300 border border-sky-400/20 shadow-lg shadow-sky-500/5' : 'text-slate-500 hover:bg-slate-800/60 hover:text-slate-300'}`}>
+        <button onClick={() => setView('history')} className={`w-full flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-bold transition-all ${view === 'history' ? "bg-sky-500/10 text-sky-700 dark:text-sky-300 border border-sky-400/20 shadow-lg shadow-sky-500/5" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
           <History className="h-5 w-5" /> Histórico
         </button>
       </nav>
 
-      <div className="mt-8 rounded-2xl border border-slate-800/80 bg-slate-950/35 p-4">
-        <div className="mb-2 text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Precisão</div>
-        <p className="text-xs leading-relaxed text-slate-400">Use PDFs com texto selecionável para melhorar a extração técnica e reduzir falhas de leitura.</p>
+      <div className="mt-8 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] p-4">
+        <div className="mb-2 text-[10px] font-black uppercase tracking-[0.18em] text-[rgb(var(--crm-muted-rgb)_/_1)]">Precisão</div>
+        <p className="text-xs leading-relaxed text-[rgb(var(--crm-muted-rgb)_/_1)]">Use PDFs com texto selecionável para melhorar a extração técnica e reduzir falhas de leitura.</p>
       </div>
     </div>
   );
 
   const Dashboard = () => (
-    <div className="flex-1 overflow-y-auto bg-[#0d1422] p-6 custom-scrollbar lg:p-8">
+    <div className="flex-1 overflow-y-auto bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 custom-scrollbar lg:p-8">
       <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-sky-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-sky-300">
+          <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-sky-400/15 bg-sky-400/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.18em] text-sky-700 dark:text-sky-300">
             <Zap className="h-3.5 w-3.5" /> Auditoria assistida por IA
           </div>
-          <h1 className="text-3xl font-black tracking-tight text-white lg:text-4xl">Análise de Licitações com IA</h1>
-          <p className="mt-3 max-w-3xl text-sm font-medium leading-relaxed text-slate-400 lg:text-base">Extraia informações do edital completo ou gere um caderno técnico do Termo de Referência com rastreabilidade operacional.</p>
+          <h1 className="text-3xl font-black tracking-tight text-[rgb(var(--crm-ink-rgb)_/_1)] lg:text-4xl">Análise de Licitações com IA</h1>
+          <p className="mt-3 max-w-3xl text-sm font-medium leading-relaxed text-[rgb(var(--crm-muted-rgb)_/_1)] lg:text-base">Extraia informações do edital completo ou gere um caderno técnico do Termo de Referência com rastreabilidade operacional.</p>
         </div>
-        <div className="flex w-fit rounded-xl border border-slate-800 bg-slate-950/45 p-1">
-          <button onClick={() => setModoAnalise('edital')} className={`rounded-lg px-4 py-2 text-xs font-black uppercase transition-all ${modoAnalise === 'edital' ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/20' : 'text-slate-500 hover:text-slate-300'}`}>Edital</button>
-          <button onClick={() => setModoAnalise('tr')} className={`rounded-lg px-4 py-2 text-xs font-black uppercase transition-all ${modoAnalise === 'tr' ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/20' : 'text-slate-500 hover:text-slate-300'}`}>TR</button>
+        <div className="flex w-fit rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.45)] p-1">
+          <button onClick={() => setModoAnalise('edital')} className={`rounded-lg px-4 py-2 text-xs font-black uppercase transition-all ${modoAnalise === 'edital' ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/20' : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>Edital</button>
+          <button onClick={() => setModoAnalise('tr')} className={`rounded-lg px-4 py-2 text-xs font-black uppercase transition-all ${modoAnalise === 'tr' ? 'bg-sky-500 text-white shadow-lg shadow-sky-500/20' : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>TR</button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-12">
         <div className="xl:col-span-5">
-          <div className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/70 shadow-2xl shadow-slate-950/25">
-            <div className="border-b border-slate-800 bg-slate-950/35 px-6 py-5">
+          <div className="overflow-hidden rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] shadow-2xl shadow-slate-950/25">
+            <div className="border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] px-6 py-5">
               <div className="flex items-center justify-between gap-4">
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Documento base</p>
-                  <h2 className="mt-1 text-xl font-black text-white">{modoAnalise === 'edital' ? 'Importar edital' : 'Analisar TR'}</h2>
+                  <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[rgb(var(--crm-muted-rgb)_/_1)]">Documento base</p>
+                  <h2 className="mt-1 text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{modoAnalise === 'edital' ? 'Importar edital' : 'Analisar TR'}</h2>
                 </div>
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-sky-400/20 bg-sky-400/10 text-sky-300">
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-sky-400/20 bg-sky-400/10 text-sky-700 dark:text-sky-300">
                   {modoAnalise === 'edital' ? <Upload className="h-6 w-6" /> : <FileSearch className="h-6 w-6" />}
                 </div>
               </div>
@@ -1014,31 +1014,31 @@ const B2GAnaliseEditaisTR = () => {
 
               <button
                 onClick={() => editalFileRef.current.click()}
-                className="group flex min-h-[180px] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-sky-400/25 bg-[#0b1220] p-8 text-center transition-all hover:border-sky-300/55 hover:bg-sky-400/5"
+                className="group flex min-h-[180px] w-full flex-col items-center justify-center rounded-2xl border border-dashed border-sky-400/25 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-8 text-center transition-all hover:border-sky-300/55 hover:bg-sky-400/5"
               >
-                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-sky-400/20 bg-sky-400/10 text-sky-300 transition-transform group-hover:scale-105">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-2xl border border-sky-400/20 bg-sky-400/10 text-sky-700 dark:text-sky-300 transition-transform group-hover:scale-105">
                   <Upload className="h-8 w-8" />
                 </div>
-                <div className="max-w-full break-words text-base font-black text-white">
+                <div className="max-w-full break-words text-base font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   {fileName || 'Selecionar documento PDF'}
                 </div>
-                <div className="mt-2 max-w-sm text-xs leading-relaxed text-slate-500">
+                <div className="mt-2 max-w-sm text-xs leading-relaxed text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   PDF até 20MB. O conteúdo será extraído localmente antes da auditoria por IA.
                 </div>
               </button>
 
               <div className="mt-5 grid grid-cols-2 gap-3">
-                <div className="rounded-xl border border-slate-800 bg-slate-950/35 p-4">
-                  <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Modo</div>
-                  <div className="mt-2 text-sm font-bold text-slate-200">{modoAnalise === 'edital' ? 'Edital completo' : 'Termo de Referência'}</div>
+                <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] p-4">
+                  <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[rgb(var(--crm-muted-rgb)_/_1)]">Modo</div>
+                  <div className="mt-2 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{modoAnalise === 'edital' ? 'Edital completo' : 'Termo de Referência'}</div>
                 </div>
-                <div className="rounded-xl border border-slate-800 bg-slate-950/35 p-4">
-                  <div className="text-[10px] font-black uppercase tracking-[0.18em] text-slate-500">Status</div>
-                  <div className={`mt-2 text-sm font-bold ${fileDataUri ? 'text-emerald-300' : 'text-slate-400'}`}>{fileDataUri ? 'Pronto para auditar' : 'Aguardando PDF'}</div>
+                <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] p-4">
+                  <div className="text-[10px] font-black uppercase tracking-[0.18em] text-[rgb(var(--crm-muted-rgb)_/_1)]">Status</div>
+                  <div className={`mt-2 text-sm font-bold ${fileDataUri ? "text-emerald-700 dark:text-emerald-300" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>{fileDataUri ? 'Pronto para auditar' : 'Aguardando PDF'}</div>
                 </div>
               </div>
 
-              <button onClick={runAnalysis} disabled={loading || !fileDataUri} className="mt-5 flex w-full items-center justify-center gap-3 rounded-xl bg-sky-500 px-6 py-4 text-sm font-black uppercase text-white shadow-xl shadow-sky-500/20 transition-all hover:bg-sky-400 disabled:cursor-not-allowed disabled:bg-slate-800 disabled:text-slate-500 disabled:shadow-none">
+              <button onClick={runAnalysis} disabled={loading || !fileDataUri} className="mt-5 flex w-full items-center justify-center gap-3 rounded-xl bg-sky-500 px-6 py-4 text-sm font-black uppercase text-white shadow-xl shadow-sky-500/20 transition-all hover:bg-sky-400 disabled:cursor-not-allowed disabled:bg-[rgb(var(--crm-surface-rgb)_/_1)] disabled:text-[rgb(var(--crm-muted-rgb)_/_1)] disabled:shadow-none">
                 {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Play className="h-5 w-5 fill-current" />}
                 <span>{loading ? 'Processando análise...' : 'Executar auditoria IA'}</span>
               </button>
@@ -1052,20 +1052,20 @@ const B2GAnaliseEditaisTR = () => {
             <MetricCard icon={AlertTriangle} label="Inconformidades" value="0" tone="amber" />
           </div>
 
-          <div className="mt-5 overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/55 shadow-2xl shadow-slate-950/20">
-            <div className="flex items-center justify-between gap-4 border-b border-slate-800 bg-slate-950/35 px-6 py-4">
-              <div className="flex items-center gap-2 text-sky-300">
+          <div className="mt-5 overflow-hidden rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] shadow-2xl shadow-slate-950/20">
+            <div className="flex items-center justify-between gap-4 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] px-6 py-4">
+              <div className="flex items-center gap-2 text-sky-700 dark:text-sky-300">
                 <Code className="h-4 w-4" />
                 <span className="text-[10px] font-black uppercase tracking-[0.18em]">Fluxo multi-API</span>
               </div>
-              <span className="rounded-full bg-slate-800 px-2.5 py-1 text-[10px] font-bold text-slate-400">{logs.length} eventos</span>
+              <span className="rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2.5 py-1 text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)]">{logs.length} eventos</span>
             </div>
             <div className="h-[260px] overflow-y-auto p-6 font-mono text-[11px] custom-scrollbar">
               <div className="space-y-3">
-                {logs.length === 0 && <span className="text-slate-600 italic">Aguardando entrada de dados...</span>}
+                {logs.length === 0 && <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] italic">Aguardando entrada de dados...</span>}
                 {logs.map((log, i) => (
-                  <div key={i} className={`flex gap-3 rounded-xl border border-slate-800/70 bg-slate-950/30 px-3 py-2 ${log.type === 'error' ? 'text-red-300' : log.type === 'success' ? 'text-emerald-300' : 'text-slate-400'}`}>
-                    <span className="shrink-0 font-bold text-slate-600">{log.time}</span>
+                  <div key={i} className={`flex gap-3 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] px-3 py-2 ${log.type === 'error' ? "text-red-700 dark:text-red-300" : log.type === 'success' ? "text-emerald-700 dark:text-emerald-300" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
+                    <span className="shrink-0 font-bold text-[rgb(var(--crm-muted-rgb)_/_1)]">{log.time}</span>
                     <span className="leading-relaxed">{log.msg}</span>
                   </div>
                 ))}
@@ -1079,10 +1079,10 @@ const B2GAnaliseEditaisTR = () => {
               ['Auditoria', 'IA identifica prazos, riscos, itens e requisitos.', Search],
               ['Conversão', 'Resultado pode virar resumo ou oportunidade B2G.', ChevronRight]
             ].map(([title, text, Icon]) => (
-              <div key={title} className="rounded-2xl border border-slate-800 bg-slate-900/45 p-5">
-                <Icon className="mb-4 h-5 w-5 text-sky-300" />
-                <h3 className="text-sm font-black text-white">{title}</h3>
-                <p className="mt-2 text-xs leading-relaxed text-slate-500">{text}</p>
+              <div key={title} className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.45)] p-5">
+                <Icon className="mb-4 h-5 w-5 text-sky-700 dark:text-sky-300" />
+                <h3 className="text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{title}</h3>
+                <p className="mt-2 text-xs leading-relaxed text-[rgb(var(--crm-muted-rgb)_/_1)]">{text}</p>
               </div>
             ))}
           </div>
@@ -1092,34 +1092,34 @@ const B2GAnaliseEditaisTR = () => {
   );
 
   const HistoryView = () => (
-    <div className="flex-1 overflow-y-auto bg-[#0d1422] p-8 custom-scrollbar">
-      <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-8">
-        <History className="mb-4 h-8 w-8 text-sky-300" />
-        <h2 className="text-2xl font-black text-white">Histórico de análises</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">As análises salvas ficam disponíveis no módulo Resumos de Edital, com escopo por usuário e empresa.</p>
+    <div className="flex-1 overflow-y-auto bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-8 custom-scrollbar">
+      <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-8">
+        <History className="mb-4 h-8 w-8 text-sky-700 dark:text-sky-300" />
+        <h2 className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Histórico de análises</h2>
+        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[rgb(var(--crm-muted-rgb)_/_1)]">As análises salvas ficam disponíveis no módulo Resumos de Edital, com escopo por usuário e empresa.</p>
       </div>
     </div>
   );
 
   const DetailView = () => (
-    <div className="flex-1 flex flex-col min-h-[76vh] overflow-hidden bg-[#0d1422]">
-      <header className="border-b border-slate-800 bg-slate-900/75 p-6 shadow-2xl z-20 lg:p-8">
+    <div className="flex-1 flex flex-col min-h-[76vh] overflow-hidden bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
+      <header className="border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.75)] p-6 shadow-2xl z-20 lg:p-8">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
           <div className="flex min-w-0 items-start gap-5">
-            <button onClick={() => setView('dashboard')} className="shrink-0 rounded-xl bg-slate-800 p-3 text-white shadow-xl transition-all hover:bg-slate-700 active:scale-95">
+            <button onClick={() => setView('dashboard')} className="shrink-0 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-3 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-xl transition-all hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] active:scale-95">
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div className="min-w-0">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
-                <h1 className="min-w-0 break-words text-2xl font-black tracking-tight text-white">Análise Estratégica: {fileName || 'documento.pdf'}</h1>
+                <h1 className="min-w-0 break-words text-2xl font-black tracking-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">Análise Estratégica: {fileName || 'documento.pdf'}</h1>
                 <div className="flex flex-wrap gap-2">
-                  <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-300">
+                  <span className="rounded-full border border-sky-500/20 bg-sky-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-sky-700 dark:text-sky-300">
                     {result?._tipo === 'tr' ? 'Termo de Referência' : 'Edital'}
                   </span>
-                  <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-300">Auditado via IA</span>
+                  <span className="rounded-full border border-emerald-500/20 bg-emerald-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-700 dark:text-emerald-300">Auditado via IA</span>
                 </div>
               </div>
-              <p className="mt-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-slate-500">
+              <p className="mt-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 <Clock className="w-3 h-3" /> Processado em {new Date().toLocaleDateString()}
               </p>
             </div>
@@ -1128,7 +1128,7 @@ const B2GAnaliseEditaisTR = () => {
             <button
               onClick={handleSaveToResumos}
               disabled={savingToResumos || !result}
-              className="flex items-center gap-3 rounded-xl border border-slate-700 bg-[#1e293b] px-5 py-3 text-xs font-black text-slate-300 shadow-lg transition-all hover:bg-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex items-center gap-3 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-5 py-3 text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-lg transition-all hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] disabled:cursor-not-allowed disabled:opacity-50"
             >
               {savingToResumos ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
               SALVAR EM RESUMOS
@@ -1148,27 +1148,27 @@ const B2GAnaliseEditaisTR = () => {
       {actionFeedback.message ? (
         <div className={`mx-8 mt-4 rounded-2xl border px-4 py-3 text-sm font-semibold ${
           actionFeedback.type === 'success'
-            ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
-            : 'border-red-500/40 bg-red-500/10 text-red-300'
+            ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+            : "border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300"
         }`}>
           {actionFeedback.message}
         </div>
       ) : null}
 
-      <div className="flex-1 grid grid-cols-1 overflow-hidden bg-[#0d1422] xl:grid-cols-[minmax(320px,0.8fr)_minmax(520px,1.2fr)]">
-        <div className="overflow-y-auto border-r border-slate-800 bg-slate-950/20 p-6 custom-scrollbar lg:p-8">
-          <div className="mx-auto w-full max-w-xl rounded-2xl border border-slate-800/80 bg-slate-900/45 p-5 shadow-inner">
-            <label className="mb-5 block text-center text-[11px] font-black uppercase tracking-widest text-slate-500">Pré-visualização do Documento</label>
-            <div className="aspect-[1/1.28] bg-slate-950 border border-slate-800 rounded-2xl flex flex-col items-center justify-center p-10 text-slate-600 shadow-2xl relative overflow-hidden group">
+      <div className="flex-1 grid grid-cols-1 overflow-hidden bg-[rgb(var(--crm-surface-2-rgb)_/_1)] xl:grid-cols-[minmax(320px,0.8fr)_minmax(520px,1.2fr)]">
+        <div className="overflow-y-auto border-r border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.2)] p-6 custom-scrollbar lg:p-8">
+          <div className="mx-auto w-full max-w-xl rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.45)] p-5 shadow-inner">
+            <label className="mb-5 block text-center text-[11px] font-black uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Pré-visualização do Documento</label>
+            <div className="aspect-[1/1.28] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-2xl flex flex-col items-center justify-center p-10 text-[rgb(var(--crm-muted-rgb)_/_1)] shadow-2xl relative overflow-hidden group">
               <FileText className="w-24 h-24 opacity-5 mb-6 group-hover:scale-110 transition-transform duration-500" />
-              <h4 className="font-black text-slate-500 text-xl tracking-tight">Visor PDF Desabilitado</h4>
+              <h4 className="font-black text-[rgb(var(--crm-muted-rgb)_/_1)] text-xl tracking-tight">Visor PDF Desabilitado</h4>
               <p className="text-[11px] max-w-xs mt-3 opacity-30 text-center leading-relaxed font-medium">Ambiente de segurança: A renderização nativa de arquivos PDF externos está restrita neste módulo.</p>
             </div>
           </div>
         </div>
 
-        <div className="overflow-y-auto bg-[#0d1422] p-6 custom-scrollbar lg:p-8">
-          <div className="sticky top-0 z-20 mb-8 flex items-center overflow-x-auto rounded-xl border border-slate-800 bg-slate-900/90 p-1.5 shadow-2xl backdrop-blur-md scrollbar-hide">
+        <div className="overflow-y-auto bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 custom-scrollbar lg:p-8">
+          <div className="sticky top-0 z-20 mb-8 flex items-center overflow-x-auto rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] p-1.5 shadow-2xl backdrop-blur-md scrollbar-hide">
             {['GERAL', 'RESUMO ESPECIFICAÇÕES', 'PRAZOS', 'EXIGENCIAS', 'DOCUMENTAÇÃO', 'ITENS / TR', 'RISCOS / IA'].map((tab) => {
               if (tab === 'RESUMO ESPECIFICAÇÕES' && result?._tipo !== 'tr') return null;
               if ((tab === 'PRAZOS' || tab === 'DOCUMENTAÇÃO') && result?._tipo === 'tr') return null;
@@ -1177,7 +1177,7 @@ const B2GAnaliseEditaisTR = () => {
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab.toLowerCase())}
-                  className={`whitespace-nowrap rounded-lg px-4 py-2.5 text-[9px] font-black uppercase transition-all ${activeTab === tab.toLowerCase() ? 'bg-sky-500 text-white shadow-xl shadow-sky-500/10' : 'text-slate-500 hover:text-slate-300'}`}
+                  className={`whitespace-nowrap rounded-lg px-4 py-2.5 text-[9px] font-black uppercase transition-all ${activeTab === tab.toLowerCase() ? 'bg-sky-500 text-white shadow-xl shadow-sky-500/10' : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}
                 >
                   {tab}
                 </button>
@@ -1190,16 +1190,16 @@ const B2GAnaliseEditaisTR = () => {
           <div className="relative mt-10 overflow-hidden rounded-2xl border border-sky-500/10 bg-sky-600/5 p-6 shadow-inner">
             <div className="relative z-10">
               <div className="flex items-center gap-4 mb-6">
-                <div className="rounded-xl bg-sky-500/20 p-3 text-sky-300">
+                <div className="rounded-xl bg-sky-500/20 p-3 text-sky-700 dark:text-sky-300">
                   <ShieldAlert className="w-6 h-6" />
                 </div>
-                <h4 className="text-lg font-black text-white uppercase tracking-tight">Avaliação de Aderência Técnica</h4>
+                <h4 className="text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-tight">Avaliação de Aderência Técnica</h4>
               </div>
               <div className="flex items-end gap-3 mb-6">
-                <span className="text-6xl font-black text-sky-400 tracking-tighter leading-none">{result?.pontuacao_viabilidade || 0}</span>
-                <span className="text-sky-400/40 font-black text-2xl mb-1">/ 10</span>
+                <span className="text-6xl font-black text-sky-700 dark:text-sky-400 tracking-tighter leading-none">{result?.pontuacao_viabilidade || 0}</span>
+                <span className="text-sky-700/40 dark:text-sky-400/40 font-black text-2xl mb-1">/ 10</span>
               </div>
-              <p className="text-xs text-slate-500 italic leading-relaxed font-medium">Este índice é calculado comparando as capacidades padrão do mercado contra as exigências críticas extraídas automaticamente deste documento pela inteligência artificial.</p>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] italic leading-relaxed font-medium">Este índice é calculado comparando as capacidades padrão do mercado contra as exigências críticas extraídas automaticamente deste documento pela inteligência artificial.</p>
             </div>
           </div>
         </div>
@@ -1208,7 +1208,7 @@ const B2GAnaliseEditaisTR = () => {
   );
 
   return (
-    <div className="flex min-h-[80vh] bg-[#0f172a] text-slate-200 overflow-hidden select-none font-sans rounded-3xl border border-slate-800">
+    <div className="flex min-h-[80vh] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] overflow-hidden select-none font-sans rounded-3xl border border-[var(--crm-border)]">
       {view !== 'detail' && <Sidebar />}
       {view === 'dashboard' && <Dashboard />}
       {view === 'history' && <HistoryView />}
@@ -1217,8 +1217,8 @@ const B2GAnaliseEditaisTR = () => {
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 10px; border: 2px solid #0f172a; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #334155; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--crm-border); border-radius: 10px; border: 2px solid var(--crm-surface); }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: var(--crm-muted); }
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
         .animate-in { animation: fade-in 0.5s ease-out forwards; }
       ` }} />

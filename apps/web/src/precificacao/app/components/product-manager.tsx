@@ -54,18 +54,18 @@ export function ProductManager({
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-slate-100 rounded-xl text-slate-600">
+            <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl text-[rgb(var(--crm-muted-rgb)_/_1)]">
               {icon}
             </div>
             <div>
-              <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">{title}</h3>
-              <p className="text-xs text-slate-400">{description}</p>
+              <h3 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">{title}</h3>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{description}</p>
             </div>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-right">
-              <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Subtotal</p>
-              <p className="text-sm font-bold text-slate-700">{formatCurrency(total)}</p>
+              <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase font-bold tracking-widest">Subtotal</p>
+              <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(total)}</p>
             </div>
             <Button 
               variant="outline" 
@@ -80,13 +80,13 @@ export function ProductManager({
 
         <div className="space-y-2">
           {items.map((item) => (
-            <div key={item.id} className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 hover:border-primary/30 transition-all group">
+            <div key={item.id} className="flex items-center gap-3 p-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl border border-[var(--crm-border)] hover:border-primary/30 transition-all group">
               <div className="flex-1 min-w-0">
                 <Input 
                   placeholder="Nome do item"
                   value={item.name}
                   onChange={(e) => onItemChange(type, item.id, 'name', e.target.value)}
-                  className="h-9 text-sm font-semibold bg-transparent border-transparent hover:border-slate-200 focus:border-primary/30 px-2"
+                  className="h-9 text-sm font-semibold bg-transparent border-transparent hover:border-[var(--crm-border)] focus:border-primary/30 px-2"
                 />
               </div>
               <div className="w-48 min-w-0 hidden sm:block">
@@ -94,7 +94,7 @@ export function ProductManager({
                   placeholder="Descrição"
                   value={item.description || ''}
                   onChange={(e) => onItemChange(type, item.id, 'description', e.target.value)}
-                  className="h-9 text-xs text-slate-500 bg-transparent border-transparent hover:border-slate-200 focus:border-primary/30 px-2"
+                  className="h-9 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] bg-transparent border-transparent hover:border-[var(--crm-border)] focus:border-primary/30 px-2"
                 />
               </div>
               <div className="w-[70px] shrink-0">
@@ -102,7 +102,7 @@ export function ProductManager({
                   type="number"
                   value={item.quantity}
                   onChange={(e) => onItemChange(type, item.id, 'quantity', e.target.value)}
-                  className="h-9 text-center text-sm bg-transparent border-transparent hover:border-slate-200 focus:border-primary/30 px-1"
+                  className="h-9 text-center text-sm bg-transparent border-transparent hover:border-[var(--crm-border)] focus:border-primary/30 px-1"
                 />
               </div>
               <div className="w-[110px] shrink-0">
@@ -110,18 +110,18 @@ export function ProductManager({
                   type="number"
                   value={item.unitCost}
                   onChange={(e) => onItemChange(type, item.id, 'unitCost', e.target.value)}
-                  className="h-9 text-right text-sm bg-transparent border-transparent hover:border-slate-200 focus:border-primary/30 px-2"
+                  className="h-9 text-right text-sm bg-transparent border-transparent hover:border-[var(--crm-border)] focus:border-primary/30 px-2"
                 />
               </div>
               <div className="w-[100px] shrink-0 text-right">
-                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total</p>
-                <p className="text-sm font-bold text-slate-800">{formatCurrency(item.quantity * item.unitCost)}</p>
+                <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase font-bold tracking-wider">Total</p>
+                <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(item.quantity * item.unitCost)}</p>
               </div>
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => onRemoveItem(type, item.id)}
-                className="h-8 w-8 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 p-0 shrink-0 opacity-50 group-hover:opacity-100 transition-opacity"
+                className="h-8 w-8 rounded-lg text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 p-0 shrink-0 opacity-50 group-hover:opacity-100 transition-opacity"
               >
                 <Trash2 className="w-4 h-4" />
               </Button>
@@ -129,9 +129,9 @@ export function ProductManager({
           ))}
 
           {items.length === 0 && (
-            <div className="col-span-full text-center py-8 border-2 border-dashed border-slate-200 rounded-3xl bg-slate-50/20">
-              <Package className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-              <p className="text-xs text-slate-400 font-medium">Nenhum item adicionado nesta categoria</p>
+            <div className="col-span-full text-center py-8 border-2 border-dashed border-[var(--crm-border)] rounded-3xl bg-[rgb(var(--crm-surface-rgb)_/_0.2)]">
+              <Package className="w-8 h-8 text-[rgb(var(--crm-ink-rgb)_/_1)] mx-auto mb-2" />
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium">Nenhum item adicionado nesta categoria</p>
             </div>
           )}
         </div>
@@ -140,8 +140,8 @@ export function ProductManager({
   };
 
   return (
-    <Card className="rounded-[2.5rem] border-slate-200 shadow-sm overflow-hidden bg-white">
-      <CardHeader className="bg-slate-50/50 border-b border-slate-100 p-8">
+    <Card className="rounded-[2.5rem] border-[var(--crm-border)] shadow-sm overflow-hidden bg-[rgb(var(--crm-surface-rgb)_/_1)]">
+      <CardHeader className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border-b border-[var(--crm-border)] p-8">
         <div className="flex flex-col gap-5 xl:flex-row xl:items-start xl:justify-between">
           <div>
             <CardTitle className="text-xl font-bold font-headline flex items-center">
@@ -152,69 +152,69 @@ export function ProductManager({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-[160px_160px_auto] gap-3 xl:min-w-[520px]">
             <div>
-              <Label className="text-[10px] text-slate-400 mb-1 block uppercase tracking-widest">Duração (Meses)</Label>
+              <Label className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1 block uppercase tracking-widest">Duração (Meses)</Label>
               <Input
                 type="number"
                 name="durationMonths"
                 value={params.durationMonths}
                 onChange={onParamChange}
-                className="h-11 text-right bg-white rounded-xl border-slate-200 font-bold"
+                className="h-11 text-right bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl border-[var(--crm-border)] font-bold"
               />
             </div>
             <div>
-              <Label className="text-[10px] text-slate-400 mb-1 block uppercase tracking-widest">Markup Desejado (%)</Label>
+              <Label className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1 block uppercase tracking-widest">Markup Desejado (%)</Label>
               <Input
                 type="number"
                 name="markupPercentage"
                 value={params.markupPercentage}
                 onChange={onParamChange}
-                className="h-11 text-right bg-white rounded-xl border-slate-200 font-bold text-primary"
+                className="h-11 text-right bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl border-[var(--crm-border)] font-bold text-primary"
               />
             </div>
             <Button
               onClick={onCalculate}
               disabled={isCalculating}
-              className="h-11 self-end rounded-xl bg-primary hover:bg-primary/90 text-white font-bold shadow-md"
+              className="h-11 self-end rounded-xl bg-primary hover:bg-primary/90 text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold shadow-md"
             >
               {isCalculating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Calculator className="w-4 h-4 mr-2" />}
               {isCalculating ? 'Processando...' : 'Calcular'}
             </Button>
           </div>
         </div>
-        <div className="mt-5 rounded-2xl border border-slate-100 bg-slate-50/50 p-4 grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
+        <div className="mt-5 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.5)] p-4 grid grid-cols-1 md:grid-cols-4 gap-3 text-sm">
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Regime da Calculadora</p>
-            <p className="font-semibold text-slate-800">{params.taxRegimeName || 'Configurações Gerais'}</p>
+            <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase font-bold tracking-widest">Regime da Calculadora</p>
+            <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{params.taxRegimeName || 'Configurações Gerais'}</p>
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Impostos</p>
-            <p className="font-semibold text-slate-800">{params.taxRatePercentage}%</p>
+            <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase font-bold tracking-widest">Impostos</p>
+            <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{params.taxRatePercentage}%</p>
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Comissão Serviço</p>
-            <p className="font-semibold text-slate-800">{params.commissionPercentage}%</p>
+            <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase font-bold tracking-widest">Comissão Serviço</p>
+            <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{params.commissionPercentage}%</p>
           </div>
           <div>
-            <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Encargos Comerciais</p>
-            <p className="font-semibold text-slate-800">{params.operatingExpensePercentage || 0}%</p>
+            <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase font-bold tracking-widest">Encargos Comerciais</p>
+            <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{params.operatingExpensePercentage || 0}%</p>
           </div>
         </div>
-        <div className="mt-5 rounded-2xl border border-slate-200 bg-white p-4">
+        <div className="mt-5 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div>
-              <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Tipo de Projeto</p>
-              <div className="mt-2 inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+              <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase font-bold tracking-widest">Tipo de Projeto</p>
+              <div className="mt-2 inline-flex rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] p-1">
                 <button
                   type="button"
                   onClick={() => onProjectBillingModeChange?.('standard')}
-                  className={`rounded-lg px-4 py-2 text-sm font-bold transition ${projectBillingMode === 'standard' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+                  className={`rounded-lg px-4 py-2 text-sm font-bold transition ${projectBillingMode === 'standard' ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}
                 >
                   Venda / Setup
                 </button>
                 <button
                   type="button"
                   onClick={() => onProjectBillingModeChange?.('monthly')}
-                  className={`rounded-lg px-4 py-2 text-sm font-bold transition ${projectBillingMode === 'monthly' ? 'bg-primary text-white shadow-sm' : 'text-slate-500 hover:text-slate-800'}`}
+                  className={`rounded-lg px-4 py-2 text-sm font-bold transition ${projectBillingMode === 'monthly' ? "bg-primary text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}
                 >
                   Projeto mensal
                 </button>
@@ -222,10 +222,10 @@ export function ProductManager({
             </div>
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:min-w-[520px]">
-              <div className="rounded-xl border border-slate-100 bg-slate-50 px-4 py-3">
-                <p className="text-[10px] text-slate-400 uppercase font-bold tracking-widest">Rateio mensal dos produtos</p>
-                <p className="mt-1 text-lg font-bold text-slate-900">{formatCurrency(monthlyProrationTotal)}</p>
-                <p className="mt-1 text-xs text-slate-500">{itemsToProrate.length} item(ns) em {safeDurationMonths} meses</p>
+              <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3">
+                <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase font-bold tracking-widest">Rateio mensal dos produtos</p>
+                <p className="mt-1 text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(monthlyProrationTotal)}</p>
+                <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{itemsToProrate.length} item(ns) em {safeDurationMonths} meses</p>
               </div>
               <Button
                 type="button"
@@ -240,8 +240,8 @@ export function ProductManager({
           </div>
 
           {projectBillingMode === 'monthly' && itemsToProrate.length > 0 && (
-            <div className="mt-4 overflow-x-auto rounded-xl border border-slate-100">
-              <div className="grid min-w-[760px] grid-cols-[1fr_120px_110px_130px_140px] gap-3 bg-slate-50 px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-slate-400">
+            <div className="mt-4 overflow-x-auto rounded-xl border border-[var(--crm-border)]">
+              <div className="grid min-w-[760px] grid-cols-[1fr_120px_110px_130px_140px] gap-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 <span>Produto</span>
                 <span>Origem</span>
                 <span className="text-right">Qtde</span>
@@ -249,12 +249,12 @@ export function ProductManager({
                 <span className="text-right">Mensal Unit.</span>
               </div>
               {itemsToProrate.map((item) => (
-                <div key={item.id} className="grid min-w-[760px] grid-cols-[1fr_120px_110px_130px_140px] gap-3 border-t border-slate-100 px-4 py-3 text-sm">
-                  <span className="truncate font-semibold text-slate-700">{item.name}</span>
-                  <span className="text-slate-500">{upfrontItems.some((upfrontItem) => upfrontItem.id === item.id) ? 'Setup' : 'Recorrente'}</span>
-                  <span className="text-right text-slate-500">{item.quantity}</span>
-                  <span className="text-right text-slate-500">{formatCurrency(item.unitCost)}</span>
-                  <span className="text-right font-bold text-cyan-700">{formatCurrency((Number(item.unitCost) || 0) / safeDurationMonths)}</span>
+                <div key={item.id} className="grid min-w-[760px] grid-cols-[1fr_120px_110px_130px_140px] gap-3 border-t border-[var(--crm-border)] px-4 py-3 text-sm">
+                  <span className="truncate font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.name}</span>
+                  <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">{upfrontItems.some((upfrontItem) => upfrontItem.id === item.id) ? 'Setup' : 'Recorrente'}</span>
+                  <span className="text-right text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.quantity}</span>
+                  <span className="text-right text-[rgb(var(--crm-muted-rgb)_/_1)]">{formatCurrency(item.unitCost)}</span>
+                  <span className="text-right font-bold text-cyan-700 dark:text-cyan-300">{formatCurrency((Number(item.unitCost) || 0) / safeDurationMonths)}</span>
                 </div>
               ))}
             </div>
@@ -263,7 +263,7 @@ export function ProductManager({
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <p className="mt-3 inline-flex items-center gap-2 text-xs text-slate-400 cursor-help">
+              <p className="mt-3 inline-flex items-center gap-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] cursor-help">
                 <Info className="w-3.5 h-3.5" />
                 Tributário & Comercial vem do ícone Configurações da Calculadora.
               </p>
@@ -283,7 +283,7 @@ export function ProductManager({
           <Package size={18} />
         )}
 
-        <div className="border-t border-slate-100 pt-10">
+        <div className="border-t border-[var(--crm-border)] pt-10">
           {renderItemSection(
             "Custos Operacionais Mensais (OPEX)", 
             "Insumos, licenciamentos e custos que ocorrem todos os meses",

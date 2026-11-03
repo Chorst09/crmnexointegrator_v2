@@ -1264,7 +1264,7 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
     const metadata = getScenarioMetadata(item);
 
     return (
-    <Card key={item.id} className="rounded-2xl shadow-sm border-slate-200 transition-all group hover:border-primary/20">
+    <Card key={item.id} className="rounded-2xl shadow-sm border-[var(--crm-border)] transition-all group hover:border-primary/20">
       <CardContent className="p-4 sm:p-5">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <div
@@ -1273,37 +1273,37 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
           >
             <div className={cn(
               "p-3 rounded-xl shrink-0",
-              variant === 'prorated' ? "bg-cyan-50 text-cyan-700" : "bg-primary/10 text-primary"
+              variant === 'prorated' ? "bg-cyan-50 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300" : "bg-primary/10 text-primary"
             )}>
               <Clock size={20} />
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-xs font-bold text-slate-500 uppercase tracking-widest">
+                <p className="text-xs font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-widest">
                   {item.createdAt?.toDate ? item.createdAt.toDate().toLocaleString('pt-BR') : 'Agora'}
                 </p>
                 <span className={cn(
                   "rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest",
                   variant === 'prorated'
-                    ? "border-cyan-200 bg-cyan-50 text-cyan-700"
-                    : "border-slate-200 bg-slate-50 text-slate-500"
+                    ? "border-cyan-200 dark:border-cyan-800 bg-cyan-50 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300"
+                    : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
                 )}>
                   {variant === 'prorated' ? 'Com rateio' : 'Precificação'}
                 </span>
               </div>
-              <p className="text-lg font-bold text-slate-900 truncate">
-                {formatCurrency(item.results.finalMonthlyPrice)} <span className="text-sm font-normal text-slate-500">/mês</span>
+              <p className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">
+                {formatCurrency(item.results.finalMonthlyPrice)} <span className="text-sm font-normal text-[rgb(var(--crm-muted-rgb)_/_1)]">/mês</span>
               </p>
-              <p className="mt-1 truncate text-sm font-bold text-slate-700">
+              <p className="mt-1 truncate text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Cliente: {metadata.clientCompany || 'Cliente não informado'}
               </p>
               {metadata.clientContact ? (
-                <p className="truncate text-xs font-semibold text-slate-500">
+                <p className="truncate text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   Contato: {metadata.clientContact}
                 </p>
               ) : null}
               {item.metadata?.allocation ? (
-                <p className="mt-1 truncate text-xs font-bold text-cyan-700">
+                <p className="mt-1 truncate text-xs font-bold text-cyan-700 dark:text-cyan-300">
                   Rateio: {item.metadata.allocation.name} · {formatCurrency(item.metadata.allocation.totalMonthlyAllocated)}/mês
                 </p>
               ) : null}
@@ -1312,15 +1312,15 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
 
           <div className="flex items-center gap-5 sm:gap-6 ml-16 sm:ml-0">
             <div className="text-center">
-              <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wide">Setup</p>
-              <p className="text-sm font-bold text-slate-800">{item.inputs.upfrontItems?.length || 0}</p>
+              <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-bold uppercase tracking-wide">Setup</p>
+              <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.inputs.upfrontItems?.length || 0}</p>
             </div>
             <div className="text-center">
-              <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wide">Rec.</p>
-              <p className="text-sm font-bold text-slate-800">{item.inputs.recurringItems?.length || 0}</p>
+              <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-bold uppercase tracking-wide">Rec.</p>
+              <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.inputs.recurringItems?.length || 0}</p>
             </div>
             <div className="text-center">
-              <p className="text-[11px] text-slate-500 font-bold uppercase tracking-wide">Margem</p>
+              <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-bold uppercase tracking-wide">Margem</p>
               <p className={cn("text-sm font-bold", item.results.metrics.ebitdaMargin >= 20 ? "text-emerald-600" : "text-amber-600")}>
                 {formatPercent(item.results.metrics.ebitdaMargin)}
               </p>
@@ -1331,14 +1331,14 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
             <button
               onClick={() => handleViewScenario(item)}
               title="Visualizar em PDF"
-              className="h-9 px-3.5 rounded-xl bg-sky-50 border border-sky-200 text-sky-700 font-semibold text-xs inline-flex items-center justify-center gap-1.5 hover:bg-sky-100 hover:border-sky-300 transition-colors"
+              className="h-9 px-3.5 rounded-xl bg-sky-50 dark:bg-sky-950 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 font-semibold text-xs inline-flex items-center justify-center gap-1.5 hover:bg-sky-100 dark:hover:bg-sky-950 hover:border-sky-300 transition-colors"
             >
               <FileText className="w-3.5 h-3.5" /> PDF
             </button>
             <button
               onClick={() => handleEditScenario(item)}
               title="Editar cenário"
-              className="h-9 px-3.5 rounded-xl bg-blue-50 border border-blue-200 text-blue-700 font-semibold text-xs inline-flex items-center justify-center gap-1.5 hover:bg-blue-100 hover:border-blue-300 transition-colors"
+              className="h-9 px-3.5 rounded-xl bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 font-semibold text-xs inline-flex items-center justify-center gap-1.5 hover:bg-blue-100 dark:hover:bg-blue-950 hover:border-blue-300 transition-colors"
             >
               <Pencil className="w-3.5 h-3.5" /> Editar
             </button>
@@ -1347,14 +1347,14 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                 <button
                   onClick={() => handleDeleteScenario(item.id)}
                   title="Confirmar exclusão"
-                  className="h-9 rounded-xl border border-red-300 bg-red-100 px-3 text-[11px] font-bold text-red-700 inline-flex items-center justify-center gap-1.5 transition-colors"
+                  className="h-9 rounded-xl border border-red-300 bg-red-100 dark:bg-red-950 px-3 text-[11px] font-bold text-red-700 dark:text-red-300 inline-flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <Trash2 className="w-3.5 h-3.5" /> Excluir
                 </button>
                 <button
                   onClick={() => setDeleteConfirmId(null)}
                   title="Cancelar"
-                  className="h-9 w-9 rounded-xl border border-slate-300 bg-white text-slate-500 hover:text-slate-700 inline-flex items-center justify-center transition-colors"
+                  className="h-9 w-9 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] inline-flex items-center justify-center transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -1363,7 +1363,7 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
               <button
                 onClick={() => setDeleteConfirmId(item.id)}
                 title="Excluir cenário"
-                className="h-9 px-3.5 rounded-xl bg-red-50 border border-red-200 text-red-600 font-semibold text-xs inline-flex items-center justify-center gap-1.5 hover:bg-red-100 hover:border-red-300 transition-colors"
+                className="h-9 px-3.5 rounded-xl bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 text-red-600 font-semibold text-xs inline-flex items-center justify-center gap-1.5 hover:bg-red-100 dark:hover:bg-red-950 hover:border-red-300 transition-colors"
               >
                 <Trash2 className="w-3.5 h-3.5" /> Excluir
               </button>
@@ -1386,10 +1386,10 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
       <section className="space-y-3">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h3 className="text-base font-bold text-slate-900">{title}</h3>
-            <p className="text-xs font-semibold text-slate-500">{description}</p>
+            <h3 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{title}</h3>
+            <p className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">{description}</p>
           </div>
-          <span className="text-xs font-bold uppercase tracking-widest text-slate-400">{items.length} salvo(s)</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">{items.length} salvo(s)</span>
         </div>
         <div className="grid grid-cols-1 gap-4">
           {items.map((item) => renderHistoryCard(item, variant))}
@@ -1404,29 +1404,29 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
       <div className="max-w-[1400px] mx-auto px-4 sm:px-8 py-8 space-y-8">
         
         {/* Enterprise Header */}
-        <header className="bg-white px-8 py-6 rounded-[2.5rem] shadow-sm border border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <header className="bg-[rgb(var(--crm-surface-rgb)_/_1)] px-8 py-6 rounded-[2.5rem] shadow-sm border border-[var(--crm-border)] flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="flex items-center space-x-5">
-            <div className="p-4 bg-primary text-white rounded-2xl shadow-indigo-200 shadow-xl">
+            <div className="p-4 bg-primary text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-2xl shadow-indigo-200 shadow-xl">
               <Calculator size={32} strokeWidth={2} />
             </div>
             <div>
-              <h1 className="text-3xl font-bold tracking-tight font-headline text-slate-900">FinEdge Architect</h1>
-              <p className="text-slate-400 text-sm font-medium tracking-wide flex items-center">
+              <h1 className="text-3xl font-bold tracking-tight font-headline text-[rgb(var(--crm-ink-rgb)_/_1)]">FinEdge Architect</h1>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm font-medium tracking-wide flex items-center">
                 <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 mr-2 animate-pulse" />
                 DRE & Precificação Profissional
               </p>
             </div>
           </div>
           
-          <div className="flex items-center space-x-10 lg:border-l border-slate-100 lg:pl-10">
+          <div className="flex items-center space-x-10 lg:border-l border-[var(--crm-border)] lg:pl-10">
             <div className="space-y-1 text-center md:text-left">
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">TCV (Contrato Total)</p>
+              <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-widest font-bold">TCV (Contrato Total)</p>
               <p className="text-2xl font-bold text-primary tabular-nums font-headline">
                 {formatCurrency(displayedResults.totalContractValue)}
               </p>
             </div>
             <div className="space-y-1 text-center md:text-left">
-              <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Margem EBITDA</p>
+              <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-widest font-bold">Margem EBITDA</p>
               <div className="flex items-center justify-center md:justify-start space-x-2">
                 <TrendingUp className={cn("w-4 h-4", displayedResults.metrics.ebitdaMargin >= 20 ? 'text-emerald-500' : 'text-amber-500')} />
                 <p className={cn(
@@ -1444,7 +1444,7 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
           <main className="space-y-8">
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
               <div className="flex justify-between items-center mb-6 overflow-x-auto pb-2">
-                <TabsList className="bg-white border border-slate-200 p-1.5 h-auto rounded-2xl shadow-sm">
+                <TabsList className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] p-1.5 h-auto rounded-2xl shadow-sm">
                   <TabsTrigger value="simulator" className="rounded-xl px-6 py-2.5 data-[state=active]:bg-primary/5 data-[state=active]:text-primary font-bold text-sm">
                     <Box size={16} className="mr-2" /> Calculadora
                   </TabsTrigger>
@@ -1468,19 +1468,19 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
 
               <TabsContent value="simulator" className="focus-visible:outline-none space-y-8">
                 {simulatorStep === 'start' && (
-                  <Card className="rounded-3xl border-slate-200 bg-white shadow-sm">
+                  <Card className="rounded-3xl border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] shadow-sm">
                     <CardContent className="p-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Calculadora</p>
-                        <h2 className="mt-2 text-2xl font-bold text-slate-900 font-headline">Inicie uma nova precificação</h2>
-                        <p className="mt-2 max-w-2xl text-sm text-slate-500">
+                        <p className="text-xs font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Calculadora</p>
+                        <h2 className="mt-2 text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] font-headline">Inicie uma nova precificação</h2>
+                        <p className="mt-2 max-w-2xl text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                           Cadastre os dados da proposta antes de adicionar produtos e serviços ao cálculo.
                         </p>
                       </div>
                       <button
                         type="button"
                         onClick={startNewPricing}
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary px-6 py-4 text-sm font-bold text-white shadow-md hover:bg-primary/90 transition-colors"
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary px-6 py-4 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-md hover:bg-primary/90 transition-colors"
                       >
                         <FilePlus2 className="w-5 h-5" />
                         Nova Precificação
@@ -1490,10 +1490,10 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                 )}
 
                 {simulatorStep !== 'start' && (
-                  <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                    <div className="grid grid-cols-1 gap-4 border-b border-slate-100 bg-slate-50/80 p-5 xl:grid-cols-[minmax(190px,260px)_minmax(190px,260px)_1fr] xl:items-end">
+                  <div className="rounded-3xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] shadow-sm overflow-hidden">
+                    <div className="grid grid-cols-1 gap-4 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.8)] p-5 xl:grid-cols-[minmax(190px,260px)_minmax(190px,260px)_1fr] xl:items-end">
                       <div className="min-w-0">
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Nº Proposta</label>
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Nº Proposta</label>
                         <input
                           type="text"
                           value={proposalForm.number}
@@ -1502,29 +1502,29 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                             setProposalForm((prev) => ({ ...prev, number: nextNumber }));
                             setProposalSearchNumber(nextNumber);
                           }}
-                          className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-bold text-slate-900 outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                          className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                         />
                       </div>
                       <div className="min-w-0">
-                        <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">Buscar Nº</label>
+                        <label className="block text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Buscar Nº</label>
                         <input
                           type="text"
                           value={proposalSearchNumber}
                           onChange={(event) => setProposalSearchNumber(event.target.value)}
-                          className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-base font-bold text-slate-900 outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                          className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                         />
                       </div>
                       <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap xl:justify-end">
-                        <button type="button" onClick={startNewPricing} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-400/40 bg-cyan-500/10 px-4 py-3 text-sm font-bold text-cyan-700 transition hover:bg-cyan-500/20">
+                        <button type="button" onClick={startNewPricing} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-400/40 bg-cyan-500/10 px-4 py-3 text-sm font-bold text-cyan-700 dark:text-cyan-300 transition hover:bg-cyan-500/20">
                           <FilePlus2 className="w-4 h-4" /> Nova
                         </button>
-                        <button type="button" onClick={searchPricingProposal} disabled={isBudgetSearchLoading} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-400/40 bg-cyan-500/10 px-4 py-3 text-sm font-bold text-cyan-700 transition hover:bg-cyan-500/20 disabled:opacity-60">
+                        <button type="button" onClick={searchPricingProposal} disabled={isBudgetSearchLoading} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-cyan-400/40 bg-cyan-500/10 px-4 py-3 text-sm font-bold text-cyan-700 dark:text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-60">
                           {isBudgetSearchLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />} Buscar
                         </button>
-                        <button type="button" onClick={savePricingProposal} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-primary/90">
+                        <button type="button" onClick={savePricingProposal} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary px-4 py-3 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm transition hover:bg-primary/90">
                           <Save className="w-4 h-4" /> Salvar
                         </button>
-                        <button type="button" onClick={handleCalculate} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-bold text-emerald-700 transition hover:bg-emerald-500/20">
+                        <button type="button" onClick={handleCalculate} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm font-bold text-emerald-700 dark:text-emerald-300 transition hover:bg-emerald-500/20">
                           <FileText className="w-4 h-4" /> Gerar
                         </button>
                       </div>
@@ -1534,8 +1534,8 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                       <div className={cn(
                         "mx-5 mt-5 rounded-2xl border px-4 py-3 text-xs font-bold",
                         proposalFeedback.type === 'error'
-                          ? "border-red-100 bg-red-50 text-red-700"
-                          : "border-emerald-100 bg-emerald-50 text-emerald-700"
+                          ? "border-red-100 dark:border-red-800 bg-red-50 dark:bg-red-950 text-red-700 dark:text-red-300"
+                          : "border-emerald-100 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300"
                       )}>
                         {proposalFeedback.text}
                       </div>
@@ -1543,25 +1543,25 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
 
                     {simulatorStep === 'proposal' && (
                       <>
-                        <div className="border-b border-slate-100 bg-cyan-600 px-6 py-5">
-                          <h2 className="text-2xl font-bold text-white font-headline">Informações da Proposta</h2>
+                        <div className="border-b border-[var(--crm-border)] bg-cyan-600 px-6 py-5">
+                          <h2 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] font-headline">Informações da Proposta</h2>
                         </div>
-                        <div className="border-b border-slate-100 bg-slate-50/60 p-6">
-                          <div className="rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-                            <div className="border-b border-slate-100 px-6 py-5">
-                              <h3 className="text-xl font-bold text-slate-900 font-headline">Custos (Orçamentos de Distribuidores)</h3>
-                              <p className="mt-1 text-sm text-slate-500">
+                        <div className="border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-6">
+                          <div className="rounded-3xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] shadow-sm overflow-hidden">
+                            <div className="border-b border-[var(--crm-border)] px-6 py-5">
+                              <h3 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] font-headline">Custos (Orçamentos de Distribuidores)</h3>
+                              <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                 Cadastre os orçamentos recebidos antes de avançar para os itens da precificação.
                               </p>
                             </div>
                             <div className="space-y-4 p-6">
                               <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(260px,1fr)_220px] md:items-end">
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-500 mb-1.5">Distribuidor</label>
+                                  <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Distribuidor</label>
                                   <select
                                     value={currentBudget.distribuidorId}
                                     onChange={(event) => handleBudgetDistributorChange(event.target.value)}
-                                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                                    className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                                   >
                                     <option value="">Selecione um distribuidor cadastrado</option>
                                     {preSalesDistributors.map((distributor) => (
@@ -1572,20 +1572,20 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                                   </select>
                                 </div>
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-500 mb-1.5">Nº Orçamento</label>
+                                  <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Nº Orçamento</label>
                                   <div className="flex gap-2">
                                     <input
                                       type="text"
                                       placeholder="ORC-0001"
                                       value={currentBudget.numeroOrcamento}
                                       onChange={(event) => setCurrentBudget(prev => ({ ...prev, numeroOrcamento: event.target.value }))}
-                                      className="min-w-0 flex-1 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                                      className="min-w-0 flex-1 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                                     />
                                     <button
                                       type="button"
                                       onClick={() => searchBudgetRequestByNumber(currentBudget.numeroOrcamento)}
                                       disabled={isBudgetSearchLoading}
-                                      className="inline-flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-2xl border border-cyan-400/40 bg-cyan-500/10 text-cyan-700 transition hover:bg-cyan-500/20 disabled:opacity-60"
+                                      className="inline-flex h-[50px] w-[50px] shrink-0 items-center justify-center rounded-2xl border border-cyan-400/40 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 transition hover:bg-cyan-500/20 disabled:opacity-60"
                                       title="Buscar na Fila de Orçamentos"
                                     >
                                       {isBudgetSearchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
@@ -1596,72 +1596,72 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
 
                               <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-[180px_minmax(280px,1fr)_160px_180px] xl:items-end">
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-500 mb-1.5">Modalidade</label>
+                                  <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Modalidade</label>
                                   <select
                                     value={currentCost.modalidade}
                                     onChange={(event) => handleCostFieldChange('modalidade', event.target.value as DistributorCostMode)}
-                                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                                    className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                                   >
                                     <option value="SETUP">Setup / CAPEX</option>
                                     <option value="RECORRENTE">Recorrente / OPEX</option>
                                   </select>
                                 </div>
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-500 mb-1.5">Item / Descrição</label>
+                                  <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Item / Descrição</label>
                                   <input
                                     type="text"
                                     placeholder="Servidor, licença, serviço..."
                                     value={currentCost.item}
                                     onChange={(event) => handleCostFieldChange('item', event.target.value)}
-                                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                                    className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-500 mb-1.5">Qtde</label>
+                                  <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Qtde</label>
                                   <input
                                     type="number"
                                     min="1"
                                     value={currentCost.quantidade}
                                     onChange={(event) => handleCostFieldChange('quantidade', Number(event.target.value) || 1)}
-                                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                                    className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-500 mb-1.5">Custo Unit. R$</label>
+                                  <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Custo Unit. R$</label>
                                   <input
                                     type="number"
                                     min="0"
                                     step="0.01"
                                     value={currentCost.custoUnitario}
                                     onChange={(event) => handleCostFieldChange('custoUnitario', Number(event.target.value) || 0)}
-                                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                                    className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                                   />
                                 </div>
                               </div>
 
                               <div className="grid grid-cols-1 gap-4 xl:grid-cols-[1fr_auto] xl:items-end">
                                 <div>
-                                  <label className="block text-sm font-semibold text-slate-500 mb-1.5">Observações</label>
+                                  <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Observações</label>
                                   <input
                                     type="text"
                                     placeholder="Condições comerciais, prazo, impostos inclusos..."
                                     value={currentCost.observacoes}
                                     onChange={(event) => handleCostFieldChange('observacoes', event.target.value)}
-                                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                                    className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                                   />
                                 </div>
                                 <button
                                   type="button"
                                   onClick={handleAddDistributorCost}
-                                  className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-primary/90 transition-colors"
+                                  className="inline-flex min-h-[50px] items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary px-6 py-3 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-md hover:bg-primary/90 transition-colors"
                                 >
                                   <Plus className="w-4 h-4" />
                                   Adicionar e Aplicar
                                 </button>
                               </div>
 
-                              <div className="overflow-hidden rounded-2xl border border-slate-200">
-                                <div className="hidden grid-cols-8 gap-3 border-b border-slate-100 bg-slate-50 px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-slate-400 lg:grid">
+                              <div className="overflow-hidden rounded-2xl border border-[var(--crm-border)]">
+                                <div className="hidden grid-cols-8 gap-3 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[11px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] lg:grid">
                                   <span>Modalidade</span>
                                   <span>Distribuidor</span>
                                   <span>Orçamento</span>
@@ -1671,25 +1671,25 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                                   <span>Data</span>
                                 </div>
                                 {distributorCosts.length === 0 ? (
-                                  <div className="px-4 py-6 text-sm font-semibold text-slate-400">
+                                  <div className="px-4 py-6 text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                     Sem custos adicionados para esta proposta.
                                   </div>
                                 ) : (
-                                  <div className="divide-y divide-slate-100">
+                                  <div className="divide-y divide-[var(--crm-border)]">
                                     {distributorCosts.map((cost) => (
-                                      <div key={cost.id} className="grid grid-cols-1 gap-2 px-4 py-4 text-sm text-slate-600 lg:grid-cols-8 lg:items-center">
-                                        <span className="font-bold text-slate-900">{cost.modalidade === 'RECORRENTE' ? 'Recorrente' : 'Setup'}</span>
+                                      <div key={cost.id} className="grid grid-cols-1 gap-2 px-4 py-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] lg:grid-cols-8 lg:items-center">
+                                        <span className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{cost.modalidade === 'RECORRENTE' ? 'Recorrente' : 'Setup'}</span>
                                         <span className="truncate">{cost.distribuidor}</span>
                                         <span className="truncate">{cost.numeroOrcamento || '-'}</span>
                                         <span className="col-span-2 truncate" title={cost.item}>{cost.item}</span>
                                         <span>{cost.quantidade}</span>
-                                        <span className="font-bold text-slate-900">{formatCurrency(cost.custoUnitario)}</span>
+                                        <span className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(cost.custoUnitario)}</span>
                                         <span className="flex items-center justify-between gap-2">
                                           {new Date(cost.data).toLocaleDateString('pt-BR')}
                                           <button
                                             type="button"
                                             onClick={() => handleRemoveDistributorCost(cost.id)}
-                                            className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+                                            className="inline-flex h-8 w-8 items-center justify-center rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950 text-red-600 hover:bg-red-100 dark:hover:bg-red-950"
                                             title="Remover orçamento"
                                           >
                                             <Trash2 className="h-3.5 w-3.5" />
@@ -1705,11 +1705,11 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                         </div>
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 p-6">
                           <div className="xl:col-span-2">
-                            <label className="block text-sm font-semibold text-slate-500 mb-1.5">Oportunidade</label>
+                            <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Oportunidade</label>
                             <select
                               value={proposalForm.opportunityId}
                               onChange={(event) => handleProposalOpportunityChange(event.target.value)}
-                              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
+                              className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10"
                             >
                               <option value="">Selecione a oportunidade vinculada</option>
                               {opportunities.map((opportunity) => (
@@ -1724,41 +1724,41 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                           <div className="space-y-4">
                             <h3 className="text-2xl font-bold text-sky-600 font-headline">Dados do Cliente</h3>
                             <div>
-                              <label className="block text-sm font-semibold text-slate-500 mb-1.5">Nome da Empresa Cliente</label>
-                              <input value={proposalForm.clientCompany} onChange={(event) => setProposalForm(prev => ({ ...prev, clientCompany: event.target.value }))} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
+                              <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Nome da Empresa Cliente</label>
+                              <input value={proposalForm.clientCompany} onChange={(event) => setProposalForm(prev => ({ ...prev, clientCompany: event.target.value }))} className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-slate-500 mb-1.5">Nome do Contato</label>
-                              <input value={proposalForm.clientContact} onChange={(event) => setProposalForm(prev => ({ ...prev, clientContact: event.target.value }))} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
+                              <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Nome do Contato</label>
+                              <input value={proposalForm.clientContact} onChange={(event) => setProposalForm(prev => ({ ...prev, clientContact: event.target.value }))} className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-slate-500 mb-1.5">Telefone</label>
-                              <input value={proposalForm.clientPhone} onChange={(event) => setProposalForm(prev => ({ ...prev, clientPhone: event.target.value }))} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
+                              <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Telefone</label>
+                              <input value={proposalForm.clientPhone} onChange={(event) => setProposalForm(prev => ({ ...prev, clientPhone: event.target.value }))} className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-slate-500 mb-1.5">E-mail</label>
-                              <input type="email" value={proposalForm.clientEmail} onChange={(event) => setProposalForm(prev => ({ ...prev, clientEmail: event.target.value }))} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
+                              <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">E-mail</label>
+                              <input type="email" value={proposalForm.clientEmail} onChange={(event) => setProposalForm(prev => ({ ...prev, clientEmail: event.target.value }))} className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
                             </div>
                           </div>
 
                           <div className="space-y-4">
                             <h3 className="text-2xl font-bold text-sky-600 font-headline">Dados do Gerente de Contas</h3>
                             <div>
-                              <label className="block text-sm font-semibold text-slate-500 mb-1.5">Nome do Gerente</label>
-                              <input value={proposalForm.managerName} onChange={(event) => setProposalForm(prev => ({ ...prev, managerName: event.target.value }))} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
+                              <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Nome do Gerente</label>
+                              <input value={proposalForm.managerName} onChange={(event) => setProposalForm(prev => ({ ...prev, managerName: event.target.value }))} className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-slate-500 mb-1.5">E-mail do Gerente</label>
-                              <input type="email" value={proposalForm.managerEmail} onChange={(event) => setProposalForm(prev => ({ ...prev, managerEmail: event.target.value }))} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
+                              <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">E-mail do Gerente</label>
+                              <input type="email" value={proposalForm.managerEmail} onChange={(event) => setProposalForm(prev => ({ ...prev, managerEmail: event.target.value }))} className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
                             </div>
                             <div>
-                              <label className="block text-sm font-semibold text-slate-500 mb-1.5">Telefone do Gerente</label>
-                              <input value={proposalForm.managerPhone} onChange={(event) => setProposalForm(prev => ({ ...prev, managerPhone: event.target.value }))} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
+                              <label className="block text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">Telefone do Gerente</label>
+                              <input value={proposalForm.managerPhone} onChange={(event) => setProposalForm(prev => ({ ...prev, managerPhone: event.target.value }))} className="w-full rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-primary/50 focus:ring-2 focus:ring-primary/10" />
                             </div>
                           </div>
                         </div>
                         <div className="flex justify-end px-6 pb-6">
-                          <button type="button" onClick={continueToItems} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary px-6 py-3 text-sm font-bold text-white shadow-md hover:bg-primary/90 transition-colors">
+                          <button type="button" onClick={continueToItems} className="inline-flex items-center justify-center gap-2 rounded-2xl border border-primary/20 bg-primary px-6 py-3 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-md hover:bg-primary/90 transition-colors">
                             <ArrowRight className="w-4 h-4" />
                             Continuar para Adicionar Itens
                           </button>
@@ -1770,14 +1770,14 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
 
                 {simulatorStep === 'calculation' && (
                   <>
-                    <div className="rounded-3xl border border-slate-200 bg-white p-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between shadow-sm">
+                    <div className="rounded-3xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] p-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between shadow-sm">
                       <div>
-                        <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Cliente</p>
-                        <p className="text-lg font-bold text-slate-900">
+                        <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Cliente</p>
+                        <p className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {proposalForm.clientCompany || 'Sem empresa'} · {proposalForm.clientContact || 'Sem contato'}
                         </p>
                         {proposalForm.opportunityNumber || proposalForm.opportunityTitle ? (
-                          <p className="mt-1 text-xs font-semibold text-slate-500">
+                          <p className="mt-1 text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
                             Oportunidade: {[proposalForm.opportunityNumber, proposalForm.opportunityTitle].filter(Boolean).join(' - ')}
                           </p>
                         ) : null}
@@ -1785,7 +1785,7 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                       <button
                         type="button"
                         onClick={() => setSimulatorStep('proposal')}
-                        className="inline-flex items-center justify-center rounded-2xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-600 hover:text-primary hover:border-primary/30"
+                        className="inline-flex items-center justify-center rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-2 text-sm font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-primary hover:border-primary/30"
                       >
                         Editar Dados da Proposta
                       </button>
@@ -1834,8 +1834,8 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                 <div className="grid grid-cols-1 gap-4">
                   {history.length === 0 ? (
                     <Card className="rounded-3xl border-dashed border-2 p-12 text-center">
-                      <Clock className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-                      <p className="text-slate-400">Nenhum cenário salvo ainda no histórico.</p>
+                      <Clock className="w-12 h-12 text-[rgb(var(--crm-ink-rgb)_/_1)] mx-auto mb-4" />
+                      <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum cenário salvo ainda no histórico.</p>
                     </Card>
                   ) : (
                     <>
@@ -1858,17 +1858,17 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                 {/* View Scenario Modal - Pronto para Impressão */}
                 {viewingScenario && (
                   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={() => setViewingScenario(null)}>
-                    <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 w-full max-w-2xl mx-4 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-between p-6 border-b border-slate-100 print:hidden">
-                        <h2 className="text-lg font-bold text-slate-900 font-headline">Visualizar Precificação</h2>
+                    <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-3xl shadow-2xl border border-[var(--crm-border)] w-full max-w-2xl mx-4 max-h-[85vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-between p-6 border-b border-[var(--crm-border)] print:hidden">
+                        <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] font-headline">Visualizar Precificação</h2>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => window.print()}
-                            className="h-9 px-4 rounded-xl border border-primary/20 bg-primary text-white text-xs font-bold inline-flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors shadow-sm"
+                            className="h-9 px-4 rounded-xl border border-primary/20 bg-primary text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-bold inline-flex items-center justify-center gap-2 hover:bg-primary/90 transition-colors shadow-sm"
                           >
                             <Printer className="w-4 h-4" /> Imprimir / PDF
                           </button>
-                          <button onClick={() => setViewingScenario(null)} className="h-9 w-9 rounded-xl border border-slate-300 bg-white text-slate-500 hover:text-slate-700 inline-flex items-center justify-center transition-colors shadow-sm">
+                          <button onClick={() => setViewingScenario(null)} className="h-9 w-9 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] inline-flex items-center justify-center transition-colors shadow-sm">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
@@ -1876,93 +1876,93 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                       <div className="p-6 sm:p-8 space-y-6 print:space-y-4 print:p-4">
                         {/* Cabeçalho print-friendly */}
                         <div className="text-center hidden print:block mb-6">
-                          <h1 className="text-2xl font-bold text-slate-900">Precificação - FinEdge Architect</h1>
-                          <p className="text-sm text-slate-500 mt-1">
+                          <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Precificação - FinEdge Architect</h1>
+                          <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                             {viewingScenario.createdAt?.toDate ? viewingScenario.createdAt.toDate().toLocaleString('pt-BR') : 'Data não informada'}
                           </p>
-                          <hr className="mt-4 border-slate-200" />
+                          <hr className="mt-4 border-[var(--crm-border)]" />
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 p-5 border border-primary/10">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Preço Final Mensal</p>
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Preço Final Mensal</p>
                             <p className="text-2xl font-bold text-primary">{formatCurrency(viewingScenario.results.finalMonthlyPrice)}</p>
-                            <p className="text-xs text-slate-400 mt-0.5">/mês</p>
+                            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">/mês</p>
                           </div>
-                          <div className="rounded-2xl bg-slate-50 p-5 border border-slate-100">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">TCV - Total do Contrato</p>
-                            <p className="text-2xl font-bold text-slate-900">{formatCurrency(viewingScenario.results.totalContractValue)}</p>
-                            <p className="text-xs text-slate-400 mt-0.5">{viewingScenario.inputs.durationMonths} meses</p>
+                          <div className="rounded-2xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-5 border border-[var(--crm-border)]">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">TCV - Total do Contrato</p>
+                            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(viewingScenario.results.totalContractValue)}</p>
+                            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">{viewingScenario.inputs.durationMonths} meses</p>
                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                          <div className="rounded-xl bg-slate-50 p-4 border border-slate-100">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Margem EBITDA</p>
+                          <div className="rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 border border-[var(--crm-border)]">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Margem EBITDA</p>
                             <p className={cn("text-lg font-bold", viewingScenario.results.metrics.ebitdaMargin >= 20 ? "text-emerald-600" : "text-amber-600")}>
                               {formatPercent(viewingScenario.results.metrics.ebitdaMargin)}
                             </p>
                           </div>
-                          <div className="rounded-xl bg-slate-50 p-4 border border-slate-100">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Markup</p>
-                            <p className="text-lg font-bold text-slate-900">{formatPercent(viewingScenario.inputs.markupPercentage)}</p>
+                          <div className="rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 border border-[var(--crm-border)]">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Markup</p>
+                            <p className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatPercent(viewingScenario.inputs.markupPercentage)}</p>
                           </div>
-                          <div className="rounded-xl bg-slate-50 p-4 border border-slate-100">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Setup (itens)</p>
-                            <p className="text-lg font-bold text-slate-900">{viewingScenario.inputs.upfrontItems?.length || 0}</p>
+                          <div className="rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 border border-[var(--crm-border)]">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Setup (itens)</p>
+                            <p className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{viewingScenario.inputs.upfrontItems?.length || 0}</p>
                           </div>
-                          <div className="rounded-xl bg-slate-50 p-4 border border-slate-100">
-                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Recorrentes</p>
-                            <p className="text-lg font-bold text-slate-900">{viewingScenario.inputs.recurringItems?.length || 0}</p>
+                          <div className="rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 border border-[var(--crm-border)]">
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Recorrentes</p>
+                            <p className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{viewingScenario.inputs.recurringItems?.length || 0}</p>
                           </div>
                         </div>
 
                         {viewingScenario.metadata?.allocation ? (
-                          <div className="rounded-2xl border border-cyan-200 bg-cyan-50/70 p-5">
-                            <h3 className="text-sm font-bold text-slate-800 mb-3 flex items-center gap-2">
+                          <div className="rounded-2xl border border-cyan-200 dark:border-cyan-800 bg-cyan-50/70 dark:bg-cyan-950/70 p-5">
+                            <h3 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3 flex items-center gap-2">
                               <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
                               Rateio mensal aplicado
                             </h3>
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
                               <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Nome do rateio</p>
-                                <p className="text-sm font-bold text-slate-900">{viewingScenario.metadata.allocation.name}</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Nome do rateio</p>
+                                <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{viewingScenario.metadata.allocation.name}</p>
                               </div>
                               <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Método</p>
-                                <p className="text-sm font-bold text-slate-900">
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Método</p>
+                                <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                   {viewingScenario.metadata.allocation.method === 'proportional' ? 'Proporcional' : 'Igualitário'}
                                 </p>
                               </div>
                               <div>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Total rateado/mês</p>
-                                <p className="text-sm font-bold text-cyan-700">{formatCurrency(viewingScenario.metadata.allocation.totalMonthlyAllocated)}</p>
+                                <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Total rateado/mês</p>
+                                <p className="text-sm font-bold text-cyan-700 dark:text-cyan-300">{formatCurrency(viewingScenario.metadata.allocation.totalMonthlyAllocated)}</p>
                               </div>
                             </div>
-                            <div className="mt-4 overflow-x-auto rounded-xl border border-cyan-100 bg-white">
+                            <div className="mt-4 overflow-x-auto rounded-xl border border-cyan-100 dark:border-cyan-800 bg-[rgb(var(--crm-surface-rgb)_/_1)]">
                               <table className="w-full text-sm">
                                 <thead>
-                                  <tr className="bg-cyan-50 text-left">
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500">Produto alvo</th>
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-right">Original/mês</th>
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-right">Rateado/mês</th>
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-right">Venda/mês</th>
+                                  <tr className="bg-cyan-50 dark:bg-cyan-950 text-left">
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Produto alvo</th>
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] text-right">Original/mês</th>
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] text-right">Rateado/mês</th>
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] text-right">Venda/mês</th>
                                   </tr>
                                 </thead>
                                 <tbody className="divide-y divide-cyan-50">
                                   {viewingScenario.metadata.allocation.results.map((allocationItem) => (
                                     <tr key={allocationItem.productId}>
-                                      <td className="px-4 py-3 font-medium text-slate-800">
+                                      <td className="px-4 py-3 font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                         {allocationItem.name}
                                         {allocationItem.breakdown.length > 0 ? (
-                                          <p className="mt-1 text-[11px] font-semibold text-slate-500">
+                                          <p className="mt-1 text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                             Fontes: {allocationItem.breakdown.map((source) => source.sourceName).join(', ')}
                                           </p>
                                         ) : null}
                                       </td>
-                                      <td className="px-4 py-3 text-right text-slate-600">{formatCurrency(allocationItem.originalMonthlyCost)}</td>
-                                      <td className="px-4 py-3 text-right text-cyan-700">+{formatCurrency(allocationItem.allocatedMonthlyCost)}</td>
-                                      <td className="px-4 py-3 text-right font-bold text-slate-900">{formatCurrency(allocationItem.saleMonthlyPrice || allocationItem.totalMonthlyCost)}</td>
+                                      <td className="px-4 py-3 text-right text-[rgb(var(--crm-muted-rgb)_/_1)]">{formatCurrency(allocationItem.originalMonthlyCost)}</td>
+                                      <td className="px-4 py-3 text-right text-cyan-700 dark:text-cyan-300">+{formatCurrency(allocationItem.allocatedMonthlyCost)}</td>
+                                      <td className="px-4 py-3 text-right font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(allocationItem.saleMonthlyPrice || allocationItem.totalMonthlyCost)}</td>
                                     </tr>
                                   ))}
                                 </tbody>
@@ -1974,27 +1974,27 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                         {/* Tabela de itens Setup */}
                         {viewingScenario.inputs.upfrontItems && viewingScenario.inputs.upfrontItems.length > 0 && (
                           <div>
-                            <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3 flex items-center gap-2">
                               <span className="w-1.5 h-1.5 rounded-full bg-primary" />
                               Itens de Setup
                             </h3>
-                            <div className="overflow-x-auto rounded-xl border border-slate-200">
+                            <div className="overflow-x-auto rounded-xl border border-[var(--crm-border)]">
                               <table className="w-full text-sm">
                                 <thead>
-                                  <tr className="bg-slate-50 text-left">
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500">Item</th>
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-right">Qtd</th>
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-right">Valor Unit.</th>
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-right">Total</th>
+                                  <tr className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left">
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Item</th>
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] text-right">Qtd</th>
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] text-right">Valor Unit.</th>
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] text-right">Total</th>
                                   </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100">
+                                <tbody className="divide-y divide-[var(--crm-border)]">
                                   {viewingScenario.inputs.upfrontItems.map((upfrontItem) => (
-                                    <tr key={upfrontItem.id} className="hover:bg-slate-50">
-                                      <td className="px-4 py-3 font-medium text-slate-800">{upfrontItem.name}</td>
-                                      <td className="px-4 py-3 text-right text-slate-600">{upfrontItem.quantity}</td>
-                                      <td className="px-4 py-3 text-right text-slate-600">{formatCurrency(upfrontItem.unitCost)}</td>
-                                      <td className="px-4 py-3 text-right font-bold text-slate-800">{formatCurrency(upfrontItem.quantity * upfrontItem.unitCost)}</td>
+                                    <tr key={upfrontItem.id} className="hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]">
+                                      <td className="px-4 py-3 font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">{upfrontItem.name}</td>
+                                      <td className="px-4 py-3 text-right text-[rgb(var(--crm-muted-rgb)_/_1)]">{upfrontItem.quantity}</td>
+                                      <td className="px-4 py-3 text-right text-[rgb(var(--crm-muted-rgb)_/_1)]">{formatCurrency(upfrontItem.unitCost)}</td>
+                                      <td className="px-4 py-3 text-right font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(upfrontItem.quantity * upfrontItem.unitCost)}</td>
                                     </tr>
                                   ))}
                                 </tbody>
@@ -2006,27 +2006,27 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                         {/* Tabela de itens Recorrentes */}
                         {viewingScenario.inputs.recurringItems && viewingScenario.inputs.recurringItems.length > 0 && (
                           <div>
-                            <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3 flex items-center gap-2">
                               <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                               Itens Recorrentes
                             </h3>
-                            <div className="overflow-x-auto rounded-xl border border-slate-200">
+                            <div className="overflow-x-auto rounded-xl border border-[var(--crm-border)]">
                               <table className="w-full text-sm">
                                 <thead>
-                                  <tr className="bg-slate-50 text-left">
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500">Item</th>
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-right">Qtd</th>
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-right">Valor Unit.</th>
-                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-slate-500 text-right">Total/mês</th>
+                                  <tr className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left">
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Item</th>
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] text-right">Qtd</th>
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] text-right">Valor Unit.</th>
+                                    <th className="px-4 py-3 font-bold text-[10px] uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] text-right">Total/mês</th>
                                   </tr>
                                 </thead>
-                                <tbody className="divide-y divide-slate-100">
+                                <tbody className="divide-y divide-[var(--crm-border)]">
                                   {viewingScenario.inputs.recurringItems.map((recItem) => (
-                                    <tr key={recItem.id} className="hover:bg-slate-50">
-                                      <td className="px-4 py-3 font-medium text-slate-800">{recItem.name}</td>
-                                      <td className="px-4 py-3 text-right text-slate-600">{recItem.quantity}</td>
-                                      <td className="px-4 py-3 text-right text-slate-600">{formatCurrency(recItem.unitCost)}</td>
-                                      <td className="px-4 py-3 text-right font-bold text-slate-800">{formatCurrency(recItem.quantity * recItem.unitCost)}</td>
+                                    <tr key={recItem.id} className="hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]">
+                                      <td className="px-4 py-3 font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">{recItem.name}</td>
+                                      <td className="px-4 py-3 text-right text-[rgb(var(--crm-muted-rgb)_/_1)]">{recItem.quantity}</td>
+                                      <td className="px-4 py-3 text-right text-[rgb(var(--crm-muted-rgb)_/_1)]">{formatCurrency(recItem.unitCost)}</td>
+                                      <td className="px-4 py-3 text-right font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(recItem.quantity * recItem.unitCost)}</td>
                                     </tr>
                                   ))}
                                 </tbody>
@@ -2036,22 +2036,22 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                         )}
 
                         {/* Resumo financeiro */}
-                        <div className="rounded-2xl bg-slate-50 p-5 border border-slate-200">
-                          <h3 className="text-sm font-bold text-slate-700 mb-3 flex items-center gap-2">
+                        <div className="rounded-2xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-5 border border-[var(--crm-border)]">
+                          <h3 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3 flex items-center gap-2">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
                             Resumo Financeiro
                           </h3>
                           <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                             <div>
-                              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Receita Rec. Mensal</p>
-                              <p className="text-base font-bold text-slate-900">{formatCurrency(viewingScenario.results.metrics.totalRecurringRevenue)}</p>
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Receita Rec. Mensal</p>
+                              <p className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(viewingScenario.results.metrics.totalRecurringRevenue)}</p>
                             </div>
                             <div>
-                              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Custos Operacionais</p>
-                              <p className="text-base font-bold text-slate-900">{formatCurrency(viewingScenario.results.metrics.totalOperatingCosts)}</p>
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Custos Operacionais</p>
+                              <p className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(viewingScenario.results.metrics.totalOperatingCosts)}</p>
                             </div>
                             <div>
-                              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Resultado Líquido</p>
+                              <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Resultado Líquido</p>
                               <p className={cn("text-base font-bold", viewingScenario.results.metrics.netResult >= 0 ? "text-emerald-600" : "text-red-600")}>
                                 {formatCurrency(viewingScenario.results.metrics.netResult)}
                               </p>
@@ -2060,26 +2060,26 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                         </div>
 
                         {/* Rodapé print */}
-                        <div className="text-center text-[10px] text-slate-400 pt-4 border-t border-slate-100 hidden print:block">
+                        <div className="text-center text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] pt-4 border-t border-[var(--crm-border)] hidden print:block">
                           Documento gerado pelo FinEdge Architect - {new Date().toLocaleString('pt-BR')}
                         </div>
 
                         <div className="flex gap-3 pt-2 print:hidden">
                           <button
                             onClick={() => window.print()}
-                            className="flex-1 rounded-2xl border border-primary/20 bg-primary px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-2"
+                            className="flex-1 rounded-2xl border border-primary/20 bg-primary px-4 py-3 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm hover:bg-primary/90 transition-colors inline-flex items-center justify-center gap-2"
                           >
                             <Printer className="w-4 h-4" /> Imprimir / Gerar PDF
                           </button>
                           <button
                             onClick={() => { handleEditScenario(viewingScenario); }}
-                            className="flex-1 rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-700 hover:text-primary hover:border-primary/30 transition-colors inline-flex items-center justify-center gap-2 shadow-sm"
+                            className="flex-1 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-primary hover:border-primary/30 transition-colors inline-flex items-center justify-center gap-2 shadow-sm"
                           >
                             <Pencil className="w-4 h-4" /> Editar Cenário
                           </button>
                           <button
                             onClick={() => setViewingScenario(null)}
-                            className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-500 hover:text-slate-700 transition-colors shadow-sm"
+                            className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-3 text-sm font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors shadow-sm"
                           >
                             Fechar
                           </button>
@@ -2099,18 +2099,18 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
               backgroundColor="dark"
             >
               <div className="space-y-4">
-                <p className="text-sm text-slate-400">
+                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   Selecione um orçamento salvo para carregar automaticamente cliente, distribuidor e produtos na precificação.
                 </p>
 
                 {isBudgetSearchLoading ? (
                   <div className="py-12 text-center">
-                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-cyan-300" />
-                    <p className="mt-3 text-sm text-slate-400">Carregando Fila de Orçamentos...</p>
+                    <Loader2 className="mx-auto h-8 w-8 animate-spin text-cyan-700 dark:text-cyan-300" />
+                    <p className="mt-3 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando Fila de Orçamentos...</p>
                   </div>
                 ) : budgetQueue.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-slate-700 bg-slate-900/60 px-4 py-8 text-center">
-                    <p className="text-sm text-slate-400">Nenhum orçamento com custos disponível no momento.</p>
+                  <div className="rounded-xl border border-dashed border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-4 py-8 text-center">
+                    <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum orçamento com custos disponível no momento.</p>
                   </div>
                 ) : (
                   <div className="max-h-[520px] space-y-3 overflow-y-auto">
@@ -2129,21 +2129,21 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                             applyBudgetRequestToPricing(request);
                             setShowBudgetQueueModal(false);
                           }}
-                          className="w-full rounded-xl border border-slate-700 bg-slate-900/70 p-4 text-left transition hover:border-cyan-400/50 hover:bg-slate-900"
+                          className="w-full rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4 text-left transition hover:border-cyan-400/50 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0 flex-1">
                               <div className="flex flex-wrap items-center gap-2">
-                                <span className="font-mono text-base font-semibold text-cyan-300">{budgetNumber}</span>
-                                <span className="rounded-full border border-blue-400/30 bg-blue-500/20 px-2 py-1 text-xs font-semibold text-blue-100">
+                                <span className="font-mono text-base font-semibold text-cyan-700 dark:text-cyan-300">{budgetNumber}</span>
+                                <span className="rounded-full border border-blue-400/30 bg-blue-500/20 px-2 py-1 text-xs font-semibold text-blue-700 dark:text-blue-100">
                                   {request.modalidade || firstQuote?.modalidade || 'VENDA'}
                                 </span>
                               </div>
-                              <p className="mt-2 truncate text-sm font-semibold text-white">{request.titulo || 'Orçamento sem título'}</p>
-                              <p className="mt-1 text-xs text-slate-400">Cliente: {clientName}</p>
-                              <p className="mt-1 text-xs text-slate-500">{quotes.length} cotação(ões) • {totalItems} item(ns)</p>
+                              <p className="mt-2 truncate text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{request.titulo || 'Orçamento sem título'}</p>
+                              <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Cliente: {clientName}</p>
+                              <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{quotes.length} cotação(ões) • {totalItems} item(ns)</p>
                             </div>
-                            <ArrowRight className="mt-1 h-5 w-5 shrink-0 text-cyan-300" />
+                            <ArrowRight className="mt-1 h-5 w-5 shrink-0 text-cyan-700 dark:text-cyan-300" />
                           </div>
                         </button>
                       );

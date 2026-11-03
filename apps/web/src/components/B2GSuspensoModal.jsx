@@ -103,8 +103,8 @@ const B2GSuspensoModal = ({
     >
       <div className="space-y-5 p-2">
         {/* Header */}
-        <div className="flex items-center gap-3 p-4 rounded-xl border border-slate-400/40 bg-slate-500/10">
-          <PauseCircle className="h-6 w-6 text-slate-400 flex-shrink-0" />
+        <div className="flex items-center gap-3 p-4 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.1)]">
+          <PauseCircle className="h-6 w-6 text-[rgb(var(--crm-muted-rgb)_/_1)] flex-shrink-0" />
           <div>
             <p className="text-sm font-semibold text-[color:var(--crm-text)]">
               Registro de Suspensão
@@ -127,8 +127,8 @@ const B2GSuspensoModal = ({
                 key={reason}
                 className={`flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all ${
                   form.suspensoReason === reason
-                    ? 'border-slate-400/60 bg-slate-500/10'
-                    : 'border-[color:var(--crm-border)] hover:border-slate-300/30'
+                    ? "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.1)]"
+                    : "border-[color:var(--crm-border)] hover:border-[var(--crm-border)]"
                 }`}
               >
                 <input
@@ -226,7 +226,7 @@ const B2GSuspensoModal = ({
           </button>
           <button
             onClick={handleConfirm}
-            className="px-5 py-2 rounded-xl text-sm font-semibold text-white transition-all bg-slate-600 hover:bg-slate-500 shadow-[0_8px_20px_rgba(100,116,139,0.3)]"
+            className="px-5 py-2 rounded-xl text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-all bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] shadow-[0_8px_20px_rgba(100,116,139,0.3)]"
           >
             Confirmar Suspensão
           </button>

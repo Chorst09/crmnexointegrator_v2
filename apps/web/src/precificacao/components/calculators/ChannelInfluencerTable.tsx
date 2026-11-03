@@ -58,12 +58,12 @@ export const ChannelInfluencerTable: React.FC<ChannelInfluencerTableProps> = ({ 
   ];
 
   return (
-    <div className={`bg-slate-900 rounded-lg p-4 ${className}`}>
-      <h3 className="text-white text-lg font-semibold mb-4">Comissão Canal Influenciador</h3>
+    <div className={`bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-lg p-4 ${className}`}>
+      <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-lg font-semibold mb-4">Comissão Canal Influenciador</h3>
       <div className="overflow-x-auto">
-        <table className="w-full text-white text-sm">
+        <table className="w-full text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">
           <thead>
-            <tr className="border-b border-slate-700">
+            <tr className="border-b border-[var(--crm-border)]">
               <th className="text-left py-2 px-2 font-medium">Faixa de Receita Mensal</th>
               <th className="text-center py-2 px-2 font-medium">12 meses</th>
               <th className="text-center py-2 px-2 font-medium">24 meses</th>
@@ -74,7 +74,7 @@ export const ChannelInfluencerTable: React.FC<ChannelInfluencerTableProps> = ({ 
           </thead>
           <tbody>
             {commissionData.map((row, index) => (
-              <tr key={index} className="border-b border-slate-800 hover:bg-slate-800/50">
+              <tr key={index} className="border-b border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
                 <td className="py-2 px-2 text-xs">{row.range}</td>
                 <td className="py-2 px-2 text-center font-mono">{row.months12}</td>
                 <td className="py-2 px-2 text-center font-mono">{row.months24}</td>

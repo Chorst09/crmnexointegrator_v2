@@ -80,16 +80,16 @@ const calculateB2GFinancials = (form) => {
 };
 
 const DECISION_COLORS = {
-  'GO': 'bg-emerald-500/20 text-emerald-300 border-emerald-400/40',
-  'NO GO': 'bg-red-500/20 text-red-300 border-red-400/40',
-  'PENDING': 'bg-slate-500/20 text-slate-300 border-slate-400/40'
+  'GO': "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-400/40",
+  'NO GO': "bg-red-500/20 text-red-700 dark:text-red-300 border-red-400/40",
+  'PENDING': "bg-[rgb(var(--crm-surface-rgb)_/_0.2)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
 };
 
 function InfoRow({ label, value }) {
   return (
     <div className="space-y-0.5">
-      <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</div>
-      <div className="text-sm font-medium text-slate-200">{value || '-'}</div>
+      <div className="text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)]">{label}</div>
+      <div className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">{value || '-'}</div>
     </div>
   );
 }
@@ -112,8 +112,8 @@ function TabBtn({ active, onClick, icon: Icon, label }) {
       onClick={onClick}
       className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg transition-all whitespace-nowrap ${
         active
-          ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-400/40'
-          : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+          ? "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-400/40"
+          : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.6)]"
       }`}
     >
       <Icon className="h-3.5 w-3.5" />
@@ -280,27 +280,27 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
       closeOnOverlayClick={false}
       backgroundColor="dark"
       contentClassName="p-0"
-      panelClassName="bg-slate-950"
+      panelClassName="bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
     >
-      <div className="min-h-full bg-[linear-gradient(135deg,#020617,#0f172a_45%,#111827)] text-slate-100">
+      <div className="min-h-full bg-[linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_1),rgb(var(--crm-surface-2-rgb)_/_1)_45%,rgb(var(--crm-surface-2-rgb)_/_1))] text-[rgb(var(--crm-ink-rgb)_/_1)]">
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 space-y-6">
 
           {/* Header */}
-          <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="flex items-start gap-4">
-              <button type="button" onClick={onClose} className="mt-1 rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white transition-all">
+              <button type="button" onClick={onClose} className="mt-1 rounded-lg p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-all">
                 <ArrowLeft className="h-4 w-4" />
               </button>
               <div className="space-y-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="text-xl font-bold text-white">{b2g.processNumber || opportunity.number || opportunity.title}</h1>
+                  <h1 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{b2g.processNumber || opportunity.number || opportunity.title}</h1>
                   {b2g.modality && (
-                    <span className="inline-flex items-center rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-300">
+                    <span className="inline-flex items-center rounded-full border border-cyan-400/30 bg-cyan-500/10 px-2.5 py-0.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300">
                       {b2g.modality}
                     </span>
                   )}
                   {b2g.currentPhase && (
-                    <span className="inline-flex items-center rounded-full border border-slate-600 bg-slate-800 px-2.5 py-0.5 text-xs font-semibold text-slate-300">
+                    <span className="inline-flex items-center rounded-full border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2.5 py-0.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       {b2g.currentPhase}
                     </span>
                   )}
@@ -308,12 +308,12 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                     {decisionLabel[currentDecision] || currentDecision}
                   </span>
                 </div>
-                <p className="text-base text-slate-400">{b2g.agency || opportunity.company?.name}</p>
+                <p className="text-base text-[rgb(var(--crm-muted-rgb)_/_1)]">{b2g.agency || opportunity.company?.name}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
               <button type="button" onClick={() => onEdit && onEdit(opportunity)}
-                className="inline-flex items-center gap-2 rounded-xl border border-slate-600 bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-200 hover:bg-slate-700 transition-all">
+                className="inline-flex items-center gap-2 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-2 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-all">
                 <Pencil className="h-4 w-4" /> Editar Oportunidade
               </button>
             </div>
@@ -325,19 +325,19 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
             <div className="lg:col-span-2 space-y-6">
 
               {/* Informações do Objeto */}
-              <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 p-5 space-y-4">
-                <h2 className="text-lg font-bold text-white">Informações do Objeto</h2>
+              <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-5 space-y-4">
+                <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Informações do Objeto</h2>
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Objeto Resumido</div>
-                  <p className="text-base font-semibold text-white">{b2g.objectSummary || '-'}</p>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Objeto Resumido</div>
+                  <p className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{b2g.objectSummary || '-'}</p>
                 </div>
                 {b2g.objectDetailed && (
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Descrição Detalhada</div>
-                    <p className="text-sm text-slate-400 whitespace-pre-wrap leading-relaxed">{b2g.objectDetailed}</p>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Descrição Detalhada</div>
+                    <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] whitespace-pre-wrap leading-relaxed">{b2g.objectDetailed}</p>
                   </div>
                 )}
-                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 pt-4 border-t border-slate-700/50">
+                <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 pt-4 border-t border-[var(--crm-border)]">
                   <InfoRow label="Nome no Projeto" value={opportunity.projectName || b2g.projectName} />
                   <InfoRow label="Tipo de Cliente" value={
                     { NEW_CLIENT: 'Cliente Novo', BASE_CLIENT: 'Cliente da Base', RENEWAL: 'Renovação', NOVO_CLIENTE: 'Cliente Novo', CLIENTE_BASE: 'Cliente da Base', RENOVACAO: 'Renovação' }[opportunity.projectClientType] || '-'
@@ -355,12 +355,12 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
               <div className="rounded-2xl border border-[color:var(--crm-border,#334155)] bg-[rgb(var(--crm-surface-rgb,15_23_42)_/_0.65)] p-5">
                 <div className="flex items-center justify-between gap-3 mb-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-white">Acompanhamentos</h3>
-                    <p className="mt-1 text-sm text-slate-400">
+                    <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Acompanhamentos</h3>
+                    <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                       Registre interações, próximos passos e decisões desta oportunidade.
                     </p>
                   </div>
-                  <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/25 bg-cyan-500/10 text-cyan-400">
+                  <div className="hidden sm:flex h-10 w-10 items-center justify-center rounded-xl border border-cyan-400/25 bg-cyan-500/10 text-cyan-700 dark:text-cyan-400">
                     <MessageSquare className="h-5 w-5" />
                   </div>
                 </div>
@@ -382,7 +382,7 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                         className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                           followUpType === t.value
                             ? 'bg-cyan-500 text-white'
-                            : 'border border-slate-700 text-slate-300 hover:bg-slate-800'
+                            : "border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                         }`}
                       >
                         <t.icon className="h-3.5 w-3.5" />
@@ -396,7 +396,7 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                     onChange={e => setFollowUpText(e.target.value)}
                     placeholder="Ex: contato realizado com o órgão, retorno previsto, pendência documental, decisão do comitê..."
                     rows={4}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-950 px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/50 resize-none min-h-[110px]"
+                    className="w-full rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-4 py-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-cyan-500/50 resize-none min-h-[110px]"
                   />
 
                   <div className="flex justify-end">
@@ -404,7 +404,7 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                       type="button"
                       onClick={handleAddFollowUp}
                       disabled={savingFollowUp || !followUpText.trim()}
-                      className="inline-flex items-center gap-2 rounded-xl border border-cyan-300/45 bg-[linear-gradient(135deg,#2563eb,#0891b2)] px-5 py-2.5 text-sm font-semibold text-white hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
+                      className="inline-flex items-center gap-2 rounded-xl border border-cyan-300/45 bg-[linear-gradient(135deg,#2563eb,#0891b2)] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60 transition-all"
                     >
                       <Send className="h-4 w-4" />
                       {savingFollowUp ? 'Salvando...' : 'Salvar acompanhamento'}
@@ -413,9 +413,9 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                 </div>
 
                 {/* Timeline */}
-                <div className="mt-5 border-t border-slate-700/50 pt-5">
+                <div className="mt-5 border-t border-[var(--crm-border)] pt-5">
                   {loadingFollowUps ? (
-                    <div className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-sm text-slate-500">Carregando...</div>
+                    <div className="rounded-xl border border-dashed border-[var(--crm-border)] p-5 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando...</div>
                   ) : followUps.length > 0 ? (
                     <div className="space-y-3">
                       {followUps.map(fu => {
@@ -423,29 +423,29 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                         const TYPE_LABELS = { NOTE: 'Nota', CALL: 'Ligação', EMAIL: 'Email', MEETING: 'Reunião', WHATSAPP: 'WhatsApp' };
                         const Icon = TYPE_ICONS[fu.type] || StickyNote;
                         return (
-                          <div key={fu.id} className="rounded-xl border border-slate-700/50 bg-slate-800/30 p-3 relative group">
+                          <div key={fu.id} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.3)] p-3 relative group">
                             <div className="flex items-start gap-3">
                               <div className="flex-shrink-0 mt-0.5">
-                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400">
+                                <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-700 dark:text-cyan-400">
                                   <Icon className="h-4 w-4" />
                                 </div>
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex flex-wrap items-center gap-2 mb-1">
-                                  <span className="text-xs font-semibold text-cyan-400">{TYPE_LABELS[fu.type] || fu.type}</span>
-                                  <span className="text-xs text-slate-500">•</span>
-                                  <span className="text-xs text-slate-500">{fu.user?.name}</span>
-                                  <span className="text-xs text-slate-500">•</span>
-                                  <span className="text-xs text-slate-500">
+                                  <span className="text-xs font-semibold text-cyan-700 dark:text-cyan-400">{TYPE_LABELS[fu.type] || fu.type}</span>
+                                  <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">•</span>
+                                  <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{fu.user?.name}</span>
+                                  <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">•</span>
+                                  <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                     {new Date(fu.createdAt).toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })}
                                   </span>
                                 </div>
-                                <p className="text-sm text-slate-300 whitespace-pre-wrap">{fu.content || fu.description}</p>
+                                <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] whitespace-pre-wrap">{fu.content || fu.description}</p>
                               </div>
                               <button
                                 type="button"
                                 onClick={() => handleDeleteFollowUp(fu.id)}
-                                className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 text-red-400 hover:text-red-300"
+                                className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 text-red-700 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                                 title="Remover"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -456,7 +456,7 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                       })}
                     </div>
                   ) : (
-                    <div className="rounded-xl border border-dashed border-slate-700 p-5 text-center text-sm text-slate-500">
+                    <div className="rounded-xl border border-dashed border-[var(--crm-border)] p-5 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                       Nenhum acompanhamento registrado nesta oportunidade.
                     </div>
                   )}
@@ -464,8 +464,8 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
               </div>
 
               {/* Dados Financeiros */}
-              <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 p-5 space-y-4">
-                <h2 className="text-lg font-bold text-white">Dados Financeiros e Contratuais</h2>
+              <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-5 space-y-4">
+                <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Dados Financeiros e Contratuais</h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4">
                   {[
                     { label: 'Valor Mensal Estimado', value: formatCurrency(b2g.estimatedMonthlyValue) },
@@ -475,12 +475,12 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                     { label: 'Ticket Esperado', value: formatCurrency(b2g.expectedTicket) },
                   ].map(item => (
                     <div key={item.label} className="space-y-1">
-                      <div className="text-xs text-slate-500">{item.label}</div>
-                      <div className="text-lg font-bold text-cyan-300">{item.value}</div>
+                      <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.label}</div>
+                      <div className="text-lg font-bold text-cyan-700 dark:text-cyan-300">{item.value}</div>
                     </div>
                   ))}
                 </div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-slate-700/50">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-4 border-t border-[var(--crm-border)]">
                   <InfoRow label="Tipo Contrato" value={b2g.contractType} />
                   <InfoRow label="Prazo" value={b2g.contractTermMonths ? `${b2g.contractTermMonths} meses` : '-'} />
                   <InfoRow label="% Garantia" value={b2g.guaranteePercentage ? `${b2g.guaranteePercentage}%` : '-'} />
@@ -489,8 +489,8 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
               </div>
 
               {/* Prazos */}
-              <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 p-5 space-y-3">
-                <h2 className="text-lg font-bold text-white">Prazos Importantes</h2>
+              <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-5 space-y-3">
+                <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Prazos Importantes</h2>
                 {[
                   { label: 'Entrada do Lead', value: formatDate(opportunity.leadEntryDate || opportunity.createdAt) },
                   { label: 'Publicação', value: formatDate(b2g.publicationDate) },
@@ -505,9 +505,9 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                     ? [{ label: 'Saída', value: formatDate(opportunity.exitDate || opportunity.actualCloseDate) }]
                     : []),
                 ].map(item => (
-                  <div key={item.label} className="flex justify-between items-center py-2 border-b border-dashed border-slate-700/50 last:border-0">
-                    <span className="text-sm text-slate-400">{item.label}</span>
-                    <span className="text-sm font-bold text-slate-200">{item.value}</span>
+                  <div key={item.label} className="flex justify-between items-center py-2 border-b border-dashed border-[var(--crm-border)] last:border-0">
+                    <span className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.label}</span>
+                    <span className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.value}</span>
                   </div>
                 ))}
               </div>
@@ -517,17 +517,17 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
             <div className="space-y-6">
 
               {/* Tomada de Decisão */}
-              <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 p-5 space-y-4">
+              <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-5 space-y-4">
                 <div>
-                  <h2 className="text-lg font-bold text-white">Tomada de Decisão</h2>
-                  <p className="text-xs text-slate-400 mt-0.5">Fluxo Go / No Go para a oportunidade.</p>
+                  <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Tomada de Decisão</h2>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Fluxo Go / No Go para a oportunidade.</p>
                 </div>
                 <div>
-                  <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-2">Status da Decisão</div>
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] mb-2">Status da Decisão</div>
                   <div className={`flex items-center justify-between rounded-xl border px-4 py-3 ${DECISION_COLORS[currentDecision]}`}>
                     <span className="text-sm font-bold">{decisionLabel[currentDecision] || currentDecision}</span>
-                    {currentDecision === 'GO' && <Check className="h-5 w-5 text-emerald-400" />}
-                    {currentDecision === 'NO GO' && <X className="h-5 w-5 text-red-400" />}
+                    {currentDecision === 'GO' && <Check className="h-5 w-5 text-emerald-700 dark:text-emerald-400" />}
+                    {currentDecision === 'NO GO' && <X className="h-5 w-5 text-red-700 dark:text-red-400" />}
                   </div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
@@ -551,9 +551,9 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                   </button>
                 </div>
                 {b2g.decisionJustification && (
-                  <div className="rounded-xl border border-slate-700/50 bg-slate-800/40 p-3 space-y-1">
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">Justificativa</div>
-                    <p className="text-xs text-slate-300 leading-relaxed italic">"{b2g.decisionJustification}"</p>
+                  <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-3 space-y-1">
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)]">Justificativa</div>
+                    <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed italic">"{b2g.decisionJustification}"</p>
                   </div>
                 )}
               </div>
@@ -561,8 +561,8 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
               {stageDecisionDetails && (
                 <div className="rounded-2xl border border-cyan-400/35 bg-cyan-500/10 p-5 space-y-4">
                   <div>
-                    <h2 className="text-base font-bold text-white">Resultado Registrado</h2>
-                    <p className="text-xs text-cyan-100/70 mt-0.5">Dados informados no fechamento da fase.</p>
+                    <h2 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Resultado Registrado</h2>
+                    <p className="text-xs text-cyan-700/70 dark:text-cyan-100/70 mt-0.5">Dados informados no fechamento da fase.</p>
                   </div>
                   <div className="space-y-3">
                     {stageDecisionRows.map((row) => (
@@ -570,17 +570,17 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                     ))}
                   </div>
                   {stageDecisionDetails.notes && (
-                    <div className="rounded-xl border border-cyan-300/20 bg-slate-950/35 p-3">
-                      <div className="text-[10px] font-semibold uppercase tracking-wider text-cyan-100/60 mb-1">Acompanhamento</div>
-                      <p className="text-sm text-cyan-50/85 whitespace-pre-wrap">{stageDecisionDetails.notes}</p>
+                    <div className="rounded-xl border border-cyan-300/20 bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] p-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-wider text-cyan-700/60 dark:text-cyan-100/60 mb-1">Acompanhamento</div>
+                      <p className="text-sm text-cyan-700/85 dark:text-cyan-50/85 whitespace-pre-wrap">{stageDecisionDetails.notes}</p>
                     </div>
                   )}
                 </div>
               )}
 
               {/* Estratégia */}
-              <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 p-5 space-y-4">
-                <h2 className="text-base font-bold text-white">Estratégia Comercial</h2>
+              <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-5 space-y-4">
+                <h2 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Estratégia Comercial</h2>
                 <div className="space-y-3">
                   <InfoRow label="Lead Comercial" value={b2g.commercialLead} />
                   <InfoRow label="Lead Técnico" value={b2g.technicalLead} />
@@ -591,22 +591,22 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                 </div>
                 {b2g.mainCompetitors && (
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Concorrentes</div>
-                    <p className="text-sm text-slate-400">{b2g.mainCompetitors}</p>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Concorrentes</div>
+                    <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">{b2g.mainCompetitors}</p>
                   </div>
                 )}
               </div>
 
               {/* Risco */}
-              <div className="rounded-2xl border border-slate-700/60 bg-slate-900/80 p-5 space-y-3">
-                <h2 className="text-base font-bold text-white">Risco e Jurídico</h2>
+              <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-5 space-y-3">
+                <h2 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Risco e Jurídico</h2>
                 <InfoRow label="Grau de Risco" value={{ baixo: 'Baixo', medio: 'Médio', alto: 'Alto' }[b2g.riskLevel] || b2g.riskLevel} />
                 <InfoRow label="Tipo de Julgamento" value={b2g.judgmentType} />
                 <InfoRow label="Exigências Restritivas" value={b2g.restrictiveRequirements ? 'Sim' : 'Não'} />
                 {b2g.legalNotes && (
                   <div>
-                    <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-1">Observações Jurídicas</div>
-                    <p className="text-sm text-slate-400 whitespace-pre-wrap">{b2g.legalNotes}</p>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Observações Jurídicas</div>
+                    <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] whitespace-pre-wrap">{b2g.legalNotes}</p>
                   </div>
                 )}
               </div>
@@ -922,10 +922,10 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
     }
   };
 
-  const inputCls = "w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-cyan-500/50";
-  const selectCls = "w-full rounded-xl border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-cyan-500/50";
-  const labelCls = "block text-xs font-semibold text-slate-400 mb-1";
-  const sectionCls = "rounded-2xl border border-slate-700/60 bg-slate-900/80 p-5 space-y-4";
+  const inputCls = "w-full rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-cyan-500/50";
+  const selectCls = "w-full rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-cyan-500/50";
+  const labelCls = "block text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1";
+  const sectionCls = "rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-5 space-y-4";
 
   const tabs = [
     { id:'identificacao', label:'Identificação', icon: Info },
@@ -947,20 +947,20 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
       closeOnOverlayClick={false}
       backgroundColor="dark"
       contentClassName="p-0"
-      panelClassName="bg-slate-950"
+      panelClassName="bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
     >
-      <div className="min-h-full bg-[linear-gradient(135deg,#020617,#0f172a_45%,#111827)] text-slate-100">
+      <div className="min-h-full bg-[linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_1),rgb(var(--crm-surface-2-rgb)_/_1)_45%,rgb(var(--crm-surface-2-rgb)_/_1))] text-[rgb(var(--crm-ink-rgb)_/_1)]">
         <div className="mx-auto max-w-5xl px-4 py-6 sm:px-6 space-y-6 pb-20">
 
           {/* Header */}
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4">
-              <button type="button" onClick={onClose} className="rounded-lg p-2 text-slate-400 hover:bg-slate-800 hover:text-white">
+              <button type="button" onClick={onClose} className="rounded-lg p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 <ArrowLeft className="h-4 w-4" />
               </button>
               <div>
-                <h2 className="text-2xl font-bold text-white">{mode === 'create' ? 'Nova Oportunidade B2G' : 'Editar Oportunidade'}</h2>
-                <p className="text-sm text-slate-400">{mode === 'create' ? 'Cadastre os detalhes da oportunidade.' : 'Atualize os detalhes da oportunidade.'}</p>
+                <h2 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{mode === 'create' ? 'Nova Oportunidade B2G' : 'Editar Oportunidade'}</h2>
+                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">{mode === 'create' ? 'Cadastre os detalhes da oportunidade.' : 'Atualize os detalhes da oportunidade.'}</p>
               </div>
             </div>
             <button
@@ -975,11 +975,11 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
           </div>
 
           {error && (
-            <div className="rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-300">{error}</div>
+            <div className="rounded-xl border border-red-400/40 bg-red-500/10 px-4 py-3 text-sm text-red-700 dark:text-red-300">{error}</div>
           )}
 
           {/* Abas */}
-          <div className="flex flex-wrap gap-2 rounded-2xl border border-slate-700/60 bg-slate-900/60 p-2">
+          <div className="flex flex-wrap gap-2 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-2">
             {tabs.map(t => <TabBtn key={t.id} active={activeTab === t.id} onClick={() => setActiveTab(t.id)} icon={t.icon} label={t.label} />)}
           </div>
 
@@ -987,8 +987,8 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
           {activeTab === 'identificacao' && (
             <div className={sectionCls}>
               <div>
-                <h3 className="text-lg font-bold text-white">Identificação da Oportunidade</h3>
-                <p className="text-xs text-slate-400">Informações básicas do órgão e modalidade.</p>
+                <h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Identificação da Oportunidade</h3>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Informações básicas do órgão e modalidade.</p>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div><label className={labelCls}>Número do Edital / Processo</label>
@@ -1061,8 +1061,8 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
           {/* ABA: FINANCEIRO */}
           {activeTab === 'financeiro' && (
             <div className={sectionCls}>
-              <div><h3 className="text-lg font-bold text-white">Dados Financeiros</h3>
-                <p className="text-xs text-slate-400">Valores estimados e condições contratuais.</p></div>
+              <div><h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Dados Financeiros</h3>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Valores estimados e condições contratuais.</p></div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div className="md:col-span-2"><label className={labelCls}>Tipo de Contrato</label>
                   <select className={selectCls} value={form.contractType} onChange={e => setContractType(e.target.value)}>
@@ -1104,7 +1104,7 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <input type="checkbox" id="readjustmentClause" checked={form.readjustmentClause} onChange={e => set('readjustmentClause', e.target.checked)} className="rounded accent-cyan-500" />
-                <label htmlFor="readjustmentClause" className="text-sm text-slate-300 cursor-pointer">Cláusula de reajuste prevista</label>
+                <label htmlFor="readjustmentClause" className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] cursor-pointer">Cláusula de reajuste prevista</label>
               </div>
             </div>
           )}
@@ -1112,8 +1112,8 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
           {/* ABA: PRAZOS */}
           {activeTab === 'prazos' && (
             <div className={sectionCls}>
-              <div><h3 className="text-lg font-bold text-white">Prazos e Fase Atual</h3>
-                <p className="text-xs text-slate-400">Datas importantes do processo licitatório.</p></div>
+              <div><h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Prazos e Fase Atual</h3>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Datas importantes do processo licitatório.</p></div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div><label className={labelCls}>Entrada do Lead</label>
                   <input type="date" className={inputCls} value={form.leadEntryDate} onChange={e => set('leadEntryDate', e.target.value)} /></div>
@@ -1147,8 +1147,8 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
           {/* ABA: ESTRATÉGIA */}
           {activeTab === 'estrategia' && (
             <div className={sectionCls}>
-              <div><h3 className="text-lg font-bold text-white">Estratégia Comercial</h3>
-                <p className="text-xs text-slate-400">Time responsável, parceiros e análise competitiva.</p></div>
+              <div><h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Estratégia Comercial</h3>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Time responsável, parceiros e análise competitiva.</p></div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div><label className={labelCls}>Lead Comercial</label>
                   <input className={inputCls} placeholder="Nome do responsável comercial" value={form.commercialLead} onChange={e => set('commercialLead', e.target.value)} /></div>
@@ -1187,15 +1187,15 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
           {/* ABA: DOCUMENTOS */}
           {activeTab === 'documentos' && (
             <div className={sectionCls}>
-              <div><h3 className="text-lg font-bold text-white">Documentação</h3>
-                <p className="text-xs text-slate-400">Links, certidões e checklist documental.</p></div>
+              <div><h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Documentação</h3>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Links, certidões e checklist documental.</p></div>
               <div><label className={labelCls}>Link do Briefing / Edital</label>
                 <input type="url" className={inputCls} placeholder="https://..." value={form.briefingLink} onChange={e => set('briefingLink', e.target.value)} /></div>
               <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-400">Certidões / Documentos Obrigatórios</label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 rounded-xl border border-slate-700/50 bg-slate-800/30 p-4">
+                <label className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">Certidões / Documentos Obrigatórios</label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.3)] p-4">
                   {CERTIFICATE_OPTIONS.map(cert => (
-                    <label key={cert} className="flex items-center gap-2 text-sm text-slate-300 cursor-pointer">
+                    <label key={cert} className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] cursor-pointer">
                       <input
                         type="checkbox"
                         checked={form.certificatesRequired.includes(cert)}
@@ -1212,17 +1212,17 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <label className="flex items-center gap-2 rounded-xl border border-slate-700/50 bg-slate-800/30 px-4 py-3 cursor-pointer">
+                <label className="flex items-center gap-2 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.3)] px-4 py-3 cursor-pointer">
                   <input type="checkbox" checked={form.documentChecklistComplete} onChange={e => set('documentChecklistComplete', e.target.checked)} className="rounded accent-cyan-500" />
-                  <span className="text-sm text-slate-300">Checklist completo</span>
+                  <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Checklist completo</span>
                 </label>
-                <label className="flex items-center gap-2 rounded-xl border border-slate-700/50 bg-slate-800/30 px-4 py-3 cursor-pointer">
+                <label className="flex items-center gap-2 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.3)] px-4 py-3 cursor-pointer">
                   <input type="checkbox" checked={form.samplesRequired} onChange={e => set('samplesRequired', e.target.checked)} className="rounded accent-cyan-500" />
-                  <span className="text-sm text-slate-300">Exige amostras</span>
+                  <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Exige amostras</span>
                 </label>
-                <label className="flex items-center gap-2 rounded-xl border border-slate-700/50 bg-slate-800/30 px-4 py-3 cursor-pointer">
+                <label className="flex items-center gap-2 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.3)] px-4 py-3 cursor-pointer">
                   <input type="checkbox" checked={form.technicalVisitMandatory} onChange={e => set('technicalVisitMandatory', e.target.checked)} className="rounded accent-cyan-500" />
-                  <span className="text-sm text-slate-300">Visita técnica obrigatória</span>
+                  <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Visita técnica obrigatória</span>
                 </label>
               </div>
             </div>
@@ -1231,8 +1231,8 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
           {/* ABA: RISCO */}
           {activeTab === 'risco' && (
             <div className={sectionCls}>
-              <div><h3 className="text-lg font-bold text-white">Risco e Jurídico</h3>
-                <p className="text-xs text-slate-400">Avalie criticidade jurídica e operacional da oportunidade.</p></div>
+              <div><h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Risco e Jurídico</h3>
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Avalie criticidade jurídica e operacional da oportunidade.</p></div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div><label className={labelCls}>Tipo de Julgamento</label>
                   <input className={inputCls} placeholder="Ex: Menor Preço" value={form.judgmentType} onChange={e => set('judgmentType', e.target.value)} /></div>
@@ -1241,9 +1241,9 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
                     {RISK_LEVELS.map(r => <option key={r} value={r}>{r.charAt(0).toUpperCase()+r.slice(1)}</option>)}
                   </select>
                 </div>
-                <label className="flex items-center gap-2 rounded-xl border border-slate-700/50 bg-slate-800/30 px-4 py-3 mt-5 cursor-pointer">
+                <label className="flex items-center gap-2 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.3)] px-4 py-3 mt-5 cursor-pointer">
                   <input type="checkbox" checked={form.restrictiveRequirements} onChange={e => set('restrictiveRequirements', e.target.checked)} className="rounded accent-cyan-500" />
-                  <span className="text-sm text-slate-300">Exigências restritivas</span>
+                  <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Exigências restritivas</span>
                 </label>
               </div>
               <div><label className={labelCls}>Penalidades</label>
@@ -1255,7 +1255,7 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
 
           {/* Botões finais */}
           <div className="flex justify-between gap-3 pt-2">
-            <button type="button" onClick={onClose} className="inline-flex items-center gap-2 rounded-xl border border-slate-600 bg-slate-800 px-5 py-2.5 text-sm font-semibold text-slate-200 hover:bg-slate-700 transition-all">
+            <button type="button" onClick={onClose} className="inline-flex items-center gap-2 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-5 py-2.5 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-all">
               Cancelar
             </button>
             <button

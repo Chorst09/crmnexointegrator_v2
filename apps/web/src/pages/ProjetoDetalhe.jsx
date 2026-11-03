@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 
 const statusColors = {
-  PLANEJADO: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-300',
+  PLANEJADO: "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]",
   EM_ANDAMENTO: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
   PAUSADO: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
   CONCLUIDO: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
@@ -17,18 +17,18 @@ const statusColors = {
 };
 
 const phaseStatusColors = {
-  PENDING: 'bg-slate-100 text-slate-600 dark:bg-slate-700 dark:text-slate-400',
+  PENDING: "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]",
   IN_PROGRESS: 'bg-blue-100 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400',
   COMPLETED: 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400',
-  SKIPPED: 'bg-gray-100 text-gray-500'
+  SKIPPED: "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
 };
 
 const taskStatusColors = {
-  TODO: 'bg-slate-100 text-slate-600',
-  IN_PROGRESS: 'bg-blue-100 text-blue-600',
-  REVIEW: 'bg-purple-100 text-purple-600',
-  DONE: 'bg-green-100 text-green-600',
-  BLOCKED: 'bg-red-100 text-red-600'
+  TODO: "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)]",
+  IN_PROGRESS: "bg-blue-100 dark:bg-blue-950 text-blue-600",
+  REVIEW: "bg-purple-100 dark:bg-purple-950 text-purple-600",
+  DONE: "bg-green-100 dark:bg-green-950 text-green-600",
+  BLOCKED: "bg-red-100 dark:bg-red-950 text-red-600"
 };
 
 const priorityColors = {
@@ -378,7 +378,7 @@ export default function ProjetoDetalhe() {
                         <span className="text-xs text-[var(--crm-muted)]">{phase.progressPercent || 0}%</span>
                       </div>
                     </div>
-                    <div className="w-24 bg-gray-200 dark:bg-slate-700 rounded-full h-2">
+                    <div className="w-24 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-full h-2">
                       <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${phase.progressPercent || 0}%` }} />
                     </div>
                   </div>
@@ -393,7 +393,7 @@ export default function ProjetoDetalhe() {
               <div className="text-center">
                 <div className={`text-5xl font-bold ${healthColor(project.healthScore)}`}>{project.healthScore}</div>
                 <div className="text-sm text-[var(--crm-muted)] mt-1">de 100</div>
-                <div className="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-3 mt-3">
+                <div className="w-full bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-full h-3 mt-3">
                   <div
                     className={`h-3 rounded-full ${project.healthScore >= 80 ? 'bg-green-500' : project.healthScore >= 60 ? 'bg-yellow-500' : 'bg-red-500'}`}
                     style={{ width: `${project.healthScore}%` }}
@@ -466,7 +466,7 @@ export default function ProjetoDetalhe() {
                       )}
                       <div className="flex gap-1 mt-2">
                         {status !== 'TODO' && (
-                          <button onClick={() => handleUpdateTaskStatus(task.id, 'TODO')} className="text-xs px-2 py-0.5 rounded bg-slate-200 hover:bg-slate-300 dark:bg-slate-700 dark:hover:bg-slate-600">A Fazer</button>
+                          <button onClick={() => handleUpdateTaskStatus(task.id, 'TODO')} className="text-xs px-2 py-0.5 rounded bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]">A Fazer</button>
                         )}
                         {status !== 'IN_PROGRESS' && status !== 'DONE' && (
                           <button onClick={() => handleUpdateTaskStatus(task.id, 'IN_PROGRESS')} className="text-xs px-2 py-0.5 rounded bg-blue-200 hover:bg-blue-300 dark:bg-blue-900/30 dark:hover:bg-blue-800/40">Iniciar</button>
@@ -505,7 +505,7 @@ export default function ProjetoDetalhe() {
                           className={`absolute h-4 rounded ${
                             task.status === 'DONE' ? 'bg-green-400' :
                             task.status === 'IN_PROGRESS' ? 'bg-blue-400' :
-                            task.status === 'BLOCKED' ? 'bg-red-400' : 'bg-gray-300'
+                            task.status === 'BLOCKED' ? 'bg-red-400' : "bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                           }`}
                           style={{
                             left: task.dueDate ? `${Math.max(0, Math.min(90, ((new Date(task.dueDate) - new Date()) / (1000*60*60*24*30)) * 10 + 40))}%` : '10%',
@@ -554,12 +554,12 @@ export default function ProjetoDetalhe() {
                         <td className="p-2">{member.allocationPercent}%</td>
                         <td className="p-2">R$ {(member.hourlyCost || 0).toFixed(2)}</td>
                         <td className="p-2">
-                          <span className={`text-xs px-2 py-0.5 rounded-full ${member.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                          <span className={`text-xs px-2 py-0.5 rounded-full ${member.isActive ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                             {member.isActive ? 'Ativo' : 'Inativo'}
                           </span>
                         </td>
                         <td className="p-2 text-right">
-                          <button onClick={() => handleDeleteTeamMember(member)} className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/20 text-red-500" title="Excluir membro">
+                          <button onClick={() => handleDeleteTeamMember(member)} className="p-1 rounded hover:bg-red-50 dark:hover:bg-red-950 dark:hover:bg-red-50/20 dark:hover:bg-red-900/20 text-red-500" title="Excluir membro">
                             <Trash2 size={12} />
                           </button>
                         </td>
@@ -594,15 +594,15 @@ export default function ProjetoDetalhe() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                        risk.level === 'CRITICAL' ? 'bg-red-100 text-red-700' :
-                        risk.level === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                        risk.level === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-green-100 text-green-700'
+                        risk.level === 'CRITICAL' ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300" :
+                        risk.level === 'HIGH' ? "bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300" :
+                        risk.level === 'MEDIUM' ? "bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300" :
+                        "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300"
                       }`}>{risk.level}</span>
                       <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                        risk.status === 'RESOLVED' ? 'bg-green-100 text-green-700' :
-                        risk.status === 'MITIGATING' ? 'bg-blue-100 text-blue-700' :
-                        'bg-gray-100 text-gray-700'
+                        risk.status === 'RESOLVED' ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300" :
+                        risk.status === 'MITIGATING' ? "bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300" :
+                        "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       }`}>{risk.status?.replace(/_/g, ' ')}</span>
                     </div>
                   </div>
@@ -642,15 +642,15 @@ export default function ProjetoDetalhe() {
                     </div>
                     <div className="flex items-center gap-2">
                       <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                        issue.priority === 'URGENT' ? 'bg-red-100 text-red-700' :
-                        issue.priority === 'HIGH' ? 'bg-orange-100 text-orange-700' :
-                        issue.priority === 'MEDIUM' ? 'bg-yellow-100 text-yellow-700' :
-                        'bg-green-100 text-green-700'
+                        issue.priority === 'URGENT' ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300" :
+                        issue.priority === 'HIGH' ? "bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300" :
+                        issue.priority === 'MEDIUM' ? "bg-yellow-100 dark:bg-yellow-950 text-yellow-700 dark:text-yellow-300" :
+                        "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300"
                       }`}>{issue.priority}</span>
                       <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                        issue.status === 'RESOLVED' || issue.status === 'CLOSED' ? 'bg-green-100 text-green-700' :
-                        issue.status === 'IN_PROGRESS' ? 'bg-blue-100 text-blue-700' :
-                        'bg-gray-100 text-gray-700'
+                        issue.status === 'RESOLVED' || issue.status === 'CLOSED' ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300" :
+                        issue.status === 'IN_PROGRESS' ? "bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300" :
+                        "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       }`}>{issue.status?.replace(/_/g, ' ')}</span>
                     </div>
                   </div>
@@ -689,10 +689,10 @@ export default function ProjetoDetalhe() {
                       <td className="p-2">{b.dueDate ? new Date(b.dueDate).toLocaleDateString('pt-BR') : '-'}</td>
                       <td className="p-2">
                         <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                          b.status === 'PAID' ? 'bg-green-100 text-green-700' :
-                          b.status === 'INVOICED' ? 'bg-blue-100 text-blue-700' :
-                          b.status === 'OVERDUE' ? 'bg-red-100 text-red-700' :
-                          'bg-gray-100 text-gray-700'
+                          b.status === 'PAID' ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300" :
+                          b.status === 'INVOICED' ? "bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300" :
+                          b.status === 'OVERDUE' ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300" :
+                          "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                         }`}>{b.status?.replace(/_/g, ' ')}</span>
                       </td>
                     </tr>
@@ -748,9 +748,9 @@ export default function ProjetoDetalhe() {
                       {acc.documentNumber && <div className="text-xs text-[var(--crm-muted)]">Doc: {acc.documentNumber}</div>}
                     </div>
                     <span className={`text-xs font-bold px-2 py-1 rounded-full ${
-                      acc.status === 'APPROVED' ? 'bg-green-100 text-green-700' :
-                      acc.status === 'REJECTED' ? 'bg-red-100 text-red-700' :
-                      'bg-gray-100 text-gray-700'
+                      acc.status === 'APPROVED' ? "bg-green-100 dark:bg-green-950 text-green-700 dark:text-green-300" :
+                      acc.status === 'REJECTED' ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300" :
+                      "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     }`}>{acc.status?.replace(/_/g, ' ')}</span>
                   </div>
                 </div>

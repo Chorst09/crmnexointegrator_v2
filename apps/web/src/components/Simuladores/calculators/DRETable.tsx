@@ -177,22 +177,22 @@ export const DRETable: React.FC<DRETableProps> = ({
   return (
     <div className="space-y-6">
       {/* Main DRE Table */}
-      <Card className="border-slate-700">
-        <CardHeader className="bg-slate-800 py-3">
+      <Card className="border-[var(--crm-border)]">
+        <CardHeader className="bg-[rgb(var(--crm-surface-rgb)_/_1)] py-3">
           <CardTitle className="text-lg font-medium">Demonstrativo de Resultado do Exercício (DRE)</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-700">
-                <TableHead className="text-white w-2/3">Descrição</TableHead>
-                <TableHead className="text-white text-right">Valor (R$)</TableHead>
-                <TableHead className="text-white text-right">%</TableHead>
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_1)]">
+                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] w-2/3">Descrição</TableHead>
+                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-right">Valor (R$)</TableHead>
+                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-right">%</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {/* Receita Bruta */}
-              <TableRow className="bg-blue-900/20">
+              <TableRow className="bg-blue-50/20 dark:bg-blue-900/20">
                 <TableCell className="font-medium">Receita Bruta</TableCell>
                 <TableCell className="text-right font-medium">
                   {formatCurrency(monthlyRevenue)}
@@ -201,7 +201,7 @@ export const DRETable: React.FC<DRETableProps> = ({
               </TableRow>
 
               {/* Impostos sobre Receita */}
-              <TableRow className="bg-red-900/20">
+              <TableRow className="bg-red-50/20 dark:bg-red-900/20">
                 <TableCell className="font-medium">(-) Impostos sobre Receita</TableCell>
                 <TableCell className="text-right font-medium">
                   {formatCurrency(valorImpostosReceita)}
@@ -214,7 +214,7 @@ export const DRETable: React.FC<DRETableProps> = ({
 
 
               {/* Receita Líquida */}
-              <TableRow className="bg-green-900/20">
+              <TableRow className="bg-green-50/20 dark:bg-green-900/20">
                 <TableCell className="font-medium">(=) Receita Líquida</TableCell>
                 <TableCell className="text-right font-medium">
                   {formatCurrency(receitaLiquida)}
@@ -225,7 +225,7 @@ export const DRETable: React.FC<DRETableProps> = ({
               </TableRow>
 
               {/* Custos Operacionais */}
-              <TableRow className="bg-slate-800/50">
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
                 <TableCell className="font-medium">(-) Custos Operacionais</TableCell>
                 <TableCell className="text-right">
                   {formatCurrency(totalCosts)}
@@ -239,14 +239,14 @@ export const DRETable: React.FC<DRETableProps> = ({
                   Custos PABX e SIP são valores de venda, não custos operacionais */}
 
               {/* Lucro Bruto */}
-              <TableRow className="bg-green-900/20">
+              <TableRow className="bg-green-50/20 dark:bg-green-900/20">
                 <TableCell className="font-medium">(=) Lucro Bruto</TableCell>
                 <TableCell className="text-right font-medium">{formatCurrency(lucroBruto)}</TableCell>
                 <TableCell className="text-right font-medium">{formatPercent(lucroBrutoPercentual)}</TableCell>
               </TableRow>
 
               {/* Comissões */}
-              <TableRow className="bg-slate-800/30">
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.3)]">
                 <TableCell className="font-medium">(-) Comissões</TableCell>
                 <TableCell className="text-right">
                   {formatCurrency(comissaoVendedor + comissaoDiretor + comissaoParceiro)}
@@ -257,7 +257,7 @@ export const DRETable: React.FC<DRETableProps> = ({
               </TableRow>
 
               {comissaoVendedor > 0 && (
-                <TableRow className="bg-slate-800/30">
+                <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.3)]">
                   <TableCell className="pl-8">
                     {hasPartners ? 'Comissão Canal/Vendedor' : 'Comissão Vendedor'} ({formatPercent(commissionVendedor)})
                   </TableCell>
@@ -269,7 +269,7 @@ export const DRETable: React.FC<DRETableProps> = ({
               )}
 
               {comissaoDiretor > 0 && (
-                <TableRow className="bg-slate-800/30">
+                <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.3)]">
                   <TableCell className="pl-8">Comissão Diretor ({formatPercent(commissionDiretor)})</TableCell>
                   <TableCell className="text-right">
                     {formatCurrency(comissaoDiretor)}
@@ -279,7 +279,7 @@ export const DRETable: React.FC<DRETableProps> = ({
               )}
 
               {comissaoParceiro > 0 && (
-                <TableRow className="bg-slate-800/30">
+                <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.3)]">
                   <TableCell className="pl-8">Comissão Parceiro ({formatPercent(commissionParceiro)})</TableCell>
                   <TableCell className="text-right">
                     {formatCurrency(comissaoParceiro)}
@@ -289,14 +289,14 @@ export const DRETable: React.FC<DRETableProps> = ({
               )}
 
               {/* Lucro após Comissões */}
-              <TableRow className="bg-blue-900/20">
+              <TableRow className="bg-blue-50/20 dark:bg-blue-900/20">
                 <TableCell className="font-medium">(=) Lucro após Comissões</TableCell>
                 <TableCell className="text-right font-medium">{formatCurrency(lucroAposComissoes)}</TableCell>
                 <TableCell className="text-right font-medium">{formatPercent(lucroAposComissoesPercentual)}</TableCell>
               </TableRow>
 
               {/* Despesas Fixas */}
-              <TableRow className="bg-slate-800/50">
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
                 <TableCell className="pl-8">(-) Despesas Fixas (Setup / {contractDuration} meses)</TableCell>
                 <TableCell className="text-right">
                   {formatCurrency(despesasFixas)}
@@ -307,7 +307,7 @@ export const DRETable: React.FC<DRETableProps> = ({
               </TableRow>
 
               {/* Lucro antes dos Impostos sobre Lucro */}
-              <TableRow className="bg-blue-900/20">
+              <TableRow className="bg-blue-50/20 dark:bg-blue-900/20">
                 <TableCell className="font-medium">(=) Lucro antes dos Impostos</TableCell>
                 <TableCell className="text-right font-medium">{formatCurrency(lucroAntesImpostos)}</TableCell>
                 <TableCell className="text-right font-medium">{formatPercent(lucroAntesImpostosPercentual)}</TableCell>
@@ -316,7 +316,7 @@ export const DRETable: React.FC<DRETableProps> = ({
               {/* Impostos sobre Lucro */}
               {valorImpostosLucro > 0 && (
                 <>
-                  <TableRow className="bg-red-900/20">
+                  <TableRow className="bg-red-50/20 dark:bg-red-900/20">
                     <TableCell className="font-medium">(-) Impostos sobre Lucro</TableCell>
                     <TableCell className="text-right font-medium">
                       {formatCurrency(valorImpostosLucro)}
@@ -331,36 +331,36 @@ export const DRETable: React.FC<DRETableProps> = ({
               )}
 
               {/* Lucro Líquido */}
-              <TableRow className="bg-green-900/30">
+              <TableRow className="bg-green-50/30 dark:bg-green-900/30">
                 <TableCell className="font-bold text-lg">LUCRO LÍQUIDO</TableCell>
-                <TableCell className={`text-right font-bold text-lg ${lucroLiquido >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <TableCell className={`text-right font-bold text-lg ${lucroLiquido >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                   {formatCurrency(lucroLiquido)}
                 </TableCell>
-                <TableCell className={`text-right font-bold ${lucroLiquido >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <TableCell className={`text-right font-bold ${lucroLiquido >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                   {formatPercent(lucroLiquidoPercentual)}
                 </TableCell>
               </TableRow>
 
               {/* Métricas Adicionais */}
-              <TableRow className="bg-slate-800/50">
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
                 <TableCell className="font-medium">Balance</TableCell>
-                <TableCell className={`text-right font-medium ${lucroLiquido >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <TableCell className={`text-right font-medium ${lucroLiquido >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                   {formatCurrency(lucroLiquido)}
                 </TableCell>
                 <TableCell className="text-right"></TableCell>
               </TableRow>
 
-              <TableRow className="bg-slate-800/50">
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
                 <TableCell className="font-medium">Rentabilidade %</TableCell>
-                <TableCell className={`text-right font-medium ${lucroLiquidoPercentual >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <TableCell className={`text-right font-medium ${lucroLiquidoPercentual >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                   {formatPercent(lucroLiquidoPercentual)}
                 </TableCell>
                 <TableCell className="text-right"></TableCell>
               </TableRow>
 
-              <TableRow className="bg-slate-800/50">
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
                 <TableCell className="font-medium">Lucratividade</TableCell>
-                <TableCell className={`text-right font-medium ${lucroLiquidoPercentual >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                <TableCell className={`text-right font-medium ${lucroLiquidoPercentual >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                   {formatPercent(lucroLiquidoPercentual)}
                 </TableCell>
                 <TableCell className="text-right"></TableCell>
@@ -372,17 +372,17 @@ export const DRETable: React.FC<DRETableProps> = ({
 
 
       {/* Precificação PABX/SIP */}
-      <Card className="border-slate-700">
-        <CardHeader className="bg-slate-800 py-3">
+      <Card className="border-[var(--crm-border)]">
+        <CardHeader className="bg-[rgb(var(--crm-surface-rgb)_/_1)] py-3">
           <CardTitle className="text-lg font-medium">Precificação PABX/SIP</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow className="bg-slate-700">
-                <TableHead className="text-white w-2/3">Descrição</TableHead>
-                <TableHead className="text-white text-right">Valor (R$)</TableHead>
-                <TableHead className="text-white text-right">%</TableHead>
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_1)]">
+                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] w-2/3">Descrição</TableHead>
+                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-right">Valor (R$)</TableHead>
+                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-right">%</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -393,33 +393,33 @@ export const DRETable: React.FC<DRETableProps> = ({
                   {monthlyRevenue > 0 ? formatPercent((totalCosts / monthlyRevenue) * 100) : '0,00%'}
                 </TableCell>
               </TableRow>
-              <TableRow className="bg-slate-800/50">
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
                 <TableCell className="pl-8">(+) Comissões</TableCell>
                 <TableCell className="text-right">{formatCurrency(comissaoVendedor + comissaoDiretor + comissaoParceiro)}</TableCell>
                 <TableCell className="text-right">
                   {monthlyRevenue > 0 ? formatPercent(((comissaoVendedor + comissaoDiretor + comissaoParceiro) / monthlyRevenue) * 100) : '0,00%'}
                 </TableCell>
               </TableRow>
-              <TableRow className="bg-slate-800/30">
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.3)]">
                 <TableCell className="pl-8">(+) Despesas Fixas</TableCell>
                 <TableCell className="text-right">{formatCurrency(despesasFixas)}</TableCell>
                 <TableCell className="text-right">
                   {monthlyRevenue > 0 ? formatPercent((despesasFixas / monthlyRevenue) * 100) : '0,00%'}
                 </TableCell>
               </TableRow>
-              <TableRow className="bg-slate-800/30">
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.3)]">
                 <TableCell className="pl-8">(+) Impostos</TableCell>
                 <TableCell className="text-right">{formatCurrency(valorImpostosReceita + valorImpostosLucro)}</TableCell>
                 <TableCell className="text-right">
                   {monthlyRevenue > 0 ? formatPercent(((valorImpostosReceita + valorImpostosLucro) / monthlyRevenue) * 100) : '0,00%'}
                 </TableCell>
               </TableRow>
-              <TableRow className="bg-slate-800/30">
+              <TableRow className="bg-[rgb(var(--crm-surface-rgb)_/_0.3)]">
                 <TableCell className="pl-8">(+) Margem de Lucro Desejada</TableCell>
                 <TableCell className="text-right">{formatCurrency(lucroLiquido)}</TableCell>
                 <TableCell className="text-right">{formatPercent(lucroLiquidoPercentual)}</TableCell>
               </TableRow>
-              <TableRow className="bg-green-900/20 font-medium">
+              <TableRow className="bg-green-50/20 dark:bg-green-900/20 font-medium">
                 <TableCell>Preço de Venda Sugerido</TableCell>
                 <TableCell className="text-right">{formatCurrency(monthlyRevenue)}</TableCell>
                 <TableCell className="text-right">100,00%</TableCell>
@@ -430,7 +430,7 @@ export const DRETable: React.FC<DRETableProps> = ({
       </Card>
 
       {/* Tabela de Impostos Editável */}
-      <Card className="bg-slate-900/80 border-slate-800 text-white">
+      <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
@@ -444,7 +444,7 @@ export const DRETable: React.FC<DRETableProps> = ({
               variant="outline"
               size="sm"
               onClick={() => setIsEditingTaxes(!isEditingTaxes)}
-              className="border-slate-600 text-slate-300 hover:bg-slate-700"
+              className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
             >
               {isEditingTaxes ? 'Salvar' : 'Editar'}
             </Button>
@@ -453,25 +453,25 @@ export const DRETable: React.FC<DRETableProps> = ({
         <CardContent>
           <div className="grid grid-cols-4 gap-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">Simple Nacional (%)</label>
+              <label className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Simple Nacional (%)</label>
               <Input
                 type="number"
                 step="0.01"
                 value={formatPercentage(editableTaxRates.simpleNacional)}
                 onChange={(e) => handleEditableTaxRateChange('simpleNacional', parseFloat(e.target.value))}
                 disabled={!isEditingTaxes}
-                className="bg-slate-800 border-slate-700 text-white"
+                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-300">Custo/Desp (%)</label>
+              <label className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">Custo/Desp (%)</label>
               <Input
                 type="number"
                 step="0.01"
                 value={formatPercentage(editableTaxRates.custoDesp)}
                 onChange={(e) => handleEditableTaxRateChange('custoDesp', parseFloat(e.target.value))}
                 disabled={!isEditingTaxes}
-                className="bg-slate-800 border-slate-700 text-white"
+                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
               />
             </div>
           </div>

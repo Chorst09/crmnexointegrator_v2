@@ -1082,17 +1082,17 @@ export default function Oportunidades() {
 
     return (
       <div className="rounded-xl border border-cyan-400/35 bg-cyan-500/10 p-4">
-        <h3 className="text-sm font-semibold text-cyan-100 mb-3">Dados da Decisão</h3>
+        <h3 className="text-sm font-semibold text-cyan-700 dark:text-cyan-100 mb-3">Dados da Decisão</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {rows.map((row) => (
             <div key={row.label}>
-              <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-cyan-200/70">{row.label}</div>
-              <div className="mt-0.5 text-sm font-medium text-cyan-50">{row.value}</div>
+              <div className="text-[10px] font-semibold uppercase tracking-[0.08em] text-cyan-700/70 dark:text-cyan-200/70">{row.label}</div>
+              <div className="mt-0.5 text-sm font-medium text-cyan-700 dark:text-cyan-50">{row.value}</div>
             </div>
           ))}
         </div>
         {data.notes && (
-          <p className="mt-3 border-t border-cyan-300/20 pt-3 text-sm text-cyan-50/85 whitespace-pre-wrap">{data.notes}</p>
+          <p className="mt-3 border-t border-cyan-300/20 pt-3 text-sm text-cyan-700/85 dark:text-cyan-50/85 whitespace-pre-wrap">{data.notes}</p>
         )}
       </div>
     );
@@ -1139,23 +1139,23 @@ export default function Oportunidades() {
 
     return (
       <div className={[
-        'rounded-xl border bg-cyan-500/10 text-cyan-50',
+        "rounded-xl border bg-cyan-500/10 text-cyan-700 dark:text-cyan-50",
         compact ? 'mb-3 border-cyan-400/25 p-3' : 'border-cyan-400/35 p-4'
       ].join(' ')}>
-        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.08em] text-cyan-200">
+        <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-[0.08em] text-cyan-700 dark:text-cyan-200">
           <MessageSquare className="h-3.5 w-3.5" />
           Decisão: {summary.decisionLabel}
         </div>
         {summary.description && (
           <p className={[
-            'mt-2 leading-relaxed text-cyan-50/90 whitespace-pre-wrap',
+            "mt-2 leading-relaxed text-cyan-700/90 dark:text-cyan-50/90 whitespace-pre-wrap",
             compact ? 'line-clamp-3 text-xs' : 'text-sm'
           ].join(' ')}>
             {summary.description}
           </p>
         )}
         {detailLines.length > 0 && (
-          <div className={compact ? 'mt-2 space-y-1 text-xs text-cyan-100/80' : 'mt-3 grid gap-2 text-sm text-cyan-100/85 sm:grid-cols-2'}>
+          <div className={compact ? "mt-2 space-y-1 text-xs text-cyan-700/80 dark:text-cyan-100/80" : "mt-3 grid gap-2 text-sm text-cyan-700/85 dark:text-cyan-100/85 sm:grid-cols-2"}>
             {detailLines.map((line) => (
               <div key={line} className="line-clamp-2">{line}</div>
             ))}
@@ -1231,7 +1231,7 @@ export default function Oportunidades() {
   const modalInputClass = 'crm-input !px-4 !py-3 text-base';
   const modalActionsClass = 'flex flex-col-reverse sm:flex-row sm:justify-end gap-3 pt-5 border-t border-[color:var(--crm-border)]';
   const modalCancelButtonClass = 'crm-btn crm-btn-secondary min-w-[130px]';
-  const modalSubmitButtonClass = 'crm-btn min-w-[190px] text-white border border-cyan-300/45 bg-[linear-gradient(135deg,#2563eb_0%,#0891b2_100%)] hover:brightness-110 shadow-[0_14px_30px_rgba(37,99,235,0.35)]';
+  const modalSubmitButtonClass = "crm-btn min-w-[190px] text-[rgb(var(--crm-ink-rgb)_/_1)] border border-cyan-300/45 bg-[linear-gradient(135deg,#2563eb_0%,#0891b2_100%)] hover:brightness-110 shadow-[0_14px_30px_rgba(37,99,235,0.35)]";
 
   if (loading) {
     return (
@@ -1427,7 +1427,7 @@ export default function Oportunidades() {
                 <h3 className="text-base font-bold mb-1.5" style={{ color: stageColors[stage] }}>
                   {stageLabels[stage]}
                   {dragOverColumn === stage && (
-                    <span className="ml-2 text-blue-400 animate-pulse text-sm">📥</span>
+                    <span className="ml-2 text-blue-700 dark:text-blue-400 animate-pulse text-sm">📥</span>
                   )}
                 </h3>
                 <div className="flex justify-between items-center text-xs">
@@ -1447,7 +1447,7 @@ export default function Oportunidades() {
                   .length === 0 ? (
                     <div className={`text-center py-8 text-[var(--crm-muted)] transition-all duration-200 ${
                       dragOverColumn === stage
-                        ? 'bg-blue-100 border-2 border-dashed border-blue-300 rounded-lg'
+                        ? "bg-blue-100 dark:bg-blue-950 border-2 border-dashed border-blue-300 rounded-lg"
                         : ''
                     }`}>
                       <Target className="w-12 h-12 mx-auto mb-2 text-[var(--crm-muted)] opacity-40" />
@@ -1505,7 +1505,7 @@ export default function Oportunidades() {
                       </div>
 
                       {/* Valor */}
-                      <p className="text-base font-extrabold text-emerald-400 mb-3">
+                      <p className="text-base font-extrabold text-emerald-700 dark:text-emerald-400 mb-3">
                         {formatCurrency(opp.value)}
                       </p>
 
@@ -1551,13 +1551,13 @@ export default function Oportunidades() {
                           </div>
                         )}
                         {stage === 'WON' && (opp.customerTurnDate || opp.actualCloseDate) && (
-                          <div className="flex items-center gap-1.5 text-xs text-emerald-300">
+                          <div className="flex items-center gap-1.5 text-xs text-emerald-700 dark:text-emerald-300">
                             <Calendar className="w-3 h-3 shrink-0" />
                             <span>Virada: {formatDateBR(opp.customerTurnDate || opp.actualCloseDate)}</span>
                           </div>
                         )}
                         {stage === 'LOST' && (opp.exitDate || opp.actualCloseDate) && (
-                          <div className="flex items-center gap-1.5 text-xs text-red-300">
+                          <div className="flex items-center gap-1.5 text-xs text-red-700 dark:text-red-300">
                             <Calendar className="w-3 h-3 shrink-0" />
                             <span>Saída: {formatDateBR(opp.exitDate || opp.actualCloseDate)}</span>
                           </div>
@@ -1592,7 +1592,7 @@ export default function Oportunidades() {
                           {isAdmin && (
                             <button
                               onClick={(e) => handleDelete(opp, e)}
-                              className="flex items-center justify-center rounded-xl border border-red-500/30 p-1.5 text-red-400 hover:bg-red-500/10 transition-colors"
+                              className="flex items-center justify-center rounded-xl border border-red-500/30 p-1.5 text-red-700 dark:text-red-400 hover:bg-red-500/10 transition-colors"
                               title="Excluir"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
@@ -1677,7 +1677,7 @@ export default function Oportunidades() {
                           {stageLabels[stage] || stage}
                         </span>
                       </td>
-                      <td className="p-4 font-extrabold text-emerald-400">{formatCurrency(opp.value)}</td>
+                      <td className="p-4 font-extrabold text-emerald-700 dark:text-emerald-400">{formatCurrency(opp.value)}</td>
                       <td className="p-4 text-[var(--crm-muted)]">{opp.probability || 0}%</td>
                       <td className="p-4 text-[var(--crm-muted)]">{opp.owner?.name || 'N/I'}</td>
                       <td className="p-4 text-[var(--crm-muted)]">{formatDateBR(opp.leadEntryDate || opp.createdAt) || '—'}</td>
@@ -1769,7 +1769,7 @@ export default function Oportunidades() {
                     >
                       <td className="p-4 font-medium text-[var(--crm-ink)]">{opp.agency?.name || opp.company?.name || 'N/I'}</td>
                       <td className="p-4 text-[var(--crm-ink)]">{opp.projectName || opp.title}</td>
-                      <td className="p-4 font-semibold text-emerald-400">{formatCurrency(opp.value)}</td>
+                      <td className="p-4 font-semibold text-emerald-700 dark:text-emerald-400">{formatCurrency(opp.value)}</td>
                       <td className="p-4">
                         <span
                           className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold"
@@ -1858,15 +1858,15 @@ export default function Oportunidades() {
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="rounded-2xl border border-emerald-300/35 bg-[linear-gradient(140deg,rgba(16,185,129,0.2),rgba(5,46,22,0.5))] p-5">
-                  <h3 className="text-xs uppercase tracking-[0.08em] font-semibold text-emerald-100/90">Valor da Oportunidade</h3>
-                  <p className="mt-2 text-3xl font-bold text-emerald-200">
+                <div className="rounded-2xl border border-emerald-300/35 bg-[linear-gradient(140deg,rgba(16,185,129,0.2),rgb(var(--crm-surface-2-rgb)_/_0.5))] p-5">
+                  <h3 className="text-xs uppercase tracking-[0.08em] font-semibold text-emerald-700/90 dark:text-emerald-100/90">Valor da Oportunidade</h3>
+                  <p className="mt-2 text-3xl font-bold text-emerald-700 dark:text-emerald-200">
                     {formatCurrency(selectedOpportunity.value)}
                   </p>
                 </div>
 
                 <div className="rounded-2xl border border-cyan-300/35 bg-[linear-gradient(140deg,rgba(14,116,144,0.28),rgba(30,58,138,0.45))] p-5">
-                  <h3 className="text-xs uppercase tracking-[0.08em] font-semibold text-cyan-100/90">Etapa Atual</h3>
+                  <h3 className="text-xs uppercase tracking-[0.08em] font-semibold text-cyan-700/90 dark:text-cyan-100/90">Etapa Atual</h3>
                   <div className="mt-3">
                     <span
                       className="inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-full"
@@ -1998,7 +1998,7 @@ export default function Oportunidades() {
                   <div className="crm-panel-muted rounded-xl p-4">
                     <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_0.9)] mb-2">Data de Virada para Cliente</h3>
                     <div className="flex items-center">
-                      <Calendar className="w-4 h-4 text-emerald-300 mr-2" />
+                      <Calendar className="w-4 h-4 text-emerald-700 dark:text-emerald-300 mr-2" />
                       <span className="text-[var(--crm-ink)] font-medium">
                         {formatDateBR(selectedOpportunity.customerTurnDate || selectedOpportunity.actualCloseDate)}
                       </span>
@@ -2010,7 +2010,7 @@ export default function Oportunidades() {
                   <div className="crm-panel-muted rounded-xl p-4">
                     <h3 className="text-xs font-semibold uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_0.9)] mb-2">Data de Saída</h3>
                     <div className="flex items-center">
-                      <Calendar className="w-4 h-4 text-red-300 mr-2" />
+                      <Calendar className="w-4 h-4 text-red-700 dark:text-red-300 mr-2" />
                       <span className="text-[var(--crm-ink)] font-medium">
                         {formatDateBR(selectedOpportunity.exitDate || selectedOpportunity.actualCloseDate)}
                       </span>
@@ -2049,26 +2049,26 @@ export default function Oportunidades() {
             {selectedOpportunity.stage === 'LOST' && (
               <div className="rounded-xl border border-red-400/40 bg-red-500/10 p-4">
                 <div className="mb-3 flex items-center justify-between gap-3">
-                  <h3 className="text-sm font-semibold text-red-200">Motivo da Perda</h3>
+                  <h3 className="text-sm font-semibold text-red-700 dark:text-red-200">Motivo da Perda</h3>
                   <button
                     type="button"
                     onClick={handleSaveLossReason}
                     disabled={lossReasonSaving}
-                    className="inline-flex items-center gap-2 rounded-lg border border-red-300/35 bg-red-400/15 px-3 py-1.5 text-xs font-semibold text-red-50 transition hover:bg-red-400/25 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="inline-flex items-center gap-2 rounded-lg border border-red-300/35 bg-red-400/15 px-3 py-1.5 text-xs font-semibold text-red-700 dark:text-red-50 transition hover:bg-red-400/25 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Check className="h-3.5 w-3.5" />
                     {lossReasonSaving ? 'Salvando...' : 'Salvar'}
                   </button>
                 </div>
                 <textarea
-                  className="w-full rounded-lg border border-red-300/35 bg-red-950/25 px-3 py-2 text-sm text-red-50 placeholder:text-red-100/45 focus:outline-none focus:ring-2 focus:ring-red-300/50"
+                  className="w-full rounded-lg border border-red-300/35 bg-red-50/25 dark:bg-red-950/25 px-3 py-2 text-sm text-red-700 dark:text-red-50 placeholder:text-red-700/45 dark:text-red-100/45 focus:outline-none focus:ring-2 focus:ring-red-300/50"
                   rows={3}
                   value={lossReasonDraft}
                   onChange={(event) => setLossReasonDraft(event.target.value)}
                   placeholder="Informe o motivo da perda..."
                 />
                 {lossReasonError && (
-                  <p className="mt-2 text-xs font-medium text-red-100">{lossReasonError}</p>
+                  <p className="mt-2 text-xs font-medium text-red-700 dark:text-red-100">{lossReasonError}</p>
                 )}
               </div>
             )}
@@ -2095,13 +2095,13 @@ export default function Oportunidades() {
                   {selectedOpportunity.contactEmail && (
                     <div className="crm-panel-muted rounded-xl p-3">
                       <div className="text-xs font-semibold uppercase tracking-wider text-[var(--crm-muted)] mb-1">E-mail</div>
-                      <a href={`mailto:${selectedOpportunity.contactEmail}`} className="text-sm font-medium text-cyan-400 hover:underline">{selectedOpportunity.contactEmail}</a>
+                      <a href={`mailto:${selectedOpportunity.contactEmail}`} className="text-sm font-medium text-cyan-700 dark:text-cyan-400 hover:underline">{selectedOpportunity.contactEmail}</a>
                     </div>
                   )}
                   {selectedOpportunity.contactPhone && (
                     <div className="crm-panel-muted rounded-xl p-3">
                       <div className="text-xs font-semibold uppercase tracking-wider text-[var(--crm-muted)] mb-1">Telefone</div>
-                      <a href={`tel:${selectedOpportunity.contactPhone}`} className="text-sm font-medium text-cyan-400 hover:underline">{selectedOpportunity.contactPhone}</a>
+                      <a href={`tel:${selectedOpportunity.contactPhone}`} className="text-sm font-medium text-cyan-700 dark:text-cyan-400 hover:underline">{selectedOpportunity.contactPhone}</a>
                     </div>
                   )}
                 </div>
@@ -2135,7 +2135,7 @@ export default function Oportunidades() {
                             <td className="py-2.5 pr-4 text-right tabular-nums">{p.quantity}</td>
                             <td className="py-2.5 pr-4 text-right tabular-nums">{formatCurrency(p.unitPrice)}</td>
                             <td className="py-2.5 pr-4 text-right tabular-nums">{p.discount > 0 ? `${p.discount}%` : '—'}</td>
-                            <td className="py-2.5 text-right tabular-nums font-semibold text-emerald-400">{formatCurrency(subtotal)}</td>
+                            <td className="py-2.5 text-right tabular-nums font-semibold text-emerald-700 dark:text-emerald-400">{formatCurrency(subtotal)}</td>
                           </tr>
                         );
                       })}
@@ -2143,7 +2143,7 @@ export default function Oportunidades() {
                     <tfoot>
                       <tr className="border-t border-[color:var(--crm-border)]">
                         <td colSpan={4} className="py-2.5 text-right text-xs font-semibold uppercase tracking-wider text-[var(--crm-muted)]">Total</td>
-                        <td className="py-2.5 text-right font-bold text-emerald-300">
+                        <td className="py-2.5 text-right font-bold text-emerald-700 dark:text-emerald-300">
                           {formatCurrency(selectedOpportunity.products.reduce((sum, p) =>
                             sum + Number(p.quantity || 0) * Number(p.unitPrice || 0) * (1 - Number(p.discount || 0) / 100), 0
                           ))}
@@ -2195,7 +2195,7 @@ export default function Oportunidades() {
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                         followUpType === type.value
                           ? 'bg-cyan-500 text-white'
-                          : 'border border-slate-700 text-slate-300 hover:bg-slate-800'
+                          : "border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                       }`}
                     >
                       <type.icon className="h-3.5 w-3.5" />
@@ -2216,7 +2216,7 @@ export default function Oportunidades() {
                 />
 
                 {followUpError && (
-                  <p className="text-sm font-semibold text-red-300">{followUpError}</p>
+                  <p className="text-sm font-semibold text-red-700 dark:text-red-300">{followUpError}</p>
                 )}
 
                 <div className="flex justify-end">
@@ -2224,7 +2224,7 @@ export default function Oportunidades() {
                     type="button"
                     onClick={handleAddOpportunityFollowUp}
                     disabled={followUpSubmitting || !followUpText.trim()}
-                    className="crm-btn min-w-[190px] text-white border border-cyan-300/45 bg-[linear-gradient(135deg,#2563eb_0%,#0891b2_100%)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="crm-btn min-w-[190px] text-[rgb(var(--crm-ink-rgb)_/_1)] border border-cyan-300/45 bg-[linear-gradient(135deg,#2563eb_0%,#0891b2_100%)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Send className="h-4 w-4" />
                     {followUpSubmitting ? 'Salvando...' : 'Salvar acompanhamento'}
@@ -2260,13 +2260,13 @@ export default function Oportunidades() {
                       <div key={followUp.id} className="crm-panel-muted rounded-xl p-3 relative group">
                         <div className="flex items-start gap-3">
                           <div className="flex-shrink-0 mt-0.5">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-400">
+                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-cyan-500/20 text-cyan-700 dark:text-cyan-400">
                               <TypeIcon className="h-4 w-4" />
                             </div>
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="text-xs font-semibold text-cyan-400">
+                              <span className="text-xs font-semibold text-cyan-700 dark:text-cyan-400">
                                 {typeLabels[followUp.type] || followUp.type}
                               </span>
                               <span className="text-xs text-[var(--crm-muted)]">•</span>
@@ -2291,7 +2291,7 @@ export default function Oportunidades() {
                           {(isAdmin || followUp.userId === userId) && (
                             <button
                               onClick={() => handleDeleteFollowUp(followUp.id)}
-                              className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 text-red-400 hover:text-red-300"
+                              className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 text-red-700 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                               title="Remover acompanhamento"
                             >
                               <Trash2 className="h-4 w-4" />

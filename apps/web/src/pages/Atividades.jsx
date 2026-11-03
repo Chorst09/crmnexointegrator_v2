@@ -785,7 +785,7 @@ export default function Atividades() {
       label: 'Status',
       render: (item) => {
         const displayStatus = getActivityDisplayStatus(item);
-        const meta = STATUS_META[displayStatus] || { label: item.status || '-', cls: 'bg-slate-500/10 text-slate-700 dark:text-slate-200' };
+        const meta = STATUS_META[displayStatus] || { label: item.status || '-', cls: "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" };
         return (
           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold ${meta.cls}`}>
             {meta.label}
@@ -797,7 +797,7 @@ export default function Atividades() {
       key: 'priority',
       label: 'Prioridade',
       render: (item) => {
-        const meta = PRIORITY_META[item.priority] || { label: item.priority || '-', cls: 'bg-slate-500/10 text-slate-700 dark:text-slate-200' };
+        const meta = PRIORITY_META[item.priority] || { label: item.priority || '-', cls: "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" };
         return (
           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold ${meta.cls}`}>
             {meta.label}
@@ -846,7 +846,7 @@ export default function Atividades() {
             {getAreaLabel(item?.flow?.targetArea)}
           </span>
           {item?.flow?.targetArea === 'PRE_VENDAS' && item?.status === 'PENDING' && (
-            <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+            <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
               Pendente B2B
             </span>
           )}
@@ -875,14 +875,14 @@ export default function Atividades() {
         return (
           <div className="min-w-[210px] space-y-1">
             <div className="flex items-center gap-1.5">
-              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[11px] font-bold text-emerald-400">
+              <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[11px] font-bold text-emerald-700 dark:text-emerald-400">
                 <Package className="h-3 w-3" />
                 {itemCount} produtos precificados
               </span>
-              <span className="text-[10px] text-cyan-400 font-mono font-semibold">{orcNumero}</span>
+              <span className="text-[10px] text-cyan-700 dark:text-cyan-400 font-mono font-semibold">{orcNumero}</span>
             </div>
             <div className="flex items-baseline gap-1.5">
-              <span className="text-xs font-black text-emerald-300 font-mono">{toCurrency(total)}</span>
+              <span className="text-xs font-black text-emerald-700 dark:text-emerald-300 font-mono">{toCurrency(total)}</span>
               <span className="text-[10px] text-[var(--crm-muted)]">({toCurrency(mensal)}/mês)</span>
             </div>
             <button
@@ -891,7 +891,7 @@ export default function Atividades() {
                 e.stopPropagation();
                 openActivityDetails(item);
               }}
-              className="text-[11px] font-bold text-cyan-400 hover:text-cyan-300 hover:underline inline-flex items-center gap-1 cursor-pointer transition-colors"
+              className="text-[11px] font-bold text-cyan-700 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 hover:underline inline-flex items-center gap-1 cursor-pointer transition-colors"
             >
               <Eye className="h-3 w-3" /> Ver produtos e preços
             </button>
@@ -959,10 +959,10 @@ export default function Atividades() {
         <button
           type="button"
           onClick={() => openActivityDetails(item)}
-          className="crm-btn bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1 cursor-pointer"
+          className="crm-btn bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 px-3 py-1.5 text-xs font-bold inline-flex items-center gap-1 cursor-pointer"
           title="Ver produtos e preços precificados pelo Pré-Vendas"
         >
-          <DollarSign className="h-3.5 w-3.5 text-emerald-400" />
+          <DollarSign className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
           Preços
         </button>
       )}
@@ -1017,10 +1017,10 @@ export default function Atividades() {
               });
             });
           }}
-          className="crm-btn bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-200 border border-amber-500/40 px-2.5 py-1.5 text-xs font-bold inline-flex items-center gap-1 cursor-pointer shadow-sm shadow-amber-950/20"
+          className="crm-btn bg-gradient-to-r from-amber-500/20 via-orange-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-orange-500/30 text-amber-700 dark:text-amber-200 border border-amber-500/40 px-2.5 py-1.5 text-xs font-bold inline-flex items-center gap-1 cursor-pointer shadow-sm shadow-amber-950/20"
           title="Gerar Proposta Comercial de 10 Lâminas com produtos do Pré-Vendas"
         >
-          <Presentation className="h-3.5 w-3.5 text-amber-400" />
+          <Presentation className="h-3.5 w-3.5 text-amber-700 dark:text-amber-400" />
           Gerar Proposta
         </button>
       )}
@@ -1106,8 +1106,8 @@ export default function Atividades() {
     const displayType = getActivityDisplayType(item);
     const typeMeta = TYPE_META[displayType] || { label: displayType || '-', icon: CheckSquare };
     const displayStatus = getActivityDisplayStatus(item);
-    const statusMeta = STATUS_META[displayStatus] || { label: item.status || '-', cls: 'bg-slate-500/10 text-slate-700 dark:text-slate-200' };
-    const priorityMeta = PRIORITY_META[item.priority] || { label: item.priority || '-', cls: 'bg-slate-500/10 text-slate-700 dark:text-slate-200' };
+    const statusMeta = STATUS_META[displayStatus] || { label: item.status || '-', cls: "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" };
+    const priorityMeta = PRIORITY_META[item.priority] || { label: item.priority || '-', cls: "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" };
     const Icon = typeMeta.icon;
 
     return (
@@ -1134,22 +1134,22 @@ export default function Atividades() {
         {isPreSalesRelatedActivity(item) && (
           <div
             onClick={() => openActivityDetails(item)}
-            className="mt-2.5 cursor-pointer rounded-xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/40 via-slate-900/60 to-slate-900/40 p-2.5 hover:border-emerald-400/60 transition-all shadow-sm group"
+            className="mt-2.5 cursor-pointer rounded-xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/40 via-[rgb(var(--crm-surface-2-rgb)_/_0.6)] to-[rgb(var(--crm-surface-2-rgb)_/_0.4)] p-2.5 hover:border-emerald-400/60 transition-all shadow-sm group"
           >
             <div className="flex items-center justify-between text-xs">
-              <span className="inline-flex items-center gap-1 font-bold text-emerald-400">
-                <Package className="h-3.5 w-3.5 text-emerald-400" />
+              <span className="inline-flex items-center gap-1 font-bold text-emerald-700 dark:text-emerald-400">
+                <Package className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
                 {(item.flow?.items?.length || item.preSalesRequest?.items?.length || 3)} produtos precificados
               </span>
-              <span className="font-extrabold text-emerald-300 font-mono text-xs">
+              <span className="font-extrabold text-emerald-700 dark:text-emerald-300 font-mono text-xs">
                 {toCurrency(item.flow?.valorTotal || item.preSalesRequest?.valorTotal || 0)}
               </span>
             </div>
-            <div className="mt-1 flex items-center justify-between text-[11px] text-slate-400">
+            <div className="mt-1 flex items-center justify-between text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">
               {item.flow?.valorMensal > 0 && (
-                <span>MRR: <strong className="text-slate-200">{toCurrency(item.flow?.valorMensal)}/mês</strong></span>
+                <span>MRR: <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{toCurrency(item.flow?.valorMensal)}/mês</strong></span>
               )}
-              <span className="text-cyan-400 font-semibold group-hover:underline flex items-center gap-0.5">
+              <span className="text-cyan-700 dark:text-cyan-400 font-semibold group-hover:underline flex items-center gap-0.5">
                 Ver preços <ArrowRight className="h-2.5 w-2.5" />
               </span>
             </div>
@@ -1162,14 +1162,14 @@ export default function Atividades() {
           <div>
             Destino: <span className="text-[var(--crm-ink)] font-semibold">{getAreaLabel(item?.flow?.targetArea)}</span>
             {item?.flow?.targetArea === 'PRE_VENDAS' && item?.status === 'PENDING' && (
-              <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+              <span className="ml-1.5 inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
                 Pendente B2B
               </span>
             )}
           </div>
           <div>
             Vencimento:{' '}
-            <span className={isOverdue(item.dueDate, item.status) ? 'font-bold text-red-400' : 'text-[var(--crm-ink)]'}>
+            <span className={isOverdue(item.dueDate, item.status) ? "font-bold text-red-700 dark:text-red-400" : 'text-[var(--crm-ink)]'}>
               {item.dueDate ? new Date(item.dueDate).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '-'}
             </span>
           </div>
@@ -1254,7 +1254,7 @@ export default function Atividades() {
               type="button"
               onClick={() => setViewMode('KANBAN')}
               className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold ${
-                viewMode === 'KANBAN' ? 'bg-[var(--crm-accent)] text-white' : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)]'
+                viewMode === 'KANBAN' ? "bg-[var(--crm-accent)] text-[rgb(var(--crm-ink-rgb)_/_1)]" : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)]'
               }`}
             >
               <LayoutGrid className="h-4 w-4" />
@@ -1264,7 +1264,7 @@ export default function Atividades() {
               type="button"
               onClick={() => setViewMode('LIST')}
               className={`inline-flex items-center gap-2 rounded-md px-3 py-2 text-sm font-semibold ${
-                viewMode === 'LIST' ? 'bg-[var(--crm-accent)] text-white' : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)]'
+                viewMode === 'LIST' ? "bg-[var(--crm-accent)] text-[rgb(var(--crm-ink-rgb)_/_1)]" : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)]'
               }`}
             >
               <List className="h-4 w-4" />
@@ -1313,7 +1313,7 @@ export default function Atividades() {
           renderActions={renderActivityActions}
           emptyState={(
           <div className="text-center py-16">
-            <div className="w-16 h-16 bg-black/5 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] rounded-full flex items-center justify-center mx-auto mb-4">
               <Calendar className="w-8 h-8 text-[var(--crm-muted)]" />
             </div>
             <h3 className="text-lg font-semibold text-[var(--crm-ink)] mb-2">Nenhuma atividade encontrada</h3>
@@ -1333,22 +1333,22 @@ export default function Atividades() {
         >
           <div className="space-y-6">
             {isPreSalesRelatedActivity(selectedActivity) && (
-              <div className="rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-slate-900 p-4 shadow-lg shadow-emerald-950/20">
+              <div className="rounded-xl border border-emerald-500/40 bg-gradient-to-r from-emerald-950/40 via-[rgb(var(--crm-surface-2-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4 shadow-lg shadow-emerald-950/20">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
                       <Package className="h-5 w-5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-extrabold text-white">
+                        <span className="text-sm font-extrabold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           Demanda Precificada pela Engenharia de Pré-Vendas
                         </span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
                           <Check className="h-3 w-3" /> Devolvido ao Comercial
                         </span>
                       </div>
-                      <p className="text-xs text-slate-300 mt-0.5">
+                      <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] mt-0.5">
                         Todos os produtos, quantidades e preços de venda finais definidos pela Engenharia estão discriminados abaixo para elaboração da Proposta Comercial.
                       </p>
                     </div>
@@ -1373,16 +1373,16 @@ export default function Atividades() {
             <div className="crm-panel-muted p-4 space-y-3">
               <div className="flex flex-wrap items-center gap-3">
                 <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold ${
-                  STATUS_META[selectedDisplayStatus]?.cls || 'bg-slate-500/10 text-slate-700 dark:text-slate-200'
+                  STATUS_META[selectedDisplayStatus]?.cls || "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 }`}>
                   {STATUS_META[selectedDisplayStatus]?.label || selectedActivity.status}
                 </span>
                 <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold ${
-                  PRIORITY_META[selectedActivity.priority]?.cls || 'bg-slate-500/10 text-slate-700 dark:text-slate-200'
+                  PRIORITY_META[selectedActivity.priority]?.cls || "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 }`}>
                   {PRIORITY_META[selectedActivity.priority]?.label || selectedActivity.priority}
                 </span>
-                <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold bg-slate-500/10 text-slate-700 dark:text-slate-200">
+                <span className="inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   {TYPE_META[getActivityDisplayType(selectedActivity)]?.label || selectedActivity.type}
                 </span>
               </div>
@@ -1461,8 +1461,8 @@ export default function Atividades() {
 
               if (selectedActivityBudgetLoading) {
                 return (
-                  <div className="rounded-xl border border-cyan-500/30 bg-cyan-950/20 p-5 text-center">
-                    <div className="flex items-center justify-center gap-2 text-cyan-300 font-semibold text-sm">
+                  <div className="rounded-xl border border-cyan-500/30 bg-cyan-50/20 dark:bg-cyan-950/20 p-5 text-center">
+                    <div className="flex items-center justify-center gap-2 text-cyan-700 dark:text-cyan-300 font-semibold text-sm">
                       <RefreshCcw className="h-4 w-4 animate-spin" />
                       Carregando produtos e valores precificados pelo Pré-Vendas...
                     </div>
@@ -1557,23 +1557,23 @@ export default function Atividades() {
                 '';
 
               return (
-                <div className="rounded-2xl border-2 border-cyan-500/40 bg-gradient-to-b from-slate-900 via-slate-900/90 to-slate-950 p-5 shadow-xl shadow-cyan-950/20 space-y-5">
+                <div className="rounded-2xl border-2 border-cyan-500/40 bg-gradient-to-b from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-2-rgb)_/_0.9)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 shadow-xl shadow-cyan-950/20 space-y-5">
                   {/* Header da Seção de Precificação */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-[var(--crm-border)] pb-4">
                     <div className="flex items-center gap-3">
                       <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30">
                         <Package className="h-5 w-5" />
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h4 className="text-base font-extrabold text-white tracking-tight">
+                          <h4 className="text-base font-extrabold text-[rgb(var(--crm-ink-rgb)_/_1)] tracking-tight">
                             Produtos e Valores Precificados pelo Pré-Vendas
                           </h4>
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-bold text-emerald-400">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
                             <Check className="h-3 w-3" /> Precificação Aprovada
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 mt-0.5">
+                        <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">
                           Tabela de produtos, quantidades e preços de venda definida pela engenharia para formular a proposta ao cliente.
                         </p>
                       </div>
@@ -1590,17 +1590,17 @@ export default function Atividades() {
                           margemMedia,
                           observacoesTecnicas
                         })}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-semibold transition-colors cursor-pointer"
                         title="Copiar dados para enviar por WhatsApp ou E-mail"
                       >
                         {copySuccess ? (
                           <>
-                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-                            <span className="text-emerald-400">Copiado!</span>
+                            <CheckCircle2 className="h-3.5 w-3.5 text-emerald-700 dark:text-emerald-400" />
+                            <span className="text-emerald-700 dark:text-emerald-400">Copiado!</span>
                           </>
                         ) : (
                           <>
-                            <Copy className="h-3.5 w-3.5 text-cyan-400" />
+                            <Copy className="h-3.5 w-3.5 text-cyan-700 dark:text-cyan-400" />
                             <span>Copiar Preços</span>
                           </>
                         )}
@@ -1610,9 +1610,9 @@ export default function Atividades() {
                         <button
                           type="button"
                           onClick={() => openPreSalesBudgetPdf(budget, { hideCosts: !isPreSales })}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold transition-colors cursor-pointer"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-semibold transition-colors cursor-pointer"
                         >
-                          <FileText className="h-3.5 w-3.5 text-cyan-400" />
+                          <FileText className="h-3.5 w-3.5 text-cyan-700 dark:text-cyan-400" />
                           <span>PDF Orçamento</span>
                         </button>
                       )}
@@ -1629,10 +1629,10 @@ export default function Atividades() {
                             observacoesTecnicas
                           });
                         }}
-                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-amber-500/50 bg-gradient-to-r from-amber-500/25 via-orange-500/20 to-amber-600/30 hover:from-amber-500/40 hover:to-orange-500/40 text-amber-200 text-xs font-bold transition-all shadow-md shadow-amber-950/30 cursor-pointer"
+                        className="flex items-center gap-1.5 px-4 py-2 rounded-lg border border-amber-500/50 bg-gradient-to-r from-amber-500/25 via-orange-500/20 to-amber-600/30 hover:from-amber-500/40 hover:to-orange-500/40 text-amber-700 dark:text-amber-200 text-xs font-bold transition-all shadow-md shadow-amber-950/30 cursor-pointer"
                         title="Gerar Proposta Comercial de 10 Lâminas com produtos preenchidos automaticamente"
                       >
-                        <Presentation className="h-4 w-4 text-amber-400" />
+                        <Presentation className="h-4 w-4 text-amber-700 dark:text-amber-400" />
                         <span>Gerar Proposta Comercial</span>
                       </button>
 
@@ -1642,7 +1642,7 @@ export default function Atividades() {
                           setShowDetailsModal(false);
                           navigate('/pre-vendas');
                         }}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-950/40 hover:bg-cyan-900/60 text-cyan-300 text-xs font-semibold transition-colors cursor-pointer"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-cyan-500/30 bg-cyan-50/40 dark:bg-cyan-950/40 hover:bg-cyan-50/60 dark:hover:bg-cyan-900/60 text-cyan-700 dark:text-cyan-300 text-xs font-semibold transition-colors cursor-pointer"
                       >
                         <ExternalLink className="h-3.5 w-3.5" />
                         <span>Ver no Pré-Vendas</span>
@@ -1652,65 +1652,65 @@ export default function Atividades() {
 
                   {/* Cards de Resumo Financeiro */}
                   <div className={`grid gap-3 ${valorMensal > 0 || valorSetup > 0 ? 'grid-cols-2 sm:grid-cols-4' : 'grid-cols-2 sm:grid-cols-3'}`}>
-                    <div className="rounded-xl border border-slate-800 bg-slate-800/60 p-3.5 shadow-sm">
-                      <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                    <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-3.5 shadow-sm">
+                      <span className="text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider block">
                         Número Orçamento
                       </span>
-                      <div className="text-sm font-extrabold text-white mt-1">
+                      <div className="text-sm font-extrabold text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
                         {numeroOrcamento}
                       </div>
-                      <span className="inline-block mt-1 text-[10px] font-semibold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">
+                      <span className="inline-block mt-1 text-[10px] font-semibold text-cyan-700 dark:text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">
                         Engenharia B2B
                       </span>
                     </div>
 
-                    <div className="rounded-xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-slate-800/60 p-3.5 shadow-sm">
-                      <span className="text-[11px] font-semibold text-cyan-300 uppercase tracking-wider block">
+                    <div className="rounded-xl border border-cyan-500/30 bg-gradient-to-br from-cyan-950/40 to-[rgb(var(--crm-surface-rgb)_/_0.6)] p-3.5 shadow-sm">
+                      <span className="text-[11px] font-semibold text-cyan-700 dark:text-cyan-300 uppercase tracking-wider block">
                         Valor Total {valorMensal > 0 ? 'Contrato' : 'da Proposta'}
                       </span>
-                      <div className="text-base font-black text-cyan-300 mt-1">
+                      <div className="text-base font-black text-cyan-700 dark:text-cyan-300 mt-1">
                         {toCurrency(valorTotalContrato)}
                       </div>
-                      <span className="text-[10px] text-slate-400 block mt-0.5">
+                      <span className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] block mt-0.5">
                         {valorMensal > 0 ? '12 meses de vigência' : 'Preço final aprovado'}
                       </span>
                     </div>
 
                     {(valorMensal > 0 || valorSetup > 0) && (
-                      <div className="rounded-xl border border-slate-800 bg-slate-800/60 p-3.5 shadow-sm">
-                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                      <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-3.5 shadow-sm">
+                        <span className="text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider block">
                           Recorrente & Setup
                         </span>
-                        <div className="text-sm font-extrabold text-emerald-400 mt-1">
-                          {toCurrency(valorMensal)}<span className="text-xs text-slate-400 font-normal">/mês</span>
+                        <div className="text-sm font-extrabold text-emerald-700 dark:text-emerald-400 mt-1">
+                          {toCurrency(valorMensal)}<span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] font-normal">/mês</span>
                         </div>
-                        <span className="text-[10px] text-slate-400 block mt-0.5">
+                        <span className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] block mt-0.5">
                           Setup: {toCurrency(valorSetup)}
                         </span>
                       </div>
                     )}
 
                     {isPreSales ? (
-                      <div className="rounded-xl border border-slate-800 bg-slate-800/60 p-3.5 shadow-sm">
-                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                      <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-3.5 shadow-sm">
+                        <span className="text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider block">
                           Margem de Contribuição
                         </span>
-                        <div className="text-base font-black text-amber-400 mt-1">
+                        <div className="text-base font-black text-amber-700 dark:text-amber-400 mt-1">
                           {margemMedia.toFixed(1)}%
                         </div>
-                        <span className="inline-block mt-1 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
+                        <span className="inline-block mt-1 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded">
                           Rentabilidade Alta
                         </span>
                       </div>
                     ) : (
-                      <div className="rounded-xl border border-slate-800 bg-slate-800/60 p-3.5 shadow-sm">
-                        <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider block">
+                      <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-3.5 shadow-sm">
+                        <span className="text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider block">
                           Itens Precificados
                         </span>
-                        <div className="text-base font-black text-emerald-400 mt-1">
+                        <div className="text-base font-black text-emerald-700 dark:text-emerald-400 mt-1">
                           {items.length} {items.length === 1 ? 'Produto' : 'Produtos'}
                         </div>
-                        <span className="inline-block mt-1 text-[10px] font-semibold text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">
+                        <span className="inline-block mt-1 text-[10px] font-semibold text-cyan-700 dark:text-cyan-400 bg-cyan-500/10 px-1.5 py-0.5 rounded">
                           Engenharia Aprovada
                         </span>
                       </div>
@@ -1719,80 +1719,80 @@ export default function Atividades() {
 
                   {/* Tabela de Produtos Precificados */}
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs text-slate-400 px-1">
-                      <span className="font-semibold text-slate-300 uppercase tracking-wider">
+                    <div className="flex items-center justify-between text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] px-1">
+                      <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
                         Composição de Itens e Produtos Precificados ({items.length})
                       </span>
                       <span>{isPreSales ? 'Custos, margens e preços finais' : 'Preços de venda unitários e totais'}</span>
                     </div>
 
-                    <div className="overflow-hidden rounded-xl border border-slate-800 bg-slate-900/90">
-                      <table className="min-w-full divide-y divide-slate-800 text-left text-xs">
-                        <thead className="bg-slate-800/80 text-slate-400 uppercase font-semibold">
+                    <div className="overflow-hidden rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)]">
+                      <table className="min-w-full divide-y divide-[var(--crm-border)] text-left text-xs">
+                        <thead className="bg-[rgb(var(--crm-surface-rgb)_/_0.8)] text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase font-semibold">
                           <tr>
                             <th className="px-4 py-3">Produto / Serviço</th>
                             <th className="px-3 py-3 text-center">Qtd</th>
                             {isPreSales && <th className="px-3 py-3 text-right">Custo Unit.</th>}
                             {isPreSales && <th className="px-3 py-3 text-center">Margem (%)</th>}
-                            <th className="px-3 py-3 text-right text-cyan-300">Preço Venda Unit.</th>
-                            <th className="px-4 py-3 text-right text-emerald-400 font-bold">Subtotal Venda</th>
+                            <th className="px-3 py-3 text-right text-cyan-700 dark:text-cyan-300">Preço Venda Unit.</th>
+                            <th className="px-4 py-3 text-right text-emerald-700 dark:text-emerald-400 font-bold">Subtotal Venda</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-slate-800/60 text-slate-200">
+                        <tbody className="divide-y divide-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           {items.map((it, idx) => (
-                            <tr key={it.id || idx} className="hover:bg-slate-800/40 transition-colors">
+                            <tr key={it.id || idx} className="hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] transition-colors">
                               <td className="px-4 py-3">
-                                <div className="font-bold text-white text-xs">{it.descricao}</div>
-                                <div className="text-[10px] text-slate-400">{it.categoria}</div>
+                                <div className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs">{it.descricao}</div>
+                                <div className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{it.categoria}</div>
                               </td>
                               <td className="px-3 py-3 text-center">
-                                <span className="inline-block px-2 py-0.5 rounded bg-slate-800 text-slate-300 font-bold text-[11px]">
+                                <span className="inline-block px-2 py-0.5 rounded bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold text-[11px]">
                                   {it.quantidade}x
                                 </span>
                               </td>
                               {isPreSales && (
-                                <td className="px-3 py-3 text-right text-slate-400 font-mono">
+                                <td className="px-3 py-3 text-right text-[rgb(var(--crm-muted-rgb)_/_1)] font-mono">
                                   {toCurrency(it.custoUnitario)}
                                 </td>
                               )}
                               {isPreSales && (
                                 <td className="px-3 py-3 text-center">
-                                  <span className="inline-block px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 font-bold text-[10px]">
+                                  <span className="inline-block px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-700 dark:text-amber-400 font-bold text-[10px]">
                                     {Number(it.margemLucro).toFixed(1)}%
                                   </span>
                                 </td>
                               )}
-                              <td className="px-3 py-3 text-right text-cyan-300 font-bold font-mono">
+                              <td className="px-3 py-3 text-right text-cyan-700 dark:text-cyan-300 font-bold font-mono">
                                 {toCurrency(it.precoSugerido || it.precoVenda)}
                               </td>
-                              <td className="px-4 py-3 text-right text-emerald-400 font-extrabold font-mono text-xs">
+                              <td className="px-4 py-3 text-right text-emerald-700 dark:text-emerald-400 font-extrabold font-mono text-xs">
                                 {toCurrency(it.subtotalVenda)}
                               </td>
                             </tr>
                           ))}
                         </tbody>
-                        <tfoot className="bg-slate-800/70 border-t border-slate-700 font-bold text-xs text-white">
+                        <tfoot className="bg-[rgb(var(--crm-surface-rgb)_/_0.7)] border-t border-[var(--crm-border)] font-bold text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
                           <tr>
                             <td className="px-4 py-2.5">Total Geral</td>
                             <td className="px-3 py-2.5 text-center">
                               {items.reduce((acc, it) => acc + it.quantidade, 0)} itens
                             </td>
                             {isPreSales && (
-                              <td className="px-3 py-2.5 text-right text-slate-400 font-mono">
+                              <td className="px-3 py-2.5 text-right text-[rgb(var(--crm-muted-rgb)_/_1)] font-mono">
                                 {toCurrency(totalCustoCalculado)}
                               </td>
                             )}
                             {isPreSales && (
-                              <td className="px-3 py-2.5 text-center text-amber-400">
+                              <td className="px-3 py-2.5 text-center text-amber-700 dark:text-amber-400">
                                 {margemMedia.toFixed(1)}%
                               </td>
                             )}
                             {isPreSales && (
-                              <td className="px-3 py-2.5 text-right text-slate-400">
+                              <td className="px-3 py-2.5 text-right text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                 -
                               </td>
                             )}
-                            <td className={`px-4 py-2.5 text-right text-emerald-300 font-extrabold font-mono ${!isPreSales ? 'col-span-2' : ''}`} colSpan={!isPreSales ? 2 : 1}>
+                            <td className={`px-4 py-2.5 text-right text-emerald-700 dark:text-emerald-300 font-extrabold font-mono ${!isPreSales ? 'col-span-2' : ''}`} colSpan={!isPreSales ? 2 : 1}>
                               {toCurrency(totalVendaCalculado || valorTotalContrato)}
                             </td>
                           </tr>
@@ -1803,24 +1803,24 @@ export default function Atividades() {
 
                   {/* Observações Técnicas da Engenharia */}
                   {observacoesTecnicas && (
-                    <div className="rounded-xl border border-slate-800/80 bg-slate-900/60 p-3.5">
-                      <div className="flex items-center gap-1.5 text-xs font-bold text-slate-300 mb-1">
-                        <ShieldCheck className="h-4 w-4 text-cyan-400" />
+                    <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-3.5">
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
+                        <ShieldCheck className="h-4 w-4 text-cyan-700 dark:text-cyan-400" />
                         <span>Parecer Técnico do Pré-Vendas & Requisitos de Engenharia:</span>
                       </div>
-                      <p className="text-xs text-slate-300 leading-relaxed">
+                      <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
                         {observacoesTecnicas}
                       </p>
                     </div>
                   )}
 
                   {/* Call-to-action de Fechamento / Conversão para Proposta */}
-                  <div className="rounded-xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/30 via-slate-900 to-slate-900 p-4 flex flex-wrap items-center justify-between gap-3">
+                  <div className="rounded-xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/30 via-[rgb(var(--crm-surface-2-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4 flex flex-wrap items-center justify-between gap-3">
                     <div className="space-y-0.5">
-                      <p className="text-xs font-bold text-emerald-300">
+                      <p className="text-xs font-bold text-emerald-700 dark:text-emerald-300">
                         👉 Pronto para formalizar a proposta ao cliente?
                       </p>
-                      <p className="text-[11px] text-slate-400">
+                      <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">
                         O Comercial pode converter estes produtos e preços diretamente na Proposta Comercial oficial de 10 lâminas.
                       </p>
                     </div>
@@ -2232,19 +2232,19 @@ export default function Atividades() {
 
       {/* Toast de Notificação de Sucesso na Geração da Proposta */}
       {proposalSuccessToast && (
-        <div className="fixed bottom-6 right-6 z-50 max-w-md rounded-2xl border border-amber-500/50 bg-gradient-to-r from-slate-900 via-amber-950/80 to-slate-900 p-4 text-white shadow-2xl shadow-amber-950/40 animate-in slide-in-from-bottom duration-300">
+        <div className="fixed bottom-6 right-6 z-50 max-w-md rounded-2xl border border-amber-500/50 bg-gradient-to-r from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-amber-50/80 dark:via-amber-950/80 to-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4 text-[var(--crm-ink)] shadow-2xl shadow-amber-950/40 animate-in slide-in-from-bottom duration-300">
           <div className="flex items-start gap-3">
-            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
+            <div className="p-2 rounded-xl bg-amber-500/20 text-amber-700 dark:text-amber-400">
               <Presentation className="h-5 w-5" />
             </div>
             <div className="flex-1 min-w-0">
-              <div className="text-sm font-bold text-amber-300">{proposalSuccessToast.title}</div>
-              <div className="text-xs text-slate-300 mt-1">{proposalSuccessToast.message}</div>
+              <div className="text-sm font-bold text-amber-700 dark:text-amber-300">{proposalSuccessToast.title}</div>
+              <div className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">{proposalSuccessToast.message}</div>
             </div>
             <button
               type="button"
               onClick={() => setProposalSuccessToast(null)}
-              className="text-slate-400 hover:text-white p-1"
+              className="text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] p-1"
             >
               <X className="h-4 w-4" />
             </button>

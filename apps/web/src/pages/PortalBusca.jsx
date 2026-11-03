@@ -709,7 +709,7 @@ const getFonteBadgeClass = (fonte) => {
     'BLL': 'bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/40 dark:text-amber-300 dark:border-amber-700',
     'BNC': 'bg-violet-100 text-violet-800 border border-violet-200 dark:bg-violet-900/40 dark:text-violet-300 dark:border-violet-700',
   };
-  return map[fonte] || 'bg-slate-100 text-slate-700 border border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600';
+  return map[fonte] || "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:border-[var(--crm-border)]";
 };
 
 const getFonteDisplayName = (fonte) => {
@@ -793,11 +793,11 @@ function Toast({ toasts }) {
   return (
     <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
       {toasts.map(t => (
-        <div key={t.id} className={`flex items-start gap-3 bg-white dark:bg-slate-800 border-l-4 ${t.error ? 'border-red-500' : 'border-blue-500'} shadow-xl p-4 rounded-lg max-w-sm animate-fade-in`}>
+        <div key={t.id} className={`flex items-start gap-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border-l-4 ${t.error ? 'border-red-500' : 'border-blue-500'} shadow-xl p-4 rounded-lg max-w-sm animate-fade-in`}>
           <span className="text-xl mt-0.5">{t.error ? '❌' : '✅'}</span>
           <div>
-            <p className="font-bold text-slate-800 dark:text-slate-100 text-sm">{t.title}</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{t.text}</p>
+            <p className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{t.title}</p>
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">{t.text}</p>
           </div>
         </div>
       ))}
@@ -821,8 +821,8 @@ function CardEdital({
   const vigente = isEditalVigente(item);
 
   return (
-    <div className={`bg-white dark:bg-slate-800/60 rounded-xl shadow-sm border hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition duration-200 overflow-hidden group ${vigente ? 'border-slate-200 dark:border-slate-700' : 'border-slate-200 dark:border-slate-700 opacity-80'}`}>
-      <div className={`border-l-4 ${vigente ? 'border-blue-500' : 'border-slate-400 dark:border-slate-600'} p-5 md:p-6`}>
+    <div className={`bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] rounded-xl shadow-sm border hover:border-blue-400 dark:hover:border-blue-500 hover:shadow-md transition duration-200 overflow-hidden group ${vigente ? "border-[var(--crm-border)] dark:border-[var(--crm-border)]" : "border-[var(--crm-border)] dark:border-[var(--crm-border)] opacity-80"}`}>
+      <div className={`border-l-4 ${vigente ? 'border-blue-500' : "border-[var(--crm-border)] dark:border-[var(--crm-border)]"} p-5 md:p-6`}>
 
         {/* Header */}
         <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4 mb-3">
@@ -837,17 +837,17 @@ function CardEdital({
                   Vigente
                 </span>
               ) : (
-                <span className="text-xs font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-700 border border-slate-200 dark:border-slate-600 px-2 py-1 rounded-md flex items-center gap-1.5">
+                <span className="text-xs font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] px-2 py-1 rounded-md flex items-center gap-1.5">
                   <Lock size={10} /> Encerrado
                 </span>
               )}
               {item.modalidade && (
-                <span className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-slate-700/50 border border-slate-200 dark:border-slate-600 px-2 py-1 rounded-md">
+                <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] px-2 py-1 rounded-md">
                   {item.modalidade}
                 </span>
               )}
             </div>
-            <h3 className="text-base font-bold text-slate-800 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition line-clamp-1">
+            <h3 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-blue-600 dark:group-hover:text-blue-700 dark:group-hover:text-blue-400 transition line-clamp-1">
               {item.orgao || 'Órgão não informado'}
             </h3>
           </div>
@@ -881,44 +881,44 @@ function CardEdital({
             )}
 
             {/* Valor */}
-            <div className="text-left md:text-right bg-slate-50 dark:bg-slate-700/40 md:bg-transparent md:dark:bg-transparent p-3 md:p-0 rounded-lg border border-slate-100 dark:border-slate-700 md:border-none">
-              <p className="text-[10px] uppercase tracking-wider font-semibold text-slate-400 dark:text-slate-500 mb-0.5">Valor Estimado</p>
+            <div className="text-left md:text-right bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] md:bg-transparent md:dark:bg-transparent p-3 md:p-0 rounded-lg border border-[var(--crm-border)] dark:border-[var(--crm-border)] md:border-none">
+              <p className="text-[10px] uppercase tracking-wider font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mb-0.5">Valor Estimado</p>
               {item.valor ? (
                 <p className="text-xl font-bold text-emerald-600 dark:text-emerald-400">{formatCurrency(item.valor)}</p>
               ) : (
-                <p className="text-sm text-slate-400 dark:text-slate-500 italic">Não informado</p>
+                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] italic">Não informado</p>
               )}
             </div>
           </div>
         </div>
 
         {/* Objeto */}
-        <p className="text-sm text-slate-600 dark:text-slate-300 mb-4 line-clamp-2 leading-relaxed">{item.titulo}</p>
+        <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-4 line-clamp-2 leading-relaxed">{item.titulo}</p>
 
         {/* Metadados */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-slate-600 dark:text-slate-300 mb-5 pb-5 border-b border-slate-100 dark:border-slate-700">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-5 pb-5 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)]">
           <div>
-            <p className="font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider text-[10px] mb-1">Localização</p>
-            <p className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1">
-              <MapPin size={11} className="text-slate-400 dark:text-slate-500" />
+            <p className="font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider text-[10px] mb-1">Localização</p>
+            <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-1">
+              <MapPin size={11} className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]" />
               {[item.municipio, item.uf].filter(Boolean).join(' - ') || '-'}
             </p>
           </div>
           <div>
-            <p className="font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider text-[10px] mb-1">Modalidade</p>
-            <p className="font-semibold text-slate-700 dark:text-slate-200">{item.modalidade || '-'}</p>
+            <p className="font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider text-[10px] mb-1">Modalidade</p>
+            <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.modalidade || '-'}</p>
           </div>
           <div>
-            <p className="font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider text-[10px] mb-1">Publicação</p>
-            <p className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1">
-              <Calendar size={11} className="text-slate-400 dark:text-slate-500" />
+            <p className="font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider text-[10px] mb-1">Publicação</p>
+            <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-1">
+              <Calendar size={11} className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]" />
               {formatDate(item.dataPublicacao) || '-'}
             </p>
           </div>
           <div>
-            <p className="font-medium text-slate-400 dark:text-slate-500 uppercase tracking-wider text-[10px] mb-1">Abertura</p>
-            <p className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-1">
-              <Calendar size={11} className="text-slate-400 dark:text-slate-500" />
+            <p className="font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider text-[10px] mb-1">Abertura</p>
+            <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-1">
+              <Calendar size={11} className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]" />
               {formatDate(item.dataAbertura) || '-'}
             </p>
           </div>
@@ -932,7 +932,7 @@ function CardEdital({
               className={`flex items-center gap-2 text-sm px-4 py-2.5 rounded-lg font-semibold border transition ${
                 favorito
                   ? 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/30'
-                  : 'text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-700/50 border-slate-200 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700'
+                  : "text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border-[var(--crm-border)] dark:border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
               }`}
             >
               <Heart size={14} fill={favorito ? 'currentColor' : 'none'} />
@@ -963,12 +963,12 @@ function CardEdital({
               href={item.link}
               target="_blank"
               rel="noopener noreferrer"
-              className="w-full sm:w-auto bg-slate-900 dark:bg-slate-100 hover:bg-slate-800 dark:hover:bg-white text-white dark:text-slate-900 px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-sm flex items-center justify-center gap-2"
+              className="w-full sm:w-auto bg-[rgb(var(--crm-surface-2-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] px-5 py-2.5 rounded-lg text-sm font-semibold transition shadow-sm flex items-center justify-center gap-2"
             >
               Ir para o Portal <ExternalLink size={13} className="opacity-70" />
             </a>
           ) : (
-            <span className="w-full sm:w-auto bg-slate-200 dark:bg-slate-700 text-slate-400 dark:text-slate-500 px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 cursor-not-allowed">
+            <span className="w-full sm:w-auto bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] px-5 py-2.5 rounded-lg text-sm font-semibold flex items-center justify-center gap-2 cursor-not-allowed">
               Link não disponível
             </span>
           )}
@@ -997,51 +997,51 @@ function SalvarLeadModal({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/70 px-4 py-6">
-      <div className="w-full max-w-3xl rounded-2xl border border-slate-700 bg-slate-900 text-slate-100 shadow-2xl">
-        <div className="flex items-start justify-between gap-4 border-b border-slate-800 px-6 py-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] px-4 py-6">
+      <div className="w-full max-w-3xl rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-[var(--crm-border)] px-6 py-5">
           <div>
             <h3 className="flex items-center gap-3 text-xl font-bold">
-              <BookmarkPlus className="text-blue-300" size={24} />
+              <BookmarkPlus className="text-blue-700 dark:text-blue-300" size={24} />
               Salvar como Lead
             </h3>
-            <p className="mt-1 text-sm text-slate-300">Analise este edital e registre sua decisão antes de avançar.</p>
+            <p className="mt-1 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Analise este edital e registre sua decisão antes de avançar.</p>
           </div>
-          <button type="button" onClick={onClose} className="rounded-lg p-2 text-slate-300 hover:bg-slate-800 hover:text-white">
+          <button type="button" onClick={onClose} className="rounded-lg p-2 text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
             <X size={20} />
           </button>
         </div>
 
         <div className="space-y-5 px-6 py-5">
-          <div className="rounded-xl border border-blue-900/80 bg-slate-800/70 p-5">
+          <div className="rounded-xl border border-blue-200/80 dark:border-blue-900/80 bg-[rgb(var(--crm-surface-rgb)_/_0.7)] p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
-                <p className="text-lg font-bold text-white">{item.numero || item.id}</p>
-                <p className="mt-3 flex items-center gap-2 text-sm text-slate-200">
-                  <Building2 size={16} className="text-slate-400" />
+                <p className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.numero || item.id}</p>
+                <p className="mt-3 flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                  <Building2 size={16} className="text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                   {item.orgao || 'Órgão não informado'}
                 </p>
-                <p className="mt-2 flex items-center gap-2 text-sm text-slate-300">
-                  <MapPin size={16} className="text-slate-400" />
+                <p className="mt-2 flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                  <MapPin size={16} className="text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                   {[item.municipio, item.uf].filter(Boolean).join(' - ') || 'Local não informado'}
                 </p>
               </div>
-              <span className="shrink-0 rounded-full border border-blue-500/60 px-4 py-2 text-xs font-bold uppercase text-blue-200">
+              <span className="shrink-0 rounded-full border border-blue-500/60 px-4 py-2 text-xs font-bold uppercase text-blue-700 dark:text-blue-200">
                 {item.modalidade || item.fonte || 'Edital'}
               </span>
             </div>
-            <p className="mt-4 text-sm leading-relaxed text-slate-300">{item.titulo}</p>
-            <div className="mt-4 flex flex-col gap-3 border-t border-slate-700 pt-4 sm:flex-row sm:items-center sm:justify-between">
-              <span className="flex items-center gap-2 text-sm font-semibold text-slate-200">
-                <Calendar size={16} className="text-blue-300" />
+            <p className="mt-4 text-sm leading-relaxed text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.titulo}</p>
+            <div className="mt-4 flex flex-col gap-3 border-t border-[var(--crm-border)] pt-4 sm:flex-row sm:items-center sm:justify-between">
+              <span className="flex items-center gap-2 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                <Calendar size={16} className="text-blue-700 dark:text-blue-300" />
                 {formatDate(item.dataAbertura || item.dataEncerramento || item.dataPublicacao) || 'Data não informada'}
               </span>
-              <span className="text-sm font-semibold text-emerald-300">{item.status || 'Não informado'}</span>
+              <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{item.status || 'Não informado'}</span>
             </div>
           </div>
 
           <div>
-            <label className="mb-3 block text-sm font-bold text-slate-100">Decisão</label>
+            <label className="mb-3 block text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Decisão</label>
             <div className="grid gap-3 sm:grid-cols-3">
               {decisions.map(option => (
                 <button
@@ -1050,8 +1050,8 @@ function SalvarLeadModal({
                   onClick={() => onDecisao(option.id)}
                   className={`flex min-h-24 flex-col items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-bold transition ${
                     decisao === option.id
-                      ? 'border-blue-400 bg-blue-500/20 text-blue-200 ring-2 ring-blue-400'
-                      : 'border-slate-700 bg-slate-950/20 text-slate-300 hover:border-blue-500/70 hover:text-blue-200'
+                      ? "border-blue-400 bg-blue-500/20 text-blue-700 dark:text-blue-200 ring-2 ring-blue-400"
+                      : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.2)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-blue-500/70 hover:text-blue-700 dark:hover:text-blue-200"
                   }`}
                 >
                   {option.icon}
@@ -1062,42 +1062,42 @@ function SalvarLeadModal({
           </div>
 
           <div>
-            <label className="mb-2 block text-sm font-bold text-slate-100">Observações (opcional)</label>
+            <label className="mb-2 block text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Observações (opcional)</label>
             <textarea
               value={observacoes}
               onChange={(event) => onObservacoes(event.target.value)}
               rows={4}
               placeholder="Justificativa da decisão, pontos de atenção, concorrentes identificados..."
-              className="w-full resize-y rounded-xl border border-slate-700 bg-slate-950/30 p-4 text-sm text-slate-100 outline-none transition placeholder:text-slate-500 focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30"
+              className="w-full resize-y rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] p-4 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-blue-400 focus:ring-2 focus:ring-blue-500/30"
             />
           </div>
 
           {decisao === 'GO' && (
-            <div className="rounded-xl border border-emerald-700/60 bg-emerald-900/20 px-4 py-3 text-sm text-emerald-300 flex items-start gap-2">
+            <div className="rounded-xl border border-emerald-200/60 dark:border-emerald-700/60 bg-emerald-50/20 dark:bg-emerald-900/20 px-4 py-3 text-sm text-emerald-700 dark:text-emerald-300 flex items-start gap-2">
               <span className="text-lg">✅</span>
               <div>
                 <p className="font-bold">GO selecionado</p>
-                <p className="text-emerald-400 text-xs mt-0.5">Uma oportunidade B2G será criada automaticamente e você será redirecionado para o Kanban de Oportunidades.</p>
+                <p className="text-emerald-700 dark:text-emerald-400 text-xs mt-0.5">Uma oportunidade B2G será criada automaticamente e você será redirecionado para o Kanban de Oportunidades.</p>
               </div>
             </div>
           )}
           {decisao === 'NO_GO' && (
-            <div className="rounded-xl border border-red-700/60 bg-red-900/20 px-4 py-3 text-sm text-red-300 flex items-start gap-2">
+            <div className="rounded-xl border border-red-200/60 dark:border-red-700/60 bg-red-50/20 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-300 flex items-start gap-2">
               <span className="text-lg">❌</span>
               <div>
                 <p className="font-bold">NO GO selecionado</p>
-                <p className="text-red-400 text-xs mt-0.5">O edital será registrado como descartado. Você pode reverter depois em B2G &gt; Leads.</p>
+                <p className="text-red-700 dark:text-red-400 text-xs mt-0.5">O edital será registrado como descartado. Você pode reverter depois em B2G &gt; Leads.</p>
               </div>
             </div>
           )}
         </div>
 
-        <div className="flex flex-col-reverse gap-3 border-t border-slate-800 px-6 py-5 sm:flex-row sm:justify-end">
+        <div className="flex flex-col-reverse gap-3 border-t border-[var(--crm-border)] px-6 py-5 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={onClose}
             disabled={saving}
-            className="rounded-xl border border-slate-700 px-5 py-3 text-sm font-semibold text-slate-200 transition hover:bg-slate-800 disabled:opacity-60"
+            className="rounded-xl border border-[var(--crm-border)] px-5 py-3 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] disabled:opacity-60"
           >
             Cancelar
           </button>
@@ -1107,10 +1107,10 @@ function SalvarLeadModal({
             disabled={saving}
             className={`inline-flex items-center justify-center gap-2 rounded-xl px-6 py-3 text-sm font-bold transition disabled:opacity-60 ${
               decisao === 'GO'
-                ? 'bg-emerald-400 hover:bg-emerald-300 text-slate-950'
+                ? "bg-emerald-400 hover:bg-emerald-300 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 : decisao === 'NO_GO'
                 ? 'bg-red-500 hover:bg-red-400 text-white'
-                : 'bg-blue-400 hover:bg-blue-300 text-slate-950'
+                : "bg-blue-400 hover:bg-blue-300 text-[rgb(var(--crm-ink-rgb)_/_1)]"
             }`}
           >
             {saving ? <Loader2 size={16} className="animate-spin" /> : <BookmarkPlus size={16} />}
@@ -1828,7 +1828,7 @@ export default function PortalBusca() {
       />
 
       {/* Tabs de navegação */}
-      <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 sticky top-[5.65rem] z-10 shadow-sm">
+      <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] sticky top-[5.65rem] z-10 shadow-sm">
         <div className="flex items-center gap-1 px-4 py-2">
           {[
             { id: 'busca', label: 'Início', icon: <Search size={14} /> },
@@ -1842,7 +1842,7 @@ export default function PortalBusca() {
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
                 activeTab === tab.id
                   ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  : "text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
               }`}
             >
               {tab.icon} {tab.label}
@@ -1854,7 +1854,7 @@ export default function PortalBusca() {
               className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition ${
                 mostrarFavoritos
                   ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                  : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800'
+                  : "text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
               }`}
             >
               <Heart size={14} fill={mostrarFavoritos ? 'currentColor' : 'none'} />
@@ -1868,20 +1868,20 @@ export default function PortalBusca() {
       {activeTab === 'busca' && (
         <div className="flex flex-col flex-1">
           {/* Header de busca */}
-          <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 pb-6 pt-8 shadow-sm">
+          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] pb-6 pt-8 shadow-sm">
             <div className="px-4 max-w-5xl mx-auto">
-              <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 mb-1">Buscador Unificado</h2>
-              <p className="text-slate-500 dark:text-slate-400 text-sm mb-6">Pesquise editais de todas as esferas públicas em um só lugar.</p>
+              <h2 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Buscador Unificado</h2>
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm mb-6">Pesquise editais de todas as esferas públicas em um só lugar.</p>
               <div className="flex flex-col md:flex-row gap-3">
                 <div className="relative flex-1">
-                  <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" />
+                  <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                   <input
                     type="text"
                     value={objeto}
                     onChange={e => setObjeto(e.target.value)}
                     onKeyDown={handleKeyDown}
                     placeholder="Ex: Aquisição de Notebooks, Obras, Merenda..."
-                    className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm text-base transition placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                    className="w-full pl-12 pr-4 py-3.5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 shadow-sm text-base transition placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)]"
                   />
                 </div>
                 <button
@@ -1900,20 +1900,20 @@ export default function PortalBusca() {
           <div className="flex flex-col gap-4 p-4 max-w-7xl mx-auto w-full flex-1">
 
             {/* Painel de filtros */}
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_18px_42px_-32px_rgba(15,23,42,0.45)] dark:border-slate-700/80 dark:bg-slate-900/70">
-              <div className="flex flex-col gap-3 border-b border-slate-200 bg-slate-50/80 px-4 py-3 dark:border-slate-700/80 dark:bg-slate-900/85 md:flex-row md:items-center md:justify-between">
+            <div className="overflow-hidden rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] shadow-[0_18px_42px_-32px_rgba(15,23,42,0.45)] dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)]">
+              <div className="flex flex-col gap-3 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.8)] px-4 py-3 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.85)] md:flex-row md:items-center md:justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
                     <Filter size={18} />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-slate-800 dark:text-slate-100">Filtros de pesquisa</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">Combine status, fonte, região, datas e produtos para refinar os editais.</p>
+                    <h3 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Filtros de pesquisa</h3>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Combine status, fonte, região, datas e produtos para refinar os editais.</p>
                   </div>
                 </div>
                 <button
                   onClick={limparFiltros}
-                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700 dark:border-slate-700 dark:text-slate-300 dark:hover:border-blue-500/60 dark:hover:bg-blue-500/10 dark:hover:text-blue-300"
+                  className="inline-flex items-center justify-center gap-2 rounded-lg border border-[var(--crm-border)] px-3 py-2 text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] transition hover:border-blue-300 hover:bg-blue-50 dark:hover:bg-blue-950 hover:text-blue-700 dark:hover:text-blue-300 dark:border-[var(--crm-border)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:border-blue-500/60 dark:hover:bg-blue-500/10 dark:hover:text-blue-700 dark:hover:text-blue-300"
                 >
                   <X size={14} />
                   Limpar filtros
@@ -1923,30 +1923,30 @@ export default function PortalBusca() {
               <div className="grid gap-4 p-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
                 <div className="space-y-4">
                   <div className="grid gap-3 lg:grid-cols-2">
-                    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-700/70 dark:bg-slate-800/45">
-                      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Status</p>
+                    <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.7)] p-3 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.45)]">
+                      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Status</p>
                       <div className="flex flex-wrap gap-2">
-                        <label className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition ${apenasVigentes ? 'border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-500/60 dark:bg-blue-500/15 dark:text-blue-200' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300'}`}>
-                          <input type="checkbox" checked={apenasVigentes} onChange={e => setApenasVigentes(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-blue-600" />
+                        <label className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition ${apenasVigentes ? 'border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-500/60 dark:bg-blue-500/15 dark:text-blue-200' : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[var(--crm-border)] dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
+                          <input type="checkbox" checked={apenasVigentes} onChange={e => setApenasVigentes(e.target.checked)} className="h-4 w-4 rounded border-[var(--crm-border)] text-blue-600" />
                           Vigentes
                         </label>
-                        <label className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition ${incluirPropostas ? 'border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-500/60 dark:bg-blue-500/15 dark:text-blue-200' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300'}`}>
-                          <input type="checkbox" checked={incluirPropostas} onChange={e => setIncluirPropostas(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-blue-600" />
+                        <label className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition ${incluirPropostas ? 'border-blue-400 bg-blue-50 text-blue-700 dark:border-blue-500/60 dark:bg-blue-500/15 dark:text-blue-200' : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[var(--crm-border)] dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
+                          <input type="checkbox" checked={incluirPropostas} onChange={e => setIncluirPropostas(e.target.checked)} className="h-4 w-4 rounded border-[var(--crm-border)] text-blue-600" />
                           Em Proposta
                         </label>
                       </div>
                     </div>
 
-                    <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-700/70 dark:bg-slate-800/45">
-                      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Portais autenticados</p>
+                    <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.7)] p-3 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.45)]">
+                      <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Portais autenticados</p>
                       <div className="flex flex-wrap gap-2">
                         {[
                           { label: 'Busca exata', checked: buscaExata, onChange: setBuscaExata },
                           { label: 'Com edital', checked: comEdital, onChange: setComEdital },
                           { label: 'Chat', checked: comMonitoramentoChat, onChange: setComMonitoramentoChat }
                         ].map(item => (
-                          <label key={item.label} className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition ${item.checked ? 'border-cyan-400 bg-cyan-50 text-cyan-700 dark:border-cyan-500/60 dark:bg-cyan-500/15 dark:text-cyan-200' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300'}`}>
-                            <input type="checkbox" checked={item.checked} onChange={e => item.onChange(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-cyan-600" />
+                          <label key={item.label} className={`inline-flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition ${item.checked ? 'border-cyan-400 bg-cyan-50 text-cyan-700 dark:border-cyan-500/60 dark:bg-cyan-500/15 dark:text-cyan-200' : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[var(--crm-border)] dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
+                            <input type="checkbox" checked={item.checked} onChange={e => item.onChange(e.target.checked)} className="h-4 w-4 rounded border-[var(--crm-border)] text-cyan-600" />
                             {item.label}
                           </label>
                         ))}
@@ -1956,49 +1956,49 @@ export default function PortalBusca() {
 
                   <div className="grid gap-3">
                     <div>
-                      <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Nº edital</label>
-                      <input type="text" value={numeroEdital} onChange={e => setNumeroEdital(e.target.value)} placeholder="Nº edital" className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500" />
+                      <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Nº edital</label>
+                      <input type="text" value={numeroEdital} onChange={e => setNumeroEdital(e.target.value)} placeholder="Nº edital" className="h-11 w-full rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                     </div>
                   </div>
 
                   <div className="grid gap-3 lg:grid-cols-[0.7fr_1.3fr]">
                     <div>
-                      <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">UF</label>
-                      <select value={uf} onChange={e => setUf(e.target.value)} className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100">
+                      <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">UF</label>
+                      <select value={uf} onChange={e => setUf(e.target.value)} className="h-11 w-full rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <option value="">Todo Brasil</option>
                         {ESTADOS_BR.map(e => <option key={e.sigla} value={e.sigla}>{e.sigla}</option>)}
                       </select>
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Cidade</label>
-                      <input type="text" value={cidade} onChange={e => setCidade(e.target.value)} placeholder="Cidade..." className="h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500" />
+                      <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Cidade</label>
+                      <input type="text" value={cidade} onChange={e => setCidade(e.target.value)} placeholder="Cidade..." className="h-11 w-full rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                     </div>
                   </div>
 
                   <div className="grid gap-3 lg:grid-cols-2">
                     <div>
-                      <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Publicação</label>
-                      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-2 dark:border-slate-700 dark:bg-slate-800/45">
-                        <input type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} className="h-11 min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100" />
-                        <span className="text-xs font-semibold text-slate-400">até</span>
-                        <input type="date" value={dataFim} onChange={e => setDataFim(e.target.value)} className="h-11 min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100" />
+                      <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Publicação</label>
+                      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.7)] p-2 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.45)]">
+                        <input type="date" value={dataInicio} onChange={e => setDataInicio(e.target.value)} className="h-11 min-w-0 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+                        <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">até</span>
+                        <input type="date" value={dataFim} onChange={e => setDataFim(e.target.value)} className="h-11 min-w-0 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                       </div>
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Prazo</label>
-                      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 rounded-xl border border-slate-200 bg-slate-50/70 p-2 dark:border-slate-700 dark:bg-slate-800/45">
-                        <input type="date" value={dataPrazoInicio} onChange={e => setDataPrazoInicio(e.target.value)} className="h-11 min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100" />
-                        <span className="text-xs font-semibold text-slate-400">até</span>
-                        <input type="date" value={dataPrazoFim} onChange={e => setDataPrazoFim(e.target.value)} className="h-11 min-w-0 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100" />
+                      <label className="mb-1.5 block text-[11px] font-bold uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Prazo</label>
+                      <div className="grid grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-3 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.7)] p-2 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.45)]">
+                        <input type="date" value={dataPrazoInicio} onChange={e => setDataPrazoInicio(e.target.value)} className="h-11 min-w-0 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+                        <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">até</span>
+                        <input type="date" value={dataPrazoFim} onChange={e => setDataPrazoFim(e.target.value)} className="h-11 min-w-0 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                       </div>
                     </div>
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-700/70 dark:bg-slate-800/45">
+                  <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.7)] p-3 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.45)]">
                     <div className="mb-3 flex items-center justify-between gap-2">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Fontes</p>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Fontes</p>
                       <div className="flex items-center gap-2">
                         <span className="rounded-full bg-blue-100 px-2 py-0.5 text-[11px] font-bold text-blue-700 dark:bg-blue-500/15 dark:text-blue-200">{fontesAtivas.length} ativas</span>
                         <button
@@ -2010,7 +2010,7 @@ export default function PortalBusca() {
                               setFontesAtivas(fontesDisponiveis.map(f => f.id));
                             }
                           }}
-                          className="text-[10px] font-bold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors px-2 py-0.5 hover:bg-blue-50 dark:hover:bg-blue-500/10 rounded-md"
+                          className="text-[10px] font-bold text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-200 transition-colors px-2 py-0.5 hover:bg-blue-50 dark:hover:bg-blue-950 dark:hover:bg-blue-500/10 rounded-md"
                         >
                           {fontesDisponiveis.every(f => fontesAtivas.includes(f.id)) ? 'Limpar' : 'Selecionar todos'}
                         </button>
@@ -2018,17 +2018,17 @@ export default function PortalBusca() {
                     </div>
                     <div className="grid gap-2 sm:grid-cols-2">
                       {fontesDisponiveis.map(f => (
-                        <label key={f.id} className={`flex min-h-[42px] cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition ${fontesAtivas.includes(f.id) ? 'border-blue-400 bg-blue-50 text-blue-800 dark:border-blue-500/60 dark:bg-blue-500/15 dark:text-blue-100' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300'}`}>
-                          <input type="checkbox" checked={fontesAtivas.includes(f.id)} onChange={() => toggleFonte(f.id)} className="h-4 w-4 rounded border-slate-300 text-blue-600" />
+                        <label key={f.id} className={`flex min-h-[42px] cursor-pointer items-center gap-2 rounded-lg border px-3 py-2 text-xs font-semibold transition ${fontesAtivas.includes(f.id) ? 'border-blue-400 bg-blue-50 text-blue-800 dark:border-blue-500/60 dark:bg-blue-500/15 dark:text-blue-100' : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[var(--crm-border)] dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
+                          <input type="checkbox" checked={fontesAtivas.includes(f.id)} onChange={() => toggleFonte(f.id)} className="h-4 w-4 rounded border-[var(--crm-border)] text-blue-600" />
                           <span className="truncate">{f.icon} {f.nome}</span>
                         </label>
                       ))}
                     </div>
                   </div>
 
-                  <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 dark:border-slate-700/70 dark:bg-slate-800/45">
+                  <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.7)] p-3 dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.45)]">
                     <div className="mb-3 flex items-center justify-between gap-2">
-                      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Produtos TI</p>
+                      <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Produtos TI</p>
                       <div className="flex items-center gap-2">
                         <span className="rounded-full bg-cyan-100 px-2 py-0.5 text-[11px] font-bold text-cyan-700 dark:bg-cyan-500/15 dark:text-cyan-200">{categoriasProdutoTI.length} selecionados</span>
                         <button
@@ -2040,7 +2040,7 @@ export default function PortalBusca() {
                               setCategoriasProdutoTI(CATEGORIAS_PRODUTO_TI.map(cat => cat.id));
                             }
                           }}
-                          className="text-[10px] font-bold text-cyan-600 hover:text-cyan-800 dark:text-cyan-400 dark:hover:text-cyan-200 transition-colors px-2 py-0.5 hover:bg-cyan-50 dark:hover:bg-cyan-500/10 rounded-md"
+                          className="text-[10px] font-bold text-cyan-600 hover:text-cyan-800 dark:text-cyan-400 dark:hover:text-cyan-200 transition-colors px-2 py-0.5 hover:bg-cyan-50 dark:hover:bg-cyan-950 dark:hover:bg-cyan-500/10 rounded-md"
                         >
                           {CATEGORIAS_PRODUTO_TI.every(cat => categoriasProdutoTI.includes(cat.id)) ? 'Limpar' : 'Selecionar todos'}
                         </button>
@@ -2049,8 +2049,8 @@ export default function PortalBusca() {
                     <div className="max-h-[148px] overflow-y-auto pr-1">
                       <div className="flex flex-wrap gap-2">
                         {CATEGORIAS_PRODUTO_TI.map(cat => (
-                          <label key={cat.id} className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition ${categoriasProdutoTI.includes(cat.id) ? 'border-cyan-400 bg-cyan-50 text-cyan-800 dark:border-cyan-500/60 dark:bg-cyan-500/15 dark:text-cyan-100' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-300'}`}>
-                            <input type="checkbox" checked={categoriasProdutoTI.includes(cat.id)} onChange={() => toggleCategoriaProduto(cat.id)} className="h-3.5 w-3.5 rounded border-slate-300 text-cyan-600" />
+                          <label key={cat.id} className={`inline-flex cursor-pointer items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-semibold transition ${categoriasProdutoTI.includes(cat.id) ? 'border-cyan-400 bg-cyan-50 text-cyan-800 dark:border-cyan-500/60 dark:bg-cyan-500/15 dark:text-cyan-100' : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[var(--crm-border)] dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
+                            <input type="checkbox" checked={categoriasProdutoTI.includes(cat.id)} onChange={() => toggleCategoriaProduto(cat.id)} className="h-3.5 w-3.5 rounded border-[var(--crm-border)] text-cyan-600" />
                             {cat.label}
                           </label>
                         ))}
@@ -2062,7 +2062,7 @@ export default function PortalBusca() {
                       onChange={e => setProdutoCustom(e.target.value)}
                       onKeyDown={e => { if (e.key === 'Enter') handleBuscar(); }}
                       placeholder="Outro produto (ex: estabilizador)"
-                      className="mt-3 h-10 w-full rounded-xl border border-blue-200 bg-white px-3 text-sm text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-blue-700/80 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500"
+                      className="mt-3 h-10 w-full rounded-xl border border-blue-200 bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 dark:border-blue-700/80 dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)]"
                     />
                   </div>
                 </div>
@@ -2073,24 +2073,24 @@ export default function PortalBusca() {
             <div className="flex-1 min-w-0">
               {/* Cabeçalho resultados */}
               <div className="flex justify-between items-center mb-5">
-                <h3 className="font-medium text-slate-600 dark:text-slate-300">
-                  <span className="font-bold text-slate-800 dark:text-slate-100 text-lg">
+                <h3 className="font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                  <span className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-lg">
                     {mostrarFavoritos ? favoritos.length : itensExibidos.length}
                   </span>{' '}
                   {mostrarFavoritos ? 'favorito(s)' : 'resultado(s) encontrado(s)'}
                   {!mostrarFavoritos && Object.keys(porFonte).length > 0 && (
-                    <span className="ml-2 text-xs text-slate-400 dark:text-slate-500">
+                    <span className="ml-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
                       ({Object.entries(porFonte).map(([f, n]) => `${f}: ${n}`).join(', ')})
                     </span>
                   )}
                 </h3>
                 <div className="flex items-center gap-2">
                   {buscaFeita && !mostrarFavoritos && (
-                    <button onClick={handleBuscar} disabled={loading} className="flex items-center gap-1 text-sm text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400 transition">
+                    <button onClick={handleBuscar} disabled={loading} className="flex items-center gap-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-blue-600 dark:hover:text-blue-700 dark:hover:text-blue-400 transition">
                       <RefreshCcw size={14} className={loading ? 'animate-spin' : ''} /> Atualizar
                     </button>
                   )}
-                  <select value={ordem} onChange={e => setOrdem(e.target.value)} className="border-none bg-transparent text-sm font-medium text-slate-600 dark:text-slate-300 cursor-pointer outline-none hover:text-blue-600 dark:hover:text-blue-400 transition">
+                  <select value={ordem} onChange={e => setOrdem(e.target.value)} className="border-none bg-transparent text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] cursor-pointer outline-none hover:text-blue-600 dark:hover:text-blue-700 dark:hover:text-blue-400 transition">
                     {ORDENS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
                 </div>
@@ -2105,18 +2105,18 @@ export default function PortalBusca() {
 
               {/* Loading */}
               {loading ? (
-                <div className="bg-white dark:bg-slate-800/60 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-16 text-center">
+                <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] rounded-xl shadow-sm border border-[var(--crm-border)] dark:border-[var(--crm-border)] p-16 text-center">
                   <Loader2 size={40} className="animate-spin text-blue-500 mx-auto mb-4" />
-                  <p className="font-medium text-slate-700 dark:text-slate-200">Buscando em múltiplas fontes...</p>
-                  <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">{fontesAtivas.map(f => fontesDisponiveis.find(x => x.id === f)?.nome).filter(Boolean).join(', ')}</p>
+                  <p className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Buscando em múltiplas fontes...</p>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">{fontesAtivas.map(f => fontesDisponiveis.find(x => x.id === f)?.nome).filter(Boolean).join(', ')}</p>
                 </div>
               ) : itensExibidos.length === 0 ? (
-                <div className="bg-white dark:bg-slate-800/60 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-16 text-center">
+                <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] rounded-xl shadow-sm border border-[var(--crm-border)] dark:border-[var(--crm-border)] p-16 text-center">
                   <span className="text-5xl block mb-4">{mostrarFavoritos ? '❤️' : buscaFeita ? '🔍' : '🏛️'}</span>
-                  <p className="font-medium text-lg text-slate-700 dark:text-slate-200">
+                  <p className="font-medium text-lg text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {mostrarFavoritos ? 'Nenhum favorito salvo' : buscaFeita ? 'Nenhum edital encontrado' : 'Pronto para buscar'}
                   </p>
-                  <p className="text-sm text-slate-400 dark:text-slate-500 mt-1">
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                     {mostrarFavoritos ? 'Salve editais clicando em "Salvar"' : buscaFeita ? 'Tente mudar os filtros ou usar outras palavras-chave.' : 'Digite um termo e clique em Buscar.'}
                   </p>
                 </div>
@@ -2147,14 +2147,14 @@ export default function PortalBusca() {
       {activeTab === 'gerenciadas' && (
         <div className="flex flex-col flex-1 p-4">
           <div className="max-w-7xl mx-auto w-full">
-            <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-900/70 md:flex-row md:items-center md:justify-between">
+            <div className="mb-6 flex flex-col gap-3 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] p-5 shadow-sm dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] md:flex-row md:items-center md:justify-between">
               <div className="flex items-start gap-3">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white shadow-sm">
                   <ClipboardList size={20} />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Licitações Gerenciadas</h2>
-                  <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                  <h2 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Licitações Gerenciadas</h2>
+                  <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     {carregandoGerenciadas ? 'Sincronizando licitações marcadas...' : 'Acompanhe as licitações marcadas nos resultados do Portal de Busca.'}
                   </p>
                 </div>
@@ -2169,17 +2169,17 @@ export default function PortalBusca() {
             </div>
 
             {licitacoesGerenciadas.length === 0 ? (
-              <div className="rounded-xl border border-slate-200 bg-white p-16 text-center shadow-sm dark:border-slate-700 dark:bg-slate-800/60">
-                <ClipboardList size={44} className="mx-auto mb-4 text-slate-300 dark:text-slate-600" />
-                <p className="text-lg font-semibold text-slate-700 dark:text-slate-200">Nenhuma licitação gerenciada</p>
-                <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">
+              <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] p-16 text-center shadow-sm dark:border-[var(--crm-border)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)]">
+                <ClipboardList size={44} className="mx-auto mb-4 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]" />
+                <p className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhuma licitação gerenciada</p>
+                <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   Use o botão "Adicionar licitação" no cabeçalho de um resultado encontrado.
                 </p>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <p className="text-sm font-semibold text-slate-600 dark:text-slate-300">
+                  <p className="text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {licitacoesGerenciadas.length} licitação(ões) em gerenciamento
                   </p>
                   <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700 dark:bg-blue-900/20 dark:text-blue-300">
@@ -2210,12 +2210,12 @@ export default function PortalBusca() {
       {activeTab === 'fontes' && (
         <div className="p-6 max-w-5xl mx-auto w-full">
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Fontes de Dados Integradas</h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Gerencie e monitore o status de extração dos motores de busca.</p>
+            <h2 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Fontes de Dados Integradas</h2>
+            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm mt-1">Gerencie e monitore o status de extração dos motores de busca.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {fontesDisponiveis.map(fonte => (
-              <div key={fonte.id} className="bg-white dark:bg-slate-800/60 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 hover:shadow-md transition">
+              <div key={fonte.id} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] rounded-xl shadow-sm border border-[var(--crm-border)] dark:border-[var(--crm-border)] p-6 hover:shadow-md transition">
                 <div className="flex justify-between items-start mb-4">
                   <div className="p-3 rounded-lg text-2xl bg-blue-100 dark:bg-blue-900/30">{fonte.icon}</div>
                   <div className="flex items-center gap-2">
@@ -2224,27 +2224,27 @@ export default function PortalBusca() {
                       {fonte.loginStatus === 'connected' ? 'Conectada' : !fonte.portal ? 'Operacional' : 'Configurar'}
                     </span>
                     {fonte.portal && (
-                      <button onClick={() => removerFonte(fonte.id)} className="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition p-1">
+                      <button onClick={() => removerFonte(fonte.id)} className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-red-500 dark:hover:text-red-700 dark:hover:text-red-400 transition p-1">
                         <Trash2 size={15} />
                       </button>
                     )}
                   </div>
                 </div>
-                <h3 className="font-bold text-slate-800 dark:text-slate-100 text-lg">{fonte.nome}</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">{fonte.descricao}</p>
-                <div className="text-sm border-t border-slate-100 dark:border-slate-700 pt-3 space-y-1">
+                <h3 className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-lg">{fonte.nome}</h3>
+                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">{fonte.descricao}</p>
+                <div className="text-sm border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] pt-3 space-y-1">
                   <div className="flex justify-between">
-                    <span className="text-slate-500 dark:text-slate-400">Método:</span>
-                    <span className="font-medium text-slate-700 dark:text-slate-200">{fonte.metodo}</span>
+                    <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Método:</span>
+                    <span className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{fonte.metodo}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 dark:text-slate-400">Sincronização:</span>
+                    <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Sincronização:</span>
                     <span className="font-medium text-emerald-600 dark:text-emerald-400">{fonte.sync}</span>
                   </div>
                   {fonte.usuario && (
                     <div className="flex justify-between gap-3">
-                      <span className="text-slate-500 dark:text-slate-400">Usuário:</span>
-                      <span className="font-medium text-slate-700 dark:text-slate-200 truncate">{fonte.usuario}</span>
+                      <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Usuário:</span>
+                      <span className="font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">{fonte.usuario}</span>
                     </div>
                   )}
                 </div>
@@ -2254,7 +2254,7 @@ export default function PortalBusca() {
             <button
               type="button"
               onClick={abrirNovaFonte}
-              className="bg-slate-50 dark:bg-slate-800/30 border-2 border-dashed border-slate-300 dark:border-slate-600 rounded-xl flex flex-col items-center justify-center p-6 text-slate-400 dark:text-slate-500 hover:text-blue-500 dark:hover:text-blue-400 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 cursor-pointer transition min-h-[230px]"
+              className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.3)] border-2 border-dashed border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl flex flex-col items-center justify-center p-6 text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-blue-500 dark:hover:text-blue-700 dark:hover:text-blue-400 hover:border-blue-400 dark:hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950 dark:hover:bg-blue-50/10 dark:hover:bg-blue-900/10 cursor-pointer transition min-h-[230px]"
             >
               <Plus size={32} className="mb-2" />
               <span className="font-medium text-sm">Adicionar Nova Fonte</span>
@@ -2265,25 +2265,25 @@ export default function PortalBusca() {
       )}
 
       {modalFonteAberto && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4">
-          <div className="w-full max-w-lg bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700">
-            <div className="flex items-start justify-between gap-4 p-6 border-b border-slate-200 dark:border-slate-700">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-4">
+          <div className="w-full max-w-lg bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-xl shadow-2xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+            <div className="flex items-start justify-between gap-4 p-6 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)]">
               <div>
-                <h3 className="font-bold text-lg text-slate-900 dark:text-slate-100">Adicionar Fonte</h3>
-                <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">Configure o acesso ao portal pago.</p>
+                <h3 className="font-bold text-lg text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Adicionar Fonte</h3>
+                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">Configure o acesso ao portal pago.</p>
               </div>
-              <button onClick={() => setModalFonteAberto(false)} className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 transition">
+              <button onClick={() => setModalFonteAberto(false)} className="text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition">
                 <X size={20} />
               </button>
             </div>
 
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Portal</label>
+                <label className="block text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Portal</label>
                 <select
                   value={fonteForm.portal}
                   onChange={e => atualizarPortalFonte(e.target.value)}
-                  className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100"
+                  className="w-full border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   {FONTES_PAGAS.map(fonte => (
                     <option key={fonte.portal} value={fonte.portal}>{fonte.nome}</option>
@@ -2292,50 +2292,50 @@ export default function PortalBusca() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Nome da fonte</label>
+                <label className="block text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Nome da fonte</label>
                 <input
                   type="text"
                   value={fonteForm.nome}
                   onChange={e => setFonteForm(prev => ({ ...prev, nome: e.target.value }))}
-                  className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100"
+                  className="w-full border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Usuário</label>
+                  <label className="block text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Usuário</label>
                   <input
                     type="text"
                     value={fonteForm.usuario}
                     onChange={e => setFonteForm(prev => ({ ...prev, usuario: e.target.value }))}
                     placeholder="email ou login"
-                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
+                    className="w-full border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Senha</label>
+                  <label className="block text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Senha</label>
                   <input
                     type="password"
                     value={fonteForm.senha}
                     onChange={e => setFonteForm(prev => ({ ...prev, senha: e.target.value }))}
                     placeholder="senha do portal"
-                    className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 placeholder:text-slate-400"
+                    className="w-full border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)]"
                   />
                 </div>
               </div>
 
               <label className="flex items-center gap-3 cursor-pointer">
-                <input type="checkbox" checked={fonteForm.ativa} onChange={e => setFonteForm(prev => ({ ...prev, ativa: e.target.checked }))} className="w-4 h-4 text-blue-600 border-slate-300 rounded" />
-                <span className="text-sm text-slate-600 dark:text-slate-300">Usar esta fonte nas buscas</span>
+                <input type="checkbox" checked={fonteForm.ativa} onChange={e => setFonteForm(prev => ({ ...prev, ativa: e.target.checked }))} className="w-4 h-4 text-blue-600 border-[var(--crm-border)] rounded" />
+                <span className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Usar esta fonte nas buscas</span>
               </label>
             </div>
 
-            <div className="flex flex-col sm:flex-row justify-end gap-3 p-6 border-t border-slate-200 dark:border-slate-700">
+            <div className="flex flex-col sm:flex-row justify-end gap-3 p-6 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)]">
               <button
                 type="button"
                 onClick={() => testarLoginFonte()}
                 disabled={testandoFonte}
-                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition disabled:opacity-60"
+                className="flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-semibold text-sm border border-[var(--crm-border)] dark:border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition disabled:opacity-60"
               >
                 {testandoFonte ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
                 Testar login
@@ -2358,29 +2358,29 @@ export default function PortalBusca() {
       {activeTab === 'alertas' && (
         <div className="p-6 max-w-3xl mx-auto w-full">
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100">Alertas Inteligentes</h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm mt-1">Configure alertas para ser notificado quando um edital do seu interesse for publicado.</p>
+            <h2 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Alertas Inteligentes</h2>
+            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm mt-1">Configure alertas para ser notificado quando um edital do seu interesse for publicado.</p>
           </div>
 
           {/* Formulário */}
-          <div className="bg-white dark:bg-slate-800/60 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 p-6 mb-6">
-            <h3 className="font-bold text-slate-800 dark:text-slate-100 mb-4 flex items-center gap-2 border-b border-slate-100 dark:border-slate-700 pb-3">
+          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] rounded-xl shadow-sm border border-[var(--crm-border)] dark:border-[var(--crm-border)] p-6 mb-6">
+            <h3 className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-4 flex items-center gap-2 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] pb-3">
               <Bell size={16} className="text-blue-500" /> Criar Novo Alerta
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="md:col-span-2">
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Palavras-chave no Objeto</label>
+                <label className="block text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Palavras-chave no Objeto</label>
                 <input
                   type="text"
                   value={alertaForm.palavras}
                   onChange={e => setAlertaForm(prev => ({ ...prev, palavras: e.target.value }))}
                   placeholder="Ex: Computadores, Obras, Medicamentos"
-                  className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
+                  className="w-full border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)]"
                 />
               </div>
               <div>
-                <label className="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Estado</label>
-                <select value={alertaForm.uf} onChange={e => setAlertaForm(prev => ({ ...prev, uf: e.target.value }))} className="w-full border border-slate-300 dark:border-slate-600 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-100">
+                <label className="block text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Estado</label>
+                <select value={alertaForm.uf} onChange={e => setAlertaForm(prev => ({ ...prev, uf: e.target.value }))} className="w-full border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 outline-none bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <option value="">Qualquer Estado</option>
                   {ESTADOS_BR.map(e => <option key={e.sigla} value={e.sigla}>{e.sigla}</option>)}
                 </select>
@@ -2396,21 +2396,21 @@ export default function PortalBusca() {
           {/* Lista de alertas */}
           {alertas.length > 0 ? (
             <div className="space-y-3">
-              <h3 className="font-semibold text-slate-700 dark:text-slate-300 text-sm">Alertas ativos ({alertas.length})</h3>
+              <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">Alertas ativos ({alertas.length})</h3>
               {alertas.map(alerta => (
-                <div key={alerta.id} className="bg-white dark:bg-slate-800/60 rounded-xl border border-slate-200 dark:border-slate-700 p-4 flex items-center justify-between">
+                <div key={alerta.id} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] p-4 flex items-center justify-between">
                   <div>
-                    <p className="font-semibold text-slate-800 dark:text-slate-100 text-sm">{alerta.palavras}</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">{alerta.uf || 'Todo o Brasil'} · Criado em {alerta.criadoEm}</p>
+                    <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{alerta.palavras}</p>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">{alerta.uf || 'Todo o Brasil'} · Criado em {alerta.criadoEm}</p>
                   </div>
-                  <button onClick={() => removerAlerta(alerta.id)} className="text-slate-400 dark:text-slate-500 hover:text-red-500 dark:hover:text-red-400 transition p-1">
+                  <button onClick={() => removerAlerta(alerta.id)} className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-red-500 dark:hover:text-red-700 dark:hover:text-red-400 transition p-1">
                     <X size={16} />
                   </button>
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center py-12 text-slate-400 dark:text-slate-500">
+            <div className="text-center py-12 text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
               <Bell size={40} className="mx-auto mb-3 opacity-30" />
               <p className="text-sm">Nenhum alerta configurado ainda.</p>
             </div>

@@ -98,14 +98,14 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] backdrop-blur-xs animate-in fade-in duration-200">
       <div 
-        className="bg-[#011419] w-full max-w-2xl rounded-2xl shadow-2xl border border-[#07323e] overflow-hidden flex flex-col max-h-[92vh]"
+        className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] w-full max-w-2xl rounded-2xl shadow-2xl border border-[var(--crm-border)] overflow-hidden flex flex-col max-h-[92vh]"
         role="dialog"
         aria-modal="true"
       >
         {/* Modal Header */}
-        <div className="bg-slate-900 dark:bg-slate-950 px-6 py-4 flex items-center justify-between text-white border-b border-slate-800">
+        <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-6 py-4 flex items-center justify-between text-[rgb(var(--crm-ink-rgb)_/_1)] border-b border-[var(--crm-border)]">
           <div className="flex items-center gap-2.5">
             <div className="p-1.5 rounded-lg bg-blue-600 text-white">
               <Calculator className="w-4 h-4" />
@@ -114,14 +114,14 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
               <h2 className="text-sm font-bold tracking-wide">
                 {isNovo ? 'Adicionar Item à Matriz do TR' : `Editar Item ${itemNumero} da Matriz do TR`}
               </h2>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 Ajuste especificações, quantitativos e valores antes de salvar a Ficha Técnica
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors cursor-pointer"
             title="Fechar"
           >
             <X className="w-5 h-5" />
@@ -140,7 +140,7 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Item Número */}
             <div>
-              <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-1.5">
                 Nº do Item
               </label>
               <input
@@ -148,14 +148,14 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
                 min="1"
                 value={itemNumero}
                 onChange={(e) => setItemNumero(parseInt(e.target.value) || 1)}
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             {/* Código / CATMAT / CATSER */}
             <div className="md:col-span-2">
-              <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-1.5">
                 Código de Catálogo (CATMAT / CATSER / ID)
               </label>
               <input
@@ -163,14 +163,14 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
                 value={codigoCatalogo}
                 onChange={(e) => setCodigoCatalogo(e.target.value)}
                 placeholder="Ex: CATSER-21123, CATMAT-452109..."
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm font-mono text-slate-800 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl text-sm font-mono text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
           {/* Especificação Sucinta */}
           <div>
-            <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-1.5">
               Especificação Sucinta / Descrição do Objeto
             </label>
             <textarea
@@ -181,7 +181,7 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
                 if (erro) setErro(null);
               }}
               placeholder="Descreva o serviço, produto ou fornecimento conforme o Termo de Referência..."
-              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500 resize-y leading-relaxed"
+              className="w-full px-3 py-2 border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-hidden focus:ring-2 focus:ring-blue-500 resize-y leading-relaxed"
               required
             />
           </div>
@@ -189,7 +189,7 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
           {/* Unidade & Quantitativo */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-1.5">
                 Unidade de Medida
               </label>
               <input
@@ -197,7 +197,7 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
                 value={unidade}
                 onChange={(e) => setUnidade(e.target.value.toUpperCase())}
                 placeholder="UN, MÊS, LINK..."
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm font-semibold uppercase text-slate-800 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl text-sm font-semibold uppercase text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 required
               />
               <div className="flex flex-wrap gap-1 mt-1.5">
@@ -209,7 +209,7 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
                     className={`px-1.5 py-0.5 text-[10px] rounded font-medium transition-colors cursor-pointer ${
                       unidade === u 
                         ? 'bg-blue-600 text-white font-bold' 
-                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+                        : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                     }`}
                   >
                     {u}
@@ -219,7 +219,7 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-1.5">
                 Quantitativo
               </label>
               <input
@@ -228,13 +228,13 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
                 step="1"
                 value={quantitativo}
                 onChange={(e) => handleQtdChange(parseFloat(e.target.value) || 1)}
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm font-semibold text-slate-800 dark:text-slate-100 focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-hidden focus:ring-2 focus:ring-blue-500"
                 required
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider mb-1.5">
+              <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-1.5">
                 Valor Unitário Estimado (R$)
               </label>
               <input
@@ -243,14 +243,14 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
                 step="0.01"
                 value={valorUnitario}
                 onChange={(e) => handleUnitarioChange(parseFloat(e.target.value) || 0)}
-                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 rounded-xl text-sm text-slate-800 dark:text-slate-100 font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold focus:outline-hidden focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
 
           {/* Valor Total & Banner de Cálculo */}
           <div>
-            <label className="block text-xs font-semibold text-slate-200 uppercase tracking-wider mb-1.5">
+            <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider mb-1.5">
               Valor Total Estimado do Item (R$)
             </label>
             <div className="relative">
@@ -281,7 +281,7 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
           </div>
 
           {/* Modal Footer */}
-          <div className="pt-4 border-t border-[#07323e] flex items-center justify-between">
+          <div className="pt-4 border-t border-[var(--crm-border)] flex items-center justify-between">
             {!isNovo && onDelete ? (
               <button
                 type="button"
@@ -304,7 +304,7 @@ export const EditarItemModal: React.FC<EditarItemModalProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-medium transition-colors cursor-pointer"
+                className="px-4 py-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-xl text-xs font-medium transition-colors cursor-pointer"
               >
                 Cancelar
               </button>

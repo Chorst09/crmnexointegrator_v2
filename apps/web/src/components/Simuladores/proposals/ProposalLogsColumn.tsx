@@ -57,7 +57,7 @@ export function ProposalLogsColumn({
         <Clock className="h-4 w-4" />
         <div className="flex flex-col items-start">
           <span className="font-medium">{logsCount}</span>
-          <span className="text-xs text-gray-600">
+          <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
             {lastAction || 'Sem ações'}
           </span>
         </div>

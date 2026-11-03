@@ -271,9 +271,9 @@ export default function Dashboard() {
   ].filter(Boolean).join(' • ');
 
   return (
-    <div ref={presentationRef} className={`b2b-dashboard${presentationMode ? ' h-screen overflow-y-auto overflow-x-hidden bg-[#0b1322] p-2 pb-24' : ''}`}>
-      {error ? <div role="alert" className="mb-3 flex items-center justify-between gap-3 rounded-lg border border-rose-500/40 bg-rose-950/40 p-3 text-sm text-rose-100">{error}<button type="button" onClick={() => fetchDashboardData(selectedOwnerId, selectedTemperature, timeRange)} className="underline">Tentar novamente</button></div> : null}
-      {!dashboardData ? <div role="status" className="rounded-lg border border-slate-600 bg-slate-900 p-8 text-center text-slate-300">{loading ? 'Carregando indicadores B2B…' : 'Os indicadores serão exibidos quando os dados estiverem disponíveis.'}</div> : <>
+    <div ref={presentationRef} className={`b2b-dashboard${presentationMode ? " h-screen overflow-y-auto overflow-x-hidden bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-2 pb-24" : ''}`}>
+      {error ? <div role="alert" className="mb-3 flex items-center justify-between gap-3 rounded-lg border border-rose-500/40 bg-rose-50/40 dark:bg-rose-950/40 p-3 text-sm text-rose-700 dark:text-rose-100">{error}<button type="button" onClick={() => fetchDashboardData(selectedOwnerId, selectedTemperature, timeRange)} className="underline">Tentar novamente</button></div> : null}
+      {!dashboardData ? <div role="status" className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-8 text-center text-[rgb(var(--crm-ink-rgb)_/_1)]">{loading ? 'Carregando indicadores B2B…' : 'Os indicadores serão exibidos quando os dados estiverem disponíveis.'}</div> : <>
         <PipelineDashboardModel
           title="Dashboard Comercial B2B"
           subtitle={`Carteira atual completa • Histórico de entradas e resultados: ${historyLabel}`}

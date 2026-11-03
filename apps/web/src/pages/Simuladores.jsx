@@ -25,10 +25,10 @@ const SDWanCalculator            = lazy(() => import('@/components/calculators/S
 const EventosTICalculator        = lazy(() => import('@/components/calculators/EventosTICalculator'));
 
 const LOADING = (
-  <div className="flex items-center justify-center h-full min-h-[400px] text-white">
+  <div className="flex items-center justify-center h-full min-h-[400px] text-[rgb(var(--crm-ink-rgb)_/_1)]">
     <div className="text-center">
       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500 mx-auto mb-4" />
-      <p className="text-slate-400">Carregando...</p>
+      <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando...</p>
     </div>
   </div>
 );
@@ -109,7 +109,7 @@ export default function Simuladores() {
         return <ProposalsView proposals={[]} partners={[]} onSave={() => {}} onDelete={() => {}} />;
       case 'proposta-comercial':
         return (
-          <div className="min-h-screen bg-slate-900">
+          <div className="min-h-screen bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
             <CommercialProposalView
               initialProposalId={proposalId}
               onBack={() => { setCurrentView('dashboard'); setProposalId(null); }}
@@ -141,21 +141,21 @@ export default function Simuladores() {
 
   return (
     <AuthProvider>
-      <div className="flex min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+      <div className="flex min-h-screen bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)]">
 
         {/* ── Menu Lateral ── */}
-        <aside className="w-72 bg-slate-900/95 border-r border-slate-700/50 flex flex-col shrink-0">
+        <aside className="w-72 bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] border-r border-[var(--crm-border)] flex flex-col shrink-0">
 
-          <div className="p-5 border-b border-slate-700/50">
+          <div className="p-5 border-b border-[var(--crm-border)]">
             <button
               onClick={() => navigate('/dashboard')}
-              className="flex items-center gap-2 text-cyan-400 hover:text-cyan-300 transition-colors mb-4 group"
+              className="flex items-center gap-2 text-cyan-700 dark:text-cyan-400 hover:text-cyan-700 dark:hover:text-cyan-300 transition-colors mb-4 group"
             >
               <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
               <span className="text-sm font-medium">Voltar para CRM</span>
             </button>
-            <h1 className="text-xl font-bold text-white">Simuladores</h1>
-            <p className="text-slate-400 text-xs mt-0.5">Dashboard, Precificação e Propostas</p>
+            <h1 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Simuladores</h1>
+            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs mt-0.5">Dashboard, Precificação e Propostas</p>
           </div>
 
           <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
@@ -165,8 +165,8 @@ export default function Simuladores() {
               onClick={() => setCurrentView('dashboard')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                 currentView === 'dashboard'
-                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                  : 'text-slate-300 hover:bg-slate-800/50'
+                  ? "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30"
+                  : "text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
               }`}
             >
               <BarChart3 className="w-5 h-5 flex-shrink-0" />
@@ -179,8 +179,8 @@ export default function Simuladores() {
                 onClick={() => setIsPrecificacaoOpen(o => !o)}
                 className={`w-full flex items-center justify-between px-4 py-3 rounded-lg transition-all ${
                   currentView === 'calculadoras' || currentView.startsWith('calculator-')
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                    : 'text-slate-300 hover:bg-slate-800/50'
+                    ? "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30"
+                    : "text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -193,15 +193,15 @@ export default function Simuladores() {
               </button>
 
               {isPrecificacaoOpen && (
-                <div className="ml-3 mt-1 space-y-0.5 border-l-2 border-slate-700/50 pl-2">
+                <div className="ml-3 mt-1 space-y-0.5 border-l-2 border-[var(--crm-border)] pl-2">
                   {calculadoras.map(({ id, nome, icon: Icon }) => (
                     <button
                       key={id}
                       onClick={() => goToCalculator(id)}
                       className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-all ${
                         currentView === id
-                          ? 'bg-cyan-500/20 text-cyan-300'
-                          : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
+                          ? "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300"
+                          : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       }`}
                     >
                       <Icon className="w-4 h-4 flex-shrink-0" />
@@ -217,8 +217,8 @@ export default function Simuladores() {
               onClick={() => setCurrentView('proposta-comercial')}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                 currentView === 'proposta-comercial'
-                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                  : 'text-slate-300 hover:bg-slate-800/50'
+                  ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30"
+                  : "text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
               }`}
             >
               <FileText className="w-5 h-5 flex-shrink-0" />

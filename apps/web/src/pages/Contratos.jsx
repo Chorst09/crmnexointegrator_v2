@@ -260,15 +260,15 @@ const Contratos = () => {
 
   const getStatusColor = (status) => {
     const colors = {
-      DRAFT: 'bg-gray-100 text-gray-800 dark:text-gray-100',
-      AWAITING_SIGNATURE: 'bg-blue-100 text-blue-800',
-      ACTIVE: 'bg-green-100 text-green-800',
-      RENEWAL_PENDING: 'bg-amber-100 text-amber-800',
-      EXPIRED: 'bg-slate-100 text-slate-700',
-      CANCELLED: 'bg-red-100 text-red-800',
-      RENEWED: 'bg-emerald-100 text-emerald-800'
+      DRAFT: "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]",
+      AWAITING_SIGNATURE: "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300",
+      ACTIVE: "bg-green-100 dark:bg-green-950 text-green-800 dark:text-green-300",
+      RENEWAL_PENDING: "bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300",
+      EXPIRED: "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]",
+      CANCELLED: "bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300",
+      RENEWED: "bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300"
     };
-    return colors[status] || 'bg-gray-100 text-gray-800 dark:text-gray-100';
+    return colors[status] || "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]";
   };
 
   const getStatusText = (status) => {
@@ -509,10 +509,10 @@ const Contratos = () => {
                   <FileText className="w-4 h-4 text-blue-600" />
                 </GradientCard>
                 <div>
-                  <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {contract.title}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">
+                  <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     {contract.number}
                   </div>
                 </div>
@@ -524,12 +524,12 @@ const Contratos = () => {
             label: 'Empresa',
             render: (contract) => (
               <div className="flex items-center">
-                <Building className="w-4 h-4 text-gray-400 mr-2" />
+                <Building className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)] mr-2" />
                 <div>
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                  <div className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {contract.company?.name}
                   </div>
-                  <div className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">
+                  <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     {contract.company?.document}
                   </div>
                 </div>
@@ -557,9 +557,9 @@ const Contratos = () => {
               
               return (
                 <div className="flex items-center">
-                  <Calendar className="w-4 h-4 text-gray-400 mr-2" />
+                  <Calendar className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)] mr-2" />
                   <div>
-                    <div className="text-sm text-gray-900 dark:text-gray-100">
+                    <div className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       {new Date(contract.startDate).toLocaleDateString('pt-BR')} - {new Date(contract.endDate).toLocaleDateString('pt-BR')}
                     </div>
                     {isExpiringSoon && (
@@ -593,7 +593,7 @@ const Contratos = () => {
                     <span className="text-xs font-medium">Automática</span>
                   </div>
                 ) : (
-                  <span className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-500">Manual</span>
+                  <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Manual</span>
                 )}
               </div>
             )
@@ -615,11 +615,11 @@ const Contratos = () => {
         ]}
         emptyState={
           <div>
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <div className="w-16 h-16 bg-blue-100 dark:bg-blue-950 rounded-full flex items-center justify-center mx-auto mb-4">
               <FileText className="w-8 h-8 text-blue-600" />
             </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">Nenhum contrato encontrado</h3>
-            <p className="text-gray-500 mb-4 max-w-sm mx-auto">
+            <h3 className="text-lg font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Nenhum contrato encontrado</h3>
+            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4 max-w-sm mx-auto">
               {searchTerm || statusFilter 
                 ? 'Tente ajustar os filtros de busca'
                 : 'Comece criando seu primeiro contrato'
@@ -746,7 +746,7 @@ const Contratos = () => {
                     {selectedContract.slaDescription && (
                       <div className="text-sm">
                         <span className="text-[var(--crm-muted)]">Descrição:</span>
-                        <p className="mt-1 text-[var(--crm-ink)] bg-black/5 dark:bg-white/5 p-3 rounded-2xl border border-[color:var(--crm-border)]">
+                        <p className="mt-1 text-[var(--crm-ink)] bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] p-3 rounded-2xl border border-[color:var(--crm-border)]">
                           {selectedContract.slaDescription}
                         </p>
                       </div>
@@ -762,7 +762,7 @@ const Contratos = () => {
                       <span className={`ml-2 px-2 py-1 text-xs font-semibold rounded-full ${
                         selectedContract.autoRenewal
                           ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20'
-                          : 'bg-slate-500/10 text-slate-700 dark:text-slate-200 border border-slate-500/20'
+                          : "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)]"
                       }`}>
                         {selectedContract.autoRenewal ? 'Ativa' : 'Inativa'}
                       </span>
@@ -790,7 +790,7 @@ const Contratos = () => {
                   <div className="space-y-2">
                     {selectedContract.attachments?.length > 0 ? (
                       selectedContract.attachments.map((attachment) => (
-                        <div key={attachment.id} className="flex items-center justify-between p-3 bg-black/5 dark:bg-white/5 rounded-2xl border border-[color:var(--crm-border)]">
+                        <div key={attachment.id} className="flex items-center justify-between p-3 bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] rounded-2xl border border-[color:var(--crm-border)]">
                           <div className="flex items-center flex-1">
                             <FileText className="w-4 h-4 text-blue-600 dark:text-blue-300 mr-3" />
                             <div className="flex-1">
@@ -832,7 +832,7 @@ const Contratos = () => {
             {selectedContract.description && (
               <div>
                 <h4 className="font-semibold text-[var(--crm-ink)] mb-2">Descrição</h4>
-                <p className="text-[var(--crm-ink)] bg-black/5 dark:bg-white/5 p-4 rounded-2xl">
+                <p className="text-[var(--crm-ink)] bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] p-4 rounded-2xl">
                   {selectedContract.description}
                 </p>
               </div>
@@ -1153,7 +1153,7 @@ const Contratos = () => {
                           <h5 className="text-sm font-medium text-[var(--crm-ink)] mb-2">Arquivos Selecionados:</h5>
                           <div className="space-y-2">
                             {selectedFiles.map((file, index) => (
-                              <div key={index} className="flex items-center justify-between p-2 bg-black/5 dark:bg-white/5 rounded-2xl border border-[color:var(--crm-border)]">
+                              <div key={index} className="flex items-center justify-between p-2 bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] rounded-2xl border border-[color:var(--crm-border)]">
                                 <div className="flex items-center space-x-2">
                                   <FileText className="w-4 h-4 text-[var(--crm-muted)]" />
                                   <span className="text-sm text-[var(--crm-ink)]">{file.name}</span>

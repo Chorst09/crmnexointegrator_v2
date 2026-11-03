@@ -67,17 +67,17 @@ ChartJS.register(
 );
 
 const STATUS_META = {
-  PENDING: { label: 'Pendente', cls: 'bg-amber-500/20 text-amber-200 border-amber-500/40' },
-  IN_PROGRESS: { label: 'Em andamento', cls: 'bg-sky-500/20 text-sky-200 border-sky-500/40' },
-  COMPLETED: { label: 'Concluida', cls: 'bg-emerald-500/20 text-emerald-200 border-emerald-500/40' },
-  CANCELLED: { label: 'Cancelada', cls: 'bg-red-500/20 text-red-200 border-red-500/40' }
+  PENDING: { label: 'Pendente', cls: "bg-amber-500/20 text-amber-700 dark:text-amber-200 border-amber-500/40" },
+  IN_PROGRESS: { label: 'Em andamento', cls: "bg-sky-500/20 text-sky-700 dark:text-sky-200 border-sky-500/40" },
+  COMPLETED: { label: 'Concluida', cls: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-200 border-emerald-500/40" },
+  CANCELLED: { label: 'Cancelada', cls: "bg-red-500/20 text-red-700 dark:text-red-200 border-red-500/40" }
 };
 
 const PRIORITY_META = {
-  LOW: { label: 'Baixa', cls: 'text-green-400' },
-  MEDIUM: { label: 'Media', cls: 'text-yellow-400' },
-  HIGH: { label: 'Alta', cls: 'text-red-400' },
-  URGENT: { label: 'Urgente', cls: 'text-red-300' }
+  LOW: { label: 'Baixa', cls: "text-green-700 dark:text-green-400" },
+  MEDIUM: { label: 'Media', cls: "text-yellow-700 dark:text-yellow-400" },
+  HIGH: { label: 'Alta', cls: "text-red-700 dark:text-red-400" },
+  URGENT: { label: 'Urgente', cls: "text-red-700 dark:text-red-300" }
 };
 
 const toPriorityLabel = (priority) => {
@@ -154,9 +154,9 @@ const partnerTone = {
     topBar: 'from-orange-400/55 via-cyan-300/50 to-emerald-400/35',
     glow: 'from-cyan-500/22 via-teal-500/12 to-emerald-500/12',
     hover: 'hover:border-cyan-300/60 hover:shadow-cyan-500/20',
-    iconBox: 'border-cyan-300/35 bg-cyan-400/12 text-cyan-100',
-    title: 'group-hover:text-cyan-100',
-    chip: 'border-cyan-300/20 bg-cyan-400/10 text-cyan-100'
+    iconBox: "border-cyan-300/35 bg-cyan-400/12 text-cyan-700 dark:text-cyan-100",
+    title: "group-hover:text-cyan-700 dark:group-hover:text-cyan-100",
+    chip: "border-cyan-300/20 bg-cyan-400/10 text-cyan-700 dark:text-cyan-100"
   },
   supplier: {
     Icon: Package,
@@ -165,9 +165,9 @@ const partnerTone = {
     topBar: 'from-orange-400/55 via-cyan-300/50 to-emerald-400/35',
     glow: 'from-cyan-500/22 via-emerald-500/12 to-yellow-500/12',
     hover: 'hover:border-cyan-300/60 hover:shadow-cyan-500/20',
-    iconBox: 'border-cyan-300/35 bg-cyan-400/12 text-cyan-100',
-    title: 'group-hover:text-cyan-100',
-    chip: 'border-cyan-300/20 bg-cyan-400/10 text-cyan-100'
+    iconBox: "border-cyan-300/35 bg-cyan-400/12 text-cyan-700 dark:text-cyan-100",
+    title: "group-hover:text-cyan-700 dark:group-hover:text-cyan-100",
+    chip: "border-cyan-300/20 bg-cyan-400/10 text-cyan-700 dark:text-cyan-100"
   }
 };
 
@@ -198,7 +198,7 @@ const PartnerRegistryCard = ({ item, type = 'distributor' }) => {
     <div className={`crm-gradient-glass group min-h-[230px] rounded-lg p-5 ${tone.hover}`}>
       <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${tone.topBar}`} />
       <div className={`absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br ${tone.glow} blur-3xl transition-opacity duration-300 group-hover:opacity-100`} />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_0%,rgba(255,255,255,0.08),transparent_34%),linear-gradient(145deg,rgba(255,255,255,0.07),transparent_42%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_14%_0%,rgb(var(--crm-surface-rgb)_/_0.08),transparent_34%),linear-gradient(145deg,rgb(var(--crm-surface-rgb)_/_0.07),transparent_42%)]" />
 
       <div className="relative z-10 flex h-full flex-col">
         <div className="flex items-start justify-between gap-4">
@@ -224,33 +224,33 @@ const PartnerRegistryCard = ({ item, type = 'distributor' }) => {
             </div>
 
             <div className="min-w-0">
-              <p className={`text-[10px] font-bold uppercase tracking-[0.18em] ${type === 'supplier' ? 'text-cyan-200/80' : 'text-teal-200/80'}`}>
+              <p className={`text-[10px] font-bold uppercase tracking-[0.18em] ${type === 'supplier' ? "text-cyan-700/80 dark:text-cyan-200/80" : "text-teal-700/80 dark:text-teal-200/80"}`}>
                 {tone.label}
               </p>
-              <h4 className={`mt-1 truncate text-lg font-bold text-white transition-colors ${tone.title}`}>{name}</h4>
+              <h4 className={`mt-1 truncate text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors ${tone.title}`}>{name}</h4>
             </div>
           </div>
 
           <span className={`shrink-0 rounded-full border px-3 py-1 text-[10px] font-bold uppercase tracking-wider ${
             isActive
-              ? 'border-emerald-400/35 bg-emerald-400/14 text-emerald-200'
-              : 'border-slate-500/35 bg-slate-500/14 text-slate-300'
+              ? "border-emerald-400/35 bg-emerald-400/14 text-emerald-700 dark:text-emerald-200"
+              : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.14)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
           }`}>
             {isActive ? 'Ativo' : 'Inativo'}
           </span>
         </div>
 
-        <div className="mt-5 grid gap-2.5 text-xs text-slate-300">
+        <div className="mt-5 grid gap-2.5 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
           <div className="flex min-w-0 items-center gap-2">
-            <MapPin className="h-4 w-4 shrink-0 text-slate-500" />
+            <MapPin className="h-4 w-4 shrink-0 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
             <span className="truncate">{location || 'Localização não informada'}</span>
           </div>
           <div className="flex min-w-0 items-center gap-2">
-            <Mail className="h-4 w-4 shrink-0 text-slate-500" />
+            <Mail className="h-4 w-4 shrink-0 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
             <span className="truncate">{contact || 'Contato não informado'}</span>
           </div>
           <div className="flex min-w-0 items-center gap-2">
-            <Tags className="h-4 w-4 shrink-0 text-slate-500" />
+            <Tags className="h-4 w-4 shrink-0 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
             <span className="truncate">{category || 'Categoria não informada'}</span>
           </div>
         </div>
@@ -259,7 +259,7 @@ const PartnerRegistryCard = ({ item, type = 'distributor' }) => {
           <span className={`max-w-[68%] truncate rounded-full border px-3 py-1.5 text-[11px] font-semibold ${tone.chip}`}>
             {category || 'Base homologada'}
           </span>
-          <span className="inline-flex min-w-0 items-center gap-1.5 text-[11px] font-semibold text-slate-400">
+          <span className="inline-flex min-w-0 items-center gap-1.5 text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
             <Globe2 className="h-3.5 w-3.5 shrink-0" />
             <span className="max-w-[92px] truncate">{portal ? 'Portal ativo' : 'Sem portal'}</span>
           </span>
@@ -606,12 +606,12 @@ export default function PreVendas() {
 
   const getSolicitacaoStatusColor = (status) => {
     const colors = {
-      NOVA: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
-      EM_PRECIFICACAO: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30',
-      AGUARDANDO_APROVACAO: 'bg-purple-500/20 text-purple-400 border-purple-500/30',
-      FINALIZADA: 'bg-green-500/20 text-green-400 border-green-500/30',
-      CANCELADA: 'bg-red-500/20 text-red-400 border-red-500/30',
-      REJEITADA: 'bg-red-500/20 text-red-400 border-red-500/30'
+      NOVA: "bg-blue-500/20 text-blue-700 dark:text-blue-400 border-blue-500/30",
+      EM_PRECIFICACAO: "bg-yellow-500/20 text-yellow-700 dark:text-yellow-400 border-yellow-500/30",
+      AGUARDANDO_APROVACAO: "bg-purple-500/20 text-purple-700 dark:text-purple-400 border-purple-500/30",
+      FINALIZADA: "bg-green-500/20 text-green-700 dark:text-green-400 border-green-500/30",
+      CANCELADA: "bg-red-500/20 text-red-700 dark:text-red-400 border-red-500/30",
+      REJEITADA: "bg-red-500/20 text-red-700 dark:text-red-400 border-red-500/30"
     };
     return colors[status] || colors.NOVA;
   };
@@ -630,13 +630,13 @@ export default function PreVendas() {
 
   const getPrioridadeColor = (prioridade) => {
     const colors = {
-      BAIXA: 'text-green-400',
-      LOW: 'text-green-400',
-      MEDIA: 'text-yellow-400',
-      MEDIUM: 'text-yellow-400',
-      ALTA: 'text-red-400',
-      HIGH: 'text-red-400',
-      URGENT: 'text-red-300'
+      BAIXA: "text-green-700 dark:text-green-400",
+      LOW: "text-green-700 dark:text-green-400",
+      MEDIA: "text-yellow-700 dark:text-yellow-400",
+      MEDIUM: "text-yellow-700 dark:text-yellow-400",
+      ALTA: "text-red-700 dark:text-red-400",
+      HIGH: "text-red-700 dark:text-red-400",
+      URGENT: "text-red-700 dark:text-red-300"
     };
     return colors[prioridade] || colors.MEDIUM;
   };
@@ -1170,7 +1170,7 @@ export default function PreVendas() {
         ref={presentationRef}
         className={[
           'p-6 space-y-4',
-          presentationMode ? 'h-screen overflow-y-auto overflow-x-hidden scroll-smooth bg-[#041a38] pb-28' : ''
+          presentationMode ? "h-screen overflow-y-auto overflow-x-hidden scroll-smooth bg-[rgb(var(--crm-surface-2-rgb)_/_1)] pb-28" : ''
         ].join(' ')}
       >
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4 2xl:grid-cols-7">
@@ -1184,14 +1184,14 @@ export default function PreVendas() {
                 className={`min-h-[86px] rounded-xl border px-4 py-3 text-left transition-colors ${
                   filter.active
                     ? 'border-orange-400/70 bg-orange-500/16 text-white shadow-[0_0_0_1px_rgba(255,122,0,0.18),0_18px_44px_rgba(255,122,0,0.10)]'
-                    : 'border-gray-600/50 bg-gray-800/40 text-gray-300 hover:border-cyan-400/45 hover:bg-gray-700/40'
+                    : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.4)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-cyan-400/45 hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)]"
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <Icon className={`h-4 w-4 ${filter.active ? 'text-orange-200' : 'text-cyan-200'}`} />
+                  <Icon className={`h-4 w-4 ${filter.active ? "text-orange-700 dark:text-orange-200" : "text-cyan-700 dark:text-cyan-200"}`} />
                   <span className="text-sm font-semibold">{filter.label}</span>
                 </div>
-                <p className="mt-1 text-xs leading-snug text-gray-300">{filter.description}</p>
+                <p className="mt-1 text-xs leading-snug text-[rgb(var(--crm-ink-rgb)_/_1)]">{filter.description}</p>
               </button>
             );
           })}
@@ -1222,14 +1222,14 @@ export default function PreVendas() {
             <div className="crm-card rounded-lg p-5">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                 <div>
-                  <h3 className="text-lg font-semibold text-white">Gestão de POCs</h3>
-                  <p className="text-sm text-slate-300">Acompanhamento das provas de conceito vinculadas ao fluxo de Pré-Vendas.</p>
+                  <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Gestão de POCs</h3>
+                  <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Acompanhamento das provas de conceito vinculadas ao fluxo de Pré-Vendas.</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
                     onClick={loadPocs}
-                    className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-100 hover:bg-blue-500/30"
+                    className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-700 dark:text-blue-100 hover:bg-blue-500/30"
                   >
                     <RefreshCcw className="w-3.5 h-3.5" />
                     Atualizar POCs
@@ -1237,7 +1237,7 @@ export default function PreVendas() {
                   <button
                     type="button"
                     onClick={() => navigate('/gestao-pocs')}
-                    className="inline-flex items-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-3 py-2 text-xs text-cyan-100 hover:bg-cyan-500/30"
+                    className="inline-flex items-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-3 py-2 text-xs text-cyan-700 dark:text-cyan-100 hover:bg-cyan-500/30"
                   >
                     <Beaker className="w-3.5 h-3.5" />
                     Abrir POCs
@@ -1245,7 +1245,7 @@ export default function PreVendas() {
                 </div>
               </div>
               {pocsLoading ? (
-                <p className="mt-4 text-sm text-slate-400">Carregando POCs...</p>
+                <p className="mt-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando POCs...</p>
               ) : recentPocs.length > 0 ? (
                 <div className="mt-4 grid gap-3 lg:grid-cols-2">
                   {recentPocs.map((poc) => (
@@ -1253,14 +1253,14 @@ export default function PreVendas() {
                       key={poc.id}
                       type="button"
                       onClick={() => navigate('/gestao-pocs')}
-                      className="rounded-lg border border-slate-600/40 bg-slate-800/45 p-4 text-left transition-colors hover:bg-slate-700/50"
+                      className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.45)] p-4 text-left transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-white">{poc.title}</p>
-                          <p className="mt-1 truncate text-xs text-slate-300">{poc.client} · {poc.solution}</p>
+                          <p className="truncate text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{poc.title}</p>
+                          <p className="mt-1 truncate text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">{poc.client} · {poc.solution}</p>
                         </div>
-                        <span className="shrink-0 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold text-cyan-200">
+                        <span className="shrink-0 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold text-cyan-700 dark:text-cyan-200">
                           {String(poc.status || 'PLANEJAMENTO').replaceAll('_', ' ')}
                         </span>
                       </div>
@@ -1268,36 +1268,36 @@ export default function PreVendas() {
                   ))}
                 </div>
               ) : (
-                <p className="mt-4 text-sm text-slate-400">Nenhuma POC registrada ainda.</p>
+                <p className="mt-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhuma POC registrada ainda.</p>
               )}
             </div>
 
             {(registroExpiring.within7.length > 0 || registroExpiring.within15.length > 0 || registroExpiring.within30.length > 0 || registroExpiring.expired.length > 0) && (
               <div
                 onClick={() => navigate('/prevendas-registro-oportunidades')}
-                className="crm-card rounded-lg p-4 border-l-4 border-l-rose-500 cursor-pointer hover:bg-gray-700/30 transition-colors"
+                className="crm-card rounded-lg p-4 border-l-4 border-l-rose-500 cursor-pointer hover:bg-[rgb(var(--crm-surface-rgb)_/_0.3)] transition-colors"
               >
                 <div className="flex items-start gap-3">
-                  <AlertCircle className="w-5 h-5 text-rose-400 mt-0.5 shrink-0" />
+                  <AlertCircle className="w-5 h-5 text-rose-700 dark:text-rose-400 mt-0.5 shrink-0" />
                   <div>
-                    <p className="text-sm font-semibold text-rose-200">Alertas de Vencimento</p>
+                    <p className="text-sm font-semibold text-rose-700 dark:text-rose-200">Alertas de Vencimento</p>
                     {registroExpiring.within7.length > 0 && (
-                      <p className="text-xs text-rose-300 mt-1">
+                      <p className="text-xs text-rose-700 dark:text-rose-300 mt-1">
                         {registroExpiring.within7.length} oportunidade(es) vence(m) em até 7 dias.
                       </p>
                     )}
                     {registroExpiring.within15.length > 0 && (
-                      <p className="text-xs text-amber-300 mt-0.5">
+                      <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
                         {registroExpiring.within15.length} oportunidade(es) vence(m) em até 15 dias.
                       </p>
                     )}
                     {registroExpiring.within30.length > 0 && (
-                      <p className="text-xs text-yellow-300 mt-0.5">
+                      <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-0.5">
                         {registroExpiring.within30.length} oportunidade(es) vence(m) em até 30 dias.
                       </p>
                     )}
                     {registroExpiring.expired.length > 0 && (
-                      <p className="text-xs text-rose-300 mt-0.5">
+                      <p className="text-xs text-rose-700 dark:text-rose-300 mt-0.5">
                         {registroExpiring.expired.length} oportunidade(es) vencida(s). Renove ou arquive.
                       </p>
                     )}
@@ -1309,8 +1309,8 @@ export default function PreVendas() {
             <div className="crm-card rounded-lg p-5">
               <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
                 <div>
-                  <h3 className="text-lg font-semibold text-white">Dashboard do Registro de Oportunidades</h3>
-                  <p className="text-sm text-slate-300">
+                  <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Dashboard do Registro de Oportunidades</h3>
+                  <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Monitoramento por status, origem, modalidade e evolução mensal do Pré-Vendas.
                   </p>
                 </div>
@@ -1318,7 +1318,7 @@ export default function PreVendas() {
                   <button
                     type="button"
                     onClick={loadRegistroOportunidades}
-                    className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-100 hover:bg-blue-500/30"
+                    className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-700 dark:text-blue-100 hover:bg-blue-500/30"
                   >
                     <RefreshCcw className="w-3.5 h-3.5" />
                     Atualizar Dashboard
@@ -1326,7 +1326,7 @@ export default function PreVendas() {
                   <button
                     type="button"
                     onClick={() => navigate('/prevendas-registro-oportunidades')}
-                    className="inline-flex items-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-3 py-2 text-xs text-cyan-100 hover:bg-cyan-500/30"
+                    className="inline-flex items-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-3 py-2 text-xs text-cyan-700 dark:text-cyan-100 hover:bg-cyan-500/30"
                   >
                     <Package className="w-3.5 h-3.5" />
                     Abrir Registro
@@ -1336,17 +1336,17 @@ export default function PreVendas() {
             </div>
 
             {registroLoading ? (
-              <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6">
+              <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] backdrop-blur-sm rounded-xl border border-[var(--crm-border)] p-6">
                 <div className="text-center py-6">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" />
-                  <p className="text-slate-300 mt-2">Carregando dados do registro de oportunidades...</p>
+                  <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2">Carregando dados do registro de oportunidades...</p>
                 </div>
               </div>
             ) : (
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <div className="crm-card rounded-lg p-5">
-                  <h3 className="text-base font-semibold text-white mb-1">Status das Oportunidades</h3>
-                  <p className="text-xs text-slate-400 mb-4">Visão de volume por etapa operacional.</p>
+                  <h3 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Status das Oportunidades</h3>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">Visão de volume por etapa operacional.</p>
                   <div className="h-72">
                     <Bar
                       data={registroStatusChartData}
@@ -1362,16 +1362,16 @@ export default function PreVendas() {
                 </div>
 
                 <div className="crm-card rounded-lg p-5">
-                  <h3 className="text-base font-semibold text-white mb-1">Origem das Demandas</h3>
-                  <p className="text-xs text-slate-400 mb-4">Distribuição entre B2B, B2G e demais origens.</p>
+                  <h3 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Origem das Demandas</h3>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">Distribuição entre B2B, B2G e demais origens.</p>
                   <div className="h-72">
                     <Doughnut data={registroOrigemChartData} options={DOUGHNUT_OPTIONS} />
                   </div>
                 </div>
 
                 <div className="crm-card rounded-lg p-5">
-                  <h3 className="text-base font-semibold text-white mb-1">Valor por Modalidade</h3>
-                  <p className="text-xs text-slate-400 mb-4">Concentração de valor estimado por tipo de projeto.</p>
+                  <h3 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Valor por Modalidade</h3>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">Concentração de valor estimado por tipo de projeto.</p>
                   <div className="h-72">
                     <Bar
                       data={registroModalidadeChartData}
@@ -1401,8 +1401,8 @@ export default function PreVendas() {
                 </div>
 
                 <div className="crm-card rounded-lg p-5">
-                  <h3 className="text-base font-semibold text-white mb-1">Evolução Mensal</h3>
-                  <p className="text-xs text-slate-400 mb-4">Quantidade e valor (em R$ mil) dos últimos 6 meses.</p>
+                  <h3 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Evolução Mensal</h3>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">Quantidade e valor (em R$ mil) dos últimos 6 meses.</p>
                   <div className="h-72">
                     <Line data={registroEvolucaoChartData} options={CHART_OPTIONS} />
                   </div>
@@ -1413,34 +1413,34 @@ export default function PreVendas() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="crm-card rounded-lg p-6 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setFilterStatus('EM_PRECIFICACAO')}>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-950 rounded-lg flex items-center justify-center">
                     <FileText className="w-6 h-6 text-blue-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Solicitações Pendentes</h3>
-                    <p className="text-sm text-gray-500 dark:text-slate-200">Ver solicitações em precificação</p>
+                    <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Solicitações Pendentes</h3>
+                    <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Ver solicitações em precificação</p>
                   </div>
                 </div>
               </div>
               <div className="crm-card rounded-lg p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-950 rounded-lg flex items-center justify-center">
                     <TrendingUp className="w-6 h-6 text-green-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Visão Kanban</h3>
-                    <p className="text-sm text-gray-500 dark:text-slate-200">Fluxo de trabalho de precificação</p>
+                    <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Visão Kanban</h3>
+                    <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Fluxo de trabalho de precificação</p>
                   </div>
                 </div>
               </div>
               <div className="crm-card rounded-lg p-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
+                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-950 rounded-lg flex items-center justify-center">
                     <DollarSign className="w-6 h-6 text-purple-600" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">Relatórios</h3>
-                    <p className="text-sm text-gray-500 dark:text-slate-200">Análise de performance</p>
+                    <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Relatórios</h3>
+                    <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Análise de performance</p>
                   </div>
                 </div>
               </div>
@@ -1449,19 +1449,19 @@ export default function PreVendas() {
             <div className="crm-card rounded-lg p-6">
               <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[rgb(var(--crm-muted-rgb)_/_1)] w-5 h-5" />
                   <input
                     type="text"
                     placeholder="Buscar solicitações..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                    className="w-full pl-10 pr-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                   />
                 </div>
                 <select
                   value={filterStatus}
                   onChange={(e) => setFilterStatus(e.target.value)}
-                  className="px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                 >
                   <option value="all">Todos os Status</option>
                   <option value="NOVA">Novas</option>
@@ -1473,32 +1473,32 @@ export default function PreVendas() {
               </div>
             </div>
 
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6">
+            <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] backdrop-blur-sm rounded-xl border border-[var(--crm-border)] p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-white">Solicitações Recentes</h3>
+                <h3 className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Solicitações Recentes</h3>
               </div>
 
               {loading ? (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" />
-                  <p className="text-slate-300 mt-2">Carregando...</p>
+                  <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2">Carregando...</p>
                 </div>
               ) : filteredSolicitacoes.length === 0 ? (
                 <div className="text-center py-8">
-                  <FileText className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                  <p className="text-slate-300">Nenhuma solicitação encontrada</p>
+                  <FileText className="w-12 h-12 text-[rgb(var(--crm-muted-rgb)_/_1)] mx-auto mb-3" />
+                  <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhuma solicitação encontrada</p>
                 </div>
               ) : (
                 <div className="space-y-3">
                   {filteredSolicitacoes.map((solicitacao) => (
                     <div
                       key={solicitacao.id}
-                      className="bg-gray-700/30 border border-gray-600/30 rounded-lg p-4 hover:bg-gray-700/50 transition-all duration-200"
+                      className="bg-[rgb(var(--crm-surface-rgb)_/_0.3)] border border-[var(--crm-border)] rounded-lg p-4 hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] transition-all duration-200"
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center gap-3 mb-2">
-                            <span className="text-sm font-mono text-blue-400">{solicitacao.numero}</span>
+                            <span className="text-sm font-mono text-blue-700 dark:text-blue-400">{solicitacao.numero}</span>
                             <span className={`px-2 py-1 rounded-full text-xs font-medium border ${getSolicitacaoStatusColor(solicitacao.status)}`}>
                               {getSolicitacaoStatusLabel(solicitacao.status)}
                             </span>
@@ -1506,9 +1506,9 @@ export default function PreVendas() {
                               {toPriorityLabel(solicitacao.prioridade)}
                             </span>
                           </div>
-                          <h4 className="text-white font-medium mb-1">{solicitacao.titulo}</h4>
-                          <p className="text-slate-300 text-sm mb-2">{solicitacao.descricao}</p>
-                          <div className="flex items-center gap-4 text-xs text-slate-400">
+                          <h4 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium mb-1">{solicitacao.titulo}</h4>
+                          <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm mb-2">{solicitacao.descricao}</p>
+                          <div className="flex items-center gap-4 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                             <span>Solicitado por {solicitacao.solicitadoPor}</span>
                             <span>•</span>
                             <span>{solicitacao.dataCreated ? new Date(solicitacao.dataCreated).toLocaleDateString('pt-BR') : '-'}</span>
@@ -1520,7 +1520,7 @@ export default function PreVendas() {
                               setSelectedSolicitacao(solicitacao);
                               setShowViewModal(true);
                             }}
-                            className="p-2 text-slate-300 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
+                            className="p-2 text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-blue-700 dark:hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
                             title="Visualizar"
                           >
                             <Eye className="w-4 h-4" />
@@ -1530,14 +1530,14 @@ export default function PreVendas() {
                               setSelectedSolicitacao(solicitacao);
                               setShowModal(true);
                             }}
-                            className="p-2 text-slate-300 hover:text-green-400 hover:bg-green-500/10 rounded-lg transition-colors"
+                            className="p-2 text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-green-700 dark:hover:text-green-400 hover:bg-green-500/10 rounded-lg transition-colors"
                             title="Editar"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDeleteSolicitacao(solicitacao.id)}
-                            className="p-2 text-slate-300 hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
+                            className="p-2 text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-red-700 dark:hover:text-red-400 hover:bg-red-500/10 rounded-lg transition-colors"
                             title="Excluir"
                           >
                             <Trash2 className="w-4 h-4" />
@@ -1564,13 +1564,13 @@ export default function PreVendas() {
             <div className="crm-card rounded-lg p-6">
               <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                 <div>
-                  <h3 className="text-xl font-semibold text-white">Fila de Orçamentos</h3>
-                  <p className="text-sm text-slate-400">Solicitações e cotações acompanhadas no fluxo de Pré-Vendas.</p>
+                  <h3 className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Fila de Orçamentos</h3>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Solicitações e cotações acompanhadas no fluxo de Pré-Vendas.</p>
                 </div>
                 <button
                   type="button"
                   onClick={loadSolicitacoes}
-                  className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-100 hover:bg-blue-500/30"
+                  className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-700 dark:text-blue-100 hover:bg-blue-500/30"
                 >
                   <RefreshCcw className="h-3.5 w-3.5" />
                   Atualizar
@@ -1578,26 +1578,26 @@ export default function PreVendas() {
               </div>
 
               {loading ? (
-                <p className="py-8 text-center text-sm text-slate-400">Carregando orçamentos...</p>
+                <p className="py-8 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando orçamentos...</p>
               ) : recentOrcamentos.length === 0 ? (
-                <p className="py-8 text-center text-sm text-slate-400">Nenhum orçamento registrado ainda.</p>
+                <p className="py-8 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum orçamento registrado ainda.</p>
               ) : (
                 <div className="grid gap-3 lg:grid-cols-2">
                   {recentOrcamentos.map((item) => (
-                    <div key={item.id} className="rounded-lg border border-slate-700/50 bg-slate-900/35 p-4">
+                    <div key={item.id} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-white">{item.titulo || item.numero || 'Orçamento sem título'}</p>
-                          <p className="mt-1 line-clamp-2 text-xs text-slate-400">{item.descricao || 'Sem descrição registrada.'}</p>
+                          <p className="truncate text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.titulo || item.numero || 'Orçamento sem título'}</p>
+                          <p className="mt-1 line-clamp-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.descricao || 'Sem descrição registrada.'}</p>
                         </div>
                         <span className={`shrink-0 rounded-full border px-2 py-1 text-[10px] font-semibold ${getSolicitacaoStatusColor(item.status)}`}>
                           {getSolicitacaoStatusLabel(item.status)}
                         </span>
                       </div>
-                      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-400">
+                      <div className="mt-3 flex flex-wrap items-center gap-3 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                         <span>{item.solicitadoPor || 'Usuário'}</span>
                         <span>{item.dataCreated ? new Date(item.dataCreated).toLocaleDateString('pt-BR') : '-'}</span>
-                        <span className="text-amber-200">R$ {Number(item.valorSugerido || item.custoTotal || 0).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</span>
+                        <span className="text-amber-700 dark:text-amber-200">R$ {Number(item.valorSugerido || item.custoTotal || 0).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}</span>
                       </div>
                     </div>
                   ))}
@@ -1619,18 +1619,18 @@ export default function PreVendas() {
             <div className="crm-card rounded-lg p-6">
               <div className="mb-5 flex items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-xl font-semibold text-white">Distribuidores Homologados</h3>
-                  <p className="text-sm text-slate-400">Consulta rápida da base para cotações.</p>
+                  <h3 className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Distribuidores Homologados</h3>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Consulta rápida da base para cotações.</p>
                 </div>
-                <button type="button" onClick={loadPrevendasCadastros} className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-100 hover:bg-blue-500/30 transition-colors">
+                <button type="button" onClick={loadPrevendasCadastros} className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-700 dark:text-blue-100 hover:bg-blue-500/30 transition-colors">
                   <RefreshCcw className="h-3.5 w-3.5" />
                   Atualizar
                 </button>
               </div>
               {cadastrosLoading ? (
-                <p className="py-8 text-center text-sm text-slate-400">Carregando distribuidores...</p>
+                <p className="py-8 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando distribuidores...</p>
               ) : distribuidores.length === 0 ? (
-                <p className="py-8 text-center text-sm text-slate-400">Nenhum distribuidor cadastrado.</p>
+                <p className="py-8 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum distribuidor cadastrado.</p>
               ) : (
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {distribuidores.slice(0, 9).map((item) => (
@@ -1654,18 +1654,18 @@ export default function PreVendas() {
             <div className="crm-card rounded-lg p-6">
               <div className="mb-5 flex items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-xl font-semibold text-white">Fornecedores Homologados</h3>
-                  <p className="text-sm text-slate-400">Consulta rápida da base técnica e comercial.</p>
+                  <h3 className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Fornecedores Homologados</h3>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Consulta rápida da base técnica e comercial.</p>
                 </div>
-                <button type="button" onClick={loadPrevendasCadastros} className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-100 hover:bg-blue-500/30 transition-colors">
+                <button type="button" onClick={loadPrevendasCadastros} className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-700 dark:text-blue-100 hover:bg-blue-500/30 transition-colors">
                   <RefreshCcw className="h-3.5 w-3.5" />
                   Atualizar
                 </button>
               </div>
               {cadastrosLoading ? (
-                <p className="py-8 text-center text-sm text-slate-400">Carregando fornecedores...</p>
+                <p className="py-8 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando fornecedores...</p>
               ) : fornecedores.length === 0 ? (
-                <p className="py-8 text-center text-sm text-slate-400">Nenhum fornecedor cadastrado.</p>
+                <p className="py-8 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum fornecedor cadastrado.</p>
               ) : (
                 <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                   {fornecedores.slice(0, 9).map((item) => (
@@ -1688,7 +1688,7 @@ export default function PreVendas() {
 
             {/* Filtro por Origem: B2B / B2G */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold text-slate-400 shrink-0">Filtrar por Origem:</span>
+              <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] shrink-0">Filtrar por Origem:</span>
               {[
                 { value: 'ALL',       label: 'Todas',       color: null },
                 { value: 'B2B',       label: 'B2B Privado', color: 'orange' },
@@ -1701,9 +1701,9 @@ export default function PreVendas() {
                   ? registroOportunidades.length
                   : registroOportunidades.filter((i) => String(i?.origem || 'B2B').toUpperCase() === opt.value).length;
                 const activeMap = { orange: 'bg-orange-500 border-orange-500 text-white', green: 'bg-emerald-500 border-emerald-500 text-white', sky: 'bg-sky-500 border-sky-500 text-white', purple: 'bg-purple-500 border-purple-500 text-white' };
-                const inactiveMap = { orange: 'border-orange-500/40 text-orange-300 hover:bg-orange-500/15', green: 'border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/15', sky: 'border-sky-500/40 text-sky-300 hover:bg-sky-500/15', purple: 'border-purple-500/40 text-purple-300 hover:bg-purple-500/15' };
+                const inactiveMap = { orange: "border-orange-500/40 text-orange-700 dark:text-orange-300 hover:bg-orange-500/15", green: "border-emerald-500/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500/15", sky: "border-sky-500/40 text-sky-700 dark:text-sky-300 hover:bg-sky-500/15", purple: "border-purple-500/40 text-purple-700 dark:text-purple-300 hover:bg-purple-500/15" };
                 const cls = opt.value === 'ALL'
-                  ? (isSelected ? 'bg-slate-100 border-slate-100 text-slate-900' : 'border-slate-600 text-slate-300 hover:bg-slate-700/50')
+                  ? (isSelected ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]")
                   : (isSelected ? activeMap[opt.color] : inactiveMap[opt.color]);
                 return (
                   <button key={opt.value} type="button" onClick={() => setRegistroOrigemFilter(opt.value)}
@@ -1717,19 +1717,19 @@ export default function PreVendas() {
             </div>
 
             {registroLoading ? (
-              <div className="crm-card rounded-lg p-8 text-center text-sm text-slate-400">Carregando registro de oportunidades...</div>
+              <div className="crm-card rounded-lg p-8 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando registro de oportunidades...</div>
             ) : (
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 <div className="crm-card rounded-lg p-5">
-                  <h3 className="text-base font-semibold text-white mb-1">Status das Oportunidades</h3>
-                  <p className="text-xs text-slate-400 mb-4">Visão de volume por etapa operacional.</p>
+                  <h3 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Status das Oportunidades</h3>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">Visão de volume por etapa operacional.</p>
                   <div className="h-72">
                     <Bar data={registroStatusChartData} options={{ ...CHART_OPTIONS, plugins: { ...CHART_OPTIONS.plugins, legend: { display: false } } }} />
                   </div>
                 </div>
                 <div className="crm-card rounded-lg p-5">
-                  <h3 className="text-base font-semibold text-white mb-1">Origem das Demandas</h3>
-                  <p className="text-xs text-slate-400 mb-4">Distribuição entre B2B, B2G e demais origens.</p>
+                  <h3 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Origem das Demandas</h3>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">Distribuição entre B2B, B2G e demais origens.</p>
                   <div className="h-72">
                     <Doughnut data={registroOrigemChartData} options={DOUGHNUT_OPTIONS} />
                   </div>
@@ -1751,28 +1751,28 @@ export default function PreVendas() {
             <div className="crm-card rounded-lg p-6">
               <div className="mb-5 flex items-center justify-between gap-3">
                 <div>
-                  <h3 className="text-xl font-semibold text-white">Gestão de POCs</h3>
-                  <p className="text-sm text-slate-400">Acompanhamento das provas de conceito vinculadas ao fluxo de Pré-Vendas.</p>
+                  <h3 className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Gestão de POCs</h3>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Acompanhamento das provas de conceito vinculadas ao fluxo de Pré-Vendas.</p>
                 </div>
-                <button type="button" onClick={loadPocs} className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-100 hover:bg-blue-500/30">
+                <button type="button" onClick={loadPocs} className="inline-flex items-center gap-2 rounded-lg border border-blue-500/40 bg-blue-500/20 px-3 py-2 text-xs text-blue-700 dark:text-blue-100 hover:bg-blue-500/30">
                   <RefreshCcw className="h-3.5 w-3.5" />
                   Atualizar
                 </button>
               </div>
               {pocsLoading ? (
-                <p className="py-8 text-center text-sm text-slate-400">Carregando POCs...</p>
+                <p className="py-8 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando POCs...</p>
               ) : recentPocs.length === 0 ? (
-                <p className="py-8 text-center text-sm text-slate-400">Nenhuma POC registrada ainda.</p>
+                <p className="py-8 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhuma POC registrada ainda.</p>
               ) : (
                 <div className="grid gap-3 lg:grid-cols-2">
                   {recentPocs.map((poc) => (
-                    <div key={poc.id} className="rounded-lg border border-slate-700/50 bg-slate-900/35 p-4">
+                    <div key={poc.id} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] p-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold text-white">{poc.title}</p>
-                          <p className="mt-1 truncate text-xs text-slate-400">{poc.client} · {poc.solution}</p>
+                          <p className="truncate text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{poc.title}</p>
+                          <p className="mt-1 truncate text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{poc.client} · {poc.solution}</p>
                         </div>
-                        <span className="shrink-0 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold text-cyan-200">
+                        <span className="shrink-0 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold text-cyan-700 dark:text-cyan-200">
                           {String(poc.status || 'PLANEJAMENTO').replaceAll('_', ' ')}
                         </span>
                       </div>
@@ -1796,20 +1796,20 @@ export default function PreVendas() {
             <div className="crm-card rounded-lg p-6">
               <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[rgb(var(--crm-muted-rgb)_/_1)] w-5 h-5" />
                   <input
                     type="text"
                     placeholder="Buscar atividades por assunto, empresa ou área..."
                     value={activitySearch}
                     onChange={(e) => setActivitySearch(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                    className="w-full pl-10 pr-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                   />
                 </div>
                 <div className="flex gap-3">
                   <select
                     value={activityStatusFilter}
                     onChange={(e) => setActivityStatusFilter(e.target.value)}
-                    className="px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                    className="px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                   >
                     <option value="all">Todos os Status</option>
                     <option value="PENDING">Pendentes</option>
@@ -1829,20 +1829,20 @@ export default function PreVendas() {
               </div>
             </div>
 
-            <div className="bg-gray-800/50 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6">
+            <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] backdrop-blur-sm rounded-xl border border-[var(--crm-border)] p-6">
               <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-semibold text-white">Atividades do Fluxo Pré-Vendas</h3>
+                <h3 className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Atividades do Fluxo Pré-Vendas</h3>
               </div>
 
               {activitiesLoading ? (
                 <div className="text-center py-8">
                   <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto" />
-                  <p className="text-slate-300 mt-2">Carregando atividades...</p>
+                  <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2">Carregando atividades...</p>
                 </div>
               ) : filteredActivities.length === 0 ? (
                 <div className="text-center py-8">
-                  <CalendarCheck2 className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-                  <p className="text-slate-300">Nenhuma atividade no fluxo Pré-Vendas</p>
+                  <CalendarCheck2 className="w-12 h-12 text-[rgb(var(--crm-muted-rgb)_/_1)] mx-auto mb-3" />
+                  <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhuma atividade no fluxo Pré-Vendas</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -1852,7 +1852,7 @@ export default function PreVendas() {
                     return (
                       <div
                         key={activity.id}
-                        className="bg-gray-700/30 border border-gray-600/30 rounded-lg p-4 hover:bg-gray-700/50 transition-all duration-200"
+                        className="bg-[rgb(var(--crm-surface-rgb)_/_0.3)] border border-[var(--crm-border)] rounded-lg p-4 hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] transition-all duration-200"
                       >
                         <div className="flex flex-col lg:flex-row gap-4 lg:items-center justify-between">
                           <div className="flex-1">
@@ -1861,13 +1861,13 @@ export default function PreVendas() {
                                 {statusMeta.label}
                               </span>
                               <span className={`text-xs font-medium ${priorityMeta.cls}`}>{priorityMeta.label}</span>
-                              <span className="text-xs px-2 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-300">
+                              <span className="text-xs px-2 py-1 rounded-full border border-cyan-500/30 bg-cyan-500/10 text-cyan-700 dark:text-cyan-300">
                                 {getAreaLabel(activity?.flow?.sourceArea)} → {getAreaLabel(activity?.flow?.targetArea)}
                               </span>
                             </div>
-                            <h4 className="text-white font-medium mb-1">{activity.subject}</h4>
-                            <p className="text-slate-300 text-sm">{activity.description || 'Sem descrição'}</p>
-                            <div className="mt-2 text-xs text-slate-400 flex flex-wrap gap-3">
+                            <h4 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium mb-1">{activity.subject}</h4>
+                            <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">{activity.description || 'Sem descrição'}</p>
+                            <div className="mt-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] flex flex-wrap gap-3">
                               <span>Empresa: {activity.company?.name || '-'}</span>
                               <span>Responsável: {activity.assignedTo?.name || '-'}</span>
                               <span>
@@ -1944,36 +1944,36 @@ export default function PreVendas() {
           {currentStep === 1 && (
             <div className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Título da Solicitação *</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Título da Solicitação *</label>
                 <input
                   type="text"
                   value={formData.titulo}
                   onChange={(e) => setFormData((prev) => ({ ...prev, titulo: e.target.value }))}
                   placeholder="Ex: Solução de Automação Industrial - Cliente ABC"
-                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                  className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Descrição Detalhada *</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Descrição Detalhada *</label>
                 <textarea
                   value={formData.descricao}
                   onChange={(e) => setFormData((prev) => ({ ...prev, descricao: e.target.value }))}
                   placeholder="Descreva os requisitos, escopo, produtos/serviços envolvidos..."
                   rows={4}
-                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none"
+                  className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-blue-500/50 resize-none"
                   required
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Prioridade</label>
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Prioridade</label>
                   <select
                     value={formData.prioridade}
                     onChange={(e) => setFormData((prev) => ({ ...prev, prioridade: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white"
+                    className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   >
                     <option value="LOW">Baixa</option>
                     <option value="MEDIUM">Média</option>
@@ -1982,19 +1982,19 @@ export default function PreVendas() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Lead/Oportunidade (Opcional)</label>
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Lead/Oportunidade (Opcional)</label>
                   <input
                     type="text"
                     value={formData.leadId}
                     onChange={(e) => setFormData((prev) => ({ ...prev, leadId: e.target.value }))}
                     placeholder="ID do Lead ou Oportunidade"
-                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white placeholder-gray-400"
+                    className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-3">Tipos de Precificação Necessários *</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Tipos de Precificação Necessários *</label>
                 <div className="space-y-3">
                   {[
                     { id: 'VENDA', label: 'Venda (Sales)', desc: 'Precificação baseada em custos, impostos e margem de lucro' },
@@ -2006,11 +2006,11 @@ export default function PreVendas() {
                         type="checkbox"
                         checked={formData.tiposPrecificacao.includes(tipo.id)}
                         onChange={() => handleTipoPrecificacao(tipo.id)}
-                        className="mt-1 w-4 h-4 text-blue-600 bg-gray-700 border-gray-600 rounded"
+                        className="mt-1 w-4 h-4 text-blue-600 bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] rounded"
                       />
                       <div>
-                        <div className="text-white font-medium">{tipo.label}</div>
-                        <div className="text-gray-400 text-sm">{tipo.desc}</div>
+                        <div className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium">{tipo.label}</div>
+                        <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm">{tipo.desc}</div>
                       </div>
                     </label>
                   ))}
@@ -2023,51 +2023,51 @@ export default function PreVendas() {
             <div className="space-y-6">
               <div className="bg-blue-500/10 border border-blue-500/30 rounded-lg p-4">
                 <div className="flex items-center gap-2 mb-2">
-                  <Package className="w-5 h-5 text-blue-400" />
-                  <h4 className="text-blue-400 font-medium">Informações Adicionais</h4>
+                  <Package className="w-5 h-5 text-blue-700 dark:text-blue-400" />
+                  <h4 className="text-blue-700 dark:text-blue-400 font-medium">Informações Adicionais</h4>
                 </div>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-2">Observações e Requisitos Especiais</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Observações e Requisitos Especiais</label>
                 <textarea
                   value={formData.observacoes || ''}
                   onChange={(e) => setFormData((prev) => ({ ...prev, observacoes: e.target.value }))}
                   rows={4}
-                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white"
+                  className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Prazo Esperado</label>
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Prazo Esperado</label>
                   <input
                     type="date"
                     value={formData.prazoEsperado || ''}
                     onChange={(e) => setFormData((prev) => ({ ...prev, prazoEsperado: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white"
+                    className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Orçamento Estimado (R$)</label>
+                  <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Orçamento Estimado (R$)</label>
                   <input
                     type="number"
                     step="0.01"
                     value={formData.orcamentoEstimado || ''}
                     onChange={(e) => setFormData((prev) => ({ ...prev, orcamentoEstimado: e.target.value }))}
-                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white"
+                    className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   />
                 </div>
               </div>
             </div>
           )}
 
-          <div className="flex justify-between pt-6 border-t border-gray-600/30">
+          <div className="flex justify-between pt-6 border-t border-[var(--crm-border)]">
             {currentStep > 1 ? (
               <button
                 type="button"
                 onClick={() => setCurrentStep((prev) => prev - 1)}
-                className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg"
+                className="px-6 py-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium rounded-lg"
               >
                 Voltar
               </button>
@@ -2080,7 +2080,7 @@ export default function PreVendas() {
                   setShowModal(false);
                   resetSolicitacaoForm();
                 }}
-                className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg"
+                className="px-6 py-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium rounded-lg"
               >
                 Cancelar
               </button>
@@ -2096,7 +2096,7 @@ export default function PreVendas() {
                 <button
                   type="button"
                   disabled
-                  className="px-6 py-3 bg-gray-500/40 text-gray-300 font-medium rounded-lg cursor-not-allowed"
+                  className="px-6 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.4)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium rounded-lg cursor-not-allowed"
                 >
                   Selecione um tipo de precificação
                 </button>
@@ -2122,11 +2122,11 @@ export default function PreVendas() {
         <form onSubmit={handleActivitySubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Tipo</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Tipo</label>
               <select
                 value={activityForm.type}
                 onChange={(e) => setActivityForm((prev) => ({ ...prev, type: e.target.value }))}
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white"
+                className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
               >
                 <option value="TASK">Tarefa</option>
                 <option value="FOLLOW_UP">Follow-up</option>
@@ -2136,11 +2136,11 @@ export default function PreVendas() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Prioridade</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Prioridade</label>
               <select
                 value={activityForm.priority}
                 onChange={(e) => setActivityForm((prev) => ({ ...prev, priority: e.target.value }))}
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white"
+                className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
               >
                 <option value="LOW">Baixa</option>
                 <option value="MEDIUM">Média</option>
@@ -2149,30 +2149,30 @@ export default function PreVendas() {
               </select>
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-300 mb-2">Assunto *</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Assunto *</label>
               <input
                 required
                 type="text"
                 value={activityForm.subject}
                 onChange={(e) => setActivityForm((prev) => ({ ...prev, subject: e.target.value }))}
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white"
+                className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
               />
             </div>
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-300 mb-2">Descrição</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Descrição</label>
               <textarea
                 rows={3}
                 value={activityForm.description}
                 onChange={(e) => setActivityForm((prev) => ({ ...prev, description: e.target.value }))}
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white"
+                className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Destino</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Destino</label>
               <select
                 value={activityForm.targetArea}
                 onChange={(e) => setActivityForm((prev) => ({ ...prev, targetArea: e.target.value }))}
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white"
+                className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
               >
                 <option value="COMERCIAL">Comercial</option>
                 <option value="GERENTE_CONTAS">Gerente de Contas</option>
@@ -2181,18 +2181,18 @@ export default function PreVendas() {
                 <option value="PRE_VENDAS">Pré-Vendas</option>
               </select>
               {activityForm.targetArea === 'PRE_VENDAS' && (
-                <p className="mt-1 text-xs text-blue-300">
+                <p className="mt-1 text-xs text-blue-700 dark:text-blue-300">
                   Este envio será criado como solicitação no módulo Pre-Vendas &gt; Solicitações.
                 </p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Vencimento</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Vencimento</label>
               <input
                 type="datetime-local"
                 value={activityForm.dueDate}
                 onChange={(e) => setActivityForm((prev) => ({ ...prev, dueDate: e.target.value }))}
-                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white"
+                className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
               />
             </div>
           </div>
@@ -2204,7 +2204,7 @@ export default function PreVendas() {
                 setShowActivityModal(false);
                 resetActivityForm();
               }}
-              className="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg"
+              className="px-6 py-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium rounded-lg"
             >
               Cancelar
             </button>
@@ -2230,43 +2230,43 @@ export default function PreVendas() {
           <div className="space-y-6">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Status</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Status</label>
                 <span className={`inline-block px-3 py-1 rounded-full text-sm font-medium border ${getSolicitacaoStatusColor(selectedSolicitacao.status)}`}>
                   {getSolicitacaoStatusLabel(selectedSolicitacao.status)}
                 </span>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-400 mb-1">Prioridade</label>
+                <label className="block text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Prioridade</label>
                 <span className={`font-medium ${getPrioridadeColor(selectedSolicitacao.prioridade)}`}>
                   {toPriorityLabel(selectedSolicitacao.prioridade)}
                 </span>
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-400 mb-1">Descrição</label>
-              <p className="text-white">{selectedSolicitacao.descricao}</p>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Descrição</label>
+              <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{selectedSolicitacao.descricao}</p>
             </div>
             {selectedSolicitacao.valorSugerido > 0 && (
-              <div className="bg-gray-700/30 rounded-lg p-4">
-                <h4 className="text-white font-medium mb-3">Resultado da Precificação</h4>
+              <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.3)] rounded-lg p-4">
+                <h4 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium mb-3">Resultado da Precificação</h4>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-lg font-semibold text-blue-400">
+                    <div className="text-lg font-semibold text-blue-700 dark:text-blue-400">
                       R$ {selectedSolicitacao.valorSugerido.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
-                    <div className="text-gray-400 text-sm">Preço Sugerido</div>
+                    <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm">Preço Sugerido</div>
                   </div>
                   <div>
-                    <div className="text-lg font-semibold text-white">
+                    <div className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       R$ {selectedSolicitacao.custoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </div>
-                    <div className="text-gray-400 text-sm">Custo Total</div>
+                    <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm">Custo Total</div>
                   </div>
                   <div>
-                    <div className="text-lg font-semibold text-green-400">
+                    <div className="text-lg font-semibold text-green-700 dark:text-green-400">
                       {selectedSolicitacao.margemLucro.toFixed(1)}%
                     </div>
-                    <div className="text-gray-400 text-sm">Margem</div>
+                    <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm">Margem</div>
                   </div>
                 </div>
               </div>

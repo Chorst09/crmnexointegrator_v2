@@ -135,7 +135,7 @@ const AnimatedStats = ({
             {title}
           </p>
 
-          <div className={`${compact ? 'p-2.5 rounded-xl' : 'p-3 rounded-2xl'} shrink-0 bg-gradient-to-br ${classes.light} border border-white/10 shadow-sm`}>
+          <div className={`${compact ? 'p-2.5 rounded-xl' : 'p-3 rounded-2xl'} shrink-0 bg-gradient-to-br ${classes.light} border border-[rgb(var(--crm-ink-rgb)_/_0.1)] shadow-sm`}>
             {typeof Icon === 'string' ? (
               <span className={compact ? 'text-xl' : 'text-2xl'}>{Icon}</span>
             ) : (
@@ -167,7 +167,7 @@ const AnimatedStats = ({
 
       {/* Hover Effect */}
       <div className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-        <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/10 to-transparent -skew-x-12 motion-safe:group-hover:animate-shine" />
+        <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-[rgb(var(--crm-surface-rgb)_/_0.1)] to-transparent -skew-x-12 motion-safe:group-hover:animate-shine" />
       </div>
     </div>
   );

@@ -1,14 +1,14 @@
 import React from 'react';
 
-const PageHeader = ({ 
-  title, 
-  subtitle, 
+const PageHeader = ({
+  title,
+  subtitle,
   icon: Icon,
   actions = [],
   breadcrumbs = [],
   gradient = 'blue'
 }) => {
-  const standardHeaderGradient = 'from-[#06111a] via-[#082735] to-[#0b3a46]';
+  const standardHeaderGradient = "from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-2-rgb)_/_1)] to-[rgb(var(--crm-surface-rgb)_/_1)]";
   const gradients = {
     blue: standardHeaderGradient,
     green: standardHeaderGradient,
@@ -34,8 +34,8 @@ const PageHeader = ({
             <ol className="flex items-center space-x-2 text-sm">
               {breadcrumbs.map((crumb, index) => (
                 <li key={index} className="flex items-center">
-                  {index > 0 && <span className="text-white/60 mx-2">/</span>}
-                  <span className={index === breadcrumbs.length - 1 ? 'text-white font-medium' : 'text-white/80'}>
+                  {index > 0 && <span className="text-[rgb(var(--crm-ink-rgb)_/_0.6)] mx-2">/</span>}
+                  <span className={index === breadcrumbs.length - 1 ? "text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium" : "text-[rgb(var(--crm-ink-rgb)_/_0.8)]"}>
                     {crumb}
                   </span>
                 </li>
@@ -47,16 +47,16 @@ const PageHeader = ({
         <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-5">
           <div className="flex min-w-0 items-center gap-4">
             {Icon && (
-              <div className="shrink-0 p-3 bg-white/20 rounded-xl backdrop-blur-sm">
-                <Icon className="w-7 h-7 text-white" />
+              <div className="shrink-0 p-3 bg-[rgb(var(--crm-surface-rgb)_/_0.2)] rounded-xl backdrop-blur-sm">
+                <Icon className="w-7 h-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
               </div>
             )}
             <div className="min-w-0">
-              <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 leading-tight">
+              <h1 className="text-2xl md:text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2 leading-tight">
                 {title}
               </h1>
               {subtitle && (
-                <p className="max-w-3xl text-white/90 text-base md:text-lg leading-relaxed">
+                <p className="max-w-3xl text-[rgb(var(--crm-ink-rgb)_/_0.9)] text-base md:text-lg leading-relaxed">
                   {subtitle}
                 </p>
               )}
@@ -73,9 +73,9 @@ const PageHeader = ({
                   className={`
                     px-4 py-2.5 rounded-xl font-semibold transition-all duration-200
                     flex min-h-11 items-center justify-center gap-2 backdrop-blur-sm
-                    ${action.variant === 'primary' 
-                      ? 'bg-white text-gray-900 hover:bg-gray-100 shadow-lg' 
-                      : 'bg-white/20 text-white hover:bg-white/30 border border-white/30'
+                    ${action.variant === 'primary'
+                      ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] shadow-lg"
+                      : "bg-[rgb(var(--crm-surface-rgb)_/_0.2)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.3)] border border-[var(--crm-border)]"
                     }
                     disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white/20
                   `}

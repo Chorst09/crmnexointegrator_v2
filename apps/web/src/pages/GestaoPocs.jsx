@@ -472,11 +472,11 @@ export default function GestaoPocs() {
       </div>
 
       <div className="mb-8 grid gap-5 md:grid-cols-2 xl:grid-cols-5">
-        <StatCard label="Total" value={stats.total} icon={Beaker} color="text-sky-400" />
-        <StatCard label="Em andamento" value={stats.andamento} icon={CalendarClock} color="text-blue-400" />
-        <StatCard label="Bloqueadas" value={stats.bloqueadas} icon={AlertTriangle} color="text-amber-400" />
-        <StatCard label="Aprovadas" value={stats.aprovadas} icon={CheckCircle2} color="text-emerald-400" />
-        <StatCard label="Atrasadas" value={stats.atrasadas} icon={XCircle} color="text-rose-400" />
+        <StatCard label="Total" value={stats.total} icon={Beaker} color="text-sky-700 dark:text-sky-400" />
+        <StatCard label="Em andamento" value={stats.andamento} icon={CalendarClock} color="text-blue-700 dark:text-blue-400" />
+        <StatCard label="Bloqueadas" value={stats.bloqueadas} icon={AlertTriangle} color="text-amber-700 dark:text-amber-400" />
+        <StatCard label="Aprovadas" value={stats.aprovadas} icon={CheckCircle2} color="text-emerald-700 dark:text-emerald-400" />
+        <StatCard label="Atrasadas" value={stats.atrasadas} icon={XCircle} color="text-rose-700 dark:text-rose-400" />
       </div>
 
       <section className="crm-panel rounded-[8px] p-6">
@@ -506,7 +506,7 @@ export default function GestaoPocs() {
           </SelectShell>
         </div>
 
-        {error && <div className="mb-4 rounded-[8px] border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">{error}</div>}
+        {error && <div className="mb-4 rounded-[8px] border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-200">{error}</div>}
 
         <div className="overflow-x-auto rounded-[8px] border border-[var(--crm-border)]">
           <table className="min-w-[1100px] w-full text-left">
@@ -522,9 +522,9 @@ export default function GestaoPocs() {
             </thead>
             <tbody className="divide-y divide-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.68)]">
               {loading ? (
-                <tr><td colSpan="6" className="px-5 py-10 text-center text-slate-400">Carregando POCs...</td></tr>
+                <tr><td colSpan="6" className="px-5 py-10 text-center text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando POCs...</td></tr>
               ) : pocs.length === 0 ? (
-                <tr><td colSpan="6" className="px-5 py-10 text-center text-slate-400">Nenhuma POC registrada.</td></tr>
+                <tr><td colSpan="6" className="px-5 py-10 text-center text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhuma POC registrada.</td></tr>
               ) : pocs.map((poc) => {
                 const followUps = getFollowUps(poc);
                 const isExpanded = expandedPocId === poc.id;
@@ -572,12 +572,12 @@ export default function GestaoPocs() {
                           <button type="button" onClick={() => setExpandedPocId(isExpanded ? null : poc.id)} className="text-sm font-medium text-[var(--crm-accent)] hover:opacity-80">
                             {isExpanded ? 'Ocultar' : 'Acompanhar'}
                           </button>
-                          <button type="button" onClick={() => actionPoc(poc, 'approve')} className="text-sm font-medium text-emerald-400 hover:text-emerald-300">Aprovar</button>
-                          <button type="button" onClick={() => actionPoc(poc, 'discard')} className="text-sm font-medium text-rose-400 hover:text-rose-300">Descartar</button>
+                          <button type="button" onClick={() => actionPoc(poc, 'approve')} className="text-sm font-medium text-emerald-700 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300">Aprovar</button>
+                          <button type="button" onClick={() => actionPoc(poc, 'discard')} className="text-sm font-medium text-rose-700 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300">Descartar</button>
                           <button type="button" onClick={() => openEditModal(poc)} className="text-[var(--crm-ink)] hover:text-[var(--crm-accent)]" aria-label="Editar POC">
                             <Edit3 className="h-5 w-5" />
                           </button>
-                          <button type="button" onClick={() => deletePoc(poc)} className="text-rose-400 hover:text-rose-300" aria-label="Excluir POC">
+                          <button type="button" onClick={() => deletePoc(poc)} className="text-rose-700 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300" aria-label="Excluir POC">
                             <Trash2 className="h-5 w-5" />
                           </button>
                         </div>
@@ -603,7 +603,7 @@ export default function GestaoPocs() {
                                           <p className="text-sm font-medium text-[var(--crm-ink)]">{item.createdByName || 'Usuário'}</p>
                                           <p className="text-xs text-[var(--crm-muted)]">{formatDateTime(item.createdAt)}</p>
                                         </div>
-                                        <button type="button" onClick={() => deleteFollowUp(poc, item)} className="text-xs font-medium text-rose-300 hover:text-rose-200">Excluir</button>
+                                        <button type="button" onClick={() => deleteFollowUp(poc, item)} className="text-xs font-medium text-rose-700 dark:text-rose-300 hover:text-rose-700 dark:hover:text-rose-200">Excluir</button>
                                       </div>
                                       <p className="whitespace-pre-wrap text-sm leading-6 text-[var(--crm-ink)]">{item.note}</p>
                                       {item.nextStep && <p className="mt-3 text-sm text-[var(--crm-accent)]"><span className="font-medium">Próximo passo:</span> {item.nextStep}</p>}
@@ -667,7 +667,7 @@ export default function GestaoPocs() {
             </div>
 
             {formError && (
-              <div className="mb-6 rounded-[8px] border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              <div className="mb-6 rounded-[8px] border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-700 dark:text-rose-200">
                 {formError}
               </div>
             )}
