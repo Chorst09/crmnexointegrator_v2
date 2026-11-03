@@ -18,8 +18,7 @@ import {
   Tooltip,
   ResponsiveContainer,
   LineChart,
-  Line,
-} from 'recharts';
+  Line} from 'recharts';
 
 const BUSINESS_TYPE_LABELS: Record<string, string> = {
   PABX: 'PABX/SIP',
@@ -914,27 +913,27 @@ const DashboardView = () => {
 
   const safeProposalDistributionData = proposalDistributionData.length
     ? proposalDistributionData
-    : [{ name: 'Sem propostas', value: 1, color: '#475569' }];
+    : [{ name: 'Sem propostas', value: 1, color: "rgb(var(--crm-muted-rgb) / 1)" }];
 
   const safeValueDistributionData = valueDistributionData.length
     ? valueDistributionData
-    : [{ name: 'Sem valores', value: 1, color: '#475569' }];
+    : [{ name: 'Sem valores', value: 1, color: "rgb(var(--crm-muted-rgb) / 1)" }];
 
   const simulatorPanelStyle = {
-    background: 'var(--crm-panel-background, linear-gradient(180deg, rgba(20,29,49,0.97) 0%, rgba(9,14,27,0.99) 100%))',
-    borderColor: 'rgba(78,91,118,0.48)'
+    background: "var(--crm-panel-background, linear-gradient(180deg, rgb(var(--crm-surface-2-rgb) / 0.97) 0%, rgb(var(--crm-surface-2-rgb) / 0.99) 100%))",
+    borderColor: "var(--crm-border)"
   };
 
   const simulatorInnerStyle = {
-    background: 'var(--crm-panel-background, linear-gradient(145deg, rgba(17,26,45,0.94) 0%, rgba(9,15,28,0.96) 100%))',
-    borderColor: 'rgba(67,80,106,0.5)'
+    background: "var(--crm-panel-background, linear-gradient(145deg, rgb(var(--crm-surface-2-rgb) / 0.94) 0%, rgb(var(--crm-surface-2-rgb) / 0.96) 100%))",
+    borderColor: "var(--crm-border)"
   };
 
   const chartTooltipStyle = {
-    backgroundColor: 'rgba(7, 11, 22, 0.96)',
+    backgroundColor: "rgb(var(--crm-surface-2-rgb) / 0.96)",
     border: '1px solid rgba(255, 111, 15, 0.42)',
     borderRadius: '8px',
-    color: '#f8fafc',
+    color: "rgb(var(--crm-ink-rgb) / 1)",
     boxShadow: '0 20px 40px rgba(0,0,0,0.45)'
   };
 
@@ -967,14 +966,14 @@ const DashboardView = () => {
 
   if (loading) {
     return (
-      <div className="market-dashboard flex min-h-screen items-center justify-center bg-[#070b16] text-[#8f9caf]">
+      <div className="market-dashboard flex min-h-screen items-center justify-center bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)]">
         Carregando...
       </div>
     );
   }
 
   return (
-    <div className="market-dashboard min-h-screen space-y-4 bg-[#070b16] p-4" data-section="dashboard-main">
+    <div className="market-dashboard min-h-screen space-y-4 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4" data-section="dashboard-main">
       <style>{`
         [data-section="dashboard-main"]:fullscreen { overflow-y: auto; padding: 1.5rem; }
         [data-section="dashboard-main"]:-webkit-full-screen { overflow-y: auto; padding: 1.5rem; }
@@ -987,17 +986,17 @@ const DashboardView = () => {
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 shadow-[0_28px_70px_-48px_rgba(0,0,0,0.95)]" style={simulatorPanelStyle}>
         <div className="flex items-center gap-4">
           <div className="rounded-lg bg-gradient-to-br from-[#ff6f0f] to-[#ffb21a] p-3 shadow-[0_18px_40px_-22px_rgba(255,111,15,0.9)]">
-            <TrendingUp className="h-7 w-7 text-white" />
+            <TrendingUp className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
           </div>
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#ffb21a]">Simulator Intelligence</p>
-            <h2 className="text-2xl font-black uppercase text-[#f4f7fb]">Painel Analítico</h2>
-            <p className="text-sm font-semibold text-[#8f9caf]">Visão moderna de volume, forecast e receita total</p>
+            <h2 className="text-2xl font-black uppercase text-[rgb(var(--crm-ink-rgb)_/_1)]">Painel Analítico</h2>
+            <p className="text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">Visão moderna de volume, forecast e receita total</p>
           </div>
         </div>
         <div className="flex flex-wrap gap-3 items-center">
           <button onClick={handleFullscreenToggle}
-            className="flex items-center gap-2 rounded-md border border-[#344159] bg-[#101827]/95 px-4 py-2 text-sm font-bold text-[#cbd5e4] transition-all hover:border-[#ff6f0f] hover:text-[#ffb21a]">
+            className="flex items-center gap-2 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] px-4 py-2 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-all hover:border-[#ff6f0f] hover:text-[#ffb21a]">
             {isFullscreen ? <><Minimize2 className="h-4 w-4" /><span>Sair</span></> : <><Maximize2 className="h-4 w-4" /><span>Apresentação</span></>}
           </button>
           {simulatorKpis.map((item) => (
@@ -1006,7 +1005,7 @@ const DashboardView = () => {
               className="rounded-lg border px-4 py-2 text-center"
               style={{ borderColor: item.border, background: item.background }}
             >
-              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[#8f9caf]">{item.label}</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.12em] text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.label}</p>
               <p className="text-xl font-black" style={{ color: item.color }}>{item.value}</p>
             </div>
           ))}
@@ -1016,7 +1015,7 @@ const DashboardView = () => {
       {/* ── FILTROS ── */}
       <div className="rounded-lg border p-3.5" style={simulatorPanelStyle}>
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-base font-black uppercase tracking-[0.12em] text-[#f4f7fb]">Filtros</h3>
+          <h3 className="text-base font-black uppercase tracking-[0.12em] text-[rgb(var(--crm-ink-rgb)_/_1)]">Filtros</h3>
           <div className="flex gap-2">
             <button onClick={handleSyncProposals} disabled={isSyncing}
               className="flex items-center gap-1.5 rounded-md border border-[#18d97c66] bg-[#18d97c14] px-3 py-1.5 text-xs font-bold text-[#18d97c] transition-colors hover:bg-[#18d97c22] disabled:opacity-50">
@@ -1026,7 +1025,7 @@ const DashboardView = () => {
               </>}
             </button>
             <button onClick={() => { setSelectedAccountManager("all"); setSelectedBusinessType("all"); setSelectedTemperature("all"); }}
-              className="rounded-md border border-[#344159] px-3 py-1.5 text-xs font-bold text-[#cbd5e4] transition-colors hover:border-[#ff6f0f] hover:text-[#ffb21a]">
+              className="rounded-md border border-[var(--crm-border)] px-3 py-1.5 text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:border-[#ff6f0f] hover:text-[#ffb21a]">
               Limpar
             </button>
           </div>
@@ -1041,9 +1040,9 @@ const DashboardView = () => {
               options: [{ v: "all", l: "Todas" }, { v: "0", l: "0%" }, { v: "25", l: "25%" }, { v: "50", l: "50%" }, { v: "75", l: "75%" }, { v: "100", l: "100%" }] },
           ].map(f => (
             <div key={f.label}>
-              <label className="mb-1.5 block text-[11px] font-black uppercase tracking-[0.12em] text-[#8f9caf]">{f.label}</label>
+              <label className="mb-1.5 block text-[11px] font-black uppercase tracking-[0.12em] text-[rgb(var(--crm-muted-rgb)_/_1)]">{f.label}</label>
               <select value={f.value} onChange={e => f.onChange(e.target.value)}
-                className="w-full rounded-md border border-[#344159] bg-[#101827]/90 px-3 py-2 text-sm font-bold text-[#e7edf8] focus:border-[#ff6f0f] focus:outline-none">
+                className="w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] px-3 py-2 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] focus:border-[#ff6f0f] focus:outline-none">
                 {f.options.map(o => <option key={o.v} value={o.v}>{o.l}</option>)}
               </select>
             </div>
@@ -1056,15 +1055,15 @@ const DashboardView = () => {
         {monthlyFunnelBoard.top.map((item, i) => (
           <div key={item.title} className="crm-simulator-kpi anim-card relative overflow-hidden rounded-lg p-3.5 shadow-[0_24px_50px_-28px_rgba(0,0,0,0.9)]" style={{ animationDelay: `${i * 80}ms` }}>
             <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-90`} />
-            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.2)_0%,transparent_48%,rgba(0,0,0,0.22)_100%)]" />
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgb(var(--crm-surface-rgb)_/_0.2)_0%,transparent_48%,rgb(var(--crm-surface-2-rgb)_/_0.22)_100%)]" />
             <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.28),inset_0_-24px_44px_rgba(0,0,0,0.34)]" />
             <div className="relative z-10 flex flex-col h-full gap-3">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-white/82">{item.title}</p>
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[rgb(var(--crm-ink-rgb)_/_0.82)]">{item.title}</p>
               <div className="flex items-end justify-between">
-                <p className="text-2xl font-bold leading-none text-white">{formatCurrencyCompact(item.amount)}</p>
+                <p className="text-2xl font-bold leading-none text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrencyCompact(item.amount)}</p>
                 <div className="text-right">
-                  <p className="text-2xl font-black text-white/90">{item.qty}</p>
-                  <p className="text-xs font-bold text-white/70">projetos</p>
+                  <p className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_0.9)]">{item.qty}</p>
+                  <p className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_0.7)]">projetos</p>
                 </div>
               </div>
             </div>
@@ -1074,25 +1073,25 @@ const DashboardView = () => {
 
       {/* ── FUNIL ESTRATÉGICO 3D + TERMÔMETRO DO PIPELINE ── */}
       <div
-        className="anim-card overflow-hidden rounded-2xl border border-slate-700/60 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)]"
+        className="anim-card overflow-hidden rounded-2xl border border-[var(--crm-border)] shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)]"
         style={{
           ...simulatorPanelStyle,
           animationDelay: "140ms",
           background:
-            'var(--crm-panel-background, radial-gradient(circle at 18% 16%, rgba(32,212,245,0.14), transparent 34%), radial-gradient(circle at 78% 12%, rgba(255,111,15,0.12), transparent 32%), linear-gradient(135deg, rgba(14,23,42,0.98) 0%, rgba(9,14,27,0.98) 50%, rgba(11,20,38,0.98) 100%))',
+            "var(--crm-panel-background, radial-gradient(circle at 18% 16%, rgba(32,212,245,0.14), transparent 34%), radial-gradient(circle at 78% 12%, rgba(255,111,15,0.12), transparent 32%), linear-gradient(135deg, rgb(var(--crm-surface-2-rgb) / 0.98) 0%, rgb(var(--crm-surface-2-rgb) / 0.98) 50%, rgb(var(--crm-surface-2-rgb) / 0.98) 100%))",
         }}
       >
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px]">
           {/* Coluna Esquerda: Funil Cônico 3D */}
           <section className="relative min-h-[420px] overflow-hidden px-4 py-5 sm:px-6 md:px-8">
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(150deg,rgba(14,165,233,0.08),transparent_38%,rgba(245,158,11,0.06)_72%,transparent)]" />
-            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-white/[0.04] to-transparent" />
+            <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[rgb(var(--crm-surface-rgb)_/_0.04)] to-transparent" />
             
             <div className="relative z-10 mb-4 flex items-start justify-between gap-4">
               <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#ff6f0f]">Pipeline Comercial</p>
-                <h3 className="text-xl font-black uppercase leading-tight text-[#f4f7fb] md:text-2xl">Funil de Simulações B2B</h3>
-                <p className="mt-0.5 text-xs font-semibold text-[#8f9caf]">Propostas e simulações por etapa comercial</p>
+                <h3 className="text-xl font-black uppercase leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)] md:text-2xl">Funil de Simulações B2B</h3>
+                <p className="mt-0.5 text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">Propostas e simulações por etapa comercial</p>
               </div>
               <div className="rounded-lg border border-[#ff6f0f40] bg-[#ff6f0f12] p-2.5">
                 <Target className="h-5 w-5 text-[#ff6f0f]" />
@@ -1254,8 +1253,8 @@ const DashboardView = () => {
           </section>
 
           {/* Coluna Direita: Termômetro do Pipeline com Visual Padrão */}
-          <aside className="relative border-t border-slate-800/80 px-6 py-6 lg:border-l lg:border-t-0 flex flex-col justify-center">
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_52%_22%,rgba(168,85,247,0.08),transparent_36%),linear-gradient(180deg,rgba(15,23,42,0.4),rgba(5,9,20,0.2))]" />
+          <aside className="relative border-t border-[var(--crm-border)] px-6 py-6 lg:border-l lg:border-t-0 flex flex-col justify-center">
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_52%_22%,rgba(168,85,247,0.08),transparent_36%),linear-gradient(180deg,rgb(var(--crm-surface-2-rgb)_/_0.4),rgb(var(--crm-surface-2-rgb)_/_0.2))]" />
             <div className="relative z-10 pipeline-model__temperature-content">
               <div
                 className="pipeline-model__thermometer"
@@ -1278,8 +1277,8 @@ const DashboardView = () => {
 
               <div className="pipeline-model__temperature-copy">
                 <div className="pipeline-model__temperature-title">
-                  <strong className="text-white text-base font-bold">Temperatura do Pipeline</strong>
-                  <span className="text-xs text-slate-400 font-semibold">{visualTemperaturePercent.toFixed(1)}% atual</span>
+                  <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-base font-bold">Temperatura do Pipeline</strong>
+                  <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] font-semibold">{visualTemperaturePercent.toFixed(1)}% atual</span>
                 </div>
                 <div className="pipeline-model__temperature-levels">
                   {TEMPERATURE_LEVELS.map((level) => {
@@ -1299,13 +1298,13 @@ const DashboardView = () => {
                   })}
                 </div>
 
-                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-slate-800/80 pt-3">
+                <div className="mt-4 grid grid-cols-2 gap-2 border-t border-[var(--crm-border)] pt-3">
                   <div className="rounded-lg border border-[#ff6f0f33] bg-[#ff6f0f0d] px-2.5 py-2">
-                    <p className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-400">Forecast Final</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.1em] text-[rgb(var(--crm-muted-rgb)_/_1)]">Forecast Final</p>
                     <p className="text-sm font-black text-[#ffb21a]">{formatCurrencyCompact(monthlyFunnelBoard.top[2]?.amount || 0)}</p>
                   </div>
                   <div className="rounded-lg border border-[#20d4f533] bg-[#20d4f50d] px-2.5 py-2">
-                    <p className="text-[9px] font-black uppercase tracking-[0.1em] text-slate-400">Qtd. Prevista</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.1em] text-[rgb(var(--crm-muted-rgb)_/_1)]">Qtd. Prevista</p>
                     <p className="text-sm font-black text-[#20d4f5]">{monthlyFunnelBoard.top[2]?.qty || 0}</p>
                   </div>
                 </div>
@@ -1314,19 +1313,19 @@ const DashboardView = () => {
           </aside>
         </div>
 
-        <div className="border-t border-[#344159] p-5">
+        <div className="border-t border-[var(--crm-border)] p-5">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div className="rounded-lg border border-[#2384ff40] bg-[#2384ff12] px-4 py-3 text-center">
               <p className="text-3xl font-black text-[#2384ff]">{funnelSummary.previstos}</p>
-              <p className="mt-1 text-xs font-bold text-[#8f9caf]">Simulações no Funil</p>
+              <p className="mt-1 text-xs font-bold text-[rgb(var(--crm-muted-rgb)_/_1)]">Simulações no Funil</p>
             </div>
             <div className="rounded-lg border border-[#20d4f540] bg-[#20d4f512] px-4 py-3 text-center">
               <p className="text-3xl font-black text-[#20d4f5]">{funnelSummary.fechados}</p>
-              <p className="mt-1 text-xs font-bold text-[#8f9caf]">Propostas Aprovadas</p>
+              <p className="mt-1 text-xs font-bold text-[rgb(var(--crm-muted-rgb)_/_1)]">Propostas Aprovadas</p>
             </div>
             <div className="rounded-lg border border-[#18d97c40] bg-[#18d97c12] px-4 py-3 text-center">
               <p className="text-3xl font-black text-[#18d97c]">{funnelSummary.conversion.toFixed(1)}%</p>
-              <p className="mt-1 text-xs font-bold text-[#8f9caf]">Taxa de Conversão</p>
+              <p className="mt-1 text-xs font-bold text-[rgb(var(--crm-muted-rgb)_/_1)]">Taxa de Conversão</p>
             </div>
           </div>
         </div>
@@ -1337,12 +1336,12 @@ const DashboardView = () => {
         {monthlyFunnelBoard.bottom.map((item, i) => (
           <div key={item.title} className="crm-simulator-kpi anim-card relative overflow-hidden rounded-lg p-3 shadow-[0_20px_44px_-28px_rgba(0,0,0,0.88)]" style={{ animationDelay: `${200 + i * 60}ms` }}>
             <div className={`absolute inset-0 bg-gradient-to-br ${item.color} opacity-85`}/>
-            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.15)_0%,transparent_50%)]"/>
+            <div className="absolute inset-0 bg-[linear-gradient(135deg,rgb(var(--crm-surface-rgb)_/_0.15)_0%,transparent_50%)]"/>
             <div className="absolute inset-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.3)]"/>
             <div className="relative z-10">
-              <p className="mb-2 text-[11px] font-black uppercase leading-tight tracking-[0.12em] text-white/75">{item.title}</p>
-              <p className="text-2xl font-black leading-none text-white">{formatCurrencyCompact(item.amount)}</p>
-              <p className="mt-1 text-sm font-bold text-white/80">{item.qty} projetos</p>
+              <p className="mb-2 text-[11px] font-black uppercase leading-tight tracking-[0.12em] text-[rgb(var(--crm-ink-rgb)_/_0.75)]">{item.title}</p>
+              <p className="text-2xl font-black leading-none text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrencyCompact(item.amount)}</p>
+              <p className="mt-1 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_0.8)]">{item.qty} projetos</p>
             </div>
           </div>
         ))}
@@ -1355,7 +1354,7 @@ const DashboardView = () => {
         <div className={`anim-card relative overflow-hidden rounded-lg border p-6 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)] transition-all duration-700 ${dashboardReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ ...simulatorPanelStyle, animationDelay: "300ms" }}>
           <div className="flex items-center gap-2 mb-5">
             <div className="h-2 w-2 rounded-full bg-[#20d4f5] shadow-[0_0_8px_rgba(32,212,245,0.8)]"/>
-            <h3 className="text-lg font-black uppercase text-[#f4f7fb]">Propostas por Serviço</h3>
+            <h3 className="text-lg font-black uppercase text-[rgb(var(--crm-ink-rgb)_/_1)]">Propostas por Serviço</h3>
           </div>
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={chartData} margin={{ top: 8, right: 8, left: -15, bottom: 6 }} barSize={28}>
@@ -1370,7 +1369,7 @@ const DashboardView = () => {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(82,96,124,0.22)" vertical={false}/>
               <XAxis dataKey="name" stroke="#8f9caf" tickLine={false} axisLine={false} fontSize={11} interval={0} angle={-20} textAnchor="end" height={40}/>
               <YAxis stroke="#8f9caf" tickLine={false} axisLine={false} allowDecimals={false} fontSize={11}/>
-              <Tooltip cursor={{ fill: "rgba(255,255,255,0.03)" }}
+              <Tooltip cursor={{ fill: "rgb(var(--crm-ink-rgb) / 0.03)" }}
                 contentStyle={chartTooltipStyle}
                 formatter={(v: number | string) => [`${v} propostas`, "Volume"]}/>
               <Bar dataKey="proposals" radius={[8, 8, 2, 2]} animationDuration={1200} stroke="rgba(255,255,255,0.2)" strokeWidth={1}>
@@ -1384,7 +1383,7 @@ const DashboardView = () => {
         <div className={`anim-card relative overflow-hidden rounded-lg border p-6 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)] transition-all duration-700 delay-100 ${dashboardReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ ...simulatorPanelStyle, animationDelay: "360ms" }}>
           <div className="flex items-center gap-2 mb-5">
             <div className="h-2 w-2 rounded-full bg-[#ff6f0f] shadow-[0_0_8px_rgba(255,111,15,0.8)]"/>
-            <h3 className="text-lg font-black uppercase text-[#f4f7fb]">Distribuição de Propostas</h3>
+            <h3 className="text-lg font-black uppercase text-[rgb(var(--crm-ink-rgb)_/_1)]">Distribuição de Propostas</h3>
           </div>
           <div className="relative h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -1407,8 +1406,8 @@ const DashboardView = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#8f9caf]">Total</span>
-              <span className="text-3xl font-black text-[#f4f7fb]">{totalProposalsMonth}</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)]">Total</span>
+              <span className="text-3xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{totalProposalsMonth}</span>
             </div>
           </div>
           {/* Legenda */}
@@ -1416,7 +1415,7 @@ const DashboardView = () => {
             {safeProposalDistributionData.map((entry, i) => (
               <div key={i} className="flex items-center gap-1.5">
                 <div className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: entry.color }}/>
-                <span className="text-xs font-semibold text-[#8f9caf]">{entry.name}</span>
+                <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">{entry.name}</span>
               </div>
             ))}
           </div>
@@ -1426,7 +1425,7 @@ const DashboardView = () => {
         <div className={`anim-card relative overflow-hidden rounded-lg border p-6 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)] transition-all duration-700 delay-200 ${dashboardReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ ...simulatorPanelStyle, animationDelay: "420ms" }}>
           <div className="flex items-center gap-2 mb-5">
             <div className="h-2 w-2 rounded-full bg-[#18d97c] shadow-[0_0_8px_rgba(24,217,124,0.8)]"/>
-            <h3 className="text-lg font-black uppercase text-[#f4f7fb]">Volume × Receita</h3>
+            <h3 className="text-lg font-black uppercase text-[rgb(var(--crm-ink-rgb)_/_1)]">Volume × Receita</h3>
           </div>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={chartData} margin={{ top: 8, right: 20, left: -15, bottom: 6 }}>
@@ -1447,7 +1446,7 @@ const DashboardView = () => {
               <Bar yAxisId="left" dataKey="proposals" name="Propostas" fill="rgba(32,212,245,0.22)" radius={[6, 6, 2, 2]}
                 stroke="rgba(32,212,245,0.5)" strokeWidth={1} animationDuration={1000}/>
               <Line yAxisId="right" type="monotone" dataKey="amount" name="Valor" stroke="url(#lineGradColor)"
-                strokeWidth={3} dot={{ r: 4, fill: "#18d97c", stroke: "#052e16", strokeWidth: 2 }}
+                strokeWidth={3} dot={{ r: 4, fill: "#18d97c", stroke: "rgb(var(--crm-ink-rgb) / 1)", strokeWidth: 2 }}
                 activeDot={{ r: 6, fill: "#20d4f5" }} animationDuration={1300} filter="url(#lineGlow)"/>
             </LineChart>
           </ResponsiveContainer>
@@ -1457,7 +1456,7 @@ const DashboardView = () => {
         <div className={`anim-card relative overflow-hidden rounded-lg border p-6 shadow-[0_24px_60px_-36px_rgba(0,0,0,0.95)] transition-all duration-700 delay-300 ${dashboardReady ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4"}`} style={{ ...simulatorPanelStyle, animationDelay: "480ms" }}>
           <div className="flex items-center gap-2 mb-5">
             <div className="h-2 w-2 rounded-full bg-[#ffb21a] shadow-[0_0_8px_rgba(255,178,26,0.8)]"/>
-            <h3 className="text-lg font-black uppercase text-[#f4f7fb]">Distribuição de Valores</h3>
+            <h3 className="text-lg font-black uppercase text-[rgb(var(--crm-ink-rgb)_/_1)]">Distribuição de Valores</h3>
           </div>
           <div className="relative h-[260px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -1480,7 +1479,7 @@ const DashboardView = () => {
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[#8f9caf]">Receita</span>
+              <span className="text-[10px] font-black uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)]">Receita</span>
               <span className="text-2xl font-black text-[#ffb21a]">{formatCurrencyCompact(totalValueMonth)}</span>
             </div>
           </div>
@@ -1488,7 +1487,7 @@ const DashboardView = () => {
             {safeValueDistributionData.map((entry, i) => (
               <div key={i} className="flex items-center gap-1.5">
                 <div className="h-2.5 w-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: entry.color }}/>
-                <span className="text-xs font-semibold text-[#8f9caf]">{entry.name}</span>
+                <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">{entry.name}</span>
               </div>
             ))}
           </div>
@@ -1499,12 +1498,12 @@ const DashboardView = () => {
       <div>
         <div className="flex items-center gap-3 mb-5">
           <div className="rounded-lg bg-gradient-to-br from-[#ff6f0f] to-[#ffb21a] p-2.5 shadow-[0_18px_40px_-22px_rgba(255,111,15,0.9)]">
-            <Server className="h-5 w-5 text-white"/>
+            <Server className="h-5 w-5 text-[rgb(var(--crm-ink-rgb)_/_1)]"/>
           </div>
           <div>
             <p className="text-[11px] font-black uppercase tracking-[0.18em] text-[#20d4f5]">Product Mix</p>
-            <h2 className="text-xl font-black uppercase text-[#f4f7fb]">Resumo por Calculadora</h2>
-            <p className="text-sm font-semibold text-[#8f9caf]">Propostas geradas por produto</p>
+            <h2 className="text-xl font-black uppercase text-[rgb(var(--crm-ink-rgb)_/_1)]">Resumo por Calculadora</h2>
+            <p className="text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">Propostas geradas por produto</p>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-6">
@@ -1518,11 +1517,11 @@ const DashboardView = () => {
           ].map((stat, i) => (
             <div key={i} className="anim-card relative overflow-hidden rounded-lg border p-4 shadow-[0_20px_44px_-30px_rgba(0,0,0,0.88)]" style={{ ...simulatorInnerStyle, animationDelay: `${500 + i * 50}ms` }}>
               <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-20`}/>
-              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgba(255,255,255,0.06)_0%,transparent_60%)]"/>
+              <div className="absolute inset-0 bg-[linear-gradient(135deg,rgb(var(--crm-surface-rgb)_/_0.06)_0%,transparent_60%)]"/>
               <div className="relative z-10">
-                <div className={`inline-flex p-2 rounded-lg bg-gradient-to-br ${stat.color} mb-3 shadow-lg text-white`}>{stat.icon}</div>
-                <p className="mb-1 text-xs font-black uppercase tracking-[0.08em] text-[#8f9caf]">{stat.label}</p>
-                <p className="text-2xl font-black leading-none text-[#f4f7fb]">{stat.count}</p>
+                <div className={`inline-flex p-2 rounded-lg bg-gradient-to-br ${stat.color} mb-3 shadow-lg text-[rgb(var(--crm-ink-rgb)_/_1)]`}>{stat.icon}</div>
+                <p className="mb-1 text-xs font-black uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_1)]">{stat.label}</p>
+                <p className="text-2xl font-black leading-none text-[rgb(var(--crm-ink-rgb)_/_1)]">{stat.count}</p>
                 <p className="mt-1 text-xs font-bold text-[#ffb21a]">{formatCurrencyCompact(stat.value)}</p>
               </div>
             </div>

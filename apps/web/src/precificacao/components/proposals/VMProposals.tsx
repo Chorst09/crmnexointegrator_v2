@@ -131,7 +131,7 @@ const VMProposals: React.FC = () => {
                                                 <Edit className="h-4 w-4 mr-2" />
                                                 Visualizar
                                             </Button>
-                                            <Button variant="outline" size="sm" onClick={() => handleEdit(p)} className="border-blue-600 text-blue-600 hover:bg-blue-50">
+                                            <Button variant="outline" size="sm" onClick={() => handleEdit(p)} className="border-blue-600 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950">
                                                 <Edit className="h-4 w-4 mr-2" />
                                                 Editar
                                             </Button>

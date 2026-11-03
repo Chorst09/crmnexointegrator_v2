@@ -262,26 +262,26 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#011116] overflow-y-auto transition-colors duration-200">
+    <div className="flex flex-col h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-y-auto transition-colors duration-200">
       {/* Header Superior */}
-      <header className="px-8 py-6 bg-[#011419] border-b border-[#07323e] sticky top-0 z-10 shadow-xs transition-colors duration-200">
+      <header className="px-8 py-6 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)] sticky top-0 z-10 shadow-xs transition-colors duration-200">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center gap-2.5">
               <div className="bg-blue-600 text-white p-2 rounded-lg">
                 <TrendingUp className="w-5 h-5" />
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">Analytics & Inteligência</h1>
+              <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] tracking-tight">Analytics & Inteligência</h1>
             </div>
-            <p className="text-sm text-slate-400 mt-1">
+            <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
               Visão gerencial consolidada: pipeline de editais gerenciados, cronograma de pregões e regras de alerta.
             </p>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="text-right hidden sm:block">
-              <span className="text-xs text-slate-400 dark:text-slate-500 block">Última sincronização</span>
-              <span className="text-xs font-mono font-medium text-slate-600 dark:text-slate-300">
+              <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] block">Última sincronização</span>
+              <span className="text-xs font-mono font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 {lastUpdated.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
               </span>
             </div>
@@ -289,7 +289,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
             <button
               onClick={() => fetchData(true)}
               disabled={refreshing || loading}
-              className="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-slate-700 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-lg transition-colors border border-slate-200 dark:border-slate-700 disabled:opacity-50 cursor-pointer"
+              className="flex items-center gap-2 px-3.5 py-2 text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg transition-colors border border-[var(--crm-border)] dark:border-[var(--crm-border)] disabled:opacity-50 cursor-pointer"
               title="Atualizar métricas agora"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${refreshing ? 'animate-spin text-blue-600 dark:text-blue-400' : ''}`} />
@@ -309,13 +309,13 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
         </div>
 
         {/* Barra de Abas / Filtros de Visualização */}
-        <div className="flex items-center gap-2 mt-6 border-b border-slate-100 dark:border-slate-800 -mb-6 pb-2 overflow-x-auto">
+        <div className="flex items-center gap-2 mt-6 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] -mb-6 pb-2 overflow-x-auto">
           <button
             onClick={() => setActiveTab('geral')}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
               activeTab === 'geral' 
                 ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/70 dark:text-blue-300 dark:border-blue-800' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800/80'
+                : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.8)]"
             }`}
           >
             <Activity className="w-4 h-4" />
@@ -327,7 +327,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
               activeTab === 'gerenciadas' 
                 ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/70 dark:text-blue-300 dark:border-blue-800' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800/80'
+                : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.8)]"
             }`}
           >
             <Briefcase className="w-4 h-4" />
@@ -339,7 +339,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
               activeTab === 'proximos' 
                 ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/70 dark:text-blue-300 dark:border-blue-800' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800/80'
+                : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.8)]"
             }`}
           >
             <Calendar className="w-4 h-4" />
@@ -351,7 +351,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors whitespace-nowrap flex items-center gap-2 cursor-pointer ${
               activeTab === 'alertas' 
                 ? 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/70 dark:text-blue-300 dark:border-blue-800' 
-                : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-slate-400 dark:hover:text-slate-100 dark:hover:bg-slate-800/80'
+                : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.8)]"
             }`}
           >
             <Bell className="w-4 h-4" />
@@ -368,7 +368,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
           {/* Card 1: Pipeline Gerenciado */}
           <div 
             onClick={() => setActiveTab('gerenciadas')}
-            className="bg-[#011419] p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-blue-300 dark:hover:border-blue-700 hover:shadow-sm transition-all cursor-pointer group"
+            className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-blue-300 dark:hover:border-blue-200 dark:hover:border-blue-700 hover:shadow-sm transition-all cursor-pointer group"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="bg-blue-50 dark:bg-blue-950/60 p-2.5 rounded-lg text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
@@ -378,11 +378,11 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                 {gerenciadasStats.emAndamentoCount} em disputa
               </span>
             </div>
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Volume Gerenciado</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
+            <p className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">Volume Gerenciado</p>
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
               {formatCurrency(gerenciadasStats.totalValor)}
             </p>
-            <p className="text-xs text-slate-400 mt-1.5 flex items-center justify-between">
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1.5 flex items-center justify-between">
               <span>{gerenciadasStats.totalCount} licitações salvas</span>
               <span className="text-blue-600 dark:text-blue-400 font-medium group-hover:underline flex items-center">
                 Ver detalhes <ArrowUpRight className="w-3 h-3 ml-0.5" />
@@ -393,7 +393,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
           {/* Card 2: Próximos Editais */}
           <div 
             onClick={() => setActiveTab('proximos')}
-            className="bg-[#011419] p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-amber-300 dark:hover:border-amber-700 hover:shadow-sm transition-all cursor-pointer group"
+            className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-amber-300 dark:hover:border-amber-200 dark:hover:border-amber-700 hover:shadow-sm transition-all cursor-pointer group"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="bg-amber-50 dark:bg-amber-950/60 p-2.5 rounded-lg text-amber-600 dark:text-amber-400 group-hover:bg-amber-600 group-hover:text-white transition-colors">
@@ -403,11 +403,11 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                 Próximos 15 dias
               </span>
             </div>
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Próximos Editais</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
+            <p className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">Próximos Editais</p>
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
               {formatCurrency(proximosStats.volumeTotalFuturo)}
             </p>
-            <p className="text-xs text-slate-400 mt-1.5 flex items-center justify-between">
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1.5 flex items-center justify-between">
               <span>{proximosStats.totalFuturos} pregões mapeados</span>
               <span className="text-amber-600 dark:text-amber-400 font-medium group-hover:underline flex items-center">
                 Ver calendário <ArrowUpRight className="w-3 h-3 ml-0.5" />
@@ -418,7 +418,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
           {/* Card 3: Taxa de Sucesso / Conversão */}
           <div 
             onClick={() => setActiveTab('gerenciadas')}
-            className="bg-[#011419] p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-emerald-300 dark:hover:border-emerald-700 hover:shadow-sm transition-all cursor-pointer group"
+            className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-emerald-300 dark:hover:border-emerald-200 dark:hover:border-emerald-700 hover:shadow-sm transition-all cursor-pointer group"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="bg-emerald-50 dark:bg-emerald-950/60 p-2.5 rounded-lg text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
@@ -428,11 +428,11 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                 {gerenciadasStats.ganhasCount} Ganha{gerenciadasStats.ganhasCount !== 1 ? 's' : ''}
               </span>
             </div>
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Taxa de Vitória (Win Rate)</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
+            <p className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">Taxa de Vitória (Win Rate)</p>
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
               {gerenciadasStats.winRate > 0 ? `${gerenciadasStats.winRate}%` : 'Ativo'}
             </p>
-            <p className="text-xs text-slate-400 mt-1.5 flex items-center justify-between">
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1.5 flex items-center justify-between">
               <span>Desempenho no funil</span>
               <span className="text-emerald-600 dark:text-emerald-400 font-medium group-hover:underline flex items-center">
                 Analisar funil <ArrowUpRight className="w-3 h-3 ml-0.5" />
@@ -443,7 +443,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
           {/* Card 4: Alertas e Oportunidades */}
           <div 
             onClick={() => setActiveTab('alertas')}
-            className="bg-[#011419] p-5 rounded-xl border border-slate-200/80 dark:border-slate-800 shadow-xs hover:border-purple-300 dark:hover:border-purple-700 hover:shadow-sm transition-all cursor-pointer group"
+            className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-purple-300 dark:hover:border-purple-200 dark:hover:border-purple-700 hover:shadow-sm transition-all cursor-pointer group"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="bg-purple-50 dark:bg-purple-950/60 p-2.5 rounded-lg text-purple-600 dark:text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors">
@@ -453,11 +453,11 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                 Monitor 24/7
               </span>
             </div>
-            <p className="text-xs font-medium text-slate-400 uppercase tracking-wider">Alertas Ativos</p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
+            <p className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">Alertas Ativos</p>
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
               {alertasStats.totalAlertas} Regras
             </p>
-            <p className="text-xs text-slate-400 mt-1.5 flex items-center justify-between">
+            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1.5 flex items-center justify-between">
               <span>{alertasStats.ufData.length} Estados monitorados</span>
               <span className="text-purple-600 dark:text-purple-400 font-medium group-hover:underline flex items-center">
                 Ver alertas <ArrowUpRight className="w-3 h-3 ml-0.5" />
@@ -470,16 +470,16 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
         {/* SEÇÃO 1: LICITAÇÕES GERENCIADAS (Pipeline e Status)                      */}
         {/* ========================================================================= */}
         {(activeTab === 'geral' || activeTab === 'gerenciadas') && (
-          <div className="bg-[#011419] p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs transition-colors duration-200">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 mb-6 border-b border-slate-100 dark:border-slate-800 gap-3">
+          <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-2xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs transition-colors duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 mb-6 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] gap-3">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="p-1.5 bg-blue-100 dark:bg-blue-950/80 text-blue-700 dark:text-blue-300 rounded-md">
                     <Briefcase className="w-4 h-4" />
                   </span>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Editais & Licitações Gerenciados</h2>
+                  <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Editais & Licitações Gerenciados</h2>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                   Distribuição de valor financeiro e quantidade de propostas em cada etapa do ciclo de contratação.
                 </p>
               </div>
@@ -496,10 +496,10 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Gráfico 1: Volume Financeiro por Fase */}
-              <div className="lg:col-span-2 bg-slate-50/70 dark:bg-slate-800/40 p-5 rounded-xl border border-slate-200/60 dark:border-slate-800">
+              <div className="lg:col-span-2 bg-[rgb(var(--crm-surface-rgb)_/_0.7)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Volume em Disputa por Fase (R$)</h3>
-                  <span className="text-xs text-slate-400">Pipeline Comercial</span>
+                  <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Volume em Disputa por Fase (R$)</h3>
+                  <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Pipeline Comercial</span>
                 </div>
                 <div className="h-[280px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -539,10 +539,10 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
               </div>
 
               {/* Gráfico 2: Quantidade de Editais por Fase (Donut) */}
-              <div className="bg-slate-50/70 dark:bg-slate-800/40 p-5 rounded-xl border border-slate-200/60 dark:border-slate-800 flex flex-col justify-between">
+              <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.7)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] flex flex-col justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-1">Status do Funil</h3>
-                  <p className="text-xs text-slate-400 mb-4">Contagem de processos por estágio</p>
+                  <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Status do Funil</h3>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">Contagem de processos por estágio</p>
                 </div>
                 <div className="h-[190px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -574,14 +574,14 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                   </ResponsiveContainer>
                 </div>
 
-                <div className="space-y-1.5 mt-2 border-t border-slate-200/60 dark:border-slate-700/60 pt-3">
+                <div className="space-y-1.5 mt-2 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] pt-3">
                   {gerenciadasStats.funilData.map((item) => (
                     <div key={item.fase} className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: item.fill }}></span>
-                        <span className="text-slate-600 dark:text-slate-300">{item.fase}</span>
+                        <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.fase}</span>
                       </div>
-                      <span className="font-semibold text-white">{item.quantidade} ({formatCurrency(item.valor)})</span>
+                      <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.quantidade} ({formatCurrency(item.valor)})</span>
                     </div>
                   ))}
                 </div>
@@ -589,44 +589,44 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
             </div>
 
             {/* Tabela Resumida das Licitações Gerenciadas Ativas */}
-            <div className="mt-6 border border-[#07323e] rounded-xl overflow-hidden shadow-2xs">
-              <div className="bg-slate-100/70 dark:bg-slate-800/70 px-4 py-2.5 border-b border-[#07323e] flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Licitações Sob Acompanhamento Ativo</span>
-                <span className="text-xs text-slate-400">Mostrando as mais recentes</span>
+            <div className="mt-6 border border-[var(--crm-border)] rounded-xl overflow-hidden shadow-2xs">
+              <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.7)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.7)] px-4 py-2.5 border-b border-[var(--crm-border)] flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Licitações Sob Acompanhamento Ativo</span>
+                <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Mostrando as mais recentes</span>
               </div>
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              <div className="divide-y divide-[var(--crm-border)] dark:divide-[var(--crm-border)]">
                 {gerenciadas.slice(0, 4).map((item) => {
                   const faseColor = FASE_COLORS[item.statusFase] || '#64748b';
                   const valor = item.valor_estimado || item.valorTotalEstimado || 0;
                   return (
-                    <div key={item._managedId} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                    <div key={item._managedId} className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-[rgb(var(--crm-surface-rgb)_/_0.8)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] transition-colors">
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2 mb-1">
                           <span 
-                            className="px-2 py-0.5 rounded text-[11px] font-semibold text-white"
+                            className="px-2 py-0.5 rounded text-[11px] font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]"
                             style={{ backgroundColor: faseColor }}
                           >
                             {item.statusFase}
                           </span>
-                          <span className="text-xs font-semibold text-slate-900 dark:text-slate-100 truncate">
+                          <span className="text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">
                             {item.orgao || item.orgaoEntidade?.razaoSocial}
                           </span>
-                          <span className="text-xs text-slate-400 dark:text-slate-500 font-mono">({item.uf || item.unidadeOrgao?.ufSigla || 'BR'})</span>
+                          <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] font-mono">({item.uf || item.unidadeOrgao?.ufSigla || 'BR'})</span>
                         </div>
-                        <p className="text-xs text-slate-600 dark:text-slate-300 line-clamp-1">
+                        <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] line-clamp-1">
                           {item.objeto_resumo || item.objetoCompra}
                         </p>
                       </div>
 
                       <div className="flex items-center gap-4 flex-shrink-0">
                         <div className="text-right">
-                          <span className="text-xs text-slate-400 dark:text-slate-500 block">Valor Estimado</span>
-                          <span className="text-xs font-bold text-slate-900 dark:text-slate-100">{formatCurrencyFull(valor)}</span>
+                          <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] block">Valor Estimado</span>
+                          <span className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrencyFull(valor)}</span>
                         </div>
                         {onNavigate && (
                           <button
                             onClick={() => onNavigate('gerenciadas')}
-                            className="p-2 text-slate-400 dark:text-slate-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/50 rounded-lg transition-colors cursor-pointer"
+                            className="p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-blue-600 dark:hover:text-blue-700 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950 dark:hover:bg-blue-50/50 dark:hover:bg-blue-950/50 rounded-lg transition-colors cursor-pointer"
                             title="Gerenciar no Kanban"
                           >
                             <ArrowUpRight className="w-4 h-4" />
@@ -645,16 +645,16 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
         {/* SEÇÃO 2: GRÁFICOS DOS PRÓXIMOS EDITAIS (Prazos, Modalidades e Calendário)  */}
         {/* ========================================================================= */}
         {(activeTab === 'geral' || activeTab === 'proximos') && (
-          <div className="bg-[#011419] p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs transition-colors duration-200">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 mb-6 border-b border-slate-100 dark:border-slate-800 gap-3">
+          <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-2xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs transition-colors duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 mb-6 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] gap-3">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="p-1.5 bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 rounded-md">
                     <Calendar className="w-4 h-4" />
                   </span>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Cronograma de Próximos Editais</h2>
+                  <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Cronograma de Próximos Editais</h2>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                   Mapeamento temporal dos pregões futuros por janela de abertura e modalidade de compra pública.
                 </p>
               </div>
@@ -666,10 +666,10 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Gráfico 1: Editais por Faixa de Prazo */}
-              <div className="lg:col-span-2 bg-slate-50/70 dark:bg-slate-800/40 p-5 rounded-xl border border-slate-200/60 dark:border-slate-800">
+              <div className="lg:col-span-2 bg-[rgb(var(--crm-surface-rgb)_/_0.7)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Editais por Janela de Abertura</h3>
-                  <span className="text-xs text-slate-400">Contagem de pregões</span>
+                  <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Editais por Janela de Abertura</h3>
+                  <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Contagem de pregões</span>
                 </div>
                 <div className="h-[280px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -706,10 +706,10 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
               </div>
 
               {/* Gráfico 2: Distribuição por Modalidade */}
-              <div className="bg-slate-50/70 dark:bg-slate-800/40 p-5 rounded-xl border border-slate-200/60 dark:border-slate-800 flex flex-col justify-between">
+              <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.7)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] flex flex-col justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-1">Modalidades de Contratação</h3>
-                  <p className="text-xs text-slate-400 mb-4">Perfil das licitações futuras</p>
+                  <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Modalidades de Contratação</h3>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">Perfil das licitações futuras</p>
                 </div>
                 <div className="h-[190px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -741,14 +741,14 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                   </ResponsiveContainer>
                 </div>
 
-                <div className="space-y-1 mt-2 border-t border-slate-200/60 dark:border-slate-700/60 pt-3">
+                <div className="space-y-1 mt-2 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] pt-3">
                   {proximosStats.modalidadeData.slice(0, 3).map((item, idx) => (
                     <div key={item.name} className="flex items-center justify-between text-xs">
                       <div className="flex items-center gap-1.5 min-w-0">
                         <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: PALETTE[idx % PALETTE.length] }}></span>
-                        <span className="text-slate-600 dark:text-slate-300 truncate">{item.name}</span>
+                        <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">{item.name}</span>
                       </div>
-                      <span className="font-semibold text-white ml-2">{item.value}</span>
+                      <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] ml-2">{item.value}</span>
                     </div>
                   ))}
                 </div>
@@ -757,7 +757,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
 
             {/* Cards de Editais Iminentes */}
             <div className="mt-6">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200 mb-3 flex items-center gap-1.5">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3 flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                 Editais Iminentes / Próximos de Abertura
               </h4>
@@ -767,24 +767,24 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                   const dateFormatted = dtStr ? new Date(dtStr).toLocaleDateString('pt-BR') : 'A definir';
                   const valor = edital.valor_estimado || edital.valorTotalEstimado || 0;
                   return (
-                    <div key={i} className="p-4 bg-slate-50 dark:bg-slate-800/80 rounded-xl border border-slate-200 dark:border-slate-700/80 hover:bg-white dark:hover:bg-slate-700/60 hover:border-amber-300 dark:hover:border-amber-500 transition-all shadow-2xs">
+                    <div key={i} className="p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.8)] rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] hover:border-amber-300 dark:hover:border-amber-500 transition-all shadow-2xs">
                       <div className="flex items-center justify-between mb-2">
                         <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300">
                           Abre em breve
                         </span>
-                        <span className="text-xs font-mono text-slate-400 flex items-center gap-1">
-                          <Calendar className="w-3 h-3 text-slate-400 dark:text-slate-500" /> {dateFormatted}
+                        <span className="text-xs font-mono text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center gap-1">
+                          <Calendar className="w-3 h-3 text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]" /> {dateFormatted}
                         </span>
                       </div>
-                      <p className="text-xs font-bold text-slate-900 dark:text-slate-100 line-clamp-1 mb-1">
+                      <p className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] line-clamp-1 mb-1">
                         {edital.orgao || edital.orgaoEntidade?.razaoSocial}
                       </p>
-                      <p className="text-[11px] text-slate-600 dark:text-slate-300 line-clamp-2 mb-3">
+                      <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] line-clamp-2 mb-3">
                         {edital.objeto_resumo || edital.objetoCompra}
                       </p>
-                      <div className="pt-2 border-t border-slate-200/60 dark:border-slate-700/60 flex items-center justify-between text-xs">
-                        <span className="text-slate-400 dark:text-slate-500">Valor estimado:</span>
-                        <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrencyFull(valor)}</span>
+                      <div className="pt-2 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] flex items-center justify-between text-xs">
+                        <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]">Valor estimado:</span>
+                        <span className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrencyFull(valor)}</span>
                       </div>
                     </div>
                   );
@@ -798,16 +798,16 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
         {/* SEÇÃO 3: GRÁFICOS DE ALERTAS (Termos Monitorados, UFs e Capturas)           */}
         {/* ========================================================================= */}
         {(activeTab === 'geral' || activeTab === 'alertas') && (
-          <div className="bg-[#011419] p-6 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs transition-colors duration-200">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 mb-6 border-b border-slate-100 dark:border-slate-800 gap-3">
+          <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-2xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs transition-colors duration-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 mb-6 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] gap-3">
               <div>
                 <div className="flex items-center gap-2">
                   <span className="p-1.5 bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 rounded-md">
                     <Bell className="w-4 h-4" />
                   </span>
-                  <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">Monitoramento & Inteligência de Alertas</h2>
+                  <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Monitoramento & Inteligência de Alertas</h2>
                 </div>
-                <p className="text-xs text-slate-400 mt-1">
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                   Volume de oportunidades identificadas por termo-chave cadastrado e cobertura por unidade federativa.
                 </p>
               </div>
@@ -824,10 +824,10 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Gráfico 1: Oportunidades por Termo de Alerta */}
-              <div className="lg:col-span-2 bg-slate-50/70 dark:bg-slate-800/40 p-5 rounded-xl border border-slate-200/60 dark:border-slate-800">
+              <div className="lg:col-span-2 bg-[rgb(var(--crm-surface-rgb)_/_0.7)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100">Oportunidades Capturadas por Termo</h3>
-                  <span className="text-xs text-slate-400">Editais encontrados</span>
+                  <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Oportunidades Capturadas por Termo</h3>
+                  <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Editais encontrados</span>
                 </div>
                 <div className="h-[280px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -863,10 +863,10 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
               </div>
 
               {/* Gráfico 2: Alertas por Estado (UF) */}
-              <div className="bg-slate-50/70 dark:bg-slate-800/40 p-5 rounded-xl border border-slate-200/60 dark:border-slate-800 flex flex-col justify-between">
+              <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.7)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] flex flex-col justify-between">
                 <div>
-                  <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-100 mb-1">Distribuição Regional de Alertas</h3>
-                  <p className="text-xs text-slate-400 mb-4">Estados prioritários monitorados</p>
+                  <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Distribuição Regional de Alertas</h3>
+                  <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">Estados prioritários monitorados</p>
                 </div>
 
                 <div className="h-[190px]">
@@ -889,31 +889,31 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                   </ResponsiveContainer>
                 </div>
 
-                <div className="pt-3 border-t border-slate-200/60 dark:border-slate-700/60 mt-2 flex items-center justify-between text-xs text-slate-600 dark:text-slate-300">
+                <div className="pt-3 border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] mt-2 flex items-center justify-between text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <span>Média de corte mín:</span>
-                  <span className="font-bold text-slate-900 dark:text-slate-100">{formatCurrency(alertasStats.mediaValorCorte)}</span>
+                  <span className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(alertasStats.mediaValorCorte)}</span>
                 </div>
               </div>
             </div>
 
             {/* Lista dos Alertas Ativos */}
-            <div className="mt-6 border border-[#07323e] rounded-xl overflow-hidden shadow-2xs">
-              <div className="bg-slate-100/70 dark:bg-slate-800/70 px-4 py-2.5 border-b border-[#07323e] flex items-center justify-between">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">Regras de Alerta em Execução Contínua</span>
+            <div className="mt-6 border border-[var(--crm-border)] rounded-xl overflow-hidden shadow-2xs">
+              <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.7)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.7)] px-4 py-2.5 border-b border-[var(--crm-border)] flex items-center justify-between">
+                <span className="text-xs font-bold uppercase tracking-wider text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Regras de Alerta em Execução Contínua</span>
                 <span className="text-xs text-purple-700 dark:text-purple-300 font-semibold bg-purple-50 dark:bg-purple-950/60 px-2 py-0.5 rounded border border-purple-200 dark:border-purple-800">
                   {alertas.length} ativas
                 </span>
               </div>
-              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+              <div className="divide-y divide-[var(--crm-border)] dark:divide-[var(--crm-border)]">
                 {alertas.map((alerta) => (
-                  <div key={alerta.id} className="p-3.5 flex items-center justify-between hover:bg-slate-50/80 dark:hover:bg-slate-800/50 transition-colors">
+                  <div key={alerta.id} className="p-3.5 flex items-center justify-between hover:bg-[rgb(var(--crm-surface-rgb)_/_0.8)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-950/80 text-purple-600 dark:text-purple-300 flex items-center justify-center font-bold text-xs">
                         {alerta.uf || 'BR'}
                       </div>
                       <div>
-                        <p className="text-xs font-bold text-slate-900 dark:text-slate-100">{alerta.termo}</p>
-                        <p className="text-[11px] text-slate-400">
+                        <p className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{alerta.termo}</p>
+                        <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">
                           Corte de valor: {alerta.min_valor ? formatCurrencyFull(alerta.min_valor) : 'Sem valor mínimo'}
                         </p>
                       </div>

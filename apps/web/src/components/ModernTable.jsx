@@ -55,10 +55,10 @@ const ModernTable = ({
       <div className="crm-panel overflow-hidden">
         <div className="p-6">
           <div className="animate-pulse">
-            <div className="h-6 bg-black/10 dark:bg-white/10 rounded w-1/4 mb-4"></div>
+            <div className="h-6 bg-black/10 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.1)] rounded w-1/4 mb-4"></div>
             <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="h-12 bg-black/5 dark:bg-white/5 rounded"></div>
+                <div key={i} className="h-12 bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] rounded"></div>
               ))}
             </div>
           </div>
@@ -160,7 +160,7 @@ const ModernTable = ({
                     type="checkbox"
                     checked={selectedRows.length === data.length}
                     onChange={(e) => handleSelectAll(e.target.checked)}
-                    className="rounded border-gray-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 bg-white dark:bg-slate-950"
+                    className="rounded border-[var(--crm-border)] dark:border-[var(--crm-border)] text-blue-600 focus:ring-blue-500 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
                   />
                 </th>
                 {columns.map((column) => (
@@ -186,7 +186,7 @@ const ModernTable = ({
                   <tr
                     key={item.id || index}
                     className={[
-                      'transition-colors hover:bg-black/5 dark:hover:bg-white/5',
+                      "transition-colors hover:bg-black/5 dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)]",
                       isSelected ? 'bg-[rgb(var(--crm-accent-rgb)_/_0.08)]' : '',
                       typeof rowClassName === 'function' ? rowClassName(item) : ''
                     ].join(' ')}
@@ -196,7 +196,7 @@ const ModernTable = ({
                         type="checkbox"
                         checked={isSelected}
                         onChange={(e) => handleSelectRow(item.id, e.target.checked)}
-                        className="rounded border-gray-300 dark:border-slate-700 text-blue-600 focus:ring-blue-500 bg-white dark:bg-slate-950"
+                        className="rounded border-[var(--crm-border)] dark:border-[var(--crm-border)] text-blue-600 focus:ring-blue-500 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
                       />
                     </td>
                     {columns.map((column) => {
@@ -271,7 +271,7 @@ const ModernTable = ({
                             )}
                             {customActions.length > 0 && (
                               <div className="relative group">
-                                <button className="p-2 text-[var(--crm-muted)] hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-colors">
+                                <button className="p-2 text-[var(--crm-muted)] hover:bg-black/5 dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] rounded-xl transition-colors">
                                   <MoreHorizontal className="w-4 h-4" />
                                 </button>
                                 <div className="absolute right-0 top-full mt-1 w-52 crm-panel opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10">
@@ -279,7 +279,7 @@ const ModernTable = ({
                                     <button
                                       key={idx}
                                       onClick={() => action.onClick(item)}
-                                      className="w-full px-4 py-2 text-left text-sm text-[var(--crm-ink)] hover:bg-black/5 dark:hover:bg-white/5 first:rounded-t-2xl last:rounded-b-2xl flex items-center gap-2"
+                                      className="w-full px-4 py-2 text-left text-sm text-[var(--crm-ink)] hover:bg-black/5 dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] first:rounded-t-2xl last:rounded-b-2xl flex items-center gap-2"
                                     >
                                       {action.icon && <action.icon className="w-4 h-4" />}
                                       {action.label}
@@ -311,7 +311,7 @@ const ModernTable = ({
         <div className="text-center py-16">
           {emptyState || (
             <div>
-              <div className="w-16 h-16 bg-black/5 dark:bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4">
+              <div className="w-16 h-16 bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] rounded-full flex items-center justify-center mx-auto mb-4">
                 <Search className="w-8 h-8 text-[var(--crm-muted)]" />
               </div>
               <h3 className="text-lg font-semibold text-[var(--crm-ink)] mb-2">Nenhum item encontrado</h3>

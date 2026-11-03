@@ -91,9 +91,8 @@ test('shared page headers and inline simulator surfaces have explicit light back
   const generated = fs.readFileSync(path.join(root, 'apps/web/src/styles/light-utilities.css'), 'utf8');
   assert.match(header, /crm-page-header/);
   assert.match(css, /html:not\(\.dark\) \.crm-page-header\s*\{/);
-  for (const token of ['from-[#06111a]', 'via-[#082735]', 'to-[#0b3a46]', 'from-slate-900']) {
-    assert.ok(generated.includes(`[class~="${token}"]`), `Missing gradient stop ${token}`);
-  }
+  // Headers now use the shared palette directly instead of legacy fixed stops.
+  assert.match(header, /from-\[rgb\(var\(--crm-surface/);
   for (const file of ['components/Simuladores/dashboard/DashboardView.tsx', 'precificacao/components/dashboard/DashboardView.tsx']) {
     const source = fs.readFileSync(path.join(root, 'apps/web/src', file), 'utf8');
     assert.match(source, /--crm-panel-background, linear-gradient/);

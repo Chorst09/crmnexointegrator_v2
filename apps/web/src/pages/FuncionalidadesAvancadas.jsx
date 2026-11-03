@@ -736,7 +736,7 @@ export default function FuncionalidadesAvancadas() {
       {(error || feedback) && (
         <div className={[
           'mb-4 p-3 rounded-xl text-sm font-medium',
-          error ? 'bg-red-100 text-red-700 border border-red-300' : 'bg-emerald-100 text-emerald-700 border border-emerald-300'
+          error ? "bg-red-100 dark:bg-red-950 text-red-700 dark:text-red-300 border border-red-300" : "bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-300"
         ].join(' ')}>
           {error || feedback}
         </div>

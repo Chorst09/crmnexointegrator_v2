@@ -53,6 +53,13 @@
 
 :root {
   color-scheme: light;
+  --crm-background: var(--crm-bg-base);
+  --crm-bg: var(--crm-bg-base);
+  --crm-text: var(--crm-ink);
+  --crm-surface-alt: var(--crm-surface-2);
+  --crm-bg-base-2-rgb: var(--crm-surface-2-rgb);
+  --crm-accent-ink: #0e7490;
+  --crm-chart-track: #e2e8f0;
   --crm-ink: #0f172a;
   --crm-ink-rgb: 15 23 42;
   --crm-muted: #64748b;
@@ -74,6 +81,8 @@
 
 .dark {
   color-scheme: dark;
+  --crm-accent-ink: #a5f3fc;
+  --crm-chart-track: #263449;
   --crm-ink: #f4f7fb;
   --crm-ink-rgb: 244 247 251;
   --crm-muted: #8f9caf;
@@ -493,8 +502,8 @@ h4 {
   --prec-card-bg: rgb(var(--crm-surface-rgb) / 0.92);
   --prec-card-muted: rgb(var(--crm-surface-2-rgb) / 0.74);
   --prec-active-bg: linear-gradient(135deg, rgb(34 211 238 / 0.24), rgb(20 184 166 / 0.18), rgb(16 185 129 / 0.22));
-  --prec-active-text: #ffffff;
-  --prec-button-text: #ffffff;
+  --prec-active-text: var(--crm-ink);
+  --prec-button-text: var(--crm-ink);
 }
 
 .precificacao-module .bg-white,
@@ -587,7 +596,7 @@ h4 {
 .precificacao-module .text-orange-600,
 .precificacao-module .text-orange-700,
 .precificacao-module .text-orange-800 {
-  color: rgb(165 243 252);
+  color: var(--crm-accent-ink);
 }
 
 .precificacao-module .focus\:border-orange-400:focus,
@@ -643,7 +652,7 @@ h4 {
 .precificacao-module .text-indigo-500,
 .precificacao-module .text-emerald-600,
 .precificacao-module .text-emerald-700 {
-  color: rgb(165 243 252);
+  color: var(--crm-accent-ink);
 }
 
 .precificacao-module .bg-primary,
@@ -925,7 +934,7 @@ h4 {
 .precificacao-module .text-sky-400,
 .precificacao-module .text-blue-300,
 .precificacao-module .text-blue-100 {
-  color: rgb(165 243 252);
+  color: var(--crm-accent-ink);
 }
 
 .precificacao-module .text-cyan-100,
@@ -965,7 +974,7 @@ h4 {
 .precificacao-module .crm-btn-primary {
   background: linear-gradient(135deg, rgb(34 211 238 / 0.26), rgb(20 184 166 / 0.20) 45%, rgb(16 185 129 / 0.24));
   border-color: rgb(103 232 249 / 0.46);
-  color: rgb(224 255 255);
+  color: var(--crm-accent-ink);
   box-shadow: 0 18px 44px rgb(34 211 238 / 0.10), inset 0 1px 0 rgb(255 255 255 / 0.12);
 }
 
@@ -1032,4 +1041,36 @@ h4 {
 
 .gestao-pocs-module .accent-sky-500 {
   accent-color: var(--crm-accent);
+}
+
+/* Shared canvas used by the main CRM shell and full-screen workspaces. */
+:root {
+  --crm-workspace-background:
+    radial-gradient(circle at 10% -8%, var(--crm-bg-top) 0%, transparent 40%),
+    radial-gradient(circle at 84% 8%, var(--crm-bg-accent) 0%, transparent 42%),
+    linear-gradient(175deg, var(--crm-bg-base) 0%, var(--crm-bg-base-2) 100%);
+  --crm-workspace-panel: linear-gradient(140deg, rgb(var(--crm-surface-rgb) / 0.97), rgb(var(--crm-surface-2-rgb) / 0.98));
+}
+.dark {
+  --crm-workspace-background:
+    linear-gradient(90deg, rgba(3,8,17,0.36) 0%, transparent 42%, rgba(18,55,66,0.24) 100%),
+    radial-gradient(ellipse at 92% 4%, rgba(31,112,124,0.42) 0%, rgba(31,112,124,0.22) 18%, transparent 42%),
+    radial-gradient(ellipse at 18% 0%, rgba(56,17,28,0.42) 0%, rgba(28,8,17,0.24) 28%, transparent 48%),
+    linear-gradient(180deg, #06070d 0%, #080a12 44%, #07111b 100%);
+}
+.crm-workspace-backdrop { background: var(--crm-workspace-background); }
+
+/* Paper is an exported artifact, with its own palette inside either UI theme. */
+.proposal-view,
+.proposal-document-page {
+  --crm-ink: #0f172a;
+  --crm-ink-rgb: 15 23 42;
+  --crm-muted: #64748b;
+  --crm-muted-rgb: 100 116 139;
+  --crm-surface: #ffffff;
+  --crm-surface-rgb: 255 255 255;
+  --crm-surface-2: #f8fafc;
+  --crm-surface-2-rgb: 248 250 252;
+  --crm-border: #e2e8f0;
+  color-scheme: light;
 }

@@ -124,7 +124,7 @@ const AnimatedStats = ({
       </div>
       <div className="relative z-10 flex items-start gap-3">
         {Icon && (
-          <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${classes.light} border border-white/10`}>
+          <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${classes.light} border border-[rgb(var(--crm-ink-rgb)_/_0.1)]`}>
             {typeof Icon === 'string' ? <span className="text-lg">{Icon}</span> : <Icon className={`h-[18px] w-[18px] ${classes.icon}`} />}
           </div>
         )}

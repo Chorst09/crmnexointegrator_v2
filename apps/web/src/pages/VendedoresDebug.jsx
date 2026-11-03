@@ -12,7 +12,7 @@ export default function VendedoresDebug() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">Debug - Vendedores</h1>
+      <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-4">Debug - Vendedores</h1>
       
       <div className="crm-card rounded-lg p-6">
         <p className="text-lg">Status: {status}</p>

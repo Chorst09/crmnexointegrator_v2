@@ -75,31 +75,31 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
 
   return (
     <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-[#111827] w-full max-w-[800px] rounded-md flex flex-col overflow-hidden shadow-2xl border border-[#263345]">
+      <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] w-full max-w-[800px] rounded-md flex flex-col overflow-hidden shadow-2xl border border-[var(--crm-border)]">
         {/* Top Navigation / Tabs */}
-        <div className="flex items-center justify-between border-b border-[#263345] px-2 h-12 bg-[#111827]">
+        <div className="flex items-center justify-between border-b border-[var(--crm-border)] px-2 h-12 bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
           <div className="flex gap-1 h-full">
             <button className="px-4 text-sm font-medium text-[#ff7a00] border-b-2 border-[#ff7a00] flex items-center">
               Fase
             </button>
-            <button className="px-4 text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#111827] rounded-t-lg transition-colors flex items-center">
+            <button className="px-4 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-t-lg transition-colors flex items-center">
               Documento
             </button>
-            <button className="px-4 text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#111827] rounded-t-lg transition-colors flex items-center">
+            <button className="px-4 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-t-lg transition-colors flex items-center">
               Lembrete
             </button>
-            <button className="px-4 text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#111827] rounded-t-lg transition-colors flex items-center">
+            <button className="px-4 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-t-lg transition-colors flex items-center">
               Quadro branco
             </button>
-            <button className="px-4 text-sm font-medium text-slate-400 hover:text-slate-200 hover:bg-[#111827] rounded-t-lg transition-colors flex items-center">
+            <button className="px-4 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-t-lg transition-colors flex items-center">
               Painéis
             </button>
           </div>
           <div className="flex items-center gap-2 pr-2">
-            <button className="p-2 text-slate-400 hover:text-slate-200 hover:bg-[#0d1423] rounded-md transition-colors">
+            <button className="p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-md transition-colors">
               <Maximize2 className="w-4 h-4" />
             </button>
-            <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-200 hover:bg-[#0d1423] rounded-full transition-colors bg-[#0d1423]/50">
+            <button onClick={onClose} className="p-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-full transition-colors bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)]">
               <X className="w-4 h-4" />
             </button>
           </div>
@@ -110,50 +110,50 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
 
           {/* Top Badges / Selectors */}
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0d1423] border border-[#374151] hover:bg-[#0d1423] text-slate-300 text-xs font-medium transition-colors">
+            <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-medium transition-colors">
               <ListIcon className="w-3.5 h-3.5" /> Fases <ChevronDown className="w-3.5 h-3.5 ml-1 opacity-70" />
             </button>
 
             <div className="relative">
-              <button onClick={() => setShowTaskType(!showTaskType)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#0d1423] border border-[#374151] hover:bg-[#0d1423] text-slate-300 text-xs font-medium transition-colors">
+              <button onClick={() => setShowTaskType(!showTaskType)} className="flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-medium transition-colors">
                 {phaseKind === 'DEFAULT' ? <Circle className="w-3.5 h-3.5" /> : <Rocket className="w-3.5 h-3.5 text-[#ff7a00]" />}
                 {phaseKind === 'KICKOFF_INTERNO' ? 'Kickoff interno' : phaseKind === 'KICKOFF_EXTERNO' ? 'Kickoff externo' : 'Fase'}
                 <ChevronDown className="w-3.5 h-3.5 ml-1 opacity-70" />
               </button>
 
               {showTaskType && (
-                <div className="absolute top-full left-0 mt-1 w-64 bg-[#0d1423] border border-[#374151] rounded-md shadow-xl z-10 py-2">
-                  <div className="px-3 pb-2 mb-2 border-b border-[#374151] flex items-center justify-between text-xs">
-                    <span className="text-slate-400 flex items-center gap-1">Tipos de fase <div className="w-3 h-3 rounded-full border border-slate-400 text-[8px] flex items-center justify-center font-bold">?</div></span>
+                <div className="absolute top-full left-0 mt-1 w-64 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md shadow-xl z-10 py-2">
+                  <div className="px-3 pb-2 mb-2 border-b border-[var(--crm-border)] flex items-center justify-between text-xs">
+                    <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center gap-1">Tipos de fase <div className="w-3 h-3 rounded-full border border-[var(--crm-border)] text-[8px] flex items-center justify-center font-bold">?</div></span>
                     <button className="text-[#ff7a00] font-medium hover:text-[#22c55e]">Editar</button>
                   </div>
                   <div className="px-1 space-y-0.5">
-                    <button onClick={() => selectPhaseKind('DEFAULT')} className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg bg-[#1f2937]/50 hover:bg-[#1f2937] text-left transition-colors">
-                      <div className="flex items-center gap-2 text-sm text-slate-200">
-                        <CheckCircle2 className="w-4 h-4 text-slate-400" /> Fase <span className="text-slate-500 text-xs">(padrão)</span>
+                    <button onClick={() => selectPhaseKind('DEFAULT')} className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_0.5)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left transition-colors">
+                      <div className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                        <CheckCircle2 className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" /> Fase <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">(padrão)</span>
                       </div>
                       {phaseKind === 'DEFAULT' && <CheckCircle2 className="w-4 h-4 text-[#ff7a00]" />}
                     </button>
-                    <button onClick={() => selectPhaseKind('KICKOFF_INTERNO')} className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-300 transition-colors">
+                    <button onClick={() => selectPhaseKind('KICKOFF_INTERNO')} className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
                       <span className="flex items-center gap-2">
                         <Rocket className="w-4 h-4 text-[#f6b40b]" /> Kickoff interno
                       </span>
                       {phaseKind === 'KICKOFF_INTERNO' && <CheckCircle2 className="w-4 h-4 text-[#ff7a00]" />}
                     </button>
-                    <button onClick={() => selectPhaseKind('KICKOFF_EXTERNO')} className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-300 transition-colors">
+                    <button onClick={() => selectPhaseKind('KICKOFF_EXTERNO')} className="w-full flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
                       <span className="flex items-center gap-2">
                         <Rocket className="w-4 h-4 text-[#22c55e]" /> Kickoff externo
                       </span>
                       {phaseKind === 'KICKOFF_EXTERNO' && <CheckCircle2 className="w-4 h-4 text-[#ff7a00]" />}
                     </button>
-                    <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-300 transition-colors">
-                      <div className="w-4 h-4 rotate-45 border-2 border-slate-400 rounded-sm" /> Marco
+                    <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
+                      <div className="w-4 h-4 rotate-45 border-2 border-[var(--crm-border)] rounded-sm" /> Marco
                     </button>
-                    <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-300 transition-colors">
-                      <ListIcon className="w-4 h-4 text-slate-400" /> Anotação da reunião
+                    <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
+                      <ListIcon className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" /> Anotação da reunião
                     </button>
-                    <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-300 transition-colors">
-                      <ListIcon className="w-4 h-4 text-slate-400" /> Resposta do formulário
+                    <button className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
+                      <ListIcon className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" /> Resposta do formulário
                     </button>
                   </div>
                 </div>
@@ -169,7 +169,7 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
               placeholder="Nome da fase"
               value={title}
               onChange={e => setTitle(e.target.value)}
-              className="w-full bg-transparent border-none outline-none text-2xl font-bold text-slate-200 placeholder-slate-500"
+              className="w-full bg-transparent border-none outline-none text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
             />
           </div>
 
@@ -180,10 +180,10 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
                 placeholder="Adicione uma descrição ou escreva com IA"
                 value={description}
                 onChange={e => setDescription(e.target.value)}
-                className="w-full h-full min-h-[120px] bg-transparent border-none outline-none text-base text-slate-300 placeholder-slate-500 resize-none"
+                className="w-full h-full min-h-[120px] bg-transparent border-none outline-none text-base text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] resize-none"
               />
               {!description && (
-                <div className="absolute top-0 left-[295px] pointer-events-none flex items-center gap-1 text-slate-500">
+                <div className="absolute top-0 left-[295px] pointer-events-none flex items-center gap-1 text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   <Sparkles className="w-4 h-4" /> IA
                 </div>
               )}
@@ -191,14 +191,14 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
           </div>
 
           {phaseKind !== 'DEFAULT' && (
-            <div className="rounded-lg border border-[#ff7a00]/35 bg-[linear-gradient(135deg,rgba(255,122,0,0.14),rgba(34,197,94,0.08),rgba(13,20,35,0.96))] p-4">
+            <div className="rounded-lg border border-[#ff7a00]/35 bg-[linear-gradient(135deg,rgba(255,122,0,0.14),rgba(34,197,94,0.08),rgb(var(--crm-surface-2-rgb)_/_0.96))] p-4">
               <div className="flex items-start gap-3">
                 <Rocket className="mt-0.5 h-5 w-5 text-[#ff7a00]" />
                 <div>
-                  <p className="text-sm font-bold text-slate-100">
+                  <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Esta fase abrirá a Gestão de Kickoff
                   </p>
-                  <p className="mt-1 text-xs leading-relaxed text-slate-400">
+                  <p className="mt-1 text-xs leading-relaxed text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     Ao criar, a fase fica salva no projeto e você será levado para cadastrar a reunião de {phaseKind === 'KICKOFF_INTERNO' ? 'kickoff interno' : 'kickoff externo'} com os dados do projeto já encaminhados.
                   </p>
                 </div>
@@ -210,16 +210,16 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
           <div className="flex items-center flex-wrap gap-2 pt-4">
             {/* Status Dropdown */}
             <div className="relative">
-              <button onClick={() => setShowStatus(!showStatus)} className={cn("px-3 py-1.5 rounded-md hover:opacity-80 text-sm font-semibold transition-colors uppercase border border-transparent flex items-center gap-2", currentColumn?.colorClass.split('bg-')[0] || "text-slate-300 bg-[#0d1423]")}>
+              <button onClick={() => setShowStatus(!showStatus)} className={cn("px-3 py-1.5 rounded-md hover:opacity-80 text-sm font-semibold transition-colors uppercase border border-transparent flex items-center gap-2", currentColumn?.colorClass.split('bg-')[0] || "text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]")}>
                 {status.replace('_', ' ')} <ChevronDown className="w-3.5 h-3.5 opacity-70" />
               </button>
               {showStatus && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-[#0d1423] border border-[#374151] rounded-md shadow-xl z-10 py-1 overflow-hidden">
+                <div className="absolute top-full left-0 mt-1 w-48 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md shadow-xl z-10 py-1 overflow-hidden">
                   {mockColumns.map(col => (
                     <button
                       key={col.id}
                       onClick={() => { setStatus(col.id); setShowStatus(false); }}
-                      className={cn("w-full px-3 py-2 text-left text-xs font-bold hover:bg-[#1f2937] transition-colors", col.colorClass.split('bg-')[0])}
+                      className={cn("w-full px-3 py-2 text-left text-xs font-bold hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors", col.colorClass.split('bg-')[0])}
                     >
                       {col.title}
                     </button>
@@ -230,42 +230,42 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
 
             {/* Assignee Dropdown */}
             <div className="relative">
-              <button onClick={() => setShowAssignees(!showAssignees)} className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#374151] hover:bg-[#0d1423] text-slate-300 text-sm font-medium transition-colors">
+              <button onClick={() => setShowAssignees(!showAssignees)} className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm font-medium transition-colors">
                 {assignee ? (
                   <div className="flex items-center gap-2">
-                    <div className={cn("w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white", assignee.color)}>
+                    <div className={cn("w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]", assignee.color)}>
                       {assignee.initials}
                     </div>
                     {assignee.name}
                   </div>
                 ) : (
-                  <><Users className="w-4 h-4 text-slate-400" /> Responsável</>
+                  <><Users className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" /> Responsável</>
                 )}
               </button>
 
               {showAssignees && (
-                <div className="absolute top-full left-0 mt-1 w-56 bg-[#0d1423] border border-[#374151] rounded-md shadow-xl z-10 py-2">
-                  <div className="px-3 pb-2 text-xs text-slate-400 font-medium">Atribuir a</div>
+                <div className="absolute top-full left-0 mt-1 w-56 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md shadow-xl z-10 py-2">
+                  <div className="px-3 pb-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium">Atribuir a</div>
                   <div className="px-1 space-y-0.5">
                     {assignableUsers.map(u => (
-                      <button key={u.id} onClick={() => { setAssignee(u); setShowAssignees(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-200 transition-colors">
-                        <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white", u.color)}>
+                      <button key={u.id} onClick={() => { setAssignee(u); setShowAssignees(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
+                        <div className={cn("w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]", u.color)}>
                           {u.initials}
                         </div>
                         {u.name}
                       </button>
                     ))}
-                    <div className="h-px bg-[#1f2937] my-1 mx-2" />
-                    <button onClick={() => { setAssignee(null); setShowAssignees(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-300 transition-colors">
-                      <div className="w-6 h-6 flex items-center justify-center text-slate-400"><X className="w-4 h-4" /></div> Remover
+                    <div className="h-px bg-[rgb(var(--crm-surface-rgb)_/_1)] my-1 mx-2" />
+                    <button onClick={() => { setAssignee(null); setShowAssignees(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
+                      <div className="w-6 h-6 flex items-center justify-center text-[rgb(var(--crm-muted-rgb)_/_1)]"><X className="w-4 h-4" /></div> Remover
                     </button>
                   </div>
                 </div>
               )}
             </div>
 
-            <label className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#374151] bg-[#070b16] text-slate-300 text-sm font-medium">
-              <Clock className="w-4 h-4 text-slate-400" />
+            <label className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm font-medium">
+              <Clock className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
               <input
                 type="number"
                 min="0"
@@ -273,69 +273,69 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
                 value={estimatedHours}
                 onChange={(e) => setEstimatedHours(e.target.value)}
                 placeholder="Horas estimadas"
-                className="w-28 bg-transparent text-slate-200 outline-none placeholder:text-slate-500"
+                className="w-28 bg-transparent text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)]"
               />
             </label>
 
             {/* Due Date Dropdown (Native) */}
             <div className="relative">
-              <button onClick={() => setShowDatePicker(!showDatePicker)} className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#374151] hover:bg-[#0d1423] text-slate-300 text-sm font-medium transition-colors">
-                <Calendar className="w-4 h-4 text-slate-400" /> {dueDate ? dueDate.split('-').reverse().join('/') : 'Data de vencimento'}
+              <button onClick={() => setShowDatePicker(!showDatePicker)} className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm font-medium transition-colors">
+                <Calendar className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" /> {dueDate ? dueDate.split('-').reverse().join('/') : 'Data de vencimento'}
               </button>
               {showDatePicker && (
-                <div className="absolute top-full left-0 mt-1 p-2 bg-[#0d1423] border border-[#374151] rounded-md shadow-xl z-10">
+                <div className="absolute top-full left-0 mt-1 p-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md shadow-xl z-10">
                   <input
                     type="date"
                     value={dueDate}
                     onChange={(e) => { setDueDate(e.target.value); setShowDatePicker(false); }}
-                    className="bg-[#111827] border border-[#374151] text-slate-200 rounded p-1 text-sm outline-none"
+                    className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] rounded p-1 text-sm outline-none"
                   />
                 </div>
               )}
             </div>
 
             <div className="relative">
-              <button onClick={() => setShowPriority(!showPriority)} className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#374151] hover:bg-[#0d1423] text-slate-300 text-sm font-medium transition-colors">
-                <Flag className="w-4 h-4 text-slate-400" />
+              <button onClick={() => setShowPriority(!showPriority)} className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm font-medium transition-colors">
+                <Flag className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                 {priority ? priority : 'Prioridade'}
               </button>
 
               {showPriority && (
-                <div className="absolute top-full left-0 mt-1 w-48 bg-[#0d1423] border border-[#374151] rounded-md shadow-xl z-10 py-2">
-                  <div className="px-3 pb-2 text-xs text-slate-400 font-medium">Prioridade</div>
+                <div className="absolute top-full left-0 mt-1 w-48 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md shadow-xl z-10 py-2">
+                  <div className="px-3 pb-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium">Prioridade</div>
                   <div className="px-1 space-y-0.5">
-                    <button onClick={() => { setPriority('Urgente'); setShowPriority(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-200 transition-colors">
+                    <button onClick={() => { setPriority('Urgente'); setShowPriority(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
                       <Flag className="w-4 h-4 text-red-500 fill-red-500" /> Urgente
                     </button>
-                    <button onClick={() => { setPriority('Alta'); setShowPriority(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-200 transition-colors">
+                    <button onClick={() => { setPriority('Alta'); setShowPriority(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
                       <Flag className="w-4 h-4 text-yellow-500 fill-yellow-500" /> Alta
                     </button>
-                    <button onClick={() => { setPriority('Normal'); setShowPriority(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-200 transition-colors">
+                    <button onClick={() => { setPriority('Normal'); setShowPriority(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
                       <Flag className="w-4 h-4 text-blue-500 fill-blue-500" /> Normal
                     </button>
-                    <button onClick={() => { setPriority('Baixa'); setShowPriority(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-200 transition-colors">
-                      <Flag className="w-4 h-4 text-slate-400 fill-slate-400" /> Baixa
+                    <button onClick={() => { setPriority('Baixa'); setShowPriority(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
+                      <Flag className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)] fill-slate-400" /> Baixa
                     </button>
-                    <div className="h-px bg-[#1f2937] my-1 mx-2" />
-                    <button onClick={() => { setPriority(null); setShowPriority(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#1f2937] text-left text-sm text-slate-300 transition-colors">
-                      <div className="w-4 h-4 flex items-center justify-center text-slate-400"><X className="w-3 h-3" /></div> Limpar
+                    <div className="h-px bg-[rgb(var(--crm-surface-rgb)_/_1)] my-1 mx-2" />
+                    <button onClick={() => { setPriority(null); setShowPriority(false); }} className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-left text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
+                      <div className="w-4 h-4 flex items-center justify-center text-[rgb(var(--crm-muted-rgb)_/_1)]"><X className="w-3 h-3" /></div> Limpar
                     </button>
                   </div>
                 </div>
               )}
             </div>
 
-            <button onClick={() => alert("Menu de Etiquetas (mock)")} className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[#374151] hover:bg-[#0d1423] text-slate-300 text-sm font-medium transition-colors">
-              <Tag className="w-4 h-4 text-slate-400" /> Etiquetas
+            <button onClick={() => alert("Menu de Etiquetas (mock)")} className="flex items-center gap-2 px-3 py-1.5 rounded-md border border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm font-medium transition-colors">
+              <Tag className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" /> Etiquetas
             </button>
-            <button className="p-1.5 rounded-md border border-[#374151] hover:bg-[#0d1423] text-slate-400 transition-colors">
+            <button className="p-1.5 rounded-md border border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors">
               <MoreHorizontal className="w-4 h-4" />
             </button>
           </div>
 
           {/* Custom Fields section */}
-          <div className="pt-4 border-t border-[#263345]">
-            <div className="text-xs font-semibold text-slate-400 mb-3">Campos</div>
+          <div className="pt-4 border-t border-[var(--crm-border)]">
+            <div className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] mb-3">Campos</div>
 
             {customFields.length > 0 && (
               <div className="flex flex-col gap-3 mb-4">
@@ -346,16 +346,16 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
                       placeholder="Nome do campo"
                       value={field.name}
                       onChange={(e) => updateCustomField(field.id, 'name', e.target.value)}
-                      className="bg-[#0d1423] border border-[#374151] text-slate-200 text-sm rounded-md px-3 py-1.5 w-1/3 focus:border-[#ff7a00] outline-none"
+                      className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm rounded-md px-3 py-1.5 w-1/3 focus:border-[#ff7a00] outline-none"
                     />
                     <input
                       type="text"
                       placeholder="Valor"
                       value={field.value}
                       onChange={(e) => updateCustomField(field.id, 'value', e.target.value)}
-                      className="bg-[#0d1423] border border-[#374151] text-slate-200 text-sm rounded-md px-3 py-1.5 flex-1 focus:border-[#ff7a00] outline-none"
+                      className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm rounded-md px-3 py-1.5 flex-1 focus:border-[#ff7a00] outline-none"
                     />
-                    <button onClick={() => removeCustomField(field.id)} className="p-1.5 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all rounded-md hover:bg-[#0d1423]">
+                    <button onClick={() => removeCustomField(field.id)} className="p-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-red-700 dark:hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all rounded-md hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
@@ -363,7 +363,7 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
               </div>
             )}
 
-            <button onClick={handleAddCustomField} className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#0d1423]/50 hover:bg-[#0d1423] text-slate-300 text-sm font-medium transition-colors w-fit border border-transparent hover:border-[#374151]">
+            <button onClick={handleAddCustomField} className="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm font-medium transition-colors w-fit border border-transparent hover:border-[var(--crm-border)]">
               <Plus className="w-4 h-4" /> Criar novo campo
             </button>
           </div>
@@ -371,16 +371,16 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
         </div>
 
         {/* Footer */}
-        <div className="h-16 border-t border-[#263345] px-6 flex items-center justify-between bg-[#111827] shrink-0">
-          <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[#374151] hover:bg-[#0d1423] text-slate-300 text-sm font-medium transition-colors">
-            <Sparkles className="w-4 h-4 text-slate-400" /> Modelos
+        <div className="h-16 border-t border-[var(--crm-border)] px-6 flex items-center justify-between bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shrink-0">
+          <button className="flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm font-medium transition-colors">
+            <Sparkles className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" /> Modelos
           </button>
 
           <div className="flex items-center gap-4">
-            <button className="text-slate-400 hover:text-slate-200 transition-colors">
+            <button className="text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors">
               <Paperclip className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-colors">
+            <div className="flex items-center gap-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] cursor-pointer transition-colors">
               <Bell className="w-5 h-5" />
               <span className="text-sm font-medium">1</span>
             </div>
@@ -389,12 +389,12 @@ export default function CreateTaskModal({ onClose, onCreate, defaultStatus = 'PE
               <button
                 onClick={handleCreate}
                 disabled={!title.trim()}
-                className="bg-[#ff7a00] hover:bg-[#f6b40b] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-2 text-sm font-semibold transition-colors"
+                className="bg-[#ff7a00] hover:bg-[#f6b40b] disabled:opacity-50 disabled:cursor-not-allowed text-[rgb(var(--crm-ink-rgb)_/_1)] px-6 py-2 text-sm font-semibold transition-colors"
               >
                 Criar Fase
               </button>
               <div className="w-px bg-[#22c55e]" />
-              <button className="bg-[#ff7a00] hover:bg-[#f6b40b] text-white px-2 py-2 flex items-center justify-center transition-colors">
+              <button className="bg-[#ff7a00] hover:bg-[#f6b40b] text-[rgb(var(--crm-ink-rgb)_/_1)] px-2 py-2 flex items-center justify-center transition-colors">
                 <ChevronDown className="w-4 h-4" />
               </button>
             </div>

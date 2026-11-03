@@ -16,16 +16,16 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ variant = 'segmented',
       <button
         onClick={toggleTheme}
         className={cn(
-          "p-2 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 dark:text-cyan-300 dark:hover:text-white dark:hover:bg-[#08303b] transition-colors flex items-center justify-center cursor-pointer",
+          "p-2 rounded-lg text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-cyan-300 dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] transition-colors flex items-center justify-center cursor-pointer",
           className
         )}
         title={resolvedTheme === 'dark' ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro'}
         aria-label="Alternar tema"
       >
         {resolvedTheme === 'dark' ? (
-          <Sun className="w-5 h-5 text-amber-400 animate-in spin-in-180 duration-300" />
+          <Sun className="w-5 h-5 text-amber-700 dark:text-amber-400 animate-in spin-in-180 duration-300" />
         ) : (
-          <Moon className="w-5 h-5 text-slate-600 animate-in spin-in-180 duration-300" />
+          <Moon className="w-5 h-5 text-[rgb(var(--crm-muted-rgb)_/_1)] animate-in spin-in-180 duration-300" />
         )}
       </button>
     );
@@ -36,20 +36,20 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ variant = 'segmented',
       <button
         onClick={toggleTheme}
         className={cn(
-          "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-slate-200 hover:bg-slate-100 dark:hover:bg-[#08303b]/80 transition-colors border border-slate-200 dark:border-[#0e4453]/60 cursor-pointer",
+          "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] transition-colors border border-[var(--crm-border)] dark:border-[var(--crm-border)] cursor-pointer",
           className
         )}
         title={resolvedTheme === 'dark' ? 'Ativar Modo Claro' : 'Ativar Modo Escuro'}
       >
         <span className="flex items-center gap-2">
           {resolvedTheme === 'dark' ? (
-            <Moon className="w-4 h-4 text-cyan-400" />
+            <Moon className="w-4 h-4 text-cyan-700 dark:text-cyan-400" />
           ) : (
             <Sun className="w-4 h-4 text-amber-500" />
           )}
           <span>{resolvedTheme === 'dark' ? 'Modo Escuro' : 'Modo Claro'}</span>
         </span>
-        <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 dark:bg-[#0a3541] text-slate-600 dark:text-cyan-300 border border-slate-300 dark:border-cyan-800/60">
+        <span className="text-[10px] px-1.5 py-0.5 rounded bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-cyan-300 border border-[var(--crm-border)] dark:border-cyan-800/60">
           Alternar
         </span>
       </button>
@@ -60,7 +60,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ variant = 'segmented',
   return (
     <div
       className={cn(
-        "inline-flex items-center p-0.5 rounded-lg bg-slate-200/90 dark:bg-[#02181f] border border-slate-300/80 dark:border-[#073d4c] text-[11px] font-medium text-slate-600 dark:text-[#90b8c2] transition-colors",
+        "inline-flex items-center p-0.5 rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_0.9)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] text-[11px] font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[#90b8c2] transition-colors",
         className
       )}
       role="group"
@@ -72,8 +72,8 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ variant = 'segmented',
         className={cn(
           "flex items-center justify-center gap-1 px-2 py-1 rounded-md transition-all cursor-pointer flex-1",
           theme === 'light'
-            ? "bg-white text-slate-900 font-bold shadow-xs border border-slate-200"
-            : "hover:text-slate-900 dark:hover:text-white hover:bg-slate-300/40 dark:hover:bg-[#04242d]"
+            ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold shadow-xs border border-[var(--crm-border)]"
+            : "hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] dark:hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
         )}
         title="Modo Claro"
       >
@@ -88,11 +88,11 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ variant = 'segmented',
           "flex items-center justify-center gap-1 px-2 py-1 rounded-md transition-all cursor-pointer flex-1",
           theme === 'dark'
             ? "bg-gradient-to-r from-teal-600 to-cyan-600 text-white font-bold shadow-xs border border-cyan-400/50"
-            : "hover:text-slate-900 dark:hover:text-white hover:bg-slate-300/40 dark:hover:bg-[#04242d]"
+            : "hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] dark:hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
         )}
         title="Modo Escuro"
       >
-        <Moon className="w-3 h-3 text-cyan-200 flex-shrink-0" />
+        <Moon className="w-3 h-3 text-cyan-700 dark:text-cyan-200 flex-shrink-0" />
         <span>Escuro</span>
       </button>
 
@@ -102,12 +102,12 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ variant = 'segmented',
         className={cn(
           "flex items-center justify-center gap-1 px-2 py-1 rounded-md transition-all cursor-pointer flex-1",
           theme === 'system'
-            ? "bg-white dark:bg-gradient-to-r dark:from-teal-600 dark:to-cyan-600 text-slate-900 dark:text-white font-bold shadow-xs border border-slate-200 dark:border-cyan-400/50"
-            : "hover:text-slate-900 dark:hover:text-white hover:bg-slate-300/40 dark:hover:bg-[#04242d]"
+            ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-gradient-to-r dark:from-teal-600 dark:to-cyan-600 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-white font-bold shadow-xs border border-[var(--crm-border)] dark:border-cyan-400/50"
+            : "hover:text-[rgb(var(--crm-ink-rgb)_/_1)] dark:hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] dark:hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
         )}
         title="Seguir configuração do sistema operacional"
       >
-        <Laptop className="w-3 h-3 text-cyan-400 flex-shrink-0" />
+        <Laptop className="w-3 h-3 text-cyan-700 dark:text-cyan-400 flex-shrink-0" />
         <span>Auto</span>
       </button>
     </div>

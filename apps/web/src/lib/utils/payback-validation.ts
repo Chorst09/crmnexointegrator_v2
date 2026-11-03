@@ -71,7 +71,7 @@ export const formatPaybackMessage = (validation: PaybackValidation, contractTerm
  * Retorna a classe CSS apropriada para o status do payback
  */
 export const getPaybackStatusClass = (isValid: boolean): string => {
-  return isValid ? 'text-green-400' : 'text-red-400';
+  return isValid ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400";
 };
 
 /**

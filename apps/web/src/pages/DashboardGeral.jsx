@@ -118,20 +118,20 @@ const monthLabel = (date) => `${monthLabels[date.getMonth()]}/${String(date.getF
 const OPEN_STAGES = new Set(['LEAD', 'QUALIFICATION', 'DIAGNOSIS', 'PROPOSAL', 'NEGOTIATION']);
 const MONTHLY_PROJECT_TYPE = 'MONTHLY';
 const B2B_STAGE_SUMMARY = [
-  { key: 'LEAD', label: 'Lead', tone: 'text-sky-200', bar: 'bg-sky-400', chartColor: '#38bdf8' },
-  { key: 'QUALIFICATION', label: 'Qualificação', tone: 'text-blue-200', bar: 'bg-blue-400', chartColor: '#60a5fa' },
-  { key: 'DIAGNOSIS', label: 'Diagnóstico', tone: 'text-teal-200', bar: 'bg-teal-400', chartColor: '#2dd4bf' },
-  { key: 'PROPOSAL', label: 'Proposta', tone: 'text-amber-200', bar: 'bg-amber-400', chartColor: '#fbbf24' },
-  { key: 'NEGOTIATION', label: 'Negociação', tone: 'text-orange-200', bar: 'bg-orange-400', chartColor: '#fb923c' },
-  { key: 'WON', label: 'Ganhas', tone: 'text-emerald-200', bar: 'bg-emerald-400', chartColor: '#34d399' },
-  { key: 'LOST', label: 'Perdidas', tone: 'text-slate-200', bar: 'bg-slate-400', chartColor: '#94a3b8' }
+  { key: 'LEAD', label: 'Lead', tone: "text-sky-700 dark:text-sky-200", bar: 'bg-sky-400', chartColor: '#38bdf8' },
+  { key: 'QUALIFICATION', label: 'Qualificação', tone: "text-blue-700 dark:text-blue-200", bar: 'bg-blue-400', chartColor: '#60a5fa' },
+  { key: 'DIAGNOSIS', label: 'Diagnóstico', tone: "text-teal-700 dark:text-teal-200", bar: 'bg-teal-400', chartColor: '#2dd4bf' },
+  { key: 'PROPOSAL', label: 'Proposta', tone: "text-amber-700 dark:text-amber-200", bar: 'bg-amber-400', chartColor: '#fbbf24' },
+  { key: 'NEGOTIATION', label: 'Negociação', tone: "text-orange-700 dark:text-orange-200", bar: 'bg-orange-400', chartColor: '#fb923c' },
+  { key: 'WON', label: 'Ganhas', tone: "text-emerald-700 dark:text-emerald-200", bar: 'bg-emerald-400', chartColor: '#34d399' },
+  { key: 'LOST', label: 'Perdidas', tone: "text-[rgb(var(--crm-ink-rgb)_/_1)]", bar: "bg-[rgb(var(--crm-surface-rgb)_/_1)]", chartColor: '#94a3b8' }
 ];
 const B2G_STAGE_SUMMARY = [
-  { key: 'ANALISE', label: 'Análise', tone: 'text-cyan-200', bar: 'bg-cyan-400', chartColor: '#22d3ee' },
-  { key: 'PROPOSTA_ENVIADA', label: 'Proposta enviada', tone: 'text-amber-200', bar: 'bg-amber-400', chartColor: '#fbbf24' },
-  { key: 'HABILITACAO', label: 'Habilitação', tone: 'text-indigo-200', bar: 'bg-indigo-400', chartColor: '#818cf8' },
-  { key: 'RECURSO', label: 'Recurso', tone: 'text-orange-200', bar: 'bg-orange-400', chartColor: '#fb923c' },
-  { key: 'GANHO', label: 'Ganho', tone: 'text-emerald-200', bar: 'bg-emerald-400', chartColor: '#34d399' }
+  { key: 'ANALISE', label: 'Análise', tone: "text-cyan-700 dark:text-cyan-200", bar: 'bg-cyan-400', chartColor: '#22d3ee' },
+  { key: 'PROPOSTA_ENVIADA', label: 'Proposta enviada', tone: "text-amber-700 dark:text-amber-200", bar: 'bg-amber-400', chartColor: '#fbbf24' },
+  { key: 'HABILITACAO', label: 'Habilitação', tone: "text-indigo-700 dark:text-indigo-200", bar: 'bg-indigo-400', chartColor: '#818cf8' },
+  { key: 'RECURSO', label: 'Recurso', tone: "text-orange-700 dark:text-orange-200", bar: 'bg-orange-400', chartColor: '#fb923c' },
+  { key: 'GANHO', label: 'Ganho', tone: "text-emerald-700 dark:text-emerald-200", bar: 'bg-emerald-400', chartColor: '#34d399' }
 ];
 
 const normalizeB2GStageKey = (value) => {
@@ -363,19 +363,19 @@ function StageRevenueSection({ title, subtitle, rows = [], totals = {} }) {
   if (!rows.length) return null;
 
   return (
-    <div className="mt-5 border-t border-[#263345] pt-4">
+    <div className="mt-5 border-t border-[var(--crm-border)] pt-4">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[#8f9caf]">{title}</p>
-          <p className="mt-1 text-[11px] font-semibold text-[#6f7f95]">{subtitle}</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.14em] text-[rgb(var(--crm-muted-rgb)_/_1)]">{title}</p>
+          <p className="mt-1 text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">{subtitle}</p>
         </div>
-        <p className="shrink-0 text-[10px] font-bold text-[#8f9caf]">Mensal / Total</p>
+        <p className="shrink-0 text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)]">Mensal / Total</p>
       </div>
 
-      <div className="rounded-lg border border-[#263345] bg-[#0b1220]/70 p-3">
+      <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-3">
         <div className="mb-2 flex items-center justify-between gap-2">
-          <p className="text-[10px] font-black uppercase tracking-wide text-[#8f9caf]">Mensal por fase</p>
-          <span className="rounded-full bg-emerald-300/10 px-2 py-0.5 text-[10px] font-black text-emerald-100">
+          <p className="text-[10px] font-black uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Mensal por fase</p>
+          <span className="rounded-full bg-emerald-300/10 px-2 py-0.5 text-[10px] font-black text-emerald-700 dark:text-emerald-100">
             {formatCompactCurrency(totals.monthly)}
           </span>
         </div>
@@ -393,16 +393,16 @@ function StageRevenueSection({ title, subtitle, rows = [], totals = {} }) {
               scales: {
                 x: {
                   beginAtZero: true,
-                  grid: { color: 'rgba(143,156,175,0.12)' },
+                  grid: { color: "rgb(var(--crm-muted-rgb) / 0.12)" },
                   ticks: {
-                    color: '#8f9caf',
+                    color: "rgb(var(--crm-muted-rgb) / 1)",
                     callback: (value) => formatCompactCurrency(value).replace('R$ ', '')
                   }
                 },
                 y: {
                   grid: { display: false },
                   ticks: {
-                    color: '#c9d4e5',
+                    color: "rgb(var(--crm-ink-rgb) / 1)",
                     font: { size: 10, weight: '700' }
                   }
                 }
@@ -416,26 +416,26 @@ function StageRevenueSection({ title, subtitle, rows = [], totals = {} }) {
         {rows.map((row) => {
           const width = Math.max(row.total > 0 ? 6 : 0, Math.round((toNumber(row.total) / rowsMax) * 100));
           return (
-            <div key={row.key} className="min-w-0 rounded-lg border border-[#263345] bg-[#0b1220]/55 px-3 py-2">
+            <div key={row.key} className="min-w-0 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] px-3 py-2">
               <div className="mb-2 flex items-center justify-between gap-3">
                 <div className="min-w-0">
                   <span className={`block truncate text-[10px] font-black uppercase tracking-[0.08em] ${row.tone}`}>
                     {row.label}
                   </span>
-                  <span className="text-[10px] font-semibold text-[#8f9caf]">
+                  <span className="text-[10px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     {formatNumber(row.count)} oportunidade(s)
                   </span>
                 </div>
                 <div className="shrink-0 text-right">
-                  <div className="text-xs font-black text-white" title={formatCurrency(row.monthly)}>
+                  <div className="text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)]" title={formatCurrency(row.monthly)}>
                     {formatCompactCurrency(row.monthly)}
                   </div>
-                  <div className="text-[10px] font-bold text-[#8f9caf]" title={formatCurrency(row.total)}>
+                  <div className="text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)]" title={formatCurrency(row.total)}>
                     {formatCompactCurrency(row.total)}
                   </div>
                 </div>
               </div>
-              <div className="h-1.5 overflow-hidden rounded-full bg-[#0d1423]">
+              <div className="h-1.5 overflow-hidden rounded-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
                 <div className={`h-full rounded-full ${row.bar}`} style={{ width: `${width}%` }} />
               </div>
             </div>
@@ -456,7 +456,7 @@ function RevenueOverview({ b2bRevenue, b2gRevenue, consolidatedRevenue, b2bStage
       icon: Building2,
       totals: b2bRevenue,
       color: 'from-orange-400 to-cyan-400',
-      tint: 'text-orange-200',
+      tint: "text-orange-700 dark:text-orange-200",
       share: Math.round((toNumber(b2bRevenue.total) / safeTotal) * 100),
       stageBreakdown: b2bStageBreakdown,
       stageTitle: 'Carteira B2B por fase',
@@ -469,7 +469,7 @@ function RevenueOverview({ b2bRevenue, b2gRevenue, consolidatedRevenue, b2bStage
       icon: Gavel,
       totals: b2gRevenue,
       color: 'from-blue-500 to-cyan-400',
-      tint: 'text-cyan-200',
+      tint: "text-cyan-700 dark:text-cyan-200",
       share: Math.round((toNumber(b2gRevenue.total) / safeTotal) * 100),
       stageBreakdown: b2gStageBreakdown,
       stageTitle: 'Carteira B2G por fase',
@@ -485,16 +485,16 @@ function RevenueOverview({ b2bRevenue, b2gRevenue, consolidatedRevenue, b2bStage
   const mixTotal = Math.max(mix.reduce((sum, item) => sum + toNumber(item.value), 0), 1);
 
   return (
-    <div className="dashboard-card overflow-hidden rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] shadow-[0_28px_76px_-56px_rgba(24,200,223,0.18)]">
-      <div className="border-b border-[#263345] p-5">
+    <div className="dashboard-card overflow-hidden rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] shadow-[0_28px_76px_-56px_rgba(24,200,223,0.18)]">
+      <div className="border-b border-[var(--crm-border)] p-5">
         <div className="grid gap-4 xl:grid-cols-[minmax(260px,0.9fr)_minmax(0,1.55fr)] xl:items-center">
           <div className="flex items-start gap-4">
-            <div className="rounded-2xl border border-orange-300/30 bg-orange-400/10 p-3 text-orange-200">
+            <div className="rounded-2xl border border-orange-300/30 bg-orange-400/10 p-3 text-orange-700 dark:text-orange-200">
               <CalendarClock className="h-6 w-6" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[#8f9caf]">Consolidado</p>
-              <h2 className="mt-1 truncate text-[clamp(1.6rem,2.5vw,2.45rem)] font-black leading-none text-white" title={formatCurrency(consolidatedRevenue.total)}>
+              <p className="text-[11px] font-black uppercase tracking-[0.16em] text-[rgb(var(--crm-muted-rgb)_/_1)]">Consolidado</p>
+              <h2 className="mt-1 truncate text-[clamp(1.6rem,2.5vw,2.45rem)] font-black leading-none text-[rgb(var(--crm-ink-rgb)_/_1)]" title={formatCurrency(consolidatedRevenue.total)}>
                 {formatCompactCurrency(consolidatedRevenue.total)}
               </h2>
               <p className="mt-2 text-sm font-semibold leading-snug text-[#a9c5df]">Receita comercial no período selecionado</p>
@@ -505,12 +505,12 @@ function RevenueOverview({ b2bRevenue, b2gRevenue, consolidatedRevenue, b2bStage
             {mix.map((item) => {
               const width = Math.max(4, Math.round((toNumber(item.value) / mixTotal) * 100));
               return (
-                <div key={item.label} className="rounded-lg border border-[#263345] bg-[#0b1220]/65 p-3">
+                <div key={item.label} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.65)] p-3">
                   <div className="mb-1 flex items-center justify-between gap-3 text-xs">
-                    <span className="font-bold uppercase tracking-wide text-[#8f9caf]">{item.label}</span>
-                    <span className="font-black text-[#f4f7fb]">{formatCompactCurrency(item.value)}</span>
+                    <span className="font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.label}</span>
+                    <span className="font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCompactCurrency(item.value)}</span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-[#0d1423]">
+                  <div className="h-2 overflow-hidden rounded-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
                     <div className={`h-full rounded-full ${item.color}`} style={{ width: `${width}%` }} />
                   </div>
                 </div>
@@ -520,7 +520,7 @@ function RevenueOverview({ b2bRevenue, b2gRevenue, consolidatedRevenue, b2bStage
         </div>
       </div>
 
-      <div className="grid grid-cols-1 divide-y divide-[#263345] xl:grid-cols-2 xl:items-start xl:divide-x xl:divide-y-0">
+      <div className="grid grid-cols-1 divide-y divide-[var(--crm-border)] xl:grid-cols-2 xl:items-start xl:divide-x xl:divide-y-0">
           {channels.map((channel) => {
             const Icon = channel.icon;
             return (
@@ -528,46 +528,46 @@ function RevenueOverview({ b2bRevenue, b2gRevenue, consolidatedRevenue, b2bStage
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <div className={`rounded-xl bg-gradient-to-br ${channel.color} p-2 text-white shadow-[0_16px_30px_-22px_rgba(24,200,223,0.65)]`}>
+                      <div className={`rounded-xl bg-gradient-to-br ${channel.color} p-2 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_16px_30px_-22px_rgba(24,200,223,0.65)]`}>
                         <Icon className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-black text-[#f4f7fb]">{channel.title}</p>
-                        <p className="truncate text-xs text-[#8f9caf]">{channel.subtitle}</p>
+                        <p className="truncate text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{channel.title}</p>
+                        <p className="truncate text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{channel.subtitle}</p>
                       </div>
                     </div>
                   </div>
-                  <span className={`rounded-full border border-white/10 bg-white/[0.06] px-2 py-1 text-xs font-black ${channel.tint}`}>
+                  <span className={`rounded-full border border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-rgb)_/_0.06)] px-2 py-1 text-xs font-black ${channel.tint}`}>
                     {channel.share}%
                   </span>
                 </div>
 
-                <div className="mt-5 h-2 overflow-hidden rounded-full bg-[#0d1423]">
+                <div className="mt-5 h-2 overflow-hidden rounded-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
                   <div className={`h-full rounded-full bg-gradient-to-r ${channel.color}`} style={{ width: `${Math.max(channel.share, 4)}%` }} />
                 </div>
 
                 <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3">
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-[#8f9caf]">Total</p>
-                    <p className="mt-1 truncate text-lg font-black leading-tight text-white" title={formatCurrency(channel.totals.total)}>
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Total</p>
+                    <p className="mt-1 truncate text-lg font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]" title={formatCurrency(channel.totals.total)}>
                       {formatCompactCurrency(channel.totals.total)}
                     </p>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-[#8f9caf]">Mensal</p>
-                    <p className="mt-1 truncate text-lg font-black leading-tight text-white" title={formatCurrency(channel.totals.monthly)}>
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Mensal</p>
+                    <p className="mt-1 truncate text-lg font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]" title={formatCurrency(channel.totals.monthly)}>
                       {formatCompactCurrency(channel.totals.monthly)}
                     </p>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-[#8f9caf]">Contrato</p>
-                    <p className="mt-1 truncate text-lg font-black leading-tight text-white" title={formatCurrency(channel.totals.contract)}>
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Contrato</p>
+                    <p className="mt-1 truncate text-lg font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]" title={formatCurrency(channel.totals.contract)}>
                       {formatCompactCurrency(channel.totals.contract)}
                     </p>
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-[#8f9caf]">Pontual</p>
-                    <p className="mt-1 truncate text-lg font-black leading-tight text-white" title={formatCurrency(channel.totals.single)}>
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Pontual</p>
+                    <p className="mt-1 truncate text-lg font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]" title={formatCurrency(channel.totals.single)}>
                       {formatCompactCurrency(channel.totals.single)}
                     </p>
                   </div>
@@ -601,16 +601,16 @@ function ModuleCard({ title, subtitle, icon: Icon, color, kpis, route, navigate,
       <div className={`bg-gradient-to-r ${gradients[color]} p-5`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-white/20 p-2.5">
-              <Icon className="h-5 w-5 text-white" />
+            <div className="rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_0.2)] p-2.5">
+              <Icon className="h-5 w-5 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
             </div>
             <div>
-              <h3 className="font-bold text-white">{title}</h3>
-              <p className="text-xs text-white/70">{subtitle}</p>
+              <h3 className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{title}</h3>
+              <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_0.7)]">{subtitle}</p>
             </div>
           </div>
           {badge && (
-            <span className="rounded-full bg-white/20 px-2.5 py-1 text-xs font-semibold text-white">{badge}</span>
+            <span className="rounded-full bg-[rgb(var(--crm-surface-rgb)_/_0.2)] px-2.5 py-1 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{badge}</span>
           )}
         </div>
       </div>
@@ -668,11 +668,11 @@ function ExecutiveSparkCard({ title, label, value, data = [], color = '#ff7a00' 
   const hasData = data.some((item) => Number(item) > 0);
 
   return (
-    <div className="dashboard-card grid min-h-[108px] grid-cols-[minmax(0,0.82fr)_minmax(120px,1fr)] gap-3 overflow-hidden rounded-lg border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.98),rgba(13,20,35,0.98))] p-4">
+    <div className="dashboard-card grid min-h-[108px] grid-cols-[minmax(0,0.82fr)_minmax(120px,1fr)] gap-3 overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.98),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-4">
       <div className="min-w-0">
-        <p className="text-sm font-black leading-tight text-[#f4f7fb]">{title}</p>
-        <p className="mt-2 text-[10px] font-bold uppercase tracking-wide text-[#8f9caf]">{label}</p>
-        <p className="mt-1 truncate text-2xl font-black leading-none text-white" title={String(value)}>{value}</p>
+        <p className="text-sm font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">{title}</p>
+        <p className="mt-2 text-[10px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">{label}</p>
+        <p className="mt-1 truncate text-2xl font-black leading-none text-[rgb(var(--crm-ink-rgb)_/_1)]" title={String(value)}>{value}</p>
       </div>
       <div className="h-[64px] min-w-0 self-end">
         {hasData ? (
@@ -695,10 +695,10 @@ function ExecutiveSparkCard({ title, label, value, data = [], color = '#ff7a00' 
 
 function ActivityItem({ icon: Icon, color, title, sub, time }) {
   const colors = {
-    blue: 'bg-blue-500/20 text-blue-400',
-    green: 'bg-emerald-500/20 text-emerald-400',
-    amber: 'bg-amber-500/20 text-amber-400',
-    purple: 'bg-purple-500/20 text-purple-400'
+    blue: "bg-blue-500/20 text-blue-700 dark:text-blue-400",
+    green: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-400",
+    amber: "bg-amber-500/20 text-amber-700 dark:text-amber-400",
+    purple: "bg-purple-500/20 text-purple-700 dark:text-purple-400"
   };
   return (
     <div className="flex items-start gap-3 border-b border-[var(--crm-border)] py-3 last:border-0">
@@ -720,28 +720,28 @@ const chartOptionsBase = {
   plugins: {
     legend: {
       labels: {
-        color: '#94a3b8',
+        color: "rgb(var(--crm-muted-rgb) / 1)",
         usePointStyle: true,
         boxWidth: 8,
         boxHeight: 8
       }
     },
     tooltip: {
-      backgroundColor: 'rgba(15, 23, 42, 0.92)',
+      backgroundColor: "rgb(var(--crm-surface-2-rgb) / 0.92)",
       titleColor: '#f8fafc',
       bodyColor: '#e2e8f0',
-      borderColor: 'rgba(148, 163, 184, 0.3)',
+      borderColor: "var(--crm-border)",
       borderWidth: 1
     }
   },
   scales: {
     x: {
-      grid: { color: 'rgba(148, 163, 184, 0.1)' },
-      ticks: { color: '#94a3b8' }
+      grid: { color: "rgb(var(--crm-muted-rgb) / 0.1)" },
+      ticks: { color: "rgb(var(--crm-muted-rgb) / 1)" }
     },
     y: {
-      grid: { color: 'rgba(148, 163, 184, 0.1)' },
-      ticks: { color: '#94a3b8' }
+      grid: { color: "rgb(var(--crm-muted-rgb) / 0.1)" },
+      ticks: { color: "rgb(var(--crm-muted-rgb) / 1)" }
     }
   }
 };
@@ -1681,32 +1681,32 @@ export default function DashboardGeral() {
 
       <div
         data-section="header"
-        className="relative overflow-hidden rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] p-4 text-[#f4f7fb] shadow-[0_24px_60px_-44px_rgba(0,0,0,0.95)]"
+        className="relative overflow-hidden rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-4 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_24px_60px_-44px_rgba(0,0,0,0.95)]"
       >
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_86%_18%,rgba(102,215,234,0.16),transparent_28%)]" />
         <div className="relative flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="text-xl font-black leading-tight text-[#f4f7fb] md:text-2xl">Dashboard Geral</h1>
-              <span className="rounded-full border border-[#374151] bg-[#1b2433]/70 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#18c8df]">
+              <h1 className="text-xl font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)] md:text-2xl">Dashboard Geral</h1>
+              <span className="rounded-full border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-[#18c8df]">
                 Visão executiva
               </span>
             </div>
             <p className="mt-1 max-w-3xl text-sm font-medium leading-snug text-[#a9c5df]">
               Consolidação B2B, B2G, Pré-Vendas, Atividades, Produtos, Equipe e Integrações.
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-[#8f9caf]">
-              <span className="rounded-full border border-[#374151] bg-[#0d1423]/75 px-2.5 py-1">
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
+              <span className="rounded-full border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.75)] px-2.5 py-1">
                 Atualizado: {updatedAt ? updatedAt.toLocaleString('pt-BR') : '-'}
               </span>
-              <span className="rounded-full border border-[#374151] bg-[#0d1423]/75 px-2.5 py-1">
+              <span className="rounded-full border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.75)] px-2.5 py-1">
                 {moduleCardItems.length} módulos ativos
               </span>
               <span className={[
                 'rounded-full border px-2.5 py-1',
                 alertCount > 0
-                  ? 'border-rose-300/35 bg-rose-500/12 text-rose-100'
-                  : 'border-emerald-300/35 bg-emerald-500/12 text-emerald-100'
+                  ? "border-rose-300/35 bg-rose-500/12 text-rose-700 dark:text-rose-100"
+                  : "border-emerald-300/35 bg-emerald-500/12 text-emerald-700 dark:text-emerald-100"
               ].join(' ')}>
                 {alertCount} alertas
               </span>
@@ -1714,7 +1714,7 @@ export default function DashboardGeral() {
           </div>
 
           <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center xl:justify-end">
-            <div className="inline-flex rounded-2xl border border-[#374151] bg-[#050914]/78 p-1 shadow-[inset_0_0_22px_rgba(143,209,255,0.08)]">
+            <div className="inline-flex rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.78)] p-1 shadow-[inset_0_0_22px_rgba(143,209,255,0.08)]">
               {[
                 { value: '30', label: '30d' },
                 { value: '90', label: '90d' },
@@ -1726,8 +1726,8 @@ export default function DashboardGeral() {
                   className={[
                     'min-w-[4.8rem] rounded-xl px-3 py-2 text-xs font-black transition-all',
                     timeRange === option.value
-                      ? 'bg-[#ff7a00] text-white shadow-[0_12px_28px_-18px_rgba(61,202,255,0.95)]'
-                      : 'text-[#8f9caf] hover:bg-[#111827] hover:text-[#f4f7fb]'
+                      ? "bg-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_12px_28px_-18px_rgba(61,202,255,0.95)]"
+                      : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   ].join(' ')}
                 >
                   {option.label}
@@ -1739,13 +1739,13 @@ export default function DashboardGeral() {
               <button
                 onClick={loadData}
                 disabled={loading}
-                className="inline-flex items-center gap-2 rounded-2xl border border-[#374151] bg-[#0d1423]/80 px-3.5 py-2 text-xs font-bold text-[#bcd4ee] transition hover:border-[#18c8df80] hover:text-white disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] px-3.5 py-2 text-xs font-bold text-[#bcd4ee] transition hover:border-[#18c8df80] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <RefreshCcw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} /> Atualizar
               </button>
               <button
                 onClick={handlePresentation}
-                className="inline-flex items-center gap-2 rounded-2xl border border-[#374151] bg-[#0d1423]/80 px-3.5 py-2 text-xs font-bold text-[#bcd4ee] transition hover:border-[#18c8df80] hover:text-white"
+                className="inline-flex items-center gap-2 rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] px-3.5 py-2 text-xs font-bold text-[#bcd4ee] transition hover:border-[#18c8df80] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
               >
                 <Maximize2 className="h-4 w-4" /> Apresentar
               </button>
@@ -1819,7 +1819,7 @@ export default function DashboardGeral() {
         </div>
         <div className="rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] p-3">
           <p className="text-[10px] uppercase tracking-wide text-[var(--crm-muted)]">Módulos OK</p>
-          <p className="mt-1 text-lg font-bold text-emerald-300">{formatNumber(modulesLoaded)}</p>
+          <p className="mt-1 text-lg font-bold text-emerald-700 dark:text-emerald-300">{formatNumber(modulesLoaded)}</p>
         </div>
       </div>
 
@@ -1840,26 +1840,26 @@ export default function DashboardGeral() {
       </div>
 
       <div data-section="receita-graficos" className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <div className="dashboard-card rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] p-5">
+        <div className="dashboard-card rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-[#f4f7fb]">Mix de Receita B2B x B2G</h3>
-              <p className="text-xs text-[#8f9caf]">Mensal, total do período do contrato e receita pontual</p>
+              <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Mix de Receita B2B x B2G</h3>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Mensal, total do período do contrato e receita pontual</p>
             </div>
-            <span className="metric-chip rounded-full bg-cyan-400/15 px-2 py-1 text-xs font-semibold text-cyan-200">{formatCurrency(consolidatedRevenue.total)}</span>
+            <span className="metric-chip rounded-full bg-cyan-400/15 px-2 py-1 text-xs font-semibold text-cyan-700 dark:text-cyan-200">{formatCurrency(consolidatedRevenue.total)}</span>
           </div>
           <div className="h-[280px]">
             <DashboardAdvancedChart type="bar" colorTheme="warm" data={chartData.revenueMix} />
           </div>
         </div>
 
-        <div className="dashboard-card rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] p-5">
+        <div className="dashboard-card rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-[#f4f7fb]">Receita Mensal por Modelo</h3>
-              <p className="text-xs text-[#8f9caf]">Separação temporal entre mensal, contrato e pontual</p>
+              <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Receita Mensal por Modelo</h3>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Separação temporal entre mensal, contrato e pontual</p>
             </div>
-            <span className="metric-chip rounded-full bg-emerald-400/15 px-2 py-1 text-xs font-semibold text-emerald-200">{formatCurrency(consolidatedRevenue.monthly)}/mês</span>
+            <span className="metric-chip rounded-full bg-emerald-400/15 px-2 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-200">{formatCurrency(consolidatedRevenue.monthly)}/mês</span>
           </div>
           <div className="h-[280px]">
             <DashboardAdvancedChart type="line" colorTheme="blue" data={chartData.monthlyRevenueSplit} />
@@ -1868,24 +1868,24 @@ export default function DashboardGeral() {
       </div>
 
       <div data-section="charts-row-1" className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        <div className="dashboard-card rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] p-5">
+        <div className="dashboard-card rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-[#f4f7fb]">Tendência Mensal de Receita</h3>
-              <p className="text-xs text-[#8f9caf]">Potencial x realizado nos últimos 6 meses</p>
+              <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Tendência Mensal de Receita</h3>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Potencial x realizado nos últimos 6 meses</p>
             </div>
-            <span className="metric-chip rounded-full bg-emerald-500/20 px-2 py-1 text-xs font-semibold text-emerald-300">{formatCurrency(totalWonValue)}</span>
+            <span className="metric-chip rounded-full bg-emerald-500/20 px-2 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">{formatCurrency(totalWonValue)}</span>
           </div>
           <div className="h-[280px]">
             <DashboardAdvancedChart type="line" colorTheme="blue" data={chartData.monthlyTrend} />
           </div>
         </div>
 
-        <div className="dashboard-card rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] p-5">
+        <div className="dashboard-card rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-[#f4f7fb]">Distribuição por Estágio</h3>
-              <p className="text-xs text-[#8f9caf]">Volume de oportunidades por etapa do funil</p>
+              <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Distribuição por Estágio</h3>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Volume de oportunidades por etapa do funil</p>
             </div>
           </div>
           <div className="h-[280px]">
@@ -1895,11 +1895,11 @@ export default function DashboardGeral() {
       </div>
 
       <div data-section="charts-row-2" className="grid grid-cols-1 gap-5 xl:grid-cols-3">
-        <div className="dashboard-card rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] p-5">
+        <div className="dashboard-card rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-[#f4f7fb]">Temperatura dos Leads</h3>
-              <p className="text-xs text-[#8f9caf]">Classificação por score (B2B e B2G)</p>
+              <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Temperatura dos Leads</h3>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Classificação por score (B2B e B2G)</p>
             </div>
           </div>
           <div className="h-[280px]">
@@ -1907,11 +1907,11 @@ export default function DashboardGeral() {
           </div>
         </div>
 
-        <div className="dashboard-card rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] p-5">
+        <div className="dashboard-card rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-[#f4f7fb]">Carga Operacional</h3>
-              <p className="text-xs text-[#8f9caf]">Fila de demandas em execução</p>
+              <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Carga Operacional</h3>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Fila de demandas em execução</p>
             </div>
           </div>
           <div className="h-[280px]">
@@ -1919,11 +1919,11 @@ export default function DashboardGeral() {
           </div>
         </div>
 
-        <div className="dashboard-card rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] p-5">
+        <div className="dashboard-card rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-[#f4f7fb]">Composição do Pipeline</h3>
-              <p className="text-xs text-[#8f9caf]">Participação entre B2B e B2G</p>
+              <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Composição do Pipeline</h3>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Participação entre B2B e B2G</p>
             </div>
           </div>
           <div className="h-[280px]">
@@ -1933,11 +1933,11 @@ export default function DashboardGeral() {
       </div>
 
       <div data-section="charts-row-3" className="grid grid-cols-1 gap-5 xl:grid-cols-3">
-        <div className="dashboard-card rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] p-5">
+        <div className="dashboard-card rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-[#f4f7fb]">Performance da Equipe</h3>
-              <p className="text-xs text-[#8f9caf]">Top responsáveis por volume de oportunidades</p>
+              <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Performance da Equipe</h3>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Top responsáveis por volume de oportunidades</p>
             </div>
           </div>
           {chartData.hasTeamData ? (
@@ -1945,17 +1945,17 @@ export default function DashboardGeral() {
               <DashboardAdvancedChart type="bar" colorTheme="cool" data={chartData.teamLoad} />
             </div>
           ) : (
-            <div className="grid h-[280px] place-items-center rounded-xl border border-dashed border-[#263345]">
-              <p className="text-sm text-[#8f9caf]">Sem dados de equipe no período selecionado.</p>
+            <div className="grid h-[280px] place-items-center rounded-xl border border-dashed border-[var(--crm-border)]">
+              <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Sem dados de equipe no período selecionado.</p>
             </div>
           )}
         </div>
 
-        <div className="dashboard-card rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] p-5">
+        <div className="dashboard-card rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-5">
           <div className="mb-4 flex items-start justify-between gap-3">
             <div>
-              <h3 className="font-semibold text-[#f4f7fb]">Volume por Módulo</h3>
-              <p className="text-xs text-[#8f9caf]">Top módulos por quantidade de registros carregados</p>
+              <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Volume por Módulo</h3>
+              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Top módulos por quantidade de registros carregados</p>
             </div>
           </div>
           {chartData.hasModuleVolumeData ? (
@@ -1963,32 +1963,32 @@ export default function DashboardGeral() {
               <DashboardAdvancedChart type="bar" colorTheme="blue" data={chartData.moduleVolume} />
             </div>
           ) : (
-            <div className="grid h-[280px] place-items-center rounded-xl border border-dashed border-[#263345]">
-              <p className="text-sm text-[#8f9caf]">Sem volume suficiente para comparação.</p>
+            <div className="grid h-[280px] place-items-center rounded-xl border border-dashed border-[var(--crm-border)]">
+              <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Sem volume suficiente para comparação.</p>
             </div>
           )}
         </div>
 
-        <div className="dashboard-card rounded-2xl border border-[#263345] bg-[linear-gradient(140deg,rgba(17,24,39,0.97),rgba(13,20,35,0.98))] p-5">
+        <div className="dashboard-card rounded-2xl border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgb(var(--crm-surface-2-rgb)_/_0.97),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-5">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-semibold text-[#f4f7fb]">Cobertura de Módulos</h3>
+            <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Cobertura de Módulos</h3>
             <span className="metric-chip rounded-full bg-[#18c8df]/20 px-2.5 py-1 text-xs font-semibold text-[#18c8df]">
               {modulesLoaded}/{modulesEnabled} carregados
             </span>
           </div>
 
           <div className="mb-4 grid grid-cols-3 gap-2 text-center">
-            <div className="rounded-xl border border-[#263345] bg-[rgba(24,200,223,0.06)] p-2">
-              <p className="text-lg font-bold text-emerald-300">{modulesLoaded}</p>
-              <p className="text-[10px] uppercase tracking-wide text-[#8f9caf]">OK</p>
+            <div className="rounded-xl border border-[var(--crm-border)] bg-[rgba(24,200,223,0.06)] p-2">
+              <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{modulesLoaded}</p>
+              <p className="text-[10px] uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">OK</p>
             </div>
-            <div className="rounded-xl border border-[#263345] bg-[rgba(24,200,223,0.06)] p-2">
-              <p className="text-lg font-bold text-rose-300">{modulesWithError}</p>
-              <p className="text-[10px] uppercase tracking-wide text-[#8f9caf]">Falhas</p>
+            <div className="rounded-xl border border-[var(--crm-border)] bg-[rgba(24,200,223,0.06)] p-2">
+              <p className="text-lg font-bold text-rose-700 dark:text-rose-300">{modulesWithError}</p>
+              <p className="text-[10px] uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Falhas</p>
             </div>
-            <div className="rounded-xl border border-[#263345] bg-[rgba(24,200,223,0.06)] p-2">
-              <p className="text-lg font-bold text-blue-300">{moduleHealth.filter((item) => item.status === 'skipped').length}</p>
-              <p className="text-[10px] uppercase tracking-wide text-[#8f9caf]">Ignorados</p>
+            <div className="rounded-xl border border-[var(--crm-border)] bg-[rgba(24,200,223,0.06)] p-2">
+              <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{moduleHealth.filter((item) => item.status === 'skipped').length}</p>
+              <p className="text-[10px] uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Ignorados</p>
             </div>
           </div>
 
@@ -1996,24 +1996,24 @@ export default function DashboardGeral() {
             {moduleHealth.map((item) => (
               <div
                 key={item.key}
-                className="flex items-start justify-between gap-3 rounded-xl border border-[#263345] bg-[rgba(24,200,223,0.04)] px-3 py-2"
+                className="flex items-start justify-between gap-3 rounded-xl border border-[var(--crm-border)] bg-[rgba(24,200,223,0.04)] px-3 py-2"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium text-[#f4f7fb]">{item.label}</p>
+                  <p className="truncate text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.label}</p>
                   {item.status === 'error' ? (
-                    <p className="truncate text-xs text-rose-300">{item.error}</p>
+                    <p className="truncate text-xs text-rose-700 dark:text-rose-300">{item.error}</p>
                   ) : (
-                    <p className="text-xs text-[#8f9caf]">{formatNumber(item.count)} registros</p>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{formatNumber(item.count)} registros</p>
                   )}
                 </div>
                 <span
                   className={[
                     'rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide',
                     item.status === 'ok'
-                      ? 'bg-emerald-500/20 text-emerald-300'
+                      ? "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
                       : item.status === 'error'
-                        ? 'bg-rose-500/20 text-rose-300'
-                        : 'bg-slate-500/20 text-slate-300'
+                        ? "bg-rose-500/20 text-rose-700 dark:text-rose-300"
+                        : "bg-[rgb(var(--crm-surface-rgb)_/_0.2)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   ].join(' ')}
                 >
                   {item.status}
@@ -2051,7 +2051,7 @@ export default function DashboardGeral() {
         <div className="rounded-2xl border border-[var(--crm-border)] bg-[var(--crm-surface)] p-5">
           <div className="mb-4 flex items-center justify-between">
             <h3 className="font-semibold text-[var(--crm-ink)]">Alertas e Ações Rápidas</h3>
-            <span className="rounded-full bg-rose-500/20 px-2.5 py-1 text-xs font-semibold text-rose-300">
+            <span className="rounded-full bg-rose-500/20 px-2.5 py-1 text-xs font-semibold text-rose-700 dark:text-rose-300">
               {formatNumber(alertCount)} itens
             </span>
           </div>
@@ -2062,10 +2062,10 @@ export default function DashboardGeral() {
                 onClick={() => navigate('/atividades')}
                 className="flex cursor-pointer items-start gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 transition-colors hover:bg-rose-500/15"
               >
-                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-300" />
+                <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-rose-700 dark:text-rose-300" />
                 <div>
-                  <p className="text-sm font-medium text-rose-200">{formatNumber(overdueActivities.length)} atividade(s) atrasada(s)</p>
-                  <p className="text-xs text-rose-300/80">Priorizar tratativa da agenda operacional.</p>
+                  <p className="text-sm font-medium text-rose-700 dark:text-rose-200">{formatNumber(overdueActivities.length)} atividade(s) atrasada(s)</p>
+                  <p className="text-xs text-rose-700/80 dark:text-rose-300/80">Priorizar tratativa da agenda operacional.</p>
                 </div>
               </div>
             )}
@@ -2075,10 +2075,10 @@ export default function DashboardGeral() {
                 onClick={() => navigate('/pre-vendas')}
                 className="flex cursor-pointer items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 transition-colors hover:bg-amber-500/15"
               >
-                <ClipboardList className="mt-0.5 h-4 w-4 shrink-0 text-amber-300" />
+                <ClipboardList className="mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" />
                 <div>
-                  <p className="text-sm font-medium text-amber-200">{formatNumber(pendingPreSales.length)} solicitação(ões) de pré-vendas pendente(s)</p>
-                  <p className="text-xs text-amber-300/80">Aguardando precificação ou aprovação técnica.</p>
+                  <p className="text-sm font-medium text-amber-700 dark:text-amber-200">{formatNumber(pendingPreSales.length)} solicitação(ões) de pré-vendas pendente(s)</p>
+                  <p className="text-xs text-amber-700/80 dark:text-amber-300/80">Aguardando precificação ou aprovação técnica.</p>
                 </div>
               </div>
             )}
@@ -2088,10 +2088,10 @@ export default function DashboardGeral() {
                 onClick={() => navigate('/b2g-dashboard')}
                 className="flex cursor-pointer items-start gap-3 rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-3 transition-colors hover:bg-indigo-500/15"
               >
-                <Brain className="mt-0.5 h-4 w-4 shrink-0 text-indigo-300" />
+                <Brain className="mt-0.5 h-4 w-4 shrink-0 text-indigo-700 dark:text-indigo-300" />
                 <div>
-                  <p className="text-sm font-medium text-indigo-200">{formatNumber(inAnalysisB2G.length)} edital(is) em análise</p>
-                  <p className="text-xs text-indigo-300/80">Pendência de decisão GO / NO-GO.</p>
+                  <p className="text-sm font-medium text-indigo-700 dark:text-indigo-200">{formatNumber(inAnalysisB2G.length)} edital(is) em análise</p>
+                  <p className="text-xs text-indigo-700/80 dark:text-indigo-300/80">Pendência de decisão GO / NO-GO.</p>
                 </div>
               </div>
             )}
@@ -2101,13 +2101,13 @@ export default function DashboardGeral() {
                 onClick={() => navigate('/gestao-pocs')}
                 className="flex cursor-pointer items-start gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 transition-colors hover:bg-rose-500/15"
               >
-                <Beaker className="mt-0.5 h-4 w-4 shrink-0 text-rose-300" />
+                <Beaker className="mt-0.5 h-4 w-4 shrink-0 text-rose-700 dark:text-rose-300" />
                 <div>
                   {blockedPreSalesPocs.length > 0 && (
-                    <p className="text-sm font-medium text-rose-200">{formatNumber(blockedPreSalesPocs.length)} POC(s) bloqueada(s)</p>
+                    <p className="text-sm font-medium text-rose-700 dark:text-rose-200">{formatNumber(blockedPreSalesPocs.length)} POC(s) bloqueada(s)</p>
                   )}
                   {overduePreSalesPocs.length > 0 && (
-                    <p className="text-xs text-rose-300/80">{formatNumber(overduePreSalesPocs.length)} POC(s) atrasada(s) no período</p>
+                    <p className="text-xs text-rose-700/80 dark:text-rose-300/80">{formatNumber(overduePreSalesPocs.length)} POC(s) atrasada(s) no período</p>
                   )}
                 </div>
               </div>
@@ -2118,19 +2118,19 @@ export default function DashboardGeral() {
                 onClick={() => navigate('/pre-vendas')}
                 className="flex cursor-pointer items-start gap-3 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 transition-colors hover:bg-rose-500/15"
               >
-                <Package className="mt-0.5 h-4 w-4 shrink-0 text-rose-300" />
+                <Package className="mt-0.5 h-4 w-4 shrink-0 text-rose-700 dark:text-rose-300" />
                 <div>
                   {expiredOportunidades.length > 0 && (
-                    <p className="text-sm font-medium text-rose-200">{formatNumber(expiredOportunidades.length)} oportunidade(s) de pré-vendas vencida(s)</p>
+                    <p className="text-sm font-medium text-rose-700 dark:text-rose-200">{formatNumber(expiredOportunidades.length)} oportunidade(s) de pré-vendas vencida(s)</p>
                   )}
                   {expiring7.length > 0 && (
-                    <p className="text-xs text-rose-300/80">{formatNumber(expiring7.length)} oportunidade(s) vence(m) em até 7 dias</p>
+                    <p className="text-xs text-rose-700/80 dark:text-rose-300/80">{formatNumber(expiring7.length)} oportunidade(s) vence(m) em até 7 dias</p>
                   )}
                   {expiring15.length > 0 && (
-                    <p className="text-xs text-amber-300/80">{formatNumber(expiring15.length)} oportunidade(s) vence(m) em até 15 dias</p>
+                    <p className="text-xs text-amber-700/80 dark:text-amber-300/80">{formatNumber(expiring15.length)} oportunidade(s) vence(m) em até 15 dias</p>
                   )}
                   {expiring30.length > 0 && (
-                    <p className="text-xs text-yellow-300/80">{formatNumber(expiring30.length)} oportunidade(s) vence(m) em até 30 dias</p>
+                    <p className="text-xs text-yellow-700/80 dark:text-yellow-300/80">{formatNumber(expiring30.length)} oportunidade(s) vence(m) em até 30 dias</p>
                   )}
                 </div>
               </div>
@@ -2138,8 +2138,8 @@ export default function DashboardGeral() {
 
             {alertCount === 0 && (
               <div className="flex items-center gap-3 rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-3">
-                <CheckCircle2 className="h-4 w-4 text-emerald-300" />
-                <p className="text-sm text-emerald-200">Tudo em dia no período selecionado.</p>
+                <CheckCircle2 className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
+                <p className="text-sm text-emerald-700 dark:text-emerald-200">Tudo em dia no período selecionado.</p>
               </div>
             )}
           </div>
@@ -2148,13 +2148,13 @@ export default function DashboardGeral() {
             <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-[var(--crm-muted)]">Atalhos estratégicos</p>
             <div className="grid grid-cols-2 gap-2">
               {[
-                { label: 'Nova Oportunidade', icon: Target, route: '/oportunidades', color: 'text-blue-400' },
-                { label: 'Novo Edital', icon: Gavel, route: '/b2g-dashboard', color: 'text-indigo-400' },
-                (access.accessPreSales || adminLike) && { label: 'Nova Solicitação', icon: ClipboardList, route: '/pre-vendas', color: 'text-amber-400' },
-                (access.accessPreSales || adminLike) && { label: 'Gestão de POCs', icon: Beaker, route: '/gestao-pocs', color: 'text-sky-400' },
-                { label: 'Nova Atividade', icon: Zap, route: '/atividades', color: 'text-emerald-400' },
-                { label: 'Leads', icon: Layers, route: '/leads', color: 'text-cyan-400' },
-                adminLike && { label: 'Integrações', icon: UserCircle2, route: '/integracoes', color: 'text-purple-400' }
+                { label: 'Nova Oportunidade', icon: Target, route: '/oportunidades', color: "text-blue-700 dark:text-blue-400" },
+                { label: 'Novo Edital', icon: Gavel, route: '/b2g-dashboard', color: "text-indigo-700 dark:text-indigo-400" },
+                (access.accessPreSales || adminLike) && { label: 'Nova Solicitação', icon: ClipboardList, route: '/pre-vendas', color: "text-amber-700 dark:text-amber-400" },
+                (access.accessPreSales || adminLike) && { label: 'Gestão de POCs', icon: Beaker, route: '/gestao-pocs', color: "text-sky-700 dark:text-sky-400" },
+                { label: 'Nova Atividade', icon: Zap, route: '/atividades', color: "text-emerald-700 dark:text-emerald-400" },
+                { label: 'Leads', icon: Layers, route: '/leads', color: "text-cyan-700 dark:text-cyan-400" },
+                adminLike && { label: 'Integrações', icon: UserCircle2, route: '/integracoes', color: "text-purple-700 dark:text-purple-400" }
               ].filter(Boolean).map((item) => (
                 <button
                   key={item.label}

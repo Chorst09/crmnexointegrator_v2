@@ -1835,7 +1835,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
     // Se estiver na tela de busca, mostrar a tela de buscar propostas
     if (currentView === 'search') {
         return (
-            <div className="container mx-auto p-6 bg-slate-950 text-white min-h-screen">
+            <div className="container mx-auto p-6 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] min-h-screen">
                 <div className="mb-8">
                     <Button
                         variant="outline"
@@ -1845,11 +1845,11 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Voltar
                     </Button>
-                    <h1 className="text-3xl font-bold text-white mb-2">Buscar Propostas</h1>
-                    <p className="text-slate-400">Encontre propostas existentes ou crie uma nova.</p>
+                    <h1 className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Buscar Propostas</h1>
+                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Encontre propostas existentes ou crie uma nova.</p>
                 </div>
 
-                <Card className="bg-slate-900/80 border-slate-800 text-white mb-6">
+                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] mb-6">
                     <CardContent className="p-6">
                         <div className="flex gap-4 items-center">
                             <div className="flex-1">
@@ -1858,7 +1858,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                     placeholder="Buscar por cliente ou ID..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="bg-slate-800 border-slate-700 text-white placeholder-slate-400"
+                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                                 />
                             </div>
                             <Button
@@ -1872,39 +1872,39 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                 </Card>
 
                 {/* Tabela de propostas */}
-                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     <CardContent className="p-0">
                         <Table>
                             <TableHeader>
-                                <TableRow className="border-slate-700">
-                                    <TableHead className="text-slate-300 font-semibold">ID</TableHead>
-                                    <TableHead className="text-slate-300 font-semibold">Cliente</TableHead>
-                                    <TableHead className="text-slate-300 font-semibold">Nome do Projeto</TableHead>
-                                    <TableHead className="text-slate-300 font-semibold">Data</TableHead>
-                                    <TableHead className="text-slate-300 font-semibold">Total Mensal</TableHead>
-                                    <TableHead className="text-slate-300 font-semibold">Status</TableHead>
-                                    <TableHead className="text-slate-300 font-semibold">Ações</TableHead>
+                                <TableRow className="border-[var(--crm-border)]">
+                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">ID</TableHead>
+                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Cliente</TableHead>
+                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Nome do Projeto</TableHead>
+                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Data</TableHead>
+                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Total Mensal</TableHead>
+                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Status</TableHead>
+                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Ações</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {filteredProposals.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={7} className="text-center py-8 text-slate-400">
+                                        <TableCell colSpan={7} className="text-center py-8 text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                             Nenhuma proposta encontrada. Clique em &quot;Nova Proposta&quot; para começar.
                                         </TableCell>
                                     </TableRow>
                                 ) : (
                                     filteredProposals.map((proposal) => (
-                                        <TableRow key={proposal.id} className="border-slate-800 hover:bg-slate-800/50">
-                                            <TableCell className="text-slate-300">{proposal.baseId || proposal.id}</TableCell>
-                                            <TableCell className="text-slate-300">{typeof proposal.client === 'string' ? proposal.client : proposal.client?.name || 'Sem nome'} (v{proposal.version})</TableCell>
-                                            <TableCell className="text-slate-300">{
+                                        <TableRow key={proposal.id} className="border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]">
+                                            <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{proposal.baseId || proposal.id}</TableCell>
+                                            <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{typeof proposal.client === 'string' ? proposal.client : proposal.client?.name || 'Sem nome'} (v{proposal.version})</TableCell>
+                                            <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{
                                                 typeof proposal.client === 'object' && proposal.client?.projectName
                                                     ? proposal.client.projectName
                                                     : proposal.clientData?.projectName || 'Projeto não informado'
                                             }</TableCell>
-                                            <TableCell className="text-slate-300">{proposal.createdAt ? (isNaN(new Date(proposal.createdAt).getTime()) ? 'N/A' : new Date(proposal.createdAt).toLocaleDateString('pt-BR')) : 'N/A'}</TableCell>
-                                            <TableCell className="text-slate-300">{formatCurrency(Number(proposal.totalMonthly || proposal.value || 0))}</TableCell>
+                                            <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{proposal.createdAt ? (isNaN(new Date(proposal.createdAt).getTime()) ? 'N/A' : new Date(proposal.createdAt).toLocaleDateString('pt-BR')) : 'N/A'}</TableCell>
+                                            <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(Number(proposal.totalMonthly || proposal.value || 0))}</TableCell>
                                             <TableCell>
                                                 <ProposalStatusBadge status={proposal.status} />
                                             </TableCell>
@@ -1913,7 +1913,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                                                        className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                                         onClick={() => viewProposal(proposal)}
                                                     >
                                                         <Edit className="h-4 w-4 mr-2" /> Visualizar
@@ -1921,7 +1921,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="border-blue-600 text-blue-300 hover:bg-blue-700"
+                                                        className="border-blue-600 text-blue-700 dark:text-blue-300 hover:bg-blue-700"
                                                         onClick={() => editProposal(proposal)}
                                                     >
                                                         <Edit className="h-4 w-4 mr-2" /> Editar
@@ -1949,12 +1949,12 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
     // Se estiver na tela de visualização da proposta, mostrar o resumo
     if (currentView === 'proposal-summary' && currentProposal) {
         return (
-            <Card className="bg-white border-gray-300 text-black print:shadow-none proposal-view">
+            <Card className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] print:shadow-none proposal-view">
                 <CardHeader className="print:pb-2">
                     <div className="flex justify-between items-start mb-4 print:mb-2">
                         <div>
-                            <h1 className="text-2xl font-bold text-gray-900">Proposta Comercial</h1>
-                            <p className="text-gray-600">PABX/SIP</p>
+                            <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Proposta Comercial</h1>
+                            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">PABX/SIP</p>
                         </div>
                         <div className="flex gap-2 no-print">
                             <Button variant="outline" onClick={() => setCurrentView('search')}>
@@ -1970,7 +1970,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                     {/* Dados do Cliente, Projeto e Gerente */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:gap-4">
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Dados do Cliente</h3>
+                            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Dados do Cliente</h3>
                             <div className="space-y-2 text-sm">
                                 <p><strong>Nome:</strong> {
                                     typeof currentProposal.client === 'object' && currentProposal.client?.name
@@ -1996,27 +1996,27 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                             </div>
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Nome do Projeto</h3>
+                            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Nome do Projeto</h3>
                             <div className="space-y-2 text-sm">
                                 <p className="font-medium text-base">{
                                     typeof currentProposal.client === 'object' && currentProposal.client?.projectName
                                         ? currentProposal.client.projectName
                                         : (currentProposal.clientData?.projectName || currentProposal.metadata?.clientData?.projectName) || 'Projeto não informado'
                                 }</p>
-                                <p className="text-gray-600 text-xs mt-2">
+                                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs mt-2">
                                     <strong>ID da Proposta:</strong> {currentProposal.baseId || currentProposal.id}
                                 </p>
-                                <p className="text-gray-600 text-xs">
+                                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">
                                     <strong>Versão:</strong> v{currentProposal.version || 1}
                                 </p>
-                                <p className="text-gray-600 text-xs">
+                                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">
                                     <strong>Período do Contrato:</strong> {currentProposal.contractPeriod ? `${currentProposal.contractPeriod} meses` : 'N/A'}
                                 </p>
                                 <ProposalApprovalInfo proposal={currentProposal} />
                             </div>
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Gerente de Contas</h3>
+                            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Gerente de Contas</h3>
                             <div className="space-y-2 text-sm">
                                 <p><strong>Nome:</strong> {(() => { const am = currentProposal.accountManager; if (!am) return 'N/A'; if (typeof am === 'string') { try { return JSON.parse(am)?.name || am; } catch { return am; } } return am?.name || currentProposal.metadata?.accountManager?.name || 'N/A'; })()}</p>
                                 <p><strong>Email:</strong> {(() => { const am = currentProposal.accountManager; if (typeof am === 'string') { try { return JSON.parse(am)?.email || 'N/A'; } catch { return 'N/A'; } } return am?.email || currentProposal.metadata?.accountManager?.email || 'N/A'; })()}</p>
@@ -2027,13 +2027,13 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                     {/* Produtos */}
                     <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-3">Produtos e Serviços</h3>
+                        <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Produtos e Serviços</h3>
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                    <TableHead className="text-gray-900">Descrição</TableHead>
-                                    <TableHead className="text-gray-900">Setup</TableHead>
-                                    <TableHead className="text-gray-900">Mensal</TableHead>
+                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Descrição</TableHead>
+                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Setup</TableHead>
+                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Mensal</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -2046,7 +2046,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                 ))}
                                 {(!currentProposal.items && !currentProposal.products && (!proposalItems || proposalItems.length === 0)) && (
                                     <TableRow>
-                                        <TableCell colSpan={3} className="text-center text-gray-500">
+                                        <TableCell colSpan={3} className="text-center text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                                 Nenhum item encontrado
                                             </TableCell>
                                         </TableRow>
@@ -2076,8 +2076,8 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                         
                         return (applySalesperson || appliedDirector > 0) && (
                             <div className="border-t pt-4 print:pt-2">
-                                <div className="p-4 bg-orange-50 border border-orange-300 rounded">
-                                    <h4 className="font-semibold text-orange-800 mb-3 flex items-center">
+                                <div className="p-4 bg-orange-50 dark:bg-orange-950 border border-orange-300 rounded">
+                                    <h4 className="font-semibold text-orange-800 dark:text-orange-300 mb-3 flex items-center">
                                         📋 Histórico de Descontos Aplicados
                                     </h4>
                                     <div className="grid grid-cols-2 gap-4 text-sm">
@@ -2118,7 +2118,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                     {/* Resumo Financeiro */}
                     <div className="border-t pt-4 print:pt-2">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-3">Resumo Financeiro</h3>
+                        <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Resumo Financeiro</h3>
 
                         {/* Descontos Aplicados - Valores detalhados */}
                         {(() => {
@@ -2144,8 +2144,8 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                 || 0;
                             
                             return (applySalesperson || appliedDirector > 0) && (
-                                <div className="mb-4 p-4 bg-amber-50 border border-amber-300 rounded">
-                                    <h4 className="font-semibold text-amber-800 mb-3 flex items-center">
+                                <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-950 border border-amber-300 rounded">
+                                    <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-3 flex items-center">
                                         💰 Descontos Aplicados
                                     </h4>
                                     <div className="space-y-2 text-sm">
@@ -2155,14 +2155,14 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                         </div>
                                         
                                         {applySalesperson && (
-                                            <div className="flex justify-between text-orange-700">
+                                            <div className="flex justify-between text-orange-700 dark:text-orange-300">
                                                 <span><strong>Desconto Vendedor (5%):</strong></span>
                                                 <span className="font-semibold">-{formatCurrency(baseTotalMonthly * 0.05)}</span>
                                             </div>
                                         )}
 
                                         {appliedDirector > 0 && (
-                                            <div className="flex justify-between text-orange-700">
+                                            <div className="flex justify-between text-orange-700 dark:text-orange-300">
                                                 <span><strong>Desconto Diretor ({appliedDirector}%) - Apenas Mensal:</strong></span>
                                                 <span className="font-semibold">-{formatCurrency((baseTotalMonthly * (applySalesperson ? 0.95 : 1)) * (appliedDirector / 100))}</span>
                                             </div>
@@ -2171,7 +2171,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                         <div className="pt-2 mt-2 border-t border-amber-300">
                                             <div className="flex justify-between font-semibold">
                                                 <span>Valor Final (Mensal com desconto):</span>
-                                                <span className="text-green-700">{formatCurrency(currentProposal.totalMonthly || 0)}</span>
+                                                <span className="text-green-700 dark:text-green-300">{formatCurrency(currentProposal.totalMonthly || 0)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -2200,7 +2200,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                     {/* Payback Info se disponível */}
                     {currentProposal.totalSetup > 0 && (
                         <div className="border-t pt-4 print:pt-2">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Análise de Payback</h3>
+                            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Análise de Payback</h3>
                             {(() => {
                                 const totalSetup = currentProposal.totalSetup;
                                 const totalMonthly = currentProposal.totalMonthly;
@@ -2237,18 +2237,18 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
     // Tela da calculadora
     return (
-        <div className="container mx-auto p-4 bg-slate-950 text-white">
+        <div className="container mx-auto p-4 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
             <div className="mb-6">
                 <div className="flex items-center justify-between mb-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-white">Calculadora PABX/SIP</h1>
-                        <p className="text-slate-400 mt-2">Configure e calcule os custos para PABX em Nuvem e SIP Trunk</p>
+                        <h1 className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Calculadora PABX/SIP</h1>
+                        <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Configure e calcule os custos para PABX em Nuvem e SIP Trunk</p>
                     </div>
                     <div className="flex gap-2">
                         <Button
                             variant="outline"
                             onClick={() => setCurrentView('search')}
-                            className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                            className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                         >
                             ← Voltar para Busca
                         </Button>
@@ -2256,7 +2256,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                             <Button
                                 variant="outline"
                                 onClick={onBackToDashboard}
-                                className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                                className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                             >
                                 ← Dashboard
                             </Button>
@@ -2269,7 +2269,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
             </div>
 
             <Tabs defaultValue="calculator" className="w-full">
-                <TabsList className={`grid w-full grid-cols-4 bg-slate-800 text-slate-400`}>
+                <TabsList className={`grid w-full grid-cols-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)]`}>
                     <TabsTrigger value="calculator">Calculadora</TabsTrigger>
                     {canEditCommissions && (
                         <TabsTrigger value="list-price">Tabela de Preços</TabsTrigger>
@@ -2285,7 +2285,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                 <TabsContent value="calculator">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                         {/* PABX em Nuvem */}
-                        <Card className="bg-slate-900/80 border-slate-800 text-white">
+                        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <Phone className="h-5 w-5" />
@@ -2316,10 +2316,10 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                         onChange={(e) => setPabxExtensions(parseInt(e.target.value) || 1)}
                                         min="1"
                                         max="1000"
-                                        className="bg-slate-800 border-slate-700 text-white"
+                                        className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                         placeholder="Digite a quantidade de ramais"
                                     />
-                                    <p className="text-xs text-slate-400 mt-1">
+                                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                                         Faixa de preço: {pabxModality === 'Standard'
                                             ? getPriceRange(pabxExtensions) + ' ramais'
                                             : getPremiumPriceRange(pabxExtensions, pabxPremiumPlan, pabxPremiumSubPlan)
@@ -2375,10 +2375,10 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                         <div>
                                             <Label>Plano</Label>
                                             <Select value={pabxPremiumPlan} onValueChange={(value) => setPabxPremiumPlan(value as 'Essencial' | 'Profissional')}>
-                                                <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-white">
+                                                <SelectTrigger className="w-full bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <SelectValue placeholder="Selecione o plano" />
                                                 </SelectTrigger>
-                                                <SelectContent className="bg-slate-800 border-slate-700">
+                                                <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]">
                                                     <SelectItem value="Essencial">Plano Essencial</SelectItem>
                                                     <SelectItem value="Profissional">Plano Profissional</SelectItem>
                                                 </SelectContent>
@@ -2389,10 +2389,10 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                 <div>
                                                     <Label>Tipo de Plano Essencial</Label>
                                                     <Select value={pabxPremiumSubPlan} onValueChange={(value) => setPabxPremiumSubPlan(value as 'Ilimitado' | 'Tarifado')}>
-                                                        <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                                        <SelectTrigger className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                             <SelectValue />
                                                         </SelectTrigger>
-                                                        <SelectContent className="bg-slate-800 border-slate-700">
+                                                        <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]">
                                                             <SelectItem value="Ilimitado">Essencial Ilimitado</SelectItem>
                                                             <SelectItem value="Tarifado">Essencial Tarifado</SelectItem>
                                                         </SelectContent>
@@ -2418,10 +2418,10 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                 <div>
                                                     <Label>Tipo de Plano Profissional</Label>
                                                     <Select value={pabxPremiumSubPlan} onValueChange={(value) => setPabxPremiumSubPlan(value as 'Ilimitado' | 'Tarifado')}>
-                                                        <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                                        <SelectTrigger className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                             <SelectValue />
                                                         </SelectTrigger>
-                                                        <SelectContent className="bg-slate-800 border-slate-700">
+                                                        <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]">
                                                             <SelectItem value="Ilimitado">Profissional Ilimitado</SelectItem>
                                                             <SelectItem value="Tarifado">Profissional Tarifado</SelectItem>
                                                         </SelectContent>
@@ -2471,7 +2471,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                             type="number"
                                             value={pabxDeviceQuantity}
                                             onChange={(e) => setPabxDeviceQuantity(parseInt(e.target.value) || 0)}
-                                            className="bg-slate-800 border-slate-700 text-white"
+                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                         />
                                     </div>
                                 )}
@@ -2507,10 +2507,10 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                     <div>
                                         <Label>Plano de Agente IA</Label>
                                         <Select value={pabxAIPlan} onValueChange={setPabxAIPlan}>
-                                            <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                            <SelectTrigger className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent className="bg-slate-800 border-slate-700">
+                                            <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]">
                                                 <SelectItem value="none">Sem Agente IA</SelectItem>
                                                 <SelectItem value="20K">20K</SelectItem>
                                                 <SelectItem value="40K">40K</SelectItem>
@@ -2524,7 +2524,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                 )}
 
                                 {pabxIncludeAI && (
-                                    <div className="text-sm text-slate-400">
+                                    <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                         <p>Tenha até:</p>
                                         <p>50.000 mensagens* ou</p>
                                         <p>10.000 minutos** ou</p>
@@ -2535,21 +2535,21 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                                 {/* Resultado PABX */}
                                 {pabxResult && (
-                                    <div className="bg-slate-800 p-4 rounded-lg">
+                                    <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 rounded-lg">
                                         <h3 className="font-semibold mb-2">Resultado PABX {pabxModality}:</h3>
                                         <div className="space-y-1 text-sm">
-                                            <div className="flex justify-between text-slate-300">
+                                            <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                 <span>Ramais configurados:</span>
                                                 <span>{pabxExtensions} ramais</span>
                                             </div>
 
                                             {pabxModality === 'Standard' ? (
                                                 <>
-                                                    <div className="flex justify-between text-slate-300">
+                                                    <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <span>Faixa de preço:</span>
                                                         <span>{getPriceRange(pabxExtensions)} ramais</span>
                                                     </div>
-                                                    <Separator className="my-2 bg-slate-600" />
+                                                    <Separator className="my-2 bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
                                                     <div className="flex justify-between">
                                                         <span>Taxa de Setup:</span>
                                                         <span>{formatCurrency(pabxResult.setup)}</span>
@@ -2575,23 +2575,23 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                 </>
                                             ) : (
                                                 <>
-                                                    <div className="flex justify-between text-slate-300">
+                                                    <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <span>Faixa de preço:</span>
                                                         <span>{getPremiumPriceRange(pabxExtensions, pabxPremiumPlan, pabxPremiumSubPlan)}</span>
                                                     </div>
-                                                    <div className="flex justify-between text-slate-300">
+                                                    <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <span>Plano:</span>
                                                         <span>{pabxPremiumPlan} {pabxPremiumSubPlan}</span>
                                                     </div>
-                                                    <div className="flex justify-between text-slate-300">
+                                                    <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <span>Contrato:</span>
                                                         <span>{contractDuration} meses</span>
                                                     </div>
-                                                    <div className="flex justify-between text-slate-300">
+                                                    <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <span>Equipamento:</span>
                                                         <span>{pabxPremiumEquipment} Equipamento</span>
                                                     </div>
-                                                    <Separator className="my-2 bg-slate-600" />
+                                                    <Separator className="my-2 bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
                                                     <div className="flex justify-between">
                                                         <span>Taxa de Setup:</span>
                                                         <span>{formatCurrency(pabxResult.setup)}</span>
@@ -2609,8 +2609,8 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                     <span>{formatCurrency(pabxResult.aiAgentCost)}</span>
                                                 </div>
                                             )}
-                                            <Separator className="my-2 bg-slate-600" />
-                                            <div className="flex justify-between font-semibold text-green-400">
+                                            <Separator className="my-2 bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
+                                            <div className="flex justify-between font-semibold text-green-700 dark:text-green-400">
                                                 <span>Total Mensal:</span>
                                                 <span>{formatCurrency(pabxResult.totalMonthly)}</span>
                                             </div>
@@ -2627,7 +2627,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                         </Card>
 
                         {/* SIP Trunk */}
-                        <Card className="bg-slate-900/80 border-slate-800 text-white">
+                        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             <CardHeader>
                                 <CardTitle className="flex items-center gap-2">
                                     <PhoneForwarded className="h-5 w-5" />
@@ -2638,10 +2638,10 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                 <div>
                                     <Label>Plano SIP</Label>
                                     <Select value={sipPlan} onValueChange={setSipPlan}>
-                                        <SelectTrigger className="bg-slate-800 border-slate-700 text-white">
+                                        <SelectTrigger className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                             <SelectValue />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-slate-800 border-slate-700">
+                                        <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]">
                                             <SelectItem value="SIP TARIFADO Call Center 2 Canais">SIP TARIFADO Call Center 2 Canais</SelectItem>
                                             <SelectItem value="SIP TARIFADO 2 Canais">SIP TARIFADO 2 Canais</SelectItem>
                                             <SelectItem value="SIP TARIFADO 4 Canais">SIP TARIFADO 4 Canais</SelectItem>
@@ -2671,7 +2671,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                     {(sipPlan === 'SIP TARIFADO 30 Canais' ||
                                         sipPlan === 'SIP TARIFADO 60 Canais' ||
                                         sipPlan === 'SIP ILIMITADO 60 Canais') ? (
-                                        <div className="bg-slate-800 border border-slate-700 rounded-md px-3 py-2 text-orange-400 font-medium">
+                                        <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded-md px-3 py-2 text-orange-700 dark:text-orange-400 font-medium">
                                             Sem Possibilidade
                                         </div>
                                     ) : (
@@ -2680,7 +2680,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                             type="number"
                                             value={sipAdditionalChannels}
                                             onChange={(e) => setSipAdditionalChannels(parseInt(e.target.value) || 0)}
-                                            className="bg-slate-800 border-slate-700 text-white"
+                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                         />
                                     )}
                                 </div>
@@ -2701,15 +2701,15 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                                 {/* Resultado SIP */}
                                 {sipResult && (
-                                    <div className="bg-slate-800 p-4 rounded-lg">
+                                    <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] p-4 rounded-lg">
                                         <h3 className="font-semibold mb-2">Resultado SIP:</h3>
                                         <div className="space-y-1 text-sm">
                                             <div className="flex justify-between">
                                                 <span>Taxa de Setup:</span>
                                                 <span>{formatCurrency(sipResult.setup)}</span>
                                             </div>
-                                            <Separator className="my-2 bg-slate-600" />
-                                            <div className="flex justify-between font-bold text-lg text-green-400">
+                                            <Separator className="my-2 bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
+                                            <div className="flex justify-between font-bold text-lg text-green-700 dark:text-green-400">
                                                 <span>Total Mensal:</span>
                                                 <span>{formatCurrency(sipResult.monthly)}</span>
                                             </div>
@@ -2722,7 +2722,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                         </Button>
                                         <Button
                                             variant="outline"
-                                            className="w-full mt-2 border-slate-600 text-slate-300 hover:bg-slate-700"
+                                            className="w-full mt-2 border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                         >
                                             Ajustes do Sistema
                                         </Button>
@@ -2734,7 +2734,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                     {/* Resumo da Proposta */}
                     {proposalItems.length > 0 && (
-                        <Card className="bg-slate-900/80 border-slate-800 text-white mt-6">
+                        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] mt-6">
                             <CardHeader>
                                 <CardTitle>Resumo da Proposta</CardTitle>
                             </CardHeader>
@@ -2742,10 +2742,10 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                 <div className="mb-4">
                                     <Label htmlFor="proposal-status" className="mb-2 block">Status da Proposta</Label>
                                     <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                                        <SelectTrigger id="proposal-status" className="bg-slate-800 border-slate-700 text-white">
+                                        <SelectTrigger id="proposal-status" className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                             <SelectValue placeholder="Selecione o status" />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-slate-800 text-white">
+                                        <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                             <SelectItem value="Aguardando Aprovação Diretoria">Aguardando Aprovação Diretoria</SelectItem>
                                             <SelectItem value="Aguardando Aprovação do Cliente">Aguardando Aprovação do Cliente</SelectItem>
                                             <SelectItem value="Proposta Enviada">Proposta Enviada</SelectItem>
@@ -2759,10 +2759,10 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                 <div className="mb-4">
                                     <Label htmlFor="proposal-temperature" className="mb-2 block">Temperatura do Negócio</Label>
                                     <Select value={selectedForecastTemperature} onValueChange={setSelectedForecastTemperature}>
-                                        <SelectTrigger id="proposal-temperature" className="bg-slate-800 border-slate-700 text-white">
+                                        <SelectTrigger id="proposal-temperature" className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                             <SelectValue placeholder="Selecione a temperatura" />
                                         </SelectTrigger>
-                                        <SelectContent className="bg-slate-800 text-white">
+                                        <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                             <SelectItem value="0">0%</SelectItem>
                                             <SelectItem value="25">25%</SelectItem>
                                             <SelectItem value="50">50%</SelectItem>
@@ -2779,21 +2779,21 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                         value={proposalChanges}
                                         onChange={(e) => setProposalChanges(e.target.value)}
                                         placeholder="Descreva as alterações feitas nesta versão da proposta..."
-                                        className="w-full p-3 bg-slate-800 border border-slate-700 text-white rounded-md resize-none"
+                                        className="w-full p-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-md resize-none"
                                         rows={3}
                                     />
                                 </div>
                                 <Table>
                                     <TableHeader>
-                                        <TableRow className="border-slate-700">
-                                            <TableHead className="text-white">Descrição</TableHead>
-                                            <TableHead className="text-white text-right">Setup</TableHead>
-                                            <TableHead className="text-white text-right">Mensal</TableHead>
+                                        <TableRow className="border-[var(--crm-border)]">
+                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Descrição</TableHead>
+                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-right">Setup</TableHead>
+                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-right">Mensal</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {proposalItems.map((item, index) => (
-                                            <TableRow key={item.id} className="border-slate-800">
+                                            <TableRow key={item.id} className="border-[var(--crm-border)]">
                                                 <TableCell>{item.description}</TableCell>
                                                 <TableCell className="text-right">{formatCurrency(item.setup)}</TableCell>
                                                 <TableCell className="text-right">{formatCurrency(item.monthly)}</TableCell>
@@ -2801,7 +2801,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                     <Button
                                                         variant="outline"
                                                         size="sm"
-                                                        className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                                                        className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                                         onClick={() => handleRemoveItem(item.id)}
                                                     >
                                                         Excluir
@@ -2810,25 +2810,25 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                             </TableRow>
                                         ))}
                                         {applySalespersonDiscount && (
-                                            <TableRow key="salesperson-discount-row" className="border-slate-700 font-semibold text-orange-400">
+                                            <TableRow key="salesperson-discount-row" className="border-[var(--crm-border)] font-semibold text-orange-700 dark:text-orange-400">
                                                 <TableCell>Desconto Vendedor (5%):</TableCell>
                                                 <TableCell className="text-right">-{formatCurrency(rawTotalMonthly * 0.05)}</TableCell>
                                                 <TableCell className="text-right">-{formatCurrency(rawTotalMonthly * 0.05)}</TableCell>
                                             </TableRow>
                                         )}
                                         {appliedDirectorDiscountPercentage > 0 && (
-                                            <TableRow key="director-discount-row" className="border-slate-700 font-semibold text-orange-400">
+                                            <TableRow key="director-discount-row" className="border-[var(--crm-border)] font-semibold text-orange-700 dark:text-orange-400">
                                                 <TableCell>Desconto Diretor ({appliedDirectorDiscountPercentage}%) - Apenas Mensal:</TableCell>
                                                 <TableCell className="text-right">R$ 0,00</TableCell>
                                                 <TableCell className="text-right">-{formatCurrency(rawTotalMonthly * (applySalespersonDiscount ? 0.95 : 1) * (appliedDirectorDiscountPercentage / 100))}</TableCell>
                                             </TableRow>
                                         )}
-                                        <TableRow key="total-setup-row" className="border-slate-700 font-semibold">
+                                        <TableRow key="total-setup-row" className="border-[var(--crm-border)] font-semibold">
                                             <TableCell>Total Setup:</TableCell>
                                             <TableCell className="text-right">{formatCurrency(finalTotalSetup)}</TableCell>
                                             <TableCell></TableCell>
                                         </TableRow>
-                                        <TableRow key="total-monthly-row" className="border-slate-700 font-semibold">
+                                        <TableRow key="total-monthly-row" className="border-[var(--crm-border)] font-semibold">
                                             <TableCell>Total Mensal:</TableCell>
                                             <TableCell></TableCell>
                                             <TableCell className="text-right">{formatCurrency(finalTotalMonthly)}</TableCell>
@@ -2839,33 +2839,33 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                 {/* Histórico de Descontos Aplicados */}
                                 {(applySalespersonDiscount || appliedDirectorDiscountPercentage > 0) && (
                                     <div className="p-4 bg-gradient-to-br from-amber-900/40 to-orange-900/40 border-2 border-orange-500/60 rounded-lg shadow-lg mt-4">
-                                        <h4 className="font-semibold text-orange-300 mb-3 flex items-center text-base">
+                                        <h4 className="font-semibold text-orange-700 dark:text-orange-300 mb-3 flex items-center text-base">
                                             📋 Histórico de Descontos Aplicados
                                         </h4>
                                         <div className="space-y-2 text-sm">
                                             <div className="flex justify-between">
-                                                <span className="text-slate-200">Versão:</span>
-                                                <span className="text-orange-300 font-bold">v{currentProposal?.version || 1}</span>
+                                                <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Versão:</span>
+                                                <span className="text-orange-700 dark:text-orange-300 font-bold">v{currentProposal?.version || 1}</span>
                                             </div>
                                             
                                             {applySalespersonDiscount && (
                                                 <div className="flex justify-between">
-                                                    <span className="text-slate-200">Desconto Vendedor:</span>
-                                                    <span className="text-orange-300 font-bold">5%</span>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Desconto Vendedor:</span>
+                                                    <span className="text-orange-700 dark:text-orange-300 font-bold">5%</span>
                                                 </div>
                                             )}
 
                                             {appliedDirectorDiscountPercentage > 0 && (
                                                 <div className="flex justify-between">
-                                                    <span className="text-slate-200">Desconto Diretor:</span>
-                                                    <span className="text-orange-300 font-bold">{appliedDirectorDiscountPercentage}%</span>
+                                                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Desconto Diretor:</span>
+                                                    <span className="text-orange-700 dark:text-orange-300 font-bold">{appliedDirectorDiscountPercentage}%</span>
                                                 </div>
                                             )}
                                             
                                             <Separator className="my-2 bg-orange-500/30" />
                                             <div className="flex justify-between">
-                                                <span className="text-slate-200">Data de Criação:</span>
-                                                <span className="text-orange-300 font-semibold">
+                                                <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Data de Criação:</span>
+                                                <span className="text-orange-700 dark:text-orange-300 font-semibold">
                                                     {currentProposal?.createdAt 
                                                         ? new Date(currentProposal.createdAt).toLocaleDateString('pt-BR')
                                                         : new Date().toLocaleDateString('pt-BR')
@@ -2876,14 +2876,14 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                     </div>
                                 )}
 
-                                <Separator className="my-4 bg-slate-700" />
+                                <Separator className="my-4 bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
 
                                 {/* Controles de Desconto - Conforme Print */}
-                                <div className="space-y-4 p-4 bg-slate-800/50 rounded-lg border border-slate-700">
+                                <div className="space-y-4 p-4 bg-[rgb(var(--crm-surface-rgb)_/_0.5)] rounded-lg border border-[var(--crm-border)]">
                                     {/* Campo Desconto Diretor - Sempre visível para Director e Admin */}
                                     {(isDirector || isAdmin) && (
                                         <div className="space-y-2">
-                                            <Label htmlFor="director-discount" className="text-slate-300">Desconto Diretor (%)</Label>
+                                            <Label htmlFor="director-discount" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Desconto Diretor (%)</Label>
                                             <Input
                                                 id="director-discount"
                                                 type="number"
@@ -2896,7 +2896,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                 placeholder="0-100"
                                                 min="0"
                                                 max="100"
-                                                className="bg-slate-700 border-slate-600 text-white"
+                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                             />
                                         </div>
                                     )}
@@ -2909,7 +2909,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                 checked={applySalespersonDiscount}
                                                 onCheckedChange={(checked) => setApplySalespersonDiscount(!!checked)}
                                             />
-                                            <Label htmlFor="salesperson-discount-toggle" className="text-slate-300">Aplicar Desconto Vendedor (5%)</Label>
+                                            <Label htmlFor="salesperson-discount-toggle" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Aplicar Desconto Vendedor (5%)</Label>
                                         </div>
                                     )}
                                 </div>
@@ -2969,7 +2969,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                         <Download className="h-4 w-4 mr-2" />
                                         Gerar PDF
                                     </Button>
-                                    <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700" onClick={cancelAction}>
+                                    <Button variant="outline" className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]" onClick={cancelAction}>
                                         Cancelar
                                     </Button>
                                 </div>
@@ -3077,9 +3077,9 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                 />
 
                                 {/* Resultado Final */}
-                                <Card className="border-green-500 bg-gradient-to-r from-slate-900 to-green-900/20">
+                                <Card className="border-green-500 bg-gradient-to-r from-[rgb(var(--crm-surface-2-rgb)_/_1)] to-green-900/20">
                                     <CardHeader className="bg-gradient-to-r from-green-800 to-green-700 py-4">
-                                        <CardTitle className="text-xl font-bold text-white flex items-center">
+                                        <CardTitle className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center">
                                             <div className="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
                                             Resultado Final
                                         </CardTitle>
@@ -3088,75 +3088,75 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                             {/* RECEITA */}
                                             <div className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 p-4 rounded-lg border border-blue-500/30">
-                                                <h3 className="text-sm font-semibold text-blue-300 mb-3 uppercase tracking-wide">RECEITA</h3>
+                                                <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-3 uppercase tracking-wide">RECEITA</h3>
                                                 <div className="space-y-2">
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">Mensal:</span>
-                                                        <span className="text-blue-300 font-semibold">{formatCurrency(dreCalculations.receitaBruta)}</span>
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Mensal:</span>
+                                                        <span className="text-blue-700 dark:text-blue-300 font-semibold">{formatCurrency(dreCalculations.receitaBruta)}</span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">Anual:</span>
-                                                        <span className="text-blue-300 font-semibold">{formatCurrency(dreCalculations.receitaBruta * 12)}</span>
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Anual:</span>
+                                                        <span className="text-blue-700 dark:text-blue-300 font-semibold">{formatCurrency(dreCalculations.receitaBruta * 12)}</span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">Setup:</span>
-                                                        <span className="text-blue-300 font-semibold">{formatCurrency(dreCalculations.taxaInstalacao)}</span>
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Setup:</span>
+                                                        <span className="text-blue-700 dark:text-blue-300 font-semibold">{formatCurrency(dreCalculations.taxaInstalacao)}</span>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             {/* CUSTOS */}
                                             <div className="bg-gradient-to-br from-red-900/50 to-red-800/30 p-4 rounded-lg border border-red-500/30">
-                                                <h3 className="text-sm font-semibold text-red-300 mb-3 uppercase tracking-wide">CUSTOS</h3>
+                                                <h3 className="text-sm font-semibold text-red-700 dark:text-red-300 mb-3 uppercase tracking-wide">CUSTOS</h3>
                                                 <div className="space-y-2">
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">Custo/Desp (10%):</span>
-                                                        <span className="text-red-300 font-semibold">{formatCurrency(dreCalculations.custoServico)}</span>
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Custo/Desp (10%):</span>
+                                                        <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(dreCalculations.custoServico)}</span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                             {(includeParceiroIndicador || includeInfluencerPartner) ? 'Comissão Canal/Vendedor:' : 'Comissão Vendedor:'}
                                                         </span>
-                                                        <span className="text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoVendedor)}</span>
+                                                        <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoVendedor)}</span>
                                                     </div>
                                                     {includeParceiroIndicador && (
                                                         <div className="flex justify-between text-sm">
-                                                            <span className="text-gray-300">Comissão Parceiro Indicador:</span>
-                                                            <span className="text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoParceiroIndicador)}</span>
+                                                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão Parceiro Indicador:</span>
+                                                            <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoParceiroIndicador)}</span>
                                                         </div>
                                                     )}
                                                     {includeInfluencerPartner && (
                                                         <div className="flex justify-between text-sm">
-                                                            <span className="text-gray-300">Comissão Parceiro Influenciador:</span>
-                                                            <span className="text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoParceiroInfluenciador)}</span>
+                                                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão Parceiro Influenciador:</span>
+                                                            <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(dreCalculations.comissaoParceiroInfluenciador)}</span>
                                                         </div>
                                                     )}
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">Impostos:</span>
-                                                        <span className="text-red-300 font-semibold">{formatCurrency(dreCalculations.totalImpostos)}</span>
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Impostos:</span>
+                                                        <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(dreCalculations.totalImpostos)}</span>
                                                     </div>
                                                 </div>
                                             </div>
 
                                             {/* LUCRO */}
                                             <div className="bg-gradient-to-br from-green-900/50 to-green-800/30 p-4 rounded-lg border border-green-500/30">
-                                                <h3 className="text-sm font-semibold text-green-300 mb-3 uppercase tracking-wide">LUCRO</h3>
+                                                <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 mb-3 uppercase tracking-wide">LUCRO</h3>
                                                 <div className="space-y-2">
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">Operacional:</span>
-                                                        <span className={`font-semibold ${dreCalculations.lucroOperacional >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Operacional:</span>
+                                                        <span className={`font-semibold ${dreCalculations.lucroOperacional >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
                                                             {formatCurrency(dreCalculations.lucroOperacional)}
                                                         </span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">Líquido:</span>
-                                                        <span className={`font-semibold ${dreCalculations.lucroLiquido >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Líquido:</span>
+                                                        <span className={`font-semibold ${dreCalculations.lucroLiquido >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
                                                             {formatCurrency(dreCalculations.lucroLiquido)}
                                                         </span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">Anual:</span>
-                                                        <span className={`font-semibold ${dreCalculations.lucroLiquido >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Anual:</span>
+                                                        <span className={`font-semibold ${dreCalculations.lucroLiquido >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
                                                             {formatCurrency(dreCalculations.lucroLiquido * 12)}
                                                         </span>
                                                     </div>
@@ -3165,23 +3165,23 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                                             {/* INDICADORES */}
                                             <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 p-4 rounded-lg border border-purple-500/30">
-                                                <h3 className="text-sm font-semibold text-purple-300 mb-3 uppercase tracking-wide">INDICADORES</h3>
+                                                <h3 className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-3 uppercase tracking-wide">INDICADORES</h3>
                                                 <div className="space-y-2">
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">Margem:</span>
-                                                        <span className={`font-semibold ${dreCalculations.rentabilidade >= 0 ? 'text-purple-300' : 'text-red-300'}`}>
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Margem:</span>
+                                                        <span className={`font-semibold ${dreCalculations.rentabilidade >= 0 ? "text-purple-700 dark:text-purple-300" : "text-red-700 dark:text-red-300"}`}>
                                                             {dreCalculations.rentabilidade.toFixed(1)}%
                                                         </span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">Payback:</span>
-                                                        <span className="text-purple-300 font-semibold">
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Payback:</span>
+                                                        <span className="text-purple-700 dark:text-purple-300 font-semibold">
                                                             {dreCalculations.paybackMeses > 0 ? `${dreCalculations.paybackMeses}m` : 'N/A'}
                                                         </span>
                                                     </div>
                                                     <div className="flex justify-between text-sm">
-                                                        <span className="text-gray-300">ROI Anual:</span>
-                                                        <span className={`font-semibold ${dreCalculations.rentabilidade >= 0 ? 'text-purple-300' : 'text-red-300'}`}>
+                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">ROI Anual:</span>
+                                                        <span className={`font-semibold ${dreCalculations.rentabilidade >= 0 ? "text-purple-700 dark:text-purple-300" : "text-red-700 dark:text-red-300"}`}>
                                                             {(dreCalculations.rentabilidade * 12).toFixed(1)}%
                                                         </span>
                                                     </div>
@@ -3190,29 +3190,29 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                         </div>
 
                                         {/* Resumo Executivo */}
-                                        <div className="mt-6 pt-6 border-t border-slate-700">
+                                        <div className="mt-6 pt-6 border-t border-[var(--crm-border)]">
                                             <div className="flex items-center mb-4">
                                                 <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                                                <h3 className="text-lg font-semibold text-white">Resumo Executivo</h3>
+                                                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Resumo Executivo</h3>
                                             </div>
                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                 <div className="text-center">
-                                                    <div className="text-2xl font-bold text-green-400">
+                                                    <div className="text-2xl font-bold text-green-700 dark:text-green-400">
                                                         {formatCurrency(dreCalculations.receitaBruta * 12)}
                                                     </div>
-                                                    <div className="text-sm text-slate-400">Receita Total (12m)</div>
+                                                    <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Receita Total (12m)</div>
                                                 </div>
                                                 <div className="text-center">
-                                                    <div className={`text-2xl font-bold ${dreCalculations.lucroLiquido >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                    <div className={`text-2xl font-bold ${dreCalculations.lucroLiquido >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                         {formatCurrency(dreCalculations.lucroLiquido * 12)}
                                                     </div>
-                                                    <div className="text-sm text-slate-400">Lucro Total (12m)</div>
+                                                    <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Lucro Total (12m)</div>
                                                 </div>
                                                 <div className="text-center">
-                                                    <div className={`text-2xl font-bold ${dreCalculations.rentabilidade >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                    <div className={`text-2xl font-bold ${dreCalculations.rentabilidade >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                         {dreCalculations.rentabilidade.toFixed(1)}%
                                                     </div>
-                                                    <div className="text-sm text-slate-400">Margem Líquida</div>
+                                                    <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Margem Líquida</div>
                                                 </div>
                                             </div>
                                         </div>
@@ -3228,16 +3228,16 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                 <TabsContent value="list-price">
                     <div className="mt-6 space-y-6">
                         {/* Tabela de Preços Agente IA */}
-                        <Card className="bg-slate-900/80 border-slate-800 text-white">
+                        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <div>
-                                    <CardTitle className="text-blue-400">Agente de IA</CardTitle>
+                                    <CardTitle className="text-blue-700 dark:text-blue-400">Agente de IA</CardTitle>
                                 </div>
                                 <Button
                                     variant={isEditingAI ? "secondary" : "outline"}
                                     size="sm"
                                     onClick={() => setIsEditingAI(!isEditingAI)}
-                                    className="border-slate-600"
+                                    className="border-[var(--crm-border)]"
                                 >
                                     {isEditingAI ? "Salvar" : "Editar"}
                                 </Button>
@@ -3245,20 +3245,20 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                                     {Object.entries(aiAgentPrices).map(([plan, data]) => (
-                                        <div key={plan} className="bg-gradient-to-b from-blue-900/30 to-cyan-900/30 rounded-lg p-4 border border-slate-700">
+                                        <div key={plan} className="bg-gradient-to-b from-blue-900/30 to-cyan-900/30 rounded-lg p-4 border border-[var(--crm-border)]">
                                             <div className="text-center mb-4">
                                                 <div className="w-16 h-16 mx-auto bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-lg mb-2">
                                                     {plan}
                                                 </div>
-                                                <p className="text-xs text-slate-400">{data?.credits?.toLocaleString?.() ?? '0'} Créditos de Interação</p>
+                                                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{data?.credits?.toLocaleString?.() ?? '0'} Créditos de Interação</p>
                                             </div>
 
-                                            <div className="space-y-2 text-xs text-slate-300 mb-4">
+                                            <div className="space-y-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] mb-4">
                                                 <p><strong>Tenha até:</strong></p>
                                                 <p>{(data.messages / 1000).toFixed(0)}.000 mensagens* ou</p>
                                                 <p>{(data.minutes / 1000).toFixed(0)}.000 minutos** ou</p>
                                                 <p>{(data.premium / 1000).toFixed(0)}.000 voz premium*** ou</p>
-                                                <p className="text-slate-500">Opções acima combinadas</p>
+                                                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Opções acima combinadas</p>
                                             </div>
 
                                             <div className="text-center">
@@ -3277,10 +3277,10 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                 ) : (
                                                     <p className="text-2xl font-bold">{formatCurrency(data.price)}</p>
                                                 )}
-                                                <p className="text-xs text-slate-500">por mês</p>
+                                                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">por mês</p>
                                             </div>
 
-                                            <div className="text-xs text-slate-400 mt-4 space-y-1">
+                                            <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-4 space-y-1">
                                                 <p>* 1 crédito por mensagem</p>
                                                 <p>** 10 créditos por minuto</p>
                                                 <p>*** 20 créditos por minuto (voz premium)</p>
@@ -3292,9 +3292,9 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                         </Card>
 
                         {/* Tabela de Preços SIP TRUNK */}
-                        <Card className="bg-slate-900/80 border-slate-800 text-white">
+                        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             <CardHeader className="flex flex-row items-center justify-between">
-                                <CardTitle className="text-blue-400">SIP TRUNK | Planos e preços</CardTitle>
+                                <CardTitle className="text-blue-700 dark:text-blue-400">SIP TRUNK | Planos e preços</CardTitle>
                                 <Button
                                     variant={isEditingSIP ? "secondary" : "outline"}
                                     size="sm"
@@ -3303,7 +3303,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                             handleSave(currentProposal.id, true); // Salvar como nova versão
                                         }
                                     } : () => setIsEditingSIP(true)}
-                                    className="border-slate-600"
+                                    className="border-[var(--crm-border)]"
                                 >
                                     {isEditingSIP ? "Salvar" : "Editar"}
                                 </Button>
@@ -3312,50 +3312,50 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                 <div className="overflow-x-auto">
                                     <Table>
                                         <TableHeader>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead rowSpan={3} className="text-white bg-blue-900 text-center align-middle">SIP TRUNK</TableHead>
-                                                <TableHead colSpan={6} className="text-white bg-blue-800 text-center">SIP TARIFADO</TableHead>
-                                                <TableHead colSpan={5} className="text-white bg-blue-700 text-center">SIP ILIMITADO</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead rowSpan={3} className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-900 text-center align-middle">SIP TRUNK</TableHead>
+                                                <TableHead colSpan={6} className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center">SIP TARIFADO</TableHead>
+                                                <TableHead colSpan={5} className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center">SIP ILIMITADO</TableHead>
                                             </TableRow>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead className="text-white bg-blue-800 text-center">Call Center</TableHead>
-                                                <TableHead className="text-white bg-blue-800 text-center">2</TableHead>
-                                                <TableHead className="text-white bg-blue-800 text-center">4</TableHead>
-                                                <TableHead className="text-white bg-blue-800 text-center">10</TableHead>
-                                                <TableHead className="text-white bg-blue-800 text-center">30</TableHead>
-                                                <TableHead className="text-white bg-blue-800 text-center">60</TableHead>
-                                                <TableHead className="text-white bg-blue-700 text-center">5</TableHead>
-                                                <TableHead className="text-white bg-blue-700 text-center">10</TableHead>
-                                                <TableHead className="text-white bg-blue-700 text-center">20</TableHead>
-                                                <TableHead className="text-white bg-blue-700 text-center">30</TableHead>
-                                                <TableHead className="text-white bg-blue-700 text-center">60</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center">Call Center</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center">2</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center">4</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center">10</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center">30</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center">60</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center">5</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center">10</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center">20</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center">30</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center">60</TableHead>
                                             </TableRow>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead className="text-white bg-blue-800 text-center text-xs">2 Canais</TableHead>
-                                                <TableHead className="text-white bg-blue-800 text-center text-xs">2 Canais</TableHead>
-                                                <TableHead className="text-white bg-blue-800 text-center text-xs">4 Canais</TableHead>
-                                                <TableHead className="text-white bg-blue-800 text-center text-xs">10 Canais</TableHead>
-                                                <TableHead className="text-white bg-blue-800 text-center text-xs">30 Canais</TableHead>
-                                                <TableHead className="text-white bg-blue-800 text-center text-xs">60 Canais</TableHead>
-                                                <TableHead className="text-white bg-blue-700 text-center text-xs">5 Canais</TableHead>
-                                                <TableHead className="text-white bg-blue-700 text-center text-xs">10 Canais</TableHead>
-                                                <TableHead className="text-white bg-blue-700 text-center text-xs">20 Canais</TableHead>
-                                                <TableHead className="text-white bg-blue-700 text-center text-xs">30 Canais</TableHead>
-                                                <TableHead className="text-white bg-blue-700 text-center text-xs">60 Canais</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center text-xs">2 Canais</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center text-xs">2 Canais</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center text-xs">4 Canais</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center text-xs">10 Canais</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center text-xs">30 Canais</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-50 dark:bg-blue-800 text-center text-xs">60 Canais</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center text-xs">5 Canais</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center text-xs">10 Canais</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center text-xs">20 Canais</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center text-xs">30 Canais</TableHead>
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center text-xs">60 Canais</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {/* Canais Adicionais - Assinatura */}
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-blue-900/30">Canais Adicionais (Assinatura Mensal)</TableCell>
-                                                <TableCell className="text-center bg-blue-800/20">Não Aplicável</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-blue-50/30 dark:bg-blue-900/30">Canais Adicionais (Assinatura Mensal)</TableCell>
+                                                <TableCell className="text-center bg-blue-50/20 dark:bg-blue-800/20">Não Aplicável</TableCell>
                                                 <TableCell className="text-center" colSpan={5}>Não Aplicável</TableCell>
                                                 {Object.entries(sipConfig.additionalChannels.assinatura).map(([plan, data]) => (
                                                     <TableCell key={`assinatura-${plan}`} className="text-center bg-blue-600/20">
                                                         {isEditingSIP ? (
                                                             <div className="space-y-1">
-                                                                <Input type="number" step="1" value={data.max} onChange={(e) => setSipConfig(prev => ({ ...prev, additionalChannels: { ...prev.additionalChannels, assinatura: { ...prev.additionalChannels.assinatura, [plan]: { ...(prev.additionalChannels.assinatura as any)[plan], max: parseFloat(e.target.value) || 0 } } } }))} className="bg-slate-800 text-center text-xs" placeholder="Canais" />
-                                                                <Input type="number" step="0.01" value={data.price} onChange={(e) => setSipConfig(prev => ({ ...prev, additionalChannels: { ...prev.additionalChannels, assinatura: { ...prev.additionalChannels.assinatura, [plan]: { ...(prev.additionalChannels.assinatura as any)[plan], price: parseFloat(e.target.value) || 0 } } } }))} className="bg-slate-800 text-center text-xs" placeholder="Preço" />
+                                                                <Input type="number" step="1" value={data.max} onChange={(e) => setSipConfig(prev => ({ ...prev, additionalChannels: { ...prev.additionalChannels, assinatura: { ...prev.additionalChannels.assinatura, [plan]: { ...(prev.additionalChannels.assinatura as any)[plan], max: parseFloat(e.target.value) || 0 } } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center text-xs" placeholder="Canais" />
+                                                                <Input type="number" step="0.01" value={data.price} onChange={(e) => setSipConfig(prev => ({ ...prev, additionalChannels: { ...prev.additionalChannels, assinatura: { ...prev.additionalChannels.assinatura, [plan]: { ...(prev.additionalChannels.assinatura as any)[plan], price: parseFloat(e.target.value) || 0 } } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center text-xs" placeholder="Preço" />
                                                             </div>
                                                         ) : (
                                                             `Até ${data.max} canais<br/>${formatCurrency(data.price)} por canal adicional`
@@ -3366,15 +3366,15 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                             </TableRow>
 
                                             {/* Canais Adicionais - Franquia */}
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-blue-900/30">Canais Adicionais (Franquia Mensal)</TableCell>
-                                                <TableCell className="text-center bg-blue-800/20">Não Aplicável</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-blue-50/30 dark:bg-blue-900/30">Canais Adicionais (Franquia Mensal)</TableCell>
+                                                <TableCell className="text-center bg-blue-50/20 dark:bg-blue-800/20">Não Aplicável</TableCell>
                                                 {Object.entries(sipConfig.additionalChannels.franquia).map(([plan, data]) => (
                                                     <TableCell key={`franquia-${plan}`} className="text-center">
                                                         {isEditingSIP ? (
                                                             <div className="space-y-1">
-                                                                <Input type="number" step="1" value={data.max} onChange={(e) => setSipConfig(prev => ({ ...prev, additionalChannels: { ...prev.additionalChannels, franquia: { ...prev.additionalChannels.franquia, [plan]: { ...(prev.additionalChannels.franquia as any)[plan], max: parseFloat(e.target.value) || 0 } } } }))} className="bg-slate-800 text-center text-xs" placeholder="Canais" />
-                                                                <Input type="number" step="0.01" value={data.price} onChange={(e) => setSipConfig(prev => ({ ...prev, additionalChannels: { ...prev.additionalChannels, franquia: { ...prev.additionalChannels.franquia, [plan]: { ...(prev.additionalChannels.franquia as any)[plan], price: parseFloat(e.target.value) || 0 } } } }))} className="bg-slate-800 text-center text-xs" placeholder="Preço" />
+                                                                <Input type="number" step="1" value={data.max} onChange={(e) => setSipConfig(prev => ({ ...prev, additionalChannels: { ...prev.additionalChannels, franquia: { ...prev.additionalChannels.franquia, [plan]: { ...(prev.additionalChannels.franquia as any)[plan], max: parseFloat(e.target.value) || 0 } } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center text-xs" placeholder="Canais" />
+                                                                <Input type="number" step="0.01" value={data.price} onChange={(e) => setSipConfig(prev => ({ ...prev, additionalChannels: { ...prev.additionalChannels, franquia: { ...prev.additionalChannels.franquia, [plan]: { ...(prev.additionalChannels.franquia as any)[plan], price: parseFloat(e.target.value) || 0 } } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center text-xs" placeholder="Preço" />
                                                             </div>
                                                         ) : (
                                                             `Até ${data.max} canais<br/>${formatCurrency(data.price)} por canal adicional/mês`
@@ -3383,13 +3383,13 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                 ))}
                                                 <TableCell className="text-center" colSpan={4}>Sem possibilidade</TableCell>
                                             </TableRow>
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-blue-900/30">Franquia/Assinatura Mensal (Sem Equipamentos)</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-blue-50/30 dark:bg-blue-900/30">Franquia/Assinatura Mensal (Sem Equipamentos)</TableCell>
                                                 {Object.keys(sipPrices).map(planKey => (
                                                     <TableCell key={planKey} className="text-center">
                                                         {isEditingSIP ? (
                                                             <Input
-                                                                className="bg-slate-800 text-center"
+                                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center"
                                                                 value={sipPrices[planKey as keyof typeof sipPrices].monthly}
                                                                 onChange={(e) => {
                                                                     const newSipPrices = { ...sipPrices };
@@ -3403,8 +3403,8 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                     </TableCell>
                                                 ))}
                                             </TableRow>
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-blue-900/30">Franquia/Assinatura Mensal (Com Equipamentos)</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-blue-50/30 dark:bg-blue-900/30">Franquia/Assinatura Mensal (Com Equipamentos)</TableCell>
                                                 {Object.keys(sipPrices).map(planKey => {
                                                     const plan = sipPrices[planKey as keyof typeof sipPrices];
                                                     const value = plan.monthlyWithEquipment;
@@ -3413,7 +3413,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                         return (
                                                             <TableCell key={planKey} className="text-center">
                                                                 <Input
-                                                                    className="bg-slate-800 text-center"
+                                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center"
                                                                     value={value === null ? 'Não Aplicável' : value}
                                                                     disabled={value === null}
                                                                     onChange={(e) => {
@@ -3434,14 +3434,14 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                 })}
                                             </TableRow>
                                             {/* Minutos Inclusos */}
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-blue-900/30">Minutos Mensais Inclusos para Brasil Móvel</TableCell>
-                                                <TableCell className="text-center bg-blue-800/20">Não Aplicável</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-blue-50/30 dark:bg-blue-900/30">Minutos Mensais Inclusos para Brasil Móvel</TableCell>
+                                                <TableCell className="text-center bg-blue-50/20 dark:bg-blue-800/20">Não Aplicável</TableCell>
                                                 <TableCell className="text-center" colSpan={4}>Não aplicável</TableCell>
                                                 {Object.entries(sipConfig.includedMinutes).map(([plan, minutes]) => (
                                                     <TableCell key={`minutes-${plan}`} className="text-center">
                                                         {isEditingSIP ? (
-                                                            <Input type="number" step="1" value={minutes} onChange={(e) => setSipConfig(prev => ({ ...prev, includedMinutes: { ...prev.includedMinutes, [plan]: parseFloat(e.target.value) || 0 } }))} className="bg-slate-800 text-center" />
+                                                            <Input type="number" step="1" value={minutes} onChange={(e) => setSipConfig(prev => ({ ...prev, includedMinutes: { ...prev.includedMinutes, [plan]: parseFloat(e.target.value) || 0 } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" />
                                                         ) : (
                                                             <div dangerouslySetInnerHTML={{ __html: `${minutes?.toLocaleString?.() ?? '0'}<br/>Minutos` }} />
                                                         )}
@@ -3449,46 +3449,46 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                 ))}
                                             </TableRow>
                                             {/* Números Incluídos */}
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-blue-900/30">Números Incluídos (Novos ou Portados)</TableCell>
-                                                <TableCell className="text-center">{isEditingSIP ? <Input value={sipConfig.includedNumbers.callCenter} onChange={(e) => setSipConfig(prev => ({ ...prev, includedNumbers: { ...prev.includedNumbers, callCenter: e.target.value } }))} className="bg-slate-800 text-center" /> : sipConfig.includedNumbers.callCenter}</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-blue-50/30 dark:bg-blue-900/30">Números Incluídos (Novos ou Portados)</TableCell>
+                                                <TableCell className="text-center">{isEditingSIP ? <Input value={sipConfig.includedNumbers.callCenter} onChange={(e) => setSipConfig(prev => ({ ...prev, includedNumbers: { ...prev.includedNumbers, callCenter: e.target.value } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" /> : sipConfig.includedNumbers.callCenter}</TableCell>
                                                 {Object.entries(sipConfig.includedNumbers.tarifado).map(([plan, text]) => (
-                                                    <TableCell key={`tarifado-num-${plan}`} className="text-center">{isEditingSIP ? <Input value={text} onChange={(e) => setSipConfig(prev => ({ ...prev, includedNumbers: { ...prev.includedNumbers, tarifado: { ...prev.includedNumbers.tarifado, [plan]: e.target.value } } }))} className="bg-slate-800 text-center" /> : text}</TableCell>
+                                                    <TableCell key={`tarifado-num-${plan}`} className="text-center">{isEditingSIP ? <Input value={text} onChange={(e) => setSipConfig(prev => ({ ...prev, includedNumbers: { ...prev.includedNumbers, tarifado: { ...prev.includedNumbers.tarifado, [plan]: e.target.value } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" /> : text}</TableCell>
                                                 ))}
                                                 <TableCell className="text-center">Sem possibilidade</TableCell>{/* Coluna 60 canais tarifado */}
                                                 {Object.entries(sipConfig.includedNumbers.ilimitado).map(([plan, text]) => (
-                                                    <TableCell key={`ilimitado-num-${plan}`} className="text-center">{isEditingSIP ? <Input value={text} onChange={(e) => setSipConfig(prev => ({ ...prev, includedNumbers: { ...prev.includedNumbers, ilimitado: { ...prev.includedNumbers.ilimitado, [plan]: e.target.value } } }))} className="bg-slate-800 text-center" /> : text}</TableCell>
+                                                    <TableCell key={`ilimitado-num-${plan}`} className="text-center">{isEditingSIP ? <Input value={text} onChange={(e) => setSipConfig(prev => ({ ...prev, includedNumbers: { ...prev.includedNumbers, ilimitado: { ...prev.includedNumbers.ilimitado, [plan]: e.target.value } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" /> : text}</TableCell>
                                                 ))}
                                             </TableRow>
                                             {/* Numeração Adicional */}
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-blue-900/30">Numeração Adicional (Mensalidade)</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-blue-50/30 dark:bg-blue-900/30">Numeração Adicional (Mensalidade)</TableCell>
                                                 <TableCell className="text-center">Consultar</TableCell>
                                                 <TableCell colSpan={10} className="text-center">
                                                     {isEditingSIP ? (
-                                                        <Input type="number" step="0.01" value={sipConfig.additionalNumberPrice} onChange={(e) => setSipConfig(prev => ({ ...prev, additionalNumberPrice: parseFloat(e.target.value) || 0 }))} className="bg-slate-800 text-center w-40 mx-auto" />
+                                                        <Input type="number" step="0.01" value={sipConfig.additionalNumberPrice} onChange={(e) => setSipConfig(prev => ({ ...prev, additionalNumberPrice: parseFloat(e.target.value) || 0 }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center w-40 mx-auto" />
                                                     ) : (
                                                         `${formatCurrency(sipConfig.additionalNumberPrice)} por Número`
                                                     )}
                                                 </TableCell>
                                             </TableRow>
                                             {/* Tarifas */}
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-blue-900/30">Tarifa Local Fixo (por minuto)</TableCell>
-                                                <TableCell className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.localFixo.callCenter} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, localFixo: { ...prev.tariffs.localFixo, callCenter: parseFloat(e.target.value) || 0 } } }))} className="bg-slate-800 text-center" /> : `${formatCurrency(sipConfig.tariffs.localFixo.callCenter)}<br/>por minuto`}</TableCell>
-                                                <TableCell colSpan={5} className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.localFixo.tarifado} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, localFixo: { ...prev.tariffs.localFixo, tarifado: parseFloat(e.target.value) || 0 } } }))} className="bg-slate-800 text-center" /> : `${formatCurrency(sipConfig.tariffs.localFixo.tarifado)} por minuto`}</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-blue-50/30 dark:bg-blue-900/30">Tarifa Local Fixo (por minuto)</TableCell>
+                                                <TableCell className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.localFixo.callCenter} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, localFixo: { ...prev.tariffs.localFixo, callCenter: parseFloat(e.target.value) || 0 } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" /> : `${formatCurrency(sipConfig.tariffs.localFixo.callCenter)}<br/>por minuto`}</TableCell>
+                                                <TableCell colSpan={5} className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.localFixo.tarifado} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, localFixo: { ...prev.tariffs.localFixo, tarifado: parseFloat(e.target.value) || 0 } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" /> : `${formatCurrency(sipConfig.tariffs.localFixo.tarifado)} por minuto`}</TableCell>
                                                 <TableCell colSpan={5} className="text-center">Ilimitado</TableCell>
                                             </TableRow>
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-blue-900/30">Tarifa DDD Fixo (por minuto)</TableCell>
-                                                <TableCell className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.dddFixo.callCenter} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, dddFixo: { ...prev.tariffs.dddFixo, callCenter: parseFloat(e.target.value) || 0 } } }))} className="bg-slate-800 text-center" /> : `${formatCurrency(sipConfig.tariffs.dddFixo.callCenter)}<br/>por minuto`}</TableCell>
-                                                <TableCell colSpan={5} className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.dddFixo.tarifado} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, dddFixo: { ...prev.tariffs.dddFixo, tarifado: parseFloat(e.target.value) || 0 } } }))} className="bg-slate-800 text-center" /> : `${formatCurrency(sipConfig.tariffs.dddFixo.tarifado)} por minuto`}</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-blue-50/30 dark:bg-blue-900/30">Tarifa DDD Fixo (por minuto)</TableCell>
+                                                <TableCell className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.dddFixo.callCenter} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, dddFixo: { ...prev.tariffs.dddFixo, callCenter: parseFloat(e.target.value) || 0 } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" /> : `${formatCurrency(sipConfig.tariffs.dddFixo.callCenter)}<br/>por minuto`}</TableCell>
+                                                <TableCell colSpan={5} className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.dddFixo.tarifado} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, dddFixo: { ...prev.tariffs.dddFixo, tarifado: parseFloat(e.target.value) || 0 } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" /> : `${formatCurrency(sipConfig.tariffs.dddFixo.tarifado)} por minuto`}</TableCell>
                                                 <TableCell colSpan={5} className="text-center">Ilimitado</TableCell>
                                             </TableRow>
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-blue-900/30">Tarifa Brasil Móvel (por minuto)</TableCell>
-                                                <TableCell className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.brasilMovel.callCenter} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, brasilMovel: { ...prev.tariffs.brasilMovel, callCenter: parseFloat(e.target.value) || 0 } } }))} className="bg-slate-800 text-center" /> : `${formatCurrency(sipConfig.tariffs.brasilMovel.callCenter)}<br/>por minuto`}</TableCell>
-                                                <TableCell colSpan={10} className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.brasilMovel.default} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, brasilMovel: { ...prev.tariffs.brasilMovel, default: parseFloat(e.target.value) || 0 } } }))} className="bg-slate-800 text-center" /> : `${formatCurrency(sipConfig.tariffs.brasilMovel.default)} por minuto`}</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-blue-50/30 dark:bg-blue-900/30">Tarifa Brasil Móvel (por minuto)</TableCell>
+                                                <TableCell className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.brasilMovel.callCenter} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, brasilMovel: { ...prev.tariffs.brasilMovel, callCenter: parseFloat(e.target.value) || 0 } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" /> : `${formatCurrency(sipConfig.tariffs.brasilMovel.callCenter)}<br/>por minuto`}</TableCell>
+                                                <TableCell colSpan={10} className="text-center">{isEditingSIP ? <Input type="number" step="0.01" value={sipConfig.tariffs.brasilMovel.default} onChange={(e) => setSipConfig(prev => ({ ...prev, tariffs: { ...prev.tariffs, brasilMovel: { ...prev.tariffs.brasilMovel, default: parseFloat(e.target.value) || 0 } } }))} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" /> : `${formatCurrency(sipConfig.tariffs.brasilMovel.default)} por minuto`}</TableCell>
                                             </TableRow>
                                         </TableBody>
                                     </Table>
@@ -3497,14 +3497,14 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                         </Card>
 
                         {/* Tabela de Preços PABX */}
-                        <Card className="bg-slate-900/80 border-slate-800 text-white">
+                        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             <CardHeader className="flex flex-row items-center justify-between">
-                                <CardTitle className="text-green-400">PABX Standard</CardTitle>
+                                <CardTitle className="text-green-700 dark:text-green-400">PABX Standard</CardTitle>
                                 <Button
                                     variant={isEditingPABX ? "secondary" : "outline"}
                                     size="sm"
                                     onClick={isEditingPABX ? handleSavePABXStandardPrices : () => setIsEditingPABX(true)}
-                                    className="border-slate-600"
+                                    className="border-[var(--crm-border)]"
                                 >
                                     {isEditingPABX ? "Salvar" : "Editar"}
                                 </Button>
@@ -3513,8 +3513,8 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                 <div className="overflow-x-auto">
                                     <Table>
                                         <TableHeader>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead className="text-white bg-green-800">Serviço</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-green-50 dark:bg-green-800">Serviço</TableHead>
                                                 <TableHead className="text-white bg-yellow-600 text-center">Até 10 ramais</TableHead>
                                                 <TableHead className="text-white bg-yellow-600 text-center">De 11 a 20 ramais</TableHead>
                                                 <TableHead className="text-white bg-yellow-600 text-center">De 21 a 30 ramais</TableHead>
@@ -3525,17 +3525,17 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-green-900/30">Setup (cobrança única)</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-green-50/30 dark:bg-green-900/30">Setup (cobrança única)</TableCell>
                                                 {isEditingPABX ? (
                                                     <>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.setup['10']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '10': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.setup['20']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '20': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.setup['30']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '30': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.setup['50']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '50': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.setup['100']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '100': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.setup['500']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '500': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.setup['1000']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '1000': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.setup['10']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '10': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.setup['20']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '20': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.setup['30']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '30': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.setup['50']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '50': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.setup['100']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '100': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.setup['500']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '500': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.setup['1000']} onChange={(e) => setPabxPrices(prev => ({ ...prev, setup: { ...prev.setup, '1000': parseFloat(e.target.value) || 0 } }))} /></TableCell>
                                                     </>
                                                 ) : (
                                                     <>
@@ -3549,17 +3549,17 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                     </>
                                                 )}
                                             </TableRow>
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-green-900/30">Valor por ramal (mensal unitário)</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-green-50/30 dark:bg-green-900/30">Valor por ramal (mensal unitário)</TableCell>
                                                 {isEditingPABX ? (
                                                     <>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.monthly['10']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '10': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.monthly['20']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '20': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.monthly['30']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '30': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.monthly['50']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '50': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.monthly['100']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '100': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.monthly['500']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '500': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.monthly['1000']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '1000': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.monthly['10']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '10': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.monthly['20']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '20': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.monthly['30']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '30': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.monthly['50']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '50': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.monthly['100']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '100': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.monthly['500']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '500': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.monthly['1000']} onChange={(e) => setPabxPrices(prev => ({ ...prev, monthly: { ...prev.monthly, '1000': parseFloat(e.target.value) || 0 } }))} /></TableCell>
                                                     </>
                                                 ) : (
                                                     <>
@@ -3573,17 +3573,17 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                     </>
                                                 )}
                                             </TableRow>
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-green-900/30">Valor hospedagem (mensal)</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-green-50/30 dark:bg-green-900/30">Valor hospedagem (mensal)</TableCell>
                                                 {isEditingPABX ? (
                                                     <>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.hosting['10']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '10': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.hosting['20']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '20': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.hosting['30']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '30': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.hosting['50']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '50': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.hosting['100']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '100': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.hosting['500']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '500': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.hosting['1000']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '1000': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.hosting['10']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '10': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.hosting['20']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '20': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.hosting['30']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '30': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.hosting['50']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '50': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.hosting['100']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '100': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.hosting['500']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '500': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.hosting['1000']} onChange={(e) => setPabxPrices(prev => ({ ...prev, hosting: { ...prev.hosting, '1000': parseFloat(e.target.value) || 0 } }))} /></TableCell>
                                                     </>
                                                 ) : (
                                                     <>
@@ -3597,17 +3597,17 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                     </>
                                                 )}
                                             </TableRow>
-                                            <TableRow className="border-slate-800">
-                                                <TableCell className="font-semibold bg-green-900/30">Aluguel Aparelho Grandstream (mensal)</TableCell>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableCell className="font-semibold bg-green-50/30 dark:bg-green-900/30">Aluguel Aparelho Grandstream (mensal)</TableCell>
                                                 {isEditingPABX ? (
                                                     <>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.device['10']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '10': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.device['20']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '20': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.device['30']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '30': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.device['50']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '50': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.device['100']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '100': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.device['500']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '500': parseFloat(e.target.value) || 0 } }))} /></TableCell>
-                                                        <TableCell><Input className="bg-slate-800 text-center" value={pabxPrices.device['1000']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '1000': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.device['10']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '10': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.device['20']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '20': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.device['30']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '30': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.device['50']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '50': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.device['100']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '100': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.device['500']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '500': parseFloat(e.target.value) || 0 } }))} /></TableCell>
+                                                        <TableCell><Input className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-center" value={pabxPrices.device['1000']} onChange={(e) => setPabxPrices(prev => ({ ...prev, device: { ...prev.device, '1000': parseFloat(e.target.value) || 0 } }))} /></TableCell>
                                                     </>
                                                 ) : (
                                                     <>
@@ -3628,9 +3628,9 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                         </Card>
 
                         {/* Tabela de Preços PABX Premium */}
-                        <Card className="bg-slate-900/80 border-slate-800 text-white">
+                        <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             <CardHeader className="flex flex-row items-center justify-between">
-                                <CardTitle className="text-green-400">PABX Premium</CardTitle>
+                                <CardTitle className="text-green-700 dark:text-green-400">PABX Premium</CardTitle>
                                 <Button
                                     variant={isEditingPABXPremium24 ? "secondary" : "outline"}
                                     size="sm"
@@ -3638,7 +3638,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                         setEditedValues({});
                                         setIsEditingPABXPremium24(true);
                                     }}
-                                    className="border-slate-600"
+                                    className="border-[var(--crm-border)]"
                                 >
                                     {isEditingPABXPremium24 ? "Salvar" : "Editar"}
                                 </Button>
@@ -3648,18 +3648,18 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                     <Table>
                                         {/* ESSENCIAL 24 MESES - ILIMITADO */}
                                         <TableHeader>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead className="text-white bg-blue-700 text-center" rowSpan={3}>ESSENCIAL - 24 MESES</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center" rowSpan={3}>ESSENCIAL - 24 MESES</TableHead>
                                                 <TableHead className="text-white bg-blue-600 text-center" colSpan={2}>Ilimitado</TableHead>
                                             </TableRow>
-                                            <TableRow className="border-slate-700">
+                                            <TableRow className="border-[var(--crm-border)]">
                                                 <TableHead className="text-white bg-blue-600 text-center">Valores com Equipamento (Aluguel + Assinatura)</TableHead>
                                                 <TableHead className="text-white bg-blue-500 text-center">Valores sem Equipamento (Assinatura)</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {pabxPremiumPrices['24'].essencial.ilimitado.map((item, index) => (
-                                                <TableRow key={`essencial-ilimitado-24-${index}`} className="border-slate-800">
+                                                <TableRow key={`essencial-ilimitado-24-${index}`} className="border-[var(--crm-border)]">
                                                     <TableCell>{item.range}</TableCell>
                                                     <TableCell className="text-center">
                                                         {isEditingPABXPremium24 ? (
@@ -3667,7 +3667,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`24-essencial-ilimitado-${index}-comEquipamento`] ?? item.comEquipamento}
                                                                 onChange={(e) => handleInputChange('24', 'essencial', 'ilimitado', index, 'comEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.comEquipamento)
@@ -3679,7 +3679,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`24-essencial-ilimitado-${index}-semEquipamento`] ?? item.semEquipamento}
                                                                 onChange={(e) => handleInputChange('24', 'essencial', 'ilimitado', index, 'semEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.semEquipamento)
@@ -3691,18 +3691,18 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                                         {/* ESSENCIAL 24 MESES - TARIFADO */}
                                         <TableHeader>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead className="text-white bg-blue-700 text-center" rowSpan={3}>ESSENCIAL - 24 MESES</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center" rowSpan={3}>ESSENCIAL - 24 MESES</TableHead>
                                                 <TableHead className="text-white bg-blue-600 text-center" colSpan={2}>Tarifado</TableHead>
                                             </TableRow>
-                                            <TableRow className="border-slate-700">
+                                            <TableRow className="border-[var(--crm-border)]">
                                                 <TableHead className="text-white bg-blue-600 text-center">Valores com Equipamento (Aluguel + Franquia)</TableHead>
                                                 <TableHead className="text-white bg-blue-500 text-center">Valores sem Equipamento (Assinatura + Franquia)</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {pabxPremiumPrices['24'].essencial.tarifado.map((item, index) => (
-                                                <TableRow key={`essencial-tarifado-24-${index}`} className="border-slate-800">
+                                                <TableRow key={`essencial-tarifado-24-${index}`} className="border-[var(--crm-border)]">
                                                     <TableCell>{item.range}</TableCell>
                                                     <TableCell className="text-center">
                                                         {isEditingPABXPremium24 ? (
@@ -3710,7 +3710,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`24-essencial-tarifado-${index}-comEquipamento`] ?? item.comEquipamento}
                                                                 onChange={(e) => handleInputChange('24', 'essencial', 'tarifado', index, 'comEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.comEquipamento)
@@ -3722,7 +3722,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`24-essencial-tarifado-${index}-semEquipamento`] ?? item.semEquipamento}
                                                                 onChange={(e) => handleInputChange('24', 'essencial', 'tarifado', index, 'semEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.semEquipamento)
@@ -3734,18 +3734,18 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                                         {/* PROFISSIONAL 24 MESES - ILIMITADO */}
                                         <TableHeader>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead className="text-white bg-blue-700 text-center" rowSpan={3}>PROFISSIONAL - 24 MESES</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center" rowSpan={3}>PROFISSIONAL - 24 MESES</TableHead>
                                                 <TableHead className="text-white bg-blue-600 text-center" colSpan={2}>Ilimitado</TableHead>
                                             </TableRow>
-                                            <TableRow className="border-slate-700">
+                                            <TableRow className="border-[var(--crm-border)]">
                                                 <TableHead className="text-white bg-blue-600 text-center">Valores com Equipamento (Aluguel + Assinatura)</TableHead>
                                                 <TableHead className="text-white bg-blue-500 text-center">Valores sem Equipamento (Assinatura)</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {pabxPremiumPrices['24'].profissional.ilimitado.map((item, index) => (
-                                                <TableRow key={`profissional-ilimitado-24-${index}`} className="border-slate-800">
+                                                <TableRow key={`profissional-ilimitado-24-${index}`} className="border-[var(--crm-border)]">
                                                     <TableCell>{item.range}</TableCell>
                                                     <TableCell className="text-center">
                                                         {isEditingPABXPremium24 ? (
@@ -3753,7 +3753,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`24-profissional-ilimitado-${index}-comEquipamento`] ?? item.comEquipamento}
                                                                 onChange={(e) => handleInputChange('24', 'profissional', 'ilimitado', index, 'comEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.comEquipamento)
@@ -3765,7 +3765,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`24-profissional-ilimitado-${index}-semEquipamento`] ?? item.semEquipamento}
                                                                 onChange={(e) => handleInputChange('24', 'profissional', 'ilimitado', index, 'semEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.semEquipamento)
@@ -3777,18 +3777,18 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                                         {/* PROFISSIONAL 24 MESES - TARIFADO */}
                                         <TableHeader>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead className="text-white bg-blue-700 text-center" rowSpan={3}>PROFISSIONAL - 24 MESES</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center" rowSpan={3}>PROFISSIONAL - 24 MESES</TableHead>
                                                 <TableHead className="text-white bg-blue-600 text-center" colSpan={2}>Tarifado</TableHead>
                                             </TableRow>
-                                            <TableRow className="border-slate-700">
+                                            <TableRow className="border-[var(--crm-border)]">
                                                 <TableHead className="text-white bg-blue-600 text-center">Valores com Equipamento (Aluguel + Franquia)</TableHead>
                                                 <TableHead className="text-white bg-blue-500 text-center">Valores sem Equipamento (Assinatura + Franquia)</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {pabxPremiumPrices['24'].profissional.tarifado.map((item, index) => (
-                                                <TableRow key={`profissional-tarifado-24-${index}`} className="border-slate-800">
+                                                <TableRow key={`profissional-tarifado-24-${index}`} className="border-[var(--crm-border)]">
                                                     <TableCell>{item.range}</TableCell>
                                                     <TableCell className="text-center">
                                                         {isEditingPABXPremium24 ? (
@@ -3796,7 +3796,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`24-profissional-tarifado-${index}-comEquipamento`] ?? item.comEquipamento}
                                                                 onChange={(e) => handleInputChange('24', 'profissional', 'tarifado', index, 'comEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.comEquipamento)
@@ -3808,7 +3808,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`24-profissional-tarifado-${index}-semEquipamento`] ?? item.semEquipamento}
                                                                 onChange={(e) => handleInputChange('24', 'profissional', 'tarifado', index, 'semEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.semEquipamento)
@@ -3820,18 +3820,18 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                                         {/* ESSENCIAL 36 MESES - ILIMITADO */}
                                         <TableHeader>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead className="text-white bg-blue-700 text-center" rowSpan={3}>ESSENCIAL - 36 MESES</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center" rowSpan={3}>ESSENCIAL - 36 MESES</TableHead>
                                                 <TableHead className="text-white bg-blue-600 text-center" colSpan={2}>Ilimitado</TableHead>
                                             </TableRow>
-                                            <TableRow className="border-slate-700">
+                                            <TableRow className="border-[var(--crm-border)]">
                                                 <TableHead className="text-white bg-blue-600 text-center">Valores com Equipamento (Aluguel + Assinatura)</TableHead>
                                                 <TableHead className="text-white bg-blue-500 text-center">Valores sem Equipamento (Assinatura)</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {pabxPremiumPrices['36'].essencial.ilimitado.map((item, index) => (
-                                                <TableRow key={`essencial-ilimitado-36-${index}`} className="border-slate-800">
+                                                <TableRow key={`essencial-ilimitado-36-${index}`} className="border-[var(--crm-border)]">
                                                     <TableCell>{item.range}</TableCell>
                                                     <TableCell className="text-center">
                                                         {isEditingPABXPremium24 ? (
@@ -3839,7 +3839,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`36-essencial-ilimitado-${index}-comEquipamento`] ?? item.comEquipamento}
                                                                 onChange={(e) => handleInputChange('36', 'essencial', 'ilimitado', index, 'comEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.comEquipamento)
@@ -3851,7 +3851,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`36-essencial-ilimitado-${index}-semEquipamento`] ?? item.semEquipamento}
                                                                 onChange={(e) => handleInputChange('36', 'essencial', 'ilimitado', index, 'semEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.semEquipamento)
@@ -3863,18 +3863,18 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                                         {/* ESSENCIAL 36 MESES - TARIFADO */}
                                         <TableHeader>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead className="text-white bg-blue-700 text-center" rowSpan={3}>ESSENCIAL - 36 MESES</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center" rowSpan={3}>ESSENCIAL - 36 MESES</TableHead>
                                                 <TableHead className="text-white bg-blue-600 text-center" colSpan={2}>Tarifado</TableHead>
                                             </TableRow>
-                                            <TableRow className="border-slate-700">
+                                            <TableRow className="border-[var(--crm-border)]">
                                                 <TableHead className="text-white bg-blue-600 text-center">Valores com Equipamento (Aluguel + Franquia)</TableHead>
                                                 <TableHead className="text-white bg-blue-500 text-center">Valores sem Equipamento (Assinatura + Franquia)</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {pabxPremiumPrices['36'].essencial.tarifado.map((item, index) => (
-                                                <TableRow key={`essencial-tarifado-36-${index}`} className="border-slate-800">
+                                                <TableRow key={`essencial-tarifado-36-${index}`} className="border-[var(--crm-border)]">
                                                     <TableCell>{item.range}</TableCell>
                                                     <TableCell className="text-center">
                                                         {isEditingPABXPremium24 ? (
@@ -3882,7 +3882,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`36-essencial-tarifado-${index}-comEquipamento`] ?? item.comEquipamento}
                                                                 onChange={(e) => handleInputChange('36', 'essencial', 'tarifado', index, 'comEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.comEquipamento)
@@ -3894,7 +3894,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`36-essencial-tarifado-${index}-semEquipamento`] ?? item.semEquipamento}
                                                                 onChange={(e) => handleInputChange('36', 'essencial', 'tarifado', index, 'semEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.semEquipamento)
@@ -3906,18 +3906,18 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                                         {/* PROFISSIONAL 36 MESES - ILIMITADO */}
                                         <TableHeader>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead className="text-white bg-blue-700 text-center" rowSpan={3}>PROFISSIONAL - 36 MESES</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center" rowSpan={3}>PROFISSIONAL - 36 MESES</TableHead>
                                                 <TableHead className="text-white bg-blue-600 text-center" colSpan={2}>Ilimitado</TableHead>
                                             </TableRow>
-                                            <TableRow className="border-slate-700">
+                                            <TableRow className="border-[var(--crm-border)]">
                                                 <TableHead className="text-white bg-blue-600 text-center">Valores com Equipamento (Aluguel + Assinatura)</TableHead>
                                                 <TableHead className="text-white bg-blue-500 text-center">Valores sem Equipamento (Assinatura)</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {pabxPremiumPrices['36'].profissional.ilimitado.map((item, index) => (
-                                                <TableRow key={`profissional-ilimitado-36-${index}`} className="border-slate-800">
+                                                <TableRow key={`profissional-ilimitado-36-${index}`} className="border-[var(--crm-border)]">
                                                     <TableCell>{item.range}</TableCell>
                                                     <TableCell className="text-center">
                                                         {isEditingPABXPremium24 ? (
@@ -3925,7 +3925,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`36-profissional-ilimitado-${index}-comEquipamento`] ?? item.comEquipamento}
                                                                 onChange={(e) => handleInputChange('36', 'profissional', 'ilimitado', index, 'comEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.comEquipamento)
@@ -3937,7 +3937,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`36-profissional-ilimitado-${index}-semEquipamento`] ?? item.semEquipamento}
                                                                 onChange={(e) => handleInputChange('36', 'profissional', 'ilimitado', index, 'semEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.semEquipamento)
@@ -3949,18 +3949,18 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
 
                                         {/* PROFISSIONAL 36 MESES - TARIFADO */}
                                         <TableHeader>
-                                            <TableRow className="border-slate-700">
-                                                <TableHead className="text-white bg-blue-700 text-center" rowSpan={3}>PROFISSIONAL - 36 MESES</TableHead>
+                                            <TableRow className="border-[var(--crm-border)]">
+                                                <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-blue-700 text-center" rowSpan={3}>PROFISSIONAL - 36 MESES</TableHead>
                                                 <TableHead className="text-white bg-blue-600 text-center" colSpan={2}>Tarifado</TableHead>
                                             </TableRow>
-                                            <TableRow className="border-slate-700">
+                                            <TableRow className="border-[var(--crm-border)]">
                                                 <TableHead className="text-white bg-blue-600 text-center">Valores com Equipamento (Aluguel + Franquia)</TableHead>
                                                 <TableHead className="text-white bg-blue-500 text-center">Valores sem Equipamento (Assinatura + Franquia)</TableHead>
                                             </TableRow>
                                         </TableHeader>
                                         <TableBody>
                                             {pabxPremiumPrices['36'].profissional.tarifado.map((item, index) => (
-                                                <TableRow key={`profissional-tarifado-36-${index}`} className="border-slate-800">
+                                                <TableRow key={`profissional-tarifado-36-${index}`} className="border-[var(--crm-border)]">
                                                     <TableCell>{item.range}</TableCell>
                                                     <TableCell className="text-center">
                                                         {isEditingPABXPremium24 ? (
@@ -3968,7 +3968,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`36-profissional-tarifado-${index}-comEquipamento`] ?? item.comEquipamento}
                                                                 onChange={(e) => handleInputChange('36', 'profissional', 'tarifado', index, 'comEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.comEquipamento)
@@ -3980,7 +3980,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 type="number"
                                                                 value={editedValues[`36-profissional-tarifado-${index}-semEquipamento`] ?? item.semEquipamento}
                                                                 onChange={(e) => handleInputChange('36', 'profissional', 'tarifado', index, 'semEquipamento', e.target.value)}
-                                                                className="w-24 p-1 text-center text-black rounded"
+                                                                className="w-24 p-1 text-center text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
                                                             />
                                                         ) : (
                                                             formatCurrency(item.semEquipamento)

@@ -108,7 +108,7 @@ export default function Setup() {
 
   if (loading && !subscriptionData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_1)] to-blue-50 dark:from-[rgb(var(--crm-surface-2-rgb)_/_1)] dark:to-blue-950 flex items-center justify-center p-4">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-4 text-[var(--crm-muted)]">Verificando...</p>
@@ -119,8 +119,8 @@ export default function Setup() {
 
   if (error && !subscriptionData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 dark:from-slate-950 dark:to-red-950 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl border border-[var(--crm-border)] p-8 text-center">
+      <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 dark:from-[rgb(var(--crm-surface-2-rgb)_/_1)] dark:to-red-950 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-3xl border border-[var(--crm-border)] p-8 text-center">
           <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center">
             <AlertCircle className="w-8 h-8 text-red-600 dark:text-red-400" />
           </div>
@@ -145,8 +145,8 @@ export default function Setup() {
 
   if (success) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 dark:from-slate-950 dark:to-green-950 flex items-center justify-center p-4">
-        <div className="max-w-md w-full bg-white dark:bg-slate-900 rounded-3xl border border-[var(--crm-border)] p-8 text-center">
+      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-50 dark:from-[rgb(var(--crm-surface-2-rgb)_/_1)] dark:to-green-950 flex items-center justify-center p-4">
+        <div className="max-w-md w-full bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-3xl border border-[var(--crm-border)] p-8 text-center">
           <div className="mx-auto w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center">
             <CheckCircle2 className="w-8 h-8 text-green-600 dark:text-green-400" />
           </div>
@@ -169,8 +169,8 @@ export default function Setup() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950">
-      <header className="border-b border-[var(--crm-border)] bg-white/80 backdrop-blur-lg dark:bg-slate-900/80">
+    <div className="min-h-screen bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_1)] to-blue-50 dark:from-[rgb(var(--crm-surface-2-rgb)_/_1)] dark:to-blue-950">
+      <header className="border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.8)] backdrop-blur-lg dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)]">
         <div className="container mx-auto px-4 py-4 flex items-center justify-center">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 text-white font-bold flex items-center justify-center">
@@ -182,7 +182,7 @@ export default function Setup() {
       </header>
 
       <div className="container mx-auto px-4 py-12 max-w-md">
-        <div className="bg-white dark:bg-slate-900 rounded-3xl border border-[var(--crm-border)] p-8">
+        <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-3xl border border-[var(--crm-border)] p-8">
           <div className="text-center">
             <div className="mx-auto w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
               <User className="w-8 h-8 text-blue-600 dark:text-blue-400" />

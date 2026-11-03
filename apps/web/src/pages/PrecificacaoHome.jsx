@@ -180,7 +180,7 @@ export default function PrecificacaoHome() {
     return (
       <div
         key={scenario.id}
-        className="group w-full rounded-xl border border-slate-700/70 bg-slate-900/70 p-4 text-left shadow-xl shadow-black/10 transition-all hover:border-cyan-400/50 hover:bg-slate-900"
+        className="group w-full rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4 text-left shadow-xl shadow-black/10 transition-all hover:border-cyan-400/50 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
       >
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
           <button
@@ -188,32 +188,32 @@ export default function PrecificacaoHome() {
             onClick={() => openArchitect('edit', scenario.id)}
             className="flex min-w-0 flex-1 items-center gap-4 text-left"
           >
-            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${isProrated ? 'bg-cyan-500/15 text-cyan-200' : 'bg-blue-500/15 text-blue-200'} border ${isProrated ? 'border-cyan-400/30' : 'border-blue-400/30'}`}>
+            <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${isProrated ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-200" : "bg-blue-500/15 text-blue-700 dark:text-blue-200"} border ${isProrated ? 'border-cyan-400/30' : 'border-blue-400/30'}`}>
               <Clock className="h-5 w-5" />
             </div>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2">
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
+                <p className="text-xs font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   {getScenarioTimestamp(scenario)}
                 </p>
-                <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${isProrated ? 'border-cyan-400/30 bg-cyan-400/10 text-cyan-200' : 'border-slate-600 bg-slate-800 text-slate-300'}`}>
+                <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${isProrated ? "border-cyan-400/30 bg-cyan-400/10 text-cyan-700 dark:text-cyan-200" : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                   {isProrated ? 'Com rateio' : 'Precificação'}
                 </span>
               </div>
-              <p className="mt-1 text-lg font-bold text-white">
+              <p className="mt-1 text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 {formatCurrency(scenario?.results?.finalMonthlyPrice)}
-                <span className="text-sm font-normal text-slate-400"> /mês</span>
+                <span className="text-sm font-normal text-[rgb(var(--crm-muted-rgb)_/_1)]"> /mês</span>
               </p>
-              <p className="mt-1 truncate text-sm font-bold text-slate-200">
+              <p className="mt-1 truncate text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Cliente: {getScenarioClient(scenario)}
               </p>
               {getScenarioContact(scenario) ? (
-                <p className="truncate text-xs font-semibold text-slate-400">
+                <p className="truncate text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
                   Contato: {getScenarioContact(scenario)}
                 </p>
               ) : null}
               {scenario?.metadata?.allocation ? (
-                <p className="mt-1 truncate text-xs font-bold text-cyan-200">
+                <p className="mt-1 truncate text-xs font-bold text-cyan-700 dark:text-cyan-200">
                   Rateio: {scenario.metadata.allocation.name} · {formatCurrency(scenario.metadata.allocation.totalMonthlyAllocated)}/mês
                 </p>
               ) : null}
@@ -222,16 +222,16 @@ export default function PrecificacaoHome() {
 
           <div className="grid grid-cols-3 gap-4 text-center sm:w-[260px]">
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">Setup</p>
-              <p className="text-sm font-bold text-slate-100">{scenario?.inputs?.upfrontItems?.length || 0}</p>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Setup</p>
+              <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{scenario?.inputs?.upfrontItems?.length || 0}</p>
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">Rec.</p>
-              <p className="text-sm font-bold text-slate-100">{scenario?.inputs?.recurringItems?.length || 0}</p>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Rec.</p>
+              <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{scenario?.inputs?.recurringItems?.length || 0}</p>
             </div>
             <div>
-              <p className="text-[11px] font-bold uppercase tracking-wide text-slate-500">Margem</p>
-              <p className={`text-sm font-bold ${margin >= 20 ? 'text-emerald-300' : 'text-amber-300'}`}>
+              <p className="text-[11px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Margem</p>
+              <p className={`text-sm font-bold ${margin >= 20 ? "text-emerald-700 dark:text-emerald-300" : "text-amber-700 dark:text-amber-300"}`}>
                 {formatPercent(margin)}
               </p>
             </div>
@@ -241,7 +241,7 @@ export default function PrecificacaoHome() {
             <button
               type="button"
               onClick={() => openArchitect('view', scenario.id)}
-              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-sky-400/30 bg-sky-400/10 px-3 text-xs font-semibold text-sky-200 transition hover:bg-sky-400/20"
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-sky-400/30 bg-sky-400/10 px-3 text-xs font-semibold text-sky-700 dark:text-sky-200 transition hover:bg-sky-400/20"
             >
               <FileText className="h-3.5 w-3.5" />
               PDF
@@ -249,7 +249,7 @@ export default function PrecificacaoHome() {
             <button
               type="button"
               onClick={() => openArchitect('edit', scenario.id)}
-              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-blue-400/30 bg-blue-400/10 px-3 text-xs font-semibold text-blue-200 transition hover:bg-blue-400/20"
+              className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-blue-400/30 bg-blue-400/10 px-3 text-xs font-semibold text-blue-700 dark:text-blue-200 transition hover:bg-blue-400/20"
             >
               <Pencil className="h-3.5 w-3.5" />
               Editar
@@ -259,7 +259,7 @@ export default function PrecificacaoHome() {
                 <button
                   type="button"
                   onClick={() => deleteScenarioFromHome(scenario.id)}
-                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-red-300/60 bg-red-500/20 px-3 text-xs font-bold text-red-100 transition hover:bg-red-500/30"
+                  className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-red-300/60 bg-red-500/20 px-3 text-xs font-bold text-red-700 dark:text-red-100 transition hover:bg-red-500/30"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
                   Excluir
@@ -267,7 +267,7 @@ export default function PrecificacaoHome() {
                 <button
                   type="button"
                   onClick={() => setDeleteConfirmId(null)}
-                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-slate-600/70 bg-slate-900 text-slate-300 transition hover:bg-slate-800"
+                  className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] transition hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                   title="Cancelar exclusão"
                 >
                   <X className="h-4 w-4" />
@@ -277,7 +277,7 @@ export default function PrecificacaoHome() {
               <button
                 type="button"
                 onClick={() => setDeleteConfirmId(scenario.id)}
-                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-red-400/30 bg-red-400/10 px-3 text-xs font-semibold text-red-200 transition hover:bg-red-400/20"
+                className="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-red-400/30 bg-red-400/10 px-3 text-xs font-semibold text-red-700 dark:text-red-200 transition hover:bg-red-400/20"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Excluir
@@ -285,7 +285,7 @@ export default function PrecificacaoHome() {
             )}
           </div>
         </div>
-        <p className="mt-3 text-xs font-semibold text-slate-500">
+        <p className="mt-3 text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
           Número: {getScenarioNumber(scenario)}
         </p>
       </div>
@@ -299,10 +299,10 @@ export default function PrecificacaoHome() {
       <section className="space-y-3">
         <div className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h4 className="text-base font-bold text-white">{title}</h4>
-            <p className="text-xs font-semibold text-slate-400">{description}</p>
+            <h4 className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{title}</h4>
+            <p className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">{description}</p>
           </div>
-          <span className="text-xs font-bold uppercase tracking-widest text-slate-500">{items.length} salvo(s)</span>
+          <span className="text-xs font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">{items.length} salvo(s)</span>
         </div>
         <div className="grid grid-cols-1 gap-4">
           {items.map((item) => renderHistoryCard(item, variant))}
@@ -335,25 +335,25 @@ export default function PrecificacaoHome() {
       />
 
       <div className="p-6 space-y-6">
-        <section className="rounded-2xl border border-slate-700/60 bg-slate-950/70 p-4 md:p-5 shadow-xl shadow-black/10">
+        <section className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4 md:p-5 shadow-xl shadow-black/10">
           <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-base font-semibold text-white">Controle de precificação</h2>
-              <p className="text-sm text-slate-400">Crie, abra e acompanhe precificações salvas no módulo.</p>
+              <h2 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Controle de precificação</h2>
+              <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Crie, abra e acompanhe precificações salvas no módulo.</p>
             </div>
-            <span className="inline-flex w-fit items-center rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1.5 text-sm font-semibold text-cyan-100">
-              Precificações salvas: <span className="ml-1 text-cyan-300">{summary.total}</span>
+            <span className="inline-flex w-fit items-center rounded-full border border-cyan-400/30 bg-cyan-400/10 px-3 py-1.5 text-sm font-semibold text-cyan-700 dark:text-cyan-100">
+              Precificações salvas: <span className="ml-1 text-cyan-700 dark:text-cyan-300">{summary.total}</span>
             </span>
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <div className="rounded-xl border border-slate-700/70 bg-slate-900/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Valor total salvo</p>
-              <p className="mt-2 text-2xl font-bold text-white">{formatCurrency(summary.totalContractValue)}</p>
+            <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Valor total salvo</p>
+              <p className="mt-2 text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(summary.totalContractValue)}</p>
             </div>
-            <div className="rounded-xl border border-slate-700/70 bg-slate-900/70 p-4">
-              <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Última atualização</p>
-              <p className="mt-2 text-2xl font-bold text-white">{summary.lastUpdated}</p>
+            <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4">
+              <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Última atualização</p>
+              <p className="mt-2 text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{summary.lastUpdated}</p>
             </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <button
@@ -367,7 +367,7 @@ export default function PrecificacaoHome() {
               <button
                 type="button"
                 onClick={() => openArchitect()}
-                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-cyan-400/40 bg-cyan-500/15 px-4 font-semibold text-cyan-100 transition hover:bg-cyan-500/25"
+                className="inline-flex h-12 items-center justify-center gap-2 rounded-lg border border-cyan-400/40 bg-cyan-500/15 px-4 font-semibold text-cyan-700 dark:text-cyan-100 transition hover:bg-cyan-500/25"
               >
                 <Search className="h-4 w-4" />
                 Buscar
@@ -382,26 +382,26 @@ export default function PrecificacaoHome() {
               key={module.title}
               type="button"
               onClick={module.onClick}
-              className="group min-h-[150px] rounded-xl border border-slate-700/70 bg-slate-900/70 p-5 text-left shadow-xl shadow-black/10 transition-all hover:-translate-y-0.5 hover:border-cyan-400/50 hover:bg-slate-900"
+              className="group min-h-[150px] rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-5 text-left shadow-xl shadow-black/10 transition-all hover:-translate-y-0.5 hover:border-cyan-400/50 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
             >
               <div className="flex h-full items-start gap-4">
                 <div className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl ${module.iconBg} shadow-lg shadow-black/20`}>
-                  <module.icon className="h-6 w-6 text-white" />
+                  <module.icon className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="text-base font-semibold text-white">{module.title}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-300">{module.description}</p>
+                  <h3 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{module.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-[rgb(var(--crm-ink-rgb)_/_1)]">{module.description}</p>
                 </div>
               </div>
             </button>
           ))}
         </div>
 
-        <section className="rounded-2xl border border-slate-700/60 bg-slate-950/60 p-4 md:p-5 shadow-xl shadow-black/10">
+        <section className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-4 md:p-5 shadow-xl shadow-black/10">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h3 className="text-lg font-bold text-white">Precificações Salvas</h3>
-              <p className="text-sm text-slate-400">
+              <h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Precificações Salvas</h3>
+              <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 {pricingHistory.length > 0
                   ? `${pricingHistory.length} registro(s) disponíveis no Histórico do FinEdge Architect`
                   : 'Nenhuma precificação salva ainda'}
@@ -410,7 +410,7 @@ export default function PrecificacaoHome() {
             <button
               type="button"
               onClick={() => openArchitect('history')}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-slate-600/70 bg-slate-900 px-4 text-sm font-semibold text-slate-100 transition hover:bg-slate-800"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-4 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
             >
               <History className="h-4 w-4" />
               Ver histórico
@@ -420,17 +420,17 @@ export default function PrecificacaoHome() {
           {historyFeedback ? (
             <div className={`mb-4 rounded-xl border px-4 py-3 text-sm font-semibold ${
               historyFeedback.type === 'error'
-                ? 'border-red-400/30 bg-red-400/10 text-red-100'
-                : 'border-emerald-400/30 bg-emerald-400/10 text-emerald-100'
+                ? "border-red-400/30 bg-red-400/10 text-red-700 dark:text-red-100"
+                : "border-emerald-400/30 bg-emerald-400/10 text-emerald-700 dark:text-emerald-100"
             }`}>
               {historyFeedback.text}
             </div>
           ) : null}
 
           {pricingHistory.length === 0 ? (
-            <div className="rounded-xl border border-dashed border-slate-700 bg-slate-900/50 px-4 py-8 text-center">
-              <FolderOpen className="mx-auto h-8 w-8 text-slate-500" />
-              <p className="mt-3 text-sm text-slate-400">As próximas precificações salvas aparecerão aqui.</p>
+            <div className="rounded-xl border border-dashed border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] px-4 py-8 text-center">
+              <FolderOpen className="mx-auto h-8 w-8 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
+              <p className="mt-3 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">As próximas precificações salvas aparecerão aqui.</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -454,20 +454,20 @@ export default function PrecificacaoHome() {
           <button
             type="button"
             onClick={() => navigate('/orcamentos')}
-            className="rounded-xl border border-slate-700/70 bg-slate-900/70 p-5 text-left transition hover:border-cyan-400/50 hover:bg-slate-900"
+            className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-5 text-left transition hover:border-cyan-400/50 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
           >
-            <FileText className="h-6 w-6 text-cyan-300" />
-            <h3 className="mt-3 text-base font-semibold text-white">Fila de Orçamentos</h3>
-            <p className="mt-2 text-sm text-slate-300">Buscar orçamentos aprovados para enviar à precificação.</p>
+            <FileText className="h-6 w-6 text-cyan-700 dark:text-cyan-300" />
+            <h3 className="mt-3 text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Fila de Orçamentos</h3>
+            <p className="mt-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Buscar orçamentos aprovados para enviar à precificação.</p>
           </button>
           <button
             type="button"
             onClick={() => navigate('/calculadoras')}
-            className="rounded-xl border border-slate-700/70 bg-slate-900/70 p-5 text-left transition hover:border-cyan-400/50 hover:bg-slate-900"
+            className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-5 text-left transition hover:border-cyan-400/50 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
           >
-            <BarChart3 className="h-6 w-6 text-emerald-300" />
-            <h3 className="mt-3 text-base font-semibold text-white">Calculadoras</h3>
-            <p className="mt-2 text-sm text-slate-300">Acessar as calculadoras de venda, locação e serviços.</p>
+            <BarChart3 className="h-6 w-6 text-emerald-700 dark:text-emerald-300" />
+            <h3 className="mt-3 text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Calculadoras</h3>
+            <p className="mt-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Acessar as calculadoras de venda, locação e serviços.</p>
           </button>
         </section>
       </div>

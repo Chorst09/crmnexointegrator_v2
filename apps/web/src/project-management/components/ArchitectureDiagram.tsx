@@ -16,8 +16,7 @@ import {
   ConnectionMode,
   ReactFlowProvider,
   ViewportPortal,
-  useReactFlow,
-  } from '@xyflow/react';
+  useReactFlow} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import {
   Server,
@@ -71,7 +70,7 @@ const iconMap: Record<string, any> = {
 
 const BackgroundImageNode = ({ data }: any) => (
   <div
-    className="pointer-events-none overflow-hidden rounded-xl border border-[#2b3d56]/80 bg-[#050914]/60 shadow-2xl"
+    className="pointer-events-none overflow-hidden rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] shadow-2xl"
     style={{
       width: data.width || 1280,
       height: data.height || 760,
@@ -201,7 +200,7 @@ const connectionHandleClass = [
   'h-3.5',
   'w-3.5',
   'border-2',
-  'border-[#111827]',
+  "border-[var(--crm-border)]",
   'bg-[#ff7a00]',
   'opacity-80',
   'transition-all',
@@ -267,18 +266,18 @@ const ArchNode = ({ id, data, selected }: any) => {
   }, [customImage]);
 
   return (
-    <div className={`relative text-slate-200 transition-colors ${usesDeviceShape ? `flex min-w-[330px] flex-col items-center gap-1 rounded-md border border-transparent bg-transparent p-2 ${selected ? 'shadow-[0_0_0_2px_rgba(255,122,0,0.8)]' : ''}` : `bg-[#111827] border ${selected ? 'border-[#ff7a00] shadow-[0_0_15px_rgba(14,165,233,0.3)]' : 'border-[#263345]'} rounded-md shadow-lg ${isPhysical ? 'flex min-w-[280px] max-w-[340px] flex-col items-stretch gap-3 p-3' : 'flex min-w-[190px] items-center gap-3 p-4'}`}`}>
+    <div className={`relative text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors ${usesDeviceShape ? `flex min-w-[330px] flex-col items-center gap-1 rounded-md border border-transparent bg-transparent p-2 ${selected ? 'shadow-[0_0_0_2px_rgba(255,122,0,0.8)]' : ''}` : `bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border ${selected ? 'border-[#ff7a00] shadow-[0_0_15px_rgba(14,165,233,0.3)]' : "border-[var(--crm-border)]"} rounded-md shadow-lg ${isPhysical ? 'flex min-w-[280px] max-w-[340px] flex-col items-stretch gap-3 p-3' : 'flex min-w-[190px] items-center gap-3 p-4'}`}`}>
       <Handle id="top-target" type="target" position={Position.Top} className={connectionHandleClass} />
       <Handle id="right-target" type="target" position={Position.Right} className={connectionHandleClass} />
       <Handle id="bottom-target" type="target" position={Position.Bottom} className={connectionHandleClass} />
       <Handle id="left-target" type="target" position={Position.Left} className={connectionHandleClass} />
       {data.nameBox && (
-        <div className="absolute -top-9 left-1/2 min-w-[130px] -translate-x-1/2 rounded-md border border-[#ff7a00]/70 bg-[#070b16] px-3 py-1.5 text-center text-xs font-black text-slate-100 shadow-lg shadow-black/30">
+        <div className="absolute -top-9 left-1/2 min-w-[130px] -translate-x-1/2 rounded-md border border-[#ff7a00]/70 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-1.5 text-center text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-lg shadow-black/30">
           {data.nameBox}
         </div>
       )}
       <div
-        className={`text-[#ff7a00] flex items-center justify-center shrink-0 overflow-hidden relative group ${usesDeviceShape ? 'h-52 w-80 overflow-visible rounded-none bg-transparent p-0' : `rounded-lg bg-[#070b16] border border-[#263345] ${isPhysical ? 'h-40 w-full p-0' : 'h-12 w-12 p-1.5'}`} ${readOnly ? '' : 'cursor-pointer'}`}
+        className={`text-[#ff7a00] flex items-center justify-center shrink-0 overflow-hidden relative group ${usesDeviceShape ? 'h-52 w-80 overflow-visible rounded-none bg-transparent p-0' : `rounded-lg bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] ${isPhysical ? 'h-40 w-full p-0' : 'h-12 w-12 p-1.5'}`} ${readOnly ? '' : 'cursor-pointer'}`}
         onClick={(event) => {
           event.stopPropagation();
           if (readOnly) return;
@@ -300,12 +299,12 @@ const ArchNode = ({ id, data, selected }: any) => {
         ) : (
           <div className="flex h-full w-full flex-col items-center justify-center gap-2 p-3 text-center">
             <Icon className={isPhysical ? 'h-9 w-9' : 'h-6 w-6'} />
-            {isPhysical && <span className="text-[10px] font-semibold text-slate-500">Enviar foto real</span>}
+            {isPhysical && <span className="text-[10px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">Enviar foto real</span>}
           </div>
         )}
         {!readOnly && (
           <div className="absolute inset-0 bg-black/50 hidden group-hover:flex items-center justify-center rounded-lg">
-            <Upload className="w-4 h-4 text-white" />
+            <Upload className="w-4 h-4 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
           </div>
         )}
         <input
@@ -318,8 +317,8 @@ const ArchNode = ({ id, data, selected }: any) => {
         />
       </div>
       <div className={isPhysical ? 'min-w-0 text-center' : 'flex-1'}>
-        <div className={`font-bold leading-tight ${usesDeviceShape ? 'inline-flex rounded-md border border-[#263345] bg-[#070b16]/90 px-3 py-1 text-xs shadow-lg shadow-black/30' : 'text-sm'}`}>{data.label}</div>
-        {data.sublabel && <div className={`${usesDeviceShape ? 'mt-1 text-[9px]' : 'mt-0.5 text-[10px]'} text-slate-400`}>{data.sublabel}</div>}
+        <div className={`font-bold leading-tight ${usesDeviceShape ? "inline-flex rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] px-3 py-1 text-xs shadow-lg shadow-black/30" : 'text-sm'}`}>{data.label}</div>
+        {data.sublabel && <div className={`${usesDeviceShape ? 'mt-1 text-[9px]' : 'mt-0.5 text-[10px]'} text-[rgb(var(--crm-muted-rgb)_/_1)]`}>{data.sublabel}</div>}
         {!readOnly && (
           <div className={`mt-2 flex flex-wrap gap-1.5 ${isPhysical ? 'justify-center' : ''}`}>
             <button
@@ -329,7 +328,7 @@ const ArchNode = ({ id, data, selected }: any) => {
                 fileInputRef.current?.click();
               }}
               onMouseDown={(event) => event.stopPropagation()}
-              className="inline-flex items-center gap-1 rounded border border-[#263345] px-2 py-0.5 text-[10px] font-semibold text-slate-400 transition-colors hover:border-[#ff7a00]/70 hover:text-[#ff7a00]"
+              className="inline-flex items-center gap-1 rounded border border-[var(--crm-border)] px-2 py-0.5 text-[10px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:border-[#ff7a00]/70 hover:text-[#ff7a00]"
             >
               <Upload className="h-3 w-3" />
               Imagem
@@ -338,7 +337,7 @@ const ArchNode = ({ id, data, selected }: any) => {
               type="button"
               onClick={editNameBox}
               onMouseDown={(event) => event.stopPropagation()}
-              className="inline-flex items-center gap-1 rounded border border-[#263345] px-2 py-0.5 text-[10px] font-semibold text-slate-400 transition-colors hover:border-[#ff7a00]/70 hover:text-[#ff7a00]"
+              className="inline-flex items-center gap-1 rounded border border-[var(--crm-border)] px-2 py-0.5 text-[10px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:border-[#ff7a00]/70 hover:text-[#ff7a00]"
             >
               <Pencil className="h-3 w-3" />
               Nome
@@ -435,11 +434,11 @@ const buildLegacyDiagramEntry = (): SavedDiagramEntry | null => {
 };
 
 const defaultEdgeOptions = {
-  style: { stroke: '#374151', strokeWidth: 2 },
+  style: { stroke: "rgb(var(--crm-ink-rgb) / 1)", strokeWidth: 2 },
   type: 'smoothstep',
   markerEnd: {
     type: MarkerType.ArrowClosed,
-    color: '#374151',
+    color: "rgb(var(--crm-ink-rgb) / 1)",
   },
 };
 
@@ -752,7 +751,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
 
     try {
       const dataUrl = await toPng(viewportElement, {
-        backgroundColor: '#070b16',
+        backgroundColor: "rgb(var(--crm-surface-2-rgb) / 1)",
         width: imageWidth,
         height: imageHeight,
         cacheBust: true,
@@ -1032,7 +1031,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
 
     try {
       const dataUrl = await toPng(viewportElement, {
-        backgroundColor: '#070b16',
+        backgroundColor: "rgb(var(--crm-surface-2-rgb) / 1)",
         width: imageWidth,
         height: imageHeight,
         cacheBust: true,
@@ -1151,17 +1150,17 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
   };
 
   return (
-    <div className="h-full flex flex-col bg-[#070b16] overflow-hidden w-full absolute inset-0 z-50">
-      <div className="h-14 border-b border-[#263345] bg-[#111827] flex items-center justify-between px-4 flex-shrink-0">
+    <div className="h-full flex flex-col bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-hidden w-full absolute inset-0 z-50">
+      <div className="h-14 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] flex items-center justify-between px-4 flex-shrink-0">
         <div className="flex items-center gap-4">
           <button
             onClick={onBack}
-            className="flex items-center gap-2 text-slate-400 hover:text-slate-200 transition-colors"
+            className="flex items-center gap-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" /> Voltar
           </button>
-          <div className="w-px h-6 bg-[#263345]"></div>
-          <h2 className="text-slate-200 font-semibold flex items-center gap-2">
+          <div className="w-px h-6 bg-[rgb(var(--crm-surface-rgb)_/_1)]"></div>
+          <h2 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold flex items-center gap-2">
             <Layers className="w-4 h-4 text-[#ff7a00]" /> Diagrama de Arquitetura
           </h2>
         </div>
@@ -1171,13 +1170,13 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
           <button
             type="button"
             onClick={() => setSavedDiagramsModalOpen(true)}
-            className="flex items-center gap-2 rounded-md bg-[#070b16] border border-[#263345] px-3 py-1.5 text-sm font-semibold text-slate-300 hover:border-[#ff7a00] hover:text-white transition-colors"
+            className="flex items-center gap-2 rounded-md bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] px-3 py-1.5 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors"
             title="Ver diagramas salvos"
           >
             <FolderOpen className="h-4 w-4" />
             Diagramas Salvos
             {savedDiagrams.length > 0 && (
-              <span className="ml-1 rounded-full bg-[#ff7a00] px-2 py-0.5 text-[10px] font-bold text-white">
+              <span className="ml-1 rounded-full bg-[#ff7a00] px-2 py-0.5 text-[10px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 {savedDiagrams.length}
               </span>
             )}
@@ -1185,46 +1184,46 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
           <button
             type="button"
             onClick={openNewDiagramForm}
-            className="flex items-center gap-2 rounded-md bg-[#ff7a00] px-3 py-1.5 text-sm font-semibold text-white shadow-lg transition-colors hover:bg-[#f6b40b] hover:text-[#050914]"
+            className="flex items-center gap-2 rounded-md bg-[#ff7a00] px-3 py-1.5 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-lg transition-colors hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
           >
             <Plus className="h-4 w-4" /> Novo Diagrama
           </button>
-          <div className="flex items-center gap-2 bg-[#070b16] p-1 rounded-lg border border-[#263345]">
+          <div className="flex items-center gap-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-1 rounded-lg border border-[var(--crm-border)]">
             {savedDiagrams.length > 0 && (
               <button
                 onClick={() => loadTemplate('saved')}
-                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === 'saved' ? 'bg-[#ff7a00] text-white' : 'text-[#ff7a00] hover:bg-[#ff7a00]/10'}`}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === 'saved' ? "bg-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)]" : 'text-[#ff7a00] hover:bg-[#ff7a00]/10'}`}
               >Salvos ({savedDiagrams.length})</button>
             )}
-            <div className="w-px h-4 bg-[#263345] mx-1"></div>
+            <div className="w-px h-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] mx-1"></div>
             <button
               onClick={() => loadTemplate('blank')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === 'blank' ? 'bg-[#263345] text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === 'blank' ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}
             >Em Branco</button>
             <button
               onClick={() => loadTemplate('fiber-radio')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === 'fiber-radio' ? 'bg-[#263345] text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === 'fiber-radio' ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}
             >Fibra + Rádio</button>
             <button
               onClick={() => loadTemplate('switch-ap')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === 'switch-ap' ? 'bg-[#263345] text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === 'switch-ap' ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}
             >Switches + APs</button>
             <button
               onClick={() => loadTemplate('3-tier')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === '3-tier' ? 'bg-[#263345] text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === '3-tier' ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}
             >Web 3-Tier</button>
             <button
               onClick={() => loadTemplate('microservices')}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === 'microservices' ? 'bg-[#263345] text-white' : 'text-slate-400 hover:text-slate-200'}`}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${activeTemplate === 'microservices' ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}
             >Microserviços</button>
           </div>
 
           {diagramMode === 'edit' && (
-            <div className="flex items-center gap-2 rounded-lg border border-[#263345] bg-[#070b16] p-1">
+            <div className="flex items-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-1">
               <button
                 type="button"
                 onClick={() => setPenEnabled((current) => !current)}
-                className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-semibold transition-colors ${penEnabled ? 'bg-[#ff7a00] text-white' : 'text-slate-400 hover:bg-[#263345] hover:text-slate-200'}`}
+                className={`flex items-center gap-1.5 rounded-md px-3 py-1 text-xs font-semibold transition-colors ${penEnabled ? "bg-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}
                 title="Caneta para anotacoes"
               >
                 <PenLine className="h-4 w-4" /> Caneta
@@ -1233,7 +1232,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                 type="color"
                 value={penColor}
                 onChange={(event) => setPenColor(event.target.value)}
-                className="h-7 w-8 cursor-pointer rounded border border-[#263345] bg-[#111827] p-0.5"
+                className="h-7 w-8 cursor-pointer rounded border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-0.5"
                 title="Cor da caneta"
               />
               <input
@@ -1250,7 +1249,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                 type="button"
                 onClick={undoDrawing}
                 disabled={drawings.length === 0}
-                className="rounded-md p-1.5 text-slate-400 transition-colors hover:bg-[#263345] hover:text-slate-200 disabled:cursor-not-allowed disabled:text-slate-700"
+                className="rounded-md p-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] disabled:cursor-not-allowed disabled:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 title="Desfazer ultimo risco"
               >
                 <Undo2 className="h-4 w-4" />
@@ -1259,7 +1258,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                 type="button"
                 onClick={clearDrawings}
                 disabled={drawings.length === 0}
-                className="rounded-md p-1.5 text-red-200 transition-colors hover:bg-red-500/20 disabled:cursor-not-allowed disabled:text-slate-700"
+                className="rounded-md p-1.5 text-red-200 transition-colors hover:bg-red-500/20 disabled:cursor-not-allowed disabled:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 title="Limpar anotacoes"
               >
                 <Trash2 className="h-4 w-4" />
@@ -1267,10 +1266,10 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
             </div>
           )}
 
-          <div className="flex items-center gap-2 border-l border-[#263345] pl-3">
+          <div className="flex items-center gap-2 border-l border-[var(--crm-border)] pl-3">
             {(activeDiagramId || viewingDiagramId) && (
-              <span className="hidden xl:inline max-w-44 truncate text-xs text-slate-400">
-                {diagramMode === 'view' ? 'Visualizando' : 'Editando'}: <strong className="font-semibold text-slate-200">{activeDiagramName}</strong>
+              <span className="hidden xl:inline max-w-44 truncate text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                {diagramMode === 'view' ? 'Visualizando' : 'Editando'}: <strong className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{activeDiagramName}</strong>
               </span>
             )}
             {diagramMode === 'view' && viewingDiagramId && (
@@ -1279,7 +1278,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                   const entry = savedDiagrams.find((item) => item.id === viewingDiagramId);
                   if (entry) loadSavedDiagram(entry, 'edit');
                 }}
-                className="flex items-center gap-2 text-sm text-white bg-[#ff7a00] hover:bg-[#f6b40b] px-3 py-1.5 rounded-md transition-colors font-medium shadow-sm"
+                className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#ff7a00] hover:bg-[#f6b40b] px-3 py-1.5 rounded-md transition-colors font-medium shadow-sm"
               >
                 <Pencil className="w-4 h-4" /> Editar
               </button>
@@ -1287,13 +1286,13 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
             <button
               onClick={saveDiagram}
               disabled={diagramMode === 'view'}
-              className={`flex items-center gap-2 text-sm border px-3 py-1.5 rounded-md transition-colors font-medium shadow-sm ${diagramMode === 'view' ? 'cursor-not-allowed border-[#263345] bg-[#0b1220] text-slate-600' : 'border-[#263345] bg-[#111827] text-slate-300 hover:bg-[#263345] hover:text-white'}`}
+              className={`flex items-center gap-2 text-sm border px-3 py-1.5 rounded-md transition-colors font-medium shadow-sm ${diagramMode === 'view' ? "cursor-not-allowed border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)]" : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}
             >
               <Save className="w-4 h-4" /> Salvar
             </button>
             <button
               onClick={downloadPDF}
-              className="flex items-center gap-2 text-sm text-white bg-[#ff7a00] hover:bg-[#f6b40b] px-4 py-1.5 rounded-md transition-colors font-medium shadow-lg"
+              className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#ff7a00] hover:bg-[#f6b40b] px-4 py-1.5 rounded-md transition-colors font-medium shadow-lg"
             >
               <Download className="w-4 h-4" /> Exportar PDF
             </button>
@@ -1320,14 +1319,14 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
             connectionLineStyle={{ stroke: '#ff7a00', strokeWidth: 2.5 }}
             colorMode="dark"
             fitView
-            className="bg-[#070b16]"
+            className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
           >
             <Background color="#263345" gap={24} size={2} />
-            <Controls className="bg-[#111827] border-[#263345] fill-slate-300" />
+            <Controls className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-[var(--crm-border)] fill-slate-300" />
             <MiniMap
               nodeColor={(n) => '#ff7a00'}
               maskColor="rgba(15, 23, 42, 0.7)"
-              className="bg-[#111827] border border-[#263345] rounded-md"
+              className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md"
             />
             <ViewportPortal>
               <svg
@@ -1350,58 +1349,58 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
             </ViewportPortal>
 
           {diagramMode === 'edit' && (
-          <Panel position="top-left" className="w-56 bg-[#111827]/90 backdrop-blur-md border border-[#263345] p-2 rounded-md shadow-xl flex flex-col gap-1.5 max-h-[calc(100vh-120px)] overflow-y-auto">
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Diagrama</h3>
+          <Panel position="top-left" className="w-56 bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] backdrop-blur-md border border-[var(--crm-border)] p-2 rounded-md shadow-xl flex flex-col gap-1.5 max-h-[calc(100vh-120px)] overflow-y-auto">
+            <h3 className="text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider px-1">Diagrama</h3>
             <input
               type="text"
               value={activeDiagramName}
               onChange={(event) => setActiveDiagramName(event.target.value)}
-              className="bg-[#070b16] border border-[#263345] rounded-md px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-[#ff7a00]"
+              className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md px-2 py-1.5 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:border-[#ff7a00]"
               placeholder="Nome do diagrama"
             />
             <input
               type="text"
               value={diagramClientName}
               onChange={(event) => setDiagramClientName(event.target.value)}
-              className="bg-[#070b16] border border-[#263345] rounded-md px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-[#ff7a00]"
+              className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md px-2 py-1.5 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:border-[#ff7a00]"
               placeholder="Nome do cliente"
             />
             <input
               type="text"
               value={diagramProjectName}
               onChange={(event) => setDiagramProjectName(event.target.value)}
-              className="bg-[#070b16] border border-[#263345] rounded-md px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-[#ff7a00]"
+              className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md px-2 py-1.5 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:border-[#ff7a00]"
               placeholder="Nome do projeto"
             />
-            <div className="my-1 h-px bg-[#263345]" />
-            <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Componentes</h3>
-            <button onClick={() => addNetworkNode('fiber', 'Fibra Óptica', 'Backbone / FO / DIO', 'fiber')} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+            <div className="my-1 h-px bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
+            <h3 className="text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider px-1">Componentes</h3>
+            <button onClick={() => addNetworkNode('fiber', 'Fibra Óptica', 'Backbone / FO / DIO', 'fiber')} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
               <Cable className="w-3.5 h-3.5 text-[#22d3ee]" /> Fibra / DIO
             </button>
-            <button onClick={() => addNetworkNode('radio', 'Rádio Enlace', 'PTP / Backhaul', 'radio')} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+            <button onClick={() => addNetworkNode('radio', 'Rádio Enlace', 'PTP / Backhaul', 'radio')} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
               <RadioTower className="w-3.5 h-3.5 text-[#f6b40b]" /> Rádio Enlace
             </button>
-            <button onClick={() => addNetworkNode('switch', 'Switch', 'Core / Acesso / PoE', 'switch')} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+            <button onClick={() => addNetworkNode('switch', 'Switch', 'Core / Acesso / PoE', 'switch')} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
               <Network className="w-3.5 h-3.5 text-[#34d399]" /> Switch
             </button>
-            <button onClick={() => addNetworkNode('accessPoint', 'Access Point', 'Wi-Fi / SSID / PoE', 'wifi')} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+            <button onClick={() => addNetworkNode('accessPoint', 'Access Point', 'Wi-Fi / SSID / PoE', 'wifi')} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
               <Wifi className="w-3.5 h-3.5 text-[#38bdf8]" /> Access Point
             </button>
-            <button onClick={() => addNetworkNode('router', 'Roteador', 'Gateway / WAN', 'router')} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+            <button onClick={() => addNetworkNode('router', 'Roteador', 'Gateway / WAN', 'router')} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
               <Router className="w-3.5 h-3.5 text-[#ff7a00]" /> Roteador
             </button>
-            <button onClick={() => addNetworkNode('firewall', 'Firewall', 'Segurança / VPN', 'fortinet')} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+            <button onClick={() => addNetworkNode('firewall', 'Firewall', 'Segurança / VPN', 'fortinet')} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
               <Shield className="w-3.5 h-3.5 text-[#ff7a00]" /> Firewall
             </button>
-            <button onClick={() => addNetworkNode('server', 'Servidor', 'Servidor local / VM', 'server')} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+            <button onClick={() => addNetworkNode('server', 'Servidor', 'Servidor local / VM', 'server')} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
               <Server className="w-3.5 h-3.5 text-[#ff7a00]" /> Servidor
             </button>
-            <button onClick={() => addNetworkNode('cloud', 'Cloud Service', 'Cloud / SaaS / DC', 'cloud')} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+            <button onClick={() => addNetworkNode('cloud', 'Cloud Service', 'Cloud / SaaS / DC', 'cloud')} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
               <Cloud className="w-3.5 h-3.5 text-[#ff7a00]" /> Cloud
             </button>
 
-            <div className="mt-1.5 pt-2 border-t border-[#263345] flex flex-col gap-1.5">
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Componentes Físicos</h3>
+            <div className="mt-1.5 pt-2 border-t border-[var(--crm-border)] flex flex-col gap-1.5">
+              <h3 className="text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider px-1">Componentes Físicos</h3>
               <input
                 type="file"
                 accept="image/*"
@@ -1411,33 +1410,33 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
               />
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center justify-center gap-2 bg-[#ff7a00] hover:bg-[#f6b40b] text-white hover:text-[#050914] px-2 py-1.5 rounded-md text-xs font-semibold transition-colors w-full"
+                className="flex items-center justify-center gap-2 bg-[#ff7a00] hover:bg-[#f6b40b] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] px-2 py-1.5 rounded-md text-xs font-semibold transition-colors w-full"
               >
                 <ImagePlus className="w-3.5 h-3.5" /> Adicionar foto real
               </button>
-              <button onClick={() => addPhysicalNode('radio', 'Rádio Físico', 'PTP / Backhaul / Torre', 'radio', physicalComponentImages.radio)} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+              <button onClick={() => addPhysicalNode('radio', 'Rádio Físico', 'PTP / Backhaul / Torre', 'radio', physicalComponentImages.radio)} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
                 <RadioTower className="w-3.5 h-3.5 text-[#f6b40b]" /> Rádio físico
               </button>
-              <button onClick={() => addPhysicalNode('radio', 'Antena / Dish', 'Antena externa / enlace', 'dish', physicalComponentImages.dish)} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+              <button onClick={() => addPhysicalNode('radio', 'Antena / Dish', 'Antena externa / enlace', 'dish', physicalComponentImages.dish)} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
                 <RadioTower className="w-3.5 h-3.5 text-[#ff7a00]" /> Antena / Dish
               </button>
-              <button onClick={() => addPhysicalNode('pop', 'Torre / Mastro', 'Estrutura física', 'tower', physicalComponentImages.tower)} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+              <button onClick={() => addPhysicalNode('pop', 'Torre / Mastro', 'Estrutura física', 'tower', physicalComponentImages.tower)} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
                 <Building2 className="w-3.5 h-3.5 text-[#22d3ee]" /> Torre / Mastro
               </button>
-              <button onClick={() => addPhysicalNode('switch', 'Rack / POP', 'Rack, DIO, OLT, switch', 'rack', physicalComponentImages.rack)} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white hover:bg-[#263345] px-2 py-1.5 rounded-md transition-colors text-left">
+              <button onClick={() => addPhysicalNode('switch', 'Rack / POP', 'Rack, DIO, OLT, switch', 'rack', physicalComponentImages.rack)} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-1.5 rounded-md transition-colors text-left">
                 <Network className="w-3.5 h-3.5 text-[#34d399]" /> Rack / POP
               </button>
-              <p className="text-[9px] leading-3 text-slate-500">
+              <p className="text-[9px] leading-3 text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 Use foto real do equipamento. Depois clique em Nome para marcar o ponto, como Paranacidade ou Newage.
               </p>
             </div>
 
-            <div className="mt-1.5 pt-2 border-t border-[#263345] flex flex-col gap-1.5">
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Tecnologia Específica</h3>
+            <div className="mt-1.5 pt-2 border-t border-[var(--crm-border)] flex flex-col gap-1.5">
+              <h3 className="text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider px-1">Tecnologia Específica</h3>
               <input
                 type="text"
                 placeholder="Ex: React, Docker, AWS"
-                className="bg-[#070b16] border border-[#263345] rounded-md px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-[#ff7a00]"
+                className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md px-2 py-1.5 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:border-[#ff7a00]"
                 value={customNodeName}
                 onChange={(e) => setCustomNodeName(e.target.value)}
                 onKeyDown={(e) => {
@@ -1446,14 +1445,14 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
               />
               <button
                 onClick={addCustomNode}
-                className="bg-[#ff7a00] hover:bg-[#f6b40b] text-white px-2 py-1.5 rounded-md text-xs font-semibold transition-colors w-full"
+                className="bg-[#ff7a00] hover:bg-[#f6b40b] text-[rgb(var(--crm-ink-rgb)_/_1)] px-2 py-1.5 rounded-md text-xs font-semibold transition-colors w-full"
               >
                 Adicionar ao Diagrama
               </button>
             </div>
 
-            <div className="mt-1.5 pt-2 border-t border-[#263345] flex flex-col gap-1.5">
-              <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-1">Imagem de Fundo</h3>
+            <div className="mt-1.5 pt-2 border-t border-[var(--crm-border)] flex flex-col gap-1.5">
+              <h3 className="text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider px-1">Imagem de Fundo</h3>
               <input
                 type="file"
                 accept="image/*"
@@ -1463,13 +1462,13 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
               />
               <button
                 onClick={() => backgroundInputRef.current?.click()}
-                className="flex items-center justify-center gap-2 bg-[#111827] hover:bg-[#263345] border border-[#263345] text-slate-300 hover:text-white px-2 py-1.5 rounded-md text-xs font-semibold transition-colors w-full"
+                className="flex items-center justify-center gap-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] px-2 py-1.5 rounded-md text-xs font-semibold transition-colors w-full"
               >
                 <ImagePlus className="w-3.5 h-3.5" /> Adicionar fundo
               </button>
               {backgroundImage && (
                 <>
-                  <label className="text-[11px] font-semibold text-slate-400">
+                  <label className="text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     Opacidade
                     <input
                       type="range"
@@ -1489,7 +1488,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                   </button>
                 </>
               )}
-              <p className="text-[9px] leading-3 text-slate-500">
+              <p className="text-[9px] leading-3 text-[rgb(var(--crm-muted-rgb)_/_1)]">
                 Para imagem de um componente, clique no ícone do próprio componente e envie a foto ou símbolo dele.
               </p>
             </div>
@@ -1512,20 +1511,20 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
       {/* Modal de Diagramas Salvos */}
       {savedDiagramsModalOpen && (
         <div className="absolute inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="relative w-full max-w-4xl max-h-[85vh] overflow-hidden rounded-lg border border-[#263345] bg-[#111827] shadow-2xl">
+          <div className="relative w-full max-w-4xl max-h-[85vh] overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-2xl">
             {/* Header do Modal */}
-            <div className="flex items-center justify-between border-b border-[#263345] bg-[#070b16] px-6 py-4">
-              <h2 className="text-lg font-bold text-slate-100 flex items-center gap-3">
+            <div className="flex items-center justify-between border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-6 py-4">
+              <h2 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-3">
                 <FolderOpen className="w-5 h-5 text-[#ff7a00]" />
                 Diagramas Salvos
-                <span className="ml-2 rounded-full bg-[#ff7a00] px-3 py-1 text-sm font-bold text-white">
+                <span className="ml-2 rounded-full bg-[#ff7a00] px-3 py-1 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   {savedDiagrams.length}
                 </span>
               </h2>
               <button
                 type="button"
                 onClick={() => setSavedDiagramsModalOpen(false)}
-                className="rounded-md p-2 text-slate-400 transition-colors hover:bg-[#263345] hover:text-slate-200"
+                className="rounded-md p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 title="Fechar"
               >
                 <X className="h-5 w-5" />
@@ -1536,11 +1535,11 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
             <div className="overflow-y-auto p-6" style={{ maxHeight: 'calc(85vh - 80px)' }}>
               {savedDiagrams.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <FolderOpen className="h-16 w-16 text-slate-600 mb-4" />
-                  <p className="text-lg font-semibold text-slate-300 mb-2">
+                  <FolderOpen className="h-16 w-16 text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4" />
+                  <p className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">
                     Nenhum diagrama salvo ainda
                   </p>
-                  <p className="text-sm text-slate-500 max-w-md">
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] max-w-md">
                     Crie seu primeiro diagrama de arquitetura e salve para ele aparecer aqui.
                   </p>
                 </div>
@@ -1554,13 +1553,13 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                           ? 'border-[#ff7a00] bg-[#ff7a00]/10 shadow-lg shadow-[#ff7a00]/20'
                           : viewingDiagramId === entry.id
                           ? 'border-[#22d3ee] bg-[#22d3ee]/10 shadow-lg shadow-[#22d3ee]/20'
-                          : 'border-[#263345] bg-[#070b16] hover:border-[#ff7a00]/50'
+                          : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:border-[#ff7a00]/50"
                       }`}
                     >
                       {/* Badge de Status */}
                       {(activeDiagramId === entry.id || viewingDiagramId === entry.id) && (
                         <div className="absolute -top-2 -right-2 z-10">
-                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold text-white shadow-lg ${
+                          <span className={`inline-flex items-center gap-1 rounded-full px-2 py-1 text-[10px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-lg ${
                             activeDiagramId === entry.id ? 'bg-[#ff7a00]' : 'bg-[#22d3ee]'
                           }`}>
                             {activeDiagramId === entry.id ? '✏️ Editando' : '👁️ Visualizando'}
@@ -1575,18 +1574,18 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                             <Layers className="h-5 w-5 text-[#ff7a00]" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <h3 className="font-bold text-slate-100 text-sm mb-1 line-clamp-2">
+                            <h3 className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm mb-1 line-clamp-2">
                               {entry.name}
                             </h3>
                             {(entry.clientName || entry.projectName) && (
-                              <p className="text-xs text-slate-400 truncate">
+                              <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] truncate">
                                 {[entry.clientName, entry.projectName].filter(Boolean).join(' • ')}
                               </p>
                             )}
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-2 text-xs text-slate-500 mb-4">
+                        <div className="flex items-center gap-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">
                           <Clock3 className="h-3.5 w-3.5" />
                           <span>
                             {new Date(entry.updatedAt).toLocaleString('pt-BR', {
@@ -1606,7 +1605,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                             onClick={() => {
                               viewDiagramAsPDF(entry);
                             }}
-                            className="flex-1 flex items-center justify-center gap-2 rounded-md border border-[#263345] bg-[#070b16] px-3 py-2 text-xs font-semibold text-slate-300 transition-colors hover:border-[#22d3ee] hover:bg-[#22d3ee]/10 hover:text-white"
+                            className="flex-1 flex items-center justify-center gap-2 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:border-[#22d3ee] hover:bg-[#22d3ee]/10 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           >
                             <FileText className="h-3.5 w-3.5" /> Visualizar PDF
                           </button>
@@ -1616,7 +1615,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                               loadSavedDiagram(entry, 'edit');
                               setSavedDiagramsModalOpen(false);
                             }}
-                            className="flex-1 flex items-center justify-center gap-2 rounded-md border border-[#ff7a00]/30 bg-[#ff7a00]/10 px-3 py-2 text-xs font-semibold text-[#ff7a00] transition-colors hover:border-[#ff7a00] hover:bg-[#ff7a00]/20 hover:text-white"
+                            className="flex-1 flex items-center justify-center gap-2 rounded-md border border-[#ff7a00]/30 bg-[#ff7a00]/10 px-3 py-2 text-xs font-semibold text-[#ff7a00] transition-colors hover:border-[#ff7a00] hover:bg-[#ff7a00]/20 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           >
                             <Pencil className="h-3.5 w-3.5" /> Editar
                           </button>
@@ -1643,59 +1642,59 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
         <div className="absolute inset-0 z-[80] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <form
             onSubmit={createNewDiagram}
-            className="w-full max-w-lg rounded-xl border border-[#263345] bg-[#111827] p-5 shadow-2xl"
+            className="w-full max-w-lg rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 shadow-2xl"
           >
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-[#ff7a00]">Novo Diagrama</p>
-                <h3 className="mt-1 text-lg font-bold text-slate-100">Diagrama de Arquitetura</h3>
+                <h3 className="mt-1 text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Diagrama de Arquitetura</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setNewDiagramFormOpen(false)}
-                className="rounded-md p-2 text-slate-500 transition-colors hover:bg-[#263345] hover:text-slate-200"
+                className="rounded-md p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
             <div className="space-y-3">
-              <label className="block text-xs font-semibold text-slate-300">
+              <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Nome do diagrama
                 <input
                   type="text"
                   value={newDiagramForm.name}
                   onChange={(event) => setNewDiagramForm((current) => ({ ...current, name: event.target.value }))}
-                  className="mt-1 w-full rounded-md border border-[#263345] bg-[#070b16] px-3 py-2 text-sm text-slate-100 outline-none transition-colors focus:border-[#ff7a00]"
+                  className="mt-1 w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors focus:border-[#ff7a00]"
                   required
                 />
               </label>
-              <label className="block text-xs font-semibold text-slate-300">
+              <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Nome do cliente
                 <input
                   type="text"
                   value={newDiagramForm.clientName}
                   onChange={(event) => setNewDiagramForm((current) => ({ ...current, clientName: event.target.value }))}
-                  className="mt-1 w-full rounded-md border border-[#263345] bg-[#070b16] px-3 py-2 text-sm text-slate-100 outline-none transition-colors focus:border-[#ff7a00]"
+                  className="mt-1 w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors focus:border-[#ff7a00]"
                   required
                 />
               </label>
-              <label className="block text-xs font-semibold text-slate-300">
+              <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Nome do projeto
                 <input
                   type="text"
                   value={newDiagramForm.projectName}
                   onChange={(event) => setNewDiagramForm((current) => ({ ...current, projectName: event.target.value }))}
-                  className="mt-1 w-full rounded-md border border-[#263345] bg-[#070b16] px-3 py-2 text-sm text-slate-100 outline-none transition-colors focus:border-[#ff7a00]"
+                  className="mt-1 w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors focus:border-[#ff7a00]"
                   required
                 />
               </label>
-              <label className="block text-xs font-semibold text-slate-300">
+              <label className="block text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Modelo inicial
                 <select
                   value={newDiagramForm.templateKey}
                   onChange={(event) => setNewDiagramForm((current) => ({ ...current, templateKey: event.target.value }))}
-                  className="mt-1 w-full rounded-md border border-[#263345] bg-[#070b16] px-3 py-2 text-sm text-slate-100 outline-none transition-colors focus:border-[#ff7a00]"
+                  className="mt-1 w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors focus:border-[#ff7a00]"
                 >
                   <option value="blank">Em Branco</option>
                   <option value="fiber-radio">Fibra + Rádio</option>
@@ -1710,13 +1709,13 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
               <button
                 type="button"
                 onClick={() => setNewDiagramFormOpen(false)}
-                className="rounded-md border border-[#263345] px-4 py-2 text-sm font-semibold text-slate-300 transition-colors hover:bg-[#263345] hover:text-white"
+                className="rounded-md border border-[var(--crm-border)] px-4 py-2 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                className="rounded-md bg-[#ff7a00] px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-[#f6b40b] hover:text-[#050914]"
+                className="rounded-md bg-[#ff7a00] px-4 py-2 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
               >
                 Criar Diagrama
               </button>

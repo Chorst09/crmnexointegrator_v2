@@ -221,7 +221,7 @@ const Login = () => {
                   onClick={toggleTheme}
                   className="crm-btn crm-btn-secondary h-10 px-3"
                   title={`Tema: ${theme} (ativo: ${resolvedTheme})`}
-                  aria-label="Alternar tema (claro/escuro/sistema)"
+                  aria-label="Alternar tema"
                 >
                   {theme === 'system' ? (
                     <Monitor className="h-4 w-4" />
@@ -238,14 +238,14 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setModeWithCleanup(FORM_MODE.LOGIN)}
-                    className={`rounded-lg px-2 py-2 text-xs font-semibold transition ${mode === FORM_MODE.LOGIN ? 'bg-[color:var(--crm-accent)] text-white' : 'text-[var(--crm-muted)]'}`}
+                    className={`rounded-lg px-2 py-2 text-xs font-semibold transition ${mode === FORM_MODE.LOGIN ? "bg-[color:var(--crm-accent)] text-[rgb(var(--crm-ink-rgb)_/_1)]" : 'text-[var(--crm-muted)]'}`}
                   >
                     Entrar
                   </button>
                   <button
                     type="button"
                     onClick={() => setModeWithCleanup(FORM_MODE.FORGOT)}
-                    className={`rounded-lg px-2 py-2 text-xs font-semibold transition ${mode === FORM_MODE.FORGOT ? 'bg-[color:var(--crm-accent)] text-white' : 'text-[var(--crm-muted)]'}`}
+                    className={`rounded-lg px-2 py-2 text-xs font-semibold transition ${mode === FORM_MODE.FORGOT ? "bg-[color:var(--crm-accent)] text-[rgb(var(--crm-ink-rgb)_/_1)]" : 'text-[var(--crm-muted)]'}`}
                   >
                     Esqueci
                   </button>
@@ -415,7 +415,7 @@ const Login = () => {
                           setLoginData({ email: 'admin@crm.com', password: 'admin123' });
                           setFeedback({ type: '', message: '' });
                         }}
-                        className="rounded-lg border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] py-1.5 px-2 text-xs font-medium text-[var(--crm-ink)] hover:bg-[color:var(--crm-accent)] hover:text-white transition"
+                        className="rounded-lg border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] py-1.5 px-2 text-xs font-medium text-[var(--crm-ink)] hover:bg-[color:var(--crm-accent)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition"
                       >
                         👑 Master (admin@crm.com)
                       </button>
@@ -425,7 +425,7 @@ const Login = () => {
                           setLoginData({ email: 'chorstconsult@gmail.com', password: 'Admin@2026' });
                           setFeedback({ type: '', message: '' });
                         }}
-                        className="rounded-lg border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] py-1.5 px-2 text-xs font-medium text-[var(--crm-ink)] hover:bg-[color:var(--crm-accent)] hover:text-white transition"
+                        className="rounded-lg border border-[color:var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] py-1.5 px-2 text-xs font-medium text-[var(--crm-ink)] hover:bg-[color:var(--crm-accent)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition"
                       >
                         👑 Master (chorstconsult)
                       </button>

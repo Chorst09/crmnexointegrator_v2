@@ -345,7 +345,7 @@ export default function Comissoes() {
       key: 'status',
       label: 'Status',
       render: (item) => {
-        const meta = STATUS_META[item.status] || { label: item.status || '-', cls: 'bg-slate-500/10 text-slate-700 dark:text-slate-200' };
+        const meta = STATUS_META[item.status] || { label: item.status || '-', cls: "bg-[rgb(var(--crm-surface-rgb)_/_0.1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]" };
         return (
           <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-extrabold ${meta.cls}`}>
             {meta.label}
@@ -399,9 +399,9 @@ export default function Comissoes() {
       </div>
 
       <section className="mb-8 overflow-hidden rounded-2xl border border-[var(--crm-border)] bg-[var(--crm-surface)] shadow-sm">
-        <div className="flex flex-col gap-4 border-b border-[var(--crm-border)] bg-[linear-gradient(135deg,rgba(22,78,99,0.16),rgba(37,99,235,0.08))] p-5 lg:flex-row lg:items-center lg:justify-between">
+        <div className="flex flex-col gap-4 border-b border-[var(--crm-border)] bg-[linear-gradient(135deg,rgb(var(--crm-surface-rgb)_/_0.16),rgba(37,99,235,0.08))] p-5 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-cyan-300/30 bg-cyan-500/10 text-cyan-200">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-cyan-300/30 bg-cyan-500/10 text-cyan-700 dark:text-cyan-200">
               <SlidersHorizontal className="h-5 w-5" />
             </div>
             <div>
@@ -430,7 +430,7 @@ export default function Comissoes() {
         <div className="grid grid-cols-1 gap-4 p-5 xl:grid-cols-[minmax(220px,0.8fr)_minmax(0,2fr)_auto] xl:items-end">
           <div className="rounded-2xl border border-[var(--crm-border)] bg-[var(--crm-bg)] p-4">
             <div className="flex items-center gap-2 text-sm font-black text-[var(--crm-ink)]">
-              <DollarSign className="h-4 w-4 text-emerald-300" />
+              <DollarSign className="h-4 w-4 text-emerald-700 dark:text-emerald-300" />
               Projeto pontual
             </div>
             <p className="mt-1 text-xs text-[var(--crm-muted)]">Percentual aplicado em vendas avulsas.</p>
@@ -452,7 +452,7 @@ export default function Comissoes() {
 
           <div className="rounded-2xl border border-[var(--crm-border)] bg-[var(--crm-bg)] p-4">
             <div className="flex items-center gap-2 text-sm font-black text-[var(--crm-ink)]">
-              <CalendarClock className="h-4 w-4 text-sky-300" />
+              <CalendarClock className="h-4 w-4 text-sky-700 dark:text-sky-300" />
               Projetos mensais
             </div>
             <p className="mt-1 text-xs text-[var(--crm-muted)]">Defina uma comissão diferente conforme o prazo contratado.</p>
@@ -487,7 +487,7 @@ export default function Comissoes() {
           </button>
         </div>
 
-        <div className="border-t border-[var(--crm-border)] bg-[rgba(7,20,38,0.24)] p-5">
+        <div className="border-t border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.24)] p-5">
           <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
             <div>
               <h3 className="text-sm font-black uppercase tracking-[0.12em] text-[var(--crm-ink)]">Regras salvas por vendedor</h3>
@@ -512,7 +512,7 @@ export default function Comissoes() {
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] text-cyan-200">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] text-cyan-700 dark:text-cyan-200">
                         <User className="h-4 w-4" />
                       </div>
                       <div className="min-w-0">
@@ -521,14 +521,14 @@ export default function Comissoes() {
                       </div>
                     </div>
                     <div className="rounded-xl border border-emerald-300/30 bg-emerald-500/10 px-3 py-2 text-right">
-                      <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-emerald-200">Pontual</div>
+                      <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-emerald-700 dark:text-emerald-200">Pontual</div>
                       <div className="text-sm font-black text-[var(--crm-ink)]">{formatPercentValue(seller.single)}</div>
                     </div>
                   </div>
 
                   <div className="mt-4 grid grid-cols-5 gap-2">
                     {seller.monthly.map((rule) => (
-                      <div key={rule.key} className="rounded-xl border border-[var(--crm-border)] bg-[rgba(11,34,67,0.58)] px-2 py-2 text-center">
+                      <div key={rule.key} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.58)] px-2 py-2 text-center">
                         <div className="text-[10px] font-bold text-[var(--crm-muted)]">{rule.months}m</div>
                         <div className="mt-0.5 text-xs font-black text-[var(--crm-ink)]">{formatPercentValue(rule.value)}</div>
                       </div>

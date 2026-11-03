@@ -15,7 +15,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon, title, value, subtext }) => {
     if (title.includes('Fibra') && !title.includes('Double')) return 'from-green-600 to-green-800';
     if (title.includes('Double')) return 'from-red-600 to-red-800';
     if (title.includes('MAN')) return 'from-cyan-600 to-cyan-800';
-    return 'from-slate-600 to-slate-800';
+    return "from-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-rgb)_/_1)]";
   };
 
   const getShadowColor = (title: string) => {
@@ -31,7 +31,7 @@ const StatCard: React.FC<StatCardProps> = ({ icon, title, value, subtext }) => {
   const shadowColor = getShadowColor(title);
 
   return (
-    <div className={`crm-stat-card bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl shadow-[0_18px_42px_-28px_rgba(0,0,0,0.85)] ${shadowColor} hover:shadow-[0_22px_52px_-30px_rgba(0,0,0,0.95)] transition-all duration-300 transform hover:brightness-[1.02] border border-slate-700/30 group overflow-hidden relative`}>
+    <div className={`crm-stat-card bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-xl shadow-[0_18px_42px_-28px_rgba(0,0,0,0.85)] ${shadowColor} hover:shadow-[0_22px_52px_-30px_rgba(0,0,0,0.95)] transition-all duration-300 transform hover:brightness-[1.02] border border-[var(--crm-border)] group overflow-hidden relative`}>
       {/* Gradient overlay */}
       <div className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-10 group-hover:opacity-20 transition-opacity duration-300`} />
       
@@ -39,28 +39,28 @@ const StatCard: React.FC<StatCardProps> = ({ icon, title, value, subtext }) => {
       <div className="relative p-3">
         <div className="flex items-center justify-between mb-2">
           <div className={`p-2 rounded-lg bg-gradient-to-br ${gradient} shadow-lg`}>
-            <div className="text-white">
+            <div className="text-[rgb(var(--crm-ink-rgb)_/_1)]">
               {icon}
             </div>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-black tracking-tight text-white group-hover:text-cyan-300 transition-colors">
+            <div className="text-2xl font-black tracking-tight text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 dark:group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
               {value}
             </div>
           </div>
         </div>
         
         <div>
-          <h3 className="text-white font-bold tracking-tight text-sm mb-1 group-hover:text-cyan-300 transition-colors">
+          <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold tracking-tight text-sm mb-1 group-hover:text-cyan-700 dark:group-hover:text-cyan-300 dark:group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
             {title}
           </h3>
-          <p className="text-slate-400 text-xs">{subtext}</p>
+          <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">{subtext}</p>
         </div>
       </div>
       
       {/* Decorative elements */}
-      <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-white/5 to-transparent rounded-bl-full" />
-      <div className="absolute bottom-0 left-0 w-12 h-12 bg-gradient-to-tr from-white/5 to-transparent rounded-tr-full" />
+      <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_0.05)] to-transparent rounded-bl-full" />
+      <div className="absolute bottom-0 left-0 w-12 h-12 bg-gradient-to-tr from-[rgb(var(--crm-surface-rgb)_/_0.05)] to-transparent rounded-tr-full" />
     </div>
   );
 };

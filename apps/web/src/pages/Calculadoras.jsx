@@ -3401,7 +3401,7 @@ export default function Calculadoras({
       let display = rawValue;
       if (column.format === 'currency') display = formatCurrency(toNumber(rawValue, 0));
       if (column.format === 'percent') display = formatPercent(toNumber(rawValue, 0));
-      return <span className="text-slate-100 whitespace-nowrap">{display ?? '-'}</span>;
+      return <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] whitespace-nowrap">{display ?? '-'}</span>;
     }
 
     if (column.kind === 'checkbox') {
@@ -3411,7 +3411,7 @@ export default function Calculadoras({
             type="checkbox"
             checked={Boolean(item[column.key])}
             onChange={(event) => updateOperationItem(item.id, column.key, event.target.checked)}
-            className="h-5 w-5 rounded border-slate-600 bg-slate-950 text-blue-500"
+            className="h-5 w-5 rounded border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-blue-500"
           />
         </div>
       );
@@ -3422,7 +3422,7 @@ export default function Calculadoras({
         <select
           value={item[column.key] ?? ''}
           onChange={(event) => updateOperationItem(item.id, column.key, event.target.value)}
-          className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white"
+          className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
         >
           {(column.options || []).map((option) => (
             <option key={option.value} value={option.value}>{option.label}</option>
@@ -3444,7 +3444,7 @@ export default function Calculadoras({
           }
           updateOperationItem(item.id, column.key, event.target.value);
         }}
-        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white"
+        className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
       />
     );
   };
@@ -3486,12 +3486,12 @@ export default function Calculadoras({
 
       <div className="p-6 space-y-6">
         {homeFeedback ? (
-          <div className="rounded-lg border border-emerald-400/60 bg-emerald-500/15 px-4 py-3 text-emerald-100 flex items-center justify-between gap-3">
+          <div className="rounded-lg border border-emerald-400/60 bg-emerald-500/15 px-4 py-3 text-emerald-700 dark:text-emerald-100 flex items-center justify-between gap-3">
             <span>{homeFeedback}</span>
             <button
               type="button"
               onClick={() => setHomeFeedback(null)}
-              className="text-emerald-100/90 hover:text-white text-sm"
+              className="text-emerald-700/90 dark:text-emerald-100/90 hover:text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm"
             >
               Fechar
             </button>
@@ -3505,7 +3505,7 @@ export default function Calculadoras({
               <p className="text-sm text-[var(--crm-muted)]">Crie, localize e salve simulações de venda, locação e serviços.</p>
             </div>
             <span className="inline-flex w-fit items-center rounded-full border border-cyan-300/35 bg-gradient-to-br from-cyan-500/15 via-teal-500/10 to-emerald-500/15 px-3 py-1.5 text-sm font-semibold text-[var(--crm-ink)] shadow-inner shadow-cyan-300/10">
-              Regime ativo: <span className="ml-1 text-cyan-100">{regimeAtivoHeader?.nome || 'Não definido'}</span>
+              Regime ativo: <span className="ml-1 text-cyan-700 dark:text-cyan-100">{regimeAtivoHeader?.nome || 'Não definido'}</span>
             </span>
           </div>
 
@@ -3586,7 +3586,7 @@ export default function Calculadoras({
               >
                 <div className="flex h-full items-start gap-4">
                   <div className={`w-12 h-12 shrink-0 rounded-xl flex items-center justify-center ${calc.iconBg} shadow-lg shadow-black/20`}>
-                    <calc.icon className="w-6 h-6 text-white" />
+                    <calc.icon className="w-6 h-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                   </div>
                   <div className="min-w-0">
                     <h3 className="text-base font-semibold text-[var(--crm-ink)]">{calc.title}</h3>
@@ -3623,8 +3623,8 @@ export default function Calculadoras({
                 >
                   <div className="min-w-0 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="text-lg font-semibold text-cyan-100">{proposal.number}</span>
-                      <span className="rounded border border-cyan-300/30 bg-gradient-to-br from-cyan-500/15 via-teal-500/10 to-emerald-500/15 px-2 py-1 text-xs text-cyan-100">
+                      <span className="text-lg font-semibold text-cyan-700 dark:text-cyan-100">{proposal.number}</span>
+                      <span className="rounded border border-cyan-300/30 bg-gradient-to-br from-cyan-500/15 via-teal-500/10 to-emerald-500/15 px-2 py-1 text-xs text-cyan-700 dark:text-cyan-100">
                         {proposal.calculatorLabel || '-'}
                       </span>
                     </div>
@@ -3649,7 +3649,7 @@ export default function Calculadoras({
                     <button
                       type="button"
                       onClick={() => handleGenerateProposalPdf(proposal)}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-3 text-sm font-semibold text-emerald-100 hover:bg-emerald-500/25"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-emerald-400/40 bg-emerald-500/15 px-3 text-sm font-semibold text-emerald-700 dark:text-emerald-100 hover:bg-emerald-500/25"
                     >
                       <FileText className="w-4 h-4" />
                       PDF
@@ -3657,7 +3657,7 @@ export default function Calculadoras({
                     <button
                       type="button"
                       onClick={() => openProposalPreview(proposal)}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-indigo-400/40 bg-indigo-500/15 px-3 text-sm font-semibold text-indigo-100 hover:bg-indigo-500/25"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-indigo-400/40 bg-indigo-500/15 px-3 text-sm font-semibold text-indigo-700 dark:text-indigo-100 hover:bg-indigo-500/25"
                     >
                       <Eye className="w-4 h-4" />
                       Ver
@@ -3665,7 +3665,7 @@ export default function Calculadoras({
                     <button
                       type="button"
                       onClick={() => openProposal(proposal, { keepModalOpen: true })}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-cyan-400/40 bg-cyan-500/15 px-3 text-sm font-semibold text-cyan-100 hover:bg-cyan-500/25"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-cyan-400/40 bg-cyan-500/15 px-3 text-sm font-semibold text-cyan-700 dark:text-cyan-100 hover:bg-cyan-500/25"
                     >
                       <FolderOpen className="w-4 h-4" />
                       Abrir
@@ -3673,7 +3673,7 @@ export default function Calculadoras({
                     <button
                       type="button"
                       onClick={() => openProposal(proposal, { keepModalOpen: true })}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-cyan-300/40 bg-gradient-to-br from-cyan-500/20 via-teal-500/10 to-emerald-500/20 px-3 text-sm font-semibold text-cyan-100 shadow-inner shadow-cyan-300/10 hover:border-cyan-200/60 hover:from-cyan-500/25 hover:to-emerald-500/25"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-cyan-300/40 bg-gradient-to-br from-cyan-500/20 via-teal-500/10 to-emerald-500/20 px-3 text-sm font-semibold text-cyan-700 dark:text-cyan-100 shadow-inner shadow-cyan-300/10 hover:border-cyan-200/60 dark:hover:border-cyan-800/60 hover:from-cyan-500/25 hover:to-emerald-500/25"
                     >
                       <Pencil className="w-4 h-4" />
                       Editar
@@ -3685,7 +3685,7 @@ export default function Calculadoras({
                         persistSavedProposals(savedProposals.filter(p => p.id !== proposal.id));
                         if (activeProposalId === proposal.id) setActiveProposalId(null);
                       }}
-                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-red-400/40 bg-red-500/15 px-3 text-sm font-semibold text-red-100 hover:bg-red-500/25"
+                      className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-red-400/40 bg-red-500/15 px-3 text-sm font-semibold text-red-700 dark:text-red-100 hover:bg-red-500/25"
                     >
                       <Trash2 className="w-4 h-4" />
                       Excluir
@@ -4036,8 +4036,8 @@ export default function Calculadoras({
           {proposalFeedback ? (
             <div className={`rounded-lg border px-4 py-3 text-sm ${
               proposalFeedback.type === 'error'
-                ? 'border-red-400/50 bg-red-500/10 text-red-100'
-                : 'border-emerald-400/50 bg-emerald-500/10 text-emerald-100'
+                ? "border-red-400/50 bg-red-500/10 text-red-700 dark:text-red-100"
+                : "border-emerald-400/50 bg-emerald-500/10 text-emerald-700 dark:text-emerald-100"
             }`}>
               {proposalFeedback.text}
             </div>
@@ -4056,11 +4056,11 @@ export default function Calculadoras({
                   <div className="p-5 space-y-4">
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[minmax(220px,1fr)_minmax(220px,1fr)_220px] xl:items-end">
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">Distribuidor</label>
+                        <label className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Distribuidor</label>
                         <select
                           value={currentBudget.distribuidorId || (currentBudget.distribuidor ? '__loaded_distributor' : '')}
                           onChange={(e) => handleBudgetDistributorChange(e.target.value)}
-                          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-sky-500/50"
                         >
                           <option value="">Selecione um distribuidor cadastrado</option>
                           {currentBudget.distribuidor && !currentBudget.distribuidorId ? (
@@ -4074,11 +4074,11 @@ export default function Calculadoras({
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">Fornecedor</label>
+                        <label className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Fornecedor</label>
                         <select
                           value={currentBudget.fornecedorId || (currentBudget.fornecedor ? '__loaded_supplier' : '')}
                           onChange={(e) => handleBudgetSupplierChange(e.target.value)}
-                          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-sky-500/50"
                         >
                           <option value="">Selecione um fornecedor cadastrado</option>
                           {currentBudget.fornecedor && !currentBudget.fornecedorId ? (
@@ -4092,7 +4092,7 @@ export default function Calculadoras({
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">N° Orçamento</label>
+                        <label className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">N° Orçamento</label>
                         <div className="flex gap-2">
                           <input
                             type="text"
@@ -4110,13 +4110,13 @@ export default function Calculadoras({
                                 searchBudgetByNumber(currentBudget.numeroOrcamento);
                               }
                             }}
-                            className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+                            className="min-w-0 flex-1 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-sky-500/50"
                           />
                           <button
                             type="button"
                             onClick={() => searchBudgetByNumber(currentBudget.numeroOrcamento)}
                             disabled={loadingCotacoes}
-                            className="inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-lg border border-cyan-400/40 bg-cyan-500/15 text-cyan-100 transition hover:bg-cyan-500/25 disabled:opacity-60"
+                            className="inline-flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-lg border border-cyan-400/40 bg-cyan-500/15 text-cyan-700 dark:text-cyan-100 transition hover:bg-cyan-500/25 disabled:opacity-60"
                             title="Buscar na Fila de Orçamentos"
                           >
                             {loadingCotacoes ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
@@ -4127,11 +4127,11 @@ export default function Calculadoras({
 
                     <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-[180px_minmax(280px,1fr)_160px_180px] xl:items-end">
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">Modalidade</label>
+                        <label className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Modalidade</label>
                         <select 
                           value={currentCost.modalidade}
                           onChange={(e) => handleCostFieldChange('modalidade', e.target.value)}
-                          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-sky-500/50"
                         >
                           <option value="VENDA">Venda</option>
                           <option value="LOCACAO">Locação</option>
@@ -4139,61 +4139,61 @@ export default function Calculadoras({
                         </select>
                       </div>
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">Item / Descrição</label>
+                        <label className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Item / Descrição</label>
                         <input
                           type="text"
                           placeholder="Switch 48 portas, servidor..."
                           value={currentCost.item}
                           onChange={(e) => handleCostFieldChange('item', e.target.value)}
-                          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-sky-500/50"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">Qtde</label>
+                        <label className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Qtde</label>
                         <input
                           type="number"
                           min="1"
                           value={currentCost.quantidade}
                           onChange={(e) => handleCostFieldChange('quantidade', Number(e.target.value) || 1)}
-                          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-sky-500/50"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">Custo Unit. R$</label>
+                        <label className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Custo Unit. R$</label>
                         <input
                           type="number"
                           min="0"
                           step="0.01"
                           value={currentCost.custoUnitario}
                           onChange={(e) => handleCostFieldChange('custoUnitario', Number(e.target.value) || 0)}
-                          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-sky-500/50"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 gap-3 xl:grid-cols-[1fr_auto] xl:items-end">
                       <div>
-                        <label className="block text-xs text-slate-400 mb-1">Observações</label>
+                        <label className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Observações</label>
                         <input
                           type="text"
                           placeholder="Condições comerciais, prazo, impostos inclusos..."
                           value={currentCost.observacoes}
                           onChange={(e) => handleCostFieldChange('observacoes', e.target.value)}
-                          className="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-sky-500/50"
                         />
                       </div>
                       <button
                         type="button"
                         onClick={handleAddDistributorCost}
-                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-500 px-4 py-2.5 text-sm font-semibold text-slate-950 hover:bg-sky-400"
+                        className="inline-flex items-center justify-center gap-2 rounded-lg bg-sky-500 px-4 py-2.5 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-sky-400"
                       >
                         <Plus className="h-4 w-4" />
                         Adicionar e Aplicar
                       </button>
                     </div>
 
-                    <div className="rounded-xl border border-slate-700/50 overflow-hidden mt-4">
-                      <div className="grid grid-cols-9 gap-2 bg-slate-900/60 px-4 py-2.5 text-xs font-medium text-slate-400 border-b border-slate-700/40">
+                    <div className="rounded-xl border border-[var(--crm-border)] overflow-hidden mt-4">
+                      <div className="grid grid-cols-9 gap-2 bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-4 py-2.5 text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] border-b border-[var(--crm-border)]">
                         <span>Modalidade</span>
                         <span>Distribuidor</span>
                         <span>Fornecedor</span>
@@ -4204,13 +4204,13 @@ export default function Calculadoras({
                         <span>Data</span>
                       </div>
                       {distributorCosts.length === 0 ? (
-                        <div className="px-4 py-8 text-sm text-slate-400">
+                        <div className="px-4 py-8 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                           Sem custos adicionados para esta proposta.
                         </div>
                       ) : (
-                        <div className="divide-y divide-slate-700/30">
+                        <div className="divide-y divide-[var(--crm-border)]">
                           {distributorCosts.map((cost) => (
-                            <div key={cost.id} className="grid grid-cols-9 gap-2 px-4 py-3 text-sm text-slate-300 hover:bg-slate-800/40">
+                            <div key={cost.id} className="grid grid-cols-9 gap-2 px-4 py-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)]">
                               <span className="truncate">{cost.modalidade}</span>
                               <span className="truncate">{cost.distribuidor || '-'}</span>
                               <span className="truncate">{cost.fornecedor || '-'}</span>
@@ -4223,7 +4223,7 @@ export default function Calculadoras({
                                 <button
                                   type="button"
                                   onClick={() => handleRemoveDistributorCost(cost.id)}
-                                  className="text-red-400 hover:text-red-300 ml-auto"
+                                  className="text-red-700 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 ml-auto"
                                   title="Remover custo"
                                 >
                                   <Trash2 className="h-3.5 w-3.5" />
@@ -4240,23 +4240,23 @@ export default function Calculadoras({
                 {/* Cliente / Órgão e CNPJ lado a lado */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-slate-300 mb-1">Cliente / Órgão</label>
+                    <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Cliente / Órgão</label>
                     <input
                       type="text"
                       placeholder="Nome do cliente ou órgão"
                       value={proposalForm.clientCompany}
                       onChange={(event) => setProposalForm((prev) => ({ ...prev, clientCompany: event.target.value }))}
-                      className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500"
+                      className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-slate-300 mb-1">CNPJ / Documento</label>
+                    <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">CNPJ / Documento</label>
                     <input
                       type="text"
                       placeholder="00.000.000/0000-00"
                       value={proposalForm.clientDocument || ''}
                       onChange={(event) => setProposalForm((prev) => ({ ...prev, clientDocument: event.target.value }))}
-                      className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500"
+                      className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                     />
                   </div>
                 </div>
@@ -4264,23 +4264,23 @@ export default function Calculadoras({
                 {/* Contato e Email do Cliente */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-slate-300 mb-1">Contato do Cliente</label>
+                    <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Contato do Cliente</label>
                     <input
                       type="text"
                       placeholder="Nome do contato"
                       value={proposalForm.clientContact}
                       onChange={(event) => setProposalForm((prev) => ({ ...prev, clientContact: event.target.value }))}
-                      className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500"
+                      className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-slate-300 mb-1">Email do Cliente</label>
+                    <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Email do Cliente</label>
                     <input
                       type="email"
                       placeholder="email@cliente.com.br"
                       value={proposalForm.clientEmail}
                       onChange={(event) => setProposalForm((prev) => ({ ...prev, clientEmail: event.target.value }))}
-                      className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500"
+                      className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                     />
                   </div>
                 </div>
@@ -4288,48 +4288,48 @@ export default function Calculadoras({
                 {/* Gerente de Conta e Email do Gerente */}
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm text-slate-300 mb-1">Gerente de Conta</label>
+                    <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Gerente de Conta</label>
                     <input
                       type="text"
                       placeholder="Nome do gerente"
                       value={proposalForm.managerName}
                       onChange={(event) => setProposalForm((prev) => ({ ...prev, managerName: event.target.value }))}
-                      className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500"
+                      className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm text-slate-300 mb-1">Email do Gerente</label>
+                    <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Email do Gerente</label>
                     <input
                       type="email"
                       placeholder="gerente@empresa.com.br"
                       value={proposalForm.managerEmail}
                       onChange={(event) => setProposalForm((prev) => ({ ...prev, managerEmail: event.target.value }))}
-                      className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500"
+                      className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                     />
                   </div>
                 </div>
 
                 {/* Telefone do Gerente */}
                 <div>
-                  <label className="block text-sm text-slate-300 mb-1">Telefone do Gerente</label>
+                  <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Telefone do Gerente</label>
                   <input
                     type="text"
                     placeholder="(00) 00000-0000"
                     value={proposalForm.managerPhone}
                     onChange={(event) => setProposalForm((prev) => ({ ...prev, managerPhone: event.target.value }))}
-                    className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500"
+                    className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                   />
                 </div>
 
                 {/* Premissas da Proposta */}
                 <div>
-                  <h5 className="text-lg font-semibold text-blue-300 mb-2">Premissas da Proposta</h5>
+                  <h5 className="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-2">Premissas da Proposta</h5>
                   <textarea
                     placeholder="Descreva escopo, validade da proposta, SLA, condições comerciais, exclusões etc."
                     value={proposalForm.premises || ''}
                     onChange={(event) => setProposalForm((prev) => ({ ...prev, premises: event.target.value }))}
                     rows={5}
-                    className="w-full px-4 py-3 bg-slate-950 border border-slate-700 rounded-lg text-white placeholder-slate-500 resize-none"
+                    className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] resize-none"
                   />
                 </div>
               </div>
@@ -4338,7 +4338,7 @@ export default function Calculadoras({
                 <button
                   type="button"
                   onClick={() => setCalculatorStep('home')}
-                  className="px-6 py-3 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800"
+                  className="px-6 py-3 rounded-lg border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                 >
                   Voltar
                 </button>
@@ -4356,14 +4356,14 @@ export default function Calculadoras({
 
           {calculatorStep === 'calculation' && (
             <>
-              <div className="rounded-lg border border-slate-700 bg-slate-900/80 p-4 flex flex-wrap items-center justify-between gap-4">
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-4 flex flex-wrap items-center justify-between gap-4">
                 <div>
-                  <div className="text-sm text-slate-400">Cliente</div>
-                  <div className="text-lg font-semibold text-white">
+                  <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Cliente</div>
+                  <div className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {proposalForm.clientCompany || 'Sem empresa'} · {proposalForm.clientContact || 'Sem contato'}
                   </div>
                   {(proposalForm.opportunityNumber || proposalForm.opportunityTitle) && (
-                    <div className="mt-1 text-xs font-semibold text-slate-400">
+                    <div className="mt-1 text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
                       Oportunidade: {[proposalForm.opportunityNumber, proposalForm.opportunityTitle].filter(Boolean).join(' - ')}
                     </div>
                   )}
@@ -4371,13 +4371,13 @@ export default function Calculadoras({
                 <button
                   type="button"
                   onClick={() => setCalculatorStep('proposal')}
-                  className="px-4 py-2 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800"
+                  className="px-4 py-2 rounded-lg border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                 >
                   Editar Dados da Proposta
                 </button>
               </div>
 
-              <div className="grid grid-cols-3 gap-2 rounded-lg border border-slate-600/30 bg-slate-800/60 p-2">
+              <div className="grid grid-cols-3 gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2">
                 {calculadoras.map((calc) => (
                   <button
                     key={calc.id}
@@ -4388,7 +4388,7 @@ export default function Calculadoras({
                     className={`flex items-center justify-center gap-2 rounded-lg px-4 py-3 text-sm font-semibold transition-all ${
                       currentTab === calc.id
                         ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/25'
-                        : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                        : "text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
                     }`}
                   >
                     <calc.icon className="w-4 h-4" />
@@ -4398,29 +4398,29 @@ export default function Calculadoras({
               </div>
 
               {operationType === 'venda' ? (
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-3 rounded-lg border border-slate-700 bg-slate-900/80">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 p-3 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)]">
                   {!isReformaRegimeSelected ? (
-                    <label className="inline-flex items-center gap-2 text-sm text-slate-200">
+                    <label className="inline-flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       <input
                         type="checkbox"
                         checked={isIcmsContributor}
                         onChange={(event) => setIsIcmsContributor(event.target.checked)}
-                        className="h-4 w-4 rounded border-slate-600"
+                        className="h-4 w-4 rounded border-[var(--crm-border)]"
                       />
                       Consumidor final é contribuinte do ICMS?
                     </label>
                   ) : (
-                    <div className="lg:col-span-2 rounded-lg border border-blue-400/30 bg-blue-500/10 px-3 py-2 text-xs text-blue-100">
+                    <div className="lg:col-span-2 rounded-lg border border-blue-400/30 bg-blue-500/10 px-3 py-2 text-xs text-blue-700 dark:text-blue-100">
                       Regime de reforma ativo: cálculo de venda usa IBS/CBS/IS e não aplica DIFAL/ICMS-ST.
                     </div>
                   )}
                   {!isReformaRegimeSelected && (
                     <div>
-                      <label className="block text-xs text-slate-300 mb-1">UF Destino</label>
+                      <label className="block text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">UF Destino</label>
                       <select
                         value={destinationUF}
                         onChange={(event) => setDestinationUF(event.target.value)}
-                        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white"
+                        className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       >
                         {UF_OPTIONS.map((uf) => (
                           <option key={uf} value={uf}>{uf}</option>
@@ -4429,12 +4429,12 @@ export default function Calculadoras({
                     </div>
                   )}
                   <div>
-                    <label className="block text-xs text-slate-300 mb-1">Margem de Lucro Desejada (%)</label>
+                    <label className="block text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Margem de Lucro Desejada (%)</label>
                     <input
                       type="number"
                       value={desiredMargin}
                       onChange={(event) => setDesiredMargin(parseFloat(event.target.value) || 0)}
-                      className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white"
+                      className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     />
                   </div>
                 </div>
@@ -4442,48 +4442,48 @@ export default function Calculadoras({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {operationType === 'locacao' && (
                     <div>
-                      <label className="block text-xs text-slate-300 mb-1">Período do Contrato (meses)</label>
+                      <label className="block text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Período do Contrato (meses)</label>
                       <input
                         type="number"
                         value={rentalPeriod}
                         onChange={(event) => setRentalPeriod(parseFloat(event.target.value) || 0)}
-                        className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white"
+                        className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       />
                     </div>
                   )}
                   <div>
-                    <label className="block text-xs text-slate-300 mb-1">Margem de Lucro Desejada (%)</label>
+                    <label className="block text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Margem de Lucro Desejada (%)</label>
                     <input
                       type="number"
                       value={desiredMargin}
                       onChange={(event) => setDesiredMargin(parseFloat(event.target.value) || 0)}
-                      className="w-full px-3 py-2 bg-slate-950 border border-slate-700 rounded-lg text-white"
+                      className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                     />
                   </div>
                 </div>
               )}
 
-              <div className="rounded-lg border border-slate-700 bg-slate-900/80 p-4">
-                <h4 className="text-lg font-semibold text-blue-300 mb-4">⚙️ Parâmetros de Cálculo</h4>
-                <div className="overflow-x-auto rounded-lg border border-slate-700">
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-4">
+                <h4 className="text-lg font-semibold text-blue-700 dark:text-blue-300 mb-4">⚙️ Parâmetros de Cálculo</h4>
+                <div className="overflow-x-auto rounded-lg border border-[var(--crm-border)]">
                   <table className="w-full text-sm">
-                    <thead className="bg-slate-900">
+                    <thead className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
                       <tr>
                         {operationColumns.map((column) => (
                           <th
                             key={column.key}
-                            className="px-3 py-2 text-left text-slate-300 font-medium"
+                            className="px-3 py-2 text-left text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium"
                             style={{ minWidth: column.width, width: column.width }}
                           >
                             {column.label}
                           </th>
                         ))}
-                        <th className="px-3 py-2 text-slate-300 font-medium w-12">&nbsp;</th>
+                        <th className="px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] font-medium w-12">&nbsp;</th>
                       </tr>
                     </thead>
                     <tbody>
                       {currentItems.map((item) => (
-                        <tr key={item.id} className="border-t border-slate-800">
+                        <tr key={item.id} className="border-t border-[var(--crm-border)]">
                           {operationColumns.map((column) => (
                             <td
                               key={`${item.id}-${column.key}`}
@@ -4497,7 +4497,7 @@ export default function Calculadoras({
                             <button
                               type="button"
                               onClick={() => removeOperationItem(item.id)}
-                              className="text-red-400 hover:text-red-300"
+                              className="text-red-700 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                               aria-label="Remover item"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -4513,114 +4513,114 @@ export default function Calculadoras({
                   <button
                     type="button"
                     onClick={addOperationItem}
-                    className="px-4 py-2 rounded-lg border border-blue-400/40 bg-blue-500/15 text-blue-100 hover:bg-blue-500/25 inline-flex items-center gap-2"
+                    className="px-4 py-2 rounded-lg border border-blue-400/40 bg-blue-500/15 text-blue-700 dark:text-blue-100 hover:bg-blue-500/25 inline-flex items-center gap-2"
                   >
                     <Plus className="w-4 h-4" />
                     Adicionar Item
                   </button>
                   <div className="text-right">
-                    <div className="text-sm text-slate-400">{currentTotalLabel}</div>
-                    <div className="text-2xl font-bold text-white">{formatCurrency(currentTotalValue)}</div>
+                    <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">{currentTotalLabel}</div>
+                    <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(currentTotalValue)}</div>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-lg border border-slate-700 bg-slate-900/80 p-4">
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-4">
                 <div className="text-center mb-4">
-                  <div className="text-sm text-slate-400">
+                  <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     {operationType === 'locacao' ? 'Preço Mensal Sugerido' : 'Preço Final Sugerido'}
                   </div>
-                  <div className="text-4xl font-black text-cyan-300">
+                  <div className="text-4xl font-black text-cyan-700 dark:text-cyan-300">
                     {formatCurrency(operationType === 'locacao'
                       ? calculationPreview.calculationResults.monthlyPrice
                       : calculationPreview.calculationResults.finalPrice)}
                   </div>
                   {operationType === 'locacao' && (
-                    <div className="text-sm text-cyan-200">
+                    <div className="text-sm text-cyan-700 dark:text-cyan-200">
                       Total Contrato: {formatCurrency(calculationPreview.calculationResults.finalPrice)}
                     </div>
                   )}
                 </div>
 
-                <div className="grid grid-cols-1 gap-3 text-center border-t border-slate-700 pt-4">
+                <div className="grid grid-cols-1 gap-3 text-center border-t border-[var(--crm-border)] pt-4">
                   <div>
-                    <div className="text-xs text-slate-400 uppercase">Itens na proposta</div>
-                    <div className="text-lg font-semibold text-white">
+                    <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase">Itens na proposta</div>
+                    <div className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       {currentItemCount}
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-lg border border-slate-700 bg-slate-900/80 p-4">
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-4">
                 <div className="mb-4 flex items-center justify-between gap-3">
                   <div>
-                    <h4 className="inline-flex items-center gap-2 text-lg font-semibold text-cyan-300">
+                    <h4 className="inline-flex items-center gap-2 text-lg font-semibold text-cyan-700 dark:text-cyan-300">
                       <BarChart3 className="h-5 w-5" />
                       Analytics
                     </h4>
-                    <p className="mt-1 text-sm text-slate-400">Indicadores atualizados conforme os itens e parâmetros da calculadora.</p>
+                    <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Indicadores atualizados conforme os itens e parâmetros da calculadora.</p>
                   </div>
-                  <span className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-100">
+                  <span className="rounded-full border border-cyan-400/30 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-700 dark:text-cyan-100">
                     {calculationPreview.calculationResults.taxRegimeName || 'Regime não definido'}
                   </span>
                 </div>
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-4">
                   {analyticsCards.map((card) => (
-                    <div key={card.label} className="rounded-xl border border-slate-700/70 bg-slate-950/70 p-4">
-                      <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">{card.label}</p>
-                      <p className={`mt-2 text-xl font-bold ${card.value < 0 ? 'text-red-300' : 'text-white'}`}>
+                    <div key={card.label} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4">
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">{card.label}</p>
+                      <p className={`mt-2 text-xl font-bold ${card.value < 0 ? "text-red-700 dark:text-red-300" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         {formatCurrency(card.value)}
                       </p>
-                      <p className="mt-1 text-xs text-slate-500">{card.detail}</p>
+                      <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{card.detail}</p>
                     </div>
                   ))}
                 </div>
                 <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
-                  <div className="rounded-xl border border-slate-700/70 bg-slate-950/70 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Total do contrato</p>
-                    <p className="mt-2 text-lg font-bold text-white">{formatCurrency(currentTotalContractValue)}</p>
+                  <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Total do contrato</p>
+                    <p className="mt-2 text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(currentTotalContractValue)}</p>
                   </div>
-                  <div className="rounded-xl border border-slate-700/70 bg-slate-950/70 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Margem + comissão</p>
-                    <p className="mt-2 text-lg font-bold text-white">{formatCurrency(currentMarginValue)}</p>
+                  <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Margem + comissão</p>
+                    <p className="mt-2 text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(currentMarginValue)}</p>
                   </div>
-                  <div className="rounded-xl border border-slate-700/70 bg-slate-950/70 p-4">
-                    <p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Itens calculados</p>
-                    <p className="mt-2 text-lg font-bold text-white">{currentItemCount}</p>
+                  <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Itens calculados</p>
+                    <p className="mt-2 text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{currentItemCount}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-lg border border-slate-700 bg-slate-900/80 p-4">
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-4">
                 <div className="mb-4">
-                  <h4 className="inline-flex items-center gap-2 text-lg font-semibold text-emerald-300">
+                  <h4 className="inline-flex items-center gap-2 text-lg font-semibold text-emerald-700 dark:text-emerald-300">
                     <PieChart className="h-5 w-5" />
                     DRE Gerencial
                   </h4>
-                  <p className="mt-1 text-sm text-slate-400">
+                  <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     {operationType === 'locacao'
                       ? 'Visão mensal da locação com total de contrato destacado no Analytics.'
                       : 'Visão gerencial da proposta com tributos e custos calculados.'}
                   </p>
                 </div>
-                <div className="overflow-hidden rounded-xl border border-slate-700">
+                <div className="overflow-hidden rounded-xl border border-[var(--crm-border)]">
                   {dreRows.map((row) => (
                     <div
                       key={row.label}
                       className={`grid grid-cols-1 gap-2 px-4 py-3 text-sm sm:grid-cols-[1fr_160px_110px] sm:gap-3 ${
                         row.final
-                          ? 'bg-emerald-500/10 text-emerald-100'
+                          ? "bg-emerald-500/10 text-emerald-700 dark:text-emerald-100"
                           : row.subtotal
-                            ? 'bg-slate-800/80 text-white'
-                            : 'bg-slate-950/60 text-slate-200'
-                      } border-b border-slate-800 last:border-b-0`}
+                            ? "bg-[rgb(var(--crm-surface-rgb)_/_0.8)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                            : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                      } border-b border-[var(--crm-border)] last:border-b-0`}
                     >
                       <span className={row.emphasis || row.final || row.subtotal ? 'font-semibold' : ''}>{row.label}</span>
-                      <span className={`font-mono sm:text-right ${row.value < 0 ? 'text-red-300' : row.final ? 'text-emerald-200' : 'text-slate-100'}`}>
+                      <span className={`font-mono sm:text-right ${row.value < 0 ? "text-red-700 dark:text-red-300" : row.final ? "text-emerald-700 dark:text-emerald-200" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         {formatCurrency(row.value)}
                       </span>
-                      <span className={`font-mono sm:text-right ${row.percent < 0 ? 'text-red-300' : 'text-slate-400'}`}>
+                      <span className={`font-mono sm:text-right ${row.percent < 0 ? "text-red-700 dark:text-red-300" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                         {formatPercent(row.percent)}
                       </span>
                     </div>
@@ -4629,14 +4629,14 @@ export default function Calculadoras({
               </div>
 
               {calculationPreview.operationAnalysis.length > 0 && (
-                <div className="rounded-lg border border-slate-700 bg-slate-900/80 p-4 space-y-4">
-                  <h4 className="text-lg font-semibold text-cyan-300">Análise</h4>
+                <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-4 space-y-4">
+                  <h4 className="text-lg font-semibold text-cyan-700 dark:text-cyan-300">Análise</h4>
                   {calculationPreview.operationAnalysis.map((section) => (
-                    <div key={section.title} className="rounded-lg border border-slate-700 p-3 bg-slate-950/40">
+                    <div key={section.title} className="rounded-lg border border-[var(--crm-border)] p-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)]">
                       <div className="flex items-center justify-between mb-2">
-                        <h5 className="font-semibold text-slate-100">{section.title}</h5>
+                        <h5 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{section.title}</h5>
                         {section.headers ? (
-                          <div className="text-xs text-slate-400 inline-flex gap-4">
+                          <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] inline-flex gap-4">
                             <span>{section.headers.value}</span>
                             {section.headers.percent ? <span>{section.headers.percent}</span> : null}
                           </div>
@@ -4644,14 +4644,14 @@ export default function Calculadoras({
                       </div>
                       <div className="space-y-1">
                         {section.data.map((row) => (
-                          <div key={row.label} className={`flex items-center justify-between px-2 py-1 rounded ${row.isTotal ? 'bg-slate-800/70' : 'bg-slate-900/40'}`}>
-                            <span className={`text-sm ${row.isFinal ? 'text-cyan-300 font-semibold' : 'text-slate-200'}`}>{row.label}</span>
+                          <div key={row.label} className={`flex items-center justify-between px-2 py-1 rounded ${row.isTotal ? "bg-[rgb(var(--crm-surface-rgb)_/_0.7)]" : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)]"}`}>
+                            <span className={`text-sm ${row.isFinal ? "text-cyan-700 dark:text-cyan-300 font-semibold" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{row.label}</span>
                             <div className="text-sm font-mono inline-flex gap-4">
-                              <span className={row.isFinal ? 'text-cyan-300 font-semibold' : 'text-slate-100'}>
+                              <span className={row.isFinal ? "text-cyan-700 dark:text-cyan-300 font-semibold" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}>
                                 {row.formatter ? row.formatter(row.value) : row.value}
                               </span>
                               {row.percent !== undefined ? (
-                                <span className={row.isFinal ? 'text-cyan-300 font-semibold' : 'text-slate-400'}>
+                                <span className={row.isFinal ? "text-cyan-700 dark:text-cyan-300 font-semibold" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}>
                                   {formatPercent(row.percent)}
                                 </span>
                               ) : null}
@@ -4665,15 +4665,15 @@ export default function Calculadoras({
               )}
 
               {getTotalCartItems() > 0 && (
-                <div className="rounded-xl border border-green-600/50 bg-green-900/20 p-4 space-y-3">
+                <div className="rounded-xl border border-green-600/50 bg-green-50/20 dark:bg-green-900/20 p-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-lg font-semibold text-green-300">
+                    <h4 className="text-lg font-semibold text-green-700 dark:text-green-300">
                       🛒 Itens na Proposta ({getTotalCartItems()})
                     </h4>
                     <button
                       type="button"
                       onClick={clearProposalCart}
-                      className="px-3 py-1 rounded-lg border border-red-400/40 bg-red-500/15 text-red-100 hover:bg-red-500/25 text-sm inline-flex items-center gap-1"
+                      className="px-3 py-1 rounded-lg border border-red-400/40 bg-red-500/15 text-red-700 dark:text-red-100 hover:bg-red-500/25 text-sm inline-flex items-center gap-1"
                     >
                       <Trash2 className="w-3 h-3" />
                       Limpar Carrinho
@@ -4681,25 +4681,25 @@ export default function Calculadoras({
                   </div>
 
                   {proposalCart.sales.length > 0 && (
-                    <div className="rounded-lg border border-slate-700 p-3 bg-slate-950/40">
-                      <h5 className="font-semibold text-blue-300 mb-2">Vendas ({proposalCart.sales.length})</h5>
+                    <div className="rounded-lg border border-[var(--crm-border)] p-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)]">
+                      <h5 className="font-semibold text-blue-700 dark:text-blue-300 mb-2">Vendas ({proposalCart.sales.length})</h5>
                       <div className="space-y-2">
                         {proposalCart.sales.map((item) => (
-                          <div key={item.id} className="flex items-center justify-between px-2 py-1 rounded bg-slate-900/40">
+                          <div key={item.id} className="flex items-center justify-between px-2 py-1 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)]">
                             <div className="flex-1">
-                              <span className="text-sm text-slate-200">{item.description}</span>
-                              <span className="text-xs text-slate-400 ml-2">
+                              <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.description}</span>
+                              <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] ml-2">
                                 Qtd: {item.quantity} × {formatCurrency(item.unitCost)}
                               </span>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="text-sm font-semibold text-cyan-300">
+                              <span className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">
                                 {formatCurrency(toNumber(item.calculation?.rbUnitario, 0) * toNumber(item.quantity, 0))}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => removeFromProposalCart('sales', item.id)}
-                                className="text-red-400 hover:text-red-300"
+                                className="text-red-700 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -4711,25 +4711,25 @@ export default function Calculadoras({
                   )}
 
                   {proposalCart.rentals.length > 0 && (
-                    <div className="rounded-lg border border-slate-700 p-3 bg-slate-950/40">
-                      <h5 className="font-semibold text-green-300 mb-2">Locações ({proposalCart.rentals.length})</h5>
+                    <div className="rounded-lg border border-[var(--crm-border)] p-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)]">
+                      <h5 className="font-semibold text-green-700 dark:text-green-300 mb-2">Locações ({proposalCart.rentals.length})</h5>
                       <div className="space-y-2">
                         {proposalCart.rentals.map((item) => (
-                          <div key={item.id} className="flex items-center justify-between px-2 py-1 rounded bg-slate-900/40">
+                          <div key={item.id} className="flex items-center justify-between px-2 py-1 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)]">
                             <div className="flex-1">
-                              <span className="text-sm text-slate-200">{item.description}</span>
-                              <span className="text-xs text-slate-400 ml-2">
+                              <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.description}</span>
+                              <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] ml-2">
                                 Qtd: {item.quantity} × {formatCurrency(item.assetValueBRL)} ({item.pricing?.rentalPeriod || 12} meses)
                               </span>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="text-sm font-semibold text-cyan-300">
+                              <span className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">
                                 {formatCurrency(toNumber(item.calculation?.rbUnitario, 0) * toNumber(item.quantity, 0))}/mês
                               </span>
                               <button
                                 type="button"
                                 onClick={() => removeFromProposalCart('rentals', item.id)}
-                                className="text-red-400 hover:text-red-300"
+                                className="text-red-700 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -4741,25 +4741,25 @@ export default function Calculadoras({
                   )}
 
                   {proposalCart.services.length > 0 && (
-                    <div className="rounded-lg border border-slate-700 p-3 bg-slate-950/40">
-                      <h5 className="font-semibold text-purple-300 mb-2">Serviços ({proposalCart.services.length})</h5>
+                    <div className="rounded-lg border border-[var(--crm-border)] p-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)]">
+                      <h5 className="font-semibold text-purple-700 dark:text-purple-300 mb-2">Serviços ({proposalCart.services.length})</h5>
                       <div className="space-y-2">
                         {proposalCart.services.map((item) => (
-                          <div key={item.id} className="flex items-center justify-between px-2 py-1 rounded bg-slate-900/40">
+                          <div key={item.id} className="flex items-center justify-between px-2 py-1 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)]">
                             <div className="flex-1">
-                              <span className="text-sm text-slate-200">{item.description}</span>
-                              <span className="text-xs text-slate-400 ml-2">
+                              <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.description}</span>
+                              <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] ml-2">
                                 {item.estimatedHours}h × {formatCurrency(item.calculation?.sellPricePerHour || 0)}/h
                               </span>
                             </div>
                             <div className="flex items-center gap-3">
-                              <span className="text-sm font-semibold text-cyan-300">
+                              <span className="text-sm font-semibold text-cyan-700 dark:text-cyan-300">
                                 {formatCurrency(toNumber(item.calculation?.totalSellPrice, 0))}
                               </span>
                               <button
                                 type="button"
                                 onClick={() => removeFromProposalCart('services', item.id)}
-                                className="text-red-400 hover:text-red-300"
+                                className="text-red-700 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
                               >
                                 <Trash2 className="w-4 h-4" />
                               </button>
@@ -4772,11 +4772,11 @@ export default function Calculadoras({
                 </div>
               )}
 
-              <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-slate-700">
+              <div className="flex flex-wrap justify-end gap-3 pt-4 border-t border-[var(--crm-border)]">
                 <button
                   type="button"
                   onClick={() => setCalculatorStep('proposal')}
-                  className="px-6 py-3 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800"
+                  className="px-6 py-3 rounded-lg border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                 >
                   Voltar aos Dados
                 </button>
@@ -4802,7 +4802,7 @@ export default function Calculadoras({
                 <button
                   type="button"
                   onClick={closeCalculatorModal}
-                  className="px-6 py-3 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800"
+                  className="px-6 py-3 rounded-lg border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                 >
                   Voltar
                 </button>
@@ -4825,7 +4825,7 @@ export default function Calculadoras({
       >
         <div className="space-y-4">
           <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4 min-h-[560px]">
-            <aside className="bg-slate-900/95 border border-slate-700/60 rounded-xl p-3 space-y-2">
+            <aside className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] border border-[var(--crm-border)] rounded-xl p-3 space-y-2">
               {[
                 { id: 'regimes', label: 'Regimes Tributários' },
                 { id: 'custos', label: 'Custos e Despesas' },
@@ -4839,8 +4839,8 @@ export default function Calculadoras({
                   onClick={() => setSettingsTab(item.id)}
                   className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
                     settingsTab === item.id
-                      ? 'bg-blue-500/20 border-blue-400/60 text-blue-100'
-                      : 'bg-transparent border-transparent text-slate-300 hover:bg-slate-800/70 hover:text-white'
+                      ? "bg-blue-500/20 border-blue-400/60 text-blue-700 dark:text-blue-100"
+                      : "bg-transparent border-transparent text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   }`}
                 >
                   {item.label}
@@ -4848,23 +4848,23 @@ export default function Calculadoras({
               ))}
             </aside>
 
-            <section className="bg-slate-900/95 border border-slate-700/60 rounded-xl p-4 overflow-y-auto">
+            <section className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] border border-[var(--crm-border)] rounded-xl p-4 overflow-y-auto">
               {settingsTab === 'regimes' && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <h4 className="text-xl font-bold text-white">Gerenciar Regimes</h4>
-                      <p className="text-sm text-slate-400">
+                      <h4 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Gerenciar Regimes</h4>
+                      <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                         Campos de impostos e bases por regime tributário. Reforma tributária: use regimes com IBS/CBS/IS.
                       </p>
-                      <p className="text-xs text-cyan-200/90 mt-1">
+                      <p className="text-xs text-cyan-700/90 dark:text-cyan-200/90 mt-1">
                         Referência oficial de transição: 2026 com CBS 0,9% e IBS 0,1%. Alíquotas cheias devem ser parametrizadas.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={adicionarRegimeDraft}
-                      className="px-4 py-2 rounded-lg border border-blue-400/40 bg-blue-500/15 text-blue-100 hover:bg-blue-500/25 transition-colors inline-flex items-center gap-2"
+                      className="px-4 py-2 rounded-lg border border-blue-400/40 bg-blue-500/15 text-blue-700 dark:text-blue-100 hover:bg-blue-500/25 transition-colors inline-flex items-center gap-2"
                     >
                       <Plus className="w-4 h-4" />
                       Adicionar Regime
@@ -4872,13 +4872,13 @@ export default function Calculadoras({
                   </div>
 
                   {draftSettings.regimesTributarios.map((regime) => (
-                    <div key={regime.id} className="rounded-xl border border-slate-700/70 bg-slate-950/60 p-4 space-y-4">
+                    <div key={regime.id} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-4 space-y-4">
                       <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_auto] gap-3 items-center">
                         <input
                           type="text"
                           value={regime.nome}
                           onChange={(event) => atualizarRegimeDraft(regime.id, 'nome', event.target.value)}
-                          className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white"
+                          className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           placeholder="Nome do regime"
                         />
                         <button
@@ -4887,7 +4887,7 @@ export default function Calculadoras({
                           className={`px-4 py-3 rounded-lg border inline-flex items-center justify-center gap-2 ${
                             regime.ativo
                               ? 'bg-blue-500/70 border-blue-400 text-white'
-                              : 'bg-slate-800 border-slate-600 text-slate-200 hover:bg-slate-700'
+                              : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                           }`}
                         >
                           {regime.ativo ? <Check className="w-4 h-4" /> : null}
@@ -4897,18 +4897,18 @@ export default function Calculadoras({
                           type="button"
                           onClick={() => removerRegimeDraft(regime.id)}
                           disabled={draftSettings.regimesTributarios.length <= 1}
-                          className="px-4 py-3 rounded-lg border border-red-500/50 text-red-300 hover:bg-red-500/15 disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center"
+                          className="px-4 py-3 rounded-lg border border-red-500/50 text-red-700 dark:text-red-300 hover:bg-red-500/15 disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
 
-                      <label className="inline-flex items-center gap-2 text-sm text-slate-200">
+                      <label className="inline-flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <input
                           type="checkbox"
                           checked={Boolean(regime.usaReforma)}
                           onChange={(event) => atualizarRegimeDraft(regime.id, 'usaReforma', event.target.checked)}
-                          className="w-4 h-4 rounded border-slate-500 bg-slate-900 text-blue-500 focus:ring-blue-500"
+                          className="w-4 h-4 rounded border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-blue-500 focus:ring-blue-500"
                         />
                         Aplicar Reforma (IBS/CBS/IS)
                       </label>
@@ -4931,13 +4931,13 @@ export default function Calculadoras({
                           { key: 'anexoIII', label: 'Anexo III (%)' }
                         ].map((field) => (
                           <div key={field.key}>
-                            <label className="block text-xs text-slate-300 mb-1">{field.label}</label>
+                            <label className="block text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">{field.label}</label>
                             <input
                               type="number"
                               step="0.01"
                               value={regime[field.key] ?? 0}
                               onChange={(event) => atualizarRegimeDraft(regime.id, field.key, parseFloat(event.target.value) || 0)}
-                              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+                              className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                             />
                           </div>
                         ))}
@@ -4949,8 +4949,8 @@ export default function Calculadoras({
 
               {settingsTab === 'custos' && (
                 <div className="space-y-4">
-                  <h4 className="text-xl font-bold text-white">Custos e Despesas</h4>
-                  <p className="text-sm text-slate-400">Configurações globais copiadas das calculadoras de referência.</p>
+                  <h4 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Custos e Despesas</h4>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Configurações globais copiadas das calculadoras de referência.</p>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {[
                       { key: 'comissaoVenda', label: 'Comissão Venda (%)' },
@@ -4967,13 +4967,13 @@ export default function Calculadoras({
                       { key: 'despesasVariaveisPercentual', label: 'Despesas Variáveis (%)' }
                     ].map((field) => (
                       <div key={field.key}>
-                        <label className="block text-sm text-slate-300 mb-2">{field.label}</label>
+                        <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">{field.label}</label>
                         <input
                           type="number"
                           step="0.01"
                           value={draftSettings.custosDespesas[field.key] ?? 0}
                           onChange={(event) => atualizarDraftCampo('custosDespesas', field.key, parseFloat(event.target.value) || 0)}
-                          className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white"
+                          className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                         />
                       </div>
                     ))}
@@ -4983,73 +4983,73 @@ export default function Calculadoras({
 
               {settingsTab === 'mao' && (
                 <div className="space-y-6">
-                  <h4 className="text-xl font-bold text-white">Mão de Obra</h4>
+                  <h4 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Mão de Obra</h4>
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    <div className="rounded-xl border border-slate-700 p-4 space-y-3">
-                      <h5 className="font-semibold text-blue-300">Encargos Sociais (CLT)</h5>
+                    <div className="rounded-xl border border-[var(--crm-border)] p-4 space-y-3">
+                      <h5 className="font-semibold text-blue-700 dark:text-blue-300">Encargos Sociais (CLT)</h5>
                       {Object.entries(draftSettings.maoDeObra.encargos).map(([key, value]) => (
                         <div key={key} className="grid grid-cols-[1fr_120px] gap-3 items-center">
-                          <span className="text-sm text-slate-300">{key}</span>
+                          <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{key}</span>
                           <input
                             type="number"
                             step="0.01"
                             value={value}
                             onChange={(event) => atualizarMaoObraGrupoDraft('encargos', key, parseFloat(event.target.value) || 0)}
-                            className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+                            className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           />
                         </div>
                       ))}
-                      <div className="pt-2 border-t border-slate-700 text-right text-sm text-slate-300">
-                        Total Encargos: <span className="font-semibold text-white">{formatPercent(totalEncargosDraft)}</span>
+                      <div className="pt-2 border-t border-[var(--crm-border)] text-right text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                        Total Encargos: <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatPercent(totalEncargosDraft)}</span>
                       </div>
                     </div>
 
                     <div className="space-y-6">
-                      <div className="rounded-xl border border-slate-700 p-4 space-y-3">
-                        <h5 className="font-semibold text-blue-300">Benefícios (CLT)</h5>
+                      <div className="rounded-xl border border-[var(--crm-border)] p-4 space-y-3">
+                        <h5 className="font-semibold text-blue-700 dark:text-blue-300">Benefícios (CLT)</h5>
                         {Object.entries(draftSettings.maoDeObra.beneficios).map(([key, value]) => (
                           <div key={key} className="grid grid-cols-[1fr_140px] gap-3 items-center">
-                            <span className="text-sm text-slate-300">{key}</span>
+                            <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{key}</span>
                             <input
                               type="number"
                               step="0.01"
                               value={value}
                               onChange={(event) => atualizarMaoObraGrupoDraft('beneficios', key, parseFloat(event.target.value) || 0)}
-                              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+                              className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                             />
                           </div>
                         ))}
-                        <div className="pt-2 border-t border-slate-700 text-right text-sm text-slate-300">
-                          Total Benefícios: <span className="font-semibold text-white">{formatCurrency(totalBeneficiosDraft)}</span>
+                        <div className="pt-2 border-t border-[var(--crm-border)] text-right text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                          Total Benefícios: <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(totalBeneficiosDraft)}</span>
                         </div>
                       </div>
 
-                      <div className="rounded-xl border border-slate-700 p-4 space-y-3">
-                        <h5 className="font-semibold text-blue-300">Parâmetros Gerais</h5>
+                      <div className="rounded-xl border border-[var(--crm-border)] p-4 space-y-3">
+                        <h5 className="font-semibold text-blue-700 dark:text-blue-300">Parâmetros Gerais</h5>
                         {[
                           { key: 'salarioBase', label: 'Salário Base Padrão' },
                           { key: 'diasUteis', label: 'Dias Úteis no Mês' },
                           { key: 'horasDia', label: 'Horas/Dia' }
                         ].map((field) => (
                           <div key={field.key}>
-                            <label className="block text-sm text-slate-300 mb-1">{field.label}</label>
+                            <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">{field.label}</label>
                             <input
                               type="number"
                               step="0.01"
                               value={draftSettings.maoDeObra.geral[field.key] ?? 0}
                               onChange={(event) => atualizarMaoObraGeralDraft(field.key, parseFloat(event.target.value) || 0)}
-                              className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded-lg text-white"
+                              className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                             />
                           </div>
                         ))}
-                        <div className="pt-3 border-t border-slate-700 space-y-1 text-sm">
-                          <div className="flex justify-between text-slate-300">
+                        <div className="pt-3 border-t border-[var(--crm-border)] space-y-1 text-sm">
+                          <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             <span>Custo/Hora (CLT)</span>
-                            <span className="text-white font-semibold">{formatCurrency(custoHoraDraft)}</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">{formatCurrency(custoHoraDraft)}</span>
                           </div>
-                          <div className="flex justify-between text-slate-300">
+                          <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
                             <span>Valor/Venda (Hora)</span>
-                            <span className="text-cyan-300 font-semibold">{formatCurrency(valorVendaHoraDraft)}</span>
+                            <span className="text-cyan-700 dark:text-cyan-300 font-semibold">{formatCurrency(valorVendaHoraDraft)}</span>
                           </div>
                         </div>
                       </div>
@@ -5060,22 +5060,22 @@ export default function Calculadoras({
 
               {settingsTab === 'icms' && (
                 <div className="space-y-6">
-                  <h4 className="text-2xl font-bold text-white">
+                  <h4 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Alíquotas ICMS Interestadual (Origem: {draftSettings.icmsInterestadual.origemUf || 'PR'})
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     {ICMS_UF_ORDER.map((uf) => (
                       <div key={uf} className="space-y-2">
-                        <label className="block text-lg font-bold text-slate-100">{uf}</label>
+                        <label className="block text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{uf}</label>
                         <div className="relative">
                           <input
                             type="number"
                             step="0.01"
                             value={draftSettings.icmsInterestadual.aliquotasPorUf?.[uf] ?? 0}
                             onChange={(event) => atualizarIcmsUfDraft(uf, parseFloat(event.target.value) || 0)}
-                            className="w-full pl-4 pr-12 py-3 bg-slate-950 border border-slate-700 rounded-xl text-white text-2xl"
+                            className="w-full pl-4 pr-12 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-xl text-[rgb(var(--crm-ink-rgb)_/_1)] text-2xl"
                           />
-                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-400 text-2xl font-semibold">%</span>
+                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-700 dark:text-blue-400 text-2xl font-semibold">%</span>
                         </div>
                       </div>
                     ))}
@@ -5085,7 +5085,7 @@ export default function Calculadoras({
 
               {settingsTab === 'empresa' && (
                 <div className="space-y-4 max-w-3xl">
-                  <h4 className="text-xl font-bold text-white">Dados da Empresa</h4>
+                  <h4 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Dados da Empresa</h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {[
                       { key: 'razaoSocial', label: 'Razão Social', colSpan: true },
@@ -5097,12 +5097,12 @@ export default function Calculadoras({
                       { key: 'email', label: 'Email', colSpan: true }
                     ].map((field) => (
                       <div key={field.key} className={field.colSpan ? 'md:col-span-2' : ''}>
-                        <label className="block text-sm text-slate-300 mb-2">{field.label}</label>
+                        <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">{field.label}</label>
                         <input
                           type="text"
                           value={draftSettings.dadosEmpresa[field.key] || ''}
                           onChange={(event) => atualizarDraftCampo('dadosEmpresa', field.key, event.target.value)}
-                          className="w-full px-4 py-3 bg-slate-900 border border-slate-700 rounded-lg text-white"
+                          className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
                         />
                       </div>
                     ))}
@@ -5112,14 +5112,14 @@ export default function Calculadoras({
             </section>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-700/60">
+          <div className="flex justify-end gap-3 pt-4 border-t border-[var(--crm-border)]">
             <button
               type="button"
               onClick={() => {
                 setShowSettingsModal(false);
                 setDraftSettings(deepClone(calculatorSettings));
               }}
-              className="px-6 py-3 rounded-lg border border-slate-600 text-slate-200 hover:bg-slate-800"
+              className="px-6 py-3 rounded-lg border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
             >
               Cancelar
             </button>
@@ -5142,7 +5142,7 @@ export default function Calculadoras({
         maxWidth="4xl"
       >
         <div className="space-y-4">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
             Selecione uma cotação salva para carregar os custos automaticamente na calculadora,
             ou crie uma proposta vazia.
           </p>
@@ -5150,15 +5150,15 @@ export default function Calculadoras({
           {loadingCotacoes ? (
             <div className="py-12 text-center">
               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-sky-500 border-r-transparent"></div>
-              <p className="mt-3 text-sm text-slate-400">Carregando cotações...</p>
+              <p className="mt-3 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando cotações...</p>
             </div>
           ) : cotacoesDisponiveis.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-slate-600 p-8 text-center">
-              <p className="text-slate-400">Nenhuma cotação disponível no momento.</p>
+            <div className="rounded-lg border border-dashed border-[var(--crm-border)] p-8 text-center">
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhuma cotação disponível no momento.</p>
               <button
                 type="button"
                 onClick={criarPropostaVazia}
-                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-sky-400"
+                className="mt-4 inline-flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-sky-400"
               >
                 <FilePlus2 className="h-4 w-4" />
                 Criar Proposta Vazia
@@ -5182,26 +5182,26 @@ export default function Calculadoras({
                     key={solicitacao.id}
                     type="button"
                     onClick={() => selecionarCotacao(solicitacao)}
-                    className="w-full rounded-xl border border-slate-700 bg-slate-900/60 p-4 text-left transition hover:border-sky-500/50 hover:bg-slate-800/80"
+                    className="w-full rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-4 text-left transition hover:border-sky-500/50 hover:bg-[rgb(var(--crm-surface-rgb)_/_0.8)]"
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-2">
-                          <span className="text-base font-semibold text-sky-300">{solicitacao.numero}</span>
-                          <span className="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-100 border border-blue-400/30">
+                          <span className="text-base font-semibold text-sky-700 dark:text-sky-300">{solicitacao.numero}</span>
+                          <span className="text-xs px-2 py-1 rounded bg-blue-500/20 text-blue-700 dark:text-blue-100 border border-blue-400/30">
                             {modalidadeLabel}
                           </span>
                         </div>
-                        <p className="text-sm text-slate-200 truncate">{solicitacao.titulo}</p>
+                        <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">{solicitacao.titulo}</p>
                         {solicitacao.nomeCliente && (
-                          <p className="text-xs text-slate-400 mt-1">Cliente: {solicitacao.nomeCliente}</p>
+                          <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">Cliente: {solicitacao.nomeCliente}</p>
                         )}
-                        <p className="text-xs text-slate-500 mt-1">
+                        <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                           {cotacoes.length} cotação(ões) • {totalItens} item(ns)
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <ArrowRight className="h-5 w-5 text-sky-400" />
+                        <ArrowRight className="h-5 w-5 text-sky-700 dark:text-sky-400" />
                       </div>
                     </div>
                   </button>
@@ -5210,11 +5210,11 @@ export default function Calculadoras({
             </div>
           )}
 
-          <div className="flex items-center justify-between pt-4 border-t border-slate-700">
+          <div className="flex items-center justify-between pt-4 border-t border-[var(--crm-border)]">
             <button
               type="button"
               onClick={criarPropostaVazia}
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+              className="inline-flex items-center gap-2 rounded-lg border border-[var(--crm-border)] px-4 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
             >
               <FilePlus2 className="h-4 w-4" />
               Criar Proposta Vazia
@@ -5222,7 +5222,7 @@ export default function Calculadoras({
             <button
               type="button"
               onClick={() => setShowCotacaoModal(false)}
-              className="rounded-lg border border-slate-600 px-4 py-2 text-sm text-slate-200 hover:bg-slate-800"
+              className="rounded-lg border border-[var(--crm-border)] px-4 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
             >
               Cancelar
             </button>

@@ -810,7 +810,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
             messages: '10.000 mensagens* ou',
             minutes: '2.000 minutos** ou',
             premiumVoice: '1.000 voz premium*** ou',
-            color: 'bg-blue-900'
+            color: "bg-blue-50 dark:bg-blue-900"
         },
         plan40k: {
             name: '40K',
@@ -819,7 +819,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
             messages: '20.000 mensagens* ou',
             minutes: '4.000 minutos** ou',
             premiumVoice: '2.000 voz premium*** ou',
-            color: 'bg-blue-800'
+            color: "bg-blue-50 dark:bg-blue-800"
         },
         plan60k: {
             name: '60K',
@@ -2100,12 +2100,12 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
     if (viewMode === 'proposal-summary' && currentProposal) {
         return (
             <div className="p-4 md:p-8">
-                <Card className="bg-white border-gray-300 text-black print:shadow-none proposal-view">
+                <Card className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] print:shadow-none proposal-view">
                     <CardHeader className="print:pb-2">
                         <div className="flex justify-between items-start mb-4 print:mb-2">
                             <div>
-                                <h1 className="text-2xl font-bold text-gray-900">Proposta Comercial</h1>
-                                <p className="text-gray-600">Máquinas Virtuais</p>
+                                <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Proposta Comercial</h1>
+                                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Máquinas Virtuais</p>
                             </div>
                             <div className="flex gap-2 no-print">
                                 <Button variant="outline" onClick={() => setViewMode('search')}>
@@ -2121,7 +2121,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                         {/* Dados do Cliente, Projeto e Gerente */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 print:gap-4">
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Dados do Cliente</h3>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Dados do Cliente</h3>
                                 <div className="space-y-2 text-sm">
                                     <p><strong>Nome:</strong> {
                                         typeof currentProposal.client === 'object' && currentProposal.client?.name
@@ -2147,26 +2147,26 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                 </div>
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Nome do Projeto</h3>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Nome do Projeto</h3>
                                 <div className="space-y-2 text-sm">
                                     <p className="font-medium text-base">{
                                         typeof currentProposal.client === 'object' && currentProposal.client?.projectName
                                             ? currentProposal.client.projectName
                                             : (currentProposal.clientData?.projectName || currentProposal.metadata?.clientData?.projectName) || 'Projeto não informado'
                                     }</p>
-                                    <p className="text-gray-600 text-xs mt-2">
+                                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs mt-2">
                                         <strong>ID da Proposta:</strong> {currentProposal.baseId || currentProposal.id}
                                     </p>
-                                    <p className="text-gray-600 text-xs">
+                                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">
                                         <strong>Versão:</strong> v{currentProposal.version || 1}
                                     </p>
-                                    <p className="text-gray-600 text-xs">
+                                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs">
                                         <strong>Período do Contrato:</strong> {currentProposal.contractPeriod ? `${currentProposal.contractPeriod} meses` : 'N/A'}
                                     </p>
                                 </div>
                             </div>
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 mb-3">Gerente de Contas</h3>
+                                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Gerente de Contas</h3>
                                 <div className="space-y-2 text-sm">
                                     <p><strong>Nome:</strong> {currentProposal.accountManager?.name || 'N/A'}</p>
                                     <p><strong>Email:</strong> {currentProposal.accountManager?.email || 'N/A'}</p>
@@ -2177,14 +2177,14 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                         {/* Produtos e Serviços */}
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Produtos e Serviços</h3>
+                            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Produtos e Serviços</h3>
                             <Table>
                                 <TableHeader>
                                     <TableRow>
-                                        <TableHead className="text-gray-900">Descrição</TableHead>
-                                        <TableHead className="text-gray-900">Setup</TableHead>
-                                        <TableHead className="text-gray-900">Mensal/VM</TableHead>
-                                        <TableHead className="text-gray-900">Mensal Total</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Descrição</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Setup</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Mensal/VM</TableHead>
+                                        <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Mensal Total</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -2206,8 +2206,8 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                         {/* Histórico de Descontos Aplicados - Logo após produtos */}
                         {((currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) || ((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0) && (
                             <div className="border-t pt-4 print:pt-2">
-                                <div className="p-4 bg-orange-50 border border-orange-300 rounded">
-                                    <h4 className="font-semibold text-orange-800 mb-3 flex items-center">
+                                <div className="p-4 bg-orange-50 dark:bg-orange-950 border border-orange-300 rounded">
+                                    <h4 className="font-semibold text-orange-800 dark:text-orange-300 mb-3 flex items-center">
                                         📋 Histórico de Descontos Aplicados
                                     </h4>
                                     <div className="grid grid-cols-2 gap-4 text-sm">
@@ -2247,12 +2247,12 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                         {/* Resumo Financeiro */}
                         <div className="border-t pt-4 print:pt-2">
-                            <h3 className="text-lg font-semibold text-gray-900 mb-3">Resumo Financeiro</h3>
+                            <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Resumo Financeiro</h3>
                             
                             {/* Descontos Aplicados - Valores detalhados */}
                             {((currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) || ((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0) && (
-                                <div className="mb-4 p-4 bg-amber-50 border border-amber-300 rounded">
-                                    <h4 className="font-semibold text-amber-800 mb-3 flex items-center">
+                                <div className="mb-4 p-4 bg-amber-50 dark:bg-amber-950 border border-amber-300 rounded">
+                                    <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-3 flex items-center">
                                         💰 Descontos Aplicados
                                     </h4>
                                     <div className="space-y-2 text-sm">
@@ -2262,14 +2262,14 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                         </div>
                                         
                                         {(currentProposal.applySalespersonDiscount ?? currentProposal.metadata?.applySalespersonDiscount) && (
-                                            <div className="flex justify-between text-orange-700">
+                                            <div className="flex justify-between text-orange-700 dark:text-orange-300">
                                                 <span><strong>Desconto Vendedor (5%):</strong></span>
                                                 <span className="font-semibold">-{formatCurrency(((currentProposal.baseTotalMonthly || currentProposal.metadata?.baseTotalMonthly || currentProposal.totalMonthly || currentProposal.metadata?.totalMonthly || 0) * 0.05))}</span>
                                             </div>
                                         )}
 
                                         {((currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0) > 0 && (
-                                            <div className="flex justify-between text-orange-700">
+                                            <div className="flex justify-between text-orange-700 dark:text-orange-300">
                                                 <span><strong>Desconto Diretor ({(currentProposal.appliedDirectorDiscountPercentage ?? currentProposal.metadata?.appliedDirectorDiscountPercentage) || 0}%) - Apenas Mensal:</strong></span>
                                                 <span className="font-semibold">-{formatCurrency((((currentProposal.baseTotalMonthly || currentProposal.metadata?.baseTotalMonthly || currentProposal.totalMonthly || currentProposal.metadata?.totalMonthly || 0) * (currentProposal.applySalespersonDiscount ? 0.95 : 1)) * ((currentProposal.appliedDirectorDiscountPercentage || 0) / 100)))}</span>
                                             </div>
@@ -2278,7 +2278,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                         <div className="pt-2 mt-2 border-t border-amber-300">
                                             <div className="flex justify-between font-semibold">
                                                 <span>Valor Final (Mensal com desconto):</span>
-                                                <span className="text-green-700">{formatCurrency(currentProposal.totalMonthly || 0)}</span>
+                                                <span className="text-green-700 dark:text-green-300">{formatCurrency(currentProposal.totalMonthly || 0)}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -2298,7 +2298,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                             : (isNaN(new Date(currentProposal.createdAt).getTime()) ? 'N/A' : new Date(currentProposal.createdAt).toLocaleDateString('pt-BR'))
                                     ) : 'N/A'}</p>
                                     <p><strong>Status:</strong> {currentProposal.status}</p>
-                                    <ProposalApprovalInfo proposal={currentProposal} className="text-gray-700 text-xs" />
+                                    <ProposalApprovalInfo proposal={currentProposal} className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs" />
                                     <p><strong>Data de Validade:</strong> {currentProposal.expiryDate ? new Date(currentProposal.expiryDate).toLocaleDateString('pt-BR') : 'N/A'}</p>
                                 </div>
                             </div>
@@ -2313,12 +2313,12 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
         <>
             <div className="p-4 md:p-8 print-hide">
                 {viewMode === 'search' ? (
-                    <Card className="bg-slate-900/80 border-slate-800 text-white">
+                    <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <CardHeader>
                             <Button
                                 variant="outline"
                                 onClick={() => setViewMode('calculator')}
-                                className="flex items-center mb-4 border-slate-600 text-slate-300 hover:bg-slate-700"
+                                className="flex items-center mb-4 border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                             >
                                 <ArrowLeft className="h-4 w-4 mr-2" />
                                 Voltar
@@ -2333,7 +2333,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                     placeholder="Buscar por cliente..."
                                     value={searchTerm}
                                     onChange={(e) => setSearchTerm(e.target.value)}
-                                    className="max-w-sm bg-slate-800 border-slate-700 text-white"
+                                    className="max-w-sm bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                 />
                                 <Button onClick={createNewProposal} className="bg-blue-600 hover:bg-blue-700">
                                     <PlusCircle className="mr-2 h-4 w-4" /> Nova Proposta
@@ -2342,26 +2342,26 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                             <div className="overflow-x-auto">
                                 <Table>
                                     <TableHeader>
-                                        <TableRow className="border-slate-700">
-                                            <TableHead className="text-white">ID</TableHead>
-                                            <TableHead className="text-white">Cliente</TableHead>
-                                            <TableHead className="text-white">Nome do Projeto</TableHead>
-                                            <TableHead className="text-white">Data</TableHead>
-                                            <TableHead className="text-white">Total Mensal</TableHead>
-                                            <TableHead className="text-white">Status</TableHead>
-                                            <TableHead className="text-white">Ações</TableHead>
+                                        <TableRow className="border-[var(--crm-border)]">
+                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">ID</TableHead>
+                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Cliente</TableHead>
+                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Nome do Projeto</TableHead>
+                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Data</TableHead>
+                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Total Mensal</TableHead>
+                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Status</TableHead>
+                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Ações</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {(filteredProposals ?? []).length === 0 ? (
                                             <TableRow key="no-proposals-found">
-                                                <TableCell colSpan={7} className="text-center py-8 text-slate-400">
+                                                <TableCell colSpan={7} className="text-center py-8 text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                                     No proposal found. Click on &quot;New Proposal&quot; to start.
                                                 </TableCell>
                                             </TableRow>
                                         ) : (
                                             filteredProposals.map((p: Proposal) => (
-                                                <TableRow key={p.id} className="border-slate-800">
+                                                <TableRow key={p.id} className="border-[var(--crm-border)]">
                                                     <TableCell>{p.baseId || p.id}</TableCell>
                                                     <TableCell>{typeof p.client === 'string' ? p.client : p.client?.name || 'Sem nome'} (v{p.version})</TableCell>
                                                     <TableCell>{
@@ -2383,7 +2383,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                             <Button
                                                                 variant="outline"
                                                                 size="sm"
-                                                                className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                                                                className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                                                 onClick={() => viewProposal(p)}
                                                             >
                                                                 <FilePenLine className="h-4 w-4 mr-2" /> Visualizar
@@ -2391,7 +2391,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                             <Button
                                                                 variant="outline"
                                                                 size="sm"
-                                                                className="border-blue-600 text-blue-300 hover:bg-blue-700"
+                                                                className="border-blue-600 text-blue-700 dark:text-blue-300 hover:bg-blue-700"
                                                                 onClick={() => editProposal(p)}
                                                             >
                                                                 <Edit className="h-4 w-4 mr-2" /> Editar
@@ -2418,14 +2418,14 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                         <div className="mb-6">
                             <div className="flex items-center justify-between mb-4">
                                 <div>
-                                    <h1 className="text-3xl font-bold text-white">Calculadora de Máquinas Virtuais</h1>
-                                    <p className="text-slate-400 mt-2">Configure e calcule os custos para VMs na nuvem</p>
+                                    <h1 className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Calculadora de Máquinas Virtuais</h1>
+                                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Configure e calcule os custos para VMs na nuvem</p>
                                 </div>
                                 <div className="flex gap-2">
                                     <Button
                                         variant="outline"
                                         onClick={() => setViewMode('search')}
-                                        className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                                        className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                     >
                                         ← Voltar para Buscar
                                     </Button>
@@ -2433,7 +2433,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                         <Button
                                             variant="outline"
                                             onClick={onBackToDashboard}
-                                            className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                                            className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                         >
                                             ← Dashboard
                                         </Button>
@@ -2473,7 +2473,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                             <>
                                 <div>
                                     <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                                        <TabsList className={`grid w-full grid-cols-4 bg-slate-800`}>
+                                        <TabsList className={`grid w-full grid-cols-4 bg-[rgb(var(--crm-surface-rgb)_/_1)]`}>
                                             <TabsTrigger value="calculator">Calculadora VM</TabsTrigger>
                                             {canEditCommissions && (
                                                 <TabsTrigger value="list-price">Tabela de Preços VM/Configurações</TabsTrigger>
@@ -2488,21 +2488,21 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                         <TabsContent value="calculator">
                                             <div className="mt-6">
                                                 {/* Configurar Máquina Virtual - Design Moderno */}
-                                                <div className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-2xl border border-slate-700/50 shadow-2xl">
+                                                <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl border border-[var(--crm-border)] shadow-2xl">
                                                     {/* Header com gradiente */}
                                                     <div className="bg-gradient-to-r from-cyan-600 to-blue-600 rounded-t-2xl p-6">
                                                         <div className="flex justify-between items-center">
                                                             <div className="flex items-center gap-3">
-                                                                <div className="p-2 bg-white/20 rounded-lg backdrop-blur-sm">
-                                                                    <Server className="h-6 w-6 text-white" />
+                                                                <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_0.2)] rounded-lg backdrop-blur-sm">
+                                                                    <Server className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                                                                 </div>
                                                                 <div>
-                                                                    <h2 className="text-2xl font-bold text-white">Configurar Máquina Virtual</h2>
-                                                                    <p className="text-cyan-100 text-sm">Configure os recursos da sua VM</p>
+                                                                    <h2 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Configurar Máquina Virtual</h2>
+                                                                    <p className="text-cyan-700 dark:text-cyan-100 text-sm">Configure os recursos da sua VM</p>
                                                                 </div>
                                                             </div>
                                                             <div className="flex gap-2">
-                                                                <Button className="bg-white/20 hover:bg-white/30 text-white border-white/30 backdrop-blur-sm">
+                                                                <Button className="bg-[rgb(var(--crm-surface-rgb)_/_0.2)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.3)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)] backdrop-blur-sm">
                                                                     <Brain className="h-4 w-4 mr-2" />
                                                                     Sugestão IA
                                                                 </Button>
@@ -2518,53 +2518,53 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                     <div className="p-6 space-y-6">
 
                                                         {/* Card: Identificação */}
-                                                        <div className="bg-gradient-to-br from-cyan-900/30 to-slate-800/50 rounded-xl p-4 border border-cyan-500/30 shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
+                                                        <div className="bg-gradient-to-br from-cyan-900/30 to-[rgb(var(--crm-surface-rgb)_/_0.5)] rounded-xl p-4 border border-cyan-500/30 shadow-lg hover:shadow-cyan-500/20 transition-all duration-300">
                                                             <div className="flex items-center gap-2 mb-3">
                                                                 <div className="p-2 bg-cyan-500/20 rounded-lg">
-                                                                    <Edit className="h-4 w-4 text-cyan-400" />
+                                                                    <Edit className="h-4 w-4 text-cyan-700 dark:text-cyan-400" />
                                                                 </div>
-                                                                <h3 className="text-white font-semibold">Nome da VM</h3>
+                                                                <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Nome da VM</h3>
                                                             </div>
                                                             <Input
                                                                 value={vmName}
                                                                 onChange={(e) => setVmName(e.target.value)}
-                                                                className="bg-slate-900/70 border-cyan-500/50 text-white focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
+                                                                className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] border-cyan-500/50 text-[rgb(var(--crm-ink-rgb)_/_1)] focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/20"
                                                                 placeholder="Ex: Servidor Principal"
                                                             />
                                                         </div>
 
                                                         {/* Grid: Recursos Computacionais */}
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                            <div className="bg-gradient-to-br from-blue-900/30 to-slate-800/50 rounded-xl p-4 border border-blue-500/30 shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
+                                                            <div className="bg-gradient-to-br from-blue-900/30 to-[rgb(var(--crm-surface-rgb)_/_0.5)] rounded-xl p-4 border border-blue-500/30 shadow-lg hover:shadow-blue-500/20 transition-all duration-300">
                                                                 <div className="flex items-center gap-2 mb-3">
                                                                     <div className="p-2 bg-blue-500/20 rounded-lg">
-                                                                        <Cpu className="h-4 w-4 text-blue-400" />
+                                                                        <Cpu className="h-4 w-4 text-blue-700 dark:text-blue-400" />
                                                                     </div>
-                                                                    <h3 className="text-white font-semibold">vCPU Cores</h3>
+                                                                    <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">vCPU Cores</h3>
                                                                 </div>
                                                                 <Input
                                                                     type="number"
                                                                     step="1"
                                                                     value={vmCpuCores}
                                                                     onChange={(e) => setVmCpuCores(parseFloat(e.target.value) || 0)}
-                                                                    className="bg-slate-900/70 border-blue-500/50 text-white focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20"
+                                                                    className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] border-blue-500/50 text-[rgb(var(--crm-ink-rgb)_/_1)] focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20"
                                                                     min="1"
                                                                     max="64"
                                                                 />
                                                             </div>
-                                                            <div className="bg-gradient-to-br from-purple-900/30 to-slate-800/50 rounded-xl p-4 border border-purple-500/30 shadow-lg hover:shadow-purple-500/20 transition-all duration-300">
+                                                            <div className="bg-gradient-to-br from-purple-900/30 to-[rgb(var(--crm-surface-rgb)_/_0.5)] rounded-xl p-4 border border-purple-500/30 shadow-lg hover:shadow-purple-500/20 transition-all duration-300">
                                                                 <div className="flex items-center gap-2 mb-3">
                                                                     <div className="p-2 bg-purple-500/20 rounded-lg">
-                                                                        <MemoryStick className="h-4 w-4 text-purple-400" />
+                                                                        <MemoryStick className="h-4 w-4 text-purple-700 dark:text-purple-400" />
                                                                     </div>
-                                                                    <h3 className="text-white font-semibold">Memória RAM (GB)</h3>
+                                                                    <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Memória RAM (GB)</h3>
                                                                 </div>
                                                                 <Input
                                                                     type="number"
                                                                     step="1"
                                                                     value={vmRamGb}
                                                                     onChange={(e) => setVmRamGb(parseFloat(e.target.value) || 0)}
-                                                                    className="bg-slate-900/70 border-purple-500/50 text-white focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
+                                                                    className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] border-purple-500/50 text-[rgb(var(--crm-ink-rgb)_/_1)] focus:border-purple-400 focus:ring-2 focus:ring-purple-400/20"
                                                                     min="1"
                                                                     max="512"
                                                                 />
@@ -2572,21 +2572,21 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                         </div>
 
                                                         {/* Card: Armazenamento */}
-                                                        <div className="bg-gradient-to-br from-green-900/30 to-slate-800/50 rounded-xl p-4 border border-green-500/30 shadow-lg hover:shadow-green-500/20 transition-all duration-300">
+                                                        <div className="bg-gradient-to-br from-green-900/30 to-[rgb(var(--crm-surface-rgb)_/_0.5)] rounded-xl p-4 border border-green-500/30 shadow-lg hover:shadow-green-500/20 transition-all duration-300">
                                                             <div className="flex items-center gap-2 mb-3">
                                                                 <div className="p-2 bg-green-500/20 rounded-lg">
-                                                                    <HardDrive className="h-4 w-4 text-green-400" />
+                                                                    <HardDrive className="h-4 w-4 text-green-700 dark:text-green-400" />
                                                                 </div>
-                                                                <h3 className="text-white font-semibold">Armazenamento</h3>
+                                                                <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Armazenamento</h3>
                                                             </div>
                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                 <div>
-                                                                    <Label className="text-sm text-green-200 mb-2 block font-medium">Tipo de Armazenamento</Label>
+                                                                    <Label className="text-sm text-green-700 dark:text-green-200 mb-2 block font-medium">Tipo de Armazenamento</Label>
                                                                     <Select value={vmStorageType} onValueChange={setVmStorageType}>
-                                                                        <SelectTrigger className="bg-slate-900/70 border-green-500/50 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20">
+                                                                        <SelectTrigger className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] border-green-500/50 text-[rgb(var(--crm-ink-rgb)_/_1)] focus:border-green-400 focus:ring-2 focus:ring-green-400/20">
                                                                             <SelectValue />
                                                                         </SelectTrigger>
-                                                                        <SelectContent className="bg-slate-800 text-white border-green-600">
+                                                                        <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-green-600">
                                                                             <SelectItem value="HDD SAS">HDD SAS</SelectItem>
                                                                             <SelectItem value="SSD Performance">SSD Performance</SelectItem>
                                                                             <SelectItem value="NVMe">NVMe</SelectItem>
@@ -2594,13 +2594,13 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                     </Select>
                                                                 </div>
                                                                 <div>
-                                                                    <Label className="text-sm text-green-200 mb-2 block font-medium">Tamanho (GB)</Label>
+                                                                    <Label className="text-sm text-green-700 dark:text-green-200 mb-2 block font-medium">Tamanho (GB)</Label>
                                                                     <Input
                                                                         type="number"
                                                                         step="1"
                                                                         value={vmStorageSize}
                                                                         onChange={(e) => setVmStorageSize(parseFloat(e.target.value) || 0)}
-                                                                        className="bg-slate-900/70 border-green-500/50 text-white focus:border-green-400 focus:ring-2 focus:ring-green-400/20"
+                                                                        className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] border-green-500/50 text-[rgb(var(--crm-ink-rgb)_/_1)] focus:border-green-400 focus:ring-2 focus:ring-green-400/20"
                                                                         min="10"
                                                                         max="10000"
                                                                     />
@@ -2610,35 +2610,35 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                                                         {/* Grid: Rede e Sistema */}
                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                            <div className="bg-gradient-to-br from-orange-900/30 to-slate-800/50 rounded-xl p-4 border border-orange-500/30 shadow-lg hover:shadow-orange-500/20 transition-all duration-300">
+                                                            <div className="bg-gradient-to-br from-orange-900/30 to-[rgb(var(--crm-surface-rgb)_/_0.5)] rounded-xl p-4 border border-orange-500/30 shadow-lg hover:shadow-orange-500/20 transition-all duration-300">
                                                                 <div className="flex items-center gap-2 mb-3">
                                                                     <div className="p-2 bg-orange-500/20 rounded-lg">
-                                                                        <Network className="h-4 w-4 text-orange-400" />
+                                                                        <Network className="h-4 w-4 text-orange-700 dark:text-orange-400" />
                                                                     </div>
-                                                                    <h3 className="text-white font-semibold">Placa de Rede</h3>
+                                                                    <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Placa de Rede</h3>
                                                                 </div>
                                                                 <Select value={vmNetworkSpeed} onValueChange={setVmNetworkSpeed}>
-                                                                    <SelectTrigger className="bg-slate-900/70 border-orange-500/50 text-white focus:border-orange-400 focus:ring-2 focus:ring-orange-400/20">
+                                                                    <SelectTrigger className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] border-orange-500/50 text-[rgb(var(--crm-ink-rgb)_/_1)] focus:border-orange-400 focus:ring-2 focus:ring-orange-400/20">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent className="bg-slate-800 text-white border-slate-600">
+                                                                    <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]">
                                                                         <SelectItem value="1 Gbps">1 Gbps</SelectItem>
                                                                         <SelectItem value="10 Gbps">10 Gbps</SelectItem>
                                                                     </SelectContent>
                                                                 </Select>
                                                             </div>
-                                                            <div className="bg-gradient-to-br from-yellow-900/30 to-slate-800/50 rounded-xl p-4 border border-yellow-500/30 shadow-lg hover:shadow-yellow-500/20 transition-all duration-300">
+                                                            <div className="bg-gradient-to-br from-yellow-900/30 to-[rgb(var(--crm-surface-rgb)_/_0.5)] rounded-xl p-4 border border-yellow-500/30 shadow-lg hover:shadow-yellow-500/20 transition-all duration-300">
                                                                 <div className="flex items-center gap-2 mb-3">
                                                                     <div className="p-2 bg-yellow-500/20 rounded-lg">
-                                                                        <Settings className="h-4 w-4 text-yellow-400" />
+                                                                        <Settings className="h-4 w-4 text-yellow-700 dark:text-yellow-400" />
                                                                     </div>
-                                                                    <h3 className="text-white font-semibold">Sistema Operacional</h3>
+                                                                    <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Sistema Operacional</h3>
                                                                 </div>
                                                                 <Select value={vmOperatingSystem} onValueChange={setVmOperatingSystem}>
-                                                                    <SelectTrigger className="bg-slate-900/70 border-yellow-500/50 text-white focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20">
+                                                                    <SelectTrigger className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] border-yellow-500/50 text-[rgb(var(--crm-ink-rgb)_/_1)] focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400/20">
                                                                         <SelectValue />
                                                                     </SelectTrigger>
-                                                                    <SelectContent className="bg-slate-800 text-white border-yellow-600">
+                                                                    <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-yellow-600">
                                                                         <SelectItem value="Ubuntu Server 22.04 LTS">Ubuntu Server 22.04 LTS</SelectItem>
                                                                         <SelectItem value="Windows Server 2022 Standard">Windows Server 2022 Standard</SelectItem>
                                                                         <SelectItem value="Windows 10 Pro">Windows 10 Pro</SelectItem>
@@ -2652,25 +2652,25 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                         </div>
 
                                                         {/* Card: Serviços Adicionais */}
-                                                        <div className="bg-gradient-to-br from-indigo-900/30 to-slate-800/50 rounded-xl p-4 border border-indigo-500/30 shadow-lg hover:shadow-indigo-500/20 transition-all duration-300">
+                                                        <div className="bg-gradient-to-br from-indigo-900/30 to-[rgb(var(--crm-surface-rgb)_/_0.5)] rounded-xl p-4 border border-indigo-500/30 shadow-lg hover:shadow-indigo-500/20 transition-all duration-300">
                                                             <div className="flex items-center gap-2 mb-4">
                                                                 <div className="p-2 bg-indigo-500/20 rounded-lg">
-                                                                    <Plus className="h-4 w-4 text-indigo-400" />
+                                                                    <Plus className="h-4 w-4 text-indigo-700 dark:text-indigo-400" />
                                                                 </div>
-                                                                <h3 className="text-white font-semibold">Serviços Adicionais</h3>
+                                                                <h3 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Serviços Adicionais</h3>
                                                             </div>
 
                                                             {/* Backup */}
                                                             <div className="mb-4">
-                                                                <Label className="text-sm text-slate-300 mb-2 block">
-                                                                    Backup em Bloco (GB) - Atual: <span className="text-cyan-400 font-semibold">{vmBackupSize} GB</span>
+                                                                <Label className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2 block">
+                                                                    Backup em Bloco (GB) - Atual: <span className="text-cyan-700 dark:text-cyan-400 font-semibold">{vmBackupSize} GB</span>
                                                                 </Label>
                                                                 <Input
                                                                     type="number"
                                                                     step="1"
                                                                     value={vmBackupSize}
                                                                     onChange={(e) => setVmBackupSize(parseFloat(e.target.value) || 0)}
-                                                                    className="bg-slate-900/50 border-slate-600 text-white focus:border-cyan-400"
+                                                                    className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] focus:border-cyan-400"
                                                                     placeholder="0"
                                                                     min="0"
                                                                 />
@@ -2678,50 +2678,50 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                                                             {/* Checkboxes em grid */}
                                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                                <div className="flex items-center space-x-3 p-3 bg-slate-900/30 rounded-lg border border-slate-600/50">
+                                                                <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] rounded-lg border border-[var(--crm-border)]">
                                                                     <Checkbox
                                                                         id="vmAdditionalIp"
                                                                         checked={vmAdditionalIp}
                                                                         onCheckedChange={(checked) => setVmAdditionalIp(Boolean(checked))}
                                                                         className="border-cyan-400 data-[state=checked]:bg-cyan-500"
                                                                     />
-                                                                    <Label htmlFor="vmAdditionalIp" className="text-white text-sm">IP Adicional</Label>
+                                                                    <Label htmlFor="vmAdditionalIp" className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">IP Adicional</Label>
                                                                 </div>
-                                                                <div className="flex items-center space-x-3 p-3 bg-slate-900/30 rounded-lg border border-slate-600/50">
+                                                                <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] rounded-lg border border-[var(--crm-border)]">
                                                                     <Checkbox
                                                                         id="vmSnapshot"
                                                                         checked={vmSnapshot}
                                                                         onCheckedChange={(checked) => setVmSnapshot(Boolean(checked))}
                                                                         className="border-cyan-400 data-[state=checked]:bg-cyan-500"
                                                                     />
-                                                                    <Label htmlFor="vmSnapshot" className="text-white text-sm">Snapshot Adicional</Label>
+                                                                    <Label htmlFor="vmSnapshot" className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">Snapshot Adicional</Label>
                                                                 </div>
-                                                                <div className="flex items-center space-x-3 p-3 bg-slate-900/30 rounded-lg border border-slate-600/50">
+                                                                <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] rounded-lg border border-[var(--crm-border)]">
                                                                     <Checkbox
                                                                         id="vmVpnSiteToSite"
                                                                         checked={vmVpnSiteToSite}
                                                                         onCheckedChange={(checked) => setVmVpnSiteToSite(Boolean(checked))}
                                                                         className="border-cyan-400 data-[state=checked]:bg-cyan-500"
                                                                     />
-                                                                    <Label htmlFor="vmVpnSiteToSite" className="text-white text-sm">VPN Site-to-Site</Label>
+                                                                    <Label htmlFor="vmVpnSiteToSite" className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">VPN Site-to-Site</Label>
                                                                 </div>
-                                                                <div className="flex items-center space-x-3 p-3 bg-slate-900/30 rounded-lg border border-slate-600/50">
+                                                                <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] rounded-lg border border-[var(--crm-border)]">
                                                                     <Checkbox
                                                                         id="vmManagementSupport"
                                                                         checked={vmManagementSupport}
                                                                         onCheckedChange={(checked) => setVmManagementSupport(Boolean(checked))}
                                                                         className="border-cyan-400 data-[state=checked]:bg-cyan-500"
                                                                     />
-                                                                    <Label htmlFor="vmManagementSupport" className="text-white text-sm">Gestão e Suporte</Label>
+                                                                    <Label htmlFor="vmManagementSupport" className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">Gestão e Suporte</Label>
                                                                 </div>
-                                                                <div className="flex items-center space-x-3 p-3 bg-slate-900/30 rounded-lg border border-slate-600/50">
+                                                                <div className="flex items-center space-x-3 p-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] rounded-lg border border-[var(--crm-border)]">
                                                                     <Checkbox
                                                                         id="includeSetupFee"
                                                                         checked={includeSetupFee}
                                                                         onCheckedChange={(checked) => setIncludeSetupFee(Boolean(checked))}
                                                                         className="border-cyan-400 data-[state=checked]:bg-cyan-500"
                                                                     />
-                                                                    <Label htmlFor="includeSetupFee" className="text-white text-sm">Incluir Taxa de Setup</Label>
+                                                                    <Label htmlFor="includeSetupFee" className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm">Incluir Taxa de Setup</Label>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -2729,17 +2729,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                 </div>
 
                                                 {/* Período Contratual */}
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader>
                                                         <CardTitle className="flex items-center gap-2">
                                                             <Settings className="h-5 w-5" />
-                                                            <span className="text-cyan-400">Período Contratual</span>
+                                                            <span className="text-cyan-700 dark:text-cyan-400">Período Contratual</span>
                                                         </CardTitle>
                                                     </CardHeader>
                                                     <CardContent>
                                                         <div className="space-y-4">
                                                             <div>
-                                                                <Label className="text-white mb-3 block">Selecione o período de contrato:</Label>
+                                                                <Label className="text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3 block">Selecione o período de contrato:</Label>
                                                                 <div className="grid grid-cols-5 gap-3">
                                                                     {[12, 24, 36, 48, 60].map((months) => (
                                                                         <Button
@@ -2747,7 +2747,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             variant={vmContractPeriod === months ? "default" : "outline"}
                                                                             className={`${vmContractPeriod === months
                                                                                 ? "bg-cyan-600 text-white border-cyan-600"
-                                                                                : "bg-slate-800 text-white border-slate-600 hover:bg-slate-700"
+                                                                                : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                                                                 }`}
                                                                             onClick={() => setVmContractPeriod(months)}
                                                                         >
@@ -2756,19 +2756,19 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                     ))}
                                                                 </div>
                                                             </div>
-                                                            <div className="text-sm text-slate-400">
-                                                                Período selecionado: <span className="text-cyan-400 font-semibold">{vmContractPeriod} meses</span>
+                                                            <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                                                                Período selecionado: <span className="text-cyan-700 dark:text-cyan-400 font-semibold">{vmContractPeriod} meses</span>
                                                             </div>
                                                         </div>
                                                     </CardContent>
                                                 </Card>
 
                                                 {/* Incluir Parceiro Indicador */}
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader>
                                                         <CardTitle className="flex items-center gap-2">
                                                             <User className="h-5 w-5" />
-                                                            <span className="text-cyan-400">Parceiro Indicador</span>
+                                                            <span className="text-cyan-700 dark:text-cyan-400">Parceiro Indicador</span>
                                                         </CardTitle>
                                                     </CardHeader>
                                                     <CardContent>
@@ -2779,7 +2779,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                 onCheckedChange={(checked) => setIncludeReferralPartner(Boolean(checked))}
                                                                 className="border-cyan-400"
                                                             />
-                                                            <Label htmlFor="includeReferralPartner" className="text-white">Incluir Parceiro Indicador</Label>
+                                                            <Label htmlFor="includeReferralPartner" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Incluir Parceiro Indicador</Label>
                                                         </div>
                                                         <div className="flex items-center space-x-2 mt-4">
                                                             <Checkbox
@@ -2788,7 +2788,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                 onCheckedChange={(checked) => setIncludeInfluencerPartner(Boolean(checked))}
                                                                 className="border-purple-400"
                                                             />
-                                                            <Label htmlFor="includeInfluencerPartner" className="text-white">Incluir Parceiro Influenciador</Label>
+                                                            <Label htmlFor="includeInfluencerPartner" className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Incluir Parceiro Influenciador</Label>
                                                         </div>
                                                     </CardContent>
                                                 </Card>
@@ -2796,7 +2796,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
 
                                                 {/* Resultado do Cálculo da VM */}
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader>
                                                         <CardTitle className="flex items-center">
                                                             <Calculator className="mr-2" />
@@ -2806,8 +2806,8 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                     <CardContent>
                                                         <div className="space-y-4">
                                                             {/* Campo de Quantidade */}
-                                                            <div className="bg-slate-800 p-3 rounded-lg border border-slate-700">
-                                                                <Label htmlFor="vm-quantity" className="text-cyan-400 font-semibold">Quantidade de VMs:</Label>
+                                                            <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] p-3 rounded-lg border border-[var(--crm-border)]">
+                                                                <Label htmlFor="vm-quantity" className="text-cyan-700 dark:text-cyan-400 font-semibold">Quantidade de VMs:</Label>
                                                                 <div className="flex items-center space-x-2 mt-2">
                                                                     <Input
                                                                         id="vm-quantity"
@@ -2816,16 +2816,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         onChange={(e) => setVmQuantity(Math.max(1, parseInt(e.target.value) || 1))}
                                                                         min="1"
                                                                         max="100"
-                                                                        className="bg-slate-900 border-slate-600 text-white w-20"
+                                                                        className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] w-20"
                                                                     />
-                                                                    <span className="text-sm text-slate-400">
+                                                                    <span className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                                                         {vmQuantity === 1 ? 'VM' : 'VMs'} idêntica{vmQuantity === 1 ? '' : 's'}
                                                                     </span>
                                                                 </div>
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-4">
                                                                 <div>
-                                                                    <Label className="text-cyan-400">Resumo da VM:</Label>
+                                                                    <Label className="text-cyan-700 dark:text-cyan-400">Resumo da VM:</Label>
                                                                     <div className="text-sm space-y-1 mt-2">
                                                                         <div>Nome: {vmName}</div>
                                                                         <div>vCPU: {vmCpuCores} cores</div>
@@ -2837,7 +2837,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                     </div>
                                                                 </div>
                                                                 <div>
-                                                                    <Label className="text-cyan-400">Serviços Adicionais:</Label>
+                                                                    <Label className="text-cyan-700 dark:text-cyan-400">Serviços Adicionais:</Label>
                                                                     <div className="text-sm space-y-1 mt-2">
                                                                         {vmBackupSize > 0 && <div>Backup: {vmBackupSize} GB</div>}
                                                                         {vmAdditionalIp && <div>IP Adicional</div>}
@@ -2852,42 +2852,42 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                     </CardContent>
                                                     <CardFooter className="flex-col items-start">
                                                         <div className="w-full">
-                                                            <Separator className="bg-slate-700 my-4" />
-                                                            <div className="bg-gradient-to-br from-slate-800/50 to-slate-900/50 rounded-xl p-4 border border-slate-600/50">
+                                                            <Separator className="bg-[rgb(var(--crm-surface-rgb)_/_1)] my-4" />
+                                                            <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_0.5)] to-[rgb(var(--crm-surface-2-rgb)_/_0.5)] rounded-xl p-4 border border-[var(--crm-border)]">
                                                                 <div className="flex items-center gap-2 mb-4">
-                                                                    <Calculator className="h-5 w-5 text-green-400" />
-                                                                    <h3 className="text-lg font-bold text-white">Resumo de Preços</h3>
+                                                                    <Calculator className="h-5 w-5 text-green-700 dark:text-green-400" />
+                                                                    <h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Resumo de Preços</h3>
                                                                 </div>
 
                                                                 {/* Configuração da VM */}
-                                                                <div className="bg-slate-900/50 rounded-lg p-3 mb-4">
-                                                                    <div className="text-sm text-slate-300 mb-2">Configuração: {vmQuantity}x {vmName}</div>
-                                                                    <div className="text-xs text-slate-400">{vmCpuCores} vCPU • {vmRamGb}GB RAM • {vmStorageSize}GB {vmStorageType}</div>
+                                                                <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] rounded-lg p-3 mb-4">
+                                                                    <div className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Configuração: {vmQuantity}x {vmName}</div>
+                                                                    <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{vmCpuCores} vCPU • {vmRamGb}GB RAM • {vmStorageSize}GB {vmStorageType}</div>
                                                                 </div>
 
                                                                 {/* Cálculos */}
                                                                 <div className="space-y-3">
-                                                                    <div className="flex justify-between text-green-400 font-bold text-xl">
+                                                                    <div className="flex justify-between text-green-700 dark:text-green-400 font-bold text-xl">
                                                                         <span>Valor Mensal:</span>
                                                                         <span>{formatCurrency(vmFinalPrice * vmQuantity)}</span>
                                                                     </div>
 
-                                                                    <div className="flex justify-between text-blue-400 font-bold text-lg">
+                                                                    <div className="flex justify-between text-blue-700 dark:text-blue-400 font-bold text-lg">
                                                                         <span>Total do Contrato ({vmContractPeriod} meses):</span>
                                                                         <span>{formatCurrency((vmFinalPrice * vmQuantity) * vmContractPeriod)}</span>
                                                                     </div>
 
-                                                                    <Separator className="bg-slate-600 my-3" />
+                                                                    <Separator className="bg-[rgb(var(--crm-surface-rgb)_/_1)] my-3" />
 
                                                                     {includeSetupFee && (
-                                                                        <div className="flex justify-between text-yellow-400 font-semibold">
+                                                                        <div className="flex justify-between text-yellow-700 dark:text-yellow-400 font-semibold">
                                                                             <span>Taxa de Setup (única):</span>
                                                                             <span>{formatCurrency(setupFee * vmQuantity)}</span>
                                                                         </div>
                                                                     )}
 
                                                                     {contractDiscount > 0 && (
-                                                                        <div className="flex items-center gap-2 text-sm text-orange-300 mt-3 p-2 bg-orange-900/20 rounded-lg">
+                                                                        <div className="flex items-center gap-2 text-sm text-orange-700 dark:text-orange-300 mt-3 p-2 bg-orange-50/20 dark:bg-orange-900/20 rounded-lg">
                                                                             <span>💰</span>
                                                                             <span>Desconto de {contractDiscount}% aplicado por contrato de {vmContractPeriod} meses</span>
                                                                         </div>
@@ -2907,7 +2907,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             placeholder="0-100"
                                                                             min="0"
                                                                             max="100"
-                                                                            className="bg-slate-800 border-slate-700 text-white"
+                                                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                         />
                                                                         <Button
                                                                             onClick={() => setAppliedDirectorDiscountPercentage(directorDiscountPercentage)}
@@ -2944,7 +2944,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                         {canEditCommissions && (
                                         <TabsContent value="commissions-table">
                                             <div className="space-y-6 mt-6">
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader>
                                                         <CardTitle className="flex items-center">
                                                             <div className="w-4 h-4 bg-yellow-500 mr-2"></div>
@@ -2962,7 +2962,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                         <TabsContent value="dre">
                                             <div className="space-y-6 mt-6">
                                                 {/* Análise Financeira */}
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader>
                                                         <CardTitle className="flex items-center">
                                                             <div className="w-4 h-4 bg-green-500 mr-2"></div>
@@ -2975,33 +2975,33 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                             <div className="space-y-2">
                                                                 <div className="flex justify-between">
                                                                     <span>Receita Bruta Mensal:</span>
-                                                                    <span className="text-green-400">{formatCurrency(costBreakdown.finalPrice)}</span>
+                                                                    <span className="text-green-700 dark:text-green-400">{formatCurrency(costBreakdown.finalPrice)}</span>
                                                                 </div>
                                                                 <div className="flex justify-between">
                                                                     <span>Receita Total do Contrato ({vmContractPeriod}m):</span>
-                                                                    <span className="text-green-400">{formatCurrency(costBreakdown.finalPrice * vmContractPeriod)}</span>
+                                                                    <span className="text-green-700 dark:text-green-400">{formatCurrency(costBreakdown.finalPrice * vmContractPeriod)}</span>
                                                                 </div>
                                                                 <div className="flex justify-between">
                                                                     <span>Taxa de Setup:</span>
-                                                                    <span className="text-green-400">{formatCurrency(costBreakdown.setupFee)}</span>
+                                                                    <span className="text-green-700 dark:text-green-400">{formatCurrency(costBreakdown.setupFee)}</span>
                                                                 </div>
                                                             </div>
                                                             <div className="space-y-2">
                                                                 <div className="flex justify-between">
                                                                     <span>Receita Líquida Total:</span>
-                                                                    <span className={costBreakdown.netProfit >= 0 ? "text-green-400" : "text-red-400"}>
+                                                                    <span className={costBreakdown.netProfit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}>
                                                                         {formatCurrency(costBreakdown.netProfit * vmContractPeriod)}
                                                                     </span>
                                                                 </div>
                                                                 <div className="flex justify-between">
                                                                     <span>Receita Líquida Mensal Média:</span>
-                                                                    <span className={costBreakdown.netProfit >= 0 ? "text-green-400" : "text-red-400"}>
+                                                                    <span className={costBreakdown.netProfit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}>
                                                                         {formatCurrency(costBreakdown.netProfit)}
                                                                     </span>
                                                                 </div>
                                                                 <div className="flex justify-between">
                                                                     <span>Margem Líquida:</span>
-                                                                    <span className={costBreakdown.netMargin >= 0 ? "text-green-400" : "text-red-400"}>
+                                                                    <span className={costBreakdown.netMargin >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}>
                                                                         {costBreakdown.netMargin.toFixed(2)}%
                                                                     </span>
                                                                 </div>
@@ -3011,7 +3011,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                 </Card>
 
                                                 {/* DRE - Demonstrativo de Resultado do Exercício */}
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader>
                                                         <CardTitle className="flex items-center">
                                                             <div className="w-4 h-4 bg-blue-500 mr-2"></div>
@@ -3022,104 +3022,104 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                     <CardContent>
                                                         <Table>
                                                             <TableHeader>
-                                                                <TableRow className="border-slate-700">
-                                                                    <TableHead className="text-white">Descrição</TableHead>
-                                                                    <TableHead className="text-right text-white">Valor Mensal</TableHead>
+                                                                <TableRow className="border-[var(--crm-border)]">
+                                                                    <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Descrição</TableHead>
+                                                                    <TableHead className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">Valor Mensal</TableHead>
                                                                 </TableRow>
                                                             </TableHeader>
                                                             <TableBody>
                                                                 {/* Receita Bruta */}
-                                                                <TableRow className="border-slate-800 bg-blue-900/30">
-                                                                    <TableCell className="text-white font-semibold">Receita Bruta</TableCell>
-                                                                    <TableCell className="text-right text-white">{formatCurrency(costBreakdown.grossRevenue || costBreakdown.finalPrice)}</TableCell>
+                                                                <TableRow className="border-[var(--crm-border)] bg-blue-50/30 dark:bg-blue-900/30">
+                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Receita Bruta</TableCell>
+                                                                    <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.grossRevenue || costBreakdown.finalPrice)}</TableCell>
                                                                 </TableRow>
 
                                                                 {/* Receita Líquida */}
-                                                                <TableRow className="border-slate-800 bg-green-900/30">
-                                                                    <TableCell className="text-white font-semibold">(=) Receita Líquida</TableCell>
-                                                                    <TableCell className="text-right text-white">{formatCurrency(costBreakdown.netRevenue || costBreakdown.finalPrice)}</TableCell>
+                                                                <TableRow className="border-[var(--crm-border)] bg-green-50/30 dark:bg-green-900/30">
+                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">(=) Receita Líquida</TableCell>
+                                                                    <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.netRevenue || costBreakdown.finalPrice)}</TableCell>
                                                                 </TableRow>
 
                                                                 {/* Custos Diretos */}
-                                                                <TableRow className="border-slate-800 bg-red-900/30">
-                                                                    <TableCell className="text-white font-semibold">(-) Custos Diretos</TableCell>
-                                                                    <TableCell className="text-right text-white">{formatCurrency(costBreakdown.directCosts || costBreakdown.cost)}</TableCell>
+                                                                <TableRow className="border-[var(--crm-border)] bg-red-50/30 dark:bg-red-900/30">
+                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">(-) Custos Diretos</TableCell>
+                                                                    <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.directCosts || costBreakdown.cost)}</TableCell>
                                                                 </TableRow>
-                                                                <TableRow className="border-slate-800">
-                                                                    <TableCell className="text-white pl-8">Custo Operacional da VM</TableCell>
-                                                                    <TableCell className="text-right text-white">{formatCurrency(costBreakdown.cost)}</TableCell>
+                                                                <TableRow className="border-[var(--crm-border)]">
+                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] pl-8">Custo Operacional da VM</TableCell>
+                                                                    <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.cost)}</TableCell>
                                                                 </TableRow>
 
                                                                 {/* Lucro Bruto */}
-                                                                <TableRow className="border-slate-800 bg-blue-900/30">
-                                                                    <TableCell className="text-white font-semibold">(=) Lucro Bruto</TableCell>
-                                                                    <TableCell className="text-right text-white">{formatCurrency(costBreakdown.grossProfit)}</TableCell>
+                                                                <TableRow className="border-[var(--crm-border)] bg-blue-50/30 dark:bg-blue-900/30">
+                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">(=) Lucro Bruto</TableCell>
+                                                                    <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.grossProfit)}</TableCell>
                                                                 </TableRow>
 
                                                                 {/* Despesas Comerciais (Comissões) */}
-	                                                                <TableRow className="border-slate-800 bg-red-900/30">
-	                                                                    <TableCell className="text-white font-semibold">(-) Despesas Comerciais</TableCell>
-	                                                                    <TableCell className="text-right text-white">{formatCurrency(costBreakdown.totalCommissions || (costBreakdown.commissionValue + (costBreakdown.directorCommission || 0) + costBreakdown.referralPartnerCommission + (costBreakdown.influencerPartnerCommission || 0)))}</TableCell>
+	                                                                <TableRow className="border-[var(--crm-border)] bg-red-50/30 dark:bg-red-900/30">
+	                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">(-) Despesas Comerciais</TableCell>
+	                                                                    <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.totalCommissions || (costBreakdown.commissionValue + (costBreakdown.directorCommission || 0) + costBreakdown.referralPartnerCommission + (costBreakdown.influencerPartnerCommission || 0)))}</TableCell>
 	                                                                </TableRow>
-	                                                                <TableRow className="border-slate-800">
-	                                                                    <TableCell className="text-white pl-8">
+	                                                                <TableRow className="border-[var(--crm-border)]">
+	                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] pl-8">
 	                                                                        {(includeReferralPartner || includeInfluencerPartner) ? 'Comissão Canal/Vendedor' : 'Comissão Vendedor'}
 	                                                                    </TableCell>
-	                                                                    <TableCell className="text-right text-white">{formatCurrency(costBreakdown.commissionValue)}</TableCell>
+	                                                                    <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.commissionValue)}</TableCell>
 	                                                                </TableRow>
-	                                                                <TableRow className="border-slate-800">
-	                                                                    <TableCell className="text-white pl-8">Comissão Diretor</TableCell>
-	                                                                    <TableCell className="text-right text-white">{formatCurrency(costBreakdown.directorCommission || 0)}</TableCell>
+	                                                                <TableRow className="border-[var(--crm-border)]">
+	                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] pl-8">Comissão Diretor</TableCell>
+	                                                                    <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.directorCommission || 0)}</TableCell>
 	                                                                </TableRow>
 	                                                                {includeReferralPartner && (
-	                                                                    <TableRow className="border-slate-800">
-	                                                                        <TableCell className="text-white pl-8">Comissão Parceiro Indicador</TableCell>
-	                                                                        <TableCell className="text-right text-white">{formatCurrency(costBreakdown.referralPartnerCommission)}</TableCell>
+	                                                                    <TableRow className="border-[var(--crm-border)]">
+	                                                                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] pl-8">Comissão Parceiro Indicador</TableCell>
+	                                                                        <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.referralPartnerCommission)}</TableCell>
 	                                                                    </TableRow>
 	                                                                )}
                                                                 {includeInfluencerPartner && (
-                                                                    <TableRow className="border-slate-800">
-                                                                        <TableCell className="text-white pl-8">Comissão Parceiro Influenciador</TableCell>
-                                                                        <TableCell className="text-right text-white">{formatCurrency(costBreakdown.influencerPartnerCommission)}</TableCell>
+                                                                    <TableRow className="border-[var(--crm-border)]">
+                                                                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] pl-8">Comissão Parceiro Influenciador</TableCell>
+                                                                        <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.influencerPartnerCommission)}</TableCell>
                                                                     </TableRow>
                                                                 )}
 
 	                                                                {/* Lucro após Despesas Comerciais */}
-	                                                                <TableRow className="border-slate-800 bg-blue-900/30">
-	                                                                    <TableCell className="text-white font-semibold">(=) Lucro após Despesas Comerciais</TableCell>
-	                                                                    <TableCell className="text-right text-white">{formatCurrency(costBreakdown.profitAfterCommissions || (costBreakdown.grossProfit - (costBreakdown.commissionValue + (costBreakdown.directorCommission || 0) + costBreakdown.referralPartnerCommission + (costBreakdown.influencerPartnerCommission || 0))))}</TableCell>
+	                                                                <TableRow className="border-[var(--crm-border)] bg-blue-50/30 dark:bg-blue-900/30">
+	                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">(=) Lucro após Despesas Comerciais</TableCell>
+	                                                                    <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.profitAfterCommissions || (costBreakdown.grossProfit - (costBreakdown.commissionValue + (costBreakdown.directorCommission || 0) + costBreakdown.referralPartnerCommission + (costBreakdown.influencerPartnerCommission || 0))))}</TableCell>
 	                                                                </TableRow>
 
                                                                 {/* Taxa Setup (se aplicável) */}
                                                                 {costBreakdown.setupFee > 0 && (
-                                                                    <TableRow className="border-slate-800">
-                                                                        <TableCell className="text-white">Taxa Setup (única)</TableCell>
-                                                                        <TableCell className="text-right text-white">{formatCurrency(costBreakdown.setupFee)}</TableCell>
+                                                                    <TableRow className="border-[var(--crm-border)]">
+                                                                        <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Taxa Setup (única)</TableCell>
+                                                                        <TableCell className="text-right text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(costBreakdown.setupFee)}</TableCell>
                                                                     </TableRow>
                                                                 )}
 
 
-                                                                <TableRow className="border-slate-800 bg-green-900/50">
-                                                                    <TableCell className="text-white font-bold">LUCRO LÍQUIDO</TableCell>
-                                                                    <TableCell className={`text-right font-bold ${costBreakdown.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                                <TableRow className="border-[var(--crm-border)] bg-green-50/50 dark:bg-green-900/50">
+                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold">LUCRO LÍQUIDO</TableCell>
+                                                                    <TableCell className={`text-right font-bold ${costBreakdown.netProfit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                                         {formatCurrency(costBreakdown.netProfit)}
                                                                     </TableCell>
                                                                 </TableRow>
-                                                                <TableRow className="border-slate-800">
-                                                                    <TableCell className="text-white font-semibold">Balance</TableCell>
-                                                                    <TableCell className={`text-right font-semibold ${costBreakdown.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                                <TableRow className="border-[var(--crm-border)]">
+                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Balance</TableCell>
+                                                                    <TableCell className={`text-right font-semibold ${costBreakdown.netProfit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                                         {formatCurrency(costBreakdown.netProfit)}
                                                                     </TableCell>
                                                                 </TableRow>
-                                                                <TableRow className="border-slate-800">
-                                                                    <TableCell className="text-white font-semibold">Rentabilidade %</TableCell>
-                                                                    <TableCell className={`text-right font-semibold ${(costBreakdown.netProfit / costBreakdown.finalPrice * 100) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                                <TableRow className="border-[var(--crm-border)]">
+                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Rentabilidade %</TableCell>
+                                                                    <TableCell className={`text-right font-semibold ${(costBreakdown.netProfit / costBreakdown.finalPrice * 100) >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                                         {formatBrazilianNumber((costBreakdown.netProfit / costBreakdown.finalPrice) * 100)}%
                                                                     </TableCell>
                                                                 </TableRow>
-                                                                <TableRow className="border-slate-800">
-                                                                    <TableCell className="text-white font-semibold">Lucratividade</TableCell>
-                                                                    <TableCell className={`text-right font-semibold ${(costBreakdown.netProfit / costBreakdown.finalPrice * 100) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                                <TableRow className="border-[var(--crm-border)]">
+                                                                    <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">Lucratividade</TableCell>
+                                                                    <TableCell className={`text-right font-semibold ${(costBreakdown.netProfit / costBreakdown.finalPrice * 100) >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                                         {formatBrazilianNumber((costBreakdown.netProfit / costBreakdown.finalPrice) * 100)}%
                                                                     </TableCell>
                                                                 </TableRow>
@@ -3129,9 +3129,9 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                 </Card>
 
                                                 {/* Resultado Final */}
-                                                <Card className="border-green-500 bg-gradient-to-r from-slate-900 to-green-900/20">
+                                                <Card className="border-green-500 bg-gradient-to-r from-[rgb(var(--crm-surface-2-rgb)_/_1)] to-green-900/20">
                                                     <CardHeader className="bg-gradient-to-r from-green-800 to-green-700 py-4">
-                                                        <CardTitle className="text-xl font-bold text-white flex items-center">
+                                                        <CardTitle className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center">
                                                             <div className="w-3 h-3 bg-green-400 rounded-full mr-3"></div>
                                                             Resultado Final
                                                         </CardTitle>
@@ -3140,61 +3140,61 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                         <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                                                             {/* RECEITA */}
                                                             <div className="bg-gradient-to-br from-blue-900/50 to-blue-800/30 p-4 rounded-lg border border-blue-500/30">
-                                                                <h3 className="text-sm font-semibold text-blue-300 mb-3 uppercase tracking-wide">RECEITA</h3>
+                                                                <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-3 uppercase tracking-wide">RECEITA</h3>
                                                                 <div className="space-y-2">
                                                                     <div className="flex justify-between text-sm">
-                                                                        <span className="text-gray-300">Mensal:</span>
-                                                                        <span className="text-blue-300 font-semibold">{formatCurrency(costBreakdown.finalPrice)}</span>
+                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Mensal:</span>
+                                                                        <span className="text-blue-700 dark:text-blue-300 font-semibold">{formatCurrency(costBreakdown.finalPrice)}</span>
                                                                     </div>
                                                                     <div className="flex justify-between text-sm">
-                                                                        <span className="text-gray-300">Total Contrato:</span>
-                                                                        <span className="text-blue-300 font-semibold">{formatCurrency(costBreakdown.finalPrice * vmContractPeriod)}</span>
+                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Total Contrato:</span>
+                                                                        <span className="text-blue-700 dark:text-blue-300 font-semibold">{formatCurrency(costBreakdown.finalPrice * vmContractPeriod)}</span>
                                                                     </div>
                                                                     <div className="flex justify-between text-sm">
-                                                                        <span className="text-gray-300">Setup:</span>
-                                                                        <span className="text-blue-300 font-semibold">{formatCurrency(0)}</span>
+                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Setup:</span>
+                                                                        <span className="text-blue-700 dark:text-blue-300 font-semibold">{formatCurrency(0)}</span>
                                                                     </div>
                                                                 </div>
                                                             </div>
 
                                                             {/* CUSTOS */}
                                                             <div className="bg-gradient-to-br from-red-900/50 to-red-800/30 p-4 rounded-lg border border-red-500/30">
-                                                                <h3 className="text-sm font-semibold text-red-300 mb-3 uppercase tracking-wide">CUSTOS</h3>
+                                                                <h3 className="text-sm font-semibold text-red-700 dark:text-red-300 mb-3 uppercase tracking-wide">CUSTOS</h3>
                                                                 <div className="space-y-2">
                                                                     <div className="flex justify-between text-sm">
-                                                                        <span className="text-gray-300">VM:</span>
-                                                                        <span className="text-red-300 font-semibold">{formatCurrency(costBreakdown.cost)}</span>
+                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">VM:</span>
+                                                                        <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(costBreakdown.cost)}</span>
                                                                     </div>
 	                                                                    <div className="flex justify-between text-sm">
-	                                                                        <span className="text-gray-300">Comissão:</span>
-	                                                                        <span className="text-red-300 font-semibold">{formatCurrency(costBreakdown.commissionValue)}</span>
+	                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão:</span>
+	                                                                        <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(costBreakdown.commissionValue)}</span>
 	                                                                    </div>
 	                                                                    <div className="flex justify-between text-sm">
-	                                                                        <span className="text-gray-300">Comissão Diretor:</span>
-	                                                                        <span className="text-red-300 font-semibold">{formatCurrency(costBreakdown.directorCommission || 0)}</span>
+	                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Comissão Diretor:</span>
+	                                                                        <span className="text-red-700 dark:text-red-300 font-semibold">{formatCurrency(costBreakdown.directorCommission || 0)}</span>
 	                                                                    </div>
 	                                                                </div>
 	                                                            </div>
 
                                                             {/* LUCRO */}
                                                             <div className="bg-gradient-to-br from-green-900/50 to-green-800/30 p-4 rounded-lg border border-green-500/30">
-                                                                <h3 className="text-sm font-semibold text-green-300 mb-3 uppercase tracking-wide">LUCRO</h3>
+                                                                <h3 className="text-sm font-semibold text-green-700 dark:text-green-300 mb-3 uppercase tracking-wide">LUCRO</h3>
                                                                 <div className="space-y-2">
                                                                     <div className="flex justify-between text-sm">
-                                                                        <span className="text-gray-300">Operacional:</span>
-                                                                        <span className={`font-semibold ${costBreakdown.grossProfit >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Operacional:</span>
+                                                                        <span className={`font-semibold ${costBreakdown.grossProfit >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
                                                                             {formatCurrency(costBreakdown.grossProfit)}
                                                                         </span>
                                                                     </div>
                                                                     <div className="flex justify-between text-sm">
-                                                                        <span className="text-gray-300">Líquido:</span>
-                                                                        <span className={`font-semibold ${costBreakdown.netProfit >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Líquido:</span>
+                                                                        <span className={`font-semibold ${costBreakdown.netProfit >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
                                                                             {formatCurrency(costBreakdown.netProfit)}
                                                                         </span>
                                                                     </div>
                                                                     <div className="flex justify-between text-sm">
-                                                                        <span className="text-gray-300">Total Contrato:</span>
-                                                                        <span className={`font-semibold ${costBreakdown.netProfit >= 0 ? 'text-green-300' : 'text-red-300'}`}>
+                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Total Contrato:</span>
+                                                                        <span className={`font-semibold ${costBreakdown.netProfit >= 0 ? "text-green-700 dark:text-green-300" : "text-red-700 dark:text-red-300"}`}>
                                                                             {formatCurrency(costBreakdown.netProfit * vmContractPeriod)}
                                                                         </span>
                                                                     </div>
@@ -3203,23 +3203,23 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                                                             {/* INDICADORES */}
                                                             <div className="bg-gradient-to-br from-purple-900/50 to-purple-800/30 p-4 rounded-lg border border-purple-500/30">
-                                                                <h3 className="text-sm font-semibold text-purple-300 mb-3 uppercase tracking-wide">INDICADORES</h3>
+                                                                <h3 className="text-sm font-semibold text-purple-700 dark:text-purple-300 mb-3 uppercase tracking-wide">INDICADORES</h3>
                                                                 <div className="space-y-2">
                                                                     <div className="flex justify-between text-sm">
-                                                                        <span className="text-gray-300">Margem:</span>
-                                                                        <span className={`font-semibold ${(costBreakdown.netProfit / costBreakdown.finalPrice * 100) >= 0 ? 'text-purple-300' : 'text-red-300'}`}>
+                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Margem:</span>
+                                                                        <span className={`font-semibold ${(costBreakdown.netProfit / costBreakdown.finalPrice * 100) >= 0 ? "text-purple-700 dark:text-purple-300" : "text-red-700 dark:text-red-300"}`}>
                                                                             {formatBrazilianNumber((costBreakdown.netProfit / costBreakdown.finalPrice) * 100)}%
                                                                         </span>
                                                                     </div>
                                                                     <div className="flex justify-between text-sm">
-                                                                        <span className="text-gray-300">Payback:</span>
-                                                                        <span className="text-purple-300 font-semibold">
+                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Payback:</span>
+                                                                        <span className="text-purple-700 dark:text-purple-300 font-semibold">
                                                                             {costBreakdown.netProfit > 0 ? `${Math.ceil(costBreakdown.finalPrice / costBreakdown.netProfit)}m` : 'N/A'}
                                                                         </span>
                                                                     </div>
                                                                     <div className="flex justify-between text-sm">
-                                                                        <span className="text-gray-300">ROI Total:</span>
-                                                                        <span className={`font-semibold ${(costBreakdown.netProfit / costBreakdown.finalPrice * 100) >= 0 ? 'text-purple-300' : 'text-red-300'}`}>
+                                                                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">ROI Total:</span>
+                                                                        <span className={`font-semibold ${(costBreakdown.netProfit / costBreakdown.finalPrice * 100) >= 0 ? "text-purple-700 dark:text-purple-300" : "text-red-700 dark:text-red-300"}`}>
                                                                             {formatBrazilianNumber((costBreakdown.netProfit / costBreakdown.finalPrice) * 100 * vmContractPeriod)}%
                                                                         </span>
                                                                     </div>
@@ -3228,29 +3228,29 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                         </div>
 
                                                         {/* Resumo Executivo */}
-                                                        <div className="mt-6 pt-6 border-t border-slate-700">
+                                                        <div className="mt-6 pt-6 border-t border-[var(--crm-border)]">
                                                             <div className="flex items-center mb-4">
                                                                 <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-                                                                <h3 className="text-lg font-semibold text-white">Resumo Executivo</h3>
+                                                                <h3 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Resumo Executivo</h3>
                                                             </div>
                                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                                                 <div className="text-center">
-                                                                    <div className="text-2xl font-bold text-green-400">
+                                                                    <div className="text-2xl font-bold text-green-700 dark:text-green-400">
                                                                         {formatCurrency(costBreakdown.finalPrice * vmContractPeriod)}
                                                                     </div>
-                                                                    <div className="text-sm text-slate-400">Receita Total ({vmContractPeriod}m)</div>
+                                                                    <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Receita Total ({vmContractPeriod}m)</div>
                                                                 </div>
                                                                 <div className="text-center">
-                                                                    <div className={`text-2xl font-bold ${costBreakdown.netProfit >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                                    <div className={`text-2xl font-bold ${costBreakdown.netProfit >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                                         {formatCurrency(costBreakdown.netProfit * vmContractPeriod)}
                                                                     </div>
-                                                                    <div className="text-sm text-slate-400">Lucro Total ({vmContractPeriod}m)</div>
+                                                                    <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Lucro Total ({vmContractPeriod}m)</div>
                                                                 </div>
                                                                 <div className="text-center">
-                                                                    <div className={`text-2xl font-bold ${(costBreakdown.netProfit / costBreakdown.finalPrice * 100) >= 0 ? 'text-green-400' : 'text-red-400'}`}>
+                                                                    <div className={`text-2xl font-bold ${(costBreakdown.netProfit / costBreakdown.finalPrice * 100) >= 0 ? "text-green-700 dark:text-green-400" : "text-red-700 dark:text-red-400"}`}>
                                                                         {formatBrazilianNumber((costBreakdown.netProfit / costBreakdown.finalPrice) * 100)}%
                                                                     </div>
-                                                                    <div className="text-sm text-slate-400">Margem Líquida</div>
+                                                                    <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Margem Líquida</div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -3266,7 +3266,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                             <div className="space-y-6 mt-6">
 
                                                 {/* Tributos */}
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader>
                                                         <CardTitle className="flex items-center gap-2">
                                                             <Calculator className="h-5 w-5" />
@@ -3277,28 +3277,28 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                         <div className="flex gap-4 mb-6">
                                                             <Button
                                                                 variant="outline"
-                                                                className={selectedTaxRegime === 'lucro_real' ? "bg-blue-600 text-white border-blue-600" : "bg-slate-700 text-white border-slate-600"}
+                                                                className={selectedTaxRegime === 'lucro_real' ? "bg-blue-600 text-white border-blue-600" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"}
                                                                 onClick={() => handleTaxRegimeChange('lucro_real')}
                                                             >
                                                                 Lucro Real
                                                             </Button>
                                                             <Button
                                                                 variant="outline"
-                                                                className={selectedTaxRegime === 'lucro_presumido' ? "bg-blue-600 text-white border-blue-600" : "bg-slate-700 text-white border-slate-600"}
+                                                                className={selectedTaxRegime === 'lucro_presumido' ? "bg-blue-600 text-white border-blue-600" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"}
                                                                 onClick={() => handleTaxRegimeChange('lucro_presumido')}
                                                             >
                                                                 Lucro Presumido
                                                             </Button>
                                                             <Button
                                                                 variant="outline"
-                                                                className={selectedTaxRegime === 'lucro_real_reduzido' ? "bg-blue-600 text-white border-blue-600" : "bg-slate-700 text-white border-slate-600"}
+                                                                className={selectedTaxRegime === 'lucro_real_reduzido' ? "bg-blue-600 text-white border-blue-600" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"}
                                                                 onClick={() => handleTaxRegimeChange('lucro_real_reduzido')}
                                                             >
                                                                 Lucro Real Reduzido
                                                             </Button>
                                                             <Button
                                                                 variant="outline"
-                                                                className={selectedTaxRegime === 'simples_nacional' ? "bg-blue-600 text-white border-blue-600" : "bg-slate-700 text-white border-slate-600"}
+                                                                className={selectedTaxRegime === 'simples_nacional' ? "bg-blue-600 text-white border-blue-600" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"}
                                                                 onClick={() => handleTaxRegimeChange('simples_nacional')}
                                                             >
                                                                 Simples Nacional
@@ -3310,7 +3310,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                 <Input
                                                                     value={pisCofins}
                                                                     onChange={(e) => setPisCofins(e.target.value)}
-                                                                    className="bg-slate-800 border-slate-700"
+                                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                 />
                                                             </div>
                                                             <div>
@@ -3318,7 +3318,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                 <Input
                                                                     value={iss}
                                                                     onChange={(e) => setIss(e.target.value)}
-                                                                    className="bg-slate-800 border-slate-700"
+                                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                 />
                                                             </div>
                                                             <div>
@@ -3326,14 +3326,14 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                 <Input
                                                                     value={csllIr}
                                                                     onChange={(e) => setCsllIr(e.target.value)}
-                                                                    className="bg-slate-800 border-slate-700"
+                                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                 />
                                                             </div>
                                                         </div>
-                                                        <div className="mt-4 text-center text-cyan-400 text-lg font-semibold">
+                                                        <div className="mt-4 text-center text-cyan-700 dark:text-cyan-400 text-lg font-semibold">
                                                             Total de Impostos do Regime Selecionado: {(revenueTaxes + profitTaxes).toFixed(2).replace('.', ',')}%
                                                         </div>
-                                                        <p className="text-sm text-slate-400 mt-2">
+                                                        <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">
                                                             Edite os impostos de cada regime tributário. Os valores são percentuais e aceitam até 2 casas decimais.
                                                         </p>
                                                     </CardContent>
@@ -3341,9 +3341,9 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                                                 {/* Markup e Margem Líquida */}
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                                    <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                    <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <CardHeader>
-                                                            <CardTitle className="text-cyan-400">Markup e Margem Líquida</CardTitle>
+                                                            <CardTitle className="text-cyan-700 dark:text-cyan-400">Markup e Margem Líquida</CardTitle>
                                                         </CardHeader>
                                                         <CardContent>
                                                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
@@ -3355,10 +3355,10 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         step="0.01"
                                                                         value={despesasFixas}
                                                                         onChange={(e) => setDespesasFixas(parseFloat(e.target.value) || 0)}
-                                                                        className="bg-slate-800 border-slate-700"
+                                                                        className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         placeholder="Ex: 15.00"
                                                                     />
-                                                                    <p className="text-xs text-slate-400 mt-1">Aluguel, salários, contas fixas</p>
+                                                                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">Aluguel, salários, contas fixas</p>
                                                                 </div>
                                                                 <div>
                                                                     <Label htmlFor="despesas-variaveis">Despesas Variáveis - DV (%)</Label>
@@ -3368,10 +3368,10 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         step="0.01"
                                                                         value={despesasVariaveis}
                                                                         onChange={(e) => setDespesasVariaveis(parseFloat(e.target.value) || 0)}
-                                                                        className="bg-slate-800 border-slate-700"
+                                                                        className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         placeholder="Ex: 20.00"
                                                                     />
-                                                                    <p className="text-xs text-slate-400 mt-1">Impostos, comissões, taxas</p>
+                                                                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">Impostos, comissões, taxas</p>
                                                                 </div>
                                                                 <div>
                                                                     <Label htmlFor="margem-liquida-desejada">Margem Líquida Desejada - ML (%)</Label>
@@ -3381,10 +3381,10 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         step="0.01"
                                                                         value={margemLiquidaDesejada}
                                                                         onChange={(e) => setMargemLiquidaDesejada(parseFloat(e.target.value) || 0)}
-                                                                        className="bg-slate-800 border-slate-700"
+                                                                        className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         placeholder="Ex: 10.00"
                                                                     />
-                                                                    <p className="text-xs text-slate-400 mt-1">Lucro desejado sobre vendas</p>
+                                                                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">Lucro desejado sobre vendas</p>
                                                                 </div>
                                                             </div>
                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -3395,9 +3395,9 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         type="text"
                                                                         value={(markup / 100).toFixed(2).replace('.', ',') + '%'}
                                                                         readOnly
-                                                                        className="bg-slate-800"
+                                                                        className="bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                                                                     />
-                                                                    <p className="text-xs text-slate-400 mt-1">Calculado automaticamente</p>
+                                                                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">Calculado automaticamente</p>
                                                                 </div>
                                                                 <div>
                                                                     <Label htmlFor="estimated-net-margin">Margem Líquida Atual (%)</Label>
@@ -3406,51 +3406,51 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         type="text"
                                                                         value={estimatedNetMargin.toFixed(2) + '%'}
                                                                         readOnly
-                                                                        className="bg-slate-800 border-slate-700 text-cyan-400 cursor-not-allowed"
+                                                                        className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-cyan-700 dark:text-cyan-400 cursor-not-allowed"
                                                                     />
-                                                                    <p className="text-xs text-slate-400 mt-1">Margem real calculada</p>
+                                                                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">Margem real calculada</p>
                                                                 </div>
                                                             </div>
-                                                            <Separator className="my-4 bg-slate-700" />
-                                                            <div className="bg-slate-800/50 p-3 rounded-lg mb-4">
-                                                                <h4 className="text-sm font-semibold text-cyan-400 mb-2">Fórmula do Markup</h4>
-                                                                <p className="text-xs text-slate-300 mb-1">
+                                                            <Separator className="my-4 bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
+                                                            <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.5)] p-3 rounded-lg mb-4">
+                                                                <h4 className="text-sm font-semibold text-cyan-700 dark:text-cyan-400 mb-2">Fórmula do Markup</h4>
+                                                                <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
                                                                     <strong>Markup = (DF + DV + ML) ÷ (100 - DF - DV - ML) × 100</strong>
                                                                 </p>
-                                                                <p className="text-xs text-slate-400">
+                                                                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                                                     Onde: DF = Despesas Fixas, DV = Despesas Variáveis, ML = Margem Líquida
                                                                 </p>
-                                                                <p className="text-xs text-slate-400 mt-1">
+                                                                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                                                                     Exemplo: DF=15%, DV=20%, ML=10% → Markup = 45÷55 × 100 = 81,82%
                                                                 </p>
                                                             </div>
-                                                            <Separator className="my-4 bg-slate-700" />
+                                                            <Separator className="my-4 bg-[rgb(var(--crm-surface-rgb)_/_1)]" />
                                                             <div className="space-y-2 text-sm">
                                                                 <div className="grid grid-cols-2 gap-2">
-                                                                    <div className="text-slate-400">Custo Base:</div>
+                                                                    <div className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Custo Base:</div>
                                                                     <div className="text-right">{formatCurrency(costBreakdown.baseCost)}</div>
 
-                                                                    <div className="text-green-400">Markup ({markup}%):</div>
-                                                                    <div className="text-right text-green-400 font-medium">+{formatCurrency(costBreakdown.markupAmount)}</div>
+                                                                    <div className="text-green-700 dark:text-green-400">Markup ({markup}%):</div>
+                                                                    <div className="text-right text-green-700 dark:text-green-400 font-medium">+{formatCurrency(costBreakdown.markupAmount)}</div>
 
                                                                     {costBreakdown.contractDiscount.percentage > 0 && (
                                                                         <>
-                                                                            <div className="text-orange-400">Desconto Contrato ({costBreakdown.contractDiscount.percentage}%):</div>
-                                                                            <div className="text-right text-orange-400">-{formatCurrency(costBreakdown.contractDiscount.amount)}</div>
+                                                                            <div className="text-orange-700 dark:text-orange-400">Desconto Contrato ({costBreakdown.contractDiscount.percentage}%):</div>
+                                                                            <div className="text-right text-orange-700 dark:text-orange-400">-{formatCurrency(costBreakdown.contractDiscount.amount)}</div>
                                                                         </>
                                                                     )}
 
                                                                     {costBreakdown.directorDiscount.percentage > 0 && (
                                                                         <>
-                                                                            <div className="text-orange-400">Desconto Diretor ({costBreakdown.directorDiscount.percentage}%):</div>
-                                                                            <div className="text-right text-orange-400">-{formatCurrency(costBreakdown.directorDiscount.amount)}</div>
+                                                                            <div className="text-orange-700 dark:text-orange-400">Desconto Diretor ({costBreakdown.directorDiscount.percentage}%):</div>
+                                                                            <div className="text-right text-orange-700 dark:text-orange-400">-{formatCurrency(costBreakdown.directorDiscount.amount)}</div>
                                                                         </>
                                                                     )}
 
-                                                                    <div className="border-t border-slate-700 pt-2 font-semibold">Preço Final:</div>
-                                                                    <div className="border-t border-slate-700 pt-2 text-right font-bold">{formatCurrency(costBreakdown.finalPrice)}</div>
+                                                                    <div className="border-t border-[var(--crm-border)] pt-2 font-semibold">Preço Final:</div>
+                                                                    <div className="border-t border-[var(--crm-border)] pt-2 text-right font-bold">{formatCurrency(costBreakdown.finalPrice)}</div>
 
-                                                                    <div className="text-cyan-400 mt-2">Margem Líquida:</div>
+                                                                    <div className="text-cyan-700 dark:text-cyan-400 mt-2">Margem Líquida:</div>
                                                                     <div className="text-right mt-2">
                                                                         <span className={`font-bold ${costBreakdown.netMargin > 0 ? 'text-green-500' : 'text-red-500'}`}>
                                                                             {costBreakdown.netMargin.toFixed(2)}%
@@ -3464,16 +3464,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                 </div>
 
                                                 {/* Recursos Base (Custos) */}
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader className="flex flex-row items-center justify-between">
-                                                        <CardTitle className="text-cyan-400">Recursos Base (Custos)</CardTitle>
+                                                        <CardTitle className="text-cyan-700 dark:text-cyan-400">Recursos Base (Custos)</CardTitle>
                                                         <div className="flex gap-2">
                                                             {!editingCards.recursosBase ? (
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
                                                                     onClick={() => toggleCardEdit('recursosBase')}
-                                                                    className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                                                                    className="border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                 >
                                                                     <Edit className="h-4 w-4 mr-1" />
                                                                     Editar
@@ -3484,7 +3484,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => toggleCardEdit('recursosBase')}
-                                                                        className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-slate-900"
+                                                                        className="border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                     >
                                                                         Cancelar
                                                                     </Button>
@@ -3503,7 +3503,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                     <CardContent>
                                                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-2">vCPU Windows (por core)</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">vCPU Windows (por core)</h4>
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                                     <div>
                                                                         <Label>Custo Mensal</Label>
@@ -3511,24 +3511,24 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             <Input
                                                                                 value={formatBrazilianNumber(vcpuWindowsCost)}
                                                                                 onChange={(e) => { setVcpuWindowsCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                className="bg-slate-800 border-slate-700"
+                                                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                             />
                                                                         ) : (
-                                                                            <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                            <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                 R$ {formatBrazilianNumber(vcpuWindowsCost)}
                                                                             </div>
                                                                         )}
                                                                     </div>
                                                                     <div>
-                                                                        <Label className="text-green-400">Valor de Venda</Label>
-                                                                        <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                        <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                        <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                             R$ {formatBrazilianNumber(calculateSalePrice(vcpuWindowsCost))}
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-2">vCPU Linux (por core)</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">vCPU Linux (por core)</h4>
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                                     <div>
                                                                         <Label>Custo Mensal</Label>
@@ -3536,17 +3536,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             <Input
                                                                                 value={formatBrazilianNumber(vcpuLinuxCost)}
                                                                                 onChange={(e) => { setVcpuLinuxCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                className="bg-slate-800 border-slate-700"
+                                                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                             />
                                                                         ) : (
-                                                                            <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                            <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                 R$ {formatBrazilianNumber(vcpuLinuxCost)}
                                                                             </div>
                                                                         )}
                                                                     </div>
                                                                     <div>
-                                                                        <Label className="text-green-400">Valor de Venda</Label>
-                                                                        <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                        <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                        <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                             R$ {formatBrazilianNumber(calculateSalePrice(vcpuLinuxCost))}
                                                                         </div>
                                                                     </div>
@@ -3554,7 +3554,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                             </div>
                                                         </div>
                                                         <div className="mt-6">
-                                                            <h4 className="text-cyan-400 mb-4">RAM (por GB)</h4>
+                                                            <h4 className="text-cyan-700 dark:text-cyan-400 mb-4">RAM (por GB)</h4>
                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                                                                 <div>
                                                                     <Label>Custo Mensal</Label>
@@ -3562,17 +3562,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         <Input
                                                                             value={formatBrazilianNumber(ramCost)}
                                                                             onChange={(e) => { setRamCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                            className="bg-slate-800 border-slate-700"
+                                                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         />
                                                                     ) : (
-                                                                        <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                        <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             R$ {formatBrazilianNumber(ramCost)}
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div>
-                                                                    <Label className="text-green-400">Valor de Venda</Label>
-                                                                    <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                    <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                    <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                         R$ {formatBrazilianNumber(calculateSalePrice(ramCost))}
                                                                     </div>
                                                                 </div>
@@ -3582,16 +3582,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                 </Card>
 
                                                 {/* Armazenamento (Custos) */}
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader className="flex flex-row items-center justify-between">
-                                                        <CardTitle className="text-cyan-400">Armazenamento (Custos)</CardTitle>
+                                                        <CardTitle className="text-cyan-700 dark:text-cyan-400">Armazenamento (Custos)</CardTitle>
                                                         <div className="flex gap-2">
                                                             {!editingCards.armazenamento ? (
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
                                                                     onClick={() => toggleCardEdit('armazenamento')}
-                                                                    className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                                                                    className="border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                 >
                                                                     <Edit className="h-4 w-4 mr-1" />
                                                                     Editar
@@ -3602,7 +3602,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => toggleCardEdit('armazenamento')}
-                                                                        className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-slate-900"
+                                                                        className="border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                     >
                                                                         Cancelar
                                                                     </Button>
@@ -3621,7 +3621,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                     <CardContent>
                                                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-4">HDD SAS</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-4">HDD SAS</h4>
                                                                 <div className="space-y-3">
                                                                     <div>
                                                                         <Label>Custo Mensal</Label>
@@ -3629,24 +3629,24 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             <Input
                                                                                 value={formatBrazilianNumber(hddSasCost)}
                                                                                 onChange={(e) => { setHddSasCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                className="bg-slate-800 border-slate-700"
+                                                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                             />
                                                                         ) : (
-                                                                            <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                            <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                 R$ {formatBrazilianNumber(hddSasCost)}
                                                                             </div>
                                                                         )}
                                                                     </div>
                                                                     <div>
-                                                                        <Label className="text-green-400">Valor de Venda</Label>
-                                                                        <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                        <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                        <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                             R$ {formatBrazilianNumber(calculateSalePrice(hddSasCost))}
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-4">SSD Performance</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-4">SSD Performance</h4>
                                                                 <div className="space-y-3">
                                                                     <div>
                                                                         <Label>Custo Mensal</Label>
@@ -3654,24 +3654,24 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             <Input
                                                                                 value={formatBrazilianNumber(ssdPerformanceCost)}
                                                                                 onChange={(e) => { setSsdPerformanceCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                className="bg-slate-800 border-slate-700"
+                                                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                             />
                                                                         ) : (
-                                                                            <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                            <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                 R$ {formatBrazilianNumber(ssdPerformanceCost)}
                                                                             </div>
                                                                         )}
                                                                     </div>
                                                                     <div>
-                                                                        <Label className="text-green-400">Valor de Venda</Label>
-                                                                        <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                        <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                        <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                             R$ {formatBrazilianNumber(calculateSalePrice(ssdPerformanceCost))}
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-4">NVMe</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-4">NVMe</h4>
                                                                 <div className="space-y-3">
                                                                     <div>
                                                                         <Label>Custo Mensal</Label>
@@ -3679,17 +3679,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             <Input
                                                                                 value={formatBrazilianNumber(nvmeCost)}
                                                                                 onChange={(e) => { setNvmeCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                className="bg-slate-800 border-slate-700"
+                                                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                             />
                                                                         ) : (
-                                                                            <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                            <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                 R$ {formatBrazilianNumber(nvmeCost)}
                                                                             </div>
                                                                         )}
                                                                     </div>
                                                                     <div>
-                                                                        <Label className="text-green-400">Valor de Venda</Label>
-                                                                        <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                        <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                        <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                             R$ {formatBrazilianNumber(calculateSalePrice(nvmeCost))}
                                                                         </div>
                                                                     </div>
@@ -3701,16 +3701,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                                                 {/* Placa de Rede e Sistema Operacional */}
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                                    <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                    <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <CardHeader className="flex flex-row items-center justify-between">
-                                                            <CardTitle className="text-cyan-400">Placa de Rede (Custos)</CardTitle>
+                                                            <CardTitle className="text-cyan-700 dark:text-cyan-400">Placa de Rede (Custos)</CardTitle>
                                                             <div className="flex gap-2">
                                                                 {!editingCards.placaRede ? (
                                                                     <Button
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => toggleCardEdit('placaRede')}
-                                                                        className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                                                                        className="border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                     >
                                                                         <Edit className="h-4 w-4 mr-1" />
                                                                         Editar
@@ -3721,7 +3721,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             variant="outline"
                                                                             size="sm"
                                                                             onClick={() => toggleCardEdit('placaRede')}
-                                                                            className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-slate-900"
+                                                                            className="border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                         >
                                                                             Cancelar
                                                                         </Button>
@@ -3739,7 +3739,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                         </CardHeader>
                                                         <CardContent className="space-y-4">
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-2">1 Gbps</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">1 Gbps</h4>
                                                                 <div className="space-y-3">
                                                                     <div>
                                                                         <Label>Custo Mensal</Label>
@@ -3747,24 +3747,24 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             <Input
                                                                                 value={formatBrazilianNumber(network1GbpsCost)}
                                                                                 onChange={(e) => { setNetwork1GbpsCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                className="bg-slate-800 border-slate-700"
+                                                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                             />
                                                                         ) : (
-                                                                            <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                            <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                 R$ {formatBrazilianNumber(network1GbpsCost)}
                                                                             </div>
                                                                         )}
                                                                     </div>
                                                                     <div>
-                                                                        <Label className="text-green-400">Valor de Venda</Label>
-                                                                        <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                        <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                        <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                             R$ {formatBrazilianNumber(calculateSalePrice(network1GbpsCost))}
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-2">10 Gbps</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">10 Gbps</h4>
                                                                 <div className="space-y-3">
                                                                     <div>
                                                                         <Label>Custo Mensal</Label>
@@ -3772,17 +3772,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             <Input
                                                                                 value={formatBrazilianNumber(network10GbpsCost)}
                                                                                 onChange={(e) => { setNetwork10GbpsCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                className="bg-slate-800 border-slate-700"
+                                                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                             />
                                                                         ) : (
-                                                                            <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                            <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                 R$ {formatBrazilianNumber(network10GbpsCost)}
                                                                             </div>
                                                                         )}
                                                                     </div>
                                                                     <div>
-                                                                        <Label className="text-green-400">Valor de Venda</Label>
-                                                                        <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                        <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                        <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                             R$ {formatBrazilianNumber(calculateSalePrice(network10GbpsCost))}
                                                                         </div>
                                                                     </div>
@@ -3791,16 +3791,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                         </CardContent>
                                                     </Card>
 
-                                                    <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                    <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <CardHeader className="flex flex-row items-center justify-between">
-                                                            <CardTitle className="text-cyan-400">Sistema Operacional e Serviços (Custos)</CardTitle>
+                                                            <CardTitle className="text-cyan-700 dark:text-cyan-400">Sistema Operacional e Serviços (Custos)</CardTitle>
                                                             <div className="flex gap-2">
                                                                 {!editingCards.sistemaOperacional ? (
                                                                     <Button
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => toggleCardEdit('sistemaOperacional')}
-                                                                        className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                                                                        className="border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                     >
                                                                         <Edit className="h-4 w-4 mr-1" />
                                                                         Editar
@@ -3811,7 +3811,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             variant="outline"
                                                                             size="sm"
                                                                             onClick={() => toggleCardEdit('sistemaOperacional')}
-                                                                            className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-slate-900"
+                                                                            className="border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                         >
                                                                             Cancelar
                                                                         </Button>
@@ -3830,7 +3830,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                         <CardContent className="space-y-4">
                                                             <div className="grid grid-cols-2 gap-4">
                                                                 <div>
-                                                                    <h4 className="text-cyan-400 mb-2">Windows Server 2022 Standard</h4>
+                                                                    <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">Windows Server 2022 Standard</h4>
                                                                     <div className="space-y-3">
                                                                         <div>
                                                                             <Label>Custo Mensal</Label>
@@ -3838,24 +3838,24 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                                 <Input
                                                                                     value={formatBrazilianNumber(windowsServerCost)}
                                                                                     onChange={(e) => { setWindowsServerCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                    className="bg-slate-800 border-slate-700"
+                                                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                                 />
                                                                             ) : (
-                                                                                <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                                <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                     R$ {formatBrazilianNumber(windowsServerCost)}
                                                                                 </div>
                                                                             )}
                                                                         </div>
                                                                         <div>
-                                                                            <Label className="text-green-400">Valor de Venda</Label>
-                                                                            <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                            <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                            <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                                 R$ {formatBrazilianNumber(calculateSalePrice(windowsServerCost))}
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                                 <div>
-                                                                    <h4 className="text-cyan-400 mb-2">Windows 10 Pro</h4>
+                                                                    <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">Windows 10 Pro</h4>
                                                                     <div className="space-y-3">
                                                                         <div>
                                                                             <Label>Custo Mensal</Label>
@@ -3863,24 +3863,24 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                                 <Input
                                                                                     value={formatBrazilianNumber(windows10ProCost)}
                                                                                     onChange={(e) => { setWindows10ProCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                    className="bg-slate-800 border-slate-700"
+                                                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                                 />
                                                                             ) : (
-                                                                                <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                                <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                     R$ {formatBrazilianNumber(windows10ProCost)}
                                                                                 </div>
                                                                             )}
                                                                         </div>
                                                                         <div>
-                                                                            <Label className="text-green-400">Valor de Venda</Label>
-                                                                            <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                            <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                            <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                                 R$ {formatBrazilianNumber(calculateSalePrice(windows10ProCost))}
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                                 <div>
-                                                                    <h4 className="text-cyan-400 mb-2">Windows 11 Pro</h4>
+                                                                    <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">Windows 11 Pro</h4>
                                                                     <div className="space-y-3">
                                                                         <div>
                                                                             <Label>Custo Mensal</Label>
@@ -3888,17 +3888,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                                 <Input
                                                                                     value={formatBrazilianNumber(windows11ProCost)}
                                                                                     onChange={(e) => { setWindows11ProCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                    className="bg-slate-800 border-slate-700"
+                                                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                                 />
                                                                             ) : (
-                                                                                <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                                <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                     R$ {formatBrazilianNumber(windows11ProCost)}
                                                                                 </div>
                                                                             )}
                                                                         </div>
                                                                         <div>
-                                                                            <Label className="text-green-400">Valor de Venda</Label>
-                                                                            <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                            <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                            <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                                 R$ {formatBrazilianNumber(calculateSalePrice(windows11ProCost))}
                                                                             </div>
                                                                         </div>
@@ -3907,7 +3907,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-4">
                                                                 <div>
-                                                                    <h4 className="text-cyan-400 mb-2">Ubuntu Server 22.04 LTS</h4>
+                                                                    <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">Ubuntu Server 22.04 LTS</h4>
                                                                     <div className="space-y-3">
                                                                         <div>
                                                                             <Label>Custo Mensal</Label>
@@ -3915,24 +3915,24 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                                 <Input
                                                                                     value={formatBrazilianNumber(ubuntuCost)}
                                                                                     onChange={(e) => { setUbuntuCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                    className="bg-slate-800 border-slate-700"
+                                                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                                 />
                                                                             ) : (
-                                                                                <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                                <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                     R$ {formatBrazilianNumber(ubuntuCost)}
                                                                                 </div>
                                                                             )}
                                                                         </div>
                                                                         <div>
-                                                                            <Label className="text-green-400">Valor de Venda</Label>
-                                                                            <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                            <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                            <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                                 R$ {formatBrazilianNumber(calculateSalePrice(ubuntuCost))}
                                                                             </div>
                                                                         </div>
                                                                     </div>
                                                                 </div>
                                                                 <div>
-                                                                    <h4 className="text-cyan-400 mb-2">CentOS Stream 9</h4>
+                                                                    <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">CentOS Stream 9</h4>
                                                                     <div className="space-y-3">
                                                                         <div>
                                                                             <Label>Custo Mensal</Label>
@@ -3940,17 +3940,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                                 <Input
                                                                                     value={formatBrazilianNumber(centosCost)}
                                                                                     onChange={(e) => { setCentosCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                    className="bg-slate-800 border-slate-700"
+                                                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                                 />
                                                                             ) : (
-                                                                                <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                                <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                     R$ {formatBrazilianNumber(centosCost)}
                                                                                 </div>
                                                                             )}
                                                                         </div>
                                                                         <div>
-                                                                            <Label className="text-green-400">Valor de Venda</Label>
-                                                                            <div className="p-2 bg-green-900/30 border border-green-500/50 rounded text-green-400 font-semibold">
+                                                                            <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                            <div className="p-2 bg-green-50/30 dark:bg-green-900/30 border border-green-500/50 rounded text-green-700 dark:text-green-400 font-semibold">
                                                                                 R$ {formatBrazilianNumber(calculateSalePrice(centosCost))}
                                                                             </div>
                                                                         </div>
@@ -3959,34 +3959,34 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                             </div>
                                                             <div className="grid grid-cols-2 gap-4">
                                                                 <div>
-                                                                    <h4 className="text-cyan-400 mb-2">Debian 12</h4>
+                                                                    <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">Debian 12</h4>
                                                                     <div>
                                                                         <Label>Custo Mensal</Label>
                                                                         {editingCards.sistemaOperacional ? (
                                                                             <Input
                                                                                 value={formatBrazilianNumber(debianCost)}
                                                                                 onChange={(e) => { setDebianCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                className="bg-slate-800 border-slate-700"
+                                                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                             />
                                                                         ) : (
-                                                                            <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                            <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                 R$ {formatBrazilianNumber(debianCost)}
                                                                             </div>
                                                                         )}
                                                                     </div>
                                                                 </div>
                                                                 <div>
-                                                                    <h4 className="text-cyan-400 mb-2">Rocky Linux 9</h4>
+                                                                    <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">Rocky Linux 9</h4>
                                                                     <div>
                                                                         <Label>Custo Mensal</Label>
                                                                         {editingCards.sistemaOperacional ? (
                                                                             <Input
                                                                                 value={formatBrazilianNumber(rockyLinuxCost)}
                                                                                 onChange={(e) => { setRockyLinuxCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                                className="bg-slate-800 border-slate-700"
+                                                                                className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                             />
                                                                         ) : (
-                                                                            <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                            <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                 R$ {formatBrazilianNumber(rockyLinuxCost)}
                                                                             </div>
                                                                         )}
@@ -3999,16 +3999,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                                                 {/* Serviços Adicionais */}
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                                    <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                    <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <CardHeader className="flex flex-row items-center justify-between">
-                                                            <CardTitle className="text-cyan-400">Backup Local (por GB)</CardTitle>
+                                                            <CardTitle className="text-cyan-700 dark:text-cyan-400">Backup Local (por GB)</CardTitle>
                                                             <div className="flex gap-2">
                                                                 {!editingCards.backup ? (
                                                                     <Button
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => toggleCardEdit('backup')}
-                                                                        className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                                                                        className="border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                     >
                                                                         <Edit className="h-4 w-4 mr-1" />
                                                                         Editar
@@ -4019,7 +4019,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             variant="outline"
                                                                             size="sm"
                                                                             onClick={() => toggleCardEdit('backup')}
-                                                                            className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-slate-900"
+                                                                            className="border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                         >
                                                                             Cancelar
                                                                         </Button>
@@ -4043,17 +4043,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         <Input
                                                                             value={formatBrazilianNumber(backupCostPerGb)}
                                                                             onChange={(e) => { setBackupCostPerGb(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                            className="bg-slate-800 border-slate-700"
+                                                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         />
                                                                     ) : (
-                                                                        <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                        <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             R$ {formatBrazilianNumber(backupCostPerGb)}
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div>
-                                                                    <Label className="text-green-400">Valor de Venda</Label>
-                                                                    <div className="p-2 bg-green-900/20 border border-green-500/50 rounded text-green-400">
+                                                                    <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                    <div className="p-2 bg-green-50/20 dark:bg-green-900/20 border border-green-500/50 rounded text-green-700 dark:text-green-400">
                                                                         R$ {formatBrazilianNumber(calculateSalePrice(backupCostPerGb))}
                                                                     </div>
                                                                 </div>
@@ -4061,16 +4061,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                         </CardContent>
                                                     </Card>
 
-                                                    <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                    <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <CardHeader className="flex flex-row items-center justify-between">
-                                                            <CardTitle className="text-cyan-400">IP Adicional</CardTitle>
+                                                            <CardTitle className="text-cyan-700 dark:text-cyan-400">IP Adicional</CardTitle>
                                                             <div className="flex gap-2">
                                                                 {!editingCards.ipAdicional ? (
                                                                     <Button
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => toggleCardEdit('ipAdicional')}
-                                                                        className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                                                                        className="border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                     >
                                                                         <Edit className="h-4 w-4 mr-1" />
                                                                         Editar
@@ -4081,7 +4081,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             variant="outline"
                                                                             size="sm"
                                                                             onClick={() => toggleCardEdit('ipAdicional')}
-                                                                            className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-slate-900"
+                                                                            className="border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                         >
                                                                             Cancelar
                                                                         </Button>
@@ -4105,17 +4105,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         <Input
                                                                             value={formatBrazilianNumber(additionalIpCost)}
                                                                             onChange={(e) => { setAdditionalIpCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                            className="bg-slate-800 border-slate-700"
+                                                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         />
                                                                     ) : (
-                                                                        <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                        <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             R$ {formatBrazilianNumber(additionalIpCost)}
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div>
-                                                                    <Label className="text-green-400">Valor de Venda</Label>
-                                                                    <div className="p-2 bg-green-900/20 border border-green-500/50 rounded text-green-400">
+                                                                    <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                    <div className="p-2 bg-green-50/20 dark:bg-green-900/20 border border-green-500/50 rounded text-green-700 dark:text-green-400">
                                                                         R$ {formatBrazilianNumber(calculateSalePrice(additionalIpCost))}
                                                                     </div>
                                                                 </div>
@@ -4126,16 +4126,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                                                 {/* Snapshot e VPN */}
                                                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                                                    <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                    <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <CardHeader className="flex flex-row items-center justify-between">
-                                                            <CardTitle className="text-cyan-400">Snapshot Adicional</CardTitle>
+                                                            <CardTitle className="text-cyan-700 dark:text-cyan-400">Snapshot Adicional</CardTitle>
                                                             <div className="flex gap-2">
                                                                 {!editingCards.snapshot ? (
                                                                     <Button
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => toggleCardEdit('snapshot')}
-                                                                        className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                                                                        className="border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                     >
                                                                         <Edit className="h-4 w-4 mr-1" />
                                                                         Editar
@@ -4146,7 +4146,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             variant="outline"
                                                                             size="sm"
                                                                             onClick={() => toggleCardEdit('snapshot')}
-                                                                            className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-slate-900"
+                                                                            className="border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                         >
                                                                             Cancelar
                                                                         </Button>
@@ -4170,17 +4170,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         <Input
                                                                             value={formatBrazilianNumber(snapshotCost)}
                                                                             onChange={(e) => { setSnapshotCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                            className="bg-slate-800 border-slate-700"
+                                                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         />
                                                                     ) : (
-                                                                        <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                        <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             R$ {formatBrazilianNumber(snapshotCost)}
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div>
-                                                                    <Label className="text-green-400">Valor de Venda</Label>
-                                                                    <div className="p-2 bg-green-900/20 border border-green-500/50 rounded text-green-400">
+                                                                    <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                    <div className="p-2 bg-green-50/20 dark:bg-green-900/20 border border-green-500/50 rounded text-green-700 dark:text-green-400">
                                                                         R$ {formatBrazilianNumber(calculateSalePrice(snapshotCost))}
                                                                     </div>
                                                                 </div>
@@ -4188,16 +4188,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                         </CardContent>
                                                     </Card>
 
-                                                    <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                    <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                         <CardHeader className="flex flex-row items-center justify-between">
-                                                            <CardTitle className="text-cyan-400">VPN Site-to-Site</CardTitle>
+                                                            <CardTitle className="text-cyan-700 dark:text-cyan-400">VPN Site-to-Site</CardTitle>
                                                             <div className="flex gap-2">
                                                                 {!editingCards.vpnSiteToSite ? (
                                                                     <Button
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => toggleCardEdit('vpnSiteToSite')}
-                                                                        className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                                                                        className="border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                     >
                                                                         <Edit className="h-4 w-4 mr-1" />
                                                                         Editar
@@ -4208,7 +4208,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                             variant="outline"
                                                                             size="sm"
                                                                             onClick={() => toggleCardEdit('vpnSiteToSite')}
-                                                                            className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-slate-900"
+                                                                            className="border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                         >
                                                                             Cancelar
                                                                         </Button>
@@ -4232,17 +4232,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         <Input
                                                                             value={formatBrazilianNumber(vpnSiteToSiteCost)}
                                                                             onChange={(e) => { setVpnSiteToSiteCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                            className="bg-slate-800 border-slate-700"
+                                                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         />
                                                                     ) : (
-                                                                        <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                        <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             R$ {formatBrazilianNumber(vpnSiteToSiteCost)}
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div>
-                                                                    <Label className="text-green-400">Valor de Venda</Label>
-                                                                    <div className="p-2 bg-green-900/20 border border-green-500/50 rounded text-green-400">
+                                                                    <Label className="text-green-700 dark:text-green-400">Valor de Venda</Label>
+                                                                    <div className="p-2 bg-green-50/20 dark:bg-green-900/20 border border-green-500/50 rounded text-green-700 dark:text-green-400">
                                                                         R$ {formatBrazilianNumber(calculateSalePrice(vpnSiteToSiteCost))}
                                                                     </div>
                                                                 </div>
@@ -4252,16 +4252,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                 </div>
 
                                                 {/* Prazos Contratuais e Descontos */}
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader className="flex flex-row items-center justify-between">
-                                                        <CardTitle className="text-cyan-400">Prazos Contratuais e Descontos</CardTitle>
+                                                        <CardTitle className="text-cyan-700 dark:text-cyan-400">Prazos Contratuais e Descontos</CardTitle>
                                                         <div className="flex gap-2">
                                                             {!editingCards.prazosContratuais ? (
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
                                                                     onClick={() => toggleCardEdit('prazosContratuais')}
-                                                                    className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                                                                    className="border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                 >
                                                                     <Edit className="h-4 w-4 mr-1" />
                                                                     Editar
@@ -4272,7 +4272,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => toggleCardEdit('prazosContratuais')}
-                                                                        className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-slate-900"
+                                                                        className="border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                     >
                                                                         Cancelar
                                                                     </Button>
@@ -4291,85 +4291,85 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                     <CardContent>
                                                         <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-2">12 Meses</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">12 Meses</h4>
                                                                 <div>
                                                                     <Label>Desconto (%)</Label>
                                                                     {editingCards.prazosContratuais ? (
                                                                         <Input
                                                                             value={contractDiscounts[12]}
                                                                             onChange={(e) => { setContractDiscounts(prev => ({ ...prev, 12: parseFloat(e.target.value.replace(",", ".")) || 0 })); setHasChanged(true); }}
-                                                                            className="bg-slate-800 border-slate-700"
+                                                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         />
                                                                     ) : (
-                                                                        <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                        <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             {contractDiscounts[12]}%
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-2">24 Meses</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">24 Meses</h4>
                                                                 <div>
                                                                     <Label>Desconto (%)</Label>
                                                                     {editingCards.prazosContratuais ? (
                                                                         <Input
                                                                             value={contractDiscounts[24]}
                                                                             onChange={(e) => { setContractDiscounts(prev => ({ ...prev, 24: parseFloat(e.target.value.replace(",", ".")) || 0 })); setHasChanged(true); }}
-                                                                            className="bg-slate-800 border-slate-700"
+                                                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         />
                                                                     ) : (
-                                                                        <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                        <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             {contractDiscounts[24]}%
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-2">36 Meses</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">36 Meses</h4>
                                                                 <div>
                                                                     <Label>Desconto (%)</Label>
                                                                     {editingCards.prazosContratuais ? (
                                                                         <Input
                                                                             value={contractDiscounts[36]}
                                                                             onChange={(e) => { setContractDiscounts(prev => ({ ...prev, 36: parseFloat(e.target.value.replace(",", ".")) || 0 })); setHasChanged(true); }}
-                                                                            className="bg-slate-800 border-slate-700"
+                                                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         />
                                                                     ) : (
-                                                                        <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                        <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             {contractDiscounts[36]}%
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-2">48 Meses</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">48 Meses</h4>
                                                                 <div>
                                                                     <Label>Desconto (%)</Label>
                                                                     {editingCards.prazosContratuais ? (
                                                                         <Input
                                                                             value={contractDiscounts[48]}
                                                                             onChange={(e) => { setContractDiscounts(prev => ({ ...prev, 48: parseFloat(e.target.value.replace(",", ".")) || 0 })); setHasChanged(true); }}
-                                                                            className="bg-slate-800 border-slate-700"
+                                                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         />
                                                                     ) : (
-                                                                        <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                        <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             {contractDiscounts[48]}%
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                             </div>
                                                             <div>
-                                                                <h4 className="text-cyan-400 mb-2">60 Meses</h4>
+                                                                <h4 className="text-cyan-700 dark:text-cyan-400 mb-2">60 Meses</h4>
                                                                 <div>
                                                                     <Label>Desconto (%)</Label>
                                                                     {editingCards.prazosContratuais ? (
                                                                         <Input
                                                                             value={contractDiscounts[60]}
                                                                             onChange={(e) => { setContractDiscounts(prev => ({ ...prev, 60: parseFloat(e.target.value.replace(",", ".")) || 0 })); setHasChanged(true); }}
-                                                                            className="bg-slate-800 border-slate-700"
+                                                                            className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                         />
                                                                     ) : (
-                                                                        <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                        <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             {contractDiscounts[60]}%
                                                                         </div>
                                                                     )}
@@ -4380,16 +4380,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                 </Card>
 
                                                 {/* Taxa de Setup */}
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader className="flex flex-row items-center justify-between">
-                                                        <CardTitle className="text-cyan-400">Taxa de Setup</CardTitle>
+                                                        <CardTitle className="text-cyan-700 dark:text-cyan-400">Taxa de Setup</CardTitle>
                                                         <div className="flex gap-2">
                                                             {!editingCards.taxaSetup ? (
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
                                                                     onClick={() => toggleCardEdit('taxaSetup')}
-                                                                    className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                                                                    className="border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                 >
                                                                     <Edit className="h-4 w-4 mr-1" />
                                                                     Editar
@@ -4400,7 +4400,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => toggleCardEdit('taxaSetup')}
-                                                                        className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-slate-900"
+                                                                        className="border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                     >
                                                                         Cancelar
                                                                     </Button>
@@ -4418,17 +4418,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                     </CardHeader>
                                                     <CardContent>
                                                         <div>
-                                                            <h4 className="text-cyan-400 mb-4">Taxa de Setup Geral</h4>
+                                                            <h4 className="text-cyan-700 dark:text-cyan-400 mb-4">Taxa de Setup Geral</h4>
                                                             <div>
                                                                 <Label>Valor Base</Label>
                                                                 {editingCards.taxaSetup ? (
                                                                     <Input
                                                                         value={formatBrazilianNumber(setupFee)}
                                                                         onChange={(e) => { setSetupFee(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                        className="bg-slate-800 border-slate-700"
+                                                                        className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                     />
                                                                 ) : (
-                                                                    <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                    <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                         R$ {formatBrazilianNumber(setupFee)}
                                                                     </div>
                                                                 )}
@@ -4438,16 +4438,16 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                 </Card>
 
                                                 {/* Gestão e Suporte */}
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader className="flex flex-row items-center justify-between">
-                                                        <CardTitle className="text-cyan-400">Gestão e Suporte</CardTitle>
+                                                        <CardTitle className="text-cyan-700 dark:text-cyan-400">Gestão e Suporte</CardTitle>
                                                         <div className="flex gap-2">
                                                             {!editingCards.gestaoSuporte ? (
                                                                 <Button
                                                                     variant="outline"
                                                                     size="sm"
                                                                     onClick={() => toggleCardEdit('gestaoSuporte')}
-                                                                    className="border-cyan-400 text-cyan-400 hover:bg-cyan-400 hover:text-slate-900"
+                                                                    className="border-cyan-400 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                 >
                                                                     <Edit className="h-4 w-4 mr-1" />
                                                                     Editar
@@ -4458,7 +4458,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         variant="outline"
                                                                         size="sm"
                                                                         onClick={() => toggleCardEdit('gestaoSuporte')}
-                                                                        className="border-gray-400 text-gray-400 hover:bg-gray-400 hover:text-slate-900"
+                                                                        className="border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                     >
                                                                         Cancelar
                                                                     </Button>
@@ -4476,17 +4476,17 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                     </CardHeader>
                                                     <CardContent>
                                                         <div>
-                                                            <h4 className="text-cyan-400 mb-4">Serviço Mensal de Gestão e Suporte</h4>
+                                                            <h4 className="text-cyan-700 dark:text-cyan-400 mb-4">Serviço Mensal de Gestão e Suporte</h4>
                                                             <div>
                                                                 <Label>Valor Mensal</Label>
                                                                 {editingCards.gestaoSuporte ? (
                                                                     <Input
                                                                         value={formatBrazilianNumber(managementAndSupportCost)}
                                                                         onChange={(e) => { setManagementAndSupportCost(parseFloat(e.target.value.replace(",", ".")) || 0); setHasChanged(true); }}
-                                                                        className="bg-slate-800 border-slate-700"
+                                                                        className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                                                                     />
                                                                 ) : (
-                                                                    <div className="p-2 bg-slate-800 border border-slate-700 rounded text-white">
+                                                                    <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                         R$ {formatBrazilianNumber(managementAndSupportCost)}
                                                                     </div>
                                                                 )}
@@ -4502,7 +4502,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
 
                                         <TabsContent value="proposal">
                                             <div className="space-y-6 mt-6">
-                                                <Card className="bg-slate-900/80 border-slate-800 text-white">
+                                                <Card className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                     <CardHeader>
                                                         <CardTitle className="flex items-center gap-2">
                                                             <FileText className="h-5 w-5" />
@@ -4511,7 +4511,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                     </CardHeader>
                                                     <CardContent>
                                                         {addedProducts.length === 0 ? (
-                                                            <div className="text-center py-8 text-slate-400">
+                                                            <div className="text-center py-8 text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                                                 <Server className="h-12 w-12 mx-auto mb-4 opacity-50" />
                                                                 <p>Nenhuma VM adicionada à proposta ainda.</p>
                                                                 <p className="text-sm">Configure uma VM na aba &quot;Calculadora VM&quot; e clique em &quot;Adicionar à Proposta&quot;.</p>
@@ -4521,10 +4521,10 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                 <div className="mb-4">
                                                                     <Label htmlFor="proposal-status" className="mb-2 block">Status da Proposta</Label>
                                                                     <Select value={selectedStatus} onValueChange={setSelectedStatus}>
-                                                                        <SelectTrigger id="proposal-status" className="bg-slate-800 border-slate-700 text-white">
+                                                                        <SelectTrigger id="proposal-status" className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             <SelectValue placeholder="Selecione o status" />
                                                                         </SelectTrigger>
-                                                                        <SelectContent className="bg-slate-800 text-white">
+                                                                        <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             <SelectItem value="Aguardando Aprovação Diretoria">Aguardando Aprovação Diretoria</SelectItem>
                                                                             <SelectItem value="Aguardando Aprovação do Cliente">Aguardando Aprovação do Cliente</SelectItem>
                                                                             <SelectItem value="Proposta Enviada">Proposta Enviada</SelectItem>
@@ -4538,10 +4538,10 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                 <div className="mb-4">
                                                                     <Label htmlFor="proposal-temperature" className="mb-2 block">Temperatura do Negócio</Label>
                                                                     <Select value={selectedForecastTemperature} onValueChange={setSelectedForecastTemperature}>
-                                                                        <SelectTrigger id="proposal-temperature" className="bg-slate-800 border-slate-700 text-white">
+                                                                        <SelectTrigger id="proposal-temperature" className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             <SelectValue placeholder="Selecione a temperatura" />
                                                                         </SelectTrigger>
-                                                                        <SelectContent className="bg-slate-800 text-white">
+                                                                        <SelectContent className="bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                             <SelectItem value="0">0%</SelectItem>
                                                                             <SelectItem value="25">25%</SelectItem>
                                                                             <SelectItem value="50">50%</SelectItem>
@@ -4558,30 +4558,30 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                         value={proposalChanges}
                                                                         onChange={(e) => setProposalChanges(e.target.value)}
                                                                         placeholder="Descreva as alterações feitas nesta versão da proposta..."
-                                                                        className="w-full p-3 bg-slate-800 border border-slate-700 text-white rounded-md resize-none"
+                                                                        className="w-full p-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-md resize-none"
                                                                         rows={3}
                                                                     />
                                                                 </div>
                                                                 <Table>
                                                                     <TableHeader>
-                                                                        <TableRow className="border-slate-700">
-                                                                            <TableHead className="text-white">Descrição</TableHead>
-                                                                            <TableHead className="text-white">Setup</TableHead>
-                                                                            <TableHead className="text-white">Mensal/VM</TableHead>
-                                                                            <TableHead className="text-white">Mensal Total</TableHead>
-                                                                            <TableHead className="text-white w-20">Ações</TableHead>
+                                                                        <TableRow className="border-[var(--crm-border)]">
+                                                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Descrição</TableHead>
+                                                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Setup</TableHead>
+                                                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Mensal/VM</TableHead>
+                                                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Mensal Total</TableHead>
+                                                                            <TableHead className="text-[rgb(var(--crm-ink-rgb)_/_1)] w-20">Ações</TableHead>
                                                                         </TableRow>
                                                                     </TableHeader>
                                                                     <TableBody>
                                                                         {addedProducts.map(p => (
-                                                                            <TableRow key={p.id} className="border-slate-800">
-                                                                                <TableCell className="text-white">{p.description}</TableCell>
-                                                                                <TableCell className="text-white">{formatCurrency(p.setup)}</TableCell>
-                                                                                <TableCell className="text-white">
+                                                                            <TableRow key={p.id} className="border-[var(--crm-border)]">
+                                                                                <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{p.description}</TableCell>
+                                                                                <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(p.setup)}</TableCell>
+                                                                                <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                                                                     {p.details?.unitMonthly ? formatCurrency(p.details.unitMonthly) :
                                                                                         (p.details?.quantity ? formatCurrency(p.monthly / p.details.quantity) : formatCurrency(p.monthly))}
                                                                                 </TableCell>
-                                                                                <TableCell className="text-white">{formatCurrency(p.monthly)}</TableCell>
+                                                                                <TableCell className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(p.monthly)}</TableCell>
                                                                                 <TableCell>
                                                                                     <Button
                                                                                         variant="destructive"
@@ -4597,7 +4597,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                 </Table>
 
                                                                 {/* Controles de Desconto */}
-                                                                <div className="space-y-4 p-4 bg-slate-800 rounded-lg mt-4">
+                                                                <div className="space-y-4 p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg mt-4">
                                                                     {(!isDirector && !isAdmin) && (
                                                                         <div className="flex items-center space-x-2">
                                                                             <Checkbox
@@ -4624,7 +4624,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                                     placeholder="0-100"
                                                                                     min="0"
                                                                                     max="100"
-                                                                                    className="bg-slate-700 border-slate-600 text-white"
+                                                                                    className="bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
                                                                                 />
                                                                             </div>
                                                                         </div>
@@ -4641,25 +4641,25 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                                     )}
                                                                 </div>
 
-                                                                <div className="space-y-2 pt-4 border-t border-slate-700">
+                                                                <div className="space-y-2 pt-4 border-t border-[var(--crm-border)]">
                                                                     {applySalespersonDiscount && (
-                                                                        <div className="flex justify-between text-orange-400">
+                                                                        <div className="flex justify-between text-orange-700 dark:text-orange-400">
                                                                             <span>Desconto Vendedor (5%) - Apenas Mensal:</span>
                                                                             <span>-{formatCurrency(addedProducts.reduce((sum, p) => sum + p.monthly, 0) * 0.05)}</span>
                                                                         </div>
                                                                     )}
                                                                     {appliedDirectorDiscountPercentage > 0 && (
-                                                                        <div className="flex justify-between text-orange-400">
+                                                                        <div className="flex justify-between text-orange-700 dark:text-orange-400">
                                                                             <span>Desconto Diretor ({appliedDirectorDiscountPercentage}%) - Apenas Mensal:</span>
                                                                             <span>-{formatCurrency(addedProducts.reduce((sum, p) => sum + p.monthly, 0) * (applySalespersonDiscount ? 0.95 : 1) * (appliedDirectorDiscountPercentage / 100))}</span>
                                                                         </div>
                                                                     )}
                                                                     <div className="flex justify-between items-center font-bold text-lg">
                                                                         <div>
-                                                                            Total Setup: <span className="text-green-400">{formatCurrency(addedProducts.reduce((sum, p) => sum + p.setup, 0))}</span>
+                                                                            Total Setup: <span className="text-green-700 dark:text-green-400">{formatCurrency(addedProducts.reduce((sum, p) => sum + p.setup, 0))}</span>
                                                                         </div>
                                                                         <div>
-                                                                            Total Mensal: <span className="text-green-400">{formatCurrency(addedProducts.reduce((sum, p) => sum + p.monthly, 0) * (applySalespersonDiscount ? 0.95 : 1) * (1 - appliedDirectorDiscountPercentage / 100))}</span>
+                                                                            Total Mensal: <span className="text-green-700 dark:text-green-400">{formatCurrency(addedProducts.reduce((sum, p) => sum + p.monthly, 0) * (applySalespersonDiscount ? 0.95 : 1) * (1 - appliedDirectorDiscountPercentage / 100))}</span>
                                                                         </div>
                                                                     </div>
                                                                 </div>

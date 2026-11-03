@@ -519,8 +519,8 @@ export default function OpportunityForm({
           </div>
 
           {/* Seção de Receitas Recorrentes e Pontuais */}
-          <div className="sm:col-span-2 border-t border-[#07323e] pt-4 mt-2">
-            <h3 className="text-sm font-semibold text-white mb-3">Modelo de Receita</h3>
+          <div className="sm:col-span-2 border-t border-[var(--crm-border)] pt-4 mt-2">
+            <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Modelo de Receita</h3>
           </div>
 
           <div className="sm:col-span-2">
@@ -598,12 +598,12 @@ export default function OpportunityForm({
                 <label className={labelCls} htmlFor="b2b-total">Valor total do contrato (R$)</label>
                 <input id="b2b-total"
                   type="number" 
-                  className={`${inputCls} bg-gray-100 dark:bg-gray-800`}
+                  className={`${inputCls} bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)]`}
                   value={formData.totalContractValue || ''} 
                   readOnly
                   placeholder="Valor mensal × período do contrato"
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">
                   Calculado automaticamente
                 </p>
               </div>
@@ -641,7 +641,7 @@ export default function OpportunityForm({
           )}
 
           {formData.revenueType && (
-            <div className="sm:col-span-2 border-t border-[#07323e] pt-2 mt-2">
+            <div className="sm:col-span-2 border-t border-[var(--crm-border)] pt-2 mt-2">
             </div>
           )}
 
@@ -781,7 +781,7 @@ export default function OpportunityForm({
                 <button
                   type="button"
                   onClick={addProductItem}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-300 hover:bg-cyan-500/20 transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/50 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-700 dark:text-cyan-300 hover:bg-cyan-500/20 transition-colors"
                 >
                   + Adicionar Produto
                 </button>
@@ -853,7 +853,7 @@ export default function OpportunityForm({
                         <div className="col-span-12 sm:col-span-2 flex flex-col justify-between">
                           <label className={labelCls}>Subtotal</label>
                           <div className="flex items-center gap-2">
-                            <span className="text-xs font-semibold text-emerald-400">
+                            <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400">
                               {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(
                                 Number(item.quantity || 0) * Number(item.unitPrice || 0) * (1 - Number(item.discount || 0) / 100)
                               )}
@@ -861,7 +861,7 @@ export default function OpportunityForm({
                             <button
                               type="button"
                               onClick={() => removeProductItem(item._key)}
-                              className="ml-auto rounded p-1 text-rose-400 hover:bg-rose-500/15 transition-colors"
+                              className="ml-auto rounded p-1 text-rose-700 dark:text-rose-400 hover:bg-rose-500/15 transition-colors"
                               title="Remover produto"
                             >
                               ✕
@@ -1306,7 +1306,7 @@ export default function OpportunityForm({
                         ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                         : (typeof item === 'object' ? item.status : '') === 'Em andamento'
                         ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
-                        : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                        : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)]"
                     }`}>
                       {typeof item === 'object' ? (item.status || 'Pendente') : 'Pendente'}
                     </span>

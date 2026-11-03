@@ -493,9 +493,9 @@ export default function Checkout() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-950 dark:to-blue-950">
+    <div className="min-h-screen bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_1)] to-blue-50 dark:from-[rgb(var(--crm-surface-2-rgb)_/_1)] dark:to-blue-950">
       {/* Header */}
-      <header className="border-b border-[var(--crm-border)] bg-white/80 backdrop-blur-lg dark:bg-slate-900/80">
+      <header className="border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.8)] backdrop-blur-lg dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)]">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <button
             onClick={() => step === 1 ? navigate('/') : setStep(1)}
@@ -520,7 +520,7 @@ export default function Checkout() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Resumo do Pedido */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8 bg-white dark:bg-slate-900 rounded-2xl border border-[var(--crm-border)] p-6">
+            <div className="sticky top-8 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl border border-[var(--crm-border)] p-6">
               <h3 className="text-lg font-bold text-[var(--crm-ink)]">Resumo do Pedido</h3>
               
               <div className="mt-6 p-4 bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950 dark:to-purple-950 rounded-xl">
@@ -555,7 +555,7 @@ export default function Checkout() {
           {/* Formulário */}
           <div className="lg:col-span-2">
             {awaitingApproval && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--crm-border)] p-8">
+              <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl border border-[var(--crm-border)] p-8">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-100 dark:bg-emerald-950 flex items-center justify-center">
                   <CheckCircle2 className="w-8 h-8 text-emerald-600 dark:text-emerald-300" />
                 </div>
@@ -574,7 +574,7 @@ export default function Checkout() {
             )}
 
             {!awaitingApproval && step === 1 && (
-              <form onSubmit={handleSubmitStep1} className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--crm-border)] p-8">
+              <form onSubmit={handleSubmitStep1} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl border border-[var(--crm-border)] p-8">
                 <h2 className="text-2xl font-bold text-[var(--crm-ink)]">Dados da Empresa</h2>
                 <p className="mt-2 text-[var(--crm-muted)]">Preencha os dados para continuar</p>
                 
@@ -819,7 +819,7 @@ export default function Checkout() {
             )}
 
             {!awaitingApproval && step === 2 && (
-              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-[var(--crm-border)] p-8">
+              <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl border border-[var(--crm-border)] p-8">
                 <h2 className="text-2xl font-bold text-[var(--crm-ink)]">Pagamento</h2>
                 <p className="mt-2 text-[var(--crm-muted)]">
                   {confirmingReturn ? 'Pagamento aprovado. Enviando cadastro para aprovação...' : 'Finalize sua assinatura'}

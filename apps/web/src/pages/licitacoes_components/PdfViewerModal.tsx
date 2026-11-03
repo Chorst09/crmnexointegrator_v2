@@ -95,7 +95,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgb(var(--crm-surface-2-rgb)_/_0.85)] backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-200">
       <style>{`
         @media print {
           body * {
@@ -144,25 +144,25 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
       `}</style>
 
       <div 
-        className="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-6xl h-[94vh] flex flex-col overflow-hidden border border-slate-700/80"
+        className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-2xl w-full max-w-6xl h-[94vh] flex flex-col overflow-hidden border border-[var(--crm-border)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Barra Superior de Ferramentas */}
-        <div className="bg-slate-900 text-white px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 flex-shrink-0">
+        <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--crm-border)] flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-400 flex-shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-700 dark:text-blue-400 flex-shrink-0">
               <FileText className="w-5 h-5" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm font-semibold truncate leading-tight text-white">
+              <h2 className="text-sm font-semibold truncate leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 {documentTitle}
               </h2>
               <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[11px] text-emerald-400 flex items-center gap-1 font-medium">
+                <span className="text-[11px] text-emerald-700 dark:text-emerald-400 flex items-center gap-1 font-medium">
                   <CheckCircle2 className="w-3 h-3" /> Ficha Técnica Oficial (Lei 14.133/2021)
                 </span>
-                <span className="text-slate-500 text-[10px] hidden sm:inline">•</span>
-                <span className="text-[11px] text-slate-400 font-mono hidden sm:inline">Visualização Direta A4</span>
+                <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-[10px] hidden sm:inline">•</span>
+                <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-mono hidden sm:inline">Visualização Direta A4</span>
               </div>
             </div>
           </div>
@@ -172,27 +172,27 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
             {/* Controle de Modo de Visualização (Escuro / Papel) */}
             <button
               onClick={() => setDocTheme(isDarkDoc ? 'paper' : 'dark')}
-              className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 border border-slate-700 cursor-pointer"
+              className="px-2.5 py-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 border border-[var(--crm-border)] cursor-pointer"
               title={isDarkDoc ? "Mudar para visualização em folha branca (Modo Papel)" : "Mudar para leitura em modo escuro"}
             >
               {isDarkDoc ? (
                 <>
-                  <Sun className="w-3.5 h-3.5 text-amber-400" />
+                  <Sun className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
                   <span className="hidden sm:inline">Modo Papel</span>
                 </>
               ) : (
                 <>
-                  <Moon className="w-3.5 h-3.5 text-indigo-400" />
+                  <Moon className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />
                   <span className="hidden sm:inline">Modo Escuro</span>
                 </>
               )}
             </button>
 
             {/* Controle de Zoom */}
-            <div className="flex items-center bg-slate-800/90 rounded-lg p-0.5 border border-slate-700">
+            <div className="flex items-center bg-[rgb(var(--crm-surface-rgb)_/_0.9)] rounded-lg p-0.5 border border-[var(--crm-border)]">
               <button
                 onClick={handleZoomOut}
-                className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded transition-colors disabled:opacity-40 cursor-pointer"
+                className="p-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded transition-colors disabled:opacity-40 cursor-pointer"
                 title="Diminuir zoom"
                 disabled={zoom <= 70}
               >
@@ -200,14 +200,14 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
               </button>
               <button
                 onClick={handleResetZoom}
-                className="px-2 py-1 text-[11px] font-mono text-slate-200 hover:text-white hover:bg-slate-700 rounded transition-colors cursor-pointer"
+                className="px-2 py-1 text-[11px] font-mono text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded transition-colors cursor-pointer"
                 title="Redefinir zoom para 100%"
               >
                 {zoom}%
               </button>
               <button
                 onClick={handleZoomIn}
-                className="p-1.5 text-slate-300 hover:text-white hover:bg-slate-700 rounded transition-colors disabled:opacity-40 cursor-pointer"
+                className="p-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded transition-colors disabled:opacity-40 cursor-pointer"
                 title="Aumentar zoom"
                 disabled={zoom >= 145}
               >
@@ -217,20 +217,20 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
             <button
               onClick={handlePrint}
-              className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 border border-slate-700 cursor-pointer"
+              className="px-3 py-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 border border-[var(--crm-border)] cursor-pointer"
               title="Imprimir documento formatado"
             >
-              <Printer className="w-4 h-4 text-slate-300" />
+              <Printer className="w-4 h-4 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
               <span className="hidden sm:inline">Imprimir</span>
             </button>
 
             {pdfBlobUrl && (
               <button
                 onClick={handleOpenExternal}
-                className="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition-colors hidden md:flex items-center gap-1.5 border border-slate-700 cursor-pointer"
+                className="px-3 py-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-medium rounded-lg transition-colors hidden md:flex items-center gap-1.5 border border-[var(--crm-border)] cursor-pointer"
                 title="Abrir arquivo em nova aba"
               >
-                <ExternalLink className="w-4 h-4 text-slate-300" />
+                <ExternalLink className="w-4 h-4 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                 <span>Nova Aba</span>
               </button>
             )}
@@ -246,7 +246,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition-colors ml-1 cursor-pointer"
+              className="p-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors ml-1 cursor-pointer"
               title="Fechar visualizador (ESC)"
             >
               <X className="w-5 h-5" />
@@ -255,7 +255,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
         </div>
 
         {/* Área do Documento - Renderização A4 direta e contínua */}
-        <div className="flex-1 bg-slate-800/90 dark:bg-slate-950/90 overflow-y-auto overflow-x-auto p-4 sm:p-8 flex flex-col items-center transition-colors">
+        <div className="flex-1 bg-[rgb(var(--crm-surface-rgb)_/_0.9)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] overflow-y-auto overflow-x-auto p-4 sm:p-8 flex flex-col items-center transition-colors">
           <div 
             id="printable-pdf-document"
             style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center', transition: 'transform 0.15s ease' }}
@@ -266,39 +266,39 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                 ======================================================== */}
             <div className={`a4-page w-full min-h-[297mm] shadow-2xl rounded-sm p-8 sm:p-12 flex flex-col justify-between border relative transition-colors ${
               isDarkDoc 
-                ? 'bg-slate-900 text-slate-100 border-slate-700/80 shadow-slate-950/50' 
-                : 'bg-white text-slate-900 border-slate-300'
+                ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)] shadow-slate-950/50"
+                : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
             }`}>
               <div>
                 {/* Faixa Oficial Timbrada */}
                 <div className="faixa-oficial bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 text-white p-4 rounded-md mb-6 shadow-sm">
-                  <div className="flex items-center justify-between text-[10px] tracking-widest uppercase font-semibold text-blue-200 border-b border-blue-800 pb-1.5 mb-2">
+                  <div className="flex items-center justify-between text-[10px] tracking-widest uppercase font-semibold text-blue-700 dark:text-blue-200 border-b border-blue-200 dark:border-blue-800 pb-1.5 mb-2">
                     <span>República Federativa do Brasil</span>
                     <span>Lei Federal nº 14.133/2021</span>
                   </div>
-                  <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-white uppercase">
+                  <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase">
                     Ficha Técnica Executiva & Auditoria de Edital / TR
                   </h1>
-                  <p className="text-xs text-blue-200 mt-0.5">
+                  <p className="text-xs text-blue-700 dark:text-blue-200 mt-0.5">
                     Relatório oficial de inteligência pré-certame para licitantes e analistas
                   </p>
                 </div>
 
                 {/* Identificação do Órgão e Processo */}
-                <div className={`border-b pb-4 mb-5 ${isDarkDoc ? 'border-slate-800' : 'border-slate-200'}`}>
+                <div className={`border-b pb-4 mb-5 ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <span className={`text-[10px] uppercase font-bold tracking-wider ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Órgão Licitante</span>
-                      <h2 className={`text-lg font-bold leading-snug ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>
+                      <span className={`text-[10px] uppercase font-bold tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Órgão Licitante</span>
+                      <h2 className={`text-lg font-bold leading-snug ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         {ficha.orgao_comprador}
                       </h2>
                     </div>
                     <div className="text-right flex-shrink-0">
-                      <span className={`text-[10px] uppercase font-bold tracking-wider ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>ID / PNCP</span>
+                      <span className={`text-[10px] uppercase font-bold tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>ID / PNCP</span>
                       <div className={`text-xs font-mono font-bold px-2.5 py-1 rounded border inline-block mt-0.5 ${
                         isDarkDoc 
-                          ? 'text-blue-300 bg-blue-950/60 border-blue-800' 
-                          : 'text-blue-700 bg-blue-50 border-blue-200'
+                          ? "text-blue-700 dark:text-blue-300 bg-blue-50/60 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800"
+                          : "text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800"
                       }`}>
                         {ficha.id_licitacao}
                       </div>
@@ -307,16 +307,16 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3 text-xs">
                     <div>
-                      <span className={isDarkDoc ? 'text-slate-400' : 'text-slate-500'}>Modalidade:</span>{' '}
-                      <strong className={isDarkDoc ? 'text-slate-200' : 'text-slate-800'}>{ficha.modalidade_contratacao}</strong>
+                      <span className={isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}>Modalidade:</span>{' '}
+                      <strong className={isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}>{ficha.modalidade_contratacao}</strong>
                     </div>
                     <div>
-                      <span className={isDarkDoc ? 'text-slate-400' : 'text-slate-500'}>Critério:</span>{' '}
-                      <strong className={isDarkDoc ? 'text-slate-200' : 'text-slate-800'}>{ficha.criterio_julgamento}</strong>
+                      <span className={isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}>Critério:</span>{' '}
+                      <strong className={isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}>{ficha.criterio_julgamento}</strong>
                     </div>
                     <div>
-                      <span className={isDarkDoc ? 'text-slate-400' : 'text-slate-500'}>Modo de Disputa:</span>{' '}
-                      <strong className={isDarkDoc ? 'text-slate-200' : 'text-slate-800'}>{ficha.modo_disputa || 'Aberto'}</strong>
+                      <span className={isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}>Modo de Disputa:</span>{' '}
+                      <strong className={isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}>{ficha.modo_disputa || 'Aberto'}</strong>
                     </div>
                   </div>
                 </div>
@@ -324,15 +324,15 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                 {/* QUADRO DESTACADO: CRONOGRAMA CRÍTICO & PRAZOS */}
                 <div className={`border-2 rounded-lg p-4 mb-6 shadow-xs ${
                   isDarkDoc 
-                    ? 'bg-slate-950/60 border-blue-800/70' 
-                    : 'bg-slate-50 border-blue-200'
+                    ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border-blue-200/70 dark:border-blue-800/70"
+                    : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-blue-200 dark:border-blue-800"
                 }`}>
                   <div className={`flex items-center gap-2 pb-2.5 mb-3 border-b ${
                     isDarkDoc 
-                      ? 'border-blue-900/60 text-blue-300' 
-                      : 'border-blue-100 text-blue-900'
+                      ? "border-blue-200/60 dark:border-blue-900/60 text-blue-700 dark:text-blue-300"
+                      : "border-blue-100 dark:border-blue-800 text-blue-900 dark:text-blue-300"
                   }`}>
-                    <Calendar className={`w-4 h-4 ${isDarkDoc ? 'text-blue-400' : 'text-blue-700'}`} />
+                    <Calendar className={`w-4 h-4 ${isDarkDoc ? "text-blue-700 dark:text-blue-400" : "text-blue-700 dark:text-blue-300"}`} />
                     <h3 className="text-xs font-bold uppercase tracking-wider">
                       Cronograma Crítico & Prazos da Licitação
                     </h3>
@@ -341,52 +341,52 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
                     {/* Abertura */}
                     <div className={`p-2.5 rounded border ${
-                      isDarkDoc ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'
+                      isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                     }`}>
-                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Abertura da Sessão</div>
-                      <div className={`text-sm font-extrabold mt-0.5 ${isDarkDoc ? 'text-blue-400' : 'text-blue-900'}`}>
+                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Abertura da Sessão</div>
+                      <div className={`text-sm font-extrabold mt-0.5 ${isDarkDoc ? "text-blue-700 dark:text-blue-400" : "text-blue-900 dark:text-blue-300"}`}>
                         {ficha.data_abertura || 'Consulte o Edital'}
                       </div>
-                      <div className={`text-[10px] mt-1 flex items-center gap-1 ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] mt-1 flex items-center gap-1 ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                         <Clock className="w-3 h-3 text-blue-500" /> Disputa de lances
                       </div>
                     </div>
 
                     {/* Limite Propostas */}
                     <div className={`p-2.5 rounded border ${
-                      isDarkDoc ? 'bg-slate-900 border-rose-900/70' : 'bg-white border-rose-200'
+                      isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-rose-200/70 dark:border-rose-900/70" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-rose-200 dark:border-rose-800"
                     }`}>
-                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? 'text-rose-400' : 'text-rose-700'}`}>Limite de Propostas</div>
-                      <div className={`text-sm font-extrabold mt-0.5 ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>
+                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? "text-rose-700 dark:text-rose-400" : "text-rose-700 dark:text-rose-300"}`}>Limite de Propostas</div>
+                      <div className={`text-sm font-extrabold mt-0.5 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         {ficha.data_limite_proposta || 'Até abertura da sessão'}
                       </div>
-                      <div className={`text-[10px] mt-1 flex items-center gap-1 font-medium ${isDarkDoc ? 'text-rose-400' : 'text-rose-600'}`}>
+                      <div className={`text-[10px] mt-1 flex items-center gap-1 font-medium ${isDarkDoc ? "text-rose-700 dark:text-rose-400" : 'text-rose-600'}`}>
                         <AlertTriangle className="w-3 h-3 text-rose-500" /> Prazo fatal no sistema
                       </div>
                     </div>
 
                     {/* Impugnação / Esclarecimento */}
                     <div className={`p-2.5 rounded border ${
-                      isDarkDoc ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'
+                      isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                     }`}>
-                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Impugnação / Dúvidas</div>
-                      <div className={`text-xs font-semibold mt-0.5 ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Impugnação / Dúvidas</div>
+                      <div className={`text-xs font-semibold mt-0.5 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         {ficha.data_fim_esclarecimento || 'Até 3 dias úteis antes'}
                       </div>
-                      <div className={`text-[10px] mt-1 flex items-center gap-1 ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] mt-1 flex items-center gap-1 ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                         <ShieldAlert className="w-3 h-3 text-amber-500" /> Art. 164 da Lei 14.133
                       </div>
                     </div>
 
                     {/* Valor Estimado Total */}
                     <div className={`p-2.5 rounded border ${
-                      isDarkDoc ? 'bg-slate-900 border-emerald-900/70' : 'bg-white border-emerald-200'
+                      isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-emerald-200/70 dark:border-emerald-900/70" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-emerald-200 dark:border-emerald-800"
                     }`}>
-                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? 'text-emerald-400' : 'text-emerald-800'}`}>Valor Global Estimado</div>
-                      <div className={`text-sm font-extrabold mt-0.5 ${isDarkDoc ? 'text-emerald-400' : 'text-emerald-700'}`}>
+                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? "text-emerald-700 dark:text-emerald-400" : "text-emerald-800 dark:text-emerald-300"}`}>Valor Global Estimado</div>
+                      <div className={`text-sm font-extrabold mt-0.5 ${isDarkDoc ? "text-emerald-700 dark:text-emerald-400" : "text-emerald-700 dark:text-emerald-300"}`}>
                         {formatarMoeda(ficha.valor_estimado_total)}
                       </div>
-                      <div className={`text-[10px] mt-1 flex items-center gap-1 ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>
+                      <div className={`text-[10px] mt-1 flex items-center gap-1 ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                         <DollarSign className="w-3 h-3 text-emerald-500" /> Portal: {ficha.portal_compras?.split('/')[0] || 'PNCP'}
                       </div>
                     </div>
@@ -395,16 +395,16 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
                 {/* 1. RESUMO EXECUTIVO */}
                 <div className="mb-6">
-                  <div className={`flex items-center gap-2 mb-2 pb-1 border-b ${isDarkDoc ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <div className={`flex items-center gap-2 mb-2 pb-1 border-b ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
                     <span className={`w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center ${
-                      isDarkDoc ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'
+                      isDarkDoc ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300"
                     }`}>1</span>
-                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>Resumo Executivo do Certame</h3>
+                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>Resumo Executivo do Certame</h3>
                   </div>
                   <div className={`text-xs leading-relaxed whitespace-pre-line text-justify p-3.5 rounded border ${
                     isDarkDoc 
-                      ? 'bg-slate-950/40 text-slate-300 border-slate-800' 
-                      : 'bg-slate-50/50 text-slate-700 border-slate-200'
+                      ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
+                      : "bg-[rgb(var(--crm-surface-rgb)_/_0.5)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
                   }`}>
                     {ficha.resumo_executivo}
                   </div>
@@ -412,21 +412,21 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
                 {/* 2. REQUISITOS DE HABILITAÇÃO */}
                 <div>
-                  <div className={`flex items-center gap-2 mb-2 pb-1 border-b ${isDarkDoc ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <div className={`flex items-center gap-2 mb-2 pb-1 border-b ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
                     <span className={`w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center ${
-                      isDarkDoc ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'
+                      isDarkDoc ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300"
                     }`}>2</span>
-                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>Requisitos de Habilitação & Qualificação</h3>
+                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>Requisitos de Habilitação & Qualificação</h3>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                     {/* Atestados Técnicos */}
-                    <div className={`p-3 rounded border ${isDarkDoc ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                      <div className={`font-bold mb-1.5 flex items-center gap-1.5 text-[11px] uppercase ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                    <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
+                      <div className={`font-bold mb-1.5 flex items-center gap-1.5 text-[11px] uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         <FileCheck className="w-3.5 h-3.5 text-blue-500" />
                         Capacidade Técnica Operacional
                       </div>
-                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
+                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         {(ficha.requisitos_habilitacao?.atestados_capacidade_tecnica || []).map((item, idx) => (
                           <li key={idx} className="leading-snug">{item}</li>
                         ))}
@@ -434,27 +434,27 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                     </div>
 
                     {/* Exigências Contábeis */}
-                    <div className={`p-3 rounded border ${isDarkDoc ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                      <div className={`font-bold mb-1.5 flex items-center gap-1.5 text-[11px] uppercase ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
-                        <Scale className="w-3.5 h-3.5 text-indigo-400" />
+                    <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
+                      <div className={`font-bold mb-1.5 flex items-center gap-1.5 text-[11px] uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
+                        <Scale className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />
                         Qualificação Econômico-Financeira
                       </div>
                       <div className="space-y-1 text-[11px]">
                         {(ficha.requisitos_habilitacao?.exigencias_contabeis || []).map((ind, idx) => (
-                          <div key={idx} className={`flex justify-between py-0.5 border-b last:border-0 ${isDarkDoc ? 'border-slate-800' : 'border-slate-200'}`}>
-                            <span className={`font-medium ${isDarkDoc ? 'text-slate-400' : 'text-slate-700'}`}>{ind.nome_indice}:</span>
-                            <span className={`font-bold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>{ind.regra}</span>
+                          <div key={idx} className={`flex justify-between py-0.5 border-b last:border-0 ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
+                            <span className={`font-medium ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ind.nome_indice}:</span>
+                            <span className={`font-bold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ind.regra}</span>
                           </div>
                         ))}
                       </div>
                     </div>
 
                     {/* Certidões e Registros */}
-                    <div className={`p-3 rounded border ${isDarkDoc ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                      <div className={`font-bold mb-1.5 text-[11px] uppercase ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                    <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
+                      <div className={`font-bold mb-1.5 text-[11px] uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         Regularidade Fiscal, Social e Trabalhista
                       </div>
-                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
+                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         {(ficha.requisitos_habilitacao?.certidoes_e_registros_especificos || []).map((cert, idx) => (
                           <li key={idx} className="leading-snug">{cert}</li>
                         ))}
@@ -462,11 +462,11 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                     </div>
 
                     {/* Equipe Chave */}
-                    <div className={`p-3 rounded border ${isDarkDoc ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                      <div className={`font-bold mb-1.5 text-[11px] uppercase ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                    <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
+                      <div className={`font-bold mb-1.5 text-[11px] uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         Equipe Técnica e Registros em Conselhos
                       </div>
-                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
+                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         {(ficha.requisitos_habilitacao?.qualificacao_equipe_chave || []).map((eq, idx) => (
                           <li key={idx} className="leading-snug">{eq}</li>
                         ))}
@@ -478,7 +478,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
               {/* Rodapé da Página 1 */}
               <div className={`mt-8 pt-3 border-t flex items-center justify-between text-[10px] ${
-                isDarkDoc ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'
+                isDarkDoc ? "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]" : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
               }`}>
                 <span>Processo nº {ficha.id_licitacao} • Emissão Eletrônica Conforme Lei nº 14.133/2021</span>
                 <span>Página 1 de 3</span>
@@ -490,15 +490,15 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                 ======================================================== */}
             <div className={`a4-page w-full min-h-[297mm] shadow-2xl rounded-sm p-8 sm:p-12 flex flex-col justify-between border relative transition-colors ${
               isDarkDoc 
-                ? 'bg-slate-900 text-slate-100 border-slate-700/80 shadow-slate-950/50' 
-                : 'bg-white text-slate-900 border-slate-300'
+                ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)] shadow-slate-950/50"
+                : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
             }`}>
               <div>
                 {/* Cabeçalho Resumido */}
                 <div className={`flex items-center justify-between pb-3 mb-6 border-b text-[10px] ${
-                  isDarkDoc ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-500'
+                  isDarkDoc ? "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]" : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
                 }`}>
-                  <span className={`font-semibold uppercase ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
+                  <span className={`font-semibold uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                     Ficha Técnica Executiva • {(ficha.orgao_comprador || '').slice(0, 50)}
                   </span>
                   <span className="font-mono">ID: {ficha.id_licitacao}</span>
@@ -506,37 +506,37 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
                 {/* 3. PRAZOS, LOCAIS E EXECUÇÃO */}
                 <div className="mb-6">
-                  <div className={`flex items-center gap-2 mb-3 pb-1 border-b ${isDarkDoc ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <div className={`flex items-center gap-2 mb-3 pb-1 border-b ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
                     <span className={`w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center ${
-                      isDarkDoc ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'
+                      isDarkDoc ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300"
                     }`}>3</span>
-                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                       Prazos, Locais e Condições de Fornecimento
                     </h3>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                    <div className={`p-3 rounded border space-y-2 ${isDarkDoc ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                    <div className={`p-3 rounded border space-y-2 ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
                       <div>
-                        <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Prazo de Início e Entrega</span>
-                        <span className={`font-semibold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>{ficha.prazos_e_locais?.prazo_inicio_entrega || 'Até 15 dias úteis'}</span>
+                        <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Prazo de Início e Entrega</span>
+                        <span className={`font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ficha.prazos_e_locais?.prazo_inicio_entrega || 'Até 15 dias úteis'}</span>
                       </div>
                       <div>
-                        <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Vigência Contratual</span>
-                        <span className={`font-semibold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>{ficha.prazos_e_locais?.vigencia_contrato || '12 meses'}</span>
+                        <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Vigência Contratual</span>
+                        <span className={`font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ficha.prazos_e_locais?.vigencia_contrato || '12 meses'}</span>
                       </div>
                       {ficha.prazos_e_locais?.regime_execucao && (
                         <div>
-                          <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Regime de Execução</span>
-                          <span className={`font-semibold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>{ficha.prazos_e_locais.regime_execucao}</span>
+                          <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Regime de Execução</span>
+                          <span className={`font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ficha.prazos_e_locais.regime_execucao}</span>
                         </div>
                       )}
                     </div>
 
-                    <div className={`p-3 rounded border space-y-2 ${isDarkDoc ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
+                    <div className={`p-3 rounded border space-y-2 ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
                       <div>
-                        <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Locais de Entrega / Prestação</span>
-                        <ul className={`list-disc list-inside text-[11px] mt-0.5 space-y-0.5 ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                        <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Locais de Entrega / Prestação</span>
+                        <ul className={`list-disc list-inside text-[11px] mt-0.5 space-y-0.5 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                           {(ficha.prazos_e_locais?.locais_prestacao_entrega || []).map((loc, idx) => (
                             <li key={idx}>{loc}</li>
                           ))}
@@ -544,8 +544,8 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                       </div>
                       {ficha.prazos_e_locais?.prazo_recebimento_provisorio_definitivo && (
                         <div>
-                          <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>Recebimento Provisório e Definitivo</span>
-                          <span className={`text-[11px] ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>{ficha.prazos_e_locais.prazo_recebimento_provisorio_definitivo}</span>
+                          <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Recebimento Provisório e Definitivo</span>
+                          <span className={`text-[11px] ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ficha.prazos_e_locais.prazo_recebimento_provisorio_definitivo}</span>
                         </div>
                       )}
                     </div>
@@ -554,11 +554,11 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
                 {/* 4. MATRIZ DE RISCOS & PONTOS DE ATENÇÃO */}
                 <div>
-                  <div className={`flex items-center gap-2 mb-3 pb-1 border-b ${isDarkDoc ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <div className={`flex items-center gap-2 mb-3 pb-1 border-b ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
                     <span className={`w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center ${
-                      isDarkDoc ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'
+                      isDarkDoc ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300"
                     }`}>4</span>
-                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                       Matriz de Riscos & Pontos Críticos de Atenção
                     </h3>
                   </div>
@@ -567,15 +567,15 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                     {/* Vistoria Técnica e Amostras */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div className={`p-3 rounded border ${
-                        isDarkDoc ? 'bg-amber-950/30 border-amber-800/70' : 'bg-amber-50/60 border-amber-200'
+                        isDarkDoc ? "bg-amber-50/30 dark:bg-amber-950/30 border-amber-200/70 dark:border-amber-800/70" : "bg-amber-50/60 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800"
                       }`}>
                         <div className={`font-bold flex items-center gap-1.5 text-[11px] uppercase mb-1 ${
-                          isDarkDoc ? 'text-amber-300' : 'text-amber-900'
+                          isDarkDoc ? "text-amber-700 dark:text-amber-300" : "text-amber-900 dark:text-amber-300"
                         }`}>
                           <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
                           Regras de Vistoria Técnica
                         </div>
-                        <div className={`text-[11px] space-y-1 ${isDarkDoc ? 'text-amber-200' : 'text-amber-950'}`}>
+                        <div className={`text-[11px] space-y-1 ${isDarkDoc ? "text-amber-700 dark:text-amber-200" : "text-amber-950 dark:text-amber-300"}`}>
                           <div>
                             <strong>Obrigatoriedade:</strong>{' '}
                             {ficha.pontos_de_atencao_risco?.regras_vistoria?.obrigatoria ? 'Sim (Exigência Formal)' : 'Facultativa / Não Exigida'}
@@ -585,19 +585,19 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                             {ficha.pontos_de_atencao_risco?.regras_vistoria?.permite_declaracao_substitutiva ? 'Sim (Declaração de Pleno Conhecimento)' : 'Não'}
                           </div>
                           {ficha.pontos_de_atencao_risco?.regras_vistoria?.detalhes_e_prazo && (
-                            <div className={`text-[10px] mt-1 italic ${isDarkDoc ? 'text-amber-300/80' : 'text-amber-900'}`}>
+                            <div className={`text-[10px] mt-1 italic ${isDarkDoc ? "text-amber-700/80 dark:text-amber-300/80" : "text-amber-900 dark:text-amber-300"}`}>
                               {ficha.pontos_de_atencao_risco.regras_vistoria.detalhes_e_prazo}
                             </div>
                           )}
                         </div>
                       </div>
 
-                      <div className={`p-3 rounded border ${isDarkDoc ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                        <div className={`font-bold flex items-center gap-1.5 text-[11px] uppercase mb-1 ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                      <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
+                        <div className={`font-bold flex items-center gap-1.5 text-[11px] uppercase mb-1 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                           <Package className="w-3.5 h-3.5 text-blue-500" />
                           Amostras e Garantia Contratual
                         </div>
-                        <div className={`text-[11px] space-y-1 ${isDarkDoc ? 'text-slate-300' : 'text-slate-800'}`}>
+                        <div className={`text-[11px] space-y-1 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                           <div>
                             <strong>Exigência de Amostra/PoC:</strong>{' '}
                             {ficha.pontos_de_atencao_risco?.exigencia_amostra_poc || 'Não exigida na fase de propostas'}
@@ -612,16 +612,16 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
                     {/* Penalidades e Multas */}
                     <div className={`p-3 rounded border ${
-                      isDarkDoc ? 'bg-rose-950/30 border-rose-850/70' : 'bg-rose-50/50 border-rose-200'
+                      isDarkDoc ? "bg-rose-50/30 dark:bg-rose-950/30 border-rose-850/70" : "bg-rose-50/50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800"
                     }`}>
                       <div className={`font-bold flex items-center gap-1.5 text-[11px] uppercase mb-1.5 ${
-                        isDarkDoc ? 'text-rose-300' : 'text-rose-900'
+                        isDarkDoc ? "text-rose-700 dark:text-rose-300" : "text-rose-900 dark:text-rose-300"
                       }`}>
                         <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
                         Cláusulas Punitivas e Penalidades Aplicáveis
                       </div>
                       <ul className={`list-disc list-inside space-y-1 text-[11px] ${
-                        isDarkDoc ? 'text-rose-200' : 'text-rose-950'
+                        isDarkDoc ? "text-rose-700 dark:text-rose-200" : "text-rose-950 dark:text-rose-300"
                       }`}>
                         {(ficha.pontos_de_atencao_risco?.clausulas_punitivas_multas || []).map((multa, idx) => (
                           <li key={idx} className="leading-snug">{multa}</li>
@@ -630,11 +630,11 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                     </div>
 
                     {/* Pontos de Atenção Gerais */}
-                    <div className={`p-3 rounded border ${isDarkDoc ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
-                      <div className={`font-bold text-[11px] uppercase mb-1.5 ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                    <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
+                      <div className={`font-bold text-[11px] uppercase mb-1.5 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         Recomendações e Orientações Técnicas ao Licitante
                       </div>
-                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
+                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         {(ficha.pontos_de_atencao_risco?.pontos_de_atencao_gerais || []).map((pt, idx) => (
                           <li key={idx} className="leading-snug">{pt}</li>
                         ))}
@@ -646,7 +646,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
               {/* Rodapé da Página 2 */}
               <div className={`mt-8 pt-3 border-t flex items-center justify-between text-[10px] ${
-                isDarkDoc ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'
+                isDarkDoc ? "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]" : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
               }`}>
                 <span>Processo nº {ficha.id_licitacao} • Emissão Eletrônica Conforme Lei nº 14.133/2021</span>
                 <span>Página 2 de 3</span>
@@ -658,15 +658,15 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                 ======================================================== */}
             <div className={`a4-page w-full min-h-[297mm] shadow-2xl rounded-sm p-8 sm:p-12 flex flex-col justify-between border relative transition-colors ${
               isDarkDoc 
-                ? 'bg-slate-900 text-slate-100 border-slate-700/80 shadow-slate-950/50' 
-                : 'bg-white text-slate-900 border-slate-300'
+                ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)] shadow-slate-950/50"
+                : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
             }`}>
               <div>
                 {/* Cabeçalho Resumido */}
                 <div className={`flex items-center justify-between pb-3 mb-6 border-b text-[10px] ${
-                  isDarkDoc ? 'border-slate-800 text-slate-400' : 'border-slate-200 text-slate-500'
+                  isDarkDoc ? "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]" : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
                 }`}>
-                  <span className={`font-semibold uppercase ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
+                  <span className={`font-semibold uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                     Ficha Técnica Executiva • {ficha.orgao_comprador.slice(0, 50)}
                   </span>
                   <span className="font-mono">ID: {ficha.id_licitacao}</span>
@@ -674,27 +674,27 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
                 {/* 5. MATRIZ DE ITENS */}
                 <div className="mb-6">
-                  <div className={`flex items-center justify-between mb-3 pb-1 border-b ${isDarkDoc ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <div className={`flex items-center justify-between mb-3 pb-1 border-b ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
                     <div className="flex items-center gap-2">
                       <span className={`w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center ${
-                        isDarkDoc ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-800'
+                        isDarkDoc ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300"
                       }`}>5</span>
-                      <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                      <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         Matriz de Itens do Termo de Referência (TR)
                       </h3>
                     </div>
-                    <span className={`text-[11px] font-medium ${isDarkDoc ? 'text-slate-400' : 'text-slate-500'}`}>
+                    <span className={`text-[11px] font-medium ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                       Total: {ficha.matriz_itens?.length || 0} itens mapeados
                     </span>
                   </div>
 
-                  <div className={`border rounded-lg overflow-hidden ${isDarkDoc ? 'border-slate-800' : 'border-slate-200'}`}>
+                  <div className={`border rounded-lg overflow-hidden ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
                     <table className="w-full text-left text-xs border-collapse">
                       <thead>
                         <tr className={`font-bold border-b text-[10px] uppercase ${
                           isDarkDoc 
-                            ? 'bg-slate-800 text-slate-200 border-slate-700' 
-                            : 'bg-slate-100 text-slate-700 border-slate-200'
+                            ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
+                            : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
                         }`}>
                           <th className="py-2.5 px-3 w-12 text-center">Item</th>
                           <th className="py-2.5 px-3">Especificação Sucinta & Descrição Técnica</th>
@@ -704,36 +704,36 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                           <th className="py-2.5 px-3 w-28 text-right">Valor Total</th>
                         </tr>
                       </thead>
-                      <tbody className={`divide-y text-[11px] ${isDarkDoc ? 'divide-slate-800' : 'divide-slate-100'}`}>
+                      <tbody className={`divide-y text-[11px] ${isDarkDoc ? "divide-[var(--crm-border)]" : "divide-[var(--crm-border)]"}`}>
                         {ficha.matriz_itens && ficha.matriz_itens.length > 0 ? (
                           ficha.matriz_itens.map((item, idx) => {
                             const valTot = item.valor_estimado_total || (item.valor_estimado_unitario || 0) * (item.quantitativo || 1);
                             const rowBg = isDarkDoc
-                              ? (idx % 2 === 0 ? 'bg-slate-900' : 'bg-slate-950/40')
-                              : (idx % 2 === 0 ? 'bg-white' : 'bg-slate-50/50');
+                              ? (idx % 2 === 0 ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)]" : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)]")
+                              : (idx % 2 === 0 ? "bg-[rgb(var(--crm-surface-rgb)_/_1)]" : "bg-[rgb(var(--crm-surface-rgb)_/_0.5)]");
                             return (
                               <tr key={idx} className={rowBg}>
-                                <td className={`py-2 px-3 text-center font-bold ${isDarkDoc ? 'text-slate-400' : 'text-slate-600'}`}>
+                                <td className={`py-2 px-3 text-center font-bold ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                                   {item.item_numero || idx + 1}
                                 </td>
                                 <td className="py-2 px-3">
-                                  <div className={`font-semibold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>{item.especificacao_sucinta}</div>
+                                  <div className={`font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{item.especificacao_sucinta}</div>
                                   {item.codigo_catalogo && (
-                                    <div className={`text-[10px] font-mono ${isDarkDoc ? 'text-slate-500' : 'text-slate-400'}`}>
+                                    <div className={`text-[10px] font-mono ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                                       Cód. CatMat/CatSer: {item.codigo_catalogo}
                                     </div>
                                   )}
                                 </td>
-                                <td className={`py-2 px-3 text-center font-medium ${isDarkDoc ? 'text-slate-400' : 'text-slate-600'}`}>
+                                <td className={`py-2 px-3 text-center font-medium ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                                   {item.unidade}
                                 </td>
-                                <td className={`py-2 px-3 text-right font-semibold ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                                <td className={`py-2 px-3 text-right font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                                   {item.quantitativo.toLocaleString('pt-BR')}
                                 </td>
-                                <td className={`py-2 px-3 text-right ${isDarkDoc ? 'text-slate-300' : 'text-slate-700'}`}>
+                                <td className={`py-2 px-3 text-right ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                                   {formatarMoeda(item.valor_estimado_unitario)}
                                 </td>
-                                <td className={`py-2 px-3 text-right font-bold ${isDarkDoc ? 'text-slate-100' : 'text-slate-900'}`}>
+                                <td className={`py-2 px-3 text-right font-bold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                                   {formatarMoeda(valTot)}
                                 </td>
                               </tr>
@@ -741,7 +741,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                           })
                         ) : (
                           <tr>
-                            <td colSpan={6} className={`py-4 px-3 text-center italic ${isDarkDoc ? 'text-slate-500' : 'text-slate-400'}`}>
+                            <td colSpan={6} className={`py-4 px-3 text-center italic ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                               Itens especificados no documento principal conforme detalhamento do Termo de Referência.
                             </td>
                           </tr>
@@ -750,8 +750,8 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
                       <tfoot>
                         <tr className={`font-bold border-t-2 text-xs ${
                           isDarkDoc 
-                            ? 'bg-blue-950/60 border-blue-900 text-blue-300' 
-                            : 'bg-blue-50/80 border-blue-200 text-blue-900'
+                            ? "bg-blue-50/60 dark:bg-blue-950/60 border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300"
+                            : "bg-blue-50/80 dark:bg-blue-950/80 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-300"
                         }`}>
                           <td colSpan={4} className="py-2.5 px-3 text-right uppercase">
                             Valor Total Global da Matriz:
@@ -767,21 +767,21 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
                 {/* 6. TERMO DE RESPONSABILIDADE E CARIMBO TÉCNICO */}
                 <div className={`border rounded-lg p-4 mt-6 ${
-                  isDarkDoc ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'
+                  isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
                 }`}>
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <div className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                      <div className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         Autenticação & Registro de Auditoria Documental
                       </div>
-                      <p className={`text-[11px] mt-1 leading-relaxed ${isDarkDoc ? 'text-slate-400' : 'text-slate-600'}`}>
+                      <p className={`text-[11px] mt-1 leading-relaxed ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
                         Este documento foi estruturado automaticamente pelo Pipeline de IA Documental para Análise de Editais e Termos de Referência, sob a égide da Lei Federal nº 14.133/2021. As informações devem ser confrontadas com a publicação oficial no Portal Nacional de Contratações Públicas (PNCP) ou diário oficial correspondente.
                       </p>
                     </div>
 
-                    <div className={`text-right flex-shrink-0 border-l pl-4 ${isDarkDoc ? 'border-slate-800' : 'border-slate-200'}`}>
-                      <div className={`text-[10px] uppercase font-bold ${isDarkDoc ? 'text-slate-500' : 'text-slate-400'}`}>Data de Processamento</div>
-                      <div className={`text-xs font-semibold ${isDarkDoc ? 'text-slate-200' : 'text-slate-800'}`}>
+                    <div className={`text-right flex-shrink-0 border-l pl-4 ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
+                      <div className={`text-[10px] uppercase font-bold ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Data de Processamento</div>
+                      <div className={`text-xs font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
                         {ficha.data_processamento ? new Date(ficha.data_processamento).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR')}
                       </div>
                       <div className="text-[10px] text-emerald-500 font-medium mt-1 flex items-center justify-end gap-1">
@@ -794,7 +794,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
               {/* Rodapé da Página 3 */}
               <div className={`mt-8 pt-3 border-t flex items-center justify-between text-[10px] ${
-                isDarkDoc ? 'border-slate-800 text-slate-500' : 'border-slate-200 text-slate-400'
+                isDarkDoc ? "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]" : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
               }`}>
                 <span>Processo nº {ficha.id_licitacao} • Emissão Eletrônica Conforme Lei nº 14.133/2021</span>
                 <span>Página 3 de 3</span>

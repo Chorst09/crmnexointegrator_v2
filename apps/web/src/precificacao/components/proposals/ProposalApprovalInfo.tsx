@@ -68,7 +68,7 @@ const getRoleLabel = (approval: ApprovalMetadata): string | null => {
   return null;
 };
 
-export function ProposalApprovalInfo({ proposal, className = 'text-gray-600 text-xs' }: ProposalApprovalInfoProps) {
+export function ProposalApprovalInfo({ proposal, className = "text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs" }: ProposalApprovalInfoProps) {
   const approval = getApprovalMetadata(proposal);
   if (!approval) return null;
 

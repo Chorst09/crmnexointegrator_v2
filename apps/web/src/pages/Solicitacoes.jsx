@@ -63,42 +63,42 @@ const STAGE_META = {
   ENTRADA: {
     title: 'Entrada',
     subtitle: 'Solicitada • Fila Pré-vendas',
-    badge: 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+    badge: "bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/40"
   },
   COTACAO: {
     title: 'Cotação',
     subtitle: 'Em Cotação • Custos Recebidos',
-    badge: 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+    badge: "bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/40"
   },
   PRECIFICACAO: {
     title: 'Precificação',
     subtitle: 'Em Precificação',
-    badge: 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+    badge: "bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/40"
   },
   REVISAO: {
     title: 'Revisão',
     subtitle: 'Pronta para Revisão',
-    badge: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+    badge: "bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border-cyan-500/40"
   },
   ENVIADA: {
     title: 'Enviada',
     subtitle: 'Enviada para decisão',
-    badge: 'bg-sky-500/20 text-sky-300 border-sky-500/40'
+    badge: "bg-sky-500/20 text-sky-700 dark:text-sky-300 border-sky-500/40"
   },
   APROVADO: {
     title: 'Aprovado',
     subtitle: 'Decisão aprovada',
-    badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+    badge: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40"
   },
   REPROVADO: {
     title: 'Reprovado',
     subtitle: 'Decisão reprovada',
-    badge: 'bg-red-500/20 text-red-300 border-red-500/40'
+    badge: "bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/40"
   },
   DEVOLVIDA: {
     title: 'Devolvida',
     subtitle: 'Retornada para Comercial/B2B/B2G',
-    badge: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+    badge: "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/40"
   }
 };
 
@@ -233,10 +233,10 @@ const toPriorityLabel = (priority) => {
 
 const getPriorityClass = (priority) => {
   const p = String(priority || '').toUpperCase();
-  if (p === 'LOW' || p === 'BAIXA') return 'bg-emerald-500/20 text-emerald-200 border-emerald-500/30';
-  if (p === 'HIGH' || p === 'ALTA') return 'bg-red-500/20 text-red-200 border-red-500/30';
-  if (p === 'URGENT' || p === 'URGENTE') return 'bg-red-600/25 text-red-100 border-red-600/40';
-  return 'bg-blue-500/20 text-blue-200 border-blue-500/30';
+  if (p === 'LOW' || p === 'BAIXA') return "bg-emerald-500/20 text-emerald-700 dark:text-emerald-200 border-emerald-500/30";
+  if (p === 'HIGH' || p === 'ALTA') return "bg-red-500/20 text-red-700 dark:text-red-200 border-red-500/30";
+  if (p === 'URGENT' || p === 'URGENTE') return "bg-red-600/25 text-red-700 dark:text-red-100 border-red-600/40";
+  return "bg-blue-500/20 text-blue-700 dark:text-blue-200 border-blue-500/30";
 };
 
 const getStatusLabel = (status) => {
@@ -1609,7 +1609,7 @@ export default function Solicitacoes() {
             setSelectedSolicitacao(item);
             setShowViewModal(true);
           }}
-          className="inline-flex items-center gap-1 rounded-lg border border-slate-600/50 px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/30"
+          className="inline-flex items-center gap-1 rounded-lg border border-[var(--crm-border)] px-3 py-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.3)]"
         >
           <Eye className="h-3.5 w-3.5" /> Detalhes
         </button>
@@ -1622,7 +1622,7 @@ export default function Solicitacoes() {
           type="button"
           disabled={saving}
           onClick={() => handleAssumir(item)}
-          className="inline-flex items-center gap-1 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-slate-950 hover:bg-sky-400 disabled:opacity-60"
+          className="inline-flex items-center gap-1 rounded-lg bg-sky-500 px-3 py-2 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-sky-400 disabled:opacity-60"
         >
           <UserCheck className="h-3.5 w-3.5" /> Assumir
         </button>
@@ -1635,7 +1635,7 @@ export default function Solicitacoes() {
           type="button"
           disabled={saving}
           onClick={() => handleAvancarEtapa(item)}
-          className="inline-flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/20 px-3 py-2 text-xs text-amber-200 hover:bg-amber-500/30 disabled:opacity-60"
+          className="inline-flex items-center gap-1 rounded-lg border border-amber-500/40 bg-amber-500/20 px-3 py-2 text-xs text-amber-700 dark:text-amber-200 hover:bg-amber-500/30 disabled:opacity-60"
         >
           <ArrowRight className="h-3.5 w-3.5" /> Custos OK
         </button>
@@ -1648,7 +1648,7 @@ export default function Solicitacoes() {
           type="button"
           disabled={saving}
           onClick={() => handleAvancarEtapa(item)}
-          className="inline-flex items-center gap-1 rounded-lg border border-purple-500/40 bg-purple-500/20 px-3 py-2 text-xs text-purple-200 hover:bg-purple-500/30 disabled:opacity-60"
+          className="inline-flex items-center gap-1 rounded-lg border border-purple-500/40 bg-purple-500/20 px-3 py-2 text-xs text-purple-700 dark:text-purple-200 hover:bg-purple-500/30 disabled:opacity-60"
         >
           <ArrowRight className="h-3.5 w-3.5" /> Revisão
         </button>
@@ -1662,7 +1662,7 @@ export default function Solicitacoes() {
             type="button"
             disabled={saving}
             onClick={() => openCotacaoModal(item)}
-            className="inline-flex items-center gap-1 rounded-lg border border-sky-500/40 bg-sky-500/20 px-3 py-2 text-xs text-sky-200 hover:bg-sky-500/30 disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-lg border border-sky-500/40 bg-sky-500/20 px-3 py-2 text-xs text-sky-700 dark:text-sky-200 hover:bg-sky-500/30 disabled:opacity-60"
           >
             <Send className="h-3.5 w-3.5" /> Revisar/Devolver
           </button>
@@ -1670,7 +1670,7 @@ export default function Solicitacoes() {
             type="button"
             disabled={saving}
             onClick={() => handleDecisao(item, true)}
-            className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-3 py-2 text-xs text-emerald-200 hover:bg-emerald-500/30 disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-200 hover:bg-emerald-500/30 disabled:opacity-60"
           >
             <CheckCircle className="h-3.5 w-3.5" /> Aprovar
           </button>
@@ -1678,7 +1678,7 @@ export default function Solicitacoes() {
             type="button"
             disabled={saving}
             onClick={() => handleDecisao(item, false)}
-            className="inline-flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/20 px-3 py-2 text-xs text-red-200 hover:bg-red-500/30 disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/20 px-3 py-2 text-xs text-red-700 dark:text-red-200 hover:bg-red-500/30 disabled:opacity-60"
           >
             <AlertCircle className="h-3.5 w-3.5" /> Reprovar
           </button>
@@ -1693,7 +1693,7 @@ export default function Solicitacoes() {
             type="button"
             disabled={saving}
             onClick={() => handleDecisao(item, true)}
-            className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-3 py-2 text-xs text-emerald-200 hover:bg-emerald-500/30 disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-200 hover:bg-emerald-500/30 disabled:opacity-60"
           >
             <CheckCircle className="h-3.5 w-3.5" /> Aprovar
           </button>
@@ -1701,7 +1701,7 @@ export default function Solicitacoes() {
             type="button"
             disabled={saving}
             onClick={() => handleDecisao(item, false)}
-            className="inline-flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/20 px-3 py-2 text-xs text-red-200 hover:bg-red-500/30 disabled:opacity-60"
+            className="inline-flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/20 px-3 py-2 text-xs text-red-700 dark:text-red-200 hover:bg-red-500/30 disabled:opacity-60"
           >
             <AlertCircle className="h-3.5 w-3.5" /> Reprovar
           </button>
@@ -1714,7 +1714,7 @@ export default function Solicitacoes() {
         type="button"
         disabled={saving}
         onClick={() => openResponderModal(item)}
-        className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-3 py-2 text-xs text-emerald-200 hover:bg-emerald-500/30 disabled:opacity-60"
+        className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-200 hover:bg-emerald-500/30 disabled:opacity-60"
       >
         <Undo2 className="h-3.5 w-3.5" /> Devolver
       </button>
@@ -1738,28 +1738,28 @@ export default function Solicitacoes() {
           setDraggedItemId('');
           setDragOverStage('');
         }}
-        className={`cursor-grab rounded-xl border border-slate-600/40 bg-[#102540] p-4 shadow-[inset_0_1px_0_rgba(148,163,184,0.08)] active:cursor-grabbing ${
+        className={`cursor-grab rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4 shadow-[inset_0_1px_0_rgba(148,163,184,0.08)] active:cursor-grabbing ${
           draggedItemId === item.id ? 'opacity-50 ring-2 ring-sky-400/50' : ''
         }`}
       >
         <div className="mb-2 flex items-center justify-between gap-2">
           <div className="min-w-0">
-            <p className="truncate text-sm font-semibold text-white">{item.titulo}</p>
-            <p className="truncate text-xs text-slate-400">{item.numero}</p>
+            <p className="truncate text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.titulo}</p>
+            <p className="truncate text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.numero}</p>
           </div>
           <span className={`rounded-full border px-2 py-1 text-[11px] font-semibold ${getPriorityClass(item.prioridade)}`}>
             {toPriorityLabel(item.prioridade)}
           </span>
         </div>
 
-        <p className="mb-3 line-clamp-2 text-xs text-slate-300">{item.descricao || 'Sem descrição'}</p>
+        <p className="mb-3 line-clamp-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.descricao || 'Sem descrição'}</p>
 
-        <div className="space-y-1 text-xs text-slate-400">
+        <div className="space-y-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
           <div className="truncate">
-            Cliente: <span className="text-slate-200">{item.company?.name || '-'}</span>
+            Cliente: <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.company?.name || '-'}</span>
           </div>
           <div className="truncate">
-            Origem: <span className="text-slate-200">{getAreaLabel(item?.flow?.sourceArea)}</span>
+            Origem: <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{getAreaLabel(item?.flow?.sourceArea)}</span>
           </div>
           <div>
             {due
@@ -1767,7 +1767,7 @@ export default function Solicitacoes() {
               : `Criada em ${item.createdAt ? new Date(item.createdAt).toLocaleDateString('pt-BR') : '-'}`}
           </div>
           <div>
-            Etapa: <span className="text-slate-200">{stageLabel(stage)}</span>
+            Etapa: <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{stageLabel(stage)}</span>
           </div>
         </div>
 
@@ -1778,7 +1778,7 @@ export default function Solicitacoes() {
             <button
               type="button"
               onClick={() => openCotacaoModal(item)}
-              className="inline-flex items-center gap-1 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-3 py-2 text-xs text-cyan-200 hover:bg-cyan-500/30"
+              className="inline-flex items-center gap-1 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-3 py-2 text-xs text-cyan-700 dark:text-cyan-200 hover:bg-cyan-500/30"
             >
               <FolderOpen className="h-3.5 w-3.5" /> Abrir Cotação
             </button>
@@ -1790,7 +1790,7 @@ export default function Solicitacoes() {
               setSelectedSolicitacao(item);
               setShowViewModal(true);
             }}
-            className="inline-flex items-center gap-1 rounded-lg border border-slate-600/50 px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/30"
+            className="inline-flex items-center gap-1 rounded-lg border border-[var(--crm-border)] px-3 py-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.3)]"
           >
             <Eye className="h-3.5 w-3.5" /> Detalhes
           </button>
@@ -1800,7 +1800,7 @@ export default function Solicitacoes() {
               type="button"
               disabled={saving}
               onClick={() => handleCancelar(item)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-500/40 text-red-300 hover:bg-red-500/20 disabled:opacity-60"
+              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-500/40 text-red-700 dark:text-red-300 hover:bg-red-500/20 disabled:opacity-60"
               title="Cancelar / Rejeitar"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -1855,8 +1855,8 @@ export default function Solicitacoes() {
               onClick={() => setQueueView('PRE_VENDAS')}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
                 queueView === 'PRE_VENDAS'
-                  ? 'bg-sky-500 text-slate-950'
-                  : 'border border-slate-600/50 bg-slate-900/40 text-slate-200 hover:bg-slate-800/50'
+                  ? "bg-sky-500 text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                  : "border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
               }`}
             >
               Fila Pré-vendas
@@ -1866,8 +1866,8 @@ export default function Solicitacoes() {
               onClick={() => setQueueView('COMERCIAL')}
               className={`rounded-lg px-4 py-2 text-sm font-medium transition ${
                 queueView === 'COMERCIAL'
-                  ? 'bg-sky-500 text-slate-950'
-                  : 'border border-slate-600/50 bg-slate-900/40 text-slate-200 hover:bg-slate-800/50'
+                  ? "bg-sky-500 text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                  : "border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
               }`}
             >
               Fila Comercial
@@ -1875,24 +1875,24 @@ export default function Solicitacoes() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
-            <label className="inline-flex items-center gap-2 text-sm text-slate-200">
+            <label className="inline-flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
               <input
                 type="checkbox"
                 checked={onlyMine}
                 onChange={(e) => setOnlyMine(e.target.checked)}
-                className="h-4 w-4 rounded border-slate-500 bg-slate-900"
+                className="h-4 w-4 rounded border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
               />
               Somente minhas demandas
             </label>
 
-            <div className="inline-flex rounded-lg border border-slate-600/50 bg-slate-900/40 p-1">
+            <div className="inline-flex rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] p-1">
               <button
                 type="button"
                 onClick={() => setViewMode('KANBAN')}
                 className={`inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm ${
                   viewMode === 'KANBAN'
-                    ? 'bg-slate-800 text-white'
-                    : 'text-slate-300 hover:text-white'
+                    ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                    : "text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 }`}
               >
                 <LayoutGrid className="h-4 w-4" /> Kanban
@@ -1902,8 +1902,8 @@ export default function Solicitacoes() {
                 onClick={() => setViewMode('LIST')}
                 className={`inline-flex items-center gap-1 rounded-md px-3 py-1.5 text-sm ${
                   viewMode === 'LIST'
-                    ? 'bg-slate-800 text-white'
-                    : 'text-slate-300 hover:text-white'
+                    ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                    : "text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 }`}
               >
                 <List className="h-4 w-4" /> Lista
@@ -1915,13 +1915,13 @@ export default function Solicitacoes() {
 
       <div className="crm-card rounded-xl p-4">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
           <input
             type="text"
             placeholder="Buscar por título, cliente ou oportunidade"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 py-2.5 pl-10 pr-3 text-sm text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+            className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] py-2.5 pl-10 pr-3 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-sky-500/50"
           />
         </div>
       </div>
@@ -1929,12 +1929,12 @@ export default function Solicitacoes() {
       {loading ? (
         <div className="crm-card rounded-xl py-12 text-center">
           <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-sky-500 border-t-transparent" />
-          <p className="mt-3 text-sm text-slate-400">Carregando fluxo...</p>
+          <p className="mt-3 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Carregando fluxo...</p>
         </div>
       ) : filteredItems.length === 0 ? (
         <div className="crm-card rounded-xl py-12 text-center">
-          <AlertCircle className="mx-auto h-10 w-10 text-slate-500" />
-          <p className="mt-3 text-sm text-slate-400">Nenhuma demanda encontrada para os filtros atuais.</p>
+          <AlertCircle className="mx-auto h-10 w-10 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
+          <p className="mt-3 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhuma demanda encontrada para os filtros atuais.</p>
         </div>
       ) : viewMode === 'KANBAN' ? (
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-4 2xl:grid-cols-7">
@@ -1965,16 +1965,16 @@ export default function Solicitacoes() {
               >
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="text-xl font-semibold text-white">{meta.title}</h3>
-                    <p className="text-sm text-slate-400">{meta.subtitle}</p>
+                    <h3 className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{meta.title}</h3>
+                    <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">{meta.subtitle}</p>
                   </div>
-                  <span className="rounded-full bg-slate-800 px-3 py-1 text-sm text-slate-200">
+                  <span className="rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)] px-3 py-1 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     {rows.length}
                   </span>
                 </div>
 
                 {rows.length === 0 ? (
-                  <div className="rounded-xl border border-dashed border-slate-600/40 px-3 py-8 text-center text-sm text-slate-500">
+                  <div className="rounded-xl border border-dashed border-[var(--crm-border)] px-3 py-8 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     Sem demandas nessa etapa.
                   </div>
                 ) : (
@@ -1993,24 +1993,24 @@ export default function Solicitacoes() {
             const meta = STAGE_META[stage] || STAGE_META.ENTRADA;
 
             return (
-              <div key={item.id} className="rounded-xl border border-slate-600/40 bg-[#102540] p-4">
+              <div key={item.id} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
                 <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
                   <div className="min-w-0 flex-1">
                     <div className="mb-2 flex flex-wrap items-center gap-2">
-                      <span className="text-xs font-mono text-sky-400">{item.numero}</span>
+                      <span className="text-xs font-mono text-sky-700 dark:text-sky-400">{item.numero}</span>
                       <span className={`rounded-full border px-2 py-1 text-[11px] font-semibold ${meta.badge}`}>
                         {meta.title}
                       </span>
-                      <span className="rounded-full border border-slate-500/40 px-2 py-1 text-[11px] text-slate-300">
+                      <span className="rounded-full border border-[var(--crm-border)] px-2 py-1 text-[11px] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         {getStatusLabel(item.status)}
                       </span>
                       <span className={`rounded-full border px-2 py-1 text-[11px] ${getPriorityClass(item.prioridade)}`}>
                         {toPriorityLabel(item.prioridade)}
                       </span>
                     </div>
-                    <h4 className="truncate text-base font-semibold text-white">{item.titulo}</h4>
-                    <p className="line-clamp-2 text-sm text-slate-300">{item.descricao}</p>
-                    <p className="mt-2 text-xs text-slate-400">
+                    <h4 className="truncate text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.titulo}</h4>
+                    <p className="line-clamp-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.descricao}</p>
+                    <p className="mt-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                       Cliente: {item.company?.name || '-'} • Origem: {getAreaLabel(item?.flow?.sourceArea)}
                     </p>
                   </div>
@@ -2021,7 +2021,7 @@ export default function Solicitacoes() {
                       <button
                         type="button"
                         onClick={() => openCotacaoModal(item)}
-                        className="inline-flex items-center gap-1 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-3 py-2 text-xs text-cyan-200 hover:bg-cyan-500/30"
+                        className="inline-flex items-center gap-1 rounded-lg border border-cyan-500/40 bg-cyan-500/20 px-3 py-2 text-xs text-cyan-700 dark:text-cyan-200 hover:bg-cyan-500/30"
                       >
                         <FolderOpen className="h-3.5 w-3.5" /> Abrir Cotação
                       </button>
@@ -2030,7 +2030,7 @@ export default function Solicitacoes() {
                       <button
                         type="button"
                         onClick={() => openResponderModal(item)}
-                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-3 py-2 text-xs text-emerald-200 hover:bg-emerald-500/30"
+                        className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-200 hover:bg-emerald-500/30"
                       >
                         <MessageSquare className="h-3.5 w-3.5" /> Responder
                       </button>
@@ -2041,7 +2041,7 @@ export default function Solicitacoes() {
                         setSelectedSolicitacao(item);
                         setShowViewModal(true);
                       }}
-                      className="inline-flex items-center gap-1 rounded-lg border border-slate-600/50 px-3 py-2 text-xs text-slate-200 hover:bg-slate-700/30"
+                      className="inline-flex items-center gap-1 rounded-lg border border-[var(--crm-border)] px-3 py-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.3)]"
                     >
                       <Eye className="h-3.5 w-3.5" /> Ver
                     </button>
@@ -2065,13 +2065,13 @@ export default function Solicitacoes() {
               <button
                 type="button"
                 onClick={() => setShowCotacaoModal(false)}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-600/50 bg-slate-900/40 px-4 py-2 text-sm text-slate-100 hover:bg-slate-800/50"
+                className="inline-flex items-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-4 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
               >
                 <ArrowLeft className="h-4 w-4" /> Voltar para fila
               </button>
 
               <div className="flex items-center gap-2">
-                <span className="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 text-sm text-cyan-200">
+                <span className="rounded-full border border-cyan-500/40 bg-cyan-500/10 px-3 py-1 text-sm text-cyan-700 dark:text-cyan-200">
                   {getStatusLabel(cotacaoContext.status)}
                 </span>
                 <span className={`rounded-full border px-3 py-1 text-sm ${getPriorityClass(cotacaoContext.prioridade)}`}>
@@ -2080,7 +2080,7 @@ export default function Solicitacoes() {
                 <button
                   type="button"
                   onClick={loadSolicitacoes}
-                  className="inline-flex items-center gap-2 rounded-lg border border-slate-600/50 bg-slate-900/40 px-4 py-2 text-sm text-slate-100 hover:bg-slate-800/50"
+                  className="inline-flex items-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-4 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
                 >
                   <RefreshCcw className="h-4 w-4" /> Atualizar
                 </button>
@@ -2088,50 +2088,50 @@ export default function Solicitacoes() {
             </div>
 
             <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-              <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-6 xl:col-span-2">
-                <h3 className="text-3xl font-semibold text-white">Resumo da solicitação</h3>
-                <p className="mt-1 text-base text-slate-300">{cotacaoContext.descricao || 'Sem descrição detalhada.'}</p>
+              <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 xl:col-span-2">
+                <h3 className="text-3xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Resumo da solicitação</h3>
+                <p className="mt-1 text-base text-[rgb(var(--crm-ink-rgb)_/_1)]">{cotacaoContext.descricao || 'Sem descrição detalhada.'}</p>
 
                 <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2 text-sm">
                   <div>
-                    <p className="text-slate-400">Oportunidade</p>
-                    <p className="text-white">{cotacaoContext.opportunity?.title || cotacaoContext.opportunity?.id || '-'}</p>
+                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Oportunidade</p>
+                    <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{cotacaoContext.opportunity?.title || cotacaoContext.opportunity?.id || '-'}</p>
                   </div>
                   <div>
-                    <p className="text-slate-400">Cliente</p>
-                    <p className="text-white">{cotacaoContext.company?.name || '-'}</p>
+                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Cliente</p>
+                    <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{cotacaoContext.company?.name || '-'}</p>
                   </div>
                   <div>
-                    <p className="text-slate-400">Solicitante</p>
-                    <p className="text-white">{cotacaoContext.solicitante?.name || '-'}</p>
+                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Solicitante</p>
+                    <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{cotacaoContext.solicitante?.name || '-'}</p>
                   </div>
                   <div>
-                    <p className="text-slate-400">Responsável Pré-vendas</p>
-                    <p className="text-white">{getCurrentUserName()}</p>
+                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Responsável Pré-vendas</p>
+                    <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{getCurrentUserName()}</p>
                   </div>
                   <div>
-                    <p className="text-slate-400">Prazo</p>
-                    <p className="text-white">
+                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Prazo</p>
+                    <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       {cotacaoContext.dueDate ? new Date(cotacaoContext.dueDate).toLocaleDateString('pt-BR') : '-'}
                     </p>
                   </div>
                   <div>
-                    <p className="text-slate-400">Criada em</p>
-                    <p className="text-white">
+                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Criada em</p>
+                    <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       {cotacaoContext.createdAt ? new Date(cotacaoContext.createdAt).toLocaleString('pt-BR') : '-'}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-6">
-                <h3 className="text-3xl font-semibold text-white">Ações rápidas</h3>
+              <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6">
+                <h3 className="text-3xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Ações rápidas</h3>
                 <div className="mt-4 space-y-3">
                   <button
                     type="button"
                     onClick={() => saveCotacao({ sendToPricing: true })}
                     disabled={cotacaoSaving}
-                    className="w-full rounded-lg border border-indigo-500/40 bg-indigo-500/15 px-4 py-2.5 text-left text-base text-indigo-100 hover:bg-indigo-500/25 disabled:opacity-60"
+                    className="w-full rounded-lg border border-indigo-500/40 bg-indigo-500/15 px-4 py-2.5 text-left text-base text-indigo-700 dark:text-indigo-100 hover:bg-indigo-500/25 disabled:opacity-60"
                   >
                     <ArrowRight className="mr-2 inline h-4 w-4" />
                     Precificar
@@ -2153,7 +2153,7 @@ export default function Solicitacoes() {
                   <button
                     type="button"
                     onClick={() => setShowCotacaoModal(false)}
-                    className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-4 py-2.5 text-left text-base text-slate-100 hover:bg-slate-800/50"
+                    className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-4 py-2.5 text-left text-base text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
                   >
                     Voltar à fila
                   </button>
@@ -2164,21 +2164,21 @@ export default function Solicitacoes() {
                       setCotacaoTab('PRECIFICACAO');
                       setCotacaoFeedback('');
                     }}
-                    className="w-full rounded-lg border border-sky-500/40 bg-sky-500/10 px-4 py-2.5 text-left text-base text-sky-100 hover:bg-sky-500/20"
+                    className="w-full rounded-lg border border-sky-500/40 bg-sky-500/10 px-4 py-2.5 text-left text-base text-sky-700 dark:text-sky-100 hover:bg-sky-500/20"
                   >
                     Abrir Precificação
                   </button>
                 </div>
 
-                <div className="mt-6 rounded-lg border border-slate-600/40 bg-slate-900/30 p-4 text-sm text-slate-300">
-                  <p>Total cotado: <strong className="text-white">R$ {cotacaoResumo.totalCotado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></p>
-                  <p className="mt-1">Cotações: <strong className="text-white">{cotacaoResumo.quantidadeCotacoes}</strong></p>
-                  <p className="mt-1">Uploads: <strong className="text-white">{cotacaoResumo.quantidadeUploads}</strong></p>
+                <div className="mt-6 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] p-4 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                  <p>Total cotado: <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)]">R$ {cotacaoResumo.totalCotado.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong></p>
+                  <p className="mt-1">Cotações: <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{cotacaoResumo.quantidadeCotacoes}</strong></p>
+                  <p className="mt-1">Uploads: <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{cotacaoResumo.quantidadeUploads}</strong></p>
                 </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-3">
+            <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3">
               <div className="flex flex-wrap gap-2">
                 {COTACAO_TABS.map((tab) => (
                   <button
@@ -2187,8 +2187,8 @@ export default function Solicitacoes() {
                     onClick={() => setCotacaoTab(tab)}
                     className={`rounded-lg px-4 py-2 text-sm ${
                       cotacaoTab === tab
-                        ? 'bg-slate-900 text-white'
-                        : 'text-slate-300 hover:bg-slate-900/40'
+                        ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                        : "text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)]"
                     }`}
                   >
                     {tab === 'COTACOES' ? 'Cotações' : tab === 'ITENS' ? 'Itens' : tab === 'HISTORICO' ? 'Histórico' : tab === 'PRECIFICACAO' ? 'Precificação' : tab === 'PROPOSTAS' ? 'Propostas' : 'Ações'}
@@ -2199,19 +2199,19 @@ export default function Solicitacoes() {
 
             {cotacaoTab === 'COTACOES' && (
               <div className="space-y-4">
-                <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-6">
-                  <h4 className="text-2xl font-semibold text-white">Registrar cotação</h4>
-                  <p className="mt-1 text-slate-300">
+                <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6">
+                  <h4 className="text-2xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Registrar cotação</h4>
+                  <p className="mt-1 text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     Informe os dados da cotação, faça upload do arquivo e prepare para envio à precificação.
                   </p>
 
 	                  <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-4">
 	                    <div>
-	                      <label className="mb-1 block text-sm text-slate-300">Modalidade</label>
+	                      <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Modalidade</label>
                       <select
                         value={cotacaoForm.modalidade}
                         onChange={(e) => setCotacaoForm((prev) => ({ ...prev, modalidade: e.target.value }))}
-                        className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                        className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       >
                         <option value="VENDA">Venda</option>
                         <option value="LOCACAO">Locação</option>
@@ -2219,27 +2219,27 @@ export default function Solicitacoes() {
                       </select>
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm text-slate-300">Distribuidor</label>
+                      <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Distribuidor</label>
                       <input
                         type="text"
                         value={cotacaoForm.distribuidor}
                         onChange={(e) => setCotacaoForm((prev) => ({ ...prev, distribuidor: e.target.value }))}
                         placeholder="Nome do distribuidor"
-                        className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+                        className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm text-slate-300">Fornecedor</label>
+                      <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Fornecedor</label>
                       <input
                         type="text"
                         value={cotacaoForm.fornecedor}
                         onChange={(e) => setCotacaoForm((prev) => ({ ...prev, fornecedor: e.target.value }))}
                         placeholder="Nome do fornecedor"
-                        className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+                        className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm text-slate-300">Nº Orçamento</label>
+                      <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Nº Orçamento</label>
                       <div className="relative">
                         <input
                           type="text"
@@ -2248,16 +2248,16 @@ export default function Solicitacoes() {
                           onClick={() => setCotacaoPickerOpen(true)}
                           onChange={(e) => setCotacaoForm((prev) => ({ ...prev, numeroOrcamento: e.target.value }))}
                           placeholder="Clique para buscar ou orçar novo"
-                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                         />
                         {cotacaoPickerOpen && (
-                          <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-xl border border-slate-600/60 bg-[#111d31] p-3 shadow-2xl">
+                          <div className="absolute left-0 right-0 top-[calc(100%+8px)] z-30 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3 shadow-2xl">
                             <div className="grid grid-cols-2 gap-2">
                               <button
                                 type="button"
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={() => setCotacaoSearchTerm('')}
-                                className="rounded-lg border border-sky-500/40 bg-sky-500/15 px-3 py-2 text-xs font-semibold text-sky-100 hover:bg-sky-500/25"
+                                className="rounded-lg border border-sky-500/40 bg-sky-500/15 px-3 py-2 text-xs font-semibold text-sky-700 dark:text-sky-100 hover:bg-sky-500/25"
                               >
                                 Abrir cotação existente
                               </button>
@@ -2265,7 +2265,7 @@ export default function Solicitacoes() {
                                 type="button"
                                 onMouseDown={(event) => event.preventDefault()}
                                 onClick={startNewCotacao}
-                                className="rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/25"
+                                className="rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-100 hover:bg-emerald-500/25"
                               >
                                 Orçar novo
                               </button>
@@ -2275,11 +2275,11 @@ export default function Solicitacoes() {
                               value={cotacaoSearchTerm}
                               onChange={(e) => setCotacaoSearchTerm(e.target.value)}
                               placeholder="Buscar por número, distribuidor ou item"
-                              className="mt-3 w-full rounded-lg border border-slate-600/50 bg-slate-950/60 px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-1 focus:ring-sky-500/50"
+                              className="mt-3 w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-1 focus:ring-sky-500/50"
                             />
                             <div className="mt-2 max-h-52 overflow-y-auto">
                               {cotacaoOptions.length === 0 ? (
-                                <div className="rounded-lg border border-dashed border-slate-700/70 px-3 py-4 text-center text-xs text-slate-400">
+                                <div className="rounded-lg border border-dashed border-[var(--crm-border)] px-3 py-4 text-center text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                   Nenhuma cotação ou orçamento encontrado.
                                 </div>
                               ) : (
@@ -2291,20 +2291,20 @@ export default function Solicitacoes() {
                                       type="button"
                                       onMouseDown={(event) => event.preventDefault()}
                                       onClick={() => openExistingCotacao(row)}
-                                      className="mb-2 w-full rounded-lg border border-slate-700/60 bg-slate-900/50 px-3 py-2 text-left hover:border-sky-500/50 hover:bg-sky-500/10"
+                                      className="mb-2 w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] px-3 py-2 text-left hover:border-sky-500/50 hover:bg-sky-500/10"
                                     >
                                       <div className="flex items-start justify-between gap-3">
                                         <div className="min-w-0">
-                                          <div className="truncate font-mono text-xs font-semibold text-sky-300">{row.numeroOrcamento || '-'}</div>
-                                          <div className="truncate text-xs text-slate-300">
+                                          <div className="truncate font-mono text-xs font-semibold text-sky-700 dark:text-sky-300">{row.numeroOrcamento || '-'}</div>
+                                          <div className="truncate text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                             {row.distribuidor || row.fornecedor || row.requestTitle || 'Distribuidor/fornecedor não informado'}
                                           </div>
                                           {row.distribuidor && row.fornecedor && (
-                                            <div className="truncate text-[11px] text-slate-400">{row.fornecedor}</div>
+                                            <div className="truncate text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{row.fornecedor}</div>
                                           )}
-                                          <div className="truncate text-[11px] font-semibold text-slate-500">{row.label}</div>
+                                          <div className="truncate text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">{row.label}</div>
                                         </div>
-                                        <div className="shrink-0 text-right text-xs text-slate-400">
+                                        <div className="shrink-0 text-right text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                           <div>{itemCount} item(ns)</div>
                                           <div>{toCurrency(row.subtotal)}</div>
                                         </div>
@@ -2318,7 +2318,7 @@ export default function Solicitacoes() {
                               type="button"
                               onMouseDown={(event) => event.preventDefault()}
                               onClick={() => setCotacaoPickerOpen(false)}
-                              className="mt-1 w-full rounded-lg px-3 py-1.5 text-xs text-slate-400 hover:bg-slate-800/60 hover:text-white"
+                              className="mt-1 w-full rounded-lg px-3 py-1.5 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                             >
                               Fechar
                             </button>
@@ -2328,97 +2328,97 @@ export default function Solicitacoes() {
 	                    </div>
 	                  </div>
 
-	                  <div className="mt-5 rounded-xl border border-slate-700/60 bg-slate-950/25 p-4">
-	                    <h5 className="text-base font-semibold text-white">Dados da proposta</h5>
+	                  <div className="mt-5 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.25)] p-4">
+	                    <h5 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Dados da proposta</h5>
 	                    <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
 	                      <div>
-	                        <label className="mb-1 block text-sm text-slate-300">Cliente / Órgão</label>
+	                        <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Cliente / Órgão</label>
 	                        <input
 	                          type="text"
 	                          value={cotacaoForm.clienteOrgao}
 	                          onChange={(e) => setCotacaoForm((prev) => ({ ...prev, clienteOrgao: e.target.value }))}
 	                          placeholder="Nome do cliente ou órgão"
-	                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+	                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
 	                        />
 	                      </div>
 	                      <div>
-	                        <label className="mb-1 block text-sm text-slate-300">CNPJ / Documento</label>
+	                        <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">CNPJ / Documento</label>
 	                        <input
 	                          type="text"
 	                          value={cotacaoForm.cnpjDocumento}
 	                          onChange={(e) => setCotacaoForm((prev) => ({ ...prev, cnpjDocumento: e.target.value }))}
 	                          placeholder="00.000.000/0000-00"
-	                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+	                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
 	                        />
 	                      </div>
 	                      <div>
-	                        <label className="mb-1 block text-sm text-slate-300">Contato do Cliente</label>
+	                        <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Contato do Cliente</label>
 	                        <input
 	                          type="text"
 	                          value={cotacaoForm.contatoCliente}
 	                          onChange={(e) => setCotacaoForm((prev) => ({ ...prev, contatoCliente: e.target.value }))}
 	                          placeholder="Nome do contato"
-	                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+	                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
 	                        />
 	                      </div>
 	                      <div>
-	                        <label className="mb-1 block text-sm text-slate-300">Email do Cliente</label>
+	                        <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Email do Cliente</label>
 	                        <input
 	                          type="email"
 	                          value={cotacaoForm.emailCliente}
 	                          onChange={(e) => setCotacaoForm((prev) => ({ ...prev, emailCliente: e.target.value }))}
 	                          placeholder="email@cliente.com.br"
-	                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+	                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
 	                        />
 	                      </div>
 	                      <div>
-	                        <label className="mb-1 block text-sm text-slate-300">Telefone do Cliente</label>
+	                        <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Telefone do Cliente</label>
 	                        <input
 	                          type="text"
 	                          value={cotacaoForm.telefoneCliente}
 	                          onChange={(e) => setCotacaoForm((prev) => ({ ...prev, telefoneCliente: e.target.value }))}
 	                          placeholder="(00) 00000-0000"
-	                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+	                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
 	                        />
 	                      </div>
 	                      <div>
-	                        <label className="mb-1 block text-sm text-slate-300">Gerente de Conta</label>
+	                        <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Gerente de Conta</label>
 	                        <input
 	                          type="text"
 	                          value={cotacaoForm.gerenteConta}
 	                          onChange={(e) => setCotacaoForm((prev) => ({ ...prev, gerenteConta: e.target.value }))}
 	                          placeholder="Nome do gerente"
-	                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+	                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
 	                        />
 	                      </div>
 	                      <div>
-	                        <label className="mb-1 block text-sm text-slate-300">Email do Gerente</label>
+	                        <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Email do Gerente</label>
 	                        <input
 	                          type="email"
 	                          value={cotacaoForm.emailGerente}
 	                          onChange={(e) => setCotacaoForm((prev) => ({ ...prev, emailGerente: e.target.value }))}
 	                          placeholder="gerente@empresa.com.br"
-	                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+	                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
 	                        />
 	                      </div>
 	                      <div>
-	                        <label className="mb-1 block text-sm text-slate-300">Telefone do Gerente</label>
+	                        <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Telefone do Gerente</label>
 	                        <input
 	                          type="text"
 	                          value={cotacaoForm.telefoneGerente}
 	                          onChange={(e) => setCotacaoForm((prev) => ({ ...prev, telefoneGerente: e.target.value }))}
 	                          placeholder="(00) 00000-0000"
-	                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+	                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
 	                        />
 	                      </div>
 	                      <div className="md:col-span-2">
-	                        <label className="mb-1 block text-sm text-slate-300">Premissas da Proposta</label>
+	                        <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Premissas da Proposta</label>
 	                        <textarea
 	                          rows={3}
 	                          value={cotacaoForm.premissasProposta}
 	                          onChange={(e) => setCotacaoForm((prev) => ({ ...prev, premissasProposta: e.target.value }))}
 	                          placeholder="Escopo, validade, SLA, condições comerciais, exclusões e demais premissas."
-	                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+	                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
 	                        />
 	                      </div>
 	                    </div>
@@ -2426,11 +2426,11 @@ export default function Solicitacoes() {
 
 	                  <div className="mt-5">
 	                    <div className="mb-2 flex items-center justify-between">
-                      <label className="text-sm text-slate-300">Itens da cotação</label>
+                      <label className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Itens da cotação</label>
                       <button
                         type="button"
                         onClick={addCotacaoItem}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-sm text-slate-100 hover:bg-slate-800/50"
+                        className="inline-flex items-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)]"
                       >
                         <Plus className="h-4 w-4" /> Adicionar item
                       </button>
@@ -2438,44 +2438,44 @@ export default function Solicitacoes() {
 
                     <div className="space-y-3">
                       {cotacaoForm.itens.map((entry) => (
-                        <div key={entry.id} className="rounded-lg border border-slate-600/40 p-3">
+                        <div key={entry.id} className="rounded-lg border border-[var(--crm-border)] p-3">
                           <div className="grid grid-cols-1 gap-3 lg:grid-cols-6">
                             <div className="lg:col-span-3">
-                              <label className="mb-1 block text-xs text-slate-400">Item / Descrição</label>
+                              <label className="mb-1 block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Item / Descrição</label>
                               <input
                                 type="text"
                                 value={entry.descricao}
                                 onChange={(e) => updateCotacaoItem(entry.id, 'descricao', e.target.value)}
                                 placeholder="Descrição do item"
-                                className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+                                className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                               />
                             </div>
                             <div>
-                              <label className="mb-1 block text-xs text-slate-400">Qtde</label>
+                              <label className="mb-1 block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Qtde</label>
                               <input
                                 type="number"
                                 min="1"
                                 value={entry.quantidade}
                                 onChange={(e) => updateCotacaoItem(entry.id, 'quantidade', e.target.value)}
-                                className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                                className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                               />
                             </div>
                             <div>
-                              <label className="mb-1 block text-xs text-slate-400">Custo Unit. R$</label>
+                              <label className="mb-1 block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Custo Unit. R$</label>
                               <input
                                 type="number"
                                 min="0"
                                 step="0.01"
                                 value={entry.custoUnitario}
                                 onChange={(e) => updateCotacaoItem(entry.id, 'custoUnitario', e.target.value)}
-                                className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white"
+                                className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                               />
                             </div>
                             <div className="flex items-end justify-end">
                               <button
                                 type="button"
                                 onClick={() => removeCotacaoItem(entry.id)}
-                                className="inline-flex h-10 items-center gap-1 rounded-lg border border-red-500/40 px-3 text-sm text-red-300 hover:bg-red-500/20"
+                                className="inline-flex h-10 items-center gap-1 rounded-lg border border-red-500/40 px-3 text-sm text-red-700 dark:text-red-300 hover:bg-red-500/20"
                               >
                                 <Trash2 className="h-4 w-4" /> Remover
                               </button>
@@ -2488,7 +2488,7 @@ export default function Solicitacoes() {
 
                   <div className="mt-5 grid grid-cols-1 gap-4 lg:grid-cols-2">
                     <div>
-                      <label className="mb-1 block text-sm text-slate-300">Arquivo da cotação</label>
+                      <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Arquivo da cotação</label>
                       <input
                         type="file"
                         onChange={(e) => {
@@ -2499,29 +2499,29 @@ export default function Solicitacoes() {
                             arquivoNome: file?.name || ''
                           }));
                         }}
-                        className="block w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-sm text-slate-200 file:mr-3 file:rounded-md file:border-0 file:bg-slate-800 file:px-3 file:py-1.5 file:text-slate-100"
+                        className="block w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] file:mr-3 file:rounded-md file:border-0 file:bg-[rgb(var(--crm-surface-rgb)_/_1)] file:px-3 file:py-1.5 file:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       />
                     </div>
                     <div>
-                      <label className="mb-1 block text-sm text-slate-300">Observações do upload</label>
+                      <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Observações do upload</label>
                       <input
                         type="text"
                         value={cotacaoForm.observacoesUpload}
                         onChange={(e) => setCotacaoForm((prev) => ({ ...prev, observacoesUpload: e.target.value }))}
                         placeholder="Ex: orçamento recebido por e-mail do distribuidor"
-                        className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+                        className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                       />
                     </div>
                   </div>
 
                   <div className="mt-4">
-                    <label className="mb-1 block text-sm text-slate-300">Observações da cotação</label>
+                    <label className="mb-1 block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Observações da cotação</label>
                     <textarea
                       rows={3}
                       value={cotacaoForm.observacoesCotacao}
                       onChange={(e) => setCotacaoForm((prev) => ({ ...prev, observacoesCotacao: e.target.value }))}
                       placeholder="Condições comerciais da cotação"
-                      className="w-full rounded-lg border border-slate-600/50 bg-slate-900/40 px-3 py-2 text-white placeholder-slate-400"
+                      className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                     />
                   </div>
 
@@ -2530,7 +2530,7 @@ export default function Solicitacoes() {
                       type="button"
                       disabled={cotacaoSaving}
                       onClick={() => saveCotacao({ sendToPricing: false })}
-                      className="inline-flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-slate-950 hover:bg-sky-400 disabled:opacity-60"
+                      className="inline-flex items-center gap-2 rounded-lg bg-sky-500 px-4 py-2 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-sky-400 disabled:opacity-60"
                     >
                       <Save className="h-4 w-4" /> Salvar cotação
                     </button>
@@ -2538,25 +2538,25 @@ export default function Solicitacoes() {
                       type="button"
                       disabled={cotacaoSaving}
                       onClick={() => saveCotacao({ sendToPricing: true })}
-                      className="inline-flex items-center gap-2 rounded-lg border border-slate-600/50 bg-slate-900/40 px-4 py-2 text-sm text-slate-100 hover:bg-slate-800/50 disabled:opacity-60"
+                      className="inline-flex items-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-4 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] disabled:opacity-60"
                     >
                       <ArrowRight className="h-4 w-4" /> Precificar
                     </button>
                   </div>
 
                   {cotacaoFeedback && (
-                    <div className="mt-4 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-200">
+                    <div className="mt-4 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-sm text-emerald-700 dark:text-emerald-200">
                       {cotacaoFeedback}
                     </div>
                   )}
                 </div>
 
-                <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-6">
-                  <h4 className="text-2xl font-semibold text-white">Cotações registradas</h4>
-                  <p className="mt-1 text-slate-300">Custos recebidos para a precificação.</p>
+                <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6">
+                  <h4 className="text-2xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Cotações registradas</h4>
+                  <p className="mt-1 text-[rgb(var(--crm-ink-rgb)_/_1)]">Custos recebidos para a precificação.</p>
 
                   {cotacaoRecords.length === 0 ? (
-                    <p className="mt-4 text-slate-400">Nenhuma cotação registrada.</p>
+                    <p className="mt-4 text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhuma cotação registrada.</p>
                   ) : (
                     <div className="mt-4 space-y-3">
                       {cotacaoRecords.map((row) => {
@@ -2565,29 +2565,29 @@ export default function Solicitacoes() {
                         const isServicos = modalidade === 'SERVICOS' || modalidade === 'SERVIÇOS';
                         const tipoLabel = isLocacao ? 'Locação' : isServicos ? 'Serviços' : 'Venda';
                         const tipoColor = isLocacao
-                          ? 'border-blue-500/40 bg-blue-500/10 text-blue-200'
+                          ? "border-blue-500/40 bg-blue-500/10 text-blue-700 dark:text-blue-200"
                           : isServicos
-                            ? 'border-purple-500/40 bg-purple-500/10 text-purple-200'
-                            : 'border-emerald-500/40 bg-emerald-500/10 text-emerald-200';
+                            ? "border-purple-500/40 bg-purple-500/10 text-purple-700 dark:text-purple-200"
+                            : "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-200";
 
                         return (
-                          <div key={row.id} className="rounded-xl border border-slate-600/40 bg-slate-900/40 p-4">
+                          <div key={row.id} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] p-4">
                             {/* Header */}
                             <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
                               <div>
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <p className="text-white font-semibold">{row.numeroOrcamento}</p>
+                                  <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">{row.numeroOrcamento}</p>
                                   <span className={`rounded-full border px-2 py-0.5 text-xs font-semibold ${tipoColor}`}>
                                     {tipoLabel}
                                   </span>
                                 </div>
-                                <p className="text-sm text-slate-400 mt-0.5">
+                                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">
                                   {row.distribuidor || row.fornecedor || 'Distribuidor/fornecedor não informado'} •{' '}
                                   {row.fornecedor && row.distribuidor ? `${row.fornecedor} • ` : ''}
                                   {row.createdAt ? new Date(row.createdAt).toLocaleString('pt-BR') : '-'}
                                 </p>
                               </div>
-                              <p className="text-lg font-bold text-emerald-400">
+                              <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">
                                 R$ {Number(row.subtotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                               </p>
                             </div>
@@ -2596,7 +2596,7 @@ export default function Solicitacoes() {
                             {Array.isArray(row.itens) && row.itens.length > 0 && (
                               <div className="mb-3 space-y-1">
                                 {row.itens.map((item, idx) => (
-                                  <div key={idx} className="flex items-center justify-between text-xs text-slate-300">
+                                  <div key={idx} className="flex items-center justify-between text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                     <span className="truncate flex-1 mr-2">{item.descricao || `Item ${idx + 1}`}</span>
                                     <span className="shrink-0">
                                       {item.quantidade}x R$ {Number(item.custoUnitario || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
@@ -2639,16 +2639,16 @@ export default function Solicitacoes() {
                   )}
                 </div>
 
-                <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-6">
-                  <h4 className="text-2xl font-semibold text-white">Uploads da cotação</h4>
+                <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6">
+                  <h4 className="text-2xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Uploads da cotação</h4>
                   {cotacaoUploads.length === 0 ? (
-                    <p className="mt-2 text-slate-400">Nenhum orçamento enviado ainda.</p>
+                    <p className="mt-2 text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum orçamento enviado ainda.</p>
                   ) : (
                     <div className="mt-4 space-y-3">
                       {cotacaoUploads.map((row) => (
-                        <div key={row.id} className="rounded-lg border border-slate-600/40 p-3">
-                          <p className="text-white">{row.fileName || 'Arquivo sem nome'}</p>
-                          <p className="text-sm text-slate-300">{row.observacoes || '-'}</p>
+                        <div key={row.id} className="rounded-lg border border-[var(--crm-border)] p-3">
+                          <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{row.fileName || 'Arquivo sem nome'}</p>
+                          <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{row.observacoes || '-'}</p>
                         </div>
                       ))}
                     </div>
@@ -2658,9 +2658,9 @@ export default function Solicitacoes() {
             )}
 
             {cotacaoTab === 'ITENS' && (
-              <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-6">
-                <h4 className="text-2xl font-semibold text-white">Itens da solicitação</h4>
-                <div className="mt-4 space-y-2 text-sm text-slate-300">
+              <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6">
+                <h4 className="text-2xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Itens da solicitação</h4>
+                <div className="mt-4 space-y-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <p>Tipos de precificação: {(cotacaoContext.tiposPrecificacao || []).join(', ') || '-'}</p>
                   <p>Cliente: {cotacaoContext.company?.name || '-'}</p>
                   <p>Oportunidade: {cotacaoContext.opportunity?.title || '-'}</p>
@@ -2669,9 +2669,9 @@ export default function Solicitacoes() {
             )}
 
             {cotacaoTab === 'HISTORICO' && (
-              <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-6">
-                <h4 className="text-2xl font-semibold text-white">Histórico</h4>
-                <div className="mt-4 whitespace-pre-wrap rounded-lg border border-slate-600/40 bg-slate-900/30 p-4 text-sm text-slate-200">
+              <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6">
+                <h4 className="text-2xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Histórico</h4>
+                <div className="mt-4 whitespace-pre-wrap rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] p-4 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   {stripStageMarkers(cotacaoContext.observacoes) || 'Sem histórico registrado.'}
                 </div>
               </div>
@@ -2689,24 +2689,24 @@ export default function Solicitacoes() {
               return (
                 <div className="space-y-5">
                   {/* Header */}
-                  <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-5">
+                  <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5">
                     <div className="flex items-center justify-between flex-wrap gap-3">
                       <div>
-                        <h4 className="text-xl font-semibold text-white">Precificação — {tipoCalc}</h4>
-                        <p className="mt-1 text-sm text-slate-400">
-                          Modalidade: <strong className="text-white">{tipoCalc}</strong> •
-                          {cotacaoBase && <> Cotação: <strong className="text-white">{cotacaoBase.numeroOrcamento}</strong> •</>}
-                          Custo base: <strong className="text-emerald-400">R$ {custoBase.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
+                        <h4 className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Precificação — {tipoCalc}</h4>
+                        <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                          Modalidade: <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{tipoCalc}</strong> •
+                          {cotacaoBase && <> Cotação: <strong className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{cotacaoBase.numeroOrcamento}</strong> •</>}
+                          Custo base: <strong className="text-emerald-700 dark:text-emerald-400">R$ {custoBase.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</strong>
                         </p>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="rounded-full border border-indigo-500/40 bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-200">
+                        <span className="rounded-full border border-indigo-500/40 bg-indigo-500/20 px-3 py-1 text-xs font-semibold text-indigo-700 dark:text-indigo-200">
                           {tipoCalc}
                         </span>
                         <button
                           type="button"
                           onClick={() => { setCotacaoParaPrecificar(null); setCotacaoTab('COTACOES'); }}
-                          className="text-xs text-slate-400 hover:text-white underline"
+                          className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] underline"
                         >
                           ← Voltar às cotações
                         </button>
@@ -2716,41 +2716,41 @@ export default function Solicitacoes() {
 
                   {/* Itens da cotação selecionada */}
                   {cotacaoBase && Array.isArray(cotacaoBase.itens) && cotacaoBase.itens.length > 0 && (
-                    <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-5">
-                      <h5 className="text-sm font-semibold text-slate-300 mb-3">Itens da cotação</h5>
+                    <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5">
+                      <h5 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Itens da cotação</h5>
                       <div className="space-y-2">
                         {cotacaoBase.itens.map((item, idx) => (
                           <div key={idx} className="flex items-center justify-between text-sm">
-                            <span className="text-white">{item.descricao || `Item ${idx + 1}`}</span>
-                            <span className="text-slate-300">
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.descricao || `Item ${idx + 1}`}</span>
+                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">
                               {item.quantidade}x R$ {Number(item.custoUnitario || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                               {' = '}
-                              <strong className="text-emerald-400">
+                              <strong className="text-emerald-700 dark:text-emerald-400">
                                 R$ {(item.quantidade * item.custoUnitario).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                               </strong>
                             </span>
                           </div>
                         ))}
-                        <div className="border-t border-slate-600/40 pt-2 flex justify-between font-semibold">
-                          <span className="text-slate-300">Subtotal</span>
-                          <span className="text-emerald-400">R$ {custoBase.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                        <div className="border-t border-[var(--crm-border)] pt-2 flex justify-between font-semibold">
+                          <span className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Subtotal</span>
+                          <span className="text-emerald-700 dark:text-emerald-400">R$ {custoBase.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                         </div>
                       </div>
                     </div>
                   )}
 
                   {/* Formulário de precificação */}
-                  <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-6">
-                    <h5 className="text-base font-semibold text-white mb-4">Calcular preço de {tipoCalc}</h5>
+                  <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6">
+                    <h5 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-4">Calcular preço de {tipoCalc}</h5>
 
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                       <div>
-                        <label className="block text-sm text-slate-300 mb-1.5">Custo Total (R$)</label>
+                        <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Custo Total (R$)</label>
                         <input
                           type="number"
                           min={0}
                           step={0.01}
-                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/60 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:border-blue-500"
                           value={respostaData.custoTotal || (custoBase > 0 ? custoBase.toFixed(2) : '')}
                           onChange={(e) => setRespostaData(p => ({ ...p, custoTotal: e.target.value }))}
                           placeholder={custoBase > 0 ? custoBase.toFixed(2) : '0,00'}
@@ -2758,13 +2758,13 @@ export default function Solicitacoes() {
                       </div>
 
                       <div>
-                        <label className="block text-sm text-slate-300 mb-1.5">Margem de Lucro (%)</label>
+                        <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Margem de Lucro (%)</label>
                         <input
                           type="number"
                           min={0}
                           max={100}
                           step={0.1}
-                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/60 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:border-blue-500"
                           value={respostaData.margemLucro}
                           onChange={(e) => {
                             const margem = parseFloat(e.target.value) || 0;
@@ -2779,14 +2779,14 @@ export default function Solicitacoes() {
                       </div>
 
                       <div>
-                        <label className="block text-sm text-slate-300 mb-1.5">
+                        <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">
                           {isLocacao ? 'Valor Mensal (R$)' : 'Valor Sugerido (R$)'}
                         </label>
                         <input
                           type="number"
                           min={0}
                           step={0.01}
-                          className="w-full rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-200 font-semibold focus:outline-none focus:border-emerald-400"
+                          className="w-full rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-700 dark:text-emerald-200 font-semibold focus:outline-none focus:border-emerald-400"
                           value={respostaData.valorSugerido}
                           onChange={(e) => {
                             const valor = parseFloat(e.target.value) || 0;
@@ -2803,21 +2803,21 @@ export default function Solicitacoes() {
                       {isLocacao && (
                         <>
                           <div>
-                            <label className="block text-sm text-slate-300 mb-1.5">Prazo (meses)</label>
+                            <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Prazo (meses)</label>
                             <input
                               type="number"
                               min={1}
-                              className="w-full rounded-lg border border-slate-600/50 bg-slate-900/60 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+                              className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:border-blue-500"
                               value={respostaData.prazoMeses || 12}
                               onChange={(e) => setRespostaData(p => ({ ...p, prazoMeses: e.target.value }))}
                             />
                           </div>
                           <div>
-                            <label className="block text-sm text-slate-300 mb-1.5">Valor Total Contrato (R$)</label>
+                            <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Valor Total Contrato (R$)</label>
                             <input
                               type="number"
                               readOnly
-                              className="w-full rounded-lg border border-slate-600/50 bg-slate-900/30 px-3 py-2.5 text-sm text-slate-300 cursor-not-allowed"
+                              className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.3)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] cursor-not-allowed"
                               value={((parseFloat(respostaData.valorSugerido) || 0) * (parseInt(respostaData.prazoMeses) || 12)).toFixed(2)}
                             />
                           </div>
@@ -2827,20 +2827,20 @@ export default function Solicitacoes() {
 
                     {/* Resumo */}
                     {(respostaData.valorSugerido || respostaData.custoTotal) && (
-                      <div className="mt-4 rounded-lg border border-slate-600/30 bg-slate-900/40 p-4">
-                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Resumo da precificação</p>
+                      <div className="mt-4 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] p-4">
+                        <p className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wide mb-2">Resumo da precificação</p>
                         <div className="grid grid-cols-3 gap-4 text-center">
                           <div>
-                            <p className="text-lg font-bold text-slate-200">R$ {(parseFloat(respostaData.custoTotal) || custoBase).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                            <p className="text-xs text-slate-400">Custo Total</p>
+                            <p className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">R$ {(parseFloat(respostaData.custoTotal) || custoBase).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Custo Total</p>
                           </div>
                           <div>
-                            <p className="text-lg font-bold text-emerald-400">R$ {(parseFloat(respostaData.valorSugerido) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
-                            <p className="text-xs text-slate-400">{isLocacao ? 'Valor Mensal' : 'Preço Sugerido'}</p>
+                            <p className="text-lg font-bold text-emerald-700 dark:text-emerald-400">R$ {(parseFloat(respostaData.valorSugerido) || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{isLocacao ? 'Valor Mensal' : 'Preço Sugerido'}</p>
                           </div>
                           <div>
-                            <p className="text-lg font-bold text-blue-300">{parseFloat(respostaData.margemLucro) || 0}%</p>
-                            <p className="text-xs text-slate-400">Margem</p>
+                            <p className="text-lg font-bold text-blue-700 dark:text-blue-300">{parseFloat(respostaData.margemLucro) || 0}%</p>
+                            <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Margem</p>
                           </div>
                         </div>
                       </div>
@@ -2861,7 +2861,7 @@ export default function Solicitacoes() {
                           ));
                           window.open(`/calculadoras?tipo=${tipoCalc}&cotacaoKey=${encodeURIComponent(cotacaoKey)}`, '_blank');
                         }}
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-600/50 bg-slate-900/40 px-4 py-2.5 text-sm text-slate-200 hover:bg-slate-800/50 transition-colors"
+                        className="inline-flex items-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-4 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.5)] transition-colors"
                       >
                         <ArrowRight className="h-4 w-4" /> Abrir Calculadora Completa
                       </button>
@@ -2877,12 +2877,12 @@ export default function Solicitacoes() {
                     } catch {}
                     if (!Array.isArray(propostas) || propostas.length === 0) return null;
                     return (
-                      <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-5">
-                        <h5 className="text-base font-semibold text-white mb-3">Propostas salvas na calculadora</h5>
-                        <p className="text-xs text-slate-400 mb-3">Selecione a proposta para anexar ao responder a solicitação.</p>
+                      <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5">
+                        <h5 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Propostas salvas na calculadora</h5>
+                        <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-3">Selecione a proposta para anexar ao responder a solicitação.</p>
                         <div className="space-y-2">
                           {propostas.slice(0, 5).map((p) => (
-                            <label key={p.id || p.number} className="flex items-center gap-3 cursor-pointer rounded-lg border border-slate-600/40 p-3 hover:border-indigo-500/40 transition-colors">
+                            <label key={p.id || p.number} className="flex items-center gap-3 cursor-pointer rounded-lg border border-[var(--crm-border)] p-3 hover:border-indigo-500/40 transition-colors">
                               <input
                                 type="radio"
                                 name="propostaSelecionada"
@@ -2898,8 +2898,8 @@ export default function Solicitacoes() {
                                 className="accent-indigo-500"
                               />
                               <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-white">{p.number || p.id}</p>
-                                <p className="text-xs text-slate-400">
+                                <p className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{p.number || p.id}</p>
+                                <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                   {p.clientCompany || 'Sem cliente'} •{' '}
                                   {p.snapshot?.calculationResults?.finalPrice
                                     ? `R$ ${Number(p.snapshot.calculationResults.finalPrice).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
@@ -2907,7 +2907,7 @@ export default function Solicitacoes() {
                                 </p>
                               </div>
                               {respostaData.propostaSelecionada === (p.id || p.number) && (
-                                <span className="text-xs text-indigo-300 font-semibold">✓ Selecionada</span>
+                                <span className="text-xs text-indigo-700 dark:text-indigo-300 font-semibold">✓ Selecionada</span>
                               )}
                             </label>
                           ))}
@@ -2918,8 +2918,8 @@ export default function Solicitacoes() {
 
                   {/* Botão Responder Solicitação */}
                   <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-5">
-                    <h5 className="text-base font-semibold text-white mb-1">Precificação concluída?</h5>
-                    <p className="text-sm text-slate-400 mb-4">Após definir o valor, envie para revisão antes da devolução ao Comercial.</p>
+                    <h5 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Precificação concluída?</h5>
+                    <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mb-4">Após definir o valor, envie para revisão antes da devolução ao Comercial.</p>
                     <button
                       type="button"
                       disabled={!respostaData.valorSugerido || saving}
@@ -2951,45 +2951,45 @@ export default function Solicitacoes() {
                 : details.propostaPrecificada ? [details.propostaPrecificada] : [];
 
               return (
-                <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-6">
+                <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div>
-                      <h4 className="text-2xl font-semibold text-white">Propostas em Revisão</h4>
-                      <p className="mt-2 text-sm text-slate-300">Precificações prontas para abrir o PDF e devolver ao Comercial.</p>
+                      <h4 className="text-2xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Propostas em Revisão</h4>
+                      <p className="mt-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">Precificações prontas para abrir o PDF e devolver ao Comercial.</p>
                     </div>
                     <button
                       type="button"
                       onClick={() => openPreSalesBudgetPdf(cotacaoContext)}
-                      className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-100 hover:bg-emerald-500/25"
+                      className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-4 py-2 text-sm font-semibold text-emerald-700 dark:text-emerald-100 hover:bg-emerald-500/25"
                     >
                       <FileText className="h-4 w-4" /> PDF do Orçamento
                     </button>
                   </div>
 
                   {propostas.length === 0 ? (
-                    <div className="mt-5 rounded-lg border border-dashed border-slate-600/50 p-6 text-center text-sm text-slate-400">
+                    <div className="mt-5 rounded-lg border border-dashed border-[var(--crm-border)] p-6 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                       Nenhuma proposta precificada enviada para revisão.
                     </div>
                   ) : (
                     <div className="mt-5 space-y-3">
                       {propostas.map((proposta) => (
-                        <div key={proposta.id || proposta.number} className="rounded-xl border border-slate-600/40 bg-slate-950/35 p-4">
+                        <div key={proposta.id || proposta.number} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)] p-4">
                           <div className="flex flex-wrap items-start justify-between gap-4">
                             <div className="min-w-0">
-                              <p className="text-lg font-bold text-cyan-200">{proposta.number || 'Proposta sem número'}</p>
-                              <p className="mt-1 text-sm text-slate-300">{proposta.client?.companyName || cotacaoContext?.nomeCliente || '-'}</p>
-                              <p className="mt-1 text-xs text-slate-500">
+                              <p className="text-lg font-bold text-cyan-700 dark:text-cyan-200">{proposta.number || 'Proposta sem número'}</p>
+                              <p className="mt-1 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{proposta.client?.companyName || cotacaoContext?.nomeCliente || '-'}</p>
+                              <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
                                 {proposta.calculatorLabel || proposta.calculatorType || 'Precificação'} • enviada para revisão
                               </p>
                             </div>
                             <div className="grid min-w-[260px] grid-cols-2 gap-3 text-right">
                               <div>
-                                <p className="text-xs uppercase tracking-wide text-slate-500">Preço final</p>
-                                <p className="text-base font-bold text-white">{toCurrency(proposta.result?.finalPrice)}</p>
+                                <p className="text-xs uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Preço final</p>
+                                <p className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{toCurrency(proposta.result?.finalPrice)}</p>
                               </div>
                               <div>
-                                <p className="text-xs uppercase tracking-wide text-slate-500">Mensal</p>
-                                <p className="text-base font-bold text-white">{toCurrency(proposta.result?.monthlyPrice)}</p>
+                                <p className="text-xs uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Mensal</p>
+                                <p className="text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{toCurrency(proposta.result?.monthlyPrice)}</p>
                               </div>
                             </div>
                           </div>
@@ -2997,7 +2997,7 @@ export default function Solicitacoes() {
                             <button
                               type="button"
                               onClick={() => openPreSalesBudgetPdf(cotacaoContext)}
-                              className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-100 hover:bg-emerald-500/25"
+                              className="inline-flex items-center gap-2 rounded-lg border border-emerald-500/40 bg-emerald-500/15 px-3 py-2 text-xs font-semibold text-emerald-700 dark:text-emerald-100 hover:bg-emerald-500/25"
                             >
                               <FileText className="h-3.5 w-3.5" /> Abrir PDF
                             </button>
@@ -3026,15 +3026,15 @@ export default function Solicitacoes() {
 
             {cotacaoTab === 'ACOES' && (
               <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-                <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-6">
-                  <h4 className="text-xl font-semibold text-white mb-1">Transição de status</h4>
-                  <p className="text-sm text-slate-400 mb-5">Altere manualmente o status quando necessário.</p>
+                <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6">
+                  <h4 className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Transição de status</h4>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mb-5">Altere manualmente o status quando necessário.</p>
 
                   <div className="space-y-4">
                     <div>
-                      <label className="block text-sm text-slate-300 mb-1.5">Novo status</label>
+                      <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Novo status</label>
                       <select
-                        className="w-full rounded-lg border border-slate-600/50 bg-slate-900/60 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+                        className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:border-blue-500"
                         value={statusTransition.nextStatus}
                         onChange={(e) => setStatusTransition((prev) => ({ ...prev, nextStatus: e.target.value }))}
                       >
@@ -3049,10 +3049,10 @@ export default function Solicitacoes() {
                     </div>
 
                     <div>
-                      <label className="block text-sm text-slate-300 mb-1.5">Motivo</label>
+                      <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Motivo</label>
                       <textarea
                         rows={4}
-                        className="w-full rounded-lg border border-slate-600/50 bg-slate-900/60 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 resize-none"
+                        className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:border-blue-500 resize-none"
                         placeholder="Descreva o motivo da transição..."
                         value={statusTransition.motivo}
                         onChange={(e) => setStatusTransition((prev) => ({ ...prev, motivo: e.target.value }))}
@@ -3063,35 +3063,35 @@ export default function Solicitacoes() {
                       type="button"
                       disabled={!statusTransition.nextStatus || cotacaoSaving}
                       onClick={applyStatusTransition}
-                      className="inline-flex items-center gap-2 rounded-lg border border-slate-500/40 bg-slate-700/50 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-600/60 disabled:opacity-50 transition-colors"
+                      className="inline-flex items-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.5)] px-4 py-2.5 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] disabled:opacity-50 transition-colors"
                     >
                       <CheckCircle className="h-4 w-4" /> Aplicar status
                     </button>
                   </div>
                 </div>
 
-                <div className="rounded-xl border border-slate-600/40 bg-[#102540] p-6">
-                  <h4 className="text-xl font-semibold text-white mb-1">Devolver ao Comercial</h4>
-                  <p className="text-sm text-slate-400 mb-5">Disponível somente após concluir a precificação e enviar para revisão.</p>
+                <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6">
+                  <h4 className="text-xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Devolver ao Comercial</h4>
+                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mb-5">Disponível somente após concluir a precificação e enviar para revisão.</p>
 
                   <div className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm text-slate-300 mb-1.5">Número da proposta</label>
+                        <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Número da proposta</label>
                         <input
                           type="text"
-                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/60 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:border-blue-500"
                           placeholder="Ex: PROP-001"
                           value={devolucaoComercial.numeroProposta}
                           onChange={(e) => setDevolucaoComercial((prev) => ({ ...prev, numeroProposta: e.target.value }))}
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-slate-300 mb-1.5">Versão</label>
+                        <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Versão</label>
                         <input
                           type="number"
                           min={1}
-                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/60 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:border-blue-500"
                           placeholder="1"
                           value={devolucaoComercial.versao}
                           onChange={(e) => setDevolucaoComercial((prev) => ({ ...prev, versao: e.target.value }))}
@@ -3101,18 +3101,18 @@ export default function Solicitacoes() {
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-sm text-slate-300 mb-1.5">Validade</label>
+                        <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Validade</label>
                         <input
                           type="date"
-                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/60 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:border-blue-500"
                           value={devolucaoComercial.validade}
                           onChange={(e) => setDevolucaoComercial((prev) => ({ ...prev, validade: e.target.value }))}
                         />
                       </div>
                       <div>
-                        <label className="block text-sm text-slate-300 mb-1.5">Cenário associado</label>
+                        <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Cenário associado</label>
                         <select
-                          className="w-full rounded-lg border border-slate-600/50 bg-slate-900/60 px-3 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500"
+                          className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:border-blue-500"
                           value={devolucaoComercial.cenario}
                           onChange={(e) => setDevolucaoComercial((prev) => ({ ...prev, cenario: e.target.value }))}
                         >
@@ -3125,10 +3125,10 @@ export default function Solicitacoes() {
                     </div>
 
                     <div>
-                      <label className="block text-sm text-slate-300 mb-1.5">Observações</label>
+                      <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Observações</label>
                       <textarea
                         rows={3}
-                        className="w-full rounded-lg border border-slate-600/50 bg-slate-900/60 px-3 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 resize-none"
+                        className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:border-blue-500 resize-none"
                         placeholder="Informações adicionais para o comercial..."
                         value={devolucaoComercial.observacoes}
                         onChange={(e) => setDevolucaoComercial((prev) => ({ ...prev, observacoes: e.target.value }))}
@@ -3161,66 +3161,66 @@ export default function Solicitacoes() {
           <div className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
-                <p className="text-gray-400 mb-1">Solicitante</p>
-                <p className="text-white">{selectedSolicitacao.solicitante?.name || '-'}</p>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Solicitante</p>
+                <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{selectedSolicitacao.solicitante?.name || '-'}</p>
               </div>
               <div>
-                <p className="text-gray-400 mb-1">Cliente</p>
-                <p className="text-white">{selectedSolicitacao.company?.name || '-'}</p>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Cliente</p>
+                <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{selectedSolicitacao.company?.name || '-'}</p>
               </div>
               <div>
-                <p className="text-gray-400 mb-1">Origem</p>
-                <p className="text-white">{getAreaLabel(selectedSolicitacao?.flow?.sourceArea)}</p>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Origem</p>
+                <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{getAreaLabel(selectedSolicitacao?.flow?.sourceArea)}</p>
               </div>
               <div>
-                <p className="text-gray-400 mb-1">Etapa</p>
-                <p className="text-white">{stageLabel(resolveStage(selectedSolicitacao.status, selectedSolicitacao.stage))}</p>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Etapa</p>
+                <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{stageLabel(resolveStage(selectedSolicitacao.status, selectedSolicitacao.stage))}</p>
               </div>
               <div>
-                <p className="text-gray-400 mb-1">Status</p>
-                <p className="text-white">{getStatusLabel(selectedSolicitacao.status)}</p>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Status</p>
+                <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{getStatusLabel(selectedSolicitacao.status)}</p>
               </div>
               <div>
-                <p className="text-gray-400 mb-1">Data</p>
-                <p className="text-white">{selectedSolicitacao.createdAt ? new Date(selectedSolicitacao.createdAt).toLocaleString('pt-BR') : '-'}</p>
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Data</p>
+                <p className="text-[rgb(var(--crm-ink-rgb)_/_1)]">{selectedSolicitacao.createdAt ? new Date(selectedSolicitacao.createdAt).toLocaleString('pt-BR') : '-'}</p>
               </div>
             </div>
 
             <div>
-              <p className="text-gray-400 mb-1 text-sm">Descrição</p>
-              <div className="rounded-lg border border-gray-700/60 bg-gray-900/60 p-4 text-sm text-slate-200 whitespace-pre-wrap">
+              <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1 text-sm">Descrição</p>
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-4 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] whitespace-pre-wrap">
                 {selectedSolicitacao.descricao || 'Sem descrição'}
               </div>
             </div>
 
             {selectedSolicitacao.observacoes ? (
               <div>
-                <p className="text-gray-400 mb-1 text-sm">Observações</p>
-                <div className="rounded-lg border border-gray-700/60 bg-gray-900/60 p-4 text-sm text-slate-200 whitespace-pre-wrap">
+                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1 text-sm">Observações</p>
+                <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-4 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] whitespace-pre-wrap">
                   {stripStageMarkers(selectedSolicitacao.observacoes)}
                 </div>
               </div>
             ) : null}
 
             {(selectedSolicitacao.valorSugerido > 0 || selectedSolicitacao.custoTotal > 0 || selectedSolicitacao.margemLucro > 0) && (
-              <div className="rounded-lg border border-gray-700/60 bg-gray-900/60 p-4">
-                <p className="text-sm text-gray-400 mb-3">Precificação</p>
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-4">
+                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mb-3">Precificação</p>
                 <div className="grid grid-cols-3 gap-3 text-center">
                   <div>
-                    <p className="text-lg font-bold text-blue-300">
+                    <p className="text-lg font-bold text-blue-700 dark:text-blue-300">
                       R$ {Number(selectedSolicitacao.valorSugerido || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
-                    <p className="text-xs text-gray-400">Preço Sugerido</p>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Preço Sugerido</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-slate-200">
+                    <p className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       R$ {Number(selectedSolicitacao.custoTotal || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </p>
-                    <p className="text-xs text-gray-400">Custo Total</p>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Custo Total</p>
                   </div>
                   <div>
-                    <p className="text-lg font-bold text-emerald-300">{Number(selectedSolicitacao.margemLucro || 0).toFixed(1)}%</p>
-                    <p className="text-xs text-gray-400">Margem</p>
+                    <p className="text-lg font-bold text-emerald-700 dark:text-emerald-300">{Number(selectedSolicitacao.margemLucro || 0).toFixed(1)}%</p>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Margem</p>
                   </div>
                 </div>
               </div>
@@ -3237,23 +3237,23 @@ export default function Solicitacoes() {
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">Resposta do Pré-Vendas *</label>
+            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Resposta do Pré-Vendas *</label>
             <textarea
               rows={4}
               value={respostaData.mensagem}
               onChange={(e) => setRespostaData((prev) => ({ ...prev, mensagem: e.target.value }))}
               placeholder="Descreva o retorno técnico/comercial para a solicitação"
-              className="w-full rounded-lg border border-gray-600/60 bg-gray-900/60 px-3 py-2 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+              className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Próximo status</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Próximo status</label>
               <select
                 value={respostaData.nextStatus}
                 onChange={(e) => updateRespostaStatus(e.target.value)}
-                className="w-full rounded-lg border border-gray-600/60 bg-gray-900/60 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               >
                 <option value="EM_PRECIFICACAO">Em Precificação</option>
                 <option value="AGUARDANDO_APROVACAO">Aguardando Aprovação</option>
@@ -3267,11 +3267,11 @@ export default function Solicitacoes() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 mb-2">Próxima etapa</label>
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Próxima etapa</label>
               <select
                 value={respostaData.nextStage}
                 onChange={(e) => setRespostaData((prev) => ({ ...prev, nextStage: e.target.value }))}
-                className="w-full rounded-lg border border-gray-600/60 bg-gray-900/60 px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+                className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"
               >
                 {STAGE_OPTIONS.map((option) => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -3283,33 +3283,33 @@ export default function Solicitacoes() {
           {selectedSolicitacao?.sourceType !== 'ACTIVITY' && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Valor sugerido (R$)</label>
+                <label className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Valor sugerido (R$)</label>
                 <input
                   type="number"
                   step="0.01"
                   value={respostaData.valorSugerido}
                   onChange={(e) => setRespostaData((prev) => ({ ...prev, valorSugerido: e.target.value }))}
-                  className="w-full rounded-lg border border-gray-600/60 bg-gray-900/60 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Custo total (R$)</label>
+                <label className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Custo total (R$)</label>
                 <input
                   type="number"
                   step="0.01"
                   value={respostaData.custoTotal}
                   onChange={(e) => setRespostaData((prev) => ({ ...prev, custoTotal: e.target.value }))}
-                  className="w-full rounded-lg border border-gray-600/60 bg-gray-900/60 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 />
               </div>
               <div>
-                <label className="block text-xs text-gray-400 mb-1">Margem (%)</label>
+                <label className="block text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Margem (%)</label>
                 <input
                   type="number"
                   step="0.1"
                   value={respostaData.margemLucro}
                   onChange={(e) => setRespostaData((prev) => ({ ...prev, margemLucro: e.target.value }))}
-                  className="w-full rounded-lg border border-gray-600/60 bg-gray-900/60 px-3 py-2 text-white"
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 />
               </div>
             </div>
@@ -3320,17 +3320,17 @@ export default function Solicitacoes() {
             <div className="rounded-lg border border-indigo-500/40 bg-indigo-500/10 p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-semibold text-indigo-200">
+                  <p className="text-sm font-semibold text-indigo-700 dark:text-indigo-200">
                     📎 Proposta anexada: <strong>{respostaData.propostaNome}</strong>
                   </p>
-                  <p className="text-xs text-indigo-300 mt-0.5">
+                  <p className="text-xs text-indigo-700 dark:text-indigo-300 mt-0.5">
                     A proposta será referenciada na resposta ao Comercial.
                   </p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setRespostaData(p => ({ ...p, propostaSelecionada: null, propostaNome: null }))}
-                  className="text-xs text-indigo-400 hover:text-white underline"
+                  className="text-xs text-indigo-700 dark:text-indigo-400 hover:text-[rgb(var(--crm-ink-rgb)_/_1)] underline"
                 >
                   Remover
                 </button>
@@ -3342,7 +3342,7 @@ export default function Solicitacoes() {
             <button
               type="button"
               onClick={() => setShowRespostaModal(false)}
-              className="rounded-lg bg-gray-600 px-4 py-2 text-sm text-white hover:bg-gray-700"
+              className="rounded-lg bg-[rgb(var(--crm-surface-rgb)_/_1)] px-4 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
             >
               Cancelar
             </button>
