@@ -94,7 +94,7 @@ for (const base of ['apps/api', 'backend']) {
       assert.equal(flow.preSalesClosure.status, status);
       assert.equal(flow.items, undefined);
       assert.equal(flow.margemMedia, undefined);
-      assert.equal(state().activity.status, 'PENDING');
+      assert.equal(state().activity.status, 'CANCELLED');
       assert.equal(state().activity.assignedToId, 'seller');
       assert.match(state().activity.description, /Solicitação original/);
       assert.equal(state().notifications.length, 1);
@@ -169,16 +169,17 @@ for (const base of ['apps/api', 'backend']) {
       assert.equal(state().notifications.length, 1);
     }
   });
-  test(`${base}: comercial pode concluir o retorno sem alterar motivo ou reabrir a cotação`, async () => {
+  test(`${base}: retorno encerrado não pode voltar para pendente, iniciar ou concluir`, async () => {
     const { invoke, state } = setup(base);
     await invoke();
     const before = state().activity.description;
     const commercial = { ...operator, userId: 'seller', accessPreSales: false };
-    assert.equal((await invoke('put /', { user: commercial, rawBody: { id: 'activity', status: 'COMPLETED' } })).status, 200);
-    assert.equal(state().activity.status, 'COMPLETED');
-    assert.equal(state().activity.description, before);
-    assert.equal(state().request.status, 'CANCELADA');
-    assert.equal((await invoke('put /', { rawBody: { id: 'activity', status: 'IN_PROGRESS', description: 'remover motivo' } })).status, 409);
+    for (const status of ['PENDING', 'IN_PROGRESS', 'COMPLETED']) {
+      assert.equal((await invoke('put /', { user: commercial, rawBody: { id: 'activity', status } })).status, 409);
+      assert.equal(state().activity.status, 'CANCELLED');
+      assert.equal(state().activity.description, before);
+      assert.equal(state().request.status, 'CANCELADA');
+    }
   });
   test(`${base}: cancelamento pela API de atividades exige motivo e sincroniza o orçamento`, async () => {
     const { invoke, state } = setup(base);

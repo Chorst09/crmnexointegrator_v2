@@ -40,6 +40,7 @@ import AnimatedStats from '../components/AnimatedStats';
 import ModernTable from '../components/ModernTable';
 import Modal from '../components/Modal';
 import PreSalesClosureNotice, { getPreSalesClosure } from '../components/PreSalesClosureNotice';
+import { getActivityDisplayStatus, isOverdue } from '../utils/commercial-activity-status.mjs';
 import AuditCostAccessModal from '../components/AuditCostAccessModal';
 import {
   ACTIVITY_AREA_OPTIONS,
@@ -67,10 +68,11 @@ const STATUS_META = {
   IN_PROGRESS: { label: 'Em andamento', cls: 'bg-sky-500/10 text-sky-900 dark:text-sky-200' },
   COMPLETED: { label: 'Concluida', cls: 'bg-emerald-500/10 text-emerald-900 dark:text-emerald-200' },
   PROPOSAL_SENT: { label: 'Proposta enviada', cls: 'bg-cyan-500/10 text-cyan-900 dark:text-cyan-200' },
-  CANCELLED: { label: 'Cancelada', cls: 'bg-red-500/10 text-red-900 dark:text-red-200' }
+  REJECTED: { label: 'Reprovada', columnTitle: 'Reprovadas', cls: 'bg-rose-500/10 text-rose-900 dark:text-rose-200' },
+  CANCELLED: { label: 'Cancelada', columnTitle: 'Canceladas', cls: 'bg-red-500/10 text-red-900 dark:text-red-200' }
 };
 
-const ACTIVITY_KANBAN_COLUMNS = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'PROPOSAL_SENT', 'CANCELLED'];
+const ACTIVITY_KANBAN_COLUMNS = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'PROPOSAL_SENT', 'CANCELLED', 'REJECTED'];
 
 const PRIORITY_META = {
   LOW: { label: 'Baixa', cls: 'bg-emerald-500/10 text-emerald-900 dark:text-emerald-200' },
@@ -148,18 +150,6 @@ const getActivityDisplayType = (activity) => {
     return BUDGET_REQUEST_TYPE;
   }
   return activity?.type || 'TASK';
-};
-
-const getActivityDisplayStatus = (activity) => {
-  if (activity?.status === 'PENDING') return 'PENDING';
-  if (activity?.flow?.activityStage === PROPOSAL_SENT_STAGE) return 'PROPOSAL_SENT';
-  return activity?.status || 'PENDING';
-};
-
-const isOverdue = (dueDate, status) => {
-  if (!dueDate) return false;
-  if (status === 'COMPLETED' || status === 'CANCELLED') return false;
-  return new Date(dueDate) < new Date();
 };
 
 const getCurrentUserName = () => {
@@ -312,7 +302,7 @@ export default function Atividades() {
     try {
       setLoading(true);
       const params = new URLSearchParams({ clientType: activityClientType });
-      if (filtros.status && filtros.status !== 'PROPOSAL_SENT') params.append('status', filtros.status);
+      if (filtros.status && !['PROPOSAL_SENT', 'CANCELLED', 'REJECTED'].includes(filtros.status)) params.append('status', filtros.status);
       if (filtros.type) params.append('type', filtros.type);
       if (filtros.priority) params.append('priority', filtros.priority);
 
@@ -752,10 +742,10 @@ export default function Atividades() {
 
   const kpis = useMemo(() => {
     const items = Array.isArray(atividades) ? atividades : [];
-    const pending = items.filter((a) => a.status === 'PENDING').length;
-    const inProgress = items.filter((a) => a.status === 'IN_PROGRESS').length;
-    const completed = items.filter((a) => a.status === 'COMPLETED').length;
-    const overdue = items.filter((a) => isOverdue(a.dueDate, a.status)).length;
+    const pending = items.filter((a) => getActivityDisplayStatus(a) === 'PENDING').length;
+    const inProgress = items.filter((a) => getActivityDisplayStatus(a) === 'IN_PROGRESS').length;
+    const completed = items.filter((a) => ['COMPLETED', 'PROPOSAL_SENT'].includes(getActivityDisplayStatus(a))).length;
+    const overdue = items.filter((a) => isOverdue(a.dueDate, getActivityDisplayStatus(a))).length;
     return { pending, inProgress, completed, overdue, total: items.length };
   }, [atividades]);
 
@@ -819,7 +809,7 @@ export default function Atividades() {
               ? `${new Date(item.dueDate).toLocaleDateString('pt-BR')} ${new Date(item.dueDate).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`
               : '-'}
           </div>
-          {isOverdue(item.dueDate, item.status) && (
+          {isOverdue(item.dueDate, getActivityDisplayStatus(item)) && (
             <div className="mt-1 inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-extrabold bg-red-500/10 text-red-900 dark:text-red-200">
               Atrasada
             </div>
@@ -923,7 +913,8 @@ export default function Atividades() {
         { value: 'IN_PROGRESS', label: 'Em andamento' },
         { value: 'COMPLETED', label: 'Concluida' },
         { value: 'PROPOSAL_SENT', label: 'Proposta enviada' },
-        { value: 'CANCELLED', label: 'Cancelada' }
+        { value: 'CANCELLED', label: 'Canceladas' },
+        { value: 'REJECTED', label: 'Reprovadas' }
       ]
     },
     {
@@ -1040,7 +1031,7 @@ export default function Atividades() {
           PDF
         </button>
       )}
-      {item.status === 'COMPLETED' && !getPreSalesClosure(item) && getActivityDisplayStatus(item) !== 'PROPOSAL_SENT' && (
+      {getActivityDisplayStatus(item) === 'COMPLETED' && !getPreSalesClosure(item) && getActivityDisplayStatus(item) !== 'PROPOSAL_SENT' && (
         <button
           type="button"
           onClick={() => markProposalSent(item)}
@@ -1051,7 +1042,7 @@ export default function Atividades() {
           Proposta enviada
         </button>
       )}
-      {item.status === 'PENDING' && (
+      {getActivityDisplayStatus(item) === 'PENDING' && (
         <button
           type="button"
           onClick={() => updateStatus(item.id, 'IN_PROGRESS')}
@@ -1062,7 +1053,7 @@ export default function Atividades() {
           Iniciar
         </button>
       )}
-      {item.status === 'IN_PROGRESS' && (
+      {getActivityDisplayStatus(item) === 'IN_PROGRESS' && (
         <button
           type="button"
           onClick={() => updateStatus(item.id, 'COMPLETED')}
@@ -1175,7 +1166,7 @@ export default function Atividades() {
           </div>
           <div>
             Vencimento:{' '}
-            <span className={isOverdue(item.dueDate, item.status) ? "font-bold text-red-700 dark:text-red-400" : 'text-[var(--crm-ink)]'}>
+            <span className={isOverdue(item.dueDate, getActivityDisplayStatus(item)) ? "font-bold text-red-700 dark:text-red-400" : 'text-[var(--crm-ink)]'}>
               {item.dueDate ? new Date(item.dueDate).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '-'}
             </span>
           </div>
@@ -1281,7 +1272,7 @@ export default function Atividades() {
       </div>
 
       {viewMode === 'KANBAN' ? (
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3 2xl:grid-cols-5">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-3 2xl:grid-cols-6">
           {ACTIVITY_KANBAN_COLUMNS.map((status) => {
             const meta = STATUS_META[status];
             const rows = kanbanByStatus[status] || [];
@@ -1289,7 +1280,7 @@ export default function Atividades() {
               <div key={status} className="crm-panel p-4">
                 <div className="mb-4 flex items-start justify-between gap-3">
                   <div>
-                    <h3 className="text-lg font-bold text-[var(--crm-ink)]">{meta.label}</h3>
+                    <h3 className="text-lg font-bold text-[var(--crm-ink)]">{meta.columnTitle || meta.label}</h3>
                     <p className="text-sm text-[var(--crm-muted)]">Atividades {meta.label.toLowerCase()}</p>
                   </div>
                   <span className="rounded-full bg-[rgb(var(--crm-surface-2-rgb)_/_0.75)] px-3 py-1 text-sm font-bold text-[var(--crm-ink)]">
@@ -1315,7 +1306,7 @@ export default function Atividades() {
           data={filteredAtividades}
           columns={columns}
           loading={loading}
-          rowClassName={(item) => (isOverdue(item.dueDate, item.status) ? 'bg-red-500/5' : '')}
+          rowClassName={(item) => (isOverdue(item.dueDate, getActivityDisplayStatus(item)) ? 'bg-red-500/5' : '')}
           renderActions={renderActivityActions}
           emptyState={(
           <div className="text-center py-16">
@@ -1848,7 +1839,7 @@ export default function Atividades() {
             })()}
 
             <div className="flex flex-col sm:flex-row gap-3 justify-end">
-              {selectedActivity.status === 'COMPLETED' && selectedDisplayStatus !== 'PROPOSAL_SENT' && (
+              {getActivityDisplayStatus(selectedActivity) === 'COMPLETED' && selectedDisplayStatus !== 'PROPOSAL_SENT' && (
                 <button
                   type="button"
                   onClick={() => {
@@ -1861,7 +1852,7 @@ export default function Atividades() {
                   Proposta enviada
                 </button>
               )}
-              {selectedActivity.status === 'PENDING' && (
+              {getActivityDisplayStatus(selectedActivity) === 'PENDING' && (
                 <button
                   type="button"
                   onClick={() => {
@@ -1873,7 +1864,7 @@ export default function Atividades() {
                   Iniciar
                 </button>
               )}
-              {selectedActivity.status === 'IN_PROGRESS' && (
+              {getActivityDisplayStatus(selectedActivity) === 'IN_PROGRESS' && (
                 <button
                   type="button"
                   onClick={() => {

@@ -365,8 +365,7 @@ router.put('/', async (req, res) => {
 
     const { id, status } = req.body;
     const closureActivity = await prisma.activity.findUnique({ where: { id } });
-    if (parseClosureFlow(closureActivity?.description).flow.preSalesClosure &&
-        (Object.keys(req.body).some((key) => !['id', 'status'].includes(key)) || !['PENDING', 'IN_PROGRESS', 'COMPLETED'].includes(status))) {
+    if (parseClosureFlow(closureActivity?.description).flow.preSalesClosure) {
       return res.status(409).json({ error: 'Esta cotação já foi encerrada; o retorno ao comercial deve ser preservado' });
     }
     if (status === 'CANCELLED' && isPreSalesActivity(closureActivity || {})) {

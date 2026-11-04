@@ -98,7 +98,7 @@ const createPreSalesClosureHandler = ({ prisma, canOperate, tenantId, sourceType
         } });
         request = await tx.preSalesRequest.findUnique({ where: { id: request.id }, include: { solicitante: { select: { id: true, name: true, email: true } }, items: true } });
       }
-      // O retorno fica pendente para o comercial tomar ciência e tratar a demanda.
+      // A atividade comercial é encerrada; o fluxo distingue cancelamento de reprovação.
       // Não copia custos, margens ou informações internas da cotação para o comercial.
       const flow = {
         ...parsed.flow,
@@ -115,12 +115,12 @@ const createPreSalesClosureHandler = ({ prisma, canOperate, tenantId, sourceType
       if (activity) {
         const changed = await tx.activity.updateMany({
           where: { id: activity.id, status: activity.status, description: activity.description },
-          data: { status: 'PENDING', completedAt: null, description }
+          data: { status: 'CANCELLED', completedAt: null, description }
         });
         if (changed.count !== 1) fail(409, 'A atividade foi alterada. Atualize a página e tente novamente.');
       } else {
         activity = await tx.activity.create({ data: {
-          subject: `${label} — ${reference}`, type: 'TASK', status: 'PENDING', priority: request.prioridade,
+          subject: `${label} — ${reference}`, type: 'TASK', status: 'CANCELLED', priority: request.prioridade,
           assignedToId: recipientId, tenantCompanyId: requestTenant || tenant || null,
           companyId: request.leadId || null, opportunityId: request.opportunityId || null, description
         } });

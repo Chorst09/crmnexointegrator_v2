@@ -4,7 +4,7 @@ Na tela Solicitações, os cards e a lista oferecem **Cancelar** e **Reprovar** 
 
 O encerramento salva o status, o motivo, o usuário e a data; preserva cotações, itens e observações anteriores; e registra a decisão no histórico de aprovações. Demandas encerradas deixam os indicadores de trabalho ativo e continuam disponíveis para consulta nas colunas de encerramento e na lista.
 
-O responsável comercial recebe o motivo no sino de notificações e na atividade de origem, que volta como pendente para tratamento. O destinatário é o responsável da atividade vinculada; quando não há atividade, o sistema cria uma para o solicitante. A área comercial de origem (B2B/B2G) é preservada. O retorno mostra o motivo e não oferece geração de proposta ou preços para uma cotação encerrada. O comercial pode iniciar/concluir a atividade de retorno sem reabrir o orçamento.
+O responsável comercial recebe o motivo no sino de notificações e na atividade de origem, que é encerrada diretamente na coluna **Canceladas** ou **Reprovadas**. O destinatário é o responsável da atividade vinculada; quando não há atividade, o sistema cria uma para o solicitante. A área comercial de origem (B2B/B2G) é preservada. O retorno mostra o motivo e não oferece geração de proposta ou preços para uma cotação encerrada. O retorno encerrado não oferece Iniciar ou Concluir e não entra nos indicadores de pendências ou atrasos. Reprovações usam a coluna própria Reprovadas, distinta de Canceladas, preservando a decisão e o motivo nos metadados existentes, sem alteração do enum do banco. Retornos antigos ainda gravados como pendentes também são classificados corretamente na interface.
 
 ## Persistência e permissões
 
@@ -25,7 +25,7 @@ O sino atualiza os retornos a cada 30 segundos, ao receber foco e ao abrir o pai
 
 ## Validação
 
-- `node --test scripts/tests/pre-sales-stage.test.cjs scripts/tests/pre-sales-closure.test.cjs scripts/tests/pre-sales-activity-visibility.test.cjs`: 54 testes passaram.
+- `node --test scripts/tests/commercial-activity-status.test.mjs scripts/tests/pre-sales-stage.test.cjs scripts/tests/pre-sales-closure.test.cjs scripts/tests/pre-sales-activity-visibility.test.cjs`: 70 testes passaram.
 - `npm run build --workspace=apps/web`: compilação e verificações obrigatórias do projeto.
 - Conferência do formulário com confirmação desabilitada sem motivo e dos botões e painel de notificações em produção, sem encerrar cotações reais. Os testes incluem decisões legadas, falhas, permissões e devolução ao comercial.
 
