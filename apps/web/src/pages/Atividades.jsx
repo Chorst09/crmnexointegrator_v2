@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import {
   BadgeDollarSign,
@@ -39,6 +39,7 @@ import PageHeader from '../components/PageHeader';
 import AnimatedStats from '../components/AnimatedStats';
 import ModernTable from '../components/ModernTable';
 import Modal from '../components/Modal';
+import PreSalesClosureNotice, { getPreSalesClosure } from '../components/PreSalesClosureNotice';
 import AuditCostAccessModal from '../components/AuditCostAccessModal';
 import {
   ACTIVITY_AREA_OPTIONS,
@@ -195,6 +196,9 @@ const isPreSalesRole = (role) => ['PRE_SALES', 'PRE_VENDAS'].includes(String(rol
 
 export default function Atividades() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const activityClientType = location.pathname.startsWith('/b2g') ? 'B2G' : 'B2B';
+  const activityApiPath = `/activities-simple?clientType=${activityClientType}`;
   const [atividades, setAtividades] = useState([]);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
@@ -284,8 +288,8 @@ export default function Atividades() {
   const loadDependencies = async () => {
     try {
       const [empresasRes, oportunidadesRes, usuariosRes] = await Promise.all([
-        axios.get(buildApiUrl('/companies'), { headers: getAuthHeaders() }),
-        axios.get(buildApiUrl('/opportunities'), { headers: getAuthHeaders() }),
+        axios.get(buildApiUrl(`/companies?clientType=${activityClientType}`), { headers: getAuthHeaders() }),
+        axios.get(buildApiUrl(`/opportunities?clientType=${activityClientType}`), { headers: getAuthHeaders() }),
         axios.get(buildApiUrl('/users'), { headers: getAuthHeaders() })
       ]);
 
@@ -307,7 +311,7 @@ export default function Atividades() {
   const loadAtividades = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
+      const params = new URLSearchParams({ clientType: activityClientType });
       if (filtros.status && filtros.status !== 'PROPOSAL_SENT') params.append('status', filtros.status);
       if (filtros.type) params.append('type', filtros.type);
       if (filtros.priority) params.append('priority', filtros.priority);
@@ -432,7 +436,7 @@ export default function Atividades() {
 
     // 8. Se for atividade relacionada a pré-vendas, garante os dados com itens da engenharia B2B
     // 8. Se for atividade relacionada a pré-vendas mas sem dados reais, retorna null
-    if (isPreSalesRelatedActivity(activity)) {
+    if (isPreSalesRelatedActivity(activity) && !getPreSalesClosure(activity)) {
       return null;
     }
 
@@ -487,7 +491,7 @@ export default function Atividades() {
     setSelectedActivityBudgetLoading(false);
     setShowDetailsModal(true);
 
-    if (isPreSalesRelatedActivity(activity)) {
+    if (isPreSalesRelatedActivity(activity) && !getPreSalesClosure(activity)) {
       if (isPreSales || canViewAuditLogs) {
         logCostAccessAudit({
           action: 'CONSULTA_CUSTOS_MARGENS',
@@ -518,11 +522,11 @@ export default function Atividades() {
 
   useEffect(() => {
     loadDependencies();
-  }, []);
+  }, [activityClientType]);
 
   useEffect(() => {
     loadAtividades();
-  }, [filtros.status, filtros.type, filtros.priority]);
+  }, [filtros.status, filtros.type, filtros.priority, activityClientType]);
 
   const resetForm = () => {
     setFormData({
@@ -575,7 +579,7 @@ export default function Atividades() {
       }
 
       await axios.post(
-        buildApiUrl('/activities-simple'),
+        buildApiUrl(activityApiPath),
         payload,
         { headers: getAuthHeaders() }
       );
@@ -592,7 +596,7 @@ export default function Atividades() {
   const updateStatus = async (id, status) => {
     try {
       await axios.put(
-        buildApiUrl('/activities-simple'),
+        buildApiUrl(activityApiPath),
         { id, status },
         { headers: getAuthHeaders() }
       );
@@ -632,7 +636,7 @@ export default function Atividades() {
     try {
       const descriptionWithFlow = addFlowMetadataToDescription(activity.description, activity.flow || {});
       await axios.put(
-        buildApiUrl('/activities-simple'),
+        buildApiUrl(activityApiPath),
         {
           id: activity.id,
           status: 'COMPLETED',
@@ -865,6 +869,7 @@ export default function Atividades() {
           return <span className="text-xs text-[var(--crm-muted)]">-</span>;
         }
 
+        if (getPreSalesClosure(item)) return <PreSalesClosureNotice closure={getPreSalesClosure(item)} compact />;
         const flow = item?.flow || {};
         const budget = item?.preSalesRequest;
         const itemCount = (Array.isArray(flow.items) && flow.items.length) || (Array.isArray(budget?.items) && budget.items.length) || 0;
@@ -955,7 +960,7 @@ export default function Atividades() {
 
   const renderActivityActions = (item) => (
     <>
-      {isPreSalesRelatedActivity(item) && (
+      {isPreSalesRelatedActivity(item) && !getPreSalesClosure(item) && (
         <button
           type="button"
           onClick={() => openActivityDetails(item)}
@@ -966,7 +971,7 @@ export default function Atividades() {
           Preços
         </button>
       )}
-      {isPreSalesRelatedActivity(item) && (
+      {isPreSalesRelatedActivity(item) && !getPreSalesClosure(item) && (
         <button
           type="button"
           onClick={() => {
@@ -1024,7 +1029,7 @@ export default function Atividades() {
           Gerar Proposta
         </button>
       )}
-      {(getActivityPreSalesReference(item).preSalesRequestId || getActivityPreSalesReference(item).preSalesNumber) && (
+      {!getPreSalesClosure(item) && (getActivityPreSalesReference(item).preSalesRequestId || getActivityPreSalesReference(item).preSalesNumber) && (
         <button
           type="button"
           onClick={() => openReturnedPreSalesBudget(item)}
@@ -1035,7 +1040,7 @@ export default function Atividades() {
           PDF
         </button>
       )}
-      {item.status === 'COMPLETED' && getActivityDisplayStatus(item) !== 'PROPOSAL_SENT' && (
+      {item.status === 'COMPLETED' && !getPreSalesClosure(item) && getActivityDisplayStatus(item) !== 'PROPOSAL_SENT' && (
         <button
           type="button"
           onClick={() => markProposalSent(item)}
@@ -1068,7 +1073,7 @@ export default function Atividades() {
           Concluir
         </button>
       )}
-      {item.status !== 'COMPLETED' && item.status !== 'CANCELLED' && (
+      {item.status !== 'COMPLETED' && item.status !== 'CANCELLED' && !getPreSalesClosure(item) && (
         <button
           type="button"
           onClick={() => updateStatus(item.id, 'CANCELLED')}
@@ -1131,7 +1136,8 @@ export default function Atividades() {
           </span>
         </div>
 
-        {isPreSalesRelatedActivity(item) && (
+        <div className="mt-3"><PreSalesClosureNotice closure={getPreSalesClosure(item)} compact /></div>
+        {isPreSalesRelatedActivity(item) && !getPreSalesClosure(item) && (
           <div
             onClick={() => openActivityDetails(item)}
             className="mt-2.5 cursor-pointer rounded-xl border border-emerald-500/30 bg-gradient-to-r from-emerald-950/40 via-[rgb(var(--crm-surface-2-rgb)_/_0.6)] to-[rgb(var(--crm-surface-2-rgb)_/_0.4)] p-2.5 hover:border-emerald-400/60 transition-all shadow-sm group"
@@ -1445,6 +1451,7 @@ export default function Atividades() {
             {/* Seção Completa: Produtos e Valores Precificados pelo Pré-Vendas */}
             {(() => {
               const flow = selectedActivity?.flow || {};
+              if (getPreSalesClosure(selectedActivity)) return <PreSalesClosureNotice closure={getPreSalesClosure(selectedActivity)} />;
               const budget = selectedActivityBudget || selectedActivity?.preSalesRequest;
               const hasBudgetInfo = Boolean(
                 selectedActivityBudgetLoading ||
@@ -1878,7 +1885,7 @@ export default function Atividades() {
                   Concluir
                 </button>
               )}
-              {selectedActivity.status !== 'COMPLETED' && selectedActivity.status !== 'CANCELLED' && (
+              {selectedActivity.status !== 'COMPLETED' && selectedActivity.status !== 'CANCELLED' && !getPreSalesClosure(selectedActivity) && (
                 <button
                   type="button"
                   onClick={() => {

@@ -194,6 +194,9 @@ const enforceRolePolicies = (req, res, next) => {
     return next();
   }
 
+  // Retornos pessoais do pré-vendas também ficam disponíveis aos vendedores.
+  if (p === '/pre-vendas/retornos-comerciais' || /^\/pre-vendas\/retornos-comerciais\/[^/]+\/ler$/.test(p)) return next();
+
   const isPreSalesPath =
     p.startsWith('/pre-vendas') ||
     p.startsWith('/solicitacoes') ||

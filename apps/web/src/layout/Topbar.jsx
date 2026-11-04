@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Bell, LogIn, LogOut, Menu, Monitor, Moon, Sun, User, Rocket } from 'lucide-react';
+import { LogIn, LogOut, Menu, Monitor, Moon, Sun, User, Rocket } from 'lucide-react';
 import { useTheme } from '../theme/ThemeProvider';
 import { useLocation, useNavigate } from 'react-router-dom';
 import B2BTestFlowModal from '../components/B2BTestFlowModal';
+import PreSalesReturnNotifications from '../components/PreSalesReturnNotifications';
 
 const ROUTE_META = {
   '/dashboard': { title: 'Dashboard', subtitle: 'Visao geral e indicadores' },
@@ -123,14 +124,7 @@ export default function Topbar({ onMenuClick }) {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-3 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-cyan-50">
-          <button
-            type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-transparent text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-cyan-50 transition hover:border-cyan-200/16 dark:hover:border-cyan-800/16 dark:hover:border-cyan-200/16 dark:hover:border-cyan-800/16 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.78)] sm:inline-flex"
-            aria-label="Notificações"
-            title="Notificações"
-          >
-            <Bell className="h-5 w-5" />
-          </button>
+          <PreSalesReturnNotifications />
 
           <button
             type="button"

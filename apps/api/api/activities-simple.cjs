@@ -2,7 +2,14 @@ const express = require('express');
 const { prisma } = require('../lib/prisma.cjs');
 const { getTenantId } = require('../lib/access-control.cjs');
 
+const { canAccessModule, normalizeRole } = require('../lib/permissions.cjs');
+const { createPreSalesClosureHandler, parseClosureFlow } = require('../lib/pre-sales-closure.cjs');
 const router = express.Router();
+const closePreSalesActivity = createPreSalesClosureHandler({
+  prisma, tenantId: getTenantId, sourceType: 'ACTIVITY',
+  canOperate: (user) => ['MASTER', 'ADMIN'].includes(normalizeRole(user.actualRole || user.role)) || canAccessModule(user, 'PRE_SALES')
+});
+router.post('/:id/encerrar-prevendas', closePreSalesActivity);
 const ACTIVITY_FLOW_MARKER = '[CRM_ACTIVITY_FLOW]';
 const PRE_SALES_TARGET = 'PRE_VENDAS';
 
@@ -61,6 +68,19 @@ const parseFlowFromDescription = (description) => {
 
 const getAuthenticatedUserId = (req) => req.user?.userId || req.user?.id || null;
 
+const canUsePreSalesQueue = (user = {}) => Boolean(
+  getTenantId(user) && (user.accessPreSales === true || ['PRE_SALES', 'PRE_VENDAS'].includes(String(user.actualRole || user.role || '').trim().toUpperCase()))
+);
+
+const isPreSalesActivity = (activity = {}) => {
+  const { flow, hasMarker } = parseFlowFromDescription(activity.description);
+  return hasMarker && [flow.sourceArea, flow.targetArea].some((area) => normalizeFlowArea(area) === PRE_SALES_TARGET);
+};
+
+const canCollaborateOnActivity = (user, activity) => (
+  getTenantId(user) && activity.tenantCompanyId === getTenantId(user) && canUsePreSalesQueue(user) && isPreSalesActivity(activity)
+);
+
 const generatePreSalesNumber = async () => {
   const year = new Date().getFullYear();
   const prefix = `PRE-${year}-`;
@@ -92,7 +112,7 @@ router.get('/', async (req, res) => {
       where.tenantCompanyId = tenantId;
     }
 
-    if (req.user?.role === 'SELLER') {
+    if (req.user?.role === 'SELLER' && !canUsePreSalesQueue(req.user)) {
       where.assignedToId = getAuthenticatedUserId(req);
     }
 
@@ -111,8 +131,11 @@ router.get('/', async (req, res) => {
       ]
     });
 
+    const visibleActivities = req.user?.role === 'SELLER'
+      ? activities.filter((act) => act.assignedToId === getAuthenticatedUserId(req) || canCollaborateOnActivity(req.user, act))
+      : activities;
     const enriched = await Promise.all(
-      activities.map(async (act) => {
+      visibleActivities.map(async (act) => {
         let company = act.company;
         if (!company && act.companyId) {
           try {
@@ -385,7 +408,8 @@ router.post('/', async (req, res) => {
       description: descriptionWithFlow,
       status: req.body.status || 'PENDING',
       priority: req.body.priority || 'MEDIUM',
-      assignedToId
+      assignedToId,
+      tenantCompanyId: getTenantId(req.user)
     };
     
     // Adicionar campos opcionais se fornecidos
@@ -494,15 +518,25 @@ router.put('/', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Token não fornecido' });
 
     const { id, status } = req.body;
+    const closureActivity = await prisma.activity.findUnique({ where: { id } });
+    if (parseClosureFlow(closureActivity?.description).flow.preSalesClosure &&
+        (Object.keys(req.body).some((key) => !['id', 'status'].includes(key)) || !['PENDING', 'IN_PROGRESS', 'COMPLETED'].includes(status))) {
+      return res.status(409).json({ error: 'Esta cotação já foi encerrada; o retorno ao comercial deve ser preservado' });
+    }
+    if (status === 'CANCELLED' && isPreSalesActivity(closureActivity || {})) {
+      req.params = { ...req.params, id };
+      req.body.status = 'CANCELADA';
+      return closePreSalesActivity(req, res);
+    }
     const currentUserId = getAuthenticatedUserId(req);
 
     if (req.user?.role === 'SELLER') {
       const existing = await prisma.activity.findUnique({
         where: { id },
-        select: { assignedToId: true }
+        select: { assignedToId: true, tenantCompanyId: true, description: true }
       });
       if (!existing) return res.status(404).json({ error: 'Not found' });
-      if (existing.assignedToId !== currentUserId) {
+      if (existing.assignedToId !== currentUserId && !canCollaborateOnActivity(req.user, existing)) {
         return res.status(403).json({ error: 'Acesso negado' });
       }
     }
