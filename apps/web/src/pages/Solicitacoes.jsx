@@ -305,8 +305,10 @@ const mapRequestRow = (row) => {
 
 const mapActivityRow = (activity) => {
   const explicitStage = extractStage(activity.description);
-  const stage = resolveStage(REQUEST_STATUS_FROM_ACTIVITY[activity.status] || 'NOVA', explicitStage);
-  const status = activity.flow?.preSalesClosure?.status || (explicitStage ? statusFromStage(stage, REQUEST_STATUS_FROM_ACTIVITY[activity.status] || 'NOVA') : REQUEST_STATUS_FROM_ACTIVITY[activity.status] || 'NOVA');
+  const activityRequestStatus = activity.flow?.preSalesClosure?.status
+    || (isNegativeStatus(explicitStage) ? explicitStage : REQUEST_STATUS_FROM_ACTIVITY[activity.status] || 'NOVA');
+  const stage = resolveStage(activityRequestStatus, explicitStage);
+  const status = activity.flow?.preSalesClosure?.status || (explicitStage ? statusFromStage(stage, activityRequestStatus) : activityRequestStatus);
 
   return {
     id: `activity:${activity.id}`,

@@ -25,8 +25,8 @@ O sino atualiza os retornos a cada 30 segundos, ao receber foco e ao abrir o pai
 
 ## Validação
 
-- `node --test scripts/tests/pre-sales-closure.test.cjs scripts/tests/pre-sales-activity-visibility.test.cjs`: 48 testes passaram.
+- `node --test scripts/tests/pre-sales-stage.test.cjs scripts/tests/pre-sales-closure.test.cjs scripts/tests/pre-sales-activity-visibility.test.cjs`: 54 testes passaram.
 - `npm run build --workspace=apps/web`: compilação e verificações obrigatórias do projeto.
-- Conferência local do formulário: botões distintos e confirmação desabilitada sem motivo. A conferência completa por navegador não foi concluída; os fluxos de servidor foram exercitados com dados fictícios, incluindo falhas, permissões e devolução ao comercial.
+- Conferência do formulário com confirmação desabilitada sem motivo e dos botões e painel de notificações em produção, sem encerrar cotações reais. Os testes incluem decisões legadas, falhas, permissões e devolução ao comercial.
 
-A implementação está no repositório local. A publicação depende do processo habitual de implantação da aplicação.
+A implantação preserva as correções existentes da API, mantém backup para reversão e troca o frontend apenas após verificar a integridade dos arquivos. Os manifestos de publicação ficam em `/var/www/nexoscrm/backups/pre-sales-closure-*/deployment.json`.
