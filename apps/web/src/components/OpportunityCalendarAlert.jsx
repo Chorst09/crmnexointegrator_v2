@@ -2,6 +2,10 @@ import { useId, useState } from 'react';
 import { Bell, X } from 'lucide-react';
 
 const stamp = date => date.toISOString().replace(/[-:]/g, '').replace(/\.\d{3}/, '');
+const nextLocalTime = () => {
+  const date = new Date(Math.ceil((Date.now() + 30 * 60000) / 60000) * 60000);
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}T${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`;
+};
 const escapeCalendar = value => String(value).replace(/\\/g, '\\\\').replace(/\r?\n/g, '\\n').replace(/;/g, '\\;').replace(/,/g, '\\,');
 
 export default function OpportunityCalendarAlert({ opportunity, notes = '' }) {
@@ -16,8 +20,17 @@ export default function OpportunityCalendarAlert({ opportunity, notes = '' }) {
 
   function generate() {
     const start = new Date(when);
-    if (!title.trim() || !when || !Number.isFinite(start.getTime()) || start <= new Date()) {
-      setError('Informe a ação e uma data e horário futuros.');
+    setStatus('');
+    if (!title.trim()) {
+      setError('Informe a ação / título do alerta.');
+      return;
+    }
+    if (!when || !Number.isFinite(start.getTime())) {
+      setError('Informe uma data e horário válidos.');
+      return;
+    }
+    if (start <= new Date()) {
+      setError(`O horário escolhido (${start.toLocaleString('pt-BR')}) já passou no seu fuso local. Escolha um horário após ${new Date().toLocaleString('pt-BR')}.`);
       return;
     }
     setError('');
@@ -63,6 +76,7 @@ export default function OpportunityCalendarAlert({ opportunity, notes = '' }) {
         if (!open) {
           setTitle(`Contato com ${opportunity.company?.name || opportunity.title || opportunity.name || 'cliente'}`);
           setDescription(notes); setError(''); setStatus('');
+          if (!when || new Date(when) <= new Date()) setWhen(nextLocalTime());
         }
         setOpen(!open);
       }}><Bell className="h-4 w-4" /> Gerar alerta</button>
@@ -72,10 +86,11 @@ export default function OpportunityCalendarAlert({ opportunity, notes = '' }) {
         <button type="button" onClick={() => setOpen(false)} aria-label="Fechar alerta"><X className="h-4 w-4" /></button>
       </div>
       <label className="block text-sm" htmlFor={`${id}-title`}>Ação / título</label>
-      <input id={`${id}-title`} className="crm-input" value={title} maxLength={200} onChange={e => setTitle(e.target.value)} />
+      <input id={`${id}-title`} className="crm-input" value={title} maxLength={200} onChange={e => { setTitle(e.target.value); setError(''); setStatus(''); }} />
       <div className="grid gap-3 sm:grid-cols-2">
         <div><label className="mb-1 block text-sm" htmlFor={`${id}-when`}>Data e horário (seu fuso local)</label>
-          <input id={`${id}-when`} type="datetime-local" className="crm-input" value={when} onChange={e => setWhen(e.target.value)} /></div>
+          <input id={`${id}-when`} type="datetime-local" className="crm-input" value={when} onChange={e => { setWhen(e.target.value); setError(''); setStatus(''); }} />
+          <button type="button" className="mt-2 text-xs font-semibold text-cyan-700 dark:text-cyan-400" onClick={() => { setWhen(nextLocalTime()); setError(''); setStatus(''); }}>Usar daqui a 30 minutos</button></div>
         <div><label className="mb-1 block text-sm" htmlFor={`${id}-provider`}>Agenda</label>
           <select id={`${id}-provider`} className="crm-input" value={provider} onChange={e => { setProvider(e.target.value); setStatus(''); }}>
             <option value="google">Google Agenda</option><option value="microsoft">Microsoft 365 (trabalho)</option>
