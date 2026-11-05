@@ -205,7 +205,14 @@ const Contratos = () => {
         alert('Contrato salvo com sucesso!');
       } else {
         const error = await response.json();
-        alert(error.error || 'Erro ao salvar contrato');
+        const errorMessage = error.error || 'Erro ao salvar contrato';
+        
+        // Mensagem específica para conflito de número
+        if (response.status === 409) {
+          alert('Número de contrato já existe! Por favor, use um número diferente.');
+        } else {
+          alert(errorMessage);
+        }
       }
     } catch (error) {
       console.error('Erro ao salvar contrato:', error);
