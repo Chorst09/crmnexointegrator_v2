@@ -62,6 +62,7 @@ const Contratos = () => {
     renewalPeriod: '',
     renewalNotice: '',
     expirationAlert: true,
+    alertDays: 30,
     slaResponseTime: '',
     slaResolutionTime: '',
     slaAvailability: '',
@@ -236,6 +237,7 @@ const Contratos = () => {
       renewalPeriod: '',
       renewalNotice: '',
     expirationAlert: true,
+    alertDays: 30,
       slaResponseTime: '',
       slaResolutionTime: '',
       slaAvailability: '',
@@ -263,6 +265,7 @@ const Contratos = () => {
       renewalPeriod: contract.renewalPeriod?.toString() || '',
       renewalNotice: contract.renewalNotice?.toString() || '',
       expirationAlert: contract.expirationAlert !== false,
+      alertDays: contract.alertDays ?? 30,
       slaResponseTime: contract.slaResponseTime?.toString() || '',
       slaResolutionTime: contract.slaResolutionTime?.toString() || '',
       slaAvailability: contract.slaAvailability?.toString() || '',
@@ -435,7 +438,7 @@ const Contratos = () => {
       />
 
       <LeadCalendarConnections />
-      <div className="crm-panel-muted p-4 text-sm text-[var(--crm-muted)]">Contratos ativos ou a renovar recebem aviso 30 dias antes do vencimento, às 9h (Brasília), na agenda conectada do gerente de contas da empresa. Cópias de oportunidades chegam como rascunho: complete as datas e ative o contrato.</div>
+      <div className="crm-panel-muted p-4 text-sm text-[var(--crm-muted)]">Contratos ativos ou a renovar recebem aviso na agenda conectada do gerente de contas da empresa, conforme os dias de antecedência configurados em cada contrato. Cópias de oportunidades chegam como rascunho: complete as datas e ative o contrato.</div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -678,7 +681,7 @@ const Contratos = () => {
 
                 <div className="crm-panel-muted p-4">
                   <h4 className="font-semibold text-[var(--crm-ink)] mb-3">Período e aviso de vencimento</h4>
-                  <p className="mb-3 text-sm text-[var(--crm-muted)]">{selectedContract.expirationAlert !== false ? 'Alerta de vencimento: 30 dias antes, às 9h (Brasília).' : 'Alerta de vencimento desativado.'}</p>
+                  <p className="mb-3 text-sm text-[var(--crm-muted)]">{selectedContract.expirationAlert !== false ? `Alerta de vencimento: ${selectedContract.alertDays ?? 30} dias antes, às 9h (Brasília).` : 'Alerta de vencimento desativado.'}</p>
                   {selectedContract.sourceDocumentId && <p className="mb-3 text-xs text-[var(--crm-muted)]">Cópia independente de: {selectedContract.sourceOpportunityLabel || 'oportunidade de origem'}. Excluir o anexo original não apaga esta cópia.</p>}
                   <button type="button" className="crm-btn crm-btn-secondary mb-3" onClick={() => { setShowDetailsModal(false); handleEdit(selectedContract); }}>Editar contrato e vencimento</button>
                   <div className="space-y-2 text-sm">
@@ -1043,8 +1046,22 @@ const Contratos = () => {
                   <div className="mb-4 crm-panel-muted p-3 space-y-2">
                     <label className="flex items-center gap-2 text-sm font-semibold">
                       <input type="checkbox" checked={formData.expirationAlert} onChange={event => setFormData({ ...formData, expirationAlert: event.target.checked })} />
-                      Alertar vencimento com 30 dias de antecedência
+                      Alertar vencimento com antecedência
                     </label>
+                    {formData.expirationAlert && (
+                      <div className="flex items-center gap-2 pl-6">
+                        <span className="text-xs text-[var(--crm-muted)]">Avisar com</span>
+                        <input
+                          type="number"
+                          min="1"
+                          max="365"
+                          value={formData.alertDays}
+                          onChange={e => setFormData({ ...formData, alertDays: parseInt(e.target.value, 10) || 30 })}
+                          className="w-16 text-center text-xs font-semibold border border-[color:var(--crm-border)] rounded-md px-2 py-1 bg-[var(--crm-surface)] text-[var(--crm-ink)] focus:outline-none focus:ring-1 focus:ring-[var(--crm-accent)]"
+                        />
+                        <span className="text-xs text-[var(--crm-muted)]">dias antes do vencimento</span>
+                      </div>
+                    )}
                     <p className="text-xs text-[var(--crm-muted)]">Responsável: {companies.find(company => company.id === formData.companyId)?.accountManagerName || selectedContract?.company?.accountManagerName || 'defina o gerente de contas na empresa ou o responsável da oportunidade'}. O responsável deve conectar a própria agenda Google ou Microsoft. Renovações e mudanças no vencimento atualizam o aviso.</p>
                   </div>
                   <div className="flex items-center mb-4">
