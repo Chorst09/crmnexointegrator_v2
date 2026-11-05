@@ -19,6 +19,14 @@ describe('security configuration smoke checks', () => {
     expect(deployScript).not.toContain('<ADMIN_PASSWORD>');
   });
 
+  test('default compose requires a database password and binds PostgreSQL to loopback', () => {
+    const composeFile = readRepoFile('docker-compose.yml');
+
+    expect(composeFile).toContain('POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}');
+    expect(composeFile).toContain('127.0.0.1:5433:5432');
+    expect(composeFile).not.toMatch(/POSTGRES_PASSWORD:\s*(?:nexoscrm123|postgres|crm_test123)/);
+  });
+
   test('production compose does not define default secrets', () => {
     const composeFile = readRepoFile('docker-compose.production.yml');
 

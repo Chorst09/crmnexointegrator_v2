@@ -7,14 +7,14 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_USER: nexoscrm
-      POSTGRES_PASSWORD: nexoscrm123
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD required}
       POSTGRES_DB: nexoscrm
     ports:
-      - "5433:5432"
+      - "127.0.0.1:5433:5432"
     volumes:
       - nexoscrm_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U nexoscrm"]
+      test: ["CMD-SHELL", "pg_isready -U nexoscrm -d nexoscrm"]
       interval: 5s
       timeout: 5s
       retries: 5
