@@ -834,6 +834,7 @@ model Contract {
   sourceDocumentId String? @unique
   sourceOpportunityLabel String?
   expirationAlert Boolean @default(true)
+  alertDays       Int     @default(30)
 
   // Campos de SLA
   slaResponseTime    Int?     // Tempo de resposta em horas

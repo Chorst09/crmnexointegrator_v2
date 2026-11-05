@@ -1327,48 +1327,84 @@ export default function Empresas({ clientType = 'B2B' }) {
                               </div>
                             </div>
                           )}
-                          <div className="col-span-2 flex items-center justify-between gap-2 p-2 bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] rounded-lg border border-[color:var(--crm-border)]">
-                            <div className="flex-1">
-                              <div className="text-xs font-semibold text-[var(--crm-ink)] mb-1 flex items-center gap-1">
-                                <Bell className="w-3 h-3" />
-                                Alerta de Vencimento
+                          <div className="col-span-2 flex flex-col gap-2 p-2 bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] rounded-lg border border-[color:var(--crm-border)]">
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="flex-1">
+                                <div className="text-xs font-semibold text-[var(--crm-ink)] mb-1 flex items-center gap-1">
+                                  <Bell className="w-3 h-3" />
+                                  Alerta de Vencimento
+                                </div>
+                                <div className="text-xs text-[var(--crm-muted)]">
+                                  {!contract.endDate ? 'Complete o vencimento para ativar o alerta.' : !['ACTIVE', 'RENEWAL_PENDING'].includes(contract.status) ? 'Ative o contrato para agendar o aviso.' : contract.expirationAlert === false ? 'Desativado - não será enviado alerta.' : `Ativado - aviso ${contract.alertDays ?? 30} dias antes na agenda do gerente.`}
+                                </div>
                               </div>
-                              <div className="text-xs text-[var(--crm-muted)]">
-                                {!contract.endDate ? 'Complete o vencimento para ativar o alerta.' : !['ACTIVE', 'RENEWAL_PENDING'].includes(contract.status) ? 'Ative o contrato para agendar o aviso.' : contract.expirationAlert === false ? 'Desativado - não será enviado alerta.' : 'Ativado - aviso 30 dias antes na agenda do gerente.'}
-                              </div>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={async (event) => {
-                                event.stopPropagation();
-                                const newValue = !contract.expirationAlert;
-                                try {
-                                  const response = await fetch(buildApiUrl(`/contracts/${contract.id}`), {
-                                    method: 'PUT',
-                                    headers: getAuthHeaders(),
-                                    body: JSON.stringify({ expirationAlert: newValue })
-                                  });
-                                  if (response.ok) {
-                                    await fetchCompanyDetails(viewingCompany.id);
-                                  } else {
+                              <button
+                                type="button"
+                                onClick={async (event) => {
+                                  event.stopPropagation();
+                                  const newValue = !contract.expirationAlert;
+                                  try {
+                                    const response = await fetch(buildApiUrl(`/contracts/${contract.id}`), {
+                                      method: 'PUT',
+                                      headers: getAuthHeaders(),
+                                      body: JSON.stringify({ expirationAlert: newValue })
+                                    });
+                                    if (response.ok) {
+                                      await fetchCompanyDetails(viewingCompany.id);
+                                    } else {
+                                      alert('Erro ao atualizar alerta');
+                                    }
+                                  } catch (error) {
+                                    console.error('Erro:', error);
                                     alert('Erro ao atualizar alerta');
                                   }
-                                } catch (error) {
-                                  console.error('Erro:', error);
-                                  alert('Erro ao atualizar alerta');
-                                }
-                              }}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--crm-accent)] focus:ring-offset-2 ${
-                                contract.expirationAlert !== false ? 'bg-[var(--crm-accent)]' : 'bg-gray-200 dark:bg-gray-700'
-                              }`}
-                              title={contract.expirationAlert !== false ? 'Clique para desativar alerta' : 'Clique para ativar alerta'}
-                            >
-                              <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                  contract.expirationAlert !== false ? 'translate-x-6' : 'translate-x-1'
+                                }}
+                                className={`relative inline-flex h-6 w-11 flex-shrink-0 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--crm-accent)] focus:ring-offset-2 ${
+                                  contract.expirationAlert !== false ? 'bg-[var(--crm-accent)]' : 'bg-gray-200 dark:bg-gray-700'
                                 }`}
-                              />
-                            </button>
+                                title={contract.expirationAlert !== false ? 'Clique para desativar alerta' : 'Clique para ativar alerta'}
+                              >
+                                <span
+                                  className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                    contract.expirationAlert !== false ? 'translate-x-6' : 'translate-x-1'
+                                  }`}
+                                />
+                              </button>
+                            </div>
+                            {contract.expirationAlert !== false && (
+                              <div className="flex items-center gap-2 pt-1 border-t border-[color:var(--crm-border)]">
+                                <span className="text-xs text-[var(--crm-muted)] flex-shrink-0">Avisar com</span>
+                                <input
+                                  type="number"
+                                  min="1"
+                                  max="365"
+                                  defaultValue={contract.alertDays ?? 30}
+                                  onClick={(e) => e.stopPropagation()}
+                                  onBlur={async (e) => {
+                                    const days = parseInt(e.target.value, 10);
+                                    if (!days || days < 1 || days > 365) {
+                                      e.target.value = contract.alertDays ?? 30;
+                                      return;
+                                    }
+                                    if (days === (contract.alertDays ?? 30)) return;
+                                    try {
+                                      const response = await fetch(buildApiUrl(`/contracts/${contract.id}`), {
+                                        method: 'PUT',
+                                        headers: getAuthHeaders(),
+                                        body: JSON.stringify({ alertDays: days })
+                                      });
+                                      if (response.ok) {
+                                        await fetchCompanyDetails(viewingCompany.id);
+                                      }
+                                    } catch (error) {
+                                      console.error('Erro ao salvar dias:', error);
+                                    }
+                                  }}
+                                  className="w-16 text-center text-xs font-semibold border border-[color:var(--crm-border)] rounded-md px-2 py-1 bg-[var(--crm-surface)] text-[var(--crm-ink)] focus:outline-none focus:ring-1 focus:ring-[var(--crm-accent)]"
+                                />
+                                <span className="text-xs text-[var(--crm-muted)] flex-shrink-0">dias antes do vencimento</span>
+                              </div>
+                            )}
                           </div>
                           {contract.startDate && (
                             <div>

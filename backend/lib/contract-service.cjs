@@ -29,8 +29,9 @@ function expirationSchedule(contract, now = new Date()) {
   const expiresAt = new Date(expiry.toISOString().slice(0, 10) + 'T23:59:59-03:00');
   if (expiresAt < now) return null;
   // An event on the warning date avoids Google's 28-day reminder limit.
+  const days = (contract.alertDays != null && Number.isFinite(contract.alertDays) && contract.alertDays > 0) ? contract.alertDays : 30;
   const alertAt = new Date(expiry.toISOString().slice(0, 10) + 'T09:00:00-03:00');
-  alertAt.setUTCDate(alertAt.getUTCDate() - 30);
+  alertAt.setUTCDate(alertAt.getUTCDate() - days);
   return { alertAt, expiresAt };
 }
 function normalizeContract(body = {}, existing = {}) {
@@ -59,6 +60,11 @@ function normalizeContract(body = {}, existing = {}) {
   if (body.expirationAlert !== undefined) {
     if (typeof body.expirationAlert !== 'boolean') return { error: 'Alerta de vencimento inválido.' };
     data.expirationAlert = body.expirationAlert;
+  }
+  if (body.alertDays !== undefined) {
+    const days = parseInt(body.alertDays, 10);
+    if (!Number.isInteger(days) || days < 1 || days > 365) return { error: 'Dias de alerta deve ser um número entre 1 e 365.' };
+    data.alertDays = days;
   }
   const effective = { ...existing, ...data };
   if (!effective.number || !effective.title) return { error: 'Número e título são obrigatórios.' };
