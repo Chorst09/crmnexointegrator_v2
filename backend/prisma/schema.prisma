@@ -12,6 +12,7 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
+  phone     String?
   password  String
   role      Role     @default(SELLER)
   tenantCompanyId String?
@@ -30,6 +31,7 @@ model User {
   accessPreSales Boolean @default(false)
   accessManagement Boolean @default(false)
   accessAutomation Boolean @default(false)
+  accessContracts Boolean @default(false)
   permissionOverrides Json @default("{}")
   isCompanyOwner Boolean @default(false)
   createdAt DateTime @default(now())
@@ -96,6 +98,11 @@ model Company {
   accessAutomation Boolean @default(false)
   tenantCompanyId String?
   tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+  leadNextAction String?
+  leadNextActionAt DateTime?
+  leadReminderMinutes Int @default(15)
+  leadOrigin String?
+  leadOriginDetail String?
   leadEntryDate DateTime @default(now())
   accountManagerId String?
   accountManagerName     String?
@@ -234,6 +241,7 @@ model Product {
 
 // === FUNIL DE VENDAS ===
 model Opportunity {
+  contracts Contract[]
   id              String   @id @default(uuid())
   number          String?  @unique
   title           String
@@ -299,6 +307,8 @@ model Opportunity {
   kickoffMeetings KickoffMeeting[]
   project     Project?
   
+  companyDocuments CompanyDocument[]
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -813,11 +823,18 @@ model Contract {
   number          String   @unique
   title           String
   description     String?
+  summary         String?  // Resumo dos itens fechados no contrato
   value           Float
-  startDate       DateTime
-  endDate         DateTime
+  startDate       DateTime?
+  endDate         DateTime?
   status          ContractStatus @default(ACTIVE)
   
+  opportunityId String?
+  opportunity Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  sourceDocumentId String? @unique
+  sourceOpportunityLabel String?
+  expirationAlert Boolean @default(true)
+
   // Campos de SLA
   slaResponseTime    Int?     // Tempo de resposta em horas
   slaResolutionTime  Int?     // Tempo de resolução em horas
@@ -862,8 +879,14 @@ model CompanyDocument {
   companyId    String
   company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
+  opportunityId String?
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: Restrict)
+  documentType  String @default("DOCUMENT")
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([companyId, opportunityId])
 }
 
 // === CONFIGURAÇÕES DO SISTEMA ===
@@ -2100,4 +2123,36 @@ model AuditLog {
   @@index([resource, resourceId])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+// OAuth credentials never leave the server. userId is checked against the active tenant before use.
+model LeadCalendarConnection {
+  id String @id @default(uuid())
+  userId String
+  provider String
+  credentials String
+  lastError String?
+  lastSyncedAt DateTime?
+  updatedAt DateTime @updatedAt
+  @@unique([userId, provider])
+}
+
+model LeadCalendarOAuthState {
+  hash String @id
+  userId String
+  provider String
+  verifier String
+  expiresAt DateTime
+}
+
+model LeadCalendarEvent {
+  id String @id @default(uuid())
+  companyId String
+  userId String
+  provider String
+  eventId String
+  version String
+  reminderVersion String?
+  updatedAt DateTime @updatedAt
+  @@unique([companyId, userId, provider])
 }
