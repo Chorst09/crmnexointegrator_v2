@@ -36,6 +36,7 @@ import AnimatedStats from '../components/AnimatedStats';
 import GradientCard from '../components/GradientCard';
 import Modal from '../components/Modal';
 import OpportunityForm from '../components/OpportunityForm';
+import OpportunityCalendarAlert from '../components/OpportunityCalendarAlert';
 import CloseOpportunityModal from '../components/CloseOpportunityModal';
 import OpportunityAttentionPoints from '../components/OpportunityAttentionPoints';
 import OpportunityLearnings from '../components/OpportunityLearnings';
@@ -2179,6 +2180,7 @@ export default function Oportunidades() {
               </div>
 
               <div className="space-y-3">
+                <OpportunityCalendarAlert key={selectedOpportunity.id} opportunity={selectedOpportunity} notes={followUpText} />
                 {/* Botões de Tipo de Interação */}
                 <div className="flex flex-wrap gap-2 mb-3">
                   {[
