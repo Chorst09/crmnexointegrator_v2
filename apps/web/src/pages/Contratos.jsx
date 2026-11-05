@@ -1,3 +1,4 @@
+import LeadCalendarConnections from '../components/LeadCalendarConnections';
 import { useState, useEffect, useRef } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { 
@@ -26,6 +27,8 @@ import GradientCard from '../components/GradientCard';
 import Modal from '../components/Modal';
 import { buildApiUrl, API_ENDPOINTS, getAuthHeaders } from '../config/api';
 
+const formatContractDate = value => value ? new Date(String(value).slice(0, 10) + 'T12:00:00Z').toLocaleDateString('pt-BR', { timeZone: 'UTC' }) : 'Não informado';
+
 const Contratos = () => {
   const [contracts, setContracts] = useState([]);
   const [companies, setCompanies] = useState([]);
@@ -48,6 +51,7 @@ const Contratos = () => {
     number: '',
     title: '',
     description: '',
+    summary: '',
     status: 'AWAITING_SIGNATURE',
     value: '',
     startDate: '',
@@ -57,6 +61,7 @@ const Contratos = () => {
     autoRenewal: false,
     renewalPeriod: '',
     renewalNotice: '',
+    expirationAlert: true,
     slaResponseTime: '',
     slaResolutionTime: '',
     slaAvailability: '',
@@ -91,10 +96,7 @@ const Contratos = () => {
           total: statsData.totalContracts || 0,
           active: statsData.activeContracts || 0,
           totalValue: statsData.totalValue || 0,
-          expiringSoon: loadedContracts.filter(c => {
-            const daysToExpire = Math.ceil((new Date(c.endDate) - new Date()) / (1000 * 60 * 60 * 24));
-            return daysToExpire <= 30 && daysToExpire > 0;
-          }).length
+          expiringSoon: statsData.expiringSoon || 0
         });
       }
     } catch (error) {
@@ -216,6 +218,7 @@ const Contratos = () => {
       number: '',
       title: '',
       description: '',
+      summary: '',
       status: 'AWAITING_SIGNATURE',
       value: '',
       startDate: '',
@@ -225,6 +228,7 @@ const Contratos = () => {
       autoRenewal: false,
       renewalPeriod: '',
       renewalNotice: '',
+    expirationAlert: true,
       slaResponseTime: '',
       slaResolutionTime: '',
       slaAvailability: '',
@@ -241,15 +245,17 @@ const Contratos = () => {
       number: contract.number || '',
       title: contract.title,
       description: contract.description || '',
+      summary: contract.summary || '',
       status: contract.status || 'AWAITING_SIGNATURE',
       value: contract.value.toString(),
-      startDate: contract.startDate.split('T')[0],
-      endDate: contract.endDate.split('T')[0],
+      startDate: contract.startDate?.split('T')[0] || '',
+      endDate: contract.endDate?.split('T')[0] || '',
       companyId: contract.companyId,
       opportunityId: contract.opportunityId || '',
-      autoRenewal: contract.autoRenewal,
+      autoRenewal: Boolean(contract.autoRenewal),
       renewalPeriod: contract.renewalPeriod?.toString() || '',
       renewalNotice: contract.renewalNotice?.toString() || '',
+      expirationAlert: contract.expirationAlert !== false,
       slaResponseTime: contract.slaResponseTime?.toString() || '',
       slaResolutionTime: contract.slaResolutionTime?.toString() || '',
       slaAvailability: contract.slaAvailability?.toString() || '',
@@ -287,35 +293,19 @@ const Contratos = () => {
   const companyFilterId = searchParams.get('companyId');
 
   const filteredContracts = Array.isArray(contracts) ? contracts.filter(contract => {
-    const matchesSearch = contract.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contract.company?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         contract.number.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesSearch = (contract.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (contract.company?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         (contract.number || '').toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !statusFilter || contract.status === statusFilter;
     const matchesCompany = !companyFilterId || contract.companyId === companyFilterId;
     return matchesSearch && matchesStatus && matchesCompany;
   }) : [];
 
   const handleViewDetails = (contract) => {
-    setSelectedContract(contract);
-    setShowDetailsModal(true);
+    openContractById(contract.id);
   };
 
-  const processRenewals = async () => {
-    try {
-      const response = await fetch(buildApiUrl('/contracts/process-renewals'), {
-        method: 'POST',
-        headers: getAuthHeaders()
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        alert(data.message);
-        fetchContracts();
-      }
-    } catch (error) {
-      console.error('Erro ao processar renovações:', error);
-    }
-  };
+  const processRenewals = () => fetchContracts();
 
   const handleFileSelect = (event) => {
     const files = Array.from(event.target.files);
@@ -420,10 +410,10 @@ const Contratos = () => {
         subtitle="Gerencie contratos, renovações e documentos de forma inteligente"
         icon={Contract}
         gradient="blue"
-        breadcrumbs={['CRM', 'Contratos']}
+        breadcrumbs={['Gestão', 'Contratos']}
         actions={[
           {
-            label: 'Processar Renovações',
+            label: 'Atualizar contratos',
             icon: RefreshCw,
             onClick: processRenewals,
             variant: 'secondary'
@@ -431,11 +421,14 @@ const Contratos = () => {
           {
             label: 'Novo Contrato',
             icon: Plus,
-            onClick: () => setShowModal(true),
+            onClick: () => { resetForm(); setShowModal(true); },
             variant: 'primary'
           }
         ]}
       />
+
+      <LeadCalendarConnections />
+      <div className="crm-panel-muted p-4 text-sm text-[var(--crm-muted)]">Contratos ativos ou a renovar recebem aviso 30 dias antes do vencimento, às 9h (Brasília), na agenda conectada do gerente de contas da empresa. Cópias de oportunidades chegam como rascunho: complete as datas e ative o contrato.</div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -445,7 +438,6 @@ const Contratos = () => {
           subtitle="Todos os contratos"
           icon={FileText}
           color="blue"
-          trend={{ direction: 'up', value: '+12% este mês' }}
         />
         
         <AnimatedStats
@@ -454,7 +446,6 @@ const Contratos = () => {
           subtitle="Em vigência"
           icon={CheckCircle}
           color="green"
-          trend={{ direction: 'up', value: '+5% este mês' }}
         />
         
         <AnimatedStats
@@ -464,7 +455,6 @@ const Contratos = () => {
           icon={DollarSign}
           color="purple"
           prefix="R$ "
-          trend={{ direction: 'up', value: '+18% este mês' }}
         />
         
         <AnimatedStats
@@ -473,7 +463,6 @@ const Contratos = () => {
           subtitle="Requer atenção"
           icon={AlertCircle}
           color="orange"
-          trend={{ direction: 'down', value: '-3% este mês' }}
         />
       </div>
 
@@ -553,14 +542,14 @@ const Contratos = () => {
             label: 'Período',
             render: (contract) => {
               const daysToExpire = Math.ceil((new Date(contract.endDate) - new Date()) / (1000 * 60 * 60 * 24));
-              const isExpiringSoon = daysToExpire <= 30 && daysToExpire > 0;
+              const isExpiringSoon = ['ACTIVE', 'RENEWAL_PENDING'].includes(contract.status) && contract.endDate && daysToExpire <= 30 && daysToExpire >= 0;
               
               return (
                 <div className="flex items-center">
                   <Calendar className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)] mr-2" />
                   <div>
                     <div className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                      {new Date(contract.startDate).toLocaleDateString('pt-BR')} - {new Date(contract.endDate).toLocaleDateString('pt-BR')}
+                      {formatContractDate(contract.startDate)} - {formatContractDate(contract.endDate)}
                     </div>
                     {isExpiringSoon && (
                       <div className="text-xs text-orange-600 font-medium flex items-center">
@@ -605,12 +594,12 @@ const Contratos = () => {
           {
             label: 'Anexos',
             icon: Upload,
-            onClick: (contract) => console.log('Anexos', contract)
+            onClick: (contract) => openContractById(contract.id)
           },
           {
             label: 'Renovar',
             icon: RefreshCw,
-            onClick: (contract) => console.log('Renovar', contract)
+            onClick: (contract) => handleEdit(contract)
           }
         ]}
         emptyState={
@@ -681,18 +670,21 @@ const Contratos = () => {
                 </div>
 
                 <div className="crm-panel-muted p-4">
-                  <h4 className="font-semibold text-[var(--crm-ink)] mb-3">Período</h4>
+                  <h4 className="font-semibold text-[var(--crm-ink)] mb-3">Período e aviso de vencimento</h4>
+                  <p className="mb-3 text-sm text-[var(--crm-muted)]">{selectedContract.expirationAlert !== false ? 'Alerta de vencimento: 30 dias antes, às 9h (Brasília).' : 'Alerta de vencimento desativado.'}</p>
+                  {selectedContract.sourceDocumentId && <p className="mb-3 text-xs text-[var(--crm-muted)]">Cópia independente de: {selectedContract.sourceOpportunityLabel || 'oportunidade de origem'}. Excluir o anexo original não apaga esta cópia.</p>}
+                  <button type="button" className="crm-btn crm-btn-secondary mb-3" onClick={() => { setShowDetailsModal(false); handleEdit(selectedContract); }}>Editar contrato e vencimento</button>
                   <div className="space-y-2 text-sm">
                     <div>
                       <span className="text-[var(--crm-muted)]">Início:</span>
                       <span className="ml-2 font-medium text-[var(--crm-ink)]">
-                        {new Date(selectedContract.startDate).toLocaleDateString('pt-BR')}
+                        {formatContractDate(selectedContract.startDate)}
                       </span>
                     </div>
                     <div>
                       <span className="text-[var(--crm-muted)]">Fim:</span>
                       <span className="ml-2 font-medium text-[var(--crm-ink)]">
-                        {new Date(selectedContract.endDate).toLocaleDateString('pt-BR')}
+                        {formatContractDate(selectedContract.endDate)}
                       </span>
                     </div>
                     <div>
@@ -838,6 +830,15 @@ const Contratos = () => {
               </div>
             )}
 
+            {selectedContract.summary && (
+              <div>
+                <h4 className="font-semibold text-[var(--crm-ink)] mb-2">Resumo do Contrato</h4>
+                <div className="text-[var(--crm-ink)] bg-emerald-50 dark:bg-emerald-950/30 p-4 rounded-2xl border border-emerald-200 dark:border-emerald-800">
+                  <p className="whitespace-pre-wrap">{selectedContract.summary}</p>
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-end gap-3 pt-4 border-t border-[color:var(--crm-border)]">
               <button
                 onClick={() => setShowDetailsModal(false)}
@@ -946,6 +947,22 @@ const Contratos = () => {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-[var(--crm-muted)] mb-1">
+                    Resumo do Contrato
+                  </label>
+                  <textarea
+                    rows={4}
+                    value={formData.summary}
+                    onChange={(e) => setFormData({...formData, summary: e.target.value})}
+                    className="crm-input"
+                    placeholder="Resumo de todos os itens fechados no contrato (produtos, serviços, quantidades, valores, etc.)"
+                  />
+                  <p className="text-xs text-[var(--crm-muted)] mt-1">
+                    Este resumo será visível para a equipe comercial na aba Contratos da empresa
+                  </p>
+                </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-[var(--crm-muted)] mb-1">
@@ -953,7 +970,7 @@ const Contratos = () => {
                     </label>
                     <input
                       type="date"
-                      required
+                      required={['ACTIVE', 'RENEWAL_PENDING'].includes(formData.status)}
                       value={formData.startDate}
                       onChange={(e) => setFormData({...formData, startDate: e.target.value})}
                       className="crm-input"
@@ -966,7 +983,7 @@ const Contratos = () => {
                     </label>
                     <input
                       type="date"
-                      required
+                      required={['ACTIVE', 'RENEWAL_PENDING'].includes(formData.status)}
                       value={formData.endDate}
                       onChange={(e) => setFormData({...formData, endDate: e.target.value})}
                       className="crm-input"
@@ -982,7 +999,8 @@ const Contratos = () => {
                     <select
                       required
                       value={formData.companyId}
-                      onChange={(e) => setFormData({...formData, companyId: e.target.value})}
+                      disabled={Boolean(selectedContract?.sourceDocumentId)}
+                      onChange={(e) => setFormData({...formData, companyId: e.target.value, opportunityId: ''})}
                       className="crm-input"
                     >
                       <option value="">Selecione uma empresa</option>
@@ -1000,11 +1018,12 @@ const Contratos = () => {
                     </label>
                     <select
                       value={formData.opportunityId}
+                      disabled={Boolean(selectedContract?.sourceDocumentId)}
                       onChange={(e) => setFormData({...formData, opportunityId: e.target.value})}
                       className="crm-input"
                     >
                       <option value="">Selecione uma oportunidade</option>
-                      {opportunities.map((opportunity) => (
+                      {opportunities.filter((opportunity) => opportunity.companyId === formData.companyId).map((opportunity) => (
                         <option key={opportunity.id} value={opportunity.id}>
                           {opportunity.title}
                         </option>
@@ -1014,6 +1033,13 @@ const Contratos = () => {
                 </div>
 
                 <div className="border-t border-[color:var(--crm-border)] pt-4">
+                  <div className="mb-4 crm-panel-muted p-3 space-y-2">
+                    <label className="flex items-center gap-2 text-sm font-semibold">
+                      <input type="checkbox" checked={formData.expirationAlert} onChange={event => setFormData({ ...formData, expirationAlert: event.target.checked })} />
+                      Alertar vencimento com 30 dias de antecedência
+                    </label>
+                    <p className="text-xs text-[var(--crm-muted)]">Responsável: {companies.find(company => company.id === formData.companyId)?.accountManagerName || selectedContract?.company?.accountManagerName || 'defina o gerente de contas na empresa ou o responsável da oportunidade'}. O responsável deve conectar a própria agenda Google ou Microsoft. Renovações e mudanças no vencimento atualizam o aviso.</p>
+                  </div>
                   <div className="flex items-center mb-4">
                     <input
                       type="checkbox"

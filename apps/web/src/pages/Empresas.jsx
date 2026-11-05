@@ -3,11 +3,15 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Building2, Flame, Plus, Sparkles, Users, Mail, Phone, MapPin, Globe, FileText, Target, Calendar, Paperclip, User, FileSignature, Download, Trash2, Upload, Rocket, Clock, ClipboardList } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
+import SellerProfile from '../components/SellerProfile';
 import AnimatedStats from '../components/AnimatedStats';
 import ModernTable from '../components/ModernTable';
 import Modal from '../components/Modal';
+import CompanyDocuments from '../components/CompanyDocuments';
 import { API_ENDPOINTS, buildApiUrl, getAuthHeaders } from '../config/api';
 import { isMaster, normalizeRole } from '../utils/permissions';
+import { resolveCompanyAccountManager, accountManagerOptions } from '../utils/company-account-manager.mjs';
+import { getOpportunitySummary } from '../utils/opportunity-summary.mjs';
 
 const normalizeClientType = (value, fallback = 'B2B') => {
   const raw = String(value || '').trim().toUpperCase();
@@ -172,15 +176,25 @@ export default function Empresas({ clientType = 'B2B' }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [saving, setSaving] = useState(false);
-  const [docFiles, setDocFiles] = useState([]);
-  const [docUploading, setDocUploading] = useState(false);
-  const [viewDocFiles, setViewDocFiles] = useState([]);
-  const [viewDocUploading, setViewDocUploading] = useState(false);
   const [companyKickoffs, setCompanyKickoffs] = useState([]);
   const [companyKickoffsLoading, setCompanyKickoffsLoading] = useState(false);
   const [companyKickoffsError, setCompanyKickoffsError] = useState('');
   const [formData, setFormData] = useState(() => initialFormData(pageClientType));
   const [users, setUsers] = useState([]);
+  const managerOptions = accountManagerOptions(users, currentUser, {
+    id: formData.accountManagerId, name: formData.accountManagerName
+  });
+
+  useEffect(() => {
+    if (!showForm || !editingCompany) return;
+    setFormData(previous => {
+      if (previous.accountManagerId || !previous.accountManagerName) return previous;
+      const manager = resolveCompanyAccountManager({
+        accountManagerName: previous.accountManagerName
+      }, users);
+      return manager.id ? { ...previous, accountManagerId: manager.id } : previous;
+    });
+  }, [users, showForm, editingCompany]);
 
   useEffect(() => {
     // Carregar lista de usuários para o dropdown de Gerente da Conta
@@ -217,11 +231,6 @@ export default function Empresas({ clientType = 'B2B' }) {
     if (searchParams.get('openForm') !== '1') return;
     openCreate();
   }, [searchParams, pageClientType]);
-
-  const getUploadHeaders = () => {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
 
   const fetchCompanyDetails = async (companyId) => {
     if (!companyId) return;
@@ -270,94 +279,6 @@ export default function Empresas({ clientType = 'B2B' }) {
     }
   };
 
-  const uploadCompanyDocuments = async (companyId, files, setUploading) => {
-    if (!companyId || !files || files.length === 0) return;
-
-    try {
-      if (setUploading) setUploading(true);
-
-      for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const response = await fetch(buildApiUrl(`/companies/${companyId}/documents`), {
-          method: 'POST',
-          headers: getUploadHeaders(),
-          body: formData
-        });
-
-        if (!response.ok) {
-          console.error('Erro no upload de documento:', await response.text());
-        }
-      }
-    } catch (error) {
-      console.error('Erro ao enviar documentos:', error);
-    } finally {
-      if (setUploading) setUploading(false);
-    }
-  };
-
-  const handleFormDocSelect = (event) => {
-    const files = Array.from(event.target.files || []);
-    if (files.length === 0) return;
-    setDocFiles((prev) => [...prev, ...files]);
-    event.target.value = '';
-  };
-
-  const handleViewDocSelect = (event) => {
-    const files = Array.from(event.target.files || []);
-    if (files.length === 0) return;
-    setViewDocFiles((prev) => [...prev, ...files]);
-    event.target.value = '';
-  };
-
-  const removeFormDocFile = (index) => {
-    setDocFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const removeViewDocFile = (index) => {
-    setViewDocFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const downloadCompanyDocument = async (documentId, filename) => {
-    try {
-      const response = await fetch(buildApiUrl(`/companies/document/${documentId}/download`), {
-        headers: getAuthHeaders()
-      });
-
-      if (response.ok) {
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        window.URL.revokeObjectURL(url);
-        document.body.removeChild(a);
-      }
-    } catch (error) {
-      console.error('Erro no download do documento:', error);
-    }
-  };
-
-  const deleteCompanyDocument = async (documentId) => {
-    if (!window.confirm('Tem certeza que deseja excluir este documento?')) return;
-
-    try {
-      const response = await fetch(buildApiUrl(`/companies/document/${documentId}`), {
-        method: 'DELETE',
-        headers: getAuthHeaders()
-      });
-
-      if (response.ok) {
-        await fetchCompanyDetails(viewingCompany?.id);
-      }
-    } catch (error) {
-      console.error('Erro ao deletar documento:', error);
-    }
-  };
-
   const filteredEmpresas = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     return empresasArray.filter((e) => {
@@ -390,8 +311,11 @@ export default function Empresas({ clientType = 'B2B' }) {
 
   const openCreate = () => {
     setEditingCompany(null);
-    setFormData(buildPrefilledFormData(pageClientType, searchParams));
-    setDocFiles([]);
+    setFormData({
+      ...buildPrefilledFormData(pageClientType, searchParams),
+      accountManagerId: currentUser.id || currentUser.userId || null,
+      accountManagerName: currentUser.name || ''
+    });
     setShowForm(true);
   };
 
@@ -408,6 +332,7 @@ export default function Empresas({ clientType = 'B2B' }) {
       (contact) => !contact.isPrimary && (contact.position || '').toLowerCase().includes('compras')
     );
 
+    const manager = resolveCompanyAccountManager(company, users);
     setEditingCompany(company);
     setFormData({
       name: company?.name || '',
@@ -420,8 +345,8 @@ export default function Empresas({ clientType = 'B2B' }) {
       city: company?.city || '',
       state: company?.state || '',
       status: company?.status || 'LEAD',
-      accountManagerName: company?.accountManagerName || '',
-      accountManagerId: company?.accountManagerId || null,
+      accountManagerName: manager.name,
+      accountManagerId: manager.id,
       contacts,
       purchasesContact: {
         name: comprasContact?.name || '',
@@ -430,7 +355,6 @@ export default function Empresas({ clientType = 'B2B' }) {
         position: comprasContact?.position || defaultSecondaryPosition
       }
     });
-    setDocFiles([]);
     setShowForm(true);
   };
 
@@ -438,8 +362,6 @@ export default function Empresas({ clientType = 'B2B' }) {
     setShowForm(false);
     setEditingCompany(null);
     setSaving(false);
-    setDocFiles([]);
-    setDocUploading(false);
     setFormData(initialFormData(pageClientType));
   };
 
@@ -494,6 +416,9 @@ export default function Empresas({ clientType = 'B2B' }) {
         clientType: normalizeClientType(baseData.clientType, pageClientType),
         contacts: contactsPayload
       };
+      if (editingCompany?.accountManagerName && !editingCompany.accountManagerId && !payload.accountManagerId && payload.accountManagerName) {
+        delete payload.accountManagerId;
+      }
       if (editingCompany?.id) {
         const response = await fetch(API_ENDPOINTS.companies, {
           method: 'PUT',
@@ -523,10 +448,6 @@ export default function Empresas({ clientType = 'B2B' }) {
       }
       if (success) {
         const companyId = savedCompany?.id || editingCompany?.id;
-        if (companyId && docFiles.length > 0) {
-          await uploadCompanyDocuments(companyId, docFiles, setDocUploading);
-          setDocFiles([]);
-        }
 
         closeModal();
         loadEmpresas();
@@ -538,7 +459,7 @@ export default function Empresas({ clientType = 'B2B' }) {
       }
     } catch (error) {
       console.error('Erro ao salvar empresa:', error);
-      alert('Erro ao salvar empresa');
+      alert(error.message || 'Erro ao salvar empresa');
     } finally {
       setSaving(false);
     }
@@ -562,8 +483,6 @@ export default function Empresas({ clientType = 'B2B' }) {
     setViewingCompany(null);
     setCompanyDetails(null);
     setActiveTab('cadastro');
-    setViewDocFiles([]);
-    setViewDocUploading(false);
     setCompanyKickoffs([]);
     setCompanyKickoffsLoading(false);
     setCompanyKickoffsError('');
@@ -575,10 +494,12 @@ export default function Empresas({ clientType = 'B2B' }) {
     navigate(`/contratos?contractId=${contractId}`);
   };
 
-  const openOpportunityFromCompany = (opportunityId) => {
+  const openOpportunityFromCompany = (opportunityId, attachmentType = '') => {
     if (!opportunityId) return;
     closeViewModal();
-    navigate(`/oportunidades?opportunityId=${opportunityId}`);
+    const params = new URLSearchParams({ opportunityId, clientType: normalizeClientType(viewingCompany?.clientType, pageClientType) });
+    if (attachmentType) params.set('attachmentType', attachmentType);
+    navigate(`/oportunidades?${params.toString()}`);
   };
 
   const openActivityFromCompany = (activityId) => {
@@ -602,12 +523,6 @@ export default function Empresas({ clientType = 'B2B' }) {
     navigate(companyId ? `${kickoffRoute}?companyId=${encodeURIComponent(companyId)}` : kickoffRoute);
   };
 
-  const handleViewDocUpload = async () => {
-    if (!viewingCompany?.id || viewDocFiles.length === 0) return;
-    await uploadCompanyDocuments(viewingCompany.id, viewDocFiles, setViewDocUploading);
-    setViewDocFiles([]);
-    await fetchCompanyDetails(viewingCompany.id);
-  };
 
   const deleteCompanyById = async (companyId) => {
     const response = await fetch(`${API_ENDPOINTS.companies}/${encodeURIComponent(companyId)}`, {
@@ -925,10 +840,10 @@ export default function Empresas({ clientType = 'B2B' }) {
             </div>
             <div className="mt-3">
               <select
-                value={canAssignAccountManager || editingCompany ? formData.accountManagerId || '' : currentUser.id || currentUser.userId || ''}
+                value={formData.accountManagerId || ''}
                 disabled={!canAssignAccountManager}
                 onChange={(e) => {
-                  const selected = users.find(u => u.id === e.target.value);
+                  const selected = managerOptions.find(u => u.id === e.target.value);
                   setFormData({
                     ...formData,
                     accountManagerId: e.target.value || null,
@@ -937,13 +852,19 @@ export default function Empresas({ clientType = 'B2B' }) {
                 }}
                 className="crm-input"
               >
-                <option value="">— Selecionar responsável —</option>
-                {users.map(u => (
+                <option value="">{formData.accountManagerName && !formData.accountManagerId ? `${formData.accountManagerName} (cadastro anterior)` : '— Selecionar responsável —'}</option>
+                {managerOptions.map(u => (
                   <option key={u.id} value={u.id}>
                     {u.name} ({u.role === 'MASTER' ? 'MASTER' : u.role === 'ADMIN' ? 'ADMIN' : u.role === 'SELLER' ? 'SELLER' : u.role || 'USER'})
                   </option>
                 ))}
               </select>
+              <SellerProfile seller={users.find(user => user.id === formData.accountManagerId) || (formData.accountManagerId === (currentUser.id || currentUser.userId) ? currentUser : null) || (formData.accountManagerName ? {
+                name: formData.accountManagerName,
+                email: editingCompany?.accountManagerEmail,
+                phone: editingCompany?.accountManagerPhone,
+                role: editingCompany?.accountManagerPosition
+              } : null)} />
               {!canAssignAccountManager && (
                 <p className="mt-2 text-xs text-[var(--crm-muted)]">Novas empresas ficam sob sua responsabilidade. Admin e Master podem alterar o responsável.</p>
               )}
@@ -1058,56 +979,17 @@ export default function Empresas({ clientType = 'B2B' }) {
             </div>
           </div>
 
-          <div className="crm-panel-muted p-4 space-y-3">
-            <div className="flex items-center justify-between gap-4">
-              <div>
-                <div className="text-sm font-extrabold text-[var(--crm-ink)]">Documentação</div>
-                <div className="text-xs text-[var(--crm-muted)]">
-                  Anexe documentos {isGovernmentMode ? 'do órgão' : 'da empresa'} (PDF, DOC, XLS, imagens).
-                </div>
-              </div>
-              {docFiles.length > 0 && (
-                <span className="text-xs text-[var(--crm-muted)]">{docFiles.length} arquivo(s)</span>
-              )}
-            </div>
-
-            <input
-              type="file"
-              multiple
-              onChange={handleFormDocSelect}
-              className="block w-full text-sm text-[var(--crm-ink)] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-black/10 file:text-[var(--crm-ink)] hover:file:bg-black/20"
-            />
-
-            {docFiles.length > 0 && (
-              <div className="space-y-2">
-                {docFiles.map((file, index) => (
-                  <div
-                    key={`${file.name}-${index}`}
-                    className="flex items-center justify-between gap-4 p-2 rounded-xl bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[color:var(--crm-border)]"
-                  >
-                    <div className="text-sm text-[var(--crm-ink)] truncate">{file.name}</div>
-                    <button
-                      type="button"
-                      onClick={() => removeFormDocFile(index)}
-                      className="crm-btn crm-btn-ghost px-3 py-1 text-xs"
-                    >
-                      Remover
-                    </button>
-                  </div>
-                ))}
-                <div className="text-xs text-[var(--crm-muted)]">
-                  Os arquivos serão enviados após salvar a empresa.
-                </div>
-              </div>
-            )}
-          </div>
+          {editingCompany?.id && <div className="crm-panel-muted p-4 space-y-3">
+            <p className="text-sm text-[var(--crm-muted)]">Contratos e documentos são anexados diretamente nas oportunidades desta empresa.</p>
+            <button type="button" className="crm-btn crm-btn-secondary" onClick={() => { const company = editingCompany; closeModal(); openView(company); setActiveTab('oportunidades'); }}>Ver oportunidades da empresa</button>
+          </div>}
 
           <div className="flex flex-col sm:flex-row gap-3 justify-end">
             <button type="button" onClick={closeModal} className="crm-btn crm-btn-secondary">
               Cancelar
             </button>
-            <button type="submit" disabled={saving || docUploading} className="crm-btn crm-btn-primary">
-              {saving || docUploading ? 'Salvando...' : editingCompany ? 'Atualizar' : 'Criar'}
+            <button type="submit" disabled={saving} className="crm-btn crm-btn-primary">
+              {saving ? 'Salvando...' : editingCompany ? 'Atualizar' : 'Criar'}
             </button>
           </div>
         </form>
@@ -1364,9 +1246,7 @@ export default function Empresas({ clientType = 'B2B' }) {
                             </span>
                           </div>
                         </div>
-                        {opp.description && (
-                          <p className="text-xs text-[var(--crm-muted)] mt-2">{opp.description}</p>
-                        )}
+                        <p className="text-xs text-[var(--crm-muted)] mt-2 break-words">{getOpportunitySummary(opp)}</p>
                       </div>
                     ))
                   ) : (
@@ -1381,6 +1261,8 @@ export default function Empresas({ clientType = 'B2B' }) {
               {/* Aba Contratos */}
               {activeTab === 'contratos' && (
                 <div className="space-y-4">
+                  <CompanyDocuments companyId={viewingCompany.id} documentType="CONTRACT" onOpenOpportunity={id => openOpportunityFromCompany(id, 'CONTRACT')} onManage={() => setActiveTab('oportunidades')} />
+                  {companyDetails?.contracts?.length > 0 && <h4 className="text-sm font-bold text-[var(--crm-ink)]">Contratos cadastrados no módulo de contratos</h4>}
                   {companyDetails?.contracts && companyDetails.contracts.length > 0 ? (
                     companyDetails.contracts.map((contract) => (
                       <div
@@ -1402,6 +1284,7 @@ export default function Empresas({ clientType = 'B2B' }) {
                             <div className="text-xs text-[var(--crm-muted)] mt-0.5">
                               Número: {contract.number || 'N/A'}
                             </div>
+                            <div className="text-xs text-[var(--crm-muted)] mt-1">{contract.sourceOpportunityLabel || contract.opportunity?.number || 'Oportunidade não vinculada no cadastro anterior.'}</div>
                           </div>
                           <div className="flex items-center gap-2">
                             <button
@@ -1444,11 +1327,12 @@ export default function Empresas({ clientType = 'B2B' }) {
                               </div>
                             </div>
                           )}
+                          <div className="col-span-2 text-xs text-[var(--crm-muted)]">{!contract.endDate ? 'Complete o vencimento para ativar o alerta.' : !['ACTIVE', 'RENEWAL_PENDING'].includes(contract.status) ? 'Ative o contrato para agendar o aviso de vencimento.' : contract.expirationAlert === false ? 'Alerta de vencimento desativado.' : 'Aviso de vencimento: 30 dias antes, na agenda Google/Microsoft do responsável.'}</div>
                           {contract.startDate && (
                             <div>
                               <div className="text-xs text-[var(--crm-muted)]">Início</div>
                               <div className="text-sm font-semibold text-[var(--crm-ink)]">
-                                {new Date(contract.startDate).toLocaleDateString('pt-BR')}
+                                {new Date(contract.startDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                               </div>
                             </div>
                           )}
@@ -1456,7 +1340,7 @@ export default function Empresas({ clientType = 'B2B' }) {
                             <div>
                               <div className="text-xs text-[var(--crm-muted)]">Término</div>
                               <div className="text-sm font-semibold text-[var(--crm-ink)]">
-                                {new Date(contract.endDate).toLocaleDateString('pt-BR')}
+                                {new Date(contract.endDate).toLocaleDateString('pt-BR', { timeZone: 'UTC' })}
                               </div>
                             </div>
                           )}
@@ -1472,7 +1356,15 @@ export default function Empresas({ clientType = 'B2B' }) {
 
                         {contract.description && (
                           <div className="mt-3 pt-3 border-t border-[color:var(--crm-border)]">
+                            <div className="text-xs font-semibold text-[var(--crm-muted)] mb-1">Descrição</div>
                             <p className="text-xs text-[var(--crm-muted)]">{contract.description}</p>
+                          </div>
+                        )}
+
+                        {contract.summary && (
+                          <div className="mt-3 pt-3 border-t border-[color:var(--crm-border)]">
+                            <div className="text-xs font-semibold text-[var(--crm-muted)] mb-1">Resumo do Contrato</div>
+                            <p className="text-sm text-[var(--crm-ink)] whitespace-pre-wrap">{contract.summary}</p>
                           </div>
                         )}
 
@@ -1491,12 +1383,7 @@ export default function Empresas({ clientType = 'B2B' }) {
                         )}
                       </div>
                     ))
-                  ) : (
-                    <div className="text-center py-12">
-                      <FileSignature className="w-12 h-12 text-[var(--crm-muted)] mx-auto mb-3 opacity-50" />
-                      <p className="text-sm text-[var(--crm-muted)]">Nenhum contrato cadastrado</p>
-                    </div>
-                  )}
+                  ) : null}
                 </div>
               )}
 
@@ -1688,99 +1575,7 @@ export default function Empresas({ clientType = 'B2B' }) {
 
               {/* Aba Documentos */}
               {activeTab === 'documentos' && (
-                <div className="space-y-6">
-                  <div className="crm-panel-muted p-4 space-y-3">
-                    <div className="flex items-center justify-between gap-4">
-                      <div>
-                        <div className="text-sm font-bold text-[var(--crm-ink)]">Documentação {isGovernmentMode ? 'do órgão' : 'da empresa'}</div>
-                        <div className="text-xs text-[var(--crm-muted)]">
-                          Envie contratos sociais, certificados, propostas e anexos relacionados.
-                        </div>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleViewDocUpload}
-                        disabled={viewDocUploading || viewDocFiles.length === 0}
-                        className="crm-btn crm-btn-primary px-4 py-2 disabled:opacity-60"
-                      >
-                        {viewDocUploading ? 'Enviando...' : 'Enviar'}
-                      </button>
-                    </div>
-
-                    <input
-                      type="file"
-                      multiple
-                      onChange={handleViewDocSelect}
-                      className="block w-full text-sm text-[var(--crm-ink)] file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:bg-black/10 file:text-[var(--crm-ink)] hover:file:bg-black/20"
-                    />
-
-                    {viewDocFiles.length > 0 && (
-                      <div className="space-y-2">
-                        {viewDocFiles.map((file, index) => (
-                          <div
-                            key={`${file.name}-${index}`}
-                            className="flex items-center justify-between gap-4 p-2 rounded-xl bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[color:var(--crm-border)]"
-                          >
-                            <div className="text-sm text-[var(--crm-ink)] truncate">{file.name}</div>
-                            <button
-                              type="button"
-                              onClick={() => removeViewDocFile(index)}
-                              className="crm-btn crm-btn-ghost px-3 py-1 text-xs"
-                            >
-                              Remover
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-2">
-                    {companyDetails?.documents && companyDetails.documents.length > 0 ? (
-                      companyDetails.documents.map((doc) => (
-                        <div
-                          key={doc.id}
-                          className="flex items-center justify-between gap-4 p-3 rounded-2xl bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] border border-[color:var(--crm-border)]"
-                        >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <Upload className="w-4 h-4 text-blue-600 dark:text-blue-300" />
-                            <div className="min-w-0">
-                              <div className="text-sm font-semibold text-[var(--crm-ink)] truncate">
-                                {doc.originalName}
-                              </div>
-                              <div className="text-xs text-[var(--crm-muted)]">
-                                {(doc.size / 1024 / 1024).toFixed(2)} MB • {new Date(doc.createdAt).toLocaleDateString('pt-BR')}
-                              </div>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              type="button"
-                              onClick={() => downloadCompanyDocument(doc.id, doc.originalName)}
-                              className="crm-btn crm-btn-ghost px-3 py-2"
-                              title="Download"
-                            >
-                              <Download className="w-4 h-4" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => deleteCompanyDocument(doc.id)}
-                              className="crm-btn crm-btn-danger px-3 py-2"
-                              title="Excluir"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-center py-12">
-                        <Paperclip className="w-12 h-12 text-[var(--crm-muted)] mx-auto mb-3 opacity-50" />
-                        <p className="text-sm text-[var(--crm-muted)]">Nenhum documento cadastrado</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <CompanyDocuments companyId={viewingCompany.id} documentType="DOCUMENT" onOpenOpportunity={id => openOpportunityFromCompany(id, 'DOCUMENT')} onManage={() => setActiveTab('oportunidades')} />
               )}
             </div>
 

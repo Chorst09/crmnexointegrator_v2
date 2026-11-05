@@ -1,11 +1,12 @@
 const ROLE_ACCESS_DEFAULTS = {
-  MASTER: { accessB2B: true, accessB2G: true, accessPreSales: true, accessManagement: true, accessAutomation: true },
-  ADMIN: { accessB2B: true, accessB2G: true, accessPreSales: true, accessManagement: true, accessAutomation: true },
-  MANAGER: { accessB2B: true, accessB2G: true, accessPreSales: true, accessManagement: true, accessAutomation: true },
-  DIRECTOR: { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: true, accessAutomation: false },
-  SELLER: { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: true, accessAutomation: false },
-  USER: { accessB2B: true, accessB2G: false, accessPreSales: false, accessManagement: false, accessAutomation: false },
-  PRE_SALES: { accessB2B: false, accessB2G: false, accessPreSales: true, accessManagement: false, accessAutomation: false }
+  MASTER: { accessB2B: true, accessB2G: true, accessPreSales: true, accessManagement: true, accessAutomation: true, accessContracts: true },
+  ADMIN: { accessB2B: true, accessB2G: true, accessPreSales: true, accessManagement: true, accessAutomation: true, accessContracts: true },
+  MANAGER: { accessB2B: true, accessB2G: true, accessPreSales: true, accessManagement: true, accessAutomation: true, accessContracts: false },
+  DIRECTOR: { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: true, accessAutomation: false, accessContracts: false },
+  SELLER: { accessB2B: true, accessB2G: true, accessPreSales: false, accessManagement: true, accessAutomation: false, accessContracts: false },
+  USER: { accessB2B: true, accessB2G: false, accessPreSales: false, accessManagement: false, accessAutomation: false, accessContracts: false },
+  PRE_SALES: { accessB2B: false, accessB2G: false, accessPreSales: true, accessManagement: false, accessAutomation: false, accessContracts: false },
+  CONTRACTS: { accessB2B: false, accessB2G: false, accessPreSales: false, accessManagement: false, accessAutomation: false, accessContracts: true }
 };
 
 const ROLE_PERMISSION_TEMPLATES = {
@@ -27,7 +28,8 @@ const ROLE_PERMISSION_TEMPLATES = {
     billing: true,
     integrations: true,
     gestao: true,
-    automacoes: true
+    automacoes: true,
+    contratos: true
   },
   ADMIN: {
     dashboard: true,
@@ -47,7 +49,8 @@ const ROLE_PERMISSION_TEMPLATES = {
     billing: true,
     integrations: true,
     gestao: true,
-    automacoes: true
+    automacoes: true,
+    contratos: true
   },
   USER: {
     dashboard: false,
@@ -67,7 +70,8 @@ const ROLE_PERMISSION_TEMPLATES = {
     billing: false,
     integrations: false,
     gestao: false,
-    automacoes: false
+    automacoes: false,
+    contratos: false
   },
   PRE_SALES: {
     dashboard: false,
@@ -87,7 +91,29 @@ const ROLE_PERMISSION_TEMPLATES = {
     billing: false,
     integrations: false,
     gestao: false,
-    automacoes: false
+    automacoes: false,
+    contratos: false
+  },
+  CONTRACTS: {
+    dashboard: false,
+    leads: false,
+    oportunidades: false,
+    buscaOportunidadesPublicas: false,
+    ownCompaniesOnly: true,
+    somenteSuasOportunidades: false,
+    somenteSuasEmpresas: true,
+    registroNoFabricante: false,
+    documentacao: false,
+    relatoriosEstrategicos: false,
+    historico: false,
+    precificacao: false,
+    administracaoLicenciamento: false,
+    administracaoUsuarios: false,
+    billing: false,
+    integrations: false,
+    gestao: false,
+    automacoes: false,
+    contratos: true
   },
   MANAGER: {
     dashboard: true,
@@ -107,7 +133,8 @@ const ROLE_PERMISSION_TEMPLATES = {
     billing: false,
     integrations: true,
     gestao: true,
-    automacoes: true
+    automacoes: true,
+    contratos: false
   },
   DIRECTOR: {
     dashboard: true,
@@ -127,7 +154,8 @@ const ROLE_PERMISSION_TEMPLATES = {
     billing: false,
     integrations: false,
     gestao: true,
-    automacoes: false
+    automacoes: false,
+    contratos: false
   },
   SELLER: {
     dashboard: false,
@@ -147,7 +175,8 @@ const ROLE_PERMISSION_TEMPLATES = {
     billing: false,
     integrations: false,
     gestao: false,
-    automacoes: false
+    automacoes: false,
+    contratos: false
   }
 };
 
@@ -155,6 +184,7 @@ function normalizeRole(value) {
   const raw = String(value || '').trim().toUpperCase();
   if (raw === 'PRE-VENDAS' || raw === 'PREVENDAS') return 'PRE_SALES';
   if (raw === 'USUARIO') return 'USER';
+  if (raw === 'CONTRATOS') return 'CONTRACTS';
   return raw || 'USER';
 }
 
@@ -177,12 +207,15 @@ function resolveUserAccess(role, inputAccess = {}) {
   const accessManagement = inputAccess.accessManagement !== undefined ? Boolean(inputAccess.accessManagement) : base.accessManagement;
   const accessAutomation = inputAccess.accessAutomation !== undefined ? Boolean(inputAccess.accessAutomation) : base.accessAutomation;
 
+  const accessContracts = inputAccess.accessContracts !== undefined ? Boolean(inputAccess.accessContracts) : base.accessContracts;
+
   return {
     accessB2B,
     accessB2G,
     accessPreSales,
     accessManagement,
-    accessAutomation
+    accessAutomation,
+    accessContracts
   };
 }
 
@@ -205,18 +238,21 @@ function canAccessModule(user = {}, moduleName) {
   const moduleUpper = String(moduleName || '').trim().toUpperCase();
 
   if (role === 'PRE_SALES') return moduleUpper === 'PRE_SALES';
+  if (role === 'CONTRACTS') return moduleUpper === 'CONTRACTS' || moduleUpper === 'CONTRATOS';
 
   const accessB2B = Boolean(user.accessB2B);
   const accessB2G = Boolean(user.accessB2G);
   const accessPreSales = Boolean(user.accessPreSales);
   const accessManagement = Boolean(user.accessManagement);
   const accessAutomation = Boolean(user.accessAutomation);
+  const accessContracts = Boolean(user.accessContracts);
 
   if (moduleUpper === 'B2B') return accessB2B;
   if (moduleUpper === 'B2G') return accessB2G;
   if (moduleUpper === 'PRE_SALES') return accessPreSales;
   if (moduleUpper === 'GESTAO' || moduleUpper === 'MANAGEMENT') return accessManagement;
   if (moduleUpper === 'AUTOMATION' || moduleUpper === 'AUTOMACOES') return accessAutomation;
+  if (moduleUpper === 'CONTRACTS' || moduleUpper === 'CONTRATOS') return accessContracts;
 
   return false;
 }
