@@ -367,8 +367,8 @@ export default function OpportunityForm({
       companyId: nextProjectClientType === 'NEW_CLIENT' ? '' : prev.companyId
     }));
     if (nextProjectClientType === 'BASE_CLIENT' || nextProjectClientType === 'RENEWAL') {
-      // BASE_CLIENT → só empresas com contratos; RENEWAL → lista geral
-      onRefreshCompanies?.({ onlyWithContracts: nextProjectClientType === 'BASE_CLIENT' });
+      // RENEWAL → só empresas com contrato existente; BASE_CLIENT → qualquer empresa cadastrada
+      onRefreshCompanies?.({ onlyWithContracts: nextProjectClientType === 'RENEWAL' });
     }
     // Removido: não navega mais automaticamente para cadastro de empresa ao selecionar "Cliente Novo"
     // O usuário deve buscar primeiro; só se não encontrar deve cadastrar.
@@ -499,8 +499,8 @@ export default function OpportunityForm({
             <div className="sm:col-span-2">
               <label className={labelCls}>
                 {shouldCreateCompanyFirst ? 'Empresa do cliente' : 'Cliente'}
-                {projectClientType === 'BASE_CLIENT' && (
-                  <span className="ml-1 text-[10px] text-[var(--crm-muted)] font-normal">(apenas empresas com contrato fechado)</span>
+                {projectClientType === 'RENEWAL' && (
+                  <span className="ml-1 text-[10px] text-[var(--crm-muted)] font-normal">(apenas empresas com contrato)</span>
                 )}
               </label>
 
@@ -539,7 +539,9 @@ export default function OpportunityForm({
                     placeholder={
                       shouldCreateCompanyFirst
                         ? 'Buscar empresa pelo nome ou CNPJ...'
-                        : `Buscar entre ${(companies || []).length} empresa(s) com contrato...`
+                        : projectClientType === 'RENEWAL'
+                          ? `Buscar entre ${(companies || []).length} empresa(s) com contrato...`
+                          : `Buscar entre ${(companies || []).length} empresa(s) cadastrada(s)...`
                     }
                     value={companySearch}
                     onChange={e => setCompanySearch(e.target.value)}
@@ -614,7 +616,7 @@ export default function OpportunityForm({
                 <p className="text-xs text-[var(--crm-muted)] mt-1">
                   {shouldCreateCompanyFirst
                     ? 'Digite o nome ou CNPJ para buscar. Se não encontrar, você poderá cadastrar uma nova empresa.'
-                    : 'Digite o nome ou CNPJ para filtrar as empresas com contrato.'}
+                    : 'Digite o nome ou CNPJ para filtrar as empresas cadastradas.'}
                 </p>
               )}
             </div>
