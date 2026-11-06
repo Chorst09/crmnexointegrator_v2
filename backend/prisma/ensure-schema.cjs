@@ -169,6 +169,38 @@ async function main() {
     CREATE INDEX IF NOT EXISTS "User_role_idx" ON "User"("role");
   `);
 
+  await prisma.$executeRawUnsafe(`ALTER TABLE "Contract" ALTER COLUMN "startDate" DROP NOT NULL;`);
+  await prisma.$executeRawUnsafe(`ALTER TABLE "Contract" ALTER COLUMN "endDate" DROP NOT NULL;`);
+  await prisma.$executeRawUnsafe(`ALTER TABLE "Contract" ADD COLUMN IF NOT EXISTS "opportunityId" TEXT;`);
+  await prisma.$executeRawUnsafe(`ALTER TABLE "Contract" ADD COLUMN IF NOT EXISTS "sourceDocumentId" TEXT;`);
+  await prisma.$executeRawUnsafe(`ALTER TABLE "Contract" ADD COLUMN IF NOT EXISTS "sourceOpportunityLabel" TEXT;`);
+  await prisma.$executeRawUnsafe(`ALTER TABLE "Contract" ADD COLUMN IF NOT EXISTS "expirationAlert" BOOLEAN NOT NULL DEFAULT true;`);
+  await prisma.$executeRawUnsafe(`CREATE UNIQUE INDEX IF NOT EXISTS "Contract_sourceDocumentId_key" ON "Contract"("sourceDocumentId");`);
+  await prisma.$executeRawUnsafe(`DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'Contract_opportunityId_fkey') THEN
+    ALTER TABLE "Contract" ADD CONSTRAINT "Contract_opportunityId_fkey" FOREIGN KEY ("opportunityId") REFERENCES "Opportunity"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+  END IF;
+END $$;
+`);
+
+  await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS "LeadCalendarConnection" (
+  "id" TEXT PRIMARY KEY, "userId" TEXT NOT NULL, "provider" TEXT NOT NULL,
+  "credentials" TEXT NOT NULL, "lastError" TEXT, "lastSyncedAt" TIMESTAMP(3), "updatedAt" TIMESTAMP(3) NOT NULL,
+  UNIQUE ("userId", "provider")
+);`);
+  await prisma.$executeRawUnsafe(`
+CREATE TABLE IF NOT EXISTS "LeadCalendarOAuthState" (
+  "hash" TEXT PRIMARY KEY, "userId" TEXT NOT NULL, "provider" TEXT NOT NULL,
+  "verifier" TEXT NOT NULL, "expiresAt" TIMESTAMP(3) NOT NULL
+);`);
+  await prisma.$executeRawUnsafe(`
+CREATE TABLE IF NOT EXISTS "LeadCalendarEvent" (
+  "id" TEXT PRIMARY KEY, "companyId" TEXT NOT NULL, "userId" TEXT NOT NULL,
+  "provider" TEXT NOT NULL, "eventId" TEXT NOT NULL, "version" TEXT NOT NULL,
+  "reminderVersion" TEXT, "updatedAt" TIMESTAMP(3) NOT NULL,
+  UNIQUE ("companyId", "userId", "provider")
+);`);
+
   await prisma.$executeRawUnsafe(`
     ALTER TABLE "Company"
       ADD COLUMN IF NOT EXISTS "accessB2B" BOOLEAN NOT NULL DEFAULT true,
@@ -177,6 +209,11 @@ async function main() {
       ADD COLUMN IF NOT EXISTS "accessManagement" BOOLEAN NOT NULL DEFAULT false,
       ADD COLUMN IF NOT EXISTS "accessAutomation" BOOLEAN NOT NULL DEFAULT false,
       ADD COLUMN IF NOT EXISTS "subsegment" TEXT,
+      ADD COLUMN IF NOT EXISTS "leadNextAction" TEXT,
+      ADD COLUMN IF NOT EXISTS "leadNextActionAt" TIMESTAMP(3),
+      ADD COLUMN IF NOT EXISTS "leadReminderMinutes" INTEGER NOT NULL DEFAULT 15,
+      ADD COLUMN IF NOT EXISTS "leadOrigin" TEXT,
+      ADD COLUMN IF NOT EXISTS "leadOriginDetail" TEXT,
       ADD COLUMN IF NOT EXISTS "leadEntryDate" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
       ADD COLUMN IF NOT EXISTS "accountManagerName" TEXT,
       ADD COLUMN IF NOT EXISTS "accountManagerId" TEXT,
@@ -290,6 +327,27 @@ WHERE c."accountManagerId" IS NULL
       ADD COLUMN IF NOT EXISTS "projectType" TEXT NOT NULL DEFAULT 'SINGLE',
       ADD COLUMN IF NOT EXISTS "projectMonths" INTEGER;
   `);
+  await prisma.$executeRawUnsafe(`
+ALTER TABLE "CompanyDocument"
+  ADD COLUMN IF NOT EXISTS "opportunityId" TEXT,
+  ADD COLUMN IF NOT EXISTS "documentType" TEXT NOT NULL DEFAULT 'DOCUMENT';
+  `);
+
+  await prisma.$executeRawUnsafe(`
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'CompanyDocument_opportunityId_fkey') THEN
+    ALTER TABLE "CompanyDocument" ADD CONSTRAINT "CompanyDocument_opportunityId_fkey"
+      FOREIGN KEY ("opportunityId") REFERENCES "Opportunity"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+  END IF;
+END $$;
+  `);
+
+  await prisma.$executeRawUnsafe(`
+CREATE INDEX IF NOT EXISTS "CompanyDocument_companyId_opportunityId_idx"
+  ON "CompanyDocument"("companyId", "opportunityId");
+
+  `);
+
 }
 
 main()

@@ -308,7 +308,7 @@ export function B2GOpportunityDetailModal({ isOpen, onClose, opportunity, onEdit
                     {decisionLabel[currentDecision] || currentDecision}
                   </span>
                 </div>
-                <p className="text-base text-[rgb(var(--crm-muted-rgb)_/_1)]">{b2g.agency || opportunity.company?.name}</p>
+                <p className="text-base text-[rgb(var(--crm-muted-rgb)_/_1)]">{opportunity.company?.name || b2g.agency}</p>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -664,7 +664,7 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
           commercialLead: user.name || '',
           processNumber: b2g.processNumber || opportunity.number || opportunity.processNumber || '',
           uasgId: b2g.uasgId || '',
-          agency: b2g.agency || opportunity.company?.name || opportunity.agency || '',
+          agency: opportunity.company?.name || b2g.agency || opportunity.agency || '',
           projectName: b2g.projectName || opportunity.projectName || '',
           customerRelationship: opportunity.projectClientType || b2g.customerRelationship || 'NEW_CLIENT',
           sphere: b2g.sphere || 'Municipal',
@@ -724,7 +724,7 @@ export function B2GOpportunityEditModal({ isOpen, onClose, opportunity, leads, o
         ...EMPTY_FORM,
         processNumber: b2g.processNumber || opportunity.number || '',
         uasgId: b2g.uasgId || '',
-        agency: b2g.agency || opportunity.company?.name || '',
+        agency: opportunity.company?.name || b2g.agency || '',
         projectName: b2g.projectName || opportunity.projectName || '',
         customerRelationship: opportunity.projectClientType || b2g.customerRelationship || 'NEW_CLIENT',
         sphere: b2g.sphere || 'Municipal',

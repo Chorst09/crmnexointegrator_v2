@@ -132,7 +132,7 @@ function buildProjectPdfHtml({
   `), 'Nenhum risco ou item urgente identificado.');
 
   const GANTT_STATUS_COLORS: Record<string, string> = {
-    'PENDENTE': '#94a3b8', 'PLANEJAMENTO': '#18c8df', 'EM PROGRESSO': '#ff7a00',
+    'PENDENTE': '#94a3b8', 'PLANEJAMENTO': '#18c8df', 'EM PROGRESSO': '#2563eb',
     'EM RISCO': '#f59e0b', 'ATUALIZAÇÃO NECESSÁRIA': '#facc15', 'EM ESPERA': '#a78bfa',
     'CONCLUÍDO': '#22c55e', 'CANCELADO': '#f87171',
   };
@@ -206,7 +206,7 @@ function buildProjectPdfHtml({
         <div>${ganttRowsHtml}</div>
         <div class="gantt-legend">
           <span><i style="background:#18c8df"></i> Planejamento</span>
-          <span><i style="background:#ff7a00"></i> Em andamento</span>
+          <span><i style="background:#2563eb"></i> Em andamento</span>
           <span><i style="background:#22c55e"></i> Concluido</span>
           <span><i style="background:#f59e0b"></i> Em risco</span>
           <span><i style="background:#a78bfa"></i> Em espera</span>
@@ -229,11 +229,11 @@ function buildProjectPdfHtml({
     .toolbar strong { font-size: 14px; }
     .actions { display: flex; gap: 8px; flex-wrap: wrap; }
     button { border: 0; border-radius: 6px; padding: 9px 12px; font-weight: 800; cursor: pointer; }
-    .primary { background: #ff7a00; color: #fff; }
+    .primary { background: #2563eb; color: #fff; }
     .secondary { background: #263345; color: #fff; }
     .page { width: 210mm; min-height: 297mm; margin: 18px auto; padding: 18mm; background: #fff; box-shadow: 0 20px 45px rgba(15,23,42,.2); }
-    .hero { border-bottom: 4px solid #ff7a00; padding-bottom: 18px; margin-bottom: 18px; }
-    .eyebrow { color: #ff7a00; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+    .hero { border-bottom: 4px solid #2563eb; padding-bottom: 18px; margin-bottom: 18px; }
+    .eyebrow { color: #2563eb; font-size: 11px; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
     h1 { margin: 6px 0 4px; font-size: 30px; line-height: 1.1; color: #0f172a; }
     h2 { margin: 22px 0 10px; font-size: 17px; color: #0f172a; border-bottom: 1px solid #dbe3ee; padding-bottom: 7px; }
     p { margin: 0; line-height: 1.55; }
@@ -255,7 +255,7 @@ function buildProjectPdfHtml({
     .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #dbe3ee; display: flex; justify-content: space-between; color: #64748b; font-size: 10px; }
     .gantt-container { margin-top: 16px; border: 1px solid #dbe3ee; border-radius: 8px; overflow: hidden; }
     .gantt-header { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #111827; color: #f8fafc; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
-    .gantt-header .icon { color: #ff7a00; }
+    .gantt-header .icon { color: #2563eb; }
     .gantt-months { display: flex; border-bottom: 1px solid #dbe3ee; background: #f8fafc; }
     .gantt-months div { padding: 4px 6px; font-size: 9px; font-weight: 700; color: #64748b; text-transform: capitalize; border-right: 1px solid #dbe3ee; white-space: nowrap; overflow: hidden; }
     .gantt-row { display: flex; align-items: center; border-bottom: 1px solid #f1f5f9; height: 34px; }
@@ -442,20 +442,20 @@ export function HomeView({
   };
 
   return (
-    <div className="h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-y-auto p-8 text-[rgb(var(--crm-ink-rgb)_/_1)] custom-scrollbar">
+    <div className="h-full bg-transparent overflow-y-auto p-8 text-[var(--crm-ink)] custom-scrollbar">
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-3">
-            <Home className="w-6 h-6 text-[#ff7a00]" />
+          <h1 className="text-2xl font-bold text-[var(--crm-ink)] flex items-center gap-3">
+            <Home className="w-6 h-6 text-[#2563eb]" />
             Início
           </h1>
-          <div className="hidden items-center gap-2 rounded-full border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-4 py-2 text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] md:flex">
+          <div className="hidden items-center gap-2 rounded-full border border-[var(--crm-border)] bg-[var(--crm-surface)] px-4 py-2 text-xs font-semibold text-[var(--crm-muted)] md:flex">
             <Sparkles className="h-4 w-4 text-[#18c8df]" />
             Central executiva de projetos
           </div>
         </div>
 
-        <section className="relative min-h-[300px] overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
+        <section className="relative min-h-[300px] overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)]">
           <img
             src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1800&q=80"
             alt="Equipe em sala de planejamento de projetos"
@@ -464,21 +464,21 @@ export function HomeView({
           <div className="absolute inset-0 bg-[linear-gradient(90deg,rgb(var(--crm-surface-2-rgb)_/_1)_0%,rgb(var(--crm-surface-2-rgb)_/_0.92)_34%,rgb(var(--crm-surface-2-rgb)_/_0.58)_100%)]" />
           <div className="relative z-10 grid min-h-[300px] gap-6 p-8 lg:grid-cols-[1.1fr_0.9fr]">
             <div className="flex max-w-3xl flex-col justify-center">
-              <span className="mb-4 flex w-fit items-center gap-2 rounded-full border border-[#ff7a00]/35 bg-[#ff7a00]/10 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-[#ffb15c]">
+              <span className="mb-4 flex w-fit items-center gap-2 rounded-full border border-[#2563eb]/35 bg-[#2563eb]/10 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-[var(--pm-accent-text)]">
                 <Briefcase className="h-3.5 w-3.5" />
                 Gestão de Projetos
               </span>
               <h2 className="text-4xl font-black leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Todos os projetos existentes em uma visão única.
               </h2>
-              <p className="mt-4 max-w-2xl text-base leading-relaxed text-[rgb(var(--crm-ink-rgb)_/_1)]">
+              <p className="mt-4 max-w-2xl text-base leading-relaxed text-[var(--crm-ink)]">
                 Visualize, edite ou exclua projetos sem misturar fases entre iniciativas.
               </p>
               <div className="mt-7 flex flex-wrap gap-3">
                 <button
                   type="button"
                   onClick={onCreateProject}
-                  className="flex items-center gap-2 rounded-md bg-[#ff7a00] px-5 py-2.5 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                  className="flex items-center gap-2 rounded-md bg-[#2563eb] px-5 py-2.5 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <Plus className="h-4 w-4" />
                   Novo projeto
@@ -486,7 +486,7 @@ export function HomeView({
                 <button
                   type="button"
                   onClick={onOpenDashboard}
-                  className="flex items-center gap-2 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] px-5 py-2.5 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:border-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                  className="flex items-center gap-2 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.8)] px-5 py-2.5 text-sm font-bold text-[var(--crm-ink)] transition-colors hover:border-[#2563eb] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <BarChart2 className="h-4 w-4 text-[#22c55e]" />
                   Ver painel
@@ -501,35 +501,35 @@ export function HomeView({
                   [String(projects.reduce((total, project) => total + (getPhaseCount?.(project.id) || 0), 0)), 'Fases', '#f6b40b'],
                   [String(projects.filter(project => project.status === 'EM_ANDAMENTO').length), 'Em andamento', '#18c8df']
                 ].map(([value, label, color]) => (
-                  <div key={label} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-4 backdrop-blur">
+                  <div key={label} className="rounded-lg border border-[var(--crm-border)] bg-transparent p-4 backdrop-blur">
                     <p className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]" style={{ color }}>{value}</p>
-                    <p className="mt-1 text-[11px] font-semibold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">{label}</p>
+                    <p className="mt-1 text-[11px] font-semibold uppercase text-[var(--crm-muted)]">{label}</p>
                   </div>
                 ))}
               </div>
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.85)] p-5 backdrop-blur">
+              <div className="rounded-lg border border-[var(--crm-border)] bg-transparent p-5 backdrop-blur">
                 <div className="mb-4 flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Projeto em destaque</p>
-                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{projects[0]?.client || projects[0]?.name || 'Nenhum projeto cadastrado'}</p>
+                    <p className="text-sm font-bold text-[var(--crm-ink)]">Projeto em destaque</p>
+                    <p className="text-xs text-[var(--crm-muted)]">{projects[0]?.client || projects[0]?.name || 'Nenhum projeto cadastrado'}</p>
                   </div>
                   <span className="rounded-full bg-[#22c55e]/10 px-3 py-1 text-xs font-bold text-[#22c55e]">{projects[0]?.status || 'Novo'}</span>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)]">
-                  <div className="h-full w-[68%] rounded-full bg-[linear-gradient(90deg,#ff7a00,#f6b40b,#22c55e)]" />
+                <div className="h-2 overflow-hidden rounded-full bg-[var(--crm-surface-2)]">
+                  <div className="h-full w-[68%] rounded-full bg-[linear-gradient(90deg,#2563eb,#f6b40b,#22c55e)]" />
                 </div>
                 <div className="mt-4 grid grid-cols-3 gap-3 text-xs">
                   <div>
-                    <p className="font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{projects[0]?.type || '-'}</p>
-                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Tipo</p>
+                    <p className="font-black text-[var(--crm-ink)]">{projects[0]?.type || '-'}</p>
+                    <p className="text-[var(--crm-muted)]">Tipo</p>
                   </div>
                   <div>
-                    <p className="font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{projects[0] ? getPhaseCount?.(projects[0].id) || 0 : 0}</p>
-                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Fases</p>
+                    <p className="font-black text-[var(--crm-ink)]">{projects[0] ? getPhaseCount?.(projects[0].id) || 0 : 0}</p>
+                    <p className="text-[var(--crm-muted)]">Fases</p>
                   </div>
                   <div>
-                    <p className="font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{projects[0]?.manager || '-'}</p>
-                    <p className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Gestor</p>
+                    <p className="font-black text-[var(--crm-ink)]">{projects[0]?.manager || '-'}</p>
+                    <p className="text-[var(--crm-muted)]">Gestor</p>
                   </div>
                 </div>
               </div>
@@ -537,16 +537,16 @@ export function HomeView({
           </div>
         </section>
 
-        <section className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
+        <section className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)]">
           <div className="flex flex-col gap-3 border-b border-[var(--crm-border)] p-5 md:flex-row md:items-center md:justify-between">
             <div>
-              <h2 className="text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Relação de projetos</h2>
-              <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">{projects.length} projeto{projects.length !== 1 ? 's' : ''} encontrado{projects.length !== 1 ? 's' : ''}.</p>
+              <h2 className="text-lg font-black text-[var(--crm-ink)]">Relação de projetos</h2>
+              <p className="mt-1 text-sm text-[var(--crm-muted)]">{projects.length} projeto{projects.length !== 1 ? 's' : ''} encontrado{projects.length !== 1 ? 's' : ''}.</p>
             </div>
             <button
               type="button"
               onClick={onCreateProject}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-[#ff7a00] px-4 py-2 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-[#2563eb] px-4 py-2 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
             >
               <Plus className="h-4 w-4" />
               Novo projeto
@@ -555,14 +555,14 @@ export function HomeView({
 
           {projects.length === 0 ? (
             <div className="p-10 text-center">
-              <Briefcase className="mx-auto mb-3 h-10 w-10 text-[#ff7a00]" />
-              <h3 className="text-base font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum projeto cadastrado</h3>
-              <p className="mt-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Crie o primeiro projeto para iniciar o planejamento.</p>
+              <Briefcase className="mx-auto mb-3 h-10 w-10 text-[#2563eb]" />
+              <h3 className="text-base font-black text-[var(--crm-ink)]">Nenhum projeto cadastrado</h3>
+              <p className="mt-2 text-sm text-[var(--crm-muted)]">Crie o primeiro projeto para iniciar o planejamento.</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full min-w-[920px] text-left text-sm">
-                <thead className="border-b border-[var(--crm-border)] text-[11px] font-black uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                <thead className="border-b border-[var(--crm-border)] text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">
                   <tr>
                     <th className="px-5 py-3">Projeto</th>
                     <th className="px-5 py-3">Cliente</th>
@@ -574,26 +574,26 @@ export function HomeView({
                 </thead>
                 <tbody className="divide-y divide-[var(--crm-border)]">
                   {projects.map((project) => (
-                    <tr key={project.id} className="transition-colors hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
+                    <tr key={project.id} className="transition-colors hover:bg-[var(--crm-surface-2)]">
                       <td className="px-5 py-4">
                         <div className="flex min-w-0 items-center gap-3">
                           <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)] ${project.color}`}>
                             {project.initial}
                           </span>
                           <div className="min-w-0">
-                            <p className="truncate font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{project.name}</p>
-                            <p className="mt-0.5 truncate text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{project.number || project.type || 'Projeto'}</p>
+                            <p className="truncate font-black text-[var(--crm-ink)]">{project.name}</p>
+                            <p className="mt-0.5 truncate text-xs text-[var(--crm-muted)]">{project.number || project.type || 'Projeto'}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="px-5 py-4 text-[rgb(var(--crm-ink-rgb)_/_1)]">{project.client || 'Nao informado'}</td>
+                      <td className="px-5 py-4 text-[var(--crm-ink)]">{project.client || 'Nao informado'}</td>
                       <td className="px-5 py-4">
-                        <span className="rounded-full border border-[#ff7a00]/35 bg-[#ff7a00]/10 px-2.5 py-1 text-[11px] font-black text-[#ffb15c]">
+                        <span className="rounded-full border border-[#2563eb]/35 bg-[#2563eb]/10 px-2.5 py-1 text-[11px] font-black text-[var(--pm-accent-text)]">
                           {project.status || 'PLANEJADO'}
                         </span>
                       </td>
                       <td className="px-5 py-4 font-black text-[#22c55e]">{getPhaseCount?.(project.id) || 0}</td>
-                      <td className="px-5 py-4 text-[rgb(var(--crm-ink-rgb)_/_1)]">{project.manager || 'Nao definido'}</td>
+                      <td className="px-5 py-4 text-[var(--crm-ink)]">{project.manager || 'Nao definido'}</td>
                       <td className="px-5 py-4">
                         <div className="flex justify-end gap-2">
                           <button
@@ -601,7 +601,7 @@ export function HomeView({
                             onClick={() => {
                               openProjectPdfPreview(project);
                             }}
-                            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-1.5 text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:border-[#18c8df] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-1.5 text-xs font-bold text-[var(--crm-ink)] transition-colors hover:border-[#18c8df] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           >
                             <Eye className="h-3.5 w-3.5 text-[#18c8df]" />
                             Visualizar
@@ -609,7 +609,7 @@ export function HomeView({
                           <button
                             type="button"
                             onClick={() => onEditProject?.(project.id)}
-                            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-1.5 text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:border-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-1.5 text-xs font-bold text-[var(--crm-ink)] transition-colors hover:border-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           >
                             <Pencil className="h-3.5 w-3.5 text-[#f6b40b]" />
                             Editar
@@ -617,7 +617,7 @@ export function HomeView({
                           <button
                             type="button"
                             onClick={() => onDeleteProject?.(project.id)}
-                            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-1.5 text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:border-red-500 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                            className="inline-flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-1.5 text-xs font-bold text-[var(--crm-ink)] transition-colors hover:border-red-500 hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                           >
                             <Trash2 className="h-3.5 w-3.5 text-red-700 dark:text-red-400" />
                             Excluir
@@ -634,16 +634,16 @@ export function HomeView({
 
         <section className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
           {[
-            { icon: Target, title: 'Escopo claro', text: 'Cada projeto começa com objetivo, escopo, entregáveis, critérios de sucesso e responsáveis.', color: 'text-[#ff7a00]' },
+            { icon: Target, title: 'Escopo claro', text: 'Cada projeto começa com objetivo, escopo, entregáveis, critérios de sucesso e responsáveis.', color: 'text-[#2563eb]' },
             { icon: Users, title: 'Equipe conectada', text: 'Convites por e-mail, papéis definidos e acompanhamento das pessoas envolvidas.', color: 'text-[#22c55e]' },
             { icon: ArrowUpRight, title: 'Visão executiva', text: 'Indicadores, fases e decisões ficam em evidência para acelerar a tomada de decisão.', color: 'text-[#18c8df]' }
           ].map(item => {
             const Icon = item.icon;
             return (
-              <div key={item.title} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5">
+              <div key={item.title} className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-5">
                 <Icon className={`mb-4 h-6 w-6 ${item.color}`} />
-                <h3 className="text-base font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.title}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.text}</p>
+                <h3 className="text-base font-black text-[var(--crm-ink)]">{item.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--crm-muted)]">{item.text}</p>
               </div>
             );
           })}
@@ -696,21 +696,21 @@ export function PlannedView({
     .slice(0, 6);
 
   return (
-    <div className="h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-y-auto p-8 text-[rgb(var(--crm-ink-rgb)_/_1)]">
+    <div className="h-full bg-transparent overflow-y-auto p-8 text-[var(--crm-ink)]">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-3">
+          <h1 className="text-2xl font-bold text-[var(--crm-ink)] flex items-center gap-3">
             <Calendar className="w-6 h-6 text-[#22c55e]" />
             Planejado
           </h1>
           <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] px-3 py-1.5 rounded-md transition-colors">
+            <button className="flex items-center gap-2 text-sm text-[var(--crm-muted)] hover:text-[var(--crm-ink)] bg-[var(--crm-surface)] border border-[var(--crm-border)] px-3 py-1.5 rounded-md transition-colors">
               <Calendar className="w-4 h-4" /> Hoje
             </button>
             <button
               type="button"
               onClick={onCreateProject}
-              className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#ff7a00] hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] px-3 py-1.5 rounded-md transition-colors font-medium"
+              className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#2563eb] hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] px-3 py-1.5 rounded-md transition-colors font-medium"
             >
               <Plus className="w-4 h-4" /> Novo Projeto
             </button>
@@ -721,8 +721,8 @@ export function PlannedView({
           <div className="lg:col-span-2 flex flex-col gap-4">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <h2 className="text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">Projetos planejados</h2>
-                <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{plannedProjects.length} projeto{plannedProjects.length !== 1 ? 's' : ''} aguardando inicio.</p>
+                <h2 className="text-sm font-semibold text-[var(--crm-muted)] uppercase tracking-wider">Projetos planejados</h2>
+                <p className="mt-1 text-xs text-[var(--crm-muted)]">{plannedProjects.length} projeto{plannedProjects.length !== 1 ? 's' : ''} aguardando inicio.</p>
               </div>
               <span className="rounded-full border border-[#22c55e]/30 bg-[#22c55e]/10 px-3 py-1 text-xs font-black text-[#22c55e]">
                 PLANEJADO
@@ -730,17 +730,17 @@ export function PlannedView({
             </div>
 
             {plannedProjects.length === 0 ? (
-              <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md p-8 flex flex-col items-center justify-center min-h-[250px] text-center">
+              <div className="bg-[var(--crm-surface)] border border-[var(--crm-border)] rounded-md p-8 flex flex-col items-center justify-center min-h-[250px] text-center">
                 <div className="w-16 h-16 bg-[#22c55e]/10 rounded-full flex items-center justify-center mb-4">
                   <CheckCircle2 className="w-8 h-8 text-[#22c55e]" />
                 </div>
-                <h2 className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">Nenhum projeto planejado</h2>
-                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] max-w-sm">Crie um projeto novo ou converta uma oportunidade ganha para iniciar o planejamento.</p>
+                <h2 className="text-lg font-semibold text-[var(--crm-ink)] mb-2">Nenhum projeto planejado</h2>
+                <p className="text-[var(--crm-muted)] max-w-sm">Crie um projeto novo ou converta uma oportunidade ganha para iniciar o planejamento.</p>
               </div>
             ) : (
               <div className="grid gap-4">
                 {plannedProjects.map((project) => (
-                  <article key={project.id} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5">
+                  <article key={project.id} className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-5">
                     <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                       <div className="min-w-0">
                         <div className="mb-2 flex flex-wrap items-center gap-2">
@@ -749,34 +749,34 @@ export function PlannedView({
                               {project.number}
                             </span>
                           )}
-                          <span className="rounded-full border border-[#ff7a00]/35 bg-[#ff7a00]/10 px-2.5 py-1 text-[11px] font-black text-[#ffb15c]">
+                          <span className="rounded-full border border-[#2563eb]/35 bg-[#2563eb]/10 px-2.5 py-1 text-[11px] font-black text-[var(--pm-accent-text)]">
                             {project.type || 'Projeto'}
                           </span>
                         </div>
-                        <h3 className="truncate text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{project.name}</h3>
-                        <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">{project.client || 'Cliente nao informado'}</p>
-                        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-[rgb(var(--crm-ink-rgb)_/_1)]">{project.scope || project.objective || 'Escopo ainda nao informado.'}</p>
+                        <h3 className="truncate text-lg font-black text-[var(--crm-ink)]">{project.name}</h3>
+                        <p className="mt-1 text-sm text-[var(--crm-muted)]">{project.client || 'Cliente nao informado'}</p>
+                        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-[var(--crm-ink)]">{project.scope || project.objective || 'Escopo ainda nao informado.'}</p>
                       </div>
                       <button
                         type="button"
                         onClick={() => onOpenProject?.(project.id)}
-                        className="flex shrink-0 items-center justify-center gap-2 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:border-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                        className="flex shrink-0 items-center justify-center gap-2 rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm font-bold text-[var(--crm-ink)] transition-colors hover:border-[#2563eb] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                       >
-                        Abrir <ArrowUpRight className="h-4 w-4 text-[#ff7a00]" />
+                        Abrir <ArrowUpRight className="h-4 w-4 text-[#2563eb]" />
                       </button>
                     </div>
                     <div className="mt-5 grid gap-3 text-xs md:grid-cols-3">
-                      <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3">
-                        <p className="font-bold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">Inicio previsto</p>
-                        <p className="mt-1 font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{plannedDateLabel(project.startDate)}</p>
+                      <div className="rounded-md border border-[var(--crm-border)] bg-transparent p-3">
+                        <p className="font-bold uppercase text-[var(--crm-muted)]">Inicio previsto</p>
+                        <p className="mt-1 font-black text-[var(--crm-ink)]">{plannedDateLabel(project.startDate)}</p>
                       </div>
-                      <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3">
-                        <p className="font-bold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">Fim previsto</p>
-                        <p className="mt-1 font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{plannedDateLabel(project.endDate)}</p>
+                      <div className="rounded-md border border-[var(--crm-border)] bg-transparent p-3">
+                        <p className="font-bold uppercase text-[var(--crm-muted)]">Fim previsto</p>
+                        <p className="mt-1 font-black text-[var(--crm-ink)]">{plannedDateLabel(project.endDate)}</p>
                       </div>
-                      <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3">
-                        <p className="font-bold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">Gestor</p>
-                        <p className="mt-1 truncate font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{project.manager || 'Nao definido'}</p>
+                      <div className="rounded-md border border-[var(--crm-border)] bg-transparent p-3">
+                        <p className="font-bold uppercase text-[var(--crm-muted)]">Gestor</p>
+                        <p className="mt-1 truncate font-black text-[var(--crm-ink)]">{project.manager || 'Nao definido'}</p>
                       </div>
                     </div>
                   </article>
@@ -786,38 +786,38 @@ export function PlannedView({
           </div>
 
           <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">Para Hoje</h2>
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md p-4 flex flex-col gap-3">
+            <h2 className="text-sm font-semibold text-[var(--crm-muted)] uppercase tracking-wider">Para Hoje</h2>
+            <div className="bg-[var(--crm-surface)] border border-[var(--crm-border)] rounded-md p-4 flex flex-col gap-3">
               {todayIssues.length === 0 ? (
-                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhuma fase planejada para hoje.</p>
+                <p className="text-sm text-[var(--crm-muted)]">Nenhuma fase planejada para hoje.</p>
               ) : todayIssues.map((issue) => (
-                <div key={issue.id} className="flex gap-3 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3">
+                <div key={issue.id} className="flex gap-3 rounded-md border border-[var(--crm-border)] bg-transparent p-3">
                   <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#22c55e]" />
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{issue.title}</p>
-                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{issue.assignee?.name || 'Sem responsavel'}</p>
+                    <p className="truncate text-sm font-bold text-[var(--crm-ink)]">{issue.title}</p>
+                    <p className="text-xs text-[var(--crm-muted)]">{issue.assignee?.name || 'Sem responsavel'}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <h2 className="text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">Atrasadas</h2>
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md p-6 text-center text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm">
+            <h2 className="text-sm font-semibold text-[var(--crm-muted)] uppercase tracking-wider">Atrasadas</h2>
+            <div className="bg-[var(--crm-surface)] border border-[var(--crm-border)] rounded-md p-6 text-center text-[var(--crm-muted)] text-sm">
               {overdueIssues.length === 0 ? 'Nenhuma tarefa em atraso.' : `${overdueIssues.length} tarefa${overdueIssues.length !== 1 ? 's' : ''} em atraso.`}
             </div>
 
-            <h2 className="text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider mt-4">Próximos 7 dias</h2>
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md p-4 flex flex-col gap-3">
+            <h2 className="text-sm font-semibold text-[var(--crm-muted)] uppercase tracking-wider mt-4">Próximos 7 dias</h2>
+            <div className="bg-[var(--crm-surface)] border border-[var(--crm-border)] rounded-md p-4 flex flex-col gap-3">
               {nextIssues.length === 0 ? (
-                <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhuma fase prevista nos próximos dias.</p>
+                <p className="text-sm text-[var(--crm-muted)]">Nenhuma fase prevista nos próximos dias.</p>
               ) : nextIssues.map((issue) => (
-                <div key={issue.id} className="flex gap-3 p-2 rounded-lg border border-transparent transition-colors hover:border-[var(--crm-border)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
-                  <div className="w-8 h-8 rounded bg-[#ff7a00]/10 text-[#ff7a00] flex items-center justify-center shrink-0">
+                <div key={issue.id} className="flex gap-3 p-2 rounded-lg border border-transparent transition-colors hover:border-[var(--crm-border)] hover:bg-transparent">
+                  <div className="w-8 h-8 rounded bg-[#2563eb]/10 text-[#2563eb] flex items-center justify-center shrink-0">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div className="overflow-hidden">
-                    <p className="text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">{issue.title}</p>
-                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{plannedDateLabel(issue.dueDate)}</p>
+                    <p className="text-sm font-medium text-[var(--crm-ink)] truncate">{issue.title}</p>
+                    <p className="text-xs text-[var(--crm-muted)]">{plannedDateLabel(issue.dueDate)}</p>
                   </div>
                 </div>
               ))}
@@ -1007,18 +1007,18 @@ export function DocsView({
     .filter((item) => item.documents.length > 0);
 
   return (
-    <div className="h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-y-auto p-8 text-[rgb(var(--crm-ink-rgb)_/_1)]">
+    <div className="h-full bg-transparent overflow-y-auto p-8 text-[var(--crm-ink)]">
       <div className="max-w-7xl mx-auto flex flex-col h-full">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-3">
-            <FileText className="w-6 h-6 text-[#ff7a00]" />
+          <h1 className="text-2xl font-bold text-[var(--crm-ink)] flex items-center gap-3">
+            <FileText className="w-6 h-6 text-[#2563eb]" />
             Documentos
           </h1>
           <div className="flex flex-wrap items-center gap-3">
             <select
               value={selectedProjectId}
               onChange={(event) => onProjectChange?.(event.target.value)}
-              className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-md px-3 py-1.5 focus:outline-none focus:border-[#ff7a00] min-w-[240px]"
+              className="bg-[var(--crm-surface)] border border-[var(--crm-border)] text-sm font-semibold text-[var(--crm-ink)] rounded-md px-3 py-1.5 focus:outline-none focus:border-[#2563eb] min-w-[240px]"
             >
               {projects.length === 0 ? (
                 <option value="">Nenhum projeto</option>
@@ -1027,34 +1027,34 @@ export function DocsView({
               ))}
             </select>
             <div className="relative">
-              <Search className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[var(--crm-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
                 placeholder="Buscar documentos..."
-                className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-md pl-9 pr-4 py-1.5 focus:outline-none focus:border-[#ff7a00] w-64"
+                className="bg-[var(--crm-surface)] border border-[var(--crm-border)] text-sm text-[var(--crm-ink)] rounded-md pl-9 pr-4 py-1.5 focus:outline-none focus:border-[#2563eb] w-64"
               />
             </div>
           </div>
         </div>
 
         {error && (
-          <div className="mb-5 rounded-md border border-[#ff7a00]/40 bg-[#ff7a00]/10 px-4 py-3 text-sm font-semibold text-[#ffb15c]">
+          <div className="mb-5 rounded-md border border-[#2563eb]/40 bg-[#2563eb]/10 px-4 py-3 text-sm font-semibold text-[var(--pm-accent-text)]">
             {error}
           </div>
         )}
 
         {!selectedProjectId ? (
-          <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-10 text-center">
-            <FileText className="mx-auto mb-4 h-12 w-12 text-[#ff7a00]" />
-            <h2 className="text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum projeto disponível</h2>
-            <p className="mt-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Crie um projeto para organizar contratos, atas, entregáveis e evidências.</p>
+          <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-10 text-center">
+            <FileText className="mx-auto mb-4 h-12 w-12 text-[#2563eb]" />
+            <h2 className="text-lg font-black text-[var(--crm-ink)]">Nenhum projeto disponível</h2>
+            <p className="mt-2 text-sm text-[var(--crm-muted)]">Crie um projeto para organizar contratos, atas, entregáveis e evidências.</p>
             {onCreateProject && (
               <button
                 type="button"
                 onClick={onCreateProject}
-                className="mt-5 inline-flex items-center gap-2 rounded-md bg-[#ff7a00] px-4 py-2 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                className="mt-5 inline-flex items-center gap-2 rounded-md bg-[#2563eb] px-4 py-2 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
               >
                 <Plus className="h-4 w-4" />
                 Novo Projeto
@@ -1063,14 +1063,14 @@ export function DocsView({
           </div>
         ) : (
           <>
-            <div className="mb-6 rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(255,122,0,0.14),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-5">
+            <div className="mb-6 rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(37,99,235,0.14),rgb(var(--crm-surface-rgb)/0.98))] p-5">
               <div className="grid gap-4 lg:grid-cols-[220px_1fr_auto] lg:items-end">
                 <label className="flex flex-col gap-1.5">
-                  <span className="text-[11px] font-black uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Tipo do documento</span>
+                  <span className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">Tipo do documento</span>
                   <select
                     value={uploadCategory}
                     onChange={(event) => setUploadCategory(event.target.value)}
-                    className="h-11 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors focus:border-[#22c55e]"
+                    className="h-11 rounded-md border border-[var(--crm-border)] bg-transparent px-3 text-sm font-semibold text-[var(--crm-ink)] outline-none transition-colors focus:border-[#22c55e]"
                   >
                     {DOCUMENT_CATEGORIES.map((item) => (
                       <option key={item.value} value={item.value}>{item.label}</option>
@@ -1078,16 +1078,16 @@ export function DocsView({
                   </select>
                 </label>
                 <label className="flex flex-col gap-1.5">
-                  <span className="text-[11px] font-black uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Do que se trata</span>
+                  <span className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">Do que se trata</span>
                   <input
                     type="text"
                     value={documentDescription}
                     onChange={(event) => setDocumentDescription(event.target.value)}
                     placeholder="Ex.: Ata do kickoff externo, proposta aprovada, aceite da fase 1..."
-                    className="h-11 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#ff7a00]"
+                    className="h-11 rounded-md border border-[var(--crm-border)] bg-transparent px-3 text-sm font-semibold text-[var(--crm-ink)] outline-none transition-colors placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#2563eb]"
                   />
                 </label>
-                <label className={`flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors ${selectedProjectId && !saving ? "bg-[#ff7a00] hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] cursor-pointer" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] cursor-not-allowed opacity-70"}`}>
+                <label className={`flex h-11 items-center justify-center gap-2 rounded-md px-4 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors ${selectedProjectId && !saving ? "bg-[#2563eb] hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] cursor-pointer" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] cursor-not-allowed opacity-70"}`}>
                   <Upload className="w-4 h-4" />
                   {saving ? 'Enviando...' : 'Enviar documento'}
                   <input type="file" className="hidden" disabled={!selectedProjectId || saving} onChange={handleUpload} />
@@ -1096,52 +1096,52 @@ export function DocsView({
             </div>
 
             <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(255,122,0,0.18),rgb(var(--crm-surface-2-rgb)_/_0.98))] p-4">
-                <p className="text-[11px] font-black uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Projeto</p>
-                <p className="mt-2 truncate text-base font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{selectedProject?.name || 'Projeto'}</p>
-                <p className="mt-1 text-xs text-[#ffb15c]">{selectedProject?.number || selectedProject?.status || 'Documento'}</p>
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(37,99,235,0.18),rgb(var(--crm-surface-rgb)/0.98))] p-4">
+                <p className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">Projeto</p>
+                <p className="mt-2 truncate text-base font-black text-[var(--crm-ink)]">{selectedProject?.name || 'Projeto'}</p>
+                <p className="mt-1 text-xs text-[var(--pm-accent-text)]">{selectedProject?.number || selectedProject?.status || 'Documento'}</p>
               </div>
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
-                <p className="text-[11px] font-black uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Total</p>
-                <p className="mt-2 text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{documents.length}</p>
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+                <p className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">Total</p>
+                <p className="mt-2 text-2xl font-black text-[var(--crm-ink)]">{documents.length}</p>
               </div>
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
-                <p className="text-[11px] font-black uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Contratos/Aceites</p>
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+                <p className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">Contratos/Aceites</p>
                 <p className="mt-2 text-2xl font-black text-[#22c55e]">{documents.filter((item) => ['CONTRACT', 'ACCEPTANCE'].includes(item.category)).length}</p>
               </div>
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
-                <p className="text-[11px] font-black uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Entregaveis</p>
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+                <p className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">Entregaveis</p>
                 <p className="mt-2 text-2xl font-black text-[#18c8df]">{documents.filter((item) => item.category === 'DELIVERABLE').length}</p>
               </div>
             </div>
 
             {loading ? (
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-8 text-center text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-8 text-center text-sm font-semibold text-[var(--crm-muted)]">
                 Carregando documentos...
               </div>
             ) : filteredDocuments.length === 0 ? (
-              <div className="rounded-lg border border-dashed border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-10 text-center">
-                <Upload className="mx-auto mb-4 h-12 w-12 text-[#ff7a00]" />
-                <h2 className="text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhum documento encontrado</h2>
-                <p className="mt-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Envie contratos, atas, entregáveis, evidências e aceites do projeto selecionado.</p>
+              <div className="rounded-lg border border-dashed border-[var(--crm-border)] bg-[var(--crm-surface)] p-10 text-center">
+                <Upload className="mx-auto mb-4 h-12 w-12 text-[#2563eb]" />
+                <h2 className="text-lg font-black text-[var(--crm-ink)]">Nenhum documento encontrado</h2>
+                <p className="mt-2 text-sm text-[var(--crm-muted)]">Envie contratos, atas, entregáveis, evidências e aceites do projeto selecionado.</p>
               </div>
             ) : (
               <div className="space-y-5">
                 {groupedDocuments.map((group) => (
-                  <section key={group.value} className="overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
-                    <div className="flex items-center justify-between border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-5 py-3">
+                  <section key={group.value} className="overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)]">
+                    <div className="flex items-center justify-between border-b border-[var(--crm-border)] bg-[var(--crm-surface-2)] px-5 py-3">
                       <div className="flex items-center gap-3">
                         <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[#18c8df]/10 text-[#18c8df]">
                           <FileText className="h-4 w-4" />
                         </span>
                         <div>
-                          <h3 className="text-sm font-black uppercase tracking-wide text-[rgb(var(--crm-ink-rgb)_/_1)]">{group.label}</h3>
-                          <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{group.documents.length} documento{group.documents.length !== 1 ? 's' : ''}</p>
+                          <h3 className="text-sm font-black uppercase tracking-wide text-[var(--crm-ink)]">{group.label}</h3>
+                          <p className="text-xs text-[var(--crm-muted)]">{group.documents.length} documento{group.documents.length !== 1 ? 's' : ''}</p>
                         </div>
                       </div>
                     </div>
                     <div className="overflow-x-auto">
-                      <div className="grid min-w-[900px] grid-cols-[1.15fr_1.1fr_.35fr_.45fr_.3fr] gap-4 border-b border-[var(--crm-border)] px-5 py-3 text-[11px] font-black uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                      <div className="grid min-w-[900px] grid-cols-[1.15fr_1.1fr_.35fr_.45fr_.3fr] gap-4 border-b border-[var(--crm-border)] px-5 py-3 text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">
                         <span>Arquivo</span>
                         <span>Do que se trata</span>
                         <span>Tamanho</span>
@@ -1152,24 +1152,24 @@ export function DocsView({
                         {group.documents.map((document) => (
                           <div key={document.id} className="grid min-w-[900px] grid-cols-[1.15fr_1.1fr_.35fr_.45fr_.3fr] items-center gap-4 px-5 py-4 text-sm">
                             <div className="flex min-w-0 items-center gap-3">
-                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#ff7a00]/10 text-[#ff7a00]">
+                              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#2563eb]/10 text-[#2563eb]">
                                 <FileText className="h-5 w-5" />
                               </div>
                               <div className="min-w-0">
-                                <p className="truncate font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{document.originalName}</p>
-                                <p className="truncate text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{document.mimeType || 'Arquivo'}</p>
+                                <p className="truncate font-black text-[var(--crm-ink)]">{document.originalName}</p>
+                                <p className="truncate text-xs text-[var(--crm-muted)]">{document.mimeType || 'Arquivo'}</p>
                               </div>
                             </div>
-                            <p className="line-clamp-2 text-sm leading-relaxed text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                            <p className="line-clamp-2 text-sm leading-relaxed text-[var(--crm-ink)]">
                               {document.description || 'Sem descrição informada.'}
                             </p>
-                            <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">{formatFileSize(document.size)}</span>
-                            <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">{new Date(document.createdAt).toLocaleDateString('pt-BR')}</span>
+                            <span className="text-[var(--crm-muted)]">{formatFileSize(document.size)}</span>
+                            <span className="text-[var(--crm-muted)]">{new Date(document.createdAt).toLocaleDateString('pt-BR')}</span>
                             <div className="flex items-center justify-end gap-2">
                               <button
                                 type="button"
                                 onClick={() => handleDownload(document)}
-                                className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:border-[#22c55e] hover:text-[#22c55e]"
+                                className="rounded-md border border-[var(--crm-border)] bg-transparent p-2 text-[var(--crm-muted)] transition-colors hover:border-[#22c55e] hover:text-[#22c55e]"
                                 title="Baixar"
                               >
                                 <Download className="h-4 w-4" />
@@ -1177,7 +1177,7 @@ export function DocsView({
                               <button
                                 type="button"
                                 onClick={() => handleDelete(document)}
-                                className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:border-[#ef4444] hover:text-[#ef4444]"
+                                className="rounded-md border border-[var(--crm-border)] bg-transparent p-2 text-[var(--crm-muted)] transition-colors hover:border-[#ef4444] hover:text-[#ef4444]"
                                 title="Excluir"
                               >
                                 <Trash2 className="h-4 w-4" />
@@ -1216,16 +1216,16 @@ export function WhiteboardsView({ activeProject = null }: { activeProject?: Spac
 
   if (activeBoard) {
     return (
-      <div className="h-full flex flex-col bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-hidden">
-        <div className="h-14 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] flex items-center px-4 flex-shrink-0 gap-4">
+      <div className="h-full flex flex-col bg-transparent overflow-hidden">
+        <div className="h-14 border-b border-[var(--crm-border)] bg-[var(--crm-surface)] flex items-center px-4 flex-shrink-0 gap-4">
           <button
             onClick={() => setActiveBoard(null)}
-            className="flex items-center gap-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors"
+            className="flex items-center gap-2 text-[var(--crm-muted)] hover:text-[var(--crm-ink)] transition-colors"
           >
             <ArrowLeft className="w-4 h-4" /> Voltar
           </button>
-          <div className="w-px h-6 bg-[rgb(var(--crm-surface-rgb)_/_1)]"></div>
-          <h2 className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">{activeBoard}</h2>
+          <div className="w-px h-6 bg-[var(--crm-border)]"></div>
+          <h2 className="text-[var(--crm-ink)] font-semibold">{activeBoard}</h2>
         </div>
         <div className="flex-1 relative">
           <Tldraw />
@@ -1235,16 +1235,16 @@ export function WhiteboardsView({ activeProject = null }: { activeProject?: Spac
   }
 
   return (
-    <div className="h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-y-auto p-8 text-[rgb(var(--crm-ink-rgb)_/_1)]">
+    <div className="h-full bg-transparent overflow-y-auto p-8 text-[var(--crm-ink)]">
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-3">
-            <LayoutTemplate className="w-6 h-6 text-[#ff7a00]" />
+          <h1 className="text-2xl font-bold text-[var(--crm-ink)] flex items-center gap-3">
+            <LayoutTemplate className="w-6 h-6 text-[#2563eb]" />
             Quadros Mágicos
           </h1>
           <button
             onClick={() => setActiveBoard('Novo Quadro em Branco')}
-            className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#ff7a00] hover:bg-[#f6b40b] px-4 py-2 rounded-md transition-colors font-medium"
+            className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#2563eb] hover:bg-[#1d4ed8] px-4 py-2 rounded-md transition-colors font-medium"
           >
             <Plus className="w-4 h-4" /> Novo Quadro
           </button>
@@ -1254,11 +1254,11 @@ export function WhiteboardsView({ activeProject = null }: { activeProject?: Spac
         <div className="relative bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg p-10 mb-8 overflow-hidden">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 mix-blend-overlay"></div>
           <div className="relative z-10 flex flex-col items-start max-w-lg">
-            <div className="bg-[#ff7a00]/20 text-[#ff7a00] text-xs font-bold px-3 py-1 rounded-full mb-4 border border-[#ff7a00]/30 flex items-center gap-1">
+            <div className="bg-[#2563eb]/20 text-[#2563eb] text-xs font-bold px-3 py-1 rounded-full mb-4 border border-[#2563eb]/30 flex items-center gap-1">
               <Sparkles className="w-3 h-3" /> NOVO
             </div>
             <h2 className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-3">Colabore de forma visual</h2>
-            <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mb-6 text-sm leading-relaxed">
+            <p className="text-[var(--crm-muted)] mb-6 text-sm leading-relaxed">
               Use Quadros Mágicos para desenhar fluxos de projeto, arquiteturas de sistema, ou fazer brainstorming em tempo real com toda a sua equipe.
             </p>
             <button
@@ -1270,19 +1270,19 @@ export function WhiteboardsView({ activeProject = null }: { activeProject?: Spac
           </div>
 
           <div className="absolute -right-20 -bottom-20 opacity-40 pointer-events-none">
-            <LayoutTemplate className="w-96 h-96 text-[#ff7a00]" />
+            <LayoutTemplate className="w-96 h-96 text-[#2563eb]" />
           </div>
         </div>
 
         {/* Templates */}
-        <h2 className="text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider mb-4">Templates Populares</h2>
+        <h2 className="text-sm font-semibold text-[var(--crm-muted)] uppercase tracking-wider mb-4">Templates Populares</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {[
             {
               title: 'Mapeamento de Processos',
               subtitle: 'Fluxo, gargalos e responsáveis',
               icon: GitBranch,
-              color: '#ff7a00',
+              color: '#2563eb',
               preview: ['Entrada', 'Triagem', 'Execução', 'Validação']
             },
             {
@@ -1305,9 +1305,9 @@ export function WhiteboardsView({ activeProject = null }: { activeProject?: Spac
             <div
               key={template.title}
               onClick={() => setActiveBoard(template.title)}
-              className="group cursor-pointer overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] transition-colors hover:border-[#ff7a00]"
+              className="group cursor-pointer overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] transition-colors hover:border-[#2563eb]"
             >
-              <div className="relative h-32 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
+              <div className="relative h-32 border-b border-[var(--crm-border)] bg-transparent p-4">
                 <div className="absolute inset-0 opacity-80" style={{ background: `radial-gradient(circle at 20% 10%, ${template.color}22, transparent 34%)` }} />
                 <div className="relative grid h-full grid-cols-4 items-center gap-2">
                   {template.preview.map((label, index) => (
@@ -1315,7 +1315,7 @@ export function WhiteboardsView({ activeProject = null }: { activeProject?: Spac
                       <div className="mx-auto mb-2 flex h-9 w-9 items-center justify-center rounded-lg border" style={{ borderColor: `${template.color}55`, backgroundColor: `${template.color}18`, color: template.color }}>
                         {index === 0 ? <Icon className="h-4 w-4" /> : <span className="text-xs font-black">{index + 1}</span>}
                       </div>
-                      <div className="h-1 rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)]">
+                      <div className="h-1 rounded-full bg-[var(--crm-border)]">
                         <div className="h-full rounded-full" style={{ width: `${72 - index * 10}%`, backgroundColor: template.color }} />
                       </div>
                     </div>
@@ -1323,8 +1323,8 @@ export function WhiteboardsView({ activeProject = null }: { activeProject?: Spac
                 </div>
               </div>
               <div className="p-4">
-                <h3 className="text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors group-hover:text-[#ffb15c]">{template.title}</h3>
-                <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{template.subtitle}</p>
+                <h3 className="text-sm font-black text-[var(--crm-ink)] transition-colors group-hover:text-[var(--pm-accent-text)]">{template.title}</h3>
+                <p className="mt-1 text-xs text-[var(--crm-muted)]">{template.subtitle}</p>
               </div>
             </div>
           )})}
@@ -1370,23 +1370,23 @@ type RoadmapWave = {
   color: string;
 };
 
-const editableInputClass = "w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-2.5 py-2 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#ff7a00]";
-const editableSmallInputClass = "w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-2 py-1.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#ff7a00]";
-const editableTextAreaClass = "w-full resize-none rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-2.5 py-2 text-sm font-semibold leading-relaxed text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition-colors placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#ff7a00]";
-const boardActionButtonClass = "flex items-center gap-2 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:border-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]";
-const dangerIconButtonClass = "flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:border-[#ef4444] hover:text-[#ef4444]";
+const editableInputClass = "w-full rounded-md border border-[var(--crm-border)] bg-transparent px-2.5 py-2 text-sm font-semibold text-[var(--crm-ink)] outline-none transition-colors placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#2563eb]";
+const editableSmallInputClass = "w-full rounded-md border border-[var(--crm-border)] bg-transparent px-2 py-1.5 text-xs font-semibold text-[var(--crm-ink)] outline-none transition-colors placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#2563eb]";
+const editableTextAreaClass = "w-full resize-none rounded-md border border-[var(--crm-border)] bg-transparent px-2.5 py-2 text-sm font-semibold leading-relaxed text-[var(--crm-ink)] outline-none transition-colors placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#2563eb]";
+const boardActionButtonClass = "flex items-center gap-2 rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] px-3 py-2 text-xs font-black text-[var(--crm-ink)] transition-colors hover:border-[#2563eb] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]";
+const dangerIconButtonClass = 'flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] text-[var(--crm-muted)] transition-colors hover:border-[#ef4444] hover:text-[#ef4444]';
 
 const PROCESS_DEFAULT_BOARD: { steps: ProcessStep[]; swimlanes: Swimlane[]; actions: string[] } = {
   steps: [
     { title: 'Entrada', owner: 'Comercial', time: '1 dia', status: 'OK', color: '#18c8df', items: ['Pedido recebido', 'Dados mínimos', 'Prioridade inicial'] },
     { title: 'Triagem', owner: 'PMO', time: '2 dias', status: 'Atenção', color: '#f6b40b', items: ['Escopo validado', 'Dependências', 'Critérios de aceite'] },
-    { title: 'Execução', owner: 'Operações', time: '5 dias', status: 'Em curso', color: '#ff7a00', items: ['Tarefas abertas', 'Bloqueios visíveis', 'Evidências'] },
+    { title: 'Execução', owner: 'Operações', time: '5 dias', status: 'Em curso', color: '#2563eb', items: ['Tarefas abertas', 'Bloqueios visíveis', 'Evidências'] },
     { title: 'Validação', owner: 'Cliente', time: '2 dias', status: 'Risco', color: '#ef4444', items: ['Homologação', 'Correções', 'Aceite formal'] },
     { title: 'Encerramento', owner: 'CS', time: '1 dia', status: 'Pronto', color: '#22c55e', items: ['Ata final', 'Documentação', 'Próximo ciclo'] }
   ],
   swimlanes: [
     { area: 'Cliente', entries: ['Enviar requisitos', 'Validar solução', 'Aprovar aceite'], color: '#22c55e' },
-    { area: 'Comercial', entries: ['Registrar oportunidade', 'Confirmar contrato', 'Comunicar mudança'], color: '#ff7a00' },
+    { area: 'Comercial', entries: ['Registrar oportunidade', 'Confirmar contrato', 'Comunicar mudança'], color: '#2563eb' },
     { area: 'Operações', entries: ['Planejar execução', 'Executar entregas', 'Documentar evidências'], color: '#18c8df' },
     { area: 'Gestão', entries: ['Acompanhar SLA', 'Remover bloqueios', 'Report executivo'], color: '#f6b40b' }
   ],
@@ -1398,18 +1398,18 @@ const PRODUCT_DEFAULT_BOARD: { ideas: ProductIdea[]; matrix: MatrixQuadrant[]; r
     { title: 'Assistente de escopo com IA', cluster: 'Eficiência', score: 92, color: '#22c55e' },
     { title: 'Painel de saúde do cliente', cluster: 'Retenção', score: 86, color: '#18c8df' },
     { title: 'Portal de aprovações externas', cluster: 'Governança', score: 78, color: '#f6b40b' },
-    { title: 'Resumo automático de reuniões', cluster: 'Produtividade', score: 81, color: '#ff7a00' }
+    { title: 'Resumo automático de reuniões', cluster: 'Produtividade', score: 81, color: '#2563eb' }
   ],
   matrix: [
     { quadrant: 'Apostar agora', hint: 'Alto impacto · baixo esforço', ideas: ['Ata automática', 'Templates por fase'], color: '#22c55e' },
     { quadrant: 'Planejar', hint: 'Alto impacto · alto esforço', ideas: ['Portal do cliente', 'Integração BI'], color: '#f6b40b' },
     { quadrant: 'Quick wins', hint: 'Baixo impacto · baixo esforço', ideas: ['Tags inteligentes', 'Favoritos'], color: '#18c8df' },
-    { quadrant: 'Evitar agora', hint: 'Baixo impacto · alto esforço', ideas: ['Customização extrema'], color: '#ff7a00' }
+    { quadrant: 'Evitar agora', hint: 'Baixo impacto · alto esforço', ideas: ['Customização extrema'], color: '#2563eb' }
   ],
   roadmap: [
     { wave: 'Onda 1', title: 'Validar valor', text: 'Protótipos rápidos, entrevistas e métricas de adoção.', color: '#22c55e' },
     { wave: 'Onda 2', title: 'Construir MVP', text: 'Fluxos essenciais, integrações mínimas e telemetria.', color: '#f6b40b' },
-    { wave: 'Onda 3', title: 'Escalar produto', text: 'Automação, governança, permissões e expansão comercial.', color: '#ff7a00' }
+    { wave: 'Onda 3', title: 'Escalar produto', text: 'Automação, governança, permissões e expansão comercial.', color: '#2563eb' }
   ]
 };
 
@@ -1444,20 +1444,20 @@ function BoardShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="h-full overflow-y-auto bg-[radial-gradient(circle_at_16%_0%,rgba(255,122,0,0.18),transparent_26%),radial-gradient(circle_at_86%_8%,rgba(34,197,94,0.14),transparent_30%),linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_1),rgb(var(--crm-surface-2-rgb)_/_1)_46%,rgb(var(--crm-surface-2-rgb)_/_1))] p-6 text-[rgb(var(--crm-ink-rgb)_/_1)] custom-scrollbar">
+    <div className="h-full overflow-y-auto bg-transparent p-6 text-[var(--crm-ink)] custom-scrollbar">
       <div className="mx-auto flex max-w-7xl flex-col gap-5">
-        <header className="flex flex-col gap-4 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.88)] p-5 shadow-2xl shadow-black/20 md:flex-row md:items-center md:justify-between">
+        <header className="flex flex-col gap-4 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-5 shadow-2xl shadow-black/20 md:flex-row md:items-center md:justify-between">
           <div className="flex min-w-0 items-start gap-4">
             <button
               onClick={onBack}
-              className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:border-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+              className="mt-1 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] text-[var(--crm-muted)] transition-colors hover:border-[#2563eb] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
               title="Voltar"
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div>
               <div className="mb-2 flex items-center gap-2">
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#ff7a00]/14 text-[#ff7a00] ring-1 ring-[#ff7a00]/35">
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#2563eb]/14 text-[#2563eb] ring-1 ring-[#2563eb]/35">
                   <Icon className="h-5 w-5" />
                 </span>
                 <span className="rounded-full border border-[#22c55e]/35 bg-[#22c55e]/10 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-[#5ee2a0]">
@@ -1465,7 +1465,7 @@ function BoardShell({
                 </span>
               </div>
               <h1 className="text-3xl font-black tracking-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">{title}</h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[rgb(var(--crm-muted-rgb)_/_1)]">{subtitle}</p>
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--crm-muted)]">{subtitle}</p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -1720,7 +1720,7 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
         pdf.rect(margin, yPos, 180, 24);
 
         // Status-colored left indicator strip
-        const hexColor = step.color || '#ff7a00';
+        const hexColor = step.color || '#2563eb';
         let r = 255, g = 122, b = 0;
         if (hexColor.startsWith('#')) {
           const num = parseInt(hexColor.slice(1), 16);
@@ -1898,7 +1898,7 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
             <Plus className="h-4 w-4" />
             Etapa
           </button>
-          <button type="button" onClick={handleCreateNewProcess} className="flex items-center gap-2 rounded-md border border-[#ff7a00]/40 bg-[#ff7a00]/10 hover:bg-[#ff7a00]/20 px-3 py-2 text-xs font-black text-[#ffb15c] transition-colors">
+          <button type="button" onClick={handleCreateNewProcess} className="flex items-center gap-2 rounded-md border border-[#2563eb]/40 bg-[#2563eb]/10 hover:bg-[#2563eb]/20 px-3 py-2 text-xs font-black text-[var(--pm-accent-text)] transition-colors">
             <Plus className="h-4 w-4" />
             Novo Processo
           </button>
@@ -1906,9 +1906,9 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
       }
     >
       {/* Active Process Selector and Rename bar */}
-      <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.88)] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-1 items-center gap-3 min-w-0">
-          <span className="text-xs font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] whitespace-nowrap">Processo Ativo:</span>
+          <span className="text-xs font-bold text-[var(--crm-muted)] whitespace-nowrap">Processo Ativo:</span>
           {isEditingName ? (
             <div className="flex items-center gap-2 flex-1 max-w-md">
               <input
@@ -1919,19 +1919,19 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
                   if (e.key === 'Enter') handleRenameProcess();
                   if (e.key === 'Escape') setIsEditingName(false);
                 }}
-                className="flex-1 rounded-md border border-[#ff7a00] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-2.5 py-1.5 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none"
+                className="flex-1 rounded-md border border-[#2563eb] bg-transparent px-2.5 py-1.5 text-sm font-semibold text-[var(--crm-ink)] outline-none"
               />
               <button
                 type="button"
                 onClick={handleRenameProcess}
-                className="rounded-md bg-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold px-3 py-1.5 text-xs hover:bg-[#f6b40b]"
+                className="rounded-md bg-[#2563eb] text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold px-3 py-1.5 text-xs hover:bg-[#1d4ed8]"
               >
                 Salvar
               </button>
               <button
                 type="button"
                 onClick={() => setIsEditingName(false)}
-                className="rounded-md bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] px-3 py-1.5 text-xs hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
+                className="rounded-md bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[var(--crm-ink)] px-3 py-1.5 text-xs hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
               >
                 Cancelar
               </button>
@@ -1944,7 +1944,7 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
                   setActiveProcessId(e.target.value);
                   setIsEditingName(false);
                 }}
-                className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md text-sm px-3 py-1.5 font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none max-w-[280px]"
+                className="bg-transparent border border-[var(--crm-border)] rounded-md text-sm px-3 py-1.5 font-bold text-[var(--crm-ink)] outline-none max-w-[280px]"
               >
                 {processes.map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
@@ -1956,7 +1956,7 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
                   setIsEditingName(true);
                   setEditedName(board.name);
                 }}
-                className="p-2 rounded hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors"
+                className="p-2 rounded hover:bg-[var(--crm-surface)] text-[var(--crm-muted)] hover:text-[var(--crm-ink)] transition-colors"
                 title="Editar nome do processo"
               >
                 <Pencil className="w-3.5 h-3.5" />
@@ -1964,7 +1964,7 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
               <button
                 type="button"
                 onClick={() => handleDeleteProcess(activeProcessId)}
-                className="p-2 rounded hover:bg-[#ef4444]/15 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-red-700 dark:hover:text-red-400 transition-colors"
+                className="p-2 rounded hover:bg-[#ef4444]/15 text-[var(--crm-muted)] hover:text-red-700 dark:hover:text-red-400 transition-colors"
                 title="Excluir mapeamento de processo"
               >
                 <Trash2 className="w-3.5 h-3.5" />
@@ -1972,7 +1972,7 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
             </div>
           )}
         </div>
-        <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] leading-tight">
+        <div className="text-xs text-[var(--crm-muted)] leading-tight">
           Sempre clique em <span className="text-emerald-700 dark:text-emerald-400 font-bold">Salvar Processo</span> para manter suas modificações persistentes.
         </div>
       </div>
@@ -1980,39 +1980,39 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
       <section className="grid gap-4 md:grid-cols-4">
         {[
           { icon: Route, label: 'Etapas', value: String(board.steps.length), tone: '#18c8df' },
-          { icon: AlertTriangle, label: 'Gargalos', value: String(bottlenecks), tone: '#ff7a00' },
+          { icon: AlertTriangle, label: 'Gargalos', value: String(bottlenecks), tone: '#2563eb' },
           { icon: TimerReset, label: 'Lead time', value: `${leadTime || 0}d`, tone: '#f6b40b' },
           { icon: ClipboardCheck, label: 'Controles', value: String(controls), tone: '#22c55e' }
         ].map(item => {
           const Icon = item.icon;
           return (
-            <div key={item.label} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.88)] p-4">
+            <div key={item.label} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4">
               <Icon className="mb-4 h-5 w-5" style={{ color: item.tone }} />
               <p className="text-3xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.value}</p>
-              <p className="mt-1 text-xs font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.label}</p>
+              <p className="mt-1 text-xs font-bold uppercase tracking-wide text-[var(--crm-muted)]">{item.label}</p>
             </div>
           );
         })}
       </section>
 
-      <section className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.88)] p-5">
+      <section className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-5">
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
           <div>
             <h2 className="text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Fluxo ponta a ponta</h2>
-            <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Sequência recomendada com dono, SLA e pontos de controle.</p>
+            <p className="mt-1 text-sm text-[var(--crm-muted)]">Sequência recomendada com dono, SLA e pontos de controle.</p>
           </div>
-          <span className="rounded-full border border-[#ff7a00]/35 bg-[#ff7a00]/10 px-3 py-1 text-xs font-black text-[#ffb15c]">AS-IS para TO-BE</span>
+          <span className="rounded-full border border-[#2563eb]/35 bg-[#2563eb]/10 px-3 py-1 text-xs font-black text-[var(--pm-accent-text)]">AS-IS para TO-BE</span>
         </div>
 
         <div className="grid gap-3 xl:grid-cols-5">
           {board.steps.map((step, index) => (
-            <div key={`${step.title}-${index}`} className="relative rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
-              {index < board.steps.length - 1 && <div className="absolute -right-3 top-1/2 hidden h-0.5 w-3 bg-[rgb(var(--crm-surface-rgb)_/_1)] xl:block" />}
+            <div key={`${step.title}-${index}`} className="relative rounded-lg border border-[var(--crm-border)] bg-transparent p-4">
+              {index < board.steps.length - 1 && <div className="absolute -right-3 top-1/2 hidden h-0.5 w-3 bg-[var(--crm-border)] xl:block" />}
               <div className="mb-4 flex items-center justify-between">
                 <span className="flex h-10 w-10 items-center justify-center rounded-lg text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)]" style={{ backgroundColor: `${step.color}22`, color: step.color, border: `1px solid ${step.color}55` }}>
                   {index + 1}
                 </span>
-                <input value={step.status} onChange={event => updateStep(index, { status: event.target.value })} className="w-24 rounded-full border border-transparent bg-transparent px-2 py-1 text-right text-[10px] font-black uppercase outline-none focus:border-[#ff7a00]" style={{ backgroundColor: `${step.color}16`, color: step.color }} />
+                <input value={step.status} onChange={event => updateStep(index, { status: event.target.value })} className="w-24 rounded-full border border-transparent bg-transparent px-2 py-1 text-right text-[10px] font-black uppercase outline-none focus:border-[#2563eb]" style={{ backgroundColor: `${step.color}16`, color: step.color }} />
               </div>
               <input value={step.title} onChange={event => updateStep(index, { title: event.target.value })} className={editableInputClass} />
               <div className="mt-2 grid grid-cols-2 gap-2">
@@ -2021,9 +2021,9 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
               </div>
               <div className="mt-4 space-y-2">
                 {step.items.map((item, itemIndex) => (
-                  <div key={`${item}-${itemIndex}`} className="flex items-center gap-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                  <div key={`${item}-${itemIndex}`} className="flex items-center gap-2 text-xs text-[var(--crm-muted)]">
                     <CheckCircle2 className="h-3.5 w-3.5" style={{ color: step.color }} />
-                    <input value={item} onChange={event => updateStepItem(index, itemIndex, event.target.value)} className="min-w-0 flex-1 bg-transparent font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+                    <input value={item} onChange={event => updateStepItem(index, itemIndex, event.target.value)} className="min-w-0 flex-1 bg-transparent font-semibold text-[var(--crm-ink)] outline-none focus:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                     <button type="button" onClick={() => updateStep(index, { items: step.items.filter((_, currentIndex) => currentIndex !== itemIndex) })} className="text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[#ef4444]" title="Remover item">
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
@@ -2052,12 +2052,12 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[1.2fr_.8fr]">
-        <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.88)] p-5">
+        <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-5">
           <h2 className="text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Raias de responsabilidade</h2>
           <div className="mt-4 space-y-3">
             {board.swimlanes.map((lane, laneIndex) => (
-              <div key={`${lane.area}-${laneIndex}`} className="grid gap-3 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3 md:grid-cols-[170px_1fr_36px]">
-                <div className="flex items-center gap-2 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
+              <div key={`${lane.area}-${laneIndex}`} className="grid gap-3 rounded-lg border border-[var(--crm-border)] bg-transparent p-3 md:grid-cols-[170px_1fr_36px]">
+                <div className="flex items-center gap-2 text-sm font-black text-[var(--crm-ink)]">
                   <span className="h-3 w-3 rounded-full" style={{ backgroundColor: lane.color }} />
                   <input value={lane.area} onChange={event => updateLane(laneIndex, { area: event.target.value })} className="min-w-0 flex-1 bg-transparent outline-none focus:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                 </div>
@@ -2099,12 +2099,12 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
           </div>
         </div>
 
-        <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(135deg,rgba(255,122,0,0.14),rgb(var(--crm-surface-2-rgb)_/_0.96))] p-5">
+        <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(135deg,rgba(37,99,235,0.14),rgb(var(--crm-surface-rgb)/0.96))] p-5">
           <h2 className="text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Ações de melhoria</h2>
           <div className="mt-4 space-y-3">
             {board.actions.map((action, index) => (
-              <div key={`${action}-${index}`} className="flex gap-3 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-3">
-                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-[#ff7a00]/15 text-xs font-black text-[#ffb15c]">{index + 1}</span>
+              <div key={`${action}-${index}`} className="flex gap-3 rounded-lg border border-[var(--crm-border)] bg-transparent p-3">
+                <span className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-md bg-[#2563eb]/15 text-xs font-black text-[var(--pm-accent-text)]">{index + 1}</span>
                 <input value={action} onChange={event => {
                   const updated = processes.map(p => {
                     if (p.id !== activeProcessId) return p;
@@ -2114,7 +2114,7 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
                     };
                   });
                   persistProcesses(updated);
-                }} className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+                }} className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-[var(--crm-ink)] outline-none focus:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                 <button type="button" onClick={() => {
                   const updated = processes.map(p => {
                     if (p.id !== activeProcessId) return p;
@@ -2203,39 +2203,39 @@ function ProductBrainstormBoard({ onBack }: { onBack: () => void }) {
           { icon: Lightbulb, label: 'Ideias', value: String(board.ideas.length), tone: '#f6b40b' },
           { icon: Users, label: 'Clusters', value: String(personas), tone: '#18c8df' },
           { icon: Gauge, label: 'Score médio', value: String(averageScore), tone: '#22c55e' },
-          { icon: Layers3, label: 'Roadmap', value: `${board.roadmap.length} ondas`, tone: '#ff7a00' }
+          { icon: Layers3, label: 'Roadmap', value: `${board.roadmap.length} ondas`, tone: '#2563eb' }
         ].map(item => {
           const Icon = item.icon;
           return (
-            <div key={item.label} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.88)] p-4">
+            <div key={item.label} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4">
               <Icon className="mb-4 h-5 w-5" style={{ color: item.tone }} />
               <p className="text-3xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.value}</p>
-              <p className="mt-1 text-xs font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.label}</p>
+              <p className="mt-1 text-xs font-bold uppercase tracking-wide text-[var(--crm-muted)]">{item.label}</p>
             </div>
           );
         })}
       </section>
 
       <section className="grid gap-4 lg:grid-cols-[.95fr_1.05fr]">
-        <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.88)] p-5">
+        <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-5">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Banco de ideias</h2>
             <span className="rounded-full border border-[#22c55e]/35 bg-[#22c55e]/10 px-3 py-1 text-xs font-black text-[#5ee2a0]">Priorizado</span>
           </div>
           <div className="space-y-3">
             {board.ideas.map((idea, index) => (
-              <div key={`${idea.title}-${index}`} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
+              <div key={`${idea.title}-${index}`} className="rounded-lg border border-[var(--crm-border)] bg-transparent p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1 space-y-2">
                     <input value={idea.title} onChange={event => updateIdea(index, { title: event.target.value })} className={editableInputClass} />
                     <input value={idea.cluster} onChange={event => updateIdea(index, { cluster: event.target.value })} className={editableSmallInputClass} />
                   </div>
-                  <input type="number" min="0" max="100" value={idea.score} onChange={event => updateIdea(index, { score: Number(event.target.value) })} className="w-16 rounded-full border border-transparent px-2.5 py-1 text-center text-xs font-black outline-none focus:border-[#ff7a00]" style={{ color: idea.color, backgroundColor: `${idea.color}16` }} />
+                  <input type="number" min="0" max="100" value={idea.score} onChange={event => updateIdea(index, { score: Number(event.target.value) })} className="w-16 rounded-full border border-transparent px-2.5 py-1 text-center text-xs font-black outline-none focus:border-[#2563eb]" style={{ color: idea.color, backgroundColor: `${idea.color}16` }} />
                   <button type="button" onClick={() => setBoard(current => ({ ...current, ideas: current.ideas.filter((_, ideaIndex) => ideaIndex !== index) }))} className={dangerIconButtonClass} title="Remover ideia">
                     <Trash2 className="h-4 w-4" />
                   </button>
                 </div>
-                <div className="mt-4 h-2 overflow-hidden rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)]">
+                <div className="mt-4 h-2 overflow-hidden rounded-full bg-[var(--crm-border)]">
                   <div className="h-full rounded-full" style={{ width: `${Math.max(0, Math.min(100, Number(idea.score || 0)))}%`, background: `linear-gradient(90deg, ${idea.color}, #f6b40b)` }} />
                 </div>
               </div>
@@ -2243,19 +2243,19 @@ function ProductBrainstormBoard({ onBack }: { onBack: () => void }) {
           </div>
         </div>
 
-        <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.88)] p-5">
+        <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-5">
           <h2 className="text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Matriz impacto x esforço</h2>
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             {board.matrix.map((item, index) => (
-              <div key={`${item.quadrant}-${index}`} className="min-h-[150px] rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
+              <div key={`${item.quadrant}-${index}`} className="min-h-[150px] rounded-lg border border-[var(--crm-border)] bg-transparent p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <input value={item.quadrant} onChange={event => updateMatrix(index, { quadrant: event.target.value })} className="min-w-0 flex-1 bg-transparent text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+                  <input value={item.quadrant} onChange={event => updateMatrix(index, { quadrant: event.target.value })} className="min-w-0 flex-1 bg-transparent text-sm font-black text-[var(--crm-ink)] outline-none focus:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
                   <Wand2 className="h-4 w-4" style={{ color: item.color }} />
                 </div>
-                <input value={item.hint} onChange={event => updateMatrix(index, { hint: event.target.value })} className="mb-4 w-full bg-transparent text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] outline-none focus:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+                <input value={item.hint} onChange={event => updateMatrix(index, { hint: event.target.value })} className="mb-4 w-full bg-transparent text-xs font-semibold text-[var(--crm-muted)] outline-none focus:text-[var(--crm-ink)]" />
                 <div className="space-y-2">
                   {item.ideas.map((idea, ideaIndex) => (
-                    <input key={`${idea}-${ideaIndex}`} value={idea} onChange={event => updateMatrix(index, { ideas: item.ideas.map((current, currentIndex) => currentIndex === ideaIndex ? event.target.value : current) })} className="w-full rounded-md border px-3 py-2 text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-[#ff7a00]" style={{ borderColor: `${item.color}33`, backgroundColor: `${item.color}10` }} />
+                    <input key={`${idea}-${ideaIndex}`} value={idea} onChange={event => updateMatrix(index, { ideas: item.ideas.map((current, currentIndex) => currentIndex === ideaIndex ? event.target.value : current) })} className="w-full rounded-md border px-3 py-2 text-xs font-bold text-[var(--crm-ink)] outline-none focus:border-[#2563eb]" style={{ borderColor: `${item.color}33`, backgroundColor: `${item.color}10` }} />
                   ))}
                   <button type="button" onClick={() => updateMatrix(index, { ideas: [...item.ideas, 'Nova hipótese'] })} className="text-xs font-black text-[#18c8df] hover:text-[#5ee2a0]">
                     + Hipótese
@@ -2267,20 +2267,20 @@ function ProductBrainstormBoard({ onBack }: { onBack: () => void }) {
         </div>
       </section>
 
-      <section className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.88)] p-5">
+      <section className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-5">
         <h2 className="text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Roadmap sugerido</h2>
         <div className="mt-5 grid gap-4 lg:grid-cols-3">
           {board.roadmap.map((item, index) => (
-            <div key={`${item.wave}-${index}`} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
-              <input value={item.wave} onChange={event => updateRoadmap(index, { wave: event.target.value })} className="w-28 rounded-full border border-transparent px-3 py-1 text-[11px] font-black uppercase tracking-wide outline-none focus:border-[#ff7a00]" style={{ color: item.color, backgroundColor: `${item.color}14` }} />
-              <input value={item.title} onChange={event => updateRoadmap(index, { title: event.target.value })} className="mt-4 w-full bg-transparent text-base font-black text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+            <div key={`${item.wave}-${index}`} className="rounded-lg border border-[var(--crm-border)] bg-transparent p-4">
+              <input value={item.wave} onChange={event => updateRoadmap(index, { wave: event.target.value })} className="w-28 rounded-full border border-transparent px-3 py-1 text-[11px] font-black uppercase tracking-wide outline-none focus:border-[#2563eb]" style={{ color: item.color, backgroundColor: `${item.color}14` }} />
+              <input value={item.title} onChange={event => updateRoadmap(index, { title: event.target.value })} className="mt-4 w-full bg-transparent text-base font-black text-[var(--crm-ink)] outline-none focus:text-[rgb(var(--crm-ink-rgb)_/_1)]" />
               <textarea value={item.text} onChange={event => updateRoadmap(index, { text: event.target.value })} rows={3} className={`${editableTextAreaClass} mt-2`} />
               <button type="button" onClick={() => setBoard(current => ({ ...current, roadmap: current.roadmap.filter((_, roadmapIndex) => roadmapIndex !== index) }))} className="mt-3 text-xs font-black text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[#ef4444]">
                 Remover onda
               </button>
             </div>
           ))}
-          <button type="button" onClick={() => setBoard(current => ({ ...current, roadmap: [...current.roadmap, { wave: 'Nova onda', title: 'Nova entrega', text: 'Descreva a próxima entrega do roadmap.', color: '#18c8df' }] }))} className="min-h-[170px] rounded-lg border border-dashed border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-4 text-sm font-black text-[#18c8df] transition-colors hover:border-[#18c8df] hover:text-[#5ee2a0]">
+          <button type="button" onClick={() => setBoard(current => ({ ...current, roadmap: [...current.roadmap, { wave: 'Nova onda', title: 'Nova entrega', text: 'Descreva a próxima entrega do roadmap.', color: '#18c8df' }] }))} className="min-h-[170px] rounded-lg border border-dashed border-[var(--crm-border)] bg-transparent p-4 text-sm font-black text-[#18c8df] transition-colors hover:border-[#18c8df] hover:text-[#5ee2a0]">
             + Nova onda
           </button>
         </div>

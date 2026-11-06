@@ -127,12 +127,12 @@ function getEventIcon(kind: ActivityEvent['kind'], issue?: Issue, manualType?: M
 function getEventTone(kind: ActivityEvent['kind'], manualType?: ManualActivityType) {
   if (kind === 'manual' && manualType) {
     const typeConfig = manualActivityTypes.find(t => t.id === manualType);
-    return typeConfig?.color || "text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_0.12)] border-[var(--crm-border)]";
+    return typeConfig?.color || "text-[var(--crm-ink)] bg-[rgb(var(--crm-surface-rgb)_/_0.12)] border-[var(--crm-border)]";
   }
   if (kind === 'team') return 'text-[#18c8df] bg-[#18c8df]/12 border-[#18c8df]/35';
   if (kind === 'risk') return "text-red-700 dark:text-red-300 bg-red-500/12 border-red-500/35";
   if (kind === 'done') return 'text-[#22c55e] bg-[#22c55e]/12 border-[#22c55e]/35';
-  return 'text-[#ffb15c] bg-[#ff7a00]/12 border-[#ff7a00]/35';
+  return 'text-[var(--pm-accent-text)] bg-[#2563eb]/12 border-[#2563eb]/35';
 }
 
 function sortByDateDesc(a: ActivityEvent, b: ActivityEvent) {
@@ -304,15 +304,15 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
   const teamEvents = events.filter(event => event.kind === 'team').length;
 
   return (
-    <div className="h-full overflow-y-auto bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 text-[rgb(var(--crm-ink-rgb)_/_1)] custom-scrollbar">
+    <div className="h-full overflow-y-auto bg-transparent p-6 text-[var(--crm-ink)] custom-scrollbar">
       <div className="mx-auto max-w-5xl">
         <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <h2 className="flex items-center gap-3 text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
-              <Clock className="h-5 w-5 text-[#ff7a00]" />
+            <h2 className="flex items-center gap-3 text-xl font-bold text-[var(--crm-ink)]">
+              <Clock className="h-5 w-5 text-[#2563eb]" />
               Atividade
             </h2>
-            <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
+            <p className="mt-1 text-sm text-[var(--crm-muted)]">
               Linha do tempo real de fases, tarefas, prazos e equipe deste projeto.
             </p>
           </div>
@@ -321,13 +321,13 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
             <button
               type="button"
               onClick={() => setShowCreateModal(true)}
-              className="flex items-center gap-2 rounded-md bg-[#ff7a00] px-4 py-2 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+              className="flex items-center gap-2 rounded-md bg-[#2563eb] px-4 py-2 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
             >
               <PlusCircle className="h-4 w-4" /> Nova Atividade
             </button>
             
             <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
+              <Filter className="h-4 w-4 text-[var(--crm-muted)]" />
               {filterOptions.map(option => (
                 <button
                   key={option.id}
@@ -335,8 +335,8 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
                   onClick={() => setActiveFilter(option.id)}
                   className={`rounded-md border px-3 py-1.5 text-xs font-bold transition-colors ${
                     activeFilter === option.id
-                      ? "border-[#ff7a00] bg-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)]"
-                      : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[var(--crm-border)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                      ? "border-[#2563eb] bg-[#2563eb] text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                      : 'border-[var(--crm-border)] bg-[var(--crm-surface)] text-[var(--crm-muted)] hover:border-[var(--crm-border)] hover:text-[var(--crm-ink)]'
                   }`}
                 >
                   {option.label}
@@ -347,29 +347,29 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
         </div>
 
         <div className="mb-6 grid gap-4 md:grid-cols-4">
-          <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
-            <p className="text-xs font-semibold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">Eventos</p>
-            <p className="mt-2 text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{events.length}</p>
+          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+            <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Eventos</p>
+            <p className="mt-2 text-2xl font-black text-[var(--crm-ink)]">{events.length}</p>
           </div>
-          <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
-            <p className="text-xs font-semibold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">Itens</p>
-            <p className="mt-2 text-2xl font-black text-[#ffb15c]">{itemEvents}</p>
+          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+            <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Itens</p>
+            <p className="mt-2 text-2xl font-black text-[var(--pm-accent-text)]">{itemEvents}</p>
           </div>
-          <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
-            <p className="text-xs font-semibold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">Equipe</p>
+          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+            <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Equipe</p>
             <p className="mt-2 text-2xl font-black text-[#18c8df]">{teamEvents}</p>
           </div>
-          <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
-            <p className="text-xs font-semibold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">Riscos</p>
+          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+            <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Riscos</p>
             <p className={`mt-2 text-2xl font-black ${riskEvents ? "text-red-700 dark:text-red-300" : 'text-[#22c55e]'}`}>{riskEvents}</p>
           </div>
         </div>
 
         {filteredEvents.length === 0 ? (
-          <div className="rounded-md border border-dashed border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-10 text-center">
-            <CalendarClock className="mx-auto mb-3 h-9 w-9 text-[#ff7a00]" />
-            <p className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhuma atividade encontrada.</p>
-            <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Crie fases, tarefas ou adicione membros para preencher a linha do tempo.</p>
+          <div className="rounded-md border border-dashed border-[var(--crm-border)] bg-[var(--crm-surface)] p-10 text-center">
+            <CalendarClock className="mx-auto mb-3 h-9 w-9 text-[#2563eb]" />
+            <p className="font-bold text-[var(--crm-ink)]">Nenhuma atividade encontrada.</p>
+            <p className="mt-1 text-sm text-[var(--crm-muted)]">Crie fases, tarefas ou adicione membros para preencher a linha do tempo.</p>
           </div>
         ) : (
           <div className="relative ml-4 space-y-5 border-l border-[var(--crm-border)] pb-12">
@@ -377,46 +377,46 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
               const Icon = getEventIcon(event.kind, event.issue, event.manualType);
               const tone = getEventTone(event.kind, event.manualType);
               const actorInitials = event.actor?.initials || 'PM';
-              const actorColor = event.actor?.color || 'bg-[#ff7a00]';
+              const actorColor = event.actor?.color || 'bg-[#2563eb]';
 
               return (
                 <article key={event.id} className="relative pl-8">
                   <div className="absolute -left-[17px] top-1">
-                    <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] ring-4 ring-[#070b16] ${actorColor}`}>
+                    <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] ring-4 ring-[var(--crm-bg-base-2)] ${actorColor}`}>
                       {actorInitials}
                     </div>
                   </div>
 
-                  <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4 transition-colors hover:border-[var(--crm-border)]">
+                  <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4 transition-colors hover:border-[var(--crm-border)]">
                     <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                       <div className="min-w-0">
                         <div className="mb-2 flex items-center gap-2">
                           <span className={`inline-flex h-7 w-7 items-center justify-center rounded-md border ${tone}`}>
                             <Icon className="h-4 w-4" />
                           </span>
-                          <p className="text-xs font-bold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)]">{event.title}</p>
+                          <p className="text-xs font-bold uppercase text-[var(--crm-muted)]">{event.title}</p>
                         </div>
-                        <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                          <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{event.actor?.name || 'Sistema'}</span>{' '}
+                        <p className="text-sm text-[var(--crm-ink)]">
+                          <span className="font-semibold text-[var(--crm-ink)]">{event.actor?.name || 'Sistema'}</span>{' '}
                           <span>{event.action}</span>{' '}
                           {event.issue ? (
                             <button
                               type="button"
                               onClick={() => onTaskClick?.(event.issue as Issue)}
-                              className="font-semibold text-[#ffb15c] hover:text-[#ff7a00] hover:underline"
+                              className="font-semibold text-[var(--pm-accent-text)] hover:text-[#2563eb] hover:underline"
                             >
                               {event.target}
                             </button>
                           ) : (
-                            <span className="font-semibold text-[#ffb15c]">{event.target}</span>
+                            <span className="font-semibold text-[var(--pm-accent-text)]">{event.target}</span>
                           )}
                         </p>
                         {event.detail && (
-                          <p className="mt-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{event.detail}</p>
+                          <p className="mt-2 text-xs text-[var(--crm-muted)]">{event.detail}</p>
                         )}
                       </div>
 
-                      <div className="flex shrink-0 items-center gap-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                      <div className="flex shrink-0 items-center gap-2 text-xs text-[var(--crm-muted)]">
                         <Edit3 className="h-3.5 w-3.5" />
                         <span title={formatAbsoluteDate(event.date)}>{formatRelativeDate(event.date)}</span>
                       </div>
@@ -432,16 +432,16 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
       {/* Modal de Nova Atividade */}
       {showCreateModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-2xl rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-2xl">
+          <div className="w-full max-w-2xl rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] shadow-2xl">
             <div className="flex items-center justify-between border-b border-[var(--crm-border)] p-5">
               <div>
-                <h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Nova Atividade</h3>
-                <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Registre reuniões, decisões, notas e impedimentos</p>
+                <h3 className="text-lg font-bold text-[var(--crm-ink)]">Nova Atividade</h3>
+                <p className="mt-1 text-sm text-[var(--crm-muted)]">Registre reuniões, decisões, notas e impedimentos</p>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="rounded-md p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                className="rounded-md p-2 text-[var(--crm-muted)] transition-colors hover:bg-[var(--crm-border)] hover:text-[var(--crm-ink)]"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -449,7 +449,7 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
 
             <div className="p-5 space-y-4">
               <div>
-                <label className="mb-2 block text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                <label className="mb-2 block text-sm font-semibold text-[var(--crm-ink)]">
                   Tipo de Registro
                 </label>
                 <div className="grid grid-cols-5 gap-2">
@@ -462,12 +462,12 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
                         onClick={() => setNewActivity(prev => ({ ...prev, type: type.id }))}
                         className={`flex flex-col items-center gap-2 rounded-lg border p-3 transition-all ${
                           newActivity.type === type.id
-                            ? 'border-[#ff7a00] bg-[#ff7a00]/10 ring-2 ring-[#ff7a00]/20'
-                            : "border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:border-[var(--crm-border)]"
+                            ? 'border-[#2563eb] bg-[#2563eb]/10 ring-2 ring-[#2563eb]/20'
+                            : 'border-[var(--crm-border)] bg-transparent hover:border-[var(--crm-border)]'
                         }`}
                       >
-                        <TypeIcon className={`h-5 w-5 ${newActivity.type === type.id ? 'text-[#ff7a00]' : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`} />
-                        <span className={`text-xs font-semibold ${newActivity.type === type.id ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
+                        <TypeIcon className={`h-5 w-5 ${newActivity.type === type.id ? 'text-[#2563eb]' : 'text-[var(--crm-muted)]'}`} />
+                        <span className={`text-xs font-semibold ${newActivity.type === type.id ? 'text-[var(--crm-ink)]' : 'text-[var(--crm-muted)]'}`}>
                           {type.label}
                         </span>
                       </button>
@@ -477,7 +477,7 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                <label className="mb-2 block text-sm font-semibold text-[var(--crm-ink)]">
                   Título *
                 </label>
                 <input
@@ -485,20 +485,20 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
                   value={newActivity.title}
                   onChange={(e) => setNewActivity(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Ex: Reunião de kickoff, Decisão sobre arquitetura..."
-                  className="w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] outline-none transition-colors focus:border-[#ff7a00]"
+                  className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm text-[var(--crm-ink)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] outline-none transition-colors focus:border-[#2563eb]"
                   required
                 />
               </div>
 
               <div>
-                <label className="mb-2 block text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                <label className="mb-2 block text-sm font-semibold text-[var(--crm-ink)]">
                   Descrição
                 </label>
                 <textarea
                   value={newActivity.description}
                   onChange={(e) => setNewActivity(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Detalhes, participantes, ações tomadas, próximos passos..."
-                  className="w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] outline-none transition-colors focus:border-[#ff7a00] resize-none"
+                  className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm text-[var(--crm-ink)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] outline-none transition-colors focus:border-[#2563eb] resize-none"
                   rows={4}
                 />
               </div>
@@ -508,7 +508,7 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-4 py-2 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:border-[var(--crm-border)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                className="rounded-md border border-[var(--crm-border)] bg-transparent px-4 py-2 text-sm font-semibold text-[var(--crm-ink)] transition-colors hover:border-[var(--crm-border)] hover:text-[var(--crm-ink)]"
               >
                 Cancelar
               </button>
@@ -516,7 +516,7 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
                 type="button"
                 onClick={saveManualActivity}
                 disabled={!newActivity.title.trim()}
-                className="rounded-md bg-[#ff7a00] px-4 py-2 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="rounded-md bg-[#2563eb] px-4 py-2 text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Salvar Atividade
               </button>

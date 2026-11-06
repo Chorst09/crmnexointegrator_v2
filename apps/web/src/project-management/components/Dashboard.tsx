@@ -47,7 +47,7 @@ const fallbackProject: Space = {
   id: 'all',
   name: 'Todos os projetos',
   initial: 'P',
-  color: 'bg-[#ff7a00]',
+  color: 'bg-[#2563eb]',
   status: 'PLANEJADO',
   objective: 'Acompanhar projetos, fases, riscos e entregas em uma visão executiva.',
   scope: 'Painel consolidado para leitura rápida do portfólio.'
@@ -125,9 +125,9 @@ export default function Dashboard({
   const distributionRows = statusRows.filter(row => row.total > 0);
 
   return (
-    <section className="h-full overflow-y-auto bg-[radial-gradient(circle_at_12%_0%,rgba(255,122,0,0.2),transparent_24%),radial-gradient(circle_at_88%_8%,rgba(34,197,94,0.16),transparent_28%),linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_1),rgb(var(--crm-surface-2-rgb)_/_1)_42%,rgb(var(--crm-surface-2-rgb)_/_1))] px-5 py-5 text-[rgb(var(--crm-ink-rgb)_/_1)] lg:px-8">
+    <section className="h-full overflow-y-auto bg-[radial-gradient(circle_at_12%_0%,rgba(37,99,235,0.2),transparent_24%),radial-gradient(circle_at_88%_8%,rgba(34,197,94,0.16),transparent_28%),linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_1),rgb(var(--crm-surface-2-rgb)_/_1)_42%,rgb(var(--crm-surface-2-rgb)_/_1))] px-5 py-5 text-[var(--crm-ink)] lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-5">
-        <header className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.86)] p-5 shadow-2xl shadow-black/20 backdrop-blur">
+        <header className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.86)] p-5 shadow-2xl shadow-black/20 backdrop-blur">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0">
               <div className="mb-3 flex flex-wrap items-center gap-2">
@@ -135,13 +135,13 @@ export default function Dashboard({
                   <button
                     type="button"
                     onClick={onBack}
-                    className="flex items-center gap-2 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] transition hover:border-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                    className="flex items-center gap-2 rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] px-3 py-2 text-xs font-bold text-[var(--crm-ink)] transition hover:border-[#2563eb] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     Voltar
                   </button>
                 )}
-                <span className="rounded-full border border-[#ff7a00]/45 bg-[#ff7a00]/12 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-[#ffb15c]">
+                <span className="rounded-full border border-[#2563eb]/45 bg-[#2563eb]/12 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-[var(--pm-accent-text)]">
                   Painel executivo
                 </span>
                 <span className="rounded-full border border-[#22c55e]/35 bg-[#22c55e]/10 px-3 py-1 text-[11px] font-black uppercase tracking-wide text-[#5ee2a0]">
@@ -149,21 +149,21 @@ export default function Dashboard({
                 </span>
               </div>
               <h1 className="text-3xl font-black tracking-tight text-[rgb(var(--crm-ink-rgb)_/_1)] lg:text-4xl">Painel de Projetos</h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-[rgb(var(--crm-ink-rgb)_/_1)]">
+              <p className="mt-2 max-w-3xl text-sm leading-6 text-[var(--crm-ink)]">
                 Controle status, fases, riscos e entregas por projeto com leitura executiva e filtros diretos.
               </p>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2 lg:w-[520px]">
               <label className="flex flex-col gap-1.5">
-                <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                  <Briefcase className="h-3.5 w-3.5 text-[#ff7a00]" />
+                <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[var(--crm-muted)]">
+                  <Briefcase className="h-3.5 w-3.5 text-[#2563eb]" />
                   Projeto
                 </span>
                 <select
                   value={selectedProject.id}
                   onChange={(event) => onProjectChange?.(event.target.value)}
-                  className="h-11 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition focus:border-[#ff7a00] focus:ring-2 focus:ring-[#ff7a00]/20"
+                  className="h-11 rounded-md border border-[var(--crm-border)] bg-transparent px-3 text-sm font-semibold text-[var(--crm-ink)] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20"
                 >
                   {projects.map(project => (
                     <option key={project.id} value={project.id}>{project.name}</option>
@@ -172,14 +172,14 @@ export default function Dashboard({
               </label>
 
               <label className="flex flex-col gap-1.5">
-                <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                <span className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wide text-[var(--crm-muted)]">
                   <Filter className="h-3.5 w-3.5 text-[#22c55e]" />
                   Status
                 </span>
                 <select
                   value={statusFilter}
                   onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
-                  className="h-11 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none transition focus:border-[#22c55e] focus:ring-2 focus:ring-[#22c55e]/20"
+                  className="h-11 rounded-md border border-[var(--crm-border)] bg-transparent px-3 text-sm font-semibold text-[var(--crm-ink)] outline-none transition focus:border-[#22c55e] focus:ring-2 focus:ring-[#22c55e]/20"
                 >
                   {STATUS_OPTIONS.map(status => (
                     <option key={status} value={status}>{status}</option>
@@ -192,10 +192,10 @@ export default function Dashboard({
           <div className="mt-5 grid gap-3 lg:grid-cols-[1.2fr_1fr_.8fr]">
             <InfoPanel title="Escopo" value={selectedProject.scope || 'Escopo ainda nao informado.'} accent="orange" />
             <InfoPanel title="Objetivo" value={selectedProject.objective || 'Objetivo ainda nao informado.'} accent="green" />
-            <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(135deg,rgba(255,122,0,0.16),rgba(246,180,11,0.08),rgb(var(--crm-surface-2-rgb)_/_0.96))] p-4">
-              <p className="text-[11px] font-black uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Projeto ativo</p>
+            <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(135deg,rgba(37,99,235,0.16),rgba(246,180,11,0.08),rgb(var(--crm-surface-rgb)/0.96))] p-4">
+              <p className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">Projeto ativo</p>
               <p className="mt-2 truncate text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{selectedProject.name}</p>
-              <p className="mt-1 text-xs font-bold text-[#ffb15c]">{selectedProject.status || 'PLANEJADO'}</p>
+              <p className="mt-1 text-xs font-bold text-[var(--pm-accent-text)]">{selectedProject.status || 'PLANEJADO'}</p>
             </div>
           </div>
         </header>
@@ -213,8 +213,8 @@ export default function Dashboard({
               <AreaChart data={trendData} margin={{ left: -18, right: 10, top: 10, bottom: 0 }}>
                 <defs>
                   <linearGradient id="orangeArea" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#ff7a00" stopOpacity={0.55} />
-                    <stop offset="95%" stopColor="#ff7a00" stopOpacity={0.04} />
+                    <stop offset="5%" stopColor="#2563eb" stopOpacity={0.55} />
+                    <stop offset="95%" stopColor="#2563eb" stopOpacity={0.04} />
                   </linearGradient>
                   <linearGradient id="greenArea" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#22c55e" stopOpacity={0.45} />
@@ -225,7 +225,7 @@ export default function Dashboard({
                 <XAxis dataKey="label" stroke="#64748b" tickLine={false} axisLine={false} fontSize={11} />
                 <YAxis stroke="#64748b" tickLine={false} axisLine={false} fontSize={11} />
                 <Tooltip content={<DashboardTooltip />} />
-                <Area type="monotone" dataKey="planejado" stroke="#ff7a00" fill="url(#orangeArea)" strokeWidth={3} />
+                <Area type="monotone" dataKey="planejado" stroke="#2563eb" fill="url(#orangeArea)" strokeWidth={3} />
                 <Area type="monotone" dataKey="concluido" stroke="#22c55e" fill="url(#greenArea)" strokeWidth={3} />
                 <Line type="monotone" dataKey="progresso" stroke="#18c8df" strokeWidth={3} dot={{ r: 3 }} />
               </AreaChart>
@@ -256,9 +256,9 @@ export default function Dashboard({
                   key={row.status}
                   type="button"
                   onClick={() => setStatusFilter(row.status)}
-                  className="grid grid-cols-[1fr_48px] items-center gap-3 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] px-3 py-2 text-left transition hover:border-[#ff7a00]/50"
+                  className="grid grid-cols-[1fr_48px] items-center gap-3 rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-left transition hover:border-[#2563eb]/50"
                 >
-                  <span className="truncate text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{row.status}</span>
+                  <span className="truncate text-xs font-bold text-[var(--crm-ink)]">{row.status}</span>
                   <span className="text-right text-xs font-black" style={{ color: row.color }}>{row.total}</span>
                 </button>
               ))}
@@ -283,17 +283,17 @@ export default function Dashboard({
             </ResponsiveContainer>
           </ChartPanel>
 
-          <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.86)] p-4 shadow-xl shadow-black/20">
+          <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.86)] p-4 shadow-xl shadow-black/20">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h2 className="text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Fases filtradas</h2>
-                <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Clique no status acima ou use o filtro para auditar o projeto.</p>
+                <p className="mt-1 text-xs text-[var(--crm-muted)]">Clique no status acima ou use o filtro para auditar o projeto.</p>
               </div>
               {onCreateProject && (
                 <button
                   type="button"
                   onClick={onCreateProject}
-                  className="flex items-center gap-2 rounded-md bg-[#ff7a00] px-3 py-2 text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                  className="flex items-center gap-2 rounded-md bg-[#2563eb] px-3 py-2 text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 >
                   <Plus className="h-4 w-4" />
                   Novo projeto
@@ -303,23 +303,23 @@ export default function Dashboard({
 
             <div className="overflow-hidden rounded-lg border border-[var(--crm-border)]">
               {filteredIssues.length === 0 ? (
-                <div className="flex min-h-[170px] flex-col items-center justify-center bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] px-6 text-center">
-                  <Target className="mb-3 h-8 w-8 text-[#ff7a00]" />
-                  <p className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Nenhuma fase encontrada</p>
-                  <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Troque o projeto ou status para ampliar a leitura.</p>
+                <div className="flex min-h-[170px] flex-col items-center justify-center bg-transparent px-6 text-center">
+                  <Target className="mb-3 h-8 w-8 text-[#2563eb]" />
+                  <p className="font-bold text-[var(--crm-ink)]">Nenhuma fase encontrada</p>
+                  <p className="mt-1 text-sm text-[var(--crm-muted)]">Troque o projeto ou status para ampliar a leitura.</p>
                 </div>
               ) : (
                 <div className="divide-y divide-[var(--crm-border)]">
                   {filteredIssues.slice(0, 7).map(issue => (
-                    <div key={issue.id} className="grid gap-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] px-4 py-3 transition hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] md:grid-cols-[1fr_150px_110px] md:items-center">
+                    <div key={issue.id} className="grid gap-3 bg-transparent px-4 py-3 transition hover:bg-[var(--crm-surface)] md:grid-cols-[1fr_150px_110px] md:items-center">
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{issue.title}</p>
-                        <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{issue.assignee?.name || 'Sem responsavel'} {issue.dueDate ? `· ${issue.dueDate}` : ''}</p>
+                        <p className="truncate text-sm font-bold text-[var(--crm-ink)]">{issue.title}</p>
+                        <p className="mt-1 text-xs text-[var(--crm-muted)]">{issue.assignee?.name || 'Sem responsavel'} {issue.dueDate ? `· ${issue.dueDate}` : ''}</p>
                       </div>
                       <span className="w-fit rounded-full border px-2.5 py-1 text-[11px] font-black uppercase" style={{ borderColor: `${STATUS_COLORS[issue.status]}66`, color: STATUS_COLORS[issue.status], background: `${STATUS_COLORS[issue.status]}14` }}>
                         {issue.status}
                       </span>
-                      <span className="text-xs font-bold text-[rgb(var(--crm-muted-rgb)_/_1)]">{issue.priority}</span>
+                      <span className="text-xs font-bold text-[var(--crm-muted)]">{issue.priority}</span>
                     </div>
                   ))}
                 </div>
@@ -333,12 +333,12 @@ export default function Dashboard({
 }
 
 function InfoPanel({ title, value, accent }: { title: string; value: string; accent: 'orange' | 'green' }) {
-  const color = accent === 'orange' ? '#ff7a00' : '#22c55e';
+  const color = accent === 'orange' ? '#2563eb' : '#22c55e';
   return (
-    <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-4">
-      <p className="text-[11px] font-black uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">{title}</p>
-      <p className="mt-2 line-clamp-3 text-sm leading-6 text-[rgb(var(--crm-ink-rgb)_/_1)]">{value}</p>
-      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[rgb(var(--crm-surface-rgb)_/_1)]">
+    <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.8)] p-4">
+      <p className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">{title}</p>
+      <p className="mt-2 line-clamp-3 text-sm leading-6 text-[var(--crm-ink)]">{value}</p>
+      <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[var(--crm-border)]">
         <div className="h-full w-2/3 rounded-full" style={{ background: `linear-gradient(90deg, ${color}, #f6b40b)` }} />
       </div>
     </div>
@@ -349,12 +349,12 @@ function KpiCard({ icon: Icon, label, value, tone, delta }: { icon: any; label: 
   const tones = {
     cyan: ['#18c8df', 'rgba(24,200,223,0.16)'],
     green: ['#22c55e', 'rgba(34,197,94,0.16)'],
-    orange: ['#ff7a00', 'rgba(255,122,0,0.18)'],
+    orange: ['#2563eb', 'rgba(37,99,235,0.18)'],
     yellow: ['#f6b40b', 'rgba(246,180,11,0.16)']
   }[tone];
 
   return (
-    <div className="relative overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.88)] p-5 shadow-xl shadow-black/20">
+    <div className="relative overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-5 shadow-xl shadow-black/20">
       <div className="absolute inset-y-0 right-0 w-32 opacity-80" style={{ background: `linear-gradient(135deg, transparent, ${tones[1]})` }} />
       <div className="relative flex items-start justify-between gap-4">
         <span className="flex h-11 w-11 items-center justify-center rounded-lg border" style={{ borderColor: `${tones[0]}55`, color: tones[0], background: tones[1] }}>
@@ -364,7 +364,7 @@ function KpiCard({ icon: Icon, label, value, tone, delta }: { icon: any; label: 
       </div>
       <div className="relative mt-7">
         <p className="text-4xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{value}</p>
-        <p className="mt-2 text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">{label}</p>
+        <p className="mt-2 text-sm font-semibold text-[var(--crm-muted)]">{label}</p>
       </div>
     </div>
   );
@@ -372,7 +372,7 @@ function KpiCard({ icon: Icon, label, value, tone, delta }: { icon: any; label: 
 
 function ChartPanel({ title, action, children }: { title: string; action: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.86)] p-4 shadow-xl shadow-black/20">
+    <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.86)] p-4 shadow-xl shadow-black/20">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
           <h2 className="text-xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{title}</h2>
@@ -392,8 +392,8 @@ function DashboardTooltip({ active, payload, label }: any) {
   if (!active || !payload?.length) return null;
 
   return (
-    <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 shadow-xl">
-      <p className="mb-1 text-xs font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{label}</p>
+    <div className="rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 shadow-xl">
+      <p className="mb-1 text-xs font-black text-[var(--crm-ink)]">{label}</p>
       {payload.map((entry: any) => (
         <p key={entry.name} className="text-xs font-semibold" style={{ color: entry.color || entry.payload?.color }}>
           {entry.name}: {entry.value}

@@ -8,6 +8,16 @@ const normalizeText = (value) => String(value || '')
 
 const normalizeDocument = (value) => String(value || '').replace(/\D/g, '');
 
+const sellerNameMatches = (sellerName, requesterName) => {
+  const seller = normalizeText(sellerName);
+  const requester = normalizeText(requesterName);
+  if (!seller || !requester) return false;
+  if (seller === requester) return true;
+  const sellerFirst = seller.split(' ')[0];
+  const requesterFirst = requester.split(' ')[0];
+  return Boolean(sellerFirst && requesterFirst && sellerFirst === requesterFirst);
+};
+
 const normalizeDomain = (value) => {
   const raw = String(value || '').trim().toLowerCase();
   if (!raw) return '';
@@ -30,6 +40,16 @@ const canBeResponsibleSeller = (user = {}) => {
 };
 
 const getCurrentSeller = (company) => {
+  const accountManagerId = String(company?.accountManagerId || '').trim();
+  const accountManagerName = String(company?.accountManagerName || '').trim();
+  if (accountManagerId || accountManagerName) {
+    return {
+      id: accountManagerId || null,
+      name: accountManagerName,
+      email: ''
+    };
+  }
+
   const opportunityOwner = (company?.opportunities || [])
     .map((opportunity) => opportunity.owner)
     .find((owner) => owner?.id && canBeResponsibleSeller(owner));
@@ -122,6 +142,8 @@ export const validateCustomerOwnership = async (tx, {
       name: true,
       document: true,
       website: true,
+      accountManagerId: true,
+      accountManagerName: true,
       opportunities: {
         orderBy: { createdAt: 'desc' },
         take: 5,
@@ -140,9 +162,11 @@ export const validateCustomerOwnership = async (tx, {
     }
   });
 
-  const matchedCompany = companies.find((company) =>
-    (companyId && company.id === companyId) || companyMatchesTarget(company, target)
-  );
+  const matchedCompany = (companyId
+    ? companies.find((company) => company.id === companyId)
+    : null)
+    || companies.find((company) => companyMatchesTarget(company, target))
+    || null;
 
   if (!matchedCompany) {
     return buildOwnershipDecision({ allowed: true, reason: 'NOVO_CADASTRO', context });
@@ -159,7 +183,7 @@ export const validateCustomerOwnership = async (tx, {
       : buildOwnershipDecision({ allowed: false, reason: 'CONFLITO_TITULARIDADE', sellerName: currentSeller.name || currentSeller.email || 'responsavel atual', context });
   }
 
-  const sameSellerByName = normalizeText(currentSeller.name) && normalizeText(currentSeller.name) === normalizeText(requesterName);
+  const sameSellerByName = sellerNameMatches(currentSeller.name, requesterName);
   return sameSellerByName
     ? buildOwnershipDecision({ allowed: true, reason: 'MESMO_VENDEDOR', context })
     : buildOwnershipDecision({ allowed: false, reason: 'CONFLITO_TITULARIDADE', sellerName: currentSeller.name || 'responsavel atual', context });

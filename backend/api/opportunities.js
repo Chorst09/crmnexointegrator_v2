@@ -29,6 +29,23 @@ const normalizeClientType = (value) => {
   return normalized === 'B2B' || normalized === 'B2G' ? normalized : null;
 };
 
+const extractAgencyName = (body = {}) => {
+  if (Object.prototype.hasOwnProperty.call(body, 'orgaoEntidade')) {
+    return typeof body.orgaoEntidade === 'string' ? body.orgaoEntidade.trim() : '';
+  }
+  const candidates = [body.companyName, body.agency, body.company?.name];
+  try {
+    const description = typeof body.description === 'string'
+      ? JSON.parse(body.description)
+      : body.description;
+    candidates.push(description?.orgaoEntidade, description?.agency, description?.orgao);
+  } catch {
+    // descrição pode não ser JSON válido
+  }
+  const found = candidates.find((value) => typeof value === 'string' && value.trim());
+  return found ? found.trim() : '';
+};
+
 const normalizeRole = (user = {}) => String(user.actualRole || user.role || '').trim().toUpperCase();
 
 const canOwnOpportunityForClientType = (user = {}, clientType = 'B2B') => {
@@ -39,7 +56,7 @@ const canOwnOpportunityForClientType = (user = {}, clientType = 'B2B') => {
   return Boolean(user.accessB2B || role === 'SELLER' || role === 'USER_B2B');
 };
 
-const hasB2GSignal = (value) => /\bB2G\b|GOVERNO|\bGOV\b|LICIT|EDITAL|TERMO DE REFER[ÊE]NCIA/i.test(String(value || ''));
+const hasB2GSignal = (value) => /\bB2G\b|\bGOVERNO\b|\bGOV\b|\bLICIT|\bEDITA(?:L|IS)\b|TERMO DE REFER[ÊE]NCIA/i.test(String(value || ''));
 
 const hasB2GDescriptionShape = (value) => {
   const text = String(value || '').trim();
@@ -326,7 +343,7 @@ export default async function handler(req) {
           }
         },
         owner: {
-          select: { id: true, name: true, email: true }
+          select: { id: true, name: true, email: true, phone: true, role: true, region: { select: { id: true, name: true } } }
         },
         products: {
           include: {
@@ -373,7 +390,8 @@ export default async function handler(req) {
     }
 
     const resolvedOwnerId = canSeeAllOpportunities(req.user) ? body.ownerId : req.user.userId;
-    const tenantCompanyId = getTenantCompanyId(req.user) || body.tenantCompanyId || null;
+    // Acesso global do Master não define o tenant do registro atribuído.
+    const actorTenantCompanyId = getTenantCompanyId(req.user);
     if (!body.title) {
       return Response.json({ error: 'Título é obrigatório' }, { status: 400 });
     }
@@ -382,16 +400,6 @@ export default async function handler(req) {
     }
     if (!resolvedOwnerId) {
       return Response.json({ error: 'Selecione um responsável para a oportunidade' }, { status: 400 });
-    }
-
-    if (tenantCompanyId && body.companyId) {
-      const company = await prisma.company.findUnique({
-        where: { id: body.companyId },
-        select: { tenantCompanyId: true }
-      });
-      if (!company || String(company.tenantCompanyId || '') !== tenantCompanyId) {
-        return new Response('Empresa não pertence a este tenant', { status: 403 });
-      }
     }
 
     const owner = await prisma.user.findUnique({
@@ -409,11 +417,22 @@ export default async function handler(req) {
     if (!owner) {
       return Response.json({ error: 'Responsável não encontrado' }, { status: 400 });
     }
+    const tenantCompanyId = actorTenantCompanyId || owner.tenantCompanyId || req.user?.tenantCompanyId || null;
     if (tenantCompanyId && owner.tenantCompanyId && String(owner.tenantCompanyId) !== String(tenantCompanyId)) {
       return Response.json({ error: 'Responsável não pertence a este tenant' }, { status: 403 });
     }
     if (!canOwnOpportunityForClientType(owner, clientType)) {
       return Response.json({ error: `Responsável sem acesso ao módulo ${clientType}` }, { status: 400 });
+    }
+
+    if (tenantCompanyId && body.companyId) {
+      const company = await prisma.company.findUnique({
+        where: { id: body.companyId },
+        select: { tenantCompanyId: true }
+      });
+      if (!company || String(company.tenantCompanyId || '') !== tenantCompanyId) {
+        return new Response('Empresa não pertence a este tenant', { status: 403 });
+      }
     }
 
     const ownershipCompany = await prisma.company.findUnique({
@@ -519,7 +538,7 @@ export default async function handler(req) {
         include: {
           company: true,
           owner: {
-            select: { id: true, name: true, email: true }
+            select: { id: true, name: true, email: true, phone: true, role: true, region: { select: { id: true, name: true } } }
           },
           products: {
             include: {
@@ -643,6 +662,16 @@ export default async function handler(req) {
     if (body.customerTurnDate !== undefined) updateData.customerTurnDate = parseDateInput(body.customerTurnDate);
     if (body.exitDate !== undefined) updateData.exitDate = parseDateInput(body.exitDate);
     if (body.source !== undefined) updateData.source = body.source || null;
+    if (body.companyId) {
+      const linkedDocument = await prisma.companyDocument.findFirst({ where: { opportunityId }, select: { companyId: true } });
+      if (linkedDocument && linkedDocument.companyId !== body.companyId) {
+        return Response.json({ error: 'Esta oportunidade possui documentos vinculados à empresa atual. Remova os anexos antes de alterar a empresa.' }, { status: 409 });
+      }
+      const linkedContract = body.companyId !== existing.companyId ? await prisma.contract.findFirst({ where: { opportunityId }, select: { companyId: true } }) : null;
+      if (linkedContract && linkedContract.companyId !== body.companyId) {
+        return Response.json({ error: 'Esta oportunidade possui contratos vinculados à empresa atual. Cadastre outra oportunidade para mudar de empresa.' }, { status: 409 });
+      }
+    }
     if (body.companyId !== undefined && body.companyId) {
       if (getTenantCompanyId(req.user)) {
         const company = await prisma.company.findUnique({
@@ -717,13 +746,69 @@ export default async function handler(req) {
     }
     
     const opportunity = await prisma.$transaction(async (tx) => {
+      const agencyName = extractAgencyName(body);
+      if (agencyName) {
+        const currentCompanyId = updateData.companyId || existing.companyId;
+        let targetCompany = null;
+
+        if (currentCompanyId) {
+          targetCompany = await tx.company.findFirst({
+            where: { id: currentCompanyId, ...tenantScopedWhere(req.user) }
+          });
+          if (targetCompany) updateData.companyId = targetCompany.id;
+        }
+
+        const normalizeCompanyName = (value) => String(value || '').trim().toLowerCase();
+
+        if (targetCompany && normalizeCompanyName(targetCompany.name) !== normalizeCompanyName(agencyName)) {
+          const companyWithName = await tx.company.findFirst({
+            where: {
+              name: { equals: agencyName, mode: 'insensitive' },
+              id: { not: targetCompany.id },
+              ...tenantScopedWhere(req.user)
+            }
+          });
+
+          if (companyWithName) {
+            updateData.companyId = companyWithName.id;
+          } else {
+            await tx.company.update({
+              where: { id: targetCompany.id },
+              data: { name: agencyName }
+            });
+          }
+        } else if (!targetCompany) {
+          const companyWithName = await tx.company.findFirst({
+            where: {
+              name: { equals: agencyName, mode: 'insensitive' },
+              ...tenantScopedWhere(req.user)
+            }
+          });
+
+          if (companyWithName) {
+            updateData.companyId = companyWithName.id;
+          } else {
+            const createdCompany = await tx.company.create({
+              data: {
+                name: agencyName,
+                clientType: nextClientType,
+                segment: nextClientType === 'B2G' ? 'B2G GOVERNO' : 'B2B',
+                status: 'PROSPECT',
+                tenantCompanyId: getTenantCompanyId(req.user) || null
+              }
+            });
+            updateData.companyId = createdCompany.id;
+          }
+        }
+      }
+
       const updated = await tx.opportunity.update({
         where: { id: opportunityId },
         data: updateData,
         include: {
           company: true,
           owner: {
-            select: { id: true, name: true, email: true }
+            select: { id: true, name: true, email: true, phone: true, role: true, region: { select: { id: true, name: true } } }
           },
           products: {
             include: {
@@ -763,7 +848,7 @@ export default async function handler(req) {
           where: { id: updated.id },
           include: {
             company: true,
-            owner: { select: { id: true, name: true, email: true } },
+            owner: { select: { id: true, name: true, email: true, phone: true, role: true, region: { select: { id: true, name: true } } } },
             products: { include: { product: true } },
             project: { select: { id: true, number: true, name: true, status: true } }
           }
@@ -814,6 +899,10 @@ export default async function handler(req) {
 
     if (!canSeeAllOpportunities(req.user) && existing.ownerId !== req.user.userId) {
       return new Response('Forbidden', { status: 403 });
+    }
+
+    if (await prisma.companyDocument.count({ where: { opportunityId } })) {
+      return Response.json({ error: 'Esta oportunidade possui documentos vinculados. Remova os anexos antes de excluí-la.' }, { status: 409 });
     }
 
     await prisma.$transaction(async (tx) => {

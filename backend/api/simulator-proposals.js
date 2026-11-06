@@ -9,6 +9,8 @@ const express = require('express');
 const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken } = require('../lib/auth');
 
+const { assignProposalOwner } = require('../lib/simulator-proposal-owner.cjs');
+
 const router = express.Router();
 
 // ─── Helper: normaliza proposta do formato do Simulador ───────────────────────
@@ -42,7 +44,12 @@ router.get('/', authenticateToken, async (req, res) => {
     // Usuários comuns só veem as próprias propostas
     const role = String(req.user?.role || '').toUpperCase();
     if (!['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(role)) {
-      where.createdBy = req.user?.email || userId;
+      // Calculadoras antigas gravavam o ID; outras gravam o e-mail.
+      // Reconhece ambos sem ampliar o acesso para propostas de outros usuários.
+      where.OR = [
+        ...(userId ? [{ createdBy: userId }] : []),
+        ...(req.user?.email ? [{ createdBy: { equals: req.user.email.trim(), mode: 'insensitive' } }] : []),
+      ];
     }
 
     const rows = await prisma.simulatorProposal.findMany({
@@ -81,6 +88,7 @@ router.get('/', authenticateToken, async (req, res) => {
 router.post('/', authenticateToken, async (req, res) => {
   try {
     const normalized = normalizeProposal(req.body);
+    await assignProposalOwner(prisma, normalized, req.body, req.user);
 
     if (!normalized.baseId) {
       return res.status(400).json({ success: false, error: 'base_id é obrigatório' });
@@ -93,18 +101,17 @@ router.post('/', authenticateToken, async (req, res) => {
 
     let saved;
     if (existing) {
-      saved = await prisma.simulatorProposal.update({
-        where: { id: existing.id },
-        data: { ...normalized, updatedAt: new Date() },
-      });
+      // POST cria uma proposta; edição usa PUT. Nunca sobrescrever por colisão de número.
+      normalized.baseId = `${normalized.baseId}_${require('crypto').randomUUID()}`;
+      saved = await prisma.simulatorProposal.create({ data: { id: require('crypto').randomUUID(), ...normalized } });
     } else {
-      saved = await prisma.simulatorProposal.create({ data: normalized });
+      saved = await prisma.simulatorProposal.create({ data: { id: require('crypto').randomUUID(), ...normalized } });
     }
 
     return res.status(201).json({ success: true, data: saved });
   } catch (err) {
     console.error('❌ simulator-proposals POST:', err);
-    return res.status(500).json({ success: false, error: 'Erro ao salvar proposta' });
+    return res.status(err.status || 500).json({ success: false, error: err.status ? err.message : 'Erro ao salvar proposta' });
   }
 });
 
@@ -113,6 +120,8 @@ router.put('/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const normalized = normalizeProposal(req.body);
+    const originalOwner = await prisma.simulatorProposal.findFirst({ where: { OR: [{ id }, { baseId: id }] } });
+    if (originalOwner) normalized.createdBy = originalOwner.createdBy;
 
     const updated = await prisma.simulatorProposal.update({
       where: { id },

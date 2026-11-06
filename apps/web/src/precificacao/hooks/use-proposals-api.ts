@@ -4,7 +4,7 @@ import { useAuth } from './use-auth';
 // Firebase imports removidos - não utilizados
 // import { getAuth } from 'firebase/auth';
 // import { app } from '@/lib/firebase';
-import { withRetry, executeWithRecovery, RETRY_CONFIGS } from '@/lib/retry-utils';
+import { executeWithRecovery } from '@/lib/retry-utils';
 import { detectFirestoreError } from '@/lib/error-utils';
 
 interface ProposalType {
@@ -41,38 +41,9 @@ async function getAuthHeaders(): Promise<HeadersInit> {
     'Content-Type': 'application/json',
   };
 
-  // Firebase authentication temporarily disabled
-  // if (!app) {
-  //   throw new Error('Firebase app not initialized');
-  // }
-
-  // const auth = getAuth(app);
-  // const user = auth.currentUser;
-
-  // Firebase authentication temporarily disabled
-  // if (!user) {
-  //   throw new Error('User not authenticated');
-  // }
-
-  // // Use retry logic for token retrieval
-  // const tokenResult = await withRetry(
-  //   async () => {
-  //     const token = await user.getIdToken(true); // Force refresh token
-  //     return token;
-  //   },
-  //   RETRY_CONFIGS.READ,
-  //   'get authentication token'
-  // );
-
-  // if (!tokenResult.success) {
-  //   console.error('Failed to get authentication token after retries:', tokenResult.error);
-  //   throw new Error('Authentication failed - unable to retrieve token');
-  // }
-
-  // Firebase authentication temporarily disabled
-  // headers['Authorization'] = `Bearer ${tokenResult.result}`;
-  // headers['X-User-ID'] = user.uid; // Add user ID for server-side filtering
-  // headers['X-User-Email'] = user.email || ''; // Add user email for context
+  const token = localStorage.getItem('token');
+  if (!token) throw new Error('Sessão expirada. Entre novamente no CRM.');
+  headers['Authorization'] = `Bearer ${token}`;
 
   return headers;
 }
@@ -87,58 +58,18 @@ interface AuthContext {
 
 // Helper function to get comprehensive user context
 async function getUserContext(): Promise<AuthContext | null> {
-  // Firebase authentication temporarily disabled
-  // if (!app) {
-  //   console.warn('Firebase app not initialized');
-  //   return null;
-  // }
-
-  // const auth = getAuth(app);
-  // const user = auth.currentUser;
-
-  // Firebase authentication temporarily disabled
-  // if (!user) {
-  //   return null;
-  // }
-
-  // try {
-  //   const tokenResult = await withRetry(
-  //     async () => {
-  //       const token = await user.getIdToken(false); // Use cached token first
-  //       return token;
-  //     },
-  //     RETRY_CONFIGS.READ,
-  //     'get user context token'
-  //   );
-
-  //   if (!tokenResult.success) {
-  //     console.error('Failed to get user context token:', tokenResult.error);
-  //     return null;
-  //   }
-
-  // Firebase authentication temporarily disabled
-  //   return {
-  //     userId: user.uid,
-  //     email: user.email || undefined,
-  //     isAuthenticated: true,
-  //     token: tokenResult.result
-  //   };
-  // } catch (error) {
-  //   console.error('Error getting user context:', error);
-  //   return null;
-  // }
-  
-  return null;
+  const token = localStorage.getItem('token');
+  const userId = getCurrentUserId();
+  if (!token || !userId) return null;
+  return { userId, isAuthenticated: true, token };
 }
 
-// Helper function to get current user ID
 function getCurrentUserId(): string | null {
-  // Firebase authentication temporarily disabled
-  // if (!app) return null;
-  
-  // const auth = getAuth(app);
-  // return auth.currentUser?.uid || null;
-  return null;
+  try {
+    return JSON.parse(localStorage.getItem('user') || 'null')?.id || null;
+  } catch {
+    return null;
+  }
 }
 
 // Hook for managing proposal types with enhanced error handling
@@ -201,7 +132,7 @@ export function useProposalTypes() {
       setError(errorMessage);
       console.error('Error fetching proposal types:', err);
       
-      if (!apiError) {
+      {
         const detectedError = detectFirestoreError(err);
         setApiError({
           error: detectedError.code,
@@ -213,7 +144,7 @@ export function useProposalTypes() {
     } finally {
       setLoading(false);
     }
-  }, [user, apiError, clearError]);
+  }, [user, clearError]);
 
   const retry = useCallback(async () => {
     clearError();
@@ -358,7 +289,7 @@ export function useProposalsApi(options: UseProposalsApiOptions = {}): UsePropos
       console.error('Error fetching proposals:', err);
       
       // If we don't already have structured error info, create it
-      if (!apiError) {
+      {
         const detectedError = detectFirestoreError(err);
         setApiError({
           error: detectedError.code,
@@ -370,7 +301,7 @@ export function useProposalsApi(options: UseProposalsApiOptions = {}): UsePropos
     } finally {
       setLoading(false);
     }
-  }, [user, type, baseId, apiError, clearError]);
+  }, [user, type, baseId, clearError]);
 
   const createProposal = useCallback(async (proposalData: Omit<Proposal, 'id' | 'createdAt' | 'baseId'>): Promise<Proposal | null> => {
     if (!user) {
@@ -450,7 +381,7 @@ export function useProposalsApi(options: UseProposalsApiOptions = {}): UsePropos
       setError(errorMessage);
       console.error('Error creating proposal:', err);
       
-      if (!apiError) {
+      {
         const detectedError = detectFirestoreError(err);
         setApiError({
           error: detectedError.code,
@@ -464,7 +395,7 @@ export function useProposalsApi(options: UseProposalsApiOptions = {}): UsePropos
     } finally {
       setLoading(false);
     }
-  }, [user, type, apiError, clearError]);
+  }, [user, type, clearError]);
 
   const refresh = useCallback(async () => {
     await fetchProposals();

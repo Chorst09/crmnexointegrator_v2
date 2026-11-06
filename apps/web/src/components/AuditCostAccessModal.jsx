@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   AlertCircle,
   Clock,
@@ -64,18 +65,18 @@ export default function AuditCostAccessModal({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-5xl max-h-[90vh] flex flex-col rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-2xl overflow-hidden">
+  return createPortal(
+    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
+      <div role="dialog" aria-modal="true" aria-labelledby="audit-cost-access-title" className="w-full max-w-5xl max-h-[calc(100dvh-2rem)] flex flex-col rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-[var(--crm-border)] p-6 bg-gradient-to-r from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)]">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-900/30">
+        <div className="flex shrink-0 items-start justify-between gap-3 border-b border-[var(--crm-border)] p-4 sm:p-6 bg-gradient-to-r from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)]">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="hidden shrink-0 sm:flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-600 to-blue-600 text-white shadow-lg shadow-cyan-900/30">
               <ShieldCheck className="h-6 w-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] tracking-tight">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 id="audit-cost-access-title" className="text-lg sm:text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] tracking-tight">
                   Log de Auditoria de Acesso a Custos & Margens
                 </h3>
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-400">
@@ -90,12 +91,14 @@ export default function AuditCostAccessModal({ isOpen, onClose }) {
           <button
             type="button"
             onClick={onClose}
-            className="p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors"
+            aria-label="Fechar auditoria"
+            className="shrink-0 p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         {/* Resumo de Rastreabilidade */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 p-4 bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border-b border-[var(--crm-border)]">
           <div className="flex items-center gap-3 p-3 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)]">
@@ -129,7 +132,7 @@ export default function AuditCostAccessModal({ isOpen, onClose }) {
 
         {/* Barra de Filtros */}
         <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)]">
-          <div className="relative flex-1 min-w-[240px]">
+          <div className="relative min-w-0 basis-60 flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
             <input
               type="text"
@@ -166,7 +169,7 @@ export default function AuditCostAccessModal({ isOpen, onClose }) {
         </div>
 
         {/* Tabela de Logs */}
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="p-4">
           {filteredLogs.length === 0 ? (
             <div className="py-12 text-center text-[rgb(var(--crm-muted-rgb)_/_1)]">
               <AlertCircle className="h-10 w-10 mx-auto mb-2 opacity-40 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
@@ -265,8 +268,10 @@ export default function AuditCostAccessModal({ isOpen, onClose }) {
           )}
         </div>
 
+        </div>
+
         {/* Footer */}
-        <div className="flex items-center justify-between border-t border-[var(--crm-border)] p-4 bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-[var(--crm-border)] p-4 bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-4 w-4 text-emerald-700 dark:text-emerald-400" />
             <span>Auditoria contínua corporativa ativada conforme política de segurança da informação.</span>
@@ -280,6 +285,7 @@ export default function AuditCostAccessModal({ isOpen, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

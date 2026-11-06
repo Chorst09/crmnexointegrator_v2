@@ -16,7 +16,7 @@ import {
   FolderOpen,
   Plus,
   ArrowRight,
-  Trash2,
+  Ban,
   Undo2,
   Save,
   ArrowLeft,
@@ -24,6 +24,7 @@ import {
 } from 'lucide-react';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
 import Modal from '../components/Modal';
+import PreSalesClosureNotice, { getPreSalesClosure } from '../components/PreSalesClosureNotice';
 import PageHeader from '../components/PageHeader';
 import AnimatedStats from '../components/AnimatedStats';
 import { addFlowMetadataToDescription, getAreaLabel, hydrateActivityFlow } from '../utils/activityFlow';
@@ -56,6 +57,7 @@ const STAGE_OPTIONS = [
   { value: 'ENVIADA', label: 'Enviada' },
   { value: 'APROVADO', label: 'Aprovado' },
   { value: 'REPROVADO', label: 'Reprovado' },
+  { value: 'CANCELADA', label: 'Cancelada' },
   { value: 'DEVOLVIDA', label: 'Devolvida' }
 ];
 
@@ -95,6 +97,10 @@ const STAGE_META = {
     subtitle: 'Decisão reprovada',
     badge: "bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/40"
   },
+  CANCELADA: {
+    title: 'Canceladas', subtitle: 'Encerradas com motivo enviado ao comercial',
+    badge: 'bg-red-500/20 text-red-700 dark:text-red-300 border-red-500/40'
+  },
   DEVOLVIDA: {
     title: 'Devolvida',
     subtitle: 'Retornada para Comercial/B2B/B2G',
@@ -102,7 +108,7 @@ const STAGE_META = {
   }
 };
 
-const KANBAN_COLUMNS = ['ENTRADA', 'COTACAO', 'PRECIFICACAO', 'REVISAO', 'ENVIADA', 'APROVADO', 'REPROVADO'];
+const KANBAN_COLUMNS = ['ENTRADA', 'COTACAO', 'PRECIFICACAO', 'REVISAO', 'ENVIADA', 'APROVADO', 'REPROVADO', 'CANCELADA'];
 const STATUS_BY_STAGE = {
   ENTRADA: 'NOVA',
   COTACAO: 'EM_PRECIFICACAO',
@@ -110,7 +116,8 @@ const STATUS_BY_STAGE = {
   REVISAO: 'AGUARDANDO_APROVACAO',
   ENVIADA: 'ENVIADA',
   APROVADO: 'APROVADO',
-  REPROVADO: 'REPROVADO'
+  REPROVADO: 'REPROVADO',
+  CANCELADA: 'CANCELADA'
 };
 const FLOW_ACTIVITY_ID_RE = /\[FLOW_ACTIVITY_ID:([^\]]+)\]/;
 const FLOW_STAGE_RE = /\[FLOW_STAGE:([A-Z_]+)\]/g;
@@ -198,7 +205,8 @@ const appendInternalNote = (base, message) => {
   return cleanBase ? `${cleanBase}\n\n${line}` : line;
 };
 
-const isClosedStatus = (status) => ['FINALIZADA', 'REJEITADA', 'CANCELADA'].includes(String(status || '').toUpperCase());
+const isNegativeStatus = (status) => ['REPROVADO', 'REJEITADA', 'CANCELADA'].includes(status);
+const isClosedStatus = (status) => ['FINALIZADA', 'REPROVADO', 'REJEITADA', 'CANCELADA'].includes(String(status || '').toUpperCase());
 const isDecisionStatus = (status) => ['APROVADO', 'REPROVADO'].includes(String(status || '').toUpperCase());
 
 const defaultStageFromStatus = (status) => {
@@ -208,12 +216,14 @@ const defaultStageFromStatus = (status) => {
   if (normalized === 'AGUARDANDO_APROVACAO') return 'REVISAO';
   if (normalized === 'ENVIADA') return 'ENVIADA';
   if (normalized === 'APROVADO') return 'APROVADO';
-  if (normalized === 'REPROVADO') return 'REPROVADO';
+  if (['REPROVADO', 'REJEITADA'].includes(normalized)) return 'REPROVADO';
+  if (normalized === 'CANCELADA') return 'CANCELADA';
   if (isClosedStatus(normalized)) return 'DEVOLVIDA';
   return 'ENTRADA';
 };
 
 const resolveStage = (status, explicitStage) => {
+  if (isNegativeStatus(status)) return defaultStageFromStatus(status);
   const normalized = String(explicitStage || '').trim().toUpperCase();
   if (normalized && STAGE_META[normalized]) return normalized;
   return defaultStageFromStatus(status);
@@ -295,8 +305,10 @@ const mapRequestRow = (row) => {
 
 const mapActivityRow = (activity) => {
   const explicitStage = extractStage(activity.description);
-  const stage = resolveStage(REQUEST_STATUS_FROM_ACTIVITY[activity.status] || 'NOVA', explicitStage);
-  const status = explicitStage ? statusFromStage(stage, REQUEST_STATUS_FROM_ACTIVITY[activity.status] || 'NOVA') : REQUEST_STATUS_FROM_ACTIVITY[activity.status] || 'NOVA';
+  const activityRequestStatus = activity.flow?.preSalesClosure?.status
+    || (isNegativeStatus(explicitStage) ? explicitStage : REQUEST_STATUS_FROM_ACTIVITY[activity.status] || 'NOVA');
+  const stage = resolveStage(activityRequestStatus, explicitStage);
+  const status = activity.flow?.preSalesClosure?.status || (explicitStage ? statusFromStage(stage, activityRequestStatus) : activityRequestStatus);
 
   return {
     id: `activity:${activity.id}`,
@@ -322,7 +334,7 @@ const mapActivityRow = (activity) => {
     margemLucro: 0,
     company: activity.company ? { id: activity.company.id, name: activity.company.name } : null,
     opportunity: activity.opportunity ? { id: activity.opportunity.id, title: activity.opportunity.title } : null,
-    stage,
+    stage: resolveStage(status, stage),
     flow: activity.flow || { sourceArea: 'COMERCIAL', targetArea: 'PRE_VENDAS' }
   };
 };
@@ -499,6 +511,10 @@ export default function Solicitacoes() {
   const [budgetRequests, setBudgetRequests] = useState([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [closureDialog, setClosureDialog] = useState(null);
+  const [closureReason, setClosureReason] = useState('');
+  const [closureError, setClosureError] = useState('');
+  const [feedback, setFeedback] = useState('');
 
   const [showViewModal, setShowViewModal] = useState(false);
   const [showRespostaModal, setShowRespostaModal] = useState(false);
@@ -562,7 +578,7 @@ export default function Solicitacoes() {
         .filter((activity) => activity?.flow?.targetArea === 'PRE_VENDAS' || activity?.flow?.sourceArea === 'PRE_VENDAS')
         .filter((activity) => {
           const inboundPreSales = activity?.flow?.targetArea === 'PRE_VENDAS';
-          if (inboundPreSales && linkedActivityIds.has(activity.id)) return false;
+          if ((inboundPreSales || activity.flow?.preSalesClosure) && linkedActivityIds.has(activity.id)) return false;
           return true;
         })
         .map(mapActivityRow);
@@ -594,7 +610,7 @@ export default function Solicitacoes() {
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
-      throw new Error(data?.error || 'Falha ao atualizar solicitação');
+      throw new Error(data?.message || data?.error || 'Falha ao atualizar solicitação');
     }
 
     const data = await response.json().catch(() => null);
@@ -610,10 +626,50 @@ export default function Solicitacoes() {
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
-      throw new Error(data?.error || 'Falha ao atualizar atividade');
+      throw new Error(data?.message || data?.error || 'Falha ao atualizar atividade');
     }
 
     return response.json().catch(() => null);
+  };
+
+  const closeItem = async (item, status, motivo) => {
+    if (!motivo?.trim()) throw new Error('Informe o motivo do cancelamento ou da reprovação.');
+    const path = item.sourceType === 'ACTIVITY'
+      ? `/activities-simple/${encodeURIComponent(item.rawActivityId)}/encerrar-prevendas`
+      : `/pre-vendas/${encodeURIComponent(item.id)}/encerrar`;
+    const response = await fetch(buildApiUrl(path), {
+      method: 'POST', headers: getAuthHeaders(),
+      body: JSON.stringify({ status, motivo: motivo.trim() })
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.message || 'Não foi possível encerrar a cotação.');
+    setFeedback(data.message);
+    return data;
+  };
+
+  const openClosureDialog = (item, status) => {
+    if (saving || getPreSalesClosure(item)) return;
+    setClosureDialog({ item, status });
+    setClosureReason('');
+    setClosureError('');
+  };
+
+  const submitClosure = async (event) => {
+    event.preventDefault();
+    if (!closureDialog || saving) return;
+    try {
+      setSaving(true);
+      setClosureError('');
+      await closeItem(closureDialog.item, closureDialog.status, closureReason);
+      setClosureDialog(null);
+      setShowCotacaoModal(false);
+      setShowViewModal(false);
+      await loadSolicitacoes();
+    } catch (error) {
+      setClosureError(error.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const buildActivityDescription = (item, message, nextStage, flowOverride) => {
@@ -641,6 +697,9 @@ export default function Solicitacoes() {
 
   const updateItem = async (item, { nextStatus, nextStage, message, pricingPayload, flowOverride } = {}) => {
     if (!item) return;
+    if (isNegativeStatus(nextStatus) || isNegativeStatus(nextStage)) {
+      return closeItem(item, isNegativeStatus(nextStatus) ? nextStatus : nextStage, message);
+    }
     const shouldReturnToOrigin = nextStage === 'DEVOLVIDA' || ['FINALIZADA', 'REJEITADA', 'CANCELADA'].includes(nextStatus);
     const effectiveFlowOverride = flowOverride || (
       shouldReturnToOrigin
@@ -749,26 +808,8 @@ export default function Solicitacoes() {
     }
   };
 
-  const handleCancelar = async (item) => {
-    const nextStatus = item.sourceType === 'ACTIVITY' ? 'CANCELADA' : 'REJEITADA';
-
-    try {
-      setSaving(true);
-      await updateItem(item, {
-        nextStatus,
-        nextStage: 'DEVOLVIDA',
-        message: 'Demanda cancelada/rejeitada no fluxo de Pré-Vendas.'
-      });
-      await loadSolicitacoes();
-    } catch (error) {
-      console.error('Erro ao cancelar/rejeitar:', error);
-      alert(error.message || 'Erro ao cancelar/rejeitar');
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const handleDecisao = async (item, approved) => {
+    if (!approved) return openClosureDialog(item, 'REPROVADO');
     const nextStatus = approved ? 'APROVADO' : 'REPROVADO';
     const nextStage = approved ? 'APROVADO' : 'REPROVADO';
 
@@ -881,11 +922,12 @@ export default function Solicitacoes() {
 
   const handleStageDrop = async (targetStage) => {
     const nextStage = String(targetStage || '').toUpperCase();
-    const item = activeItems.find((entry) => entry.id === draggedItemId);
+    const item = filteredItems.find((entry) => entry.id === draggedItemId);
     setDraggedItemId('');
     setDragOverStage('');
 
-    if (!item || !STATUS_BY_STAGE[nextStage]) return;
+    if (!item || !STATUS_BY_STAGE[nextStage] || isClosedStatus(item.status) || isDecisionStatus(item.status)) return;
+    if (['REPROVADO', 'CANCELADA'].includes(nextStage)) return openClosureDialog(item, nextStage);
 
     const currentStage = resolveStage(item.status, item.stage);
     if (currentStage === nextStage) return;
@@ -1209,6 +1251,12 @@ export default function Solicitacoes() {
     try {
       setCotacaoSaving(true);
       setCotacaoFeedback('');
+      if (isNegativeStatus(statusTransition.nextStatus)) {
+        await closeItem(cotacaoContext, statusTransition.nextStatus, statusTransition.motivo);
+        setShowCotacaoModal(false);
+        await loadSolicitacoes();
+        return;
+      }
 
       const nextStage = defaultStageFromStatus(statusTransition.nextStatus);
       const note = statusTransition.motivo
@@ -1353,7 +1401,7 @@ export default function Solicitacoes() {
 
     return solicitacoes.filter((item) => {
       const isPreSalesQueue = item.sourceType === 'REQUEST' || item?.flow?.targetArea === 'PRE_VENDAS';
-      const isCommercialQueue = item?.flow?.sourceArea === 'PRE_VENDAS' && item?.flow?.targetArea !== 'PRE_VENDAS';
+      const isCommercialQueue = Boolean(getPreSalesClosure(item)) || (item?.flow?.sourceArea === 'PRE_VENDAS' && item?.flow?.targetArea !== 'PRE_VENDAS');
 
       if (queueView === 'PRE_VENDAS' && !isPreSalesQueue) return false;
       if (queueView === 'COMERCIAL' && !isCommercialQueue) return false;
@@ -1372,6 +1420,7 @@ export default function Solicitacoes() {
         item.numero,
         item.titulo,
         item.descricao,
+        getPreSalesClosure(item)?.motivo,
         item.company?.name,
         item.opportunity?.title,
         item.solicitante?.name,
@@ -1387,7 +1436,7 @@ export default function Solicitacoes() {
   }, [solicitacoes, queueView, onlyMine, currentUserId, searchTerm]);
 
   const activeItems = useMemo(
-    () => filteredItems.filter((item) => !isClosedStatus(item.status)),
+    () => filteredItems.filter((item) => !isClosedStatus(item.status) && !isDecisionStatus(item.status)),
     [filteredItems]
   );
 
@@ -1416,7 +1465,7 @@ export default function Solicitacoes() {
       return acc;
     }, {});
 
-    activeItems.forEach((item) => {
+    filteredItems.filter((item) => !isClosedStatus(item.status) || isNegativeStatus(item.status)).forEach((item) => {
       const stage = resolveStage(item.status, item.stage);
       const targetStage = grouped[stage] ? stage : 'ENTRADA';
       grouped[targetStage].push(item);
@@ -1427,7 +1476,7 @@ export default function Solicitacoes() {
     });
 
     return grouped;
-  }, [activeItems]);
+  }, [filteredItems]);
 
   const stats = useMemo(() => ([
     {
@@ -1598,23 +1647,10 @@ export default function Solicitacoes() {
     setCotacaoFeedback(`Novo orçamento iniciado com o número ${nextNumber}.`);
   };
 
-  const renderCardActions = (item) => {
+  const renderStageActions = (item) => {
     const stage = resolveStage(item.status, item.stage);
 
-    if (isClosedStatus(item.status) || isDecisionStatus(item.status)) {
-      return (
-        <button
-          type="button"
-          onClick={() => {
-            setSelectedSolicitacao(item);
-            setShowViewModal(true);
-          }}
-          className="inline-flex items-center gap-1 rounded-lg border border-[var(--crm-border)] px-3 py-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.3)]"
-        >
-          <Eye className="h-3.5 w-3.5" /> Detalhes
-        </button>
-      );
-    }
+    if (isClosedStatus(item.status) || isDecisionStatus(item.status)) return null;
 
     if (stage === 'ENTRADA') {
       return (
@@ -1674,14 +1710,6 @@ export default function Solicitacoes() {
           >
             <CheckCircle className="h-3.5 w-3.5" /> Aprovar
           </button>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => handleDecisao(item, false)}
-            className="inline-flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/20 px-3 py-2 text-xs text-red-700 dark:text-red-200 hover:bg-red-500/30 disabled:opacity-60"
-          >
-            <AlertCircle className="h-3.5 w-3.5" /> Reprovar
-          </button>
         </>
       );
     }
@@ -1696,14 +1724,6 @@ export default function Solicitacoes() {
             className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/20 px-3 py-2 text-xs text-emerald-700 dark:text-emerald-200 hover:bg-emerald-500/30 disabled:opacity-60"
           >
             <CheckCircle className="h-3.5 w-3.5" /> Aprovar
-          </button>
-          <button
-            type="button"
-            disabled={saving}
-            onClick={() => handleDecisao(item, false)}
-            className="inline-flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/20 px-3 py-2 text-xs text-red-700 dark:text-red-200 hover:bg-red-500/30 disabled:opacity-60"
-          >
-            <AlertCircle className="h-3.5 w-3.5" /> Reprovar
           </button>
         </>
       );
@@ -1721,6 +1741,24 @@ export default function Solicitacoes() {
     );
   };
 
+  const renderCardActions = (item) => (
+    <>
+      {renderStageActions(item)}
+      {!isClosedStatus(item.status) && !isDecisionStatus(item.status) && (
+        <>
+          <button type="button" disabled={saving} onClick={() => openClosureDialog(item, 'CANCELADA')}
+            className="inline-flex items-center gap-1 rounded-lg border border-red-500/40 px-3 py-2 text-xs text-red-700 dark:text-red-300 hover:bg-red-500/10 disabled:opacity-60">
+            <Ban className="h-3.5 w-3.5" /> Cancelar
+          </button>
+          <button type="button" disabled={saving} onClick={() => openClosureDialog(item, 'REPROVADO')}
+            className="inline-flex items-center gap-1 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs text-red-700 dark:text-red-300 hover:bg-red-500/20 disabled:opacity-60">
+            <AlertCircle className="h-3.5 w-3.5" /> Reprovar
+          </button>
+        </>
+      )}
+    </>
+  );
+
   const renderDemandCard = (item) => {
     const stage = resolveStage(item.status, item.stage);
     const due = normalizeDate(item.dueDate);
@@ -1728,7 +1766,7 @@ export default function Solicitacoes() {
     return (
       <div
         key={item.id}
-        draggable={!saving}
+        draggable={!saving && !isClosedStatus(item.status) && !isDecisionStatus(item.status)}
         onDragStart={(event) => {
           event.dataTransfer.effectAllowed = 'move';
           event.dataTransfer.setData('text/plain', item.id);
@@ -1771,6 +1809,7 @@ export default function Solicitacoes() {
           </div>
         </div>
 
+        <div className="mt-3"><PreSalesClosureNotice closure={getPreSalesClosure(item)} compact /></div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           {renderCardActions(item)}
 
@@ -1795,17 +1834,6 @@ export default function Solicitacoes() {
             <Eye className="h-3.5 w-3.5" /> Detalhes
           </button>
 
-          {!isClosedStatus(item.status) && !isDecisionStatus(item.status) && (
-            <button
-              type="button"
-              disabled={saving}
-              onClick={() => handleCancelar(item)}
-              className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-red-500/40 text-red-700 dark:text-red-300 hover:bg-red-500/20 disabled:opacity-60"
-              title="Cancelar / Rejeitar"
-            >
-              <Trash2 className="h-3.5 w-3.5" />
-            </button>
-          )}
         </div>
       </div>
     );
@@ -1813,6 +1841,7 @@ export default function Solicitacoes() {
 
   return (
     <div className="space-y-6">
+      {feedback && <div role="status" className="crm-card rounded-xl border border-emerald-500/30 p-4 text-sm">{feedback}</div>}
       <PageHeader
         title="Fluxo de Atividades Pré-vendas"
         subtitle="Gestão entre Comercial e Pré-vendas para solicitação, cotação, precificação e devolução da proposta."
@@ -1937,7 +1966,7 @@ export default function Solicitacoes() {
           <p className="mt-3 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhuma demanda encontrada para os filtros atuais.</p>
         </div>
       ) : viewMode === 'KANBAN' ? (
-        <div className="grid grid-cols-1 gap-4 xl:grid-cols-4 2xl:grid-cols-7">
+        <div className="grid grid-cols-1 gap-4 xl:grid-cols-4">
           {KANBAN_COLUMNS.map((column) => {
             const meta = STAGE_META[column];
             const rows = kanbanByStage[column] || [];
@@ -2008,6 +2037,7 @@ export default function Solicitacoes() {
                         {toPriorityLabel(item.prioridade)}
                       </span>
                     </div>
+                    <PreSalesClosureNotice closure={getPreSalesClosure(item)} compact />
                     <h4 className="truncate text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.titulo}</h4>
                     <p className="line-clamp-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.descricao}</p>
                     <p className="mt-2 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
@@ -3043,25 +3073,27 @@ export default function Solicitacoes() {
                         <option value="EM_PRECIFICACAO">Em Precificação</option>
                         <option value="AGUARDANDO_APROVACAO">Aguardando Aprovação</option>
                         <option value="FINALIZADA">Finalizada</option>
-                        <option value="REJEITADA">Rejeitada</option>
+                        <option value="REPROVADO">Reprovada</option>
                         <option value="CANCELADA">Cancelada</option>
                       </select>
                     </div>
 
                     <div>
-                      <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Motivo</label>
+                      <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">{isNegativeStatus(statusTransition.nextStatus) ? 'Motivo obrigatório (enviado ao comercial)' : 'Motivo'}</label>
                       <textarea
                         rows={4}
                         className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2.5 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:border-blue-500 resize-none"
                         placeholder="Descreva o motivo da transição..."
                         value={statusTransition.motivo}
+                        maxLength={4000}
+                        required={isNegativeStatus(statusTransition.nextStatus)}
                         onChange={(e) => setStatusTransition((prev) => ({ ...prev, motivo: e.target.value }))}
                       />
                     </div>
 
                     <button
                       type="button"
-                      disabled={!statusTransition.nextStatus || cotacaoSaving}
+                      disabled={!statusTransition.nextStatus || cotacaoSaving || (isNegativeStatus(statusTransition.nextStatus) && !statusTransition.motivo.trim())}
                       onClick={applyStatusTransition}
                       className="inline-flex items-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.5)] px-4 py-2.5 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] disabled:opacity-50 transition-colors"
                     >
@@ -3151,6 +3183,30 @@ export default function Solicitacoes() {
         )}
       </Modal>
 
+      <Modal isOpen={Boolean(closureDialog)} onClose={() => { if (!saving) setClosureDialog(null); }}
+        title={closureDialog?.status === 'CANCELADA' ? 'Cancelar cotação' : 'Reprovar cotação'}
+        closeOnOverlayClick={!saving} showCloseButton={!saving}>
+        <form onSubmit={submitClosure} className="space-y-4">
+          <p className="font-semibold text-[var(--crm-ink)]">{closureDialog?.item.numero} • {closureDialog?.item.titulo}</p>
+          <p className="text-sm text-[var(--crm-muted)]">O motivo será enviado ao responsável comercial. A cotação será encerrada e o histórico ficará disponível para consulta.</p>
+          <div>
+            <label htmlFor="closure-reason" className="mb-2 block text-sm font-semibold text-[var(--crm-ink)]">Motivo obrigatório</label>
+            <textarea id="closure-reason" autoFocus required maxLength={4000} rows={5} value={closureReason}
+              onChange={(event) => setClosureReason(event.target.value)} disabled={saving}
+              placeholder="Explique por que a cotação precisa ser cancelada ou reprovada."
+              className="w-full rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface-2)] p-3 text-sm text-[var(--crm-ink)]" />
+            <p className="text-xs text-[var(--crm-muted)]">{closureReason.length}/4000 caracteres</p>
+          </div>
+          {closureError && <p role="alert" className="text-sm text-red-700 dark:text-red-300">{closureError}</p>}
+          <div className="flex justify-end gap-3">
+            <button type="button" disabled={saving} onClick={() => setClosureDialog(null)} className="crm-btn crm-btn-secondary">Voltar</button>
+            <button type="submit" disabled={saving || !closureReason.trim()} className="crm-btn border border-red-500/40 bg-red-500/20 text-red-700 dark:text-red-200 disabled:opacity-50">
+              {saving ? 'Enviando retorno...' : closureDialog?.status === 'CANCELADA' ? 'Confirmar cancelamento' : 'Confirmar reprovação'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
       <Modal
         isOpen={showViewModal}
         onClose={() => setShowViewModal(false)}
@@ -3159,6 +3215,7 @@ export default function Solicitacoes() {
       >
         {selectedSolicitacao && (
           <div className="space-y-5">
+            <PreSalesClosureNotice closure={getPreSalesClosure(selectedSolicitacao)} />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
               <div>
                 <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Solicitante</p>
@@ -3241,6 +3298,7 @@ export default function Solicitacoes() {
             <textarea
               rows={4}
               value={respostaData.mensagem}
+              maxLength={isNegativeStatus(respostaData.nextStatus) || isNegativeStatus(respostaData.nextStage) ? 4000 : undefined}
               onChange={(e) => setRespostaData((prev) => ({ ...prev, mensagem: e.target.value }))}
               placeholder="Descreva o retorno técnico/comercial para a solicitação"
               className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] px-3 py-2 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-blue-500/50"

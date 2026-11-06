@@ -2,6 +2,7 @@ const express = require('express');
 const fs = require('fs/promises');
 const path = require('path');
 const crypto = require('crypto');
+const { backupFreshness, cronHealth } = require('../lib/backup-health.cjs');
 const { Prisma } = require('@prisma/client');
 const { prisma } = require('../lib/prisma.cjs');
 const { requireRole } = require('../lib/auth.cjs');
@@ -903,10 +904,12 @@ router.get('/summary', async (_req, res) => {
   }
 });
 
+router.use('/drive', require('./drive-backup.cjs'));
+
 router.get('/routine-status', async (_req, res) => {
   try {
-    const backupDir = '/root/backups/nexoscrm-3026';
-    const logFile = '/var/log/nexoscrm-3026-backup.log';
+    const backupDir = '/BACKUP';
+    const logFile = '/BACKUP/backup.log';
     let files = [];
     let logSnippet = '';
 
@@ -938,17 +941,22 @@ router.get('/routine-status', async (_req, res) => {
       logSnippet = 'Log ainda não gerado ou aguardando primeiro ciclo do cron.';
     }
 
+    const scheduler = await cronHealth('/etc/cron.d/doublecrm-backup', '30 2 * * *', '/BACKUP/backup-doublecrm.sh');
+    const routineFiles = files.filter(file => /^doublecrm-\d{8}-\d{6}\.dump$/.test(file.name) && file.sizeBytes > 0);
+    res.set('Cache-Control', 'no-store');
     res.json({
-      active: true,
+      ...backupFreshness(routineFiles[0]?.modifiedAt, 2, 30),
+      scheduler,
+      active: scheduler.active,
       schedule: 'Diário às 02:30 (America/Sao_Paulo)',
       cronExpression: '30 2 * * *',
-      database: 'nexoscrm',
+      database: 'doublecrm',
       databasePort: 5433,
-      domain: 'nexos.chorstconsult.com.br',
+      domain: 'double.chorstconsult.com.br',
       retentionDays: 14,
       backupDir,
       logFile,
-      backupScript: '/root/backups/backup-nexoscrm-3026.sh',
+      backupScript: '/BACKUP/backup-doublecrm.sh',
       restoreScript: null,
       totalFiles: files.length,
       files,

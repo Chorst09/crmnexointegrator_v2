@@ -33,7 +33,24 @@ const normalizeClientType = (value) => {
   return normalized === 'B2B' || normalized === 'B2G' ? normalized : null;
 };
 
-const hasB2GSignal = (value) => /\bB2G\b|GOVERNO|\bGOV\b|LICIT|EDITAL|TERMO DE REFER[ÊE]NCIA/i.test(String(value || ''));
+const extractAgencyName = (body = {}) => {
+  if (Object.prototype.hasOwnProperty.call(body, 'orgaoEntidade')) {
+    return typeof body.orgaoEntidade === 'string' ? body.orgaoEntidade.trim() : '';
+  }
+  const candidates = [body.companyName, body.agency, body.company?.name];
+  try {
+    const description = typeof body.description === 'string'
+      ? JSON.parse(body.description)
+      : body.description;
+    candidates.push(description?.orgaoEntidade, description?.agency, description?.orgao);
+  } catch {
+    // descrição pode não ser JSON válido
+  }
+  const found = candidates.find((value) => typeof value === 'string' && value.trim());
+  return found ? found.trim() : '';
+};
+
+const hasB2GSignal = (value) => /\bB2G\b|\bGOVERNO\b|\bGOV\b|\bLICIT|\bEDITA(?:L|IS)\b|TERMO DE REFER[ÊE]NCIA/i.test(String(value || ''));
 
 const hasB2GDescriptionShape = (value) => {
   const text = String(value || '').trim();
@@ -370,7 +387,7 @@ export default async function handler(req) {
           }
         },
         owner: {
-          select: { id: true, name: true, email: true }
+          select: { id: true, name: true, email: true, phone: true, role: true, region: { select: { id: true, name: true } } }
         },
         products: {
           include: {
@@ -431,6 +448,12 @@ export default async function handler(req) {
       return Response.json({ error: `Responsável sem acesso ao módulo ${clientType}` }, { status: 400 });
     }
 
+    const actorTenantCompanyId = normalizeRole(req.user) === 'MASTER' ? null : (req.user?.tenantCompanyId || null);
+    if (actorTenantCompanyId && owner.tenantCompanyId && owner.tenantCompanyId !== actorTenantCompanyId) {
+      return Response.json({ error: 'Responsável não pertence a este tenant' }, { status: 403 });
+    }
+    const tenantCompanyId = actorTenantCompanyId || owner.tenantCompanyId || req.user?.tenantCompanyId || null;
+
     const projectType = normalizeProjectType(body.projectType);
     const projectMonths = normalizeProjectMonths(projectType, body.projectMonths);
     const stageDecisionDetails = normalizeStageDecisionDetails(body.stageDecisionDetails, req.user, {
@@ -457,34 +480,29 @@ export default async function handler(req) {
       opportunity = await prisma.$transaction(async (tx) => {
       // Garantir que companyId seja um ID válido no banco para não falhar a FK
       let resolvedCompanyId = body.companyId;
-      const agencyName = (
-        body.companyName ||
-        body.agency ||
-        body.company?.name ||
-        (() => {
-          try {
-            const desc = typeof body.description === 'string' ? JSON.parse(body.description) : body.description;
-            return desc?.agency || desc?.orgao || null;
-          } catch { return null; }
-        })() ||
-        ''
-      ).trim();
+      const agencyName = extractAgencyName(body);
 
       let targetCompany = null;
       if (resolvedCompanyId && !String(resolvedCompanyId).startsWith('virtual-')) {
         targetCompany = await tx.company.findFirst({
           where: {
             id: resolvedCompanyId,
-            ...(req.user?.tenantCompanyId ? { tenantCompanyId: req.user.tenantCompanyId } : {})
+            ...(tenantCompanyId ? { tenantCompanyId } : {})
           }
         });
+        if (!targetCompany) {
+          const error = new Error('Empresa não pertence a este tenant');
+          error.status = 403;
+          error.payload = { error: error.message };
+          throw error;
+        }
       }
 
       if (!targetCompany && agencyName) {
         targetCompany = await tx.company.findFirst({
           where: {
             name: { equals: agencyName, mode: 'insensitive' },
-            ...(req.user?.tenantCompanyId ? { tenantCompanyId: req.user.tenantCompanyId } : {})
+            ...(tenantCompanyId ? { tenantCompanyId } : {})
           }
         });
       }
@@ -496,14 +514,14 @@ export default async function handler(req) {
             clientType: clientType === 'B2G' ? 'B2G' : 'B2B',
             segment: clientType === 'B2G' ? 'B2G GOVERNO' : 'B2B',
             status: 'PROSPECT',
-            tenantCompanyId: req.user?.tenantCompanyId || null
+            tenantCompanyId
           }
         });
       }
 
       if (!targetCompany) {
         targetCompany = await tx.company.findFirst({
-          where: req.user?.tenantCompanyId ? { tenantCompanyId: req.user.tenantCompanyId } : {}
+          where: tenantCompanyId ? { tenantCompanyId } : {}
         });
         if (!targetCompany) {
           targetCompany = await tx.company.create({
@@ -512,7 +530,7 @@ export default async function handler(req) {
               clientType: clientType === 'B2G' ? 'B2G' : 'B2B',
               segment: clientType === 'B2G' ? 'B2G GOVERNO' : 'B2B',
               status: 'PROSPECT',
-              tenantCompanyId: req.user?.tenantCompanyId || null
+              tenantCompanyId
             }
           });
         }
@@ -520,7 +538,7 @@ export default async function handler(req) {
 
       resolvedCompanyId = targetCompany.id;
       const ownershipDecision = await validateCustomerOwnership(tx, {
-        tenantCompanyId: req.user?.tenantCompanyId || null,
+        tenantCompanyId,
         requesterId: resolvedOwnerId,
         requesterName: owner.name || owner.email || '',
         companyId: resolvedCompanyId,
@@ -577,7 +595,7 @@ export default async function handler(req) {
           contactPhone: body.contactPhone || null,
           companyId: resolvedCompanyId,
           ownerId: resolvedOwnerId,
-          tenantCompanyId: req.user?.tenantCompanyId || null,
+          tenantCompanyId,
           products: body.products ? {
             create: body.products.map(p => ({
               productId: p.productId,
@@ -590,7 +608,7 @@ export default async function handler(req) {
         include: {
           company: true,
           owner: {
-            select: { id: true, name: true, email: true }
+            select: { id: true, name: true, email: true, phone: true, role: true, region: { select: { id: true, name: true } } }
           },
           products: {
             include: {
@@ -730,14 +748,92 @@ export default async function handler(req) {
       updateData.exitDate = null;
     }
     
+    if (body.companyId) {
+      const linkedDocument = await prisma.companyDocument.findFirst({ where: { opportunityId }, select: { companyId: true } });
+      if (linkedDocument && linkedDocument.companyId !== body.companyId) {
+        return Response.json({ error: 'Esta oportunidade possui documentos vinculados à empresa atual. Remova os anexos antes de alterar a empresa.' }, { status: 409 });
+      }
+      const linkedContract = await prisma.contract.findFirst({ where: { opportunityId }, select: { companyId: true } });
+      if (linkedContract && linkedContract.companyId !== body.companyId) {
+        return Response.json({ error: 'Esta oportunidade possui contratos vinculados à empresa atual. Cadastre outra oportunidade para mudar de empresa.' }, { status: 409 });
+      }
+    }
+
     const opportunity = await prisma.$transaction(async (tx) => {
+      const agencyName = extractAgencyName(body);
+      if (agencyName) {
+        const currentOpportunity = await tx.opportunity.findUnique({
+          where: { id: opportunityId },
+          select: { companyId: true }
+        });
+
+        const requestedCompanyId = body.companyId && !String(body.companyId).startsWith('virtual-')
+          ? body.companyId
+          : currentOpportunity?.companyId;
+
+        let targetCompany = null;
+        if (requestedCompanyId) {
+          targetCompany = await tx.company.findFirst({
+            where: {
+              id: requestedCompanyId,
+              ...(req.user?.tenantCompanyId ? { tenantCompanyId: req.user.tenantCompanyId } : {})
+            }
+          });
+          if (targetCompany) updateData.companyId = targetCompany.id;
+        }
+
+        const normalizeCompanyName = (value) => String(value || '').trim().toLowerCase();
+
+        if (targetCompany && normalizeCompanyName(targetCompany.name) !== normalizeCompanyName(agencyName)) {
+          const companyWithName = await tx.company.findFirst({
+            where: {
+              name: { equals: agencyName, mode: 'insensitive' },
+              id: { not: targetCompany.id },
+              ...(req.user?.tenantCompanyId ? { tenantCompanyId: req.user.tenantCompanyId } : {})
+            }
+          });
+
+          if (companyWithName) {
+            updateData.companyId = companyWithName.id;
+          } else {
+            await tx.company.update({
+              where: { id: targetCompany.id },
+              data: { name: agencyName }
+            });
+          }
+        } else if (!targetCompany) {
+          const companyWithName = await tx.company.findFirst({
+            where: {
+              name: { equals: agencyName, mode: 'insensitive' },
+              ...(req.user?.tenantCompanyId ? { tenantCompanyId: req.user.tenantCompanyId } : {})
+            }
+          });
+
+          if (companyWithName) {
+            updateData.companyId = companyWithName.id;
+          } else {
+            const clientType = resolveRequestedClientType(body, req.query || {});
+            const createdCompany = await tx.company.create({
+              data: {
+                name: agencyName,
+                clientType,
+                segment: clientType === 'B2G' ? 'B2G GOVERNO' : 'B2B',
+                status: 'PROSPECT',
+                tenantCompanyId: req.user?.tenantCompanyId || null
+              }
+            });
+            updateData.companyId = createdCompany.id;
+          }
+        }
+      }
+
       const updated = await tx.opportunity.update({
         where: { id: opportunityId },
         data: updateData,
         include: {
           company: true,
           owner: {
-            select: { id: true, name: true, email: true }
+            select: { id: true, name: true, email: true, phone: true, role: true, region: { select: { id: true, name: true } } }
           },
           products: {
             include: {
@@ -792,6 +888,10 @@ export default async function handler(req) {
       if (existing.ownerId !== req.user.userId) {
         return new Response('Forbidden', { status: 403 });
       }
+    }
+
+    if (await prisma.companyDocument.count({ where: { opportunityId } })) {
+      return Response.json({ error: 'Esta oportunidade possui documentos vinculados. Remova os anexos antes de excluí-la.' }, { status: 409 });
     }
 
     await prisma.$transaction(async (tx) => {

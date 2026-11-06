@@ -110,8 +110,8 @@ export default function RACIMatrix({ users, value, onChange, readonly = false }:
     <div className="space-y-3">
       <div className="flex items-center justify-between mb-2">
         <div>
-          <h4 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Matriz RACI</h4>
-          <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Defina responsabilidades e comunicação</p>
+          <h4 className="text-sm font-bold text-[var(--crm-ink)]">Matriz RACI</h4>
+          <p className="text-xs text-[var(--crm-muted)] mt-0.5">Defina responsabilidades e comunicação</p>
         </div>
       </div>
 
@@ -130,15 +130,15 @@ export default function RACIMatrix({ users, value, onChange, readonly = false }:
                     <Icon className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{config.label}</p>
-                    <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{config.description}</p>
+                    <p className="text-xs font-bold text-[var(--crm-ink)]">{config.label}</p>
+                    <p className="text-[10px] text-[var(--crm-muted)]">{config.description}</p>
                   </div>
                 </div>
                 {!readonly && (
                   <button
                     type="button"
                     onClick={() => setExpandedRole(isExpanded ? null : role)}
-                    className="rounded p-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                    className="rounded p-1 text-[var(--crm-muted)] hover:bg-transparent hover:text-[var(--crm-ink)]"
                   >
                     <ChevronDown className={`h-4 w-4 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
                   </button>
@@ -151,17 +151,17 @@ export default function RACIMatrix({ users, value, onChange, readonly = false }:
                   {selectedUsers.map(user => (
                     <div
                       key={user.id}
-                      className="flex items-center gap-1.5 rounded-md bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] px-2 py-1"
+                      className="flex items-center gap-1.5 rounded-md bg-transparent border border-[var(--crm-border)] px-2 py-1"
                     >
                       <div className={`flex h-5 w-5 items-center justify-center rounded-full text-[9px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] ${user.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}`}>
                         {user.initials || user.name.substring(0, 2).toUpperCase()}
                       </div>
-                      <span className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">{user.name}</span>
+                      <span className="text-xs text-[var(--crm-ink)]">{user.name}</span>
                       {!readonly && (
                         <button
                           type="button"
                           onClick={() => toggleUser(role, user.id)}
-                          className="ml-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-red-700 dark:hover:text-red-400"
+                          className="ml-1 text-[var(--crm-muted)] hover:text-red-700 dark:hover:text-red-400"
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -175,7 +175,7 @@ export default function RACIMatrix({ users, value, onChange, readonly = false }:
 
               {/* User Selection Dropdown */}
               {isExpanded && !readonly && (
-                <div className="mt-3 max-h-40 overflow-y-auto rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
+                <div className="mt-3 max-h-40 overflow-y-auto rounded-md border border-[var(--crm-border)] bg-transparent">
                   {users.map(user => {
                     const isSelected = isUserSelected(role, user.id);
                     return (
@@ -183,16 +183,16 @@ export default function RACIMatrix({ users, value, onChange, readonly = false }:
                         key={user.id}
                         type="button"
                         onClick={() => toggleUser(role, user.id)}
-                        className={`flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] ${
-                          isSelected ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)]" : ''
+                        className={`flex w-full items-center gap-2 px-3 py-2 text-left transition-colors hover:bg-[var(--crm-surface)] ${
+                          isSelected ? 'bg-[var(--crm-surface)]' : ''
                         }`}
                       >
                         <div className={`flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] ${user.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}`}>
                           {user.initials || user.name.substring(0, 2).toUpperCase()}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">{user.name}</p>
-                          {user.email && <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] truncate">{user.email}</p>}
+                          <p className="text-xs font-medium text-[var(--crm-ink)] truncate">{user.name}</p>
+                          {user.email && <p className="text-[10px] text-[var(--crm-muted)] truncate">{user.email}</p>}
                         </div>
                         {isSelected && (
                           <CheckCircle2 className="h-4 w-4 text-green-700 dark:text-green-400 flex-shrink-0" />

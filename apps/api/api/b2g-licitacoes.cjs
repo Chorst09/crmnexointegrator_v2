@@ -22,6 +22,8 @@
 const express = require('express');
 const crypto = require('crypto');
 const { inspectFile } = require('../lib/editalFileCache.cjs');
+const { analyzeFiles } = require('../lib/document-analysis.cjs');
+const { normalizeFicha, isSyntheticFicha, hasSampleRequirement } = require('../lib/ficha-normalizer.cjs');
 const router  = express.Router();
 const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken, requireRole } = require('../lib/auth.cjs');
@@ -38,80 +40,17 @@ const requireAuthenticatedRole = (roles) => [ensureAuthenticated, requireRole(ro
 
 const formatFichaResponse = (row) => {
   if (!row) return null;
-  let parsed = {};
-  if (typeof row.analysisData === 'string') {
-    try { parsed = JSON.parse(row.analysisData); } catch (_) {}
-  } else if (typeof row.analysisData === 'object' && row.analysisData !== null) {
-    parsed = row.analysisData;
-  }
-  return {
-    ...parsed,
-    id: row.id,
-    convertido_oportunidade: Boolean(row.convertido_oportunidade || row.convertidoOportunidade),
-    oportunidade_id: row.oportunidade_id || row.oportunidadeId || null,
+  let parsed = row.analysisData || {};
+  if (typeof parsed === 'string') { try { parsed = JSON.parse(parsed); } catch { parsed = {}; } }
+  return normalizeFicha({ ...row, ...parsed, id: row.id,
     id_licitacao: row.numeroControlePNCP || parsed.id_licitacao || row.id,
-    orgao_comprador: row.orgao || parsed.orgao_comprador || parsed.orgao_nome || parsed.orgao || 'Órgão Licitante',
-    orgao_nome: row.orgao || parsed.orgao_nome || parsed.orgao_comprador || parsed.orgao || 'Órgão Licitante',
-    resumo_executivo: row.objeto || parsed.resumo_executivo || 'Contratação regida pela Lei nº 14.133/2021.',
-    valor_estimado_total: typeof row.valor_estimado === 'number' ? row.valor_estimado : (parseFloat(row.valor_estimado) || parsed.valor_estimado_total || 0),
-    data_abertura: row.data_abertura ? (isNaN(new Date(row.data_abertura).getTime()) ? String(row.data_abertura) : new Date(row.data_abertura).toISOString()) : (parsed.data_abertura || new Date().toISOString()),
-    data_processamento: row.created_at || parsed.data_processamento || new Date().toISOString(),
-    requisitos_habilitacao: {
-      atestados_capacidade_tecnica: Array.isArray(parsed.requisitos_habilitacao?.atestados_capacidade_tecnica) && parsed.requisitos_habilitacao.atestados_capacidade_tecnica.length > 0
-        ? parsed.requisitos_habilitacao.atestados_capacidade_tecnica
-        : [
-            'Atestado de Capacidade Técnica comprovando compatibilidade com o objeto (mínimo de 50% das quantidades estimadas).',
-            'Comprovação de estrutura de suporte técnico e reposição em até 48 horas úteis.'
-          ],
-      certidoes_e_registros_especificos: Array.isArray(parsed.requisitos_habilitacao?.certidoes_e_registros_especificos) && parsed.requisitos_habilitacao.certidoes_e_registros_especificos.length > 0
-        ? parsed.requisitos_habilitacao.certidoes_e_registros_especificos
-        : [
-            'Certidão Conjunta Negativa de Débitos Federais e Dívida Ativa da União.',
-            'Certificado de Regularidade do FGTS (CRF).',
-            'Certidão Negativa de Débitos Trabalhistas (CNDT).'
-          ],
-      exigencias_contabeis: Array.isArray(parsed.requisitos_habilitacao?.exigencias_contabeis) && parsed.requisitos_habilitacao.exigencias_contabeis.length > 0
-        ? parsed.requisitos_habilitacao.exigencias_contabeis
-        : [
-            { nome_indice: 'Índice de Liquidez Geral (LG)', regra: '>= 1.0' },
-            { nome_indice: 'Índice de Liquidez Corrente (LC)', regra: '>= 1.0' },
-            { nome_indice: 'Índice de Solvência Geral (SG)', regra: '>= 1.0' }
-          ],
-      qualificacao_equipe_chave: Array.isArray(parsed.requisitos_habilitacao?.qualificacao_equipe_chave) && parsed.requisitos_habilitacao.qualificacao_equipe_chave.length > 0
-        ? parsed.requisitos_habilitacao.qualificacao_equipe_chave
-        : ['Declaração de equipe técnica e indicação de responsável técnico credenciado.']
-    },
-    prazos_e_locais: parsed.prazos_e_locais || {
-      prazo_inicio_entrega: 'Até 15 (quinze) dias corridos a partir da Ordem de Fornecimento.',
-      locais_prestacao_entrega: ['Almoxarifado Central e unidades regionais do órgão contratante.'],
-      vigencia_contrato: '12 (doze) meses prorrogáveis por até 5 anos (Lei 14.133/2021).',
-      regime_execucao: 'Empreitada por Preço Unitário',
-      prazo_recebimento_provisorio_definitivo: 'Provisório em 15 dias; Definitivo em 30 dias.'
-    },
-    pontos_de_atencao_risco: parsed.pontos_de_atencao_risco || {
-      clausulas_punitivas_multas: [
-        'Multa moratória de 0,5% por dia de atraso sobre a parcela descumprida.',
-        'Multa compensatória de 10% a 20% em caso de inexecução total.'
-      ],
-      exigencia_amostra_poc: 'Apresentação obrigatória de amostra/PoC para o 1º classificado provisório em até 5 dias úteis.',
-      garantia_contratual: 'Garantia contratual de 5% sobre o valor global.',
-      regras_vistoria: { obrigatoria: false, permite_declaracao_substitutiva: true, detalhes_e_prazo: 'Vistoria facultativa com declaração substitutiva.' },
-      pontos_de_atencao_gerais: ['Garantia mínima de fábrica de 12 meses.']
-    },
-    matriz_itens: Array.isArray(parsed.matriz_itens) && parsed.matriz_itens.length > 0
-      ? parsed.matriz_itens
-      : [
-          {
-            item_numero: 1,
-            codigo_catalogo: 'CATSER-21123',
-            especificacao_sucinta: 'Serviço de fornecimento e instalação conforme Termo de Referência',
-            unidade: 'UN',
-            quantitativo: 1,
-            valor_estimado_unitario: typeof row.valor_estimado === 'number' ? row.valor_estimado : 150000.0,
-            valor_estimado_total: typeof row.valor_estimado === 'number' ? row.valor_estimado : 150000.0
-          }
-        ]
-  };
+    orgao_comprador: parsed.orgao_comprador || row.orgao,
+    resumo_executivo: parsed.resumo_executivo || row.objeto,
+    valor_estimado_total: Object.hasOwn(parsed, 'valor_estimado_total') ? parsed.valor_estimado_total : row.valor_estimado,
+    data_abertura: parsed.data_abertura || (row.data_abertura ? new Date(row.data_abertura).toISOString() : undefined),
+    data_processamento: parsed.data_processamento || row.created_at,
+    analysisData: undefined
+  });
 };
 
 // Polyfill fetch para Node < 18
@@ -142,11 +81,11 @@ const prismaModelHasField = (modelName, fieldName) => {
   return fields.size === 0 || fields.has(fieldName);
 };
 
-const generateOpportunityNumber = async (clientType = 'B2G') => {
+const generateOpportunityNumber = async (clientType = 'B2G', db = prisma) => {
   const type = String(clientType || 'B2G').toUpperCase() === 'B2B' ? 'B2B' : 'B2G';
   const year = new Date().getFullYear();
   const prefix = `${type}-${year}-`;
-  const latest = await prisma.opportunity.findFirst({
+  const latest = await db.opportunity.findFirst({
     where: { number: { startsWith: prefix } },
     orderBy: { number: 'desc' },
     select: { number: true }
@@ -165,20 +104,20 @@ const buildFichaB2GDescription = (ficha) => {
     agency: ficha.orgao_comprador,
     projectName: `Licitação ${ficha.id_licitacao}`,
     customerRelationship: 'NEW_CLIENT',
-    modality: ficha.modalidade_contratacao || 'Pregão Eletrônico',
-    type: ficha.modalidade_contratacao || 'Eletrônico',
+    modality: ficha.modalidade_contratacao || 'Não identificado',
+    type: ficha.modalidade_contratacao || 'Não identificado',
     objectSummary: ficha.resumo_executivo || `Licitação ${ficha.id_licitacao}`,
     objectDetailed: ficha.resumo_executivo || '',
-    estimatedValue: Number(ficha.valor_estimado_total || 0),
+    estimatedValue: ficha.valor_estimado_total ?? null,
     contractType: 'Contrato',
-    contractTermMonths: Number(String(ficha.prazos_e_locais?.vigencia_contrato || '').match(/\d+/)?.[0] || 12),
+    contractTermMonths: Number(String(ficha.prazos_e_locais?.vigencia_contrato || '').match(/\d+/)?.[0] || 0),
     openingDate: ficha.data_abertura || null,
     proposalDeadline: ficha.data_limite_proposta || null,
     challengeDeadline: ficha.data_fim_esclarecimento || null,
     currentPhase: 'Análise',
     winProbability: 50,
     decision: 'PENDING',
-    samplesRequired: Boolean(risco.exigencia_amostra_poc || risco.exigencia_amostra),
+    samplesRequired: hasSampleRequirement(ficha),
     technicalVisitMandatory: Boolean(vistoria.obrigatoria),
     judgmentType: ficha.criterio_julgamento || 'Menor Preço',
     riskLevel: (risco.exigencia_amostra_poc || risco.exigencia_amostra || vistoria.obrigatoria) ? 'medio' : 'baixo',
@@ -1015,7 +954,7 @@ router.delete('/alertas/:id', async (req, res) => {
 
     await prisma.$executeRawUnsafe(
       `UPDATE alertas_licitacao SET ativo = false
-       WHERE id = $1::uuid
+       WHERE id::text = $1::text
          AND ("userId" = $2 OR "tenantCompanyId" = $3)`,
       req.params.id, userId, tenantId || ''
     );
@@ -1187,7 +1126,7 @@ router.put('/gerenciadas/:id', async (req, res) => {
     const [row] = await prisma.$queryRawUnsafe(
       `UPDATE gerenciadas_licitacao
        SET ${fields.join(', ')}, updated_at = NOW()
-       WHERE id = $${idx}::uuid
+       WHERE id::text = $${idx}::text
          AND ("userId" = $${idx+1} OR "tenantCompanyId" = $${idx+2})
        RETURNING *`,
       ...vals
@@ -1208,7 +1147,7 @@ router.delete('/gerenciadas/:id', async (req, res) => {
 
     await prisma.$executeRawUnsafe(
       `DELETE FROM gerenciadas_licitacao
-       WHERE id = $1::uuid
+       WHERE id::text = $1::text
          AND ("userId" = $2 OR "tenantCompanyId" = $3)`,
       req.params.id, userId, tenantId || ''
     );
@@ -1396,7 +1335,7 @@ router.delete('/editais-analisados/:id', async (req, res) => {
 
     await prisma.$executeRawUnsafe(
       `DELETE FROM editais_analisados
-       WHERE id = $1::uuid
+       WHERE id::text = $1::text
          AND ("userId"::text = $2::text OR "tenantCompanyId" = $3)`,
       req.params.id, userId, tenantId || ''
     );
@@ -1416,167 +1355,59 @@ router.post([
   try {
     const userId = getUserId(req);
     const tenantId = getTenant(req);
-
-    const rows = await prisma.$queryRawUnsafe(
-      `SELECT * FROM editais_analisados
-       WHERE (id::text = $1::text OR "numeroControlePNCP" = $1)
-         AND ("userId"::text = $2::text OR "tenantCompanyId" = $3)
-       LIMIT 1`,
-      req.params.id, userId, tenantId || ''
-    );
-    let analise = Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
-
-    if (!analise && req.body?.ficha && typeof req.body.ficha === 'object') {
-      const fichaPayload = req.body.ficha;
-      const numeroControlePNCP = fichaPayload.id_licitacao || fichaPayload.numeroControlePNCP || req.params.id;
-      if (numeroControlePNCP) {
-        const rowId = crypto.randomUUID();
-        const dataAbertura = fichaPayload.data_abertura && !Number.isNaN(new Date(fichaPayload.data_abertura).getTime())
-          ? new Date(fichaPayload.data_abertura).toISOString()
-          : new Date().toISOString();
-
-        analise = {
-          id: rowId,
-          numeroControlePNCP,
-          orgao: fichaPayload.orgao_comprador || fichaPayload.orgao_nome || fichaPayload.orgao || 'Órgão Público',
-          objeto: fichaPayload.objeto_licitacao || fichaPayload.objeto_resumido || fichaPayload.resumo_executivo || `Licitação ${numeroControlePNCP}`,
-          valor_estimado: Number(fichaPayload.valor_estimado_total || fichaPayload.valor_estimado || 0),
-          data_abertura: dataAbertura,
-          analysisData: fichaPayload,
-          userId,
-          tenantCompanyId: tenantId || null
-        };
-
-        try {
-          const insertedRows = await prisma.$queryRawUnsafe(
-            `INSERT INTO editais_analisados (
-              id, "numeroControlePNCP", orgao, objeto, valor_estimado, data_abertura,
-              "analysisData", "userId", "tenantCompanyId", created_at, updated_at
-            ) VALUES ($1, $2, $3, $4, $5, $6::timestamp, $7::jsonb, $8, $9, NOW(), NOW())
-            RETURNING *`,
-            rowId,
-            numeroControlePNCP,
-            analise.orgao,
-            analise.objeto,
-            analise.valor_estimado,
-            dataAbertura,
-            JSON.stringify(fichaPayload),
-            String(userId || ''),
-            tenantId || null
-          );
-          if (Array.isArray(insertedRows) && insertedRows[0]?.id) {
-            analise = insertedRows[0];
-          }
-        } catch (persistErr) {
-          console.warn('[converter-oportunidade] não foi possível persistir ficha recebida no payload:', persistErr.message);
-        }
+    const outcome = await prisma.$transaction(async (db) => {
+      // Serialize numbering and retries so one analyzed document creates one opportunity.
+      await db.$queryRawUnsafe("SELECT pg_advisory_xact_lock(hashtext('b2g-edital-conversion'))::text");
+      const rows = await db.$queryRawUnsafe(
+        `SELECT * FROM editais_analisados
+         WHERE (id::text = $1::text OR "numeroControlePNCP" = $1)
+           AND ("userId"::text = $2::text OR "tenantCompanyId" = $3)
+         LIMIT 1 FOR UPDATE`, req.params.id, userId, tenantId || ''
+      );
+      const analise = rows[0];
+      const reject = (status, message) => { const e = new Error(message); e.httpStatus = status; throw e; };
+      if (!analise) reject(404, 'Análise não encontrada no banco. Salve a análise antes de converter.');
+      const ficha = formatFichaResponse(analise);
+      if (ficha.analysisStatus === 'requires_reanalysis') reject(422, 'Reanalise os documentos originais antes de converter esta ficha.');
+      const include = { company: true, owner: { select: { id: true, name: true, email: true } }, products: { include: { product: true } } };
+      const existingId = analise.oportunidade_id || analise.oportunidadeId;
+      if (existingId) {
+        const existing = await db.opportunity.findUnique({ where: { id: String(existingId) }, include });
+        if (existing) return { success: true, opportunityId: existing.id, opportunity: existing, alreadyConverted: true };
       }
-    }
-
-    if (!analise) {
-      return res.status(404).json({ error: 'Análise não encontrada' });
-    }
-
-    const existingOpportunityId = analise.oportunidade_id || analise.oportunidadeId || null;
-    if (existingOpportunityId) {
-      const existingOpportunity = await prisma.opportunity.findUnique({
-        where: { id: String(existingOpportunityId) },
-        include: { company: true, owner: { select: { id: true, name: true, email: true } } }
-      }).catch(() => null);
-      if (existingOpportunity) {
-        return res.json({
-          success: true,
-          message: 'Edital já convertido em oportunidade B2G',
-          opportunityId: existingOpportunity.id,
-          opportunity: existingOpportunity,
-          alreadyConverted: true
-        });
+      if (!userId) reject(400, 'Usuário inválido para conversão.');
+      const agencyName = ficha.orgao_comprador;
+      if (!agencyName || /^(?:CNPJ|CPF|não identificado)$/i.test(agencyName)) reject(422, 'Identifique o órgão comprador na análise antes de converter.');
+      const master = String(req.user?.actualRole || req.user?.role).toUpperCase() === 'MASTER';
+      const identifiers = [{ name: { equals: agencyName, mode: 'insensitive' } }];
+      if (ficha.orgao_cnpj) identifiers.push({ document: ficha.orgao_cnpj }, { document: ficha.orgao_cnpj.replace(/\D/g, '') });
+      const scope = tenantId ? (master ? { OR: [{ tenantCompanyId: tenantId }, { tenantCompanyId: null }] } : { tenantCompanyId: tenantId }) : {};
+      let company = await db.company.findFirst({ where: { AND: [{ OR: identifiers }, scope] } });
+      if (!company) {
+        const data = { name: agencyName, segment: 'B2G GOVERNO', status: 'PROSPECT', tenantCompanyId: tenantId || null };
+        if (ficha.orgao_cnpj) data.document = ficha.orgao_cnpj;
+        if (prismaModelHasField('Company', 'clientType')) data.clientType = 'B2G';
+        company = await db.company.create({ data });
       }
-    }
-
-    const ficha = formatFichaResponse(analise);
-    const ownerId = userId;
-    if (!ownerId) {
-      return res.status(400).json({ error: 'Usuário inválido para conversão de oportunidade' });
-    }
-
-    const agencyName = ficha.orgao_comprador || analise.orgao || 'Órgão Público';
-    let company = await prisma.company.findFirst({
-      where: {
-        name: { equals: agencyName, mode: 'insensitive' },
-        ...(tenantId ? { tenantCompanyId: tenantId } : {})
-      }
-    });
-
-    if (!company) {
-      const companyData = {
-        name: agencyName,
-        segment: 'B2G GOVERNO',
-        status: 'PROSPECT',
-        tenantCompanyId: tenantId || null
-      };
-      if (prismaModelHasField('Company', 'clientType')) {
-        companyData.clientType = 'B2G';
-      }
-      company = await prisma.company.create({ data: companyData });
-    }
-
-    const title = `Licitação ${ficha.id_licitacao} - ${agencyName}`.slice(0, 220);
-    const opportunityData = {
-      number: await generateOpportunityNumber('B2G'),
-      title,
-      description: JSON.stringify(buildFichaB2GDescription(ficha)),
-      value: Number(ficha.valor_estimado_total || 0),
-      probability: 50,
-      stage: 'DIAGNOSIS',
-      source: 'MANUAL',
-      expectedCloseDate: ficha.data_limite_proposta && !Number.isNaN(new Date(ficha.data_limite_proposta).getTime())
-        ? new Date(ficha.data_limite_proposta)
-        : null,
-      notes: `Convertida a partir de Editais Analisados.\nProcesso: ${ficha.id_licitacao}\nItens mapeados: ${ficha.matriz_itens?.length || 0}`,
-      companyId: company.id,
-      ownerId,
-      tenantCompanyId: tenantId || null
-    };
-    if (prismaModelHasField('Opportunity', 'projectName')) {
-      opportunityData.projectName = title;
-    }
-    if (prismaModelHasField('Opportunity', 'projectClientType')) {
-      opportunityData.projectClientType = 'NEW_CLIENT';
-    }
-    if (prismaModelHasField('Opportunity', 'b2gStage')) {
-      opportunityData.b2gStage = 'ANALISE';
-    }
-
-    const opportunity = await prisma.opportunity.create({
-      data: opportunityData,
-      include: {
-        company: true,
-        owner: { select: { id: true, name: true, email: true } },
-        products: { include: { product: true } }
-      }
-    });
-
-    await prisma.$executeRawUnsafe(
-      `UPDATE editais_analisados 
-       SET convertido_oportunidade = true, oportunidade_id = $1::uuid, updated_at = NOW()
-       WHERE id::text = $2::text`,
-      opportunity.id, analise.id
-    ).catch((updateErr) => {
-      console.warn('[converter-oportunidade] oportunidade criada, mas ficha não foi marcada como convertida:', updateErr.message);
-    });
-
-    res.json({ 
-      success: true,
-      message: 'Oportunidade B2G criada com sucesso', 
-      opportunityId: opportunity.id,
-      oportunidadeId: opportunity.id,
-      opportunity,
-      oportunidade: opportunity
-    });
+      const title = `Licitação ${ficha.id_licitacao} - ${agencyName}`.slice(0, 220);
+      const data = { number: await generateOpportunityNumber('B2G', db), title,
+        description: JSON.stringify(buildFichaB2GDescription(ficha)), value: Number(ficha.valor_estimado_total || 0),
+        probability: 50, stage: 'DIAGNOSIS', source: 'MANUAL', expectedCloseDate: null,
+        notes: `Convertida a partir de Editais Analisados.\nProcesso: ${ficha.id_licitacao}\nItens mapeados: ${ficha.matriz_itens?.length || 0}`,
+        companyId: company.id, ownerId: userId, tenantCompanyId: tenantId || null };
+      if (prismaModelHasField('Opportunity', 'projectName')) data.projectName = title;
+      if (prismaModelHasField('Opportunity', 'projectClientType')) data.projectClientType = 'NEW_CLIENT';
+      if (prismaModelHasField('Opportunity', 'b2gStage')) data.b2gStage = 'ANALISE';
+      const opportunity = await db.opportunity.create({ data, include });
+      await db.$executeRawUnsafe(`UPDATE editais_analisados SET convertido_oportunidade = true,
+        oportunidade_id = $1::uuid, updated_at = NOW() WHERE id::text = $2::text`, opportunity.id, analise.id);
+      return { success: true, message: 'Oportunidade B2G criada com sucesso', opportunityId: opportunity.id,
+        oportunidadeId: opportunity.id, opportunity, oportunidade: opportunity };
+    }, { maxWait: 10000, timeout: 30000 });
+    return res.json(outcome);
   } catch (err) {
     console.error('[converter-oportunidade] erro:', err);
-    res.status(500).json({ error: 'Erro ao converter em oportunidade B2G', detail: err.message });
+    return res.status(err.httpStatus || 500).json({ error: err.httpStatus ? err.message : 'Erro ao converter em oportunidade B2G', detail: err.message });
   }
 });
 
@@ -1591,148 +1422,13 @@ router.post([
  */
 router.post(['/analise-tr/processar-arquivo', '/processar-arquivo'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
   try {
-    const { files, orgao, modalidade, id_licitacao } = req.body;
-    
-    console.log('[analise-tr/processar-arquivo] Recebendo:', {
-      filesCount: files?.length,
-      orgao,
-      modalidade,
-      id_licitacao
-    });
-
-    if (!files || !Array.isArray(files) || files.length === 0) {
-      return res.status(400).json({ 
-        error: 'Nenhum arquivo enviado. Envie pelo menos um PDF ou DOCX.' 
-      });
-    }
-
-    const primeiroArquivo = files[0];
-    const cleanBase64 = (primeiroArquivo.base64 || '').replace(/^data:.*?;base64,/, '');
-    
-    // Tenta extrair texto real se for PDF
-    let rawText = '';
-    try {
-      if (cleanBase64) {
-        const buffer = Buffer.from(cleanBase64, 'base64');
-        if (primeiroArquivo.name?.toLowerCase()?.endsWith('.pdf') || (primeiroArquivo.base64 && primeiroArquivo.base64.includes('application/pdf'))) {
-          try {
-            const { PDFParse } = require('pdf-parse');
-            const parser = new PDFParse({ data: buffer });
-            const parsed = await parser.getText();
-            rawText = parsed?.text || '';
-            await parser.destroy().catch(() => {});
-          } catch (pdfErr) {
-            console.warn('[analise-tr] Falha ao extrair texto do PDF via pdf-parse:', pdfErr.message);
-          }
-        }
-      }
-    } catch (e) {
-      console.warn('[analise-tr] Erro ao decodificar arquivo:', e.message);
-    }
-
-    // Heurísticas de identificação a partir do nome do arquivo e texto
-    const docName = primeiroArquivo.name || 'Edital_TR.pdf';
-    const orgaoDetectado = orgao || (docName.toLowerCase().includes('curitiba') ? 'Prefeitura Municipal de Curitiba' : 'Órgão Licitante');
-    const modalidadeDetectada = modalidade || 'Pregão Eletrônico (Lei 14.133/2021)';
-    const idLicitacaoDefinitivo = id_licitacao || `DOC-${Date.now().toString().slice(-6)}`;
-
-    // Monta a Ficha Técnica completa compatível com FichaTecnicaEditalTR
-    const fichaCompleta = {
-      id_licitacao: idLicitacaoDefinitivo,
-      orgao_comprador: orgaoDetectado,
-      orgao_nome: orgaoDetectado,
-      orgao: orgaoDetectado,
-      modalidade_contratacao: modalidadeDetectada,
-      criterio_julgamento: 'Menor Preço por Item / Maior Desconto',
-      modo_disputa: 'Aberto',
-      data_abertura: '28/09/2026 às 10:00',
-      data_abertura_proposta: '28/09/2026 às 10:00',
-      data_limite_proposta: '28/09/2026 até às 09:59',
-      data_fim_esclarecimento: 'Até 3 dias úteis anteriores à data de abertura (art. 164 da Lei 14.133/2021)',
-      data_fim_impugnacao: 'Até 3 dias úteis anteriores à data de abertura (art. 164 da Lei 14.133/2021)',
-      valor_estimado_total: 150000.0,
-      portal_compras: 'Compras.gov.br / Portal Nacional de Contratações Públicas (PNCP)',
-      resumo_executivo: `O certame destina-se à contratação conforme especificado no documento ${docName}. O objeto abrange a aquisição e fornecimento de materiais e serviços técnicos sob demanda com entrega parcelada.\n\nA contratação observa as normas da Lei nº 14.133/2021, com critérios rigorosos de conformidade técnica, sustentabilidade e fiscalização contratual direta pelo órgão.\n\nO critério de julgamento adotado é o de Menor Preço, admitindo-se a participação de empresas isoladas ou em consórcio, nos termos estipulados no Edital e no Termo de Referência.`,
-      requisitos_habilitacao: {
-        atestados_capacidade_tecnica: [
-          'Atestado de Capacidade Técnica comprovando que a licitante executou fornecimento de objeto de natureza compatível com o licitado (mínimo de 50% das quantidades estimadas).',
-          'Comprovação de estrutura de suporte técnico e reposição em até 48 horas úteis.'
-        ],
-        certidoes_e_registros_especificos: [
-          'Certidão Conjunta Negativa de Débitos Relativos aos Tributos Federais e à Dívida Ativa da União.',
-          'Certificado de Regularidade do FGTS (CRF).',
-          'Certidão Negativa de Débitos Trabalhistas (CNDT).',
-          'Certidão Negativa de Falência e Concordata.'
-        ],
-        exigencias_contabeis: [
-          { nome_indice: 'Índice de Liquidez Geral (LG)', regra: '>= 1.0' },
-          { nome_indice: 'Índice de Liquidez Corrente (LC)', regra: '>= 1.0' },
-          { nome_indice: 'Índice de Solvência Geral (SG)', regra: '>= 1.0' },
-          { nome_indice: 'Patrimônio Líquido', regra: '10% do valor estimado caso os índices sejam < 1.0' }
-        ],
-        qualificacao_equipe_chave: [
-          'Declaração de equipe técnica e indicação de responsável técnico credenciado.'
-        ]
-      },
-      prazos_e_locais: {
-        prazo_inicio_entrega: 'Até 15 (quinze) dias corridos a partir da Ordem de Fornecimento / Nota de Empenho.',
-        locais_prestacao_entrega: [
-          'Almoxarifado Central e unidades regionais do órgão contratante.'
-        ],
-        vigencia_contrato: '12 (doze) meses prorrogáveis por até 5 anos nos termos do art. 106 da Lei 14.133/2021.',
-        regime_execucao: 'Empreitada por Preço Unitário',
-        prazo_recebimento_provisorio_definitivo: 'Provisório em até 15 dias; Definitivo em até 30 dias após verificação de conformidade técnica.'
-      },
-      pontos_de_atencao_risco: {
-        clausulas_punitivas_multas: [
-          'Multa moratória de 0,5% por dia de atraso sobre o valor da parcela descumprida.',
-          'Multa compensatória de 10% a 20% em caso de inexecução total ou rescisão culposa.',
-          'Impedimento de licitar e contratar com a Administração Pública por até 3 anos (art. 156, III).'
-        ],
-        exigencia_amostra_poc: 'Apresentação obrigatória de amostra/PoC para o 1º classificado provisório em até 5 dias úteis.',
-        garantia_contratual: 'Garantia contratual de 5% sobre o valor global do contrato.',
-        regras_vistoria: {
-          obrigatoria: false,
-          permite_declaracao_substitutiva: true,
-          detalhes_e_prazo: 'Vistoria facultativa com declaração formal de pleno conhecimento do local.'
-        },
-        pontos_de_atencao_gerais: [
-          'Garantia mínima de fábrica de 12 meses com assistência técnica autorizada.',
-          'Vedada a subcontratação sem autorização prévia por escrito.'
-        ]
-      },
-      matriz_itens: [
-        {
-          item_numero: 1,
-          codigo_catalogo: 'CATSER-21123',
-          especificacao_sucinta: 'Serviço de fornecimento e instalação conforme Termo de Referência',
-          unidade: 'UN',
-          quantitativo: 1,
-          valor_estimado_unitario: 150000.0,
-          valor_estimado_total: 150000.0
-        }
-      ],
-      tags_classificacao: ['Lei 14.133/2021', 'Pregão Eletrônico', 'Amostra Exigida', 'Vistoria Substituível'],
-      documentos_origem: {
-        edital: files[0]?.name || 'edital.pdf',
-        termo_referencia: files[1]?.name || files[0]?.name || 'termo_referencia.docx'
-      },
-      data_processamento: new Date().toISOString()
-    };
-
-    res.json({
-      success: true,
-      fonte: rawText ? 'Extrator Semântico Lei 14.133/2021 (Texto Analisado)' : 'Motor Estruturado Lei 14.133/2021',
-      ficha: fichaCompleta,
-      documentosProcessados: files.map(f => ({ name: f.name, length: f.base64?.length || 0 }))
-    });
-
-  } catch (err) {
-    console.error('[analise-tr/processar-arquivo] erro:', err);
-    res.status(500).json({ 
-      error: 'Erro ao processar arquivo', 
-      details: err.message 
-    });
+    req.setTimeout?.(180000);
+    res.setTimeout?.(180000);
+    const ficha = await analyzeFiles(req.body?.files, { id_licitacao: req.body?.id_licitacao }, getTenant(req) || getUserId(req));
+    return res.json({ success: true, fonte: 'Extração do texto dos documentos originais', ficha });
+  } catch (error) {
+    console.error('[analise-tr] Falha na extração:', error.message);
+    return res.status(422).json({ error: error.message || 'Não foi possível extrair os documentos. Nenhuma ficha foi gerada.' });
   }
 });
 
@@ -1744,6 +1440,8 @@ router.post(['/analise-tr/processar-arquivo', '/processar-arquivo'], ...requireA
 router.post(['/analise-tr/salvar-ficha', '/salvar-ficha'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
   try {
     const ficha = req.body;
+    if (isSyntheticFicha(ficha) || ficha?.analysisStatus === 'requires_reanalysis') return res.status(422).json({ error: 'Esta ficha usa dados padronizados inválidos. Reanexe os documentos originais.' });
+    if (ficha?.extractionMethod !== 'document-text-v2') return res.status(409).json({ error: 'Atualize a página e analise novamente o documento. Esta ficha foi enviada por uma versão antiga do analisador.' });
     const userId = getUserId(req);
     const tenantId = getTenant(req);
 
@@ -1760,13 +1458,12 @@ router.post(['/analise-tr/salvar-ficha', '/salvar-ficha'], ...requireAuthenticat
     }
 
     // Valida e formata data de abertura
-    let dataAberturaIso = new Date().toISOString();
+    let dataAberturaIso = null;
     const rawData = ficha.data_abertura_proposta || ficha.data_abertura;
-    if (rawData) {
-      const parsed = new Date(rawData);
-      if (!isNaN(parsed.getTime())) {
-        dataAberturaIso = parsed.toISOString();
-      }
+    if (rawData && rawData !== 'Não identificado') {
+      const br = String(rawData).match(/(\d{2})[/.](\d{2})[/.](\d{4})(?:.*?(\d{1,2})[:h](\d{2}))?/);
+      const parsed = br ? new Date(`${br[3]}-${br[2]}-${br[1]}T${(br[4] || '00').padStart(2, '0')}:${br[5] || '00'}:00-03:00`) : new Date(rawData);
+      if (!isNaN(parsed.getTime())) dataAberturaIso = parsed.toISOString();
     }
 
     // Prepara payload para salvar em editais_analisados
@@ -1774,7 +1471,7 @@ router.post(['/analise-tr/salvar-ficha', '/salvar-ficha'], ...requireAuthenticat
       numeroControlePNCP: ficha.id_licitacao || `TR-${Date.now()}`,
       orgao: ficha.orgao_comprador || ficha.orgao_nome || ficha.orgao || 'Órgão não identificado',
       objeto: ficha.objeto_licitacao || ficha.objeto_resumido || ficha.resumo_executivo || 'Objeto da licitação',
-      valor_estimado: typeof ficha.valor_estimado_total === 'number' ? ficha.valor_estimado_total : (parseFloat(ficha.valor_estimado) || 0),
+      valor_estimado: typeof ficha.valor_estimado_total === 'number' ? ficha.valor_estimado_total : null,
       data_abertura: dataAberturaIso,
       analysisData: ficha,
       data_ultima_edicao: new Date().toISOString()
@@ -1787,8 +1484,8 @@ router.post(['/analise-tr/salvar-ficha', '/salvar-ficha'], ...requireAuthenticat
     try {
       const existingRows = await prisma.$queryRawUnsafe(
         `SELECT id FROM editais_analisados
-         WHERE "numeroControlePNCP" = $1 LIMIT 1`,
-        savePayload.numeroControlePNCP
+         WHERE "numeroControlePNCP" = $1 AND ("userId"::text = $2::text OR "tenantCompanyId" = $3) LIMIT 1`,
+        savePayload.numeroControlePNCP, userId, tenantId || ''
       );
       if (Array.isArray(existingRows) && existingRows.length > 0) {
         existing = existingRows[0];
@@ -1814,7 +1511,7 @@ router.post(['/analise-tr/salvar-ficha', '/salvar-ficha'], ...requireAuthenticat
           String(existing.id)
         );
       } catch (uErr) {
-        console.warn('[analise-tr/salvar-ficha] UPDATE falhou:', uErr.message);
+        throw uErr;
       }
 
       console.log('[analise-tr/salvar-ficha] Ficha atualizada:', existing.id);
@@ -1863,7 +1560,7 @@ router.post(['/analise-tr/salvar-ficha', '/salvar-ficha'], ...requireAuthenticat
         savedRow = insertResult[0];
       }
     } catch (insertErr) {
-      console.warn('[analise-tr/salvar-ficha] INSERT SQL falhou, mantendo em memória:', insertErr.message);
+      throw insertErr;
     }
 
     console.log('[analise-tr/salvar-ficha] Nova ficha criada:', savedRow.id);
@@ -1963,7 +1660,7 @@ router.delete(['/analise-tr/ficha/:id', '/ficha/:id'], ...requireAuthenticatedRo
     }
 
     await prisma.$executeRawUnsafe(
-      `DELETE FROM editais_analisados WHERE id = $1::uuid`,
+      `DELETE FROM editais_analisados WHERE id::text = $1::text`,
       ficha.id
     );
 

@@ -34,7 +34,7 @@ const STATUS_STYLE: Record<
 > = {
   PENDENTE: { color: "rgb(var(--crm-muted-rgb) / 1)", soft: '#334155', progress: 8, label: 'Pendente' },
   PLANEJAMENTO: { color: '#18c8df', soft: '#1e3a5f', progress: 18, label: 'Planejamento' },
-  'EM PROGRESSO': { color: '#ff7a00', soft: '#164e63', progress: 58, label: 'Em andamento' },
+  'EM PROGRESSO': { color: '#2563eb', soft: '#164e63', progress: 58, label: 'Em andamento' },
   'EM RISCO': { color: '#f59e0b', soft: '#78350f', progress: 42, label: 'Em risco' },
   'ATUALIZAÇÃO NECESSÁRIA': {
     color: '#facc15',
@@ -102,27 +102,27 @@ export const GanttView: React.FC<GanttViewProps> = ({ issues }) => {
   const todayIsVisible = today >= timeline.start && today <= timeline.end;
 
   return (
-    <div className="h-full overflow-auto bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 text-[rgb(var(--crm-ink-rgb)_/_1)]">
-      <div className="mx-auto min-w-[980px] max-w-[1800px] overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-2xl shadow-black/20">
-        <header className="flex items-center justify-between gap-5 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-5 py-4">
+    <div className="h-full overflow-auto bg-transparent p-5 text-[rgb(var(--crm-ink-rgb)_/_1)]">
+      <div className="mx-auto min-w-[980px] max-w-[1800px] overflow-hidden rounded-lg border border-[var(--crm-border)] bg-transparent shadow-2xl shadow-black/20">
+        <header className="flex items-center justify-between gap-5 border-b border-[var(--crm-border)] bg-[var(--crm-surface)] px-5 py-4">
           <div>
             <div className="flex items-center gap-2">
-              <CalendarDays size={19} className="text-[#ff7a00]" />
+              <CalendarDays size={19} className="text-[#2563eb]" />
               <h2 className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Cronograma do projeto</h2>
             </div>
-            <p className="mt-1 text-xs text-[#94a8c8]">
+            <p className="mt-1 text-xs text-[var(--crm-muted)]">
               {format(timeline.start, "dd 'de' MMM", { locale: ptBR })} a{' '}
               {format(timeline.end, "dd 'de' MMM 'de' yyyy", { locale: ptBR })}
             </p>
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="hidden items-center gap-3 text-[11px] text-[#94a8c8] xl:flex">
+            <div className="hidden items-center gap-3 text-[11px] text-[var(--crm-muted)] xl:flex">
               <span className="flex items-center gap-1.5">
                 <i className="h-2 w-2 rounded-full bg-[#18c8df]" /> Planejado
               </span>
               <span className="flex items-center gap-1.5">
-                <i className="h-2 w-2 rounded-full bg-[#ff7a00]" /> Em andamento
+                <i className="h-2 w-2 rounded-full bg-[#2563eb]" /> Em andamento
               </span>
               <span className="flex items-center gap-1.5">
                 <i className="h-2 w-2 rounded-full bg-[#22c55e]" /> Concluído
@@ -136,8 +136,8 @@ export const GanttView: React.FC<GanttViewProps> = ({ issues }) => {
                   onClick={() => setScale(option)}
                   className={`rounded px-3 py-1.5 text-xs font-medium transition-colors ${
                     scale === option
-                      ? "bg-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)]"
-                      : "text-[#94a8c8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                      ? "bg-[#2563eb] text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                      : "text-[var(--crm-muted)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   }`}
                 >
                   {option === 'weeks' ? 'Semanas' : 'Meses'}
@@ -149,31 +149,31 @@ export const GanttView: React.FC<GanttViewProps> = ({ issues }) => {
 
         <section className="grid grid-cols-4 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
           <div className="flex items-center gap-3 border-r border-[var(--crm-border)] px-5 py-3">
-            <Rows3 size={17} className="text-[#ff7a00]" />
+            <Rows3 size={17} className="text-[#2563eb]" />
             <div>
               <p className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{issues.length}</p>
-              <p className="text-[11px] text-[#94a8c8]">Fases no cronograma</p>
+              <p className="text-[11px] text-[var(--crm-muted)]">Fases no cronograma</p>
             </div>
           </div>
           <div className="flex items-center gap-3 border-r border-[var(--crm-border)] px-5 py-3">
             <CheckCircle2 size={17} className="text-[#22c55e]" />
             <div>
               <p className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{completed}</p>
-              <p className="text-[11px] text-[#94a8c8]">Fases concluídas</p>
+              <p className="text-[11px] text-[var(--crm-muted)]">Fases concluídas</p>
             </div>
           </div>
           <div className="flex items-center gap-3 border-r border-[var(--crm-border)] px-5 py-3">
             <AlertTriangle size={17} className="text-[#f59e0b]" />
             <div>
               <p className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{atRisk}</p>
-              <p className="text-[11px] text-[#94a8c8]">Fases em risco</p>
+              <p className="text-[11px] text-[var(--crm-muted)]">Fases em risco</p>
             </div>
           </div>
           <div className="flex items-center gap-3 px-5 py-3">
             <Clock3 size={17} className="text-[#a78bfa]" />
             <div>
               <p className="text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{averageProgress}%</p>
-              <p className="text-[11px] text-[#94a8c8]">Progresso estimado</p>
+              <p className="text-[11px] text-[var(--crm-muted)]">Progresso estimado</p>
             </div>
           </div>
         </section>
@@ -194,7 +194,7 @@ export const GanttView: React.FC<GanttViewProps> = ({ issues }) => {
               return (
                 <div
                   key={issue.id}
-                  className="grid grid-cols-[1fr_112px_62px] items-center border-b border-[var(--crm-border)] px-4 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
+                  className="grid grid-cols-[1fr_112px_62px] items-center border-b border-[var(--crm-border)] px-4 hover:bg-[var(--crm-surface-2)]"
                   style={{ height: ROW_HEIGHT }}
                 >
                   <div className="min-w-0 pr-3">
@@ -213,11 +213,11 @@ export const GanttView: React.FC<GanttViewProps> = ({ issues }) => {
                     >
                       {initials(issue.assignee)}
                     </span>
-                    <span className="truncate text-[11px] text-[#94a8c8]">
+                    <span className="truncate text-[11px] text-[var(--crm-muted)]">
                       {issue.assignee?.name || 'Sem responsável'}
                     </span>
                   </div>
-                  <span className="text-right text-xs font-medium text-[#94a8c8]">
+                  <span className="text-right text-xs font-medium text-[var(--crm-muted)]">
                     {duration ? `${duration}d` : '—'}
                   </span>
                 </div>
@@ -225,14 +225,14 @@ export const GanttView: React.FC<GanttViewProps> = ({ issues }) => {
             })}
           </div>
 
-          <div className="min-w-0 flex-1 overflow-x-auto bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
+          <div className="min-w-0 flex-1 overflow-x-auto bg-transparent">
             <div className="relative" style={{ width: timelineWidth }}>
-              <div className="sticky top-0 z-20 h-[70px] border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
+              <div className="sticky top-0 z-20 h-[70px] border-b border-[var(--crm-border)] bg-[var(--crm-surface)]">
                 <div className="flex h-8 border-b border-[var(--crm-border)]">
                   {timeline.months.map((month) => (
                     <div
                       key={month.label}
-                      className="border-r border-[var(--crm-border)] px-3 pt-2 text-[10px] font-semibold capitalize text-[#94a8c8]"
+                      className="border-r border-[var(--crm-border)] px-3 pt-2 text-[10px] font-semibold capitalize text-[var(--crm-muted)]"
                       style={{ width: month.count * cellWidth }}
                     >
                       {month.label}
@@ -246,14 +246,14 @@ export const GanttView: React.FC<GanttViewProps> = ({ issues }) => {
                       <div
                         key={day.toISOString()}
                         className={`flex shrink-0 flex-col items-center justify-center border-r border-[var(--crm-border)] text-[9px] ${
-                          isWeekend(day) ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[#6f87aa]" : 'text-[#94a8c8]'
+                          isWeekend(day) ? 'bg-[var(--crm-surface-2)] text-[#6f87aa]' : 'text-[var(--crm-muted)]'
                         }`}
                         style={{ width: cellWidth }}
                       >
                         {showLabel && (
                           <>
                             <span className="uppercase">{format(day, 'EEEEE', { locale: ptBR })}</span>
-                            <strong className={isSameDay(day, today) ? 'text-[#ff7a00]' : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}>
+                            <strong className={isSameDay(day, today) ? 'text-[#2563eb]' : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}>
                               {format(day, 'dd')}
                             </strong>
                           </>
@@ -269,7 +269,7 @@ export const GanttView: React.FC<GanttViewProps> = ({ issues }) => {
                   {timeline.days.map((day) => (
                     <div
                       key={day.toISOString()}
-                      className={`shrink-0 border-r border-[var(--crm-border)] ${isWeekend(day) ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)]" : ''}`}
+                      className={`shrink-0 border-r border-[var(--crm-surface-2)] ${isWeekend(day) ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)]" : ''}`}
                       style={{ width: cellWidth }}
                     />
                   ))}
@@ -277,10 +277,10 @@ export const GanttView: React.FC<GanttViewProps> = ({ issues }) => {
 
                 {todayIsVisible && (
                   <div
-                    className="pointer-events-none absolute bottom-0 top-0 z-10 w-px bg-[#ff7a00]"
+                    className="pointer-events-none absolute bottom-0 top-0 z-10 w-px bg-[#2563eb]"
                     style={{ left: todayOffset + cellWidth / 2 }}
                   >
-                    <span className="absolute -top-1 -translate-x-1/2 rounded bg-[#ff7a00] px-1.5 py-0.5 text-[9px] font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                    <span className="absolute -top-1 -translate-x-1/2 rounded bg-[#2563eb] px-1.5 py-0.5 text-[9px] font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       Hoje
                     </span>
                   </div>

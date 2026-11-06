@@ -7,6 +7,7 @@ import {
 } from '../lib/leadDistribution.js';
 import { prisma } from '../lib/prisma.js';
 import { getTenantCompanyId } from '../lib/tenantScope.js';
+import { listLeadAccountManagers } from '../lib/lead-account-managers.cjs';
 
 const assertCompanyAccess = async (user, companyId) => {
   const tenantCompanyId = getTenantCompanyId(user);
@@ -28,7 +29,7 @@ export default async function handler(req) {
     try {
       if (action === 'sellers') {
         // Listar vendedores disponíveis
-        const sellers = await getAvailableSellers(region, getTenantCompanyId(req.user));
+        const sellers = await listLeadAccountManagers(prisma, req.user, req.query?.clientType || 'B2B');
         return Response.json(sellers);
       }
       

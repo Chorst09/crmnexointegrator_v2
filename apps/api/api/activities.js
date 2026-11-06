@@ -7,6 +7,8 @@ export default async function handler(req) {
     const { userId, status, type } = req.query || {};
     
     const where = {};
+    const actorRole = String(req.user?.actualRole || req.user?.role || '').trim().toUpperCase();
+    if (actorRole !== 'MASTER' && req.user?.tenantCompanyId) where.tenantCompanyId = req.user.tenantCompanyId;
     if (userId) where.assignedToId = userId;
     if (status) where.status = status;
     if (type) where.type = type;
@@ -36,14 +38,29 @@ export default async function handler(req) {
       const body = await req.json();
       console.log('Body:', JSON.stringify(body, null, 2));
 
-      const assignedToId = req.user?.role === 'SELLER'
-        ? req.user.userId
-        : (body.assignedToId || req.user?.userId);
-
-      if (!assignedToId) {
-        return Response.json({ error: 'assignedToId é obrigatório' }, { status: 400 });
+      const actorRole = String(req.user?.actualRole || req.user?.role || '').trim().toUpperCase();
+      const canAssignToOthers = ['MASTER', 'ADMIN'].includes(actorRole) || req.user?.role !== 'SELLER';
+      const assignedToId = canAssignToOthers
+        ? (body.assignedToId || req.user?.userId || req.user?.id)
+        : (req.user?.userId || req.user?.id);
+      if (!assignedToId) return Response.json({ error: 'assignedToId é obrigatório' }, { status: 400 });
+      const assignedUser = await prisma.user.findUnique({
+        where: { id: assignedToId }, select: { id: true, tenantCompanyId: true }
+      });
+      if (!assignedUser) return Response.json({ error: 'Responsável não encontrado' }, { status: 400 });
+      const actorTenantCompanyId = actorRole === 'MASTER' ? null : (req.user?.tenantCompanyId || null);
+      if (actorTenantCompanyId && assignedUser.tenantCompanyId && assignedUser.tenantCompanyId !== actorTenantCompanyId) {
+        return Response.json({ error: 'Responsável não pertence a este tenant' }, { status: 403 });
       }
-      
+      const tenantCompanyId = actorTenantCompanyId || assignedUser.tenantCompanyId || req.user?.tenantCompanyId || null;
+      for (const relation of ['company', 'opportunity']) {
+        const relationId = body[`${relation}Id`];
+        if (!relationId) continue;
+        const record = await prisma[relation].findUnique({ where: { id: relationId }, select: { tenantCompanyId: true } });
+        if (!record || (tenantCompanyId && record.tenantCompanyId !== tenantCompanyId)) {
+          return Response.json({ error: 'Vínculo não pertence a este tenant' }, { status: 403 });
+        }
+      }
       // Preparar dados básicos
       const activityData = {
         type: body.type || 'TASK',
@@ -51,7 +68,11 @@ export default async function handler(req) {
         description: body.description || '',
         status: 'PENDING',
         priority: body.priority || 'MEDIUM',
-        assignedToId
+        assignedToId,
+        tenantCompanyId,
+        companyId: body.companyId || null,
+        opportunityId: body.opportunityId || null,
+        dueDate: body.dueDate ? new Date(body.dueDate) : null
       };
 
       console.log('Activity data:', JSON.stringify(activityData, null, 2));

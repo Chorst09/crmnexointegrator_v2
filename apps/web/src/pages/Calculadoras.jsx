@@ -21,6 +21,8 @@ import {
   BarChart3,
   PieChart
 } from 'lucide-react';
+import { summarizeCalculatorSnapshot } from '../utils/calculator-proposal.mjs';
+import { buildCommercialFinancialSummaryHtml } from '../utils/preSalesBudgetPrint';
 import PageHeader from '../components/PageHeader';
 import Modal from '../components/Modal';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
@@ -82,6 +84,8 @@ const DEFAULT_SERVICE_ITEM = {
   id: `service_${Date.now()}`,
   description: 'Consultoria de TI',
   estimatedHours: 20,
+  billingType: 'PONTUAL',
+  servicePeriod: 12,
   baseSalary: 5000,
   contractType: 'clt'
 };
@@ -1233,6 +1237,8 @@ const calculateOperation = ({
       itemCalculations[item.id].totalSellPrice = sellPricePerHour * toNumber(item.estimatedHours, 0);
     });
 
+    monthlyPrice = serviceItems.reduce((sum, item) => sum + (item.billingType === 'MENSAL' ? itemCalculations[item.id]?.totalSellPrice || 0 : 0), 0);
+
     const horasTotais = serviceItems.reduce((acc, item) => acc + toNumber(item.estimatedHours, 0), 0);
     operationAnalysis.push({
       title: 'Indicadores',
@@ -1244,10 +1250,19 @@ const calculateOperation = ({
     });
   }
 
+  if (operationType === 'servicos') {
+    const contractCost = serviceItems.reduce((sum, item) => sum + (itemCalculations[item.id]?.totalCost || 0) * (item.billingType === 'MENSAL' ? Math.max(1, Math.floor(toNumber(item.servicePeriod, 12))) : 1), 0);
+    const factor = baseCost > 0 ? contractCost / baseCost : 1;
+    baseCost = contractCost;
+    accountingCost *= factor;
+    impostosValor *= factor;
+    margemEComissaoValor *= factor;
+  }
+
   return {
     calculationResults: {
-      finalPrice: operationType === 'locacao' ? monthlyPrice * Math.max(0, toNumber(rentalPeriod, 12)) : finalPrice,
-      monthlyPrice: operationType === 'locacao' ? monthlyPrice : 0,
+      finalPrice: operationType === 'locacao' ? monthlyPrice * Math.max(0, toNumber(rentalPeriod, 12)) : operationType === 'servicos' ? serviceItems.reduce((sum, item) => sum + (itemCalculations[item.id]?.totalSellPrice || 0) * (item.billingType === 'MENSAL' ? Math.max(1, Math.floor(toNumber(item.servicePeriod, 12))) : 1), 0) : finalPrice,
+      monthlyPrice: ['locacao', 'servicos'].includes(operationType) ? monthlyPrice : 0,
       taxRegimeName: regime.name,
       taxRegimeType: regime.type,
       divisor: null,
@@ -1305,6 +1320,7 @@ export default function Calculadoras({
   const [activeProposalId, setActiveProposalId] = useState(null);
   const [proposalSearchNumber, setProposalSearchNumber] = useState('');
   const lastAutoBudgetSearchRef = useRef('');
+  const editingProposalRef = useRef(null);
   const [proposalFeedback, setProposalFeedback] = useState(null);
   const [homeFeedback, setHomeFeedback] = useState(null);
   const [preSalesSource, setPreSalesSource] = useState(null);
@@ -1352,8 +1368,14 @@ export default function Calculadoras({
 
   useEffect(() => {
     try {
-      const stored = localStorage.getItem(CALCULATOR_PROPOSALS_STORAGE_KEY)
-        || sessionStorage.getItem(CALCULATOR_PROPOSALS_SESSION_KEY);
+      const local = JSON.parse(localStorage.getItem(CALCULATOR_PROPOSALS_STORAGE_KEY) || '[]');
+      const session = JSON.parse(sessionStorage.getItem(CALCULATOR_PROPOSALS_SESSION_KEY) || '[]');
+      const merged = new Map();
+      for (const proposal of [...local, ...session]) {
+        const existing = merged.get(proposal.id);
+        if (!existing || new Date(proposal.updatedAt) >= new Date(existing.updatedAt)) merged.set(proposal.id, proposal);
+      }
+      const stored = JSON.stringify([...merged.values()]);
       if (!stored) return;
       const parsed = normalizeSavedProposals(JSON.parse(stored));
       if (parsed.length === 0) return;
@@ -1726,7 +1748,9 @@ export default function Calculadoras({
 
     return [
       { key: 'description', label: 'Descrição', kind: 'text', width: '220px' },
-      { key: 'estimatedHours', label: 'Horas', kind: 'number', width: '90px', step: '0.5' },
+      { key: 'billingType', label: 'Cobrança', kind: 'select', width: '150px', options: [{ value: 'PONTUAL', label: 'Pontual' }, { value: 'MENSAL', label: 'Mensal' }] },
+      { key: 'servicePeriod', label: 'Meses (se mensal)', kind: 'number', width: '160px', step: '1' },
+      { key: 'estimatedHours', label: 'Horas por cobrança', kind: 'number', width: '90px', step: '0.5' },
       { key: 'baseSalary', label: 'Salário Base R$', kind: 'number', width: '130px' },
       {
         key: 'contractType',
@@ -1935,6 +1959,8 @@ export default function Calculadoras({
   };
 
   const resetForm = () => {
+    editingProposalRef.current = null;
+    clearProposalCart();
     const regimePadrao = calculatorSettings.regimesTributarios.find((regime) => regime.ativo)?.id
       || calculatorSettings.regimesTributarios[0]?.id
       || 'LUCRO_PRESUMIDO';
@@ -1975,17 +2001,21 @@ export default function Calculadoras({
 
   const persistSavedProposals = (proposals) => {
     const ordered = [...proposals].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
-    setSavedProposals(ordered);
     try {
       localStorage.setItem(CALCULATOR_PROPOSALS_STORAGE_KEY, JSON.stringify(ordered));
+      sessionStorage.removeItem(CALCULATOR_PROPOSALS_SESSION_KEY);
     } catch (error) {
       console.error('Erro ao salvar propostas da calculadora:', error);
       try {
         sessionStorage.setItem(CALCULATOR_PROPOSALS_SESSION_KEY, JSON.stringify(ordered));
       } catch (sessionError) {
         console.error('Erro ao salvar propostas da calculadora em sessionStorage:', sessionError);
+        setProposalFeedback({ type: 'error', text: 'Não foi possível salvar: armazenamento do navegador cheio ou indisponível.' });
+        return false;
       }
     }
+    setSavedProposals(ordered);
+    return true;
   };
 
   const createBlankProposal = (tabId = currentTab) => {
@@ -2334,6 +2364,9 @@ export default function Calculadoras({
   const openProposal = (proposal, { keepModalOpen = true } = {}) => {
     if (!proposal) return;
 
+    editingProposalRef.current = deepClone(proposal);
+    clearProposalCart();
+    setPreSalesSource(proposal.preSales?.requestId ? { id: proposal.preSales.requestId, numero: proposal.preSales.number, titulo: proposal.preSales.title } : null);
     const pricing = proposal.pricing || {};
     const snapshot = proposal.snapshot || {};
 
@@ -2400,7 +2433,7 @@ export default function Calculadoras({
     const proposalNumber = (proposalForm.number || '').trim() || generateProposalNumber(savedProposals);
     const linkedOpportunity = opportunities.find((item) => item.id === proposalForm.opportunityId);
 
-    return {
+    const payload = {
       id: proposalId || createItemId('proposal'),
       number: proposalNumber,
       calculatorType: currentTab,
@@ -2469,7 +2502,47 @@ export default function Calculadoras({
       createdAt: createdAtBase || nowIso,
       updatedAt: nowIso
     };
+    const original = editingProposalRef.current;
+    if (original) {
+      const inputs = { saleItems, rentalItems, serviceItems };
+      const defaults = { saleItems: DEFAULT_SALE_ITEM, rentalItems: DEFAULT_RENTAL_ITEM, serviceItems: DEFAULT_SERVICE_ITEM };
+      const operations = { saleItems: 'venda', rentalItems: 'locacao', serviceItems: 'servicos' };
+      const snapshot = {};
+      for (const [key, op] of Object.entries(operations)) {
+        const previous = Array.isArray(original.snapshot?.[key]) ? original.snapshot[key] : [];
+        const normalizedPrevious = previous.map((item) => ({ ...defaults[key], ...item }));
+        const changed = previous.length > 0 && JSON.stringify(inputs[key]) !== JSON.stringify(normalizedPrevious);
+        const pricingChanged = toNumber(original.pricing?.desiredMargin, 20) !== toNumber(desiredMargin, 20)
+          || original.pricing?.regimeId !== vendasData.regimeTributario
+          || (op === 'locacao' && toNumber(original.pricing?.rentalPeriod, 12) !== toNumber(rentalPeriod, 12));
+        if (!changed && !pricingChanged) {
+          snapshot[key] = deepClone(previous);
+          continue;
+        }
+        if (!previous.length) { snapshot[key] = []; continue; }
+        const calculated = calculateOperation({
+          operationType: op, activeRegimeId: vendasData.regimeTributario,
+          regimes: calculatorSettings.regimesTributarios, outrosCustos: calculatorSettings.custosDespesas,
+          laborCostConfig: calculatorSettings.maoDeObra,
+          icmsInterstate: calculatorSettings.icmsInterestadual?.aliquotasPorUf || ICMS_PR_ALIQUOTAS,
+          saleItems, rentalItems, serviceItems, rentalPeriod, desiredMargin, isIcmsContributor, destinationUF
+        }).calculationResults;
+        snapshot[key] = inputs[key].map((item) => ({
+          ...deepClone(item), calculation: calculated.itemCalculations[item.id] || {},
+          pricing: { ...item.pricing, desiredMargin: toNumber(desiredMargin, 20), regimeId: vendasData.regimeTributario,
+            ...(op === 'locacao' ? { rentalPeriod: toNumber(rentalPeriod, 12) } : {}) }
+        }));
+      }
+      payload.snapshot = snapshot;
+      payload.calculatorType = original.calculatorType;
+      payload.calculatorLabel = original.calculatorLabel;
+      payload.preSales = original.preSales || payload.preSales;
+      payload.result = summarizeCalculatorSnapshot(snapshot);
+    }
+    return payload;
   };
+
+
 
   const saveCurrentProposal = ({ silent = false } = {}) => {
     const numberTyped = (proposalForm.number || '').trim();
@@ -2483,7 +2556,7 @@ export default function Calculadoras({
       ? savedProposals.map((proposal) => (proposal.id === payload.id ? payload : proposal))
       : [payload, ...savedProposals];
 
-    persistSavedProposals(nextProposals);
+    if (!persistSavedProposals(nextProposals)) return null;
     setActiveProposalId(payload.id);
     setProposalForm((prev) => ({ ...prev, number: payload.number }));
     setProposalSearchNumber(payload.number);
@@ -2584,6 +2657,10 @@ export default function Calculadoras({
 
   // Funções do carrinho de propostas
   const addToProposalCart = () => {
+    if (editingProposalRef.current) {
+      setProposalFeedback({ type: 'success', text: 'Alterações prontas. Clique em Salvar Proposta para gravar todos os itens.' });
+      return;
+    }
     const itemCalcs = calculationPreview.calculationResults.itemCalculations || {};
     
     if (operationType === 'venda' && saleItems.length > 0) {
@@ -2692,6 +2769,7 @@ export default function Calculadoras({
   };
 
   const saveProposalWithCart = () => {
+    if (editingProposalRef.current) return saveCurrentProposal();
     if (getTotalCartItems() === 0) {
       setProposalFeedback({
         type: 'error',
@@ -2735,12 +2813,14 @@ export default function Calculadoras({
     });
 
     proposalCart.services.forEach((item) => {
-      totalFinalPrice += toNumber(item.calculation?.totalSellPrice, 0);
-      totalBaseCost += toNumber(item.calculation?.totalCost, 0);
+      const period = item.billingType === 'MENSAL' ? Math.max(1, Math.floor(toNumber(item.servicePeriod, 12))) : 1;
+      if (item.billingType === 'MENSAL') totalMonthlyPrice += toNumber(item.calculation?.totalSellPrice, 0);
+      totalFinalPrice += toNumber(item.calculation?.totalSellPrice, 0) * period;
+      totalBaseCost += toNumber(item.calculation?.totalCost, 0) * period;
       const sellPrice = toNumber(item.calculation?.totalSellPrice, 0);
       const cost = toNumber(item.calculation?.totalCost, 0);
-      totalMargemComissao += (sellPrice - cost) * 0.7; // Aproximação
-      totalImpostos += (sellPrice - cost) * 0.3; // Aproximação
+      totalMargemComissao += (sellPrice - cost) * period * 0.7; // Aproximação
+      totalImpostos += (sellPrice - cost) * period * 0.3; // Aproximação
     });
 
     // Determine calculatorType from actual cart contents
@@ -2814,7 +2894,7 @@ export default function Calculadoras({
       ? savedProposals.map((proposal) => (proposal.id === payload.id ? payload : proposal))
       : [payload, ...savedProposals];
 
-    persistSavedProposals(nextProposals);
+    if (!persistSavedProposals(nextProposals)) return null;
     setActiveProposalId(payload.id);
     setProposalForm((prev) => ({ ...prev, number: payload.number }));
     setProposalSearchNumber(payload.number);
@@ -3128,6 +3208,7 @@ export default function Calculadoras({
         <td>${escRow(item.description)}</td>
         <td style="text-align:center">${qty}</td>
         <td style="text-align:right">${cur(monthly)}</td>
+        <td style="text-align:right">${cur(monthly * qty)}</td>
         <td style="text-align:center">${p}</td>
         <td style="text-align:right">${cur(total)}</td>
       </tr>`;
@@ -3139,9 +3220,12 @@ export default function Calculadoras({
       const total = toNumber(item?.calculation?.totalSellPrice, 0);
       return `<tr>
         <td>${escRow(item.description)}</td>
+        <td>${item.billingType === 'MENSAL' ? 'Mensal' : 'Pontual'}</td>
         <td style="text-align:center">${hours}h</td>
         <td style="text-align:right">${cur(priceHour)}</td>
         <td style="text-align:right">${cur(total)}</td>
+        <td style="text-align:center">${item.billingType === 'MENSAL' ? Math.max(1, Math.floor(toNumber(item.servicePeriod, 12))) : '—'}</td>
+        <td style="text-align:right">${cur(total * (item.billingType === 'MENSAL' ? Math.max(1, Math.floor(toNumber(item.servicePeriod, 12))) : 1))}</td>
       </tr>`;
     }).join('');
 
@@ -3162,8 +3246,9 @@ export default function Calculadoras({
           <table><thead><tr>
             <th style="text-align:left">Descrição</th>
             <th style="text-align:center">Qtd</th>
-            <th style="text-align:right">Mensal</th>
-            <th style="text-align:center">Período</th>
+            <th style="text-align:right">Unitário mensal</th>
+            <th style="text-align:right">Total mensal</th>
+            <th style="text-align:center">Período (meses)</th>
             <th style="text-align:right">Total</th>
           </tr></thead><tbody>${rentalRows}</tbody></table>
         </section>` : '',
@@ -3172,9 +3257,12 @@ export default function Calculadoras({
           <h3>Itens — Serviços</h3>
           <table><thead><tr>
             <th style="text-align:left">Descrição</th>
-            <th style="text-align:center">Horas</th>
+            <th>Cobrança</th>
+            <th style="text-align:center">Horas por cobrança</th>
             <th style="text-align:right">Preço/Hora</th>
-            <th style="text-align:right">Total</th>
+            <th style="text-align:right">Valor por cobrança</th>
+            <th>Período (meses)</th>
+            <th>Total no período</th>
           </tr></thead><tbody>${serviceRows}</tbody></table>
         </section>` : ''
     ].filter(Boolean).join('');
@@ -3359,6 +3447,8 @@ export default function Calculadoras({
 
         ${itemsHtml}
 
+        ${buildCommercialFinancialSummaryHtml(proposal)}
+
         <section class="footer">
           Documento gerado pelo módulo de Calculadoras.
         </section>
@@ -3436,10 +3526,12 @@ export default function Calculadoras({
       <input
         type={inputType}
         step={column.step || '0.01'}
+        min={column.key === 'servicePeriod' ? 1 : undefined}
+        disabled={column.key === 'servicePeriod' && item.billingType !== 'MENSAL'}
         value={item[column.key] ?? ''}
         onChange={(event) => {
           if (column.kind === 'number') {
-            updateOperationItem(item.id, column.key, parseFloat(event.target.value) || 0);
+            updateOperationItem(item.id, column.key, column.key === 'servicePeriod' ? Math.max(1, Math.floor(parseFloat(event.target.value) || 1)) : parseFloat(event.target.value) || 0);
             return;
           }
           updateOperationItem(item.id, column.key, event.target.value);
@@ -3885,7 +3977,7 @@ export default function Calculadoras({
                             <div key={item.id || `service-${index}`} className="rounded-xl border border-[color:var(--crm-border)] p-3">
                               <div className="flex flex-wrap items-center justify-between gap-2">
                                 <div className="font-semibold text-[var(--crm-ink)]">{item.description || 'Item sem descrição'}</div>
-                                <div className="text-xs text-[var(--crm-muted)]">Horas: {metrics.hours || '-'}</div>
+                                <div className="text-xs text-[var(--crm-muted)]">{item.billingType === 'MENSAL' ? `Mensal por ${item.servicePeriod || 12} meses` : 'Pontual'} · Horas por cobrança: {metrics.hours || '-'}</div>
                               </div>
                               <div className="mt-2 grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs text-[var(--crm-muted)]">
                                 <div>
@@ -4749,7 +4841,7 @@ export default function Calculadoras({
                             <div className="flex-1">
                               <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.description}</span>
                               <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] ml-2">
-                                {item.estimatedHours}h × {formatCurrency(item.calculation?.sellPricePerHour || 0)}/h
+                                {item.estimatedHours}h × {formatCurrency(item.calculation?.sellPricePerHour || 0)}/h · {item.billingType === 'MENSAL' ? `Mensal por ${item.servicePeriod || 12} meses` : 'Pontual'}
                               </span>
                             </div>
                             <div className="flex items-center gap-3">
@@ -4792,7 +4884,7 @@ export default function Calculadoras({
                   type="button"
                   onClick={handleSaveProposalWithCart}
                   className="px-6 py-3 rounded-lg border border-blue-400/60 bg-blue-500/80 text-white hover:bg-blue-500 inline-flex items-center gap-2"
-                  disabled={getTotalCartItems() === 0}
+                  disabled={getTotalCartItems() === 0 && !editingProposalRef.current}
                 >
                   <Save className="w-4 h-4" />
                   {preSalesSource?.id

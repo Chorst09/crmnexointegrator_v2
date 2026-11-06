@@ -1162,6 +1162,14 @@ router.delete('/companies/:id', requireRole(['ADMIN']), async (req, res) => {
     return res.json({ success: true });
   } catch (error) {
     console.error('Erro ao excluir empresa:', error);
+    if (error.code === 'P2003') {
+      return res.status(409).json({
+        error: 'A empresa ou seus usuários possuem registros vinculados (como oportunidades, comissões ou projetos). Resolva esses vínculos antes de excluir a empresa. Nenhum dado foi excluído.'
+      });
+    }
+    if (error.code === 'P2025') {
+      return res.status(404).json({ error: 'Empresa não encontrada' });
+    }
     return res.status(500).json({ error: 'Erro ao excluir empresa' });
   }
 });

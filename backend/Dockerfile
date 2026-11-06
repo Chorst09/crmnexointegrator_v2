@@ -16,6 +16,7 @@ RUN npm ci --only=production
 COPY backend/ ./
 COPY apps/api/api /apps/api/api
 COPY apps/api/lib /apps/api/lib
+COPY apps/api/data /apps/api/data
 COPY apps/api/public /apps/api/public
 
 # A imagem de produção deve usar as variáveis injetadas pelo Docker Compose.

@@ -194,6 +194,9 @@ const enforceRolePolicies = (req, res, next) => {
     return next();
   }
 
+  // Retornos pessoais do pré-vendas também ficam disponíveis aos vendedores.
+  if (p === '/pre-vendas/retornos-comerciais' || /^\/pre-vendas\/retornos-comerciais\/[^/]+\/ler$/.test(p)) return next();
+
   const isPreSalesPath =
     p.startsWith('/pre-vendas') ||
     p.startsWith('/solicitacoes') ||
@@ -222,6 +225,8 @@ const enforceRolePolicies = (req, res, next) => {
     return res.status(403).json({ error: 'Acesso negado' });
   }
 
+  if (p.startsWith('/contracts') && !canAccessModule(req.user, 'GESTAO')) return res.status(403).json({ error: 'Acesso negado' });
+
   const isB2BPathPrefixes = [
     '/companies',
     '/clients',
@@ -231,7 +236,6 @@ const enforceRolePolicies = (req, res, next) => {
     '/products',
     '/proposals',
     '/proposal-templates',
-    '/contracts',
     '/dashboard',
     '/commissions',
     '/leadScoring',
@@ -277,6 +281,10 @@ app.use((req, res, next) => {
 app.use('/uploads/system', express.static(path.join(__dirname, 'uploads/system')));
 
 // Rotas públicas
+const leadCalendar = require('./lib/lead-calendar.cjs').createLeadCalendar({ prisma: require('./lib/prisma.cjs').prisma, authenticateToken });
+app.use('/api/lead-calendar', leadCalendar.router);
+leadCalendar.start();
+
 app.use('/api/auth', authRoutes);
 app.use('/api/integration', integrationApiRoutes);
 app.use('/api/licensing', licensingRoutes);
@@ -450,6 +458,7 @@ const handleLegacyAPI = (apiPath) => {
 // Rotas das APIs antigas (ES modules)
 app.use('/api/clients', handleLegacyAPI('./api/clients.js'));
 app.use('/api/companies', handleLegacyAPI('./api/companies.js'));
+app.use('/api/opportunities', require('./api/opportunity-documents.cjs'));
 app.use('/api/opportunities', handleLegacyAPI('./api/opportunities.js'));
 app.use('/api/activities', handleLegacyAPI('./api/activities.js'));
 // app.use('/api/products', handleLegacyAPI('./api/products.js')); // Agora usando CommonJS

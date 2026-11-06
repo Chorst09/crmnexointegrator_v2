@@ -1,7 +1,7 @@
 import { logCostAccessAudit } from './auditLogger';
 
 const toCurrency = (v) =>
-  `R$ ${Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`;
+  `R$ ${Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 const escapeHtml = (value) => String(value ?? '')
   .replaceAll('&', '&amp;')
@@ -42,6 +42,64 @@ const modalidadeLabel = (value) => ({
   SERVICOS: 'Serviços'
 }[value] || value || '-');
 
+export const buildCommercialFinancialSummaryHtml = (proposal) => {
+  const snapshot = proposal?.snapshot || {};
+  const items = (key) => Array.isArray(snapshot[key]) ? snapshot[key] : [];
+  const monthly = items('rentalItems').reduce((sum, item) => sum + (Number(item.calculation?.rbUnitario) || 0) * (Number(item.quantity) || 0), 0);
+  const sales = items('saleItems').reduce((sum, item) => sum + (Number(item.calculation?.rbUnitario) || 0) * (Number(item.quantity) || 0), 0);
+  const monthlyServices = items('serviceItems').filter((item) => item.billingType === 'MENSAL').reduce((sum, item) => sum + (Number(item.calculation?.totalSellPrice) || 0), 0);
+  const services = items('serviceItems').filter((item) => item.billingType !== 'MENSAL').reduce((sum, item) => sum + (Number(item.calculation?.totalSellPrice) || 0), 0);
+  return `<section class="summary">
+    <h2>Resumo de valores mensais e pontuais</h2>
+    <table><thead><tr><th>Tipo de cobrança</th><th style="text-align:right">Valor</th></tr></thead><tbody>
+      <tr><td>Valor mensal — Locação (todas as unidades)</td><td style="text-align:right">${escapeHtml(toCurrency(monthly))}</td></tr>
+      <tr><td>Valor mensal — Serviços</td><td style="text-align:right">${escapeHtml(toCurrency(monthlyServices))}</td></tr>
+      <tr><td><strong>Total mensal</strong></td><td style="text-align:right"><strong>${escapeHtml(toCurrency(monthly + monthlyServices))}</strong></td></tr>
+      <tr><td>Valor pontual — Venda</td><td style="text-align:right">${escapeHtml(toCurrency(sales))}</td></tr>
+      <tr><td>Valor pontual — Serviços</td><td style="text-align:right">${escapeHtml(toCurrency(services))}</td></tr>
+      <tr><td><strong>Total pontual</strong></td><td style="text-align:right"><strong>${escapeHtml(toCurrency(sales + services))}</strong></td></tr>
+    </tbody></table>
+  </section>`;
+};
+
+// Commercial tables read the saved calculation, never distributor acquisition costs.
+const buildCommercialItemsHtml = (proposal) => {
+  const snapshot = proposal?.snapshot || {};
+  const currency = (value) => escapeHtml(toCurrency(value));
+  const table = (title, headers, rows) => rows.length ? `
+    <h2>Itens — ${title}</h2>
+    <table><thead><tr>${headers.map((header) => `<th>${header}</th>`).join('')}</tr></thead>
+    <tbody>${rows.join('')}</tbody></table>` : '';
+  const cell = (value, align = 'right') => `<td style="text-align:${align}">${value}</td>`;
+  const description = (item) => cell(escapeHtml(item.description || '-'), 'left');
+  const sales = (Array.isArray(snapshot.saleItems) ? snapshot.saleItems : []).map((item) => {
+    const qty = Number(item.quantity) || 0;
+    const price = Number(item.calculation?.rbUnitario);
+    const available = Number.isFinite(price);
+    return `<tr>${description(item)}${cell(escapeHtml(qty), 'center')}${cell(available ? currency(price) : 'Não informado')}${cell(available ? currency(price * qty) : 'Não informado')}</tr>`;
+  });
+  const rentals = (Array.isArray(snapshot.rentalItems) ? snapshot.rentalItems : []).map((item) => {
+    const qty = Number(item.quantity) || 0;
+    const price = Number(item.calculation?.rbUnitario);
+    const period = Number(item.pricing?.rentalPeriod ?? proposal?.pricing?.rentalPeriod) || 0;
+    const available = Number.isFinite(price);
+    return `<tr>${description(item)}${cell(escapeHtml(qty), 'center')}${cell(available ? currency(price) : 'Não informado')}${cell(available ? currency(price * qty) : 'Não informado')}${cell(escapeHtml(period), 'center')}${cell(available ? currency(price * period * qty) : 'Não informado')}</tr>`;
+  });
+  const services = (Array.isArray(snapshot.serviceItems) ? snapshot.serviceItems : []).map((item) => {
+    const hours = Number(item.estimatedHours) || 0;
+    const price = Number(item.calculation?.sellPricePerHour);
+    const total = Number(item.calculation?.totalSellPrice);
+    const monthly = item.billingType === 'MENSAL';
+    const period = monthly ? Math.max(1, Math.floor(Number(item.servicePeriod) || 12)) : 1;
+    return `<tr>${description(item)}${cell(monthly ? 'Mensal' : 'Pontual', 'center')}${cell(`${escapeHtml(hours)}h`, 'center')}${cell(Number.isFinite(price) ? currency(price) : 'Não informado')}${cell(Number.isFinite(total) ? currency(total) : 'Não informado')}${cell(monthly ? period : '—', 'center')}${cell(Number.isFinite(total) ? currency(total * period) : 'Não informado')}</tr>`;
+  });
+  return [
+    table('Venda', ['Descrição', 'Qtd', 'Preço Unit.', 'Total'], sales),
+    table('Locação', ['Descrição', 'Qtd', 'Unitário mensal', 'Total mensal', 'Período (meses)', 'Total no período'], rentals),
+    table('Serviços', ['Descrição', 'Cobrança', 'Horas por cobrança', 'Preço/Hora', 'Valor por cobrança', 'Período (meses)', 'Total no período'], services)
+  ].join('') || '<p class="empty">Detalhamento dos itens precificados não disponível nesta proposta.</p>';
+};
+
 export const buildPreSalesBudgetPrintHtml = (item, options = {}) => {
   const hideCosts = Boolean(options?.hideCosts);
   const details = item?.calculoDetalhes && typeof item.calculoDetalhes === 'object' ? item.calculoDetalhes : {};
@@ -50,6 +108,8 @@ export const buildPreSalesBudgetPrintHtml = (item, options = {}) => {
   const propostasPrecificadas = Array.isArray(details.propostasPrecificadas)
     ? details.propostasPrecificadas
     : details.propostaPrecificada ? [details.propostaPrecificada] : [];
+  const commercialProposal = details.propostaPrecificada || propostasPrecificadas[0];
+  const commercialItemsHtml = hideCosts ? buildCommercialItemsHtml(commercialProposal) : '';
   const itensSolicitados = Array.isArray(item?.items) ? item.items : [];
   const createdAt = item?.createdAt ? new Date(item.createdAt).toLocaleString('pt-BR') : '-';
   const updatedAt = item?.updatedAt ? new Date(item.updatedAt).toLocaleString('pt-BR') : '-';
@@ -105,8 +165,9 @@ export const buildPreSalesBudgetPrintHtml = (item, options = {}) => {
       }).join('')
     : '<tr><td colspan="8" class="empty">Sem cotações de distribuidores registradas.</td></tr>';
 
-  const pricingRows = propostasPrecificadas.length > 0
-    ? propostasPrecificadas.map((proposta) => {
+  const displayedProposals = hideCosts ? (commercialProposal ? [commercialProposal] : []) : propostasPrecificadas;
+  const pricingRows = displayedProposals.length > 0
+    ? displayedProposals.map((proposta) => {
         const finalPrice = Number(proposta?.result?.finalPrice) || 0;
         const monthlyPrice = Number(proposta?.result?.monthlyPrice) || 0;
         if (hideCosts) {
@@ -202,6 +263,7 @@ export const buildPreSalesBudgetPrintHtml = (item, options = {}) => {
         <h2>Premissas da Proposta</h2>
         <section class="description">${escapeHtml(premissas)}</section>
       ` : ''}
+      ${hideCosts ? commercialItemsHtml : `
       <h2>${hideCosts ? 'Produtos e Serviços Precificados' : 'Itens Solicitados'}</h2>
       <table>
         ${hideCosts ? `
@@ -211,6 +273,7 @@ export const buildPreSalesBudgetPrintHtml = (item, options = {}) => {
         `}
         <tbody>${requestedRows}</tbody>
       </table>
+      `}
       ${!hideCosts ? `
         <h2>Cotações de Distribuidores</h2>
         <table>
@@ -227,6 +290,7 @@ export const buildPreSalesBudgetPrintHtml = (item, options = {}) => {
         `}
         <tbody>${pricingRows}</tbody>
       </table>
+      ${hideCosts && commercialProposal?.snapshot ? buildCommercialFinancialSummaryHtml(commercialProposal) : ''}
       <section class="footer">${hideCosts ? 'Documento Comercial gerado com base no dimensionamento da Engenharia de Pré-Vendas.' : 'Documento gerado pelo módulo de Orçamentos de Pré-vendas.'}</section>
     </body>
     </html>

@@ -1,3 +1,4 @@
+import { ConvertToB2BOpportunityButton } from '@/components/proposals/ConvertToB2BOpportunityButton';
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -1926,6 +1927,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                     >
                                                         <Edit className="h-4 w-4 mr-2" /> Editar
                                                     </Button>
+                                                    <ConvertToB2BOpportunityButton proposal={proposal} />
                                                     <Button
                                                         variant="destructive"
                                                         size="sm"

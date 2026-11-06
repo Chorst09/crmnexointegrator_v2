@@ -1,3 +1,9 @@
+import contractService from '../lib/contract-service.cjs';
+const { contractScope } = contractService;
+import leadNextAction from '../lib/lead-next-action.cjs';
+const { normalizeLeadNextAction } = leadNextAction;
+import companyAssignment from '../lib/company-assignment.cjs';
+const { resolveCompanyAssignment } = companyAssignment;
 import companyVisibility from '../lib/company-visibility.cjs';
 const { companyVisibilityWhere, canViewCompany, ownCompaniesOnly } = companyVisibility;
 import { prisma } from '../lib/prisma.js';
@@ -83,22 +89,8 @@ const runOptionalCleanup = async (operation) => {
 };
 
 
-const resolveAssignment = async (user, body, tenantCompanyId, creating) => {
-  const restricted = ownCompaniesOnly(user) && (body.clientType || 'B2B') === 'B2B';
-  const selfId = user.userId || user.id;
-  if (restricted && body.accountManagerId && body.accountManagerId !== selfId) {
-    return { error: 'Você só pode atribuir empresas B2B a si mesmo.' };
-  }
-  const id = restricted ? selfId : body.accountManagerId;
-  if (!restricted && !creating && id === undefined) return { data: {} };
-  if (!id) return { data: { accountManagerId: null, accountManagerName: null } };
-  const owner = await prisma.user.findFirst({
-    where: { id, tenantCompanyId: tenantCompanyId || null },
-    select: { id: true, name: true }
-  });
-  if (!owner) return { error: 'Responsável inválido para esta empresa.' };
-  return { data: { accountManagerId: owner.id, accountManagerName: owner.name } };
-};
+const resolveAssignment = (user, body, tenantCompanyId, creating) =>
+  resolveCompanyAssignment(prisma, user, body, tenantCompanyId, creating);
 
 export default async function handler(req) {
   if (req.method === 'GET') {
@@ -118,7 +110,7 @@ export default async function handler(req) {
             },
             orderBy: { createdAt: 'desc' }
           },
-          contracts: { orderBy: { createdAt: 'desc' } },
+          contracts: { where: contractScope(req.user), include: { opportunity: { select: { id: true, number: true, title: true } } }, orderBy: { createdAt: 'desc' } },
           documents: {
             orderBy: { createdAt: 'desc' },
             select: { id: true, originalName: true, mimeType: true, size: true, createdAt: true }
@@ -200,6 +192,11 @@ export default async function handler(req) {
         regionId: c.regionId ?? c.REGIONID ?? null,
         leadScore: c.leadScore ?? c.LEADSCORE ?? 50,
         churnRisk: c.churnRisk ?? c.CHURNRISK ?? 0,
+        leadNextAction: c.leadNextAction ?? c.LEADNEXTACTION ?? null,
+        leadNextActionAt: c.leadNextActionAt ?? c.LEADNEXTACTIONAT ?? null,
+        leadReminderMinutes: c.leadReminderMinutes ?? c.LEADREMINDERMINUTES ?? 15,
+        leadOrigin: c.leadOrigin ?? c.LEADORIGIN ?? null,
+        leadOriginDetail: c.leadOriginDetail ?? c.LEADORIGINDETAIL ?? null,
         leadEntryDate: c.leadEntryDate ?? c.LEADENTRYDATE ?? c.createdAt ?? c.CREATEDAT ?? null,
         accountManagerName: c.accountManagerName ?? c.ACCOUNTMANAGERNAME ?? '',
         createdAt: c.createdAt ?? c.CREATEDAT ?? null,
@@ -214,6 +211,8 @@ export default async function handler(req) {
 
   if (req.method === 'POST') {
     const body = await req.json();
+    const nextAction = normalizeLeadNextAction(body);
+    if (nextAction.error) return Response.json({ error: nextAction.error }, { status: 400 });
     const regionId = req.user?.role === 'SELLER' ? (req.user.regionId || null) : (body.regionId || null);
     const contactsToCreate = normalizeContacts(body.contacts);
     const autoDistribute = body.autoDistribute !== false;
@@ -236,7 +235,8 @@ export default async function handler(req) {
     }
 
     const assignment = await resolveAssignment(req.user, body, tenantId, true);
-    if (assignment.error) return new Response(assignment.error, { status: 403 });
+    if (assignment.error) return Response.json({ error: assignment.error }, { status: 403 });
+    if (nextAction.data.leadNextAction && !assignment.data.accountManagerId) return Response.json({ error: 'Selecione o gerente de contas responsável pela próxima ação.' }, { status: 400 });
     const company = await prisma.company.create({
       data: {
         name: body.name,
@@ -252,6 +252,9 @@ export default async function handler(req) {
         state: body.state,
         status: normalizeCompanyStatus(body.status, 'LEAD'),
         leadScore: Number.isFinite(Number(body.leadScore)) ? Number(body.leadScore) : undefined,
+        leadOrigin: typeof body.leadOrigin === 'string' ? body.leadOrigin.trim() || null : null,
+        leadOriginDetail: typeof body.leadOriginDetail === 'string' ? body.leadOriginDetail.trim() || null : null,
+        ...nextAction.data,
         leadEntryDate: parseDateInput(body.leadEntryDate) || new Date(),
         ...assignment.data,
         regionId,
@@ -305,7 +308,7 @@ export default async function handler(req) {
 
     const existingCompany = await prisma.company.findUnique({
       where: { id: companyId },
-      select: { accessB2B: true, accessB2G: true, accessPreSales: true, tenantCompanyId: true }
+      select: { accountManagerId: true, leadNextAction: true, leadNextActionAt: true, leadReminderMinutes: true, accessB2B: true, accessB2G: true, accessPreSales: true, tenantCompanyId: true }
     });
     if (!existingCompany) return new Response('Empresa não encontrada', { status: 404 });
     if (!await canViewCompany(prisma, req.user, companyId)) return new Response('Acesso negado', { status: 403 });
@@ -314,8 +317,11 @@ export default async function handler(req) {
       return new Response('Acesso negado', { status: 403 });
     }
 
+    const nextAction = normalizeLeadNextAction(body, existingCompany);
+    if (nextAction.error) return Response.json({ error: nextAction.error }, { status: 400 });
     const assignment = await resolveAssignment(req.user, body, existingCompany.tenantCompanyId, false);
-    if (assignment.error) return new Response(assignment.error, { status: 403 });
+    if (assignment.error) return Response.json({ error: assignment.error }, { status: 403 });
+    if ((nextAction.data.leadNextAction === undefined ? existingCompany.leadNextAction : nextAction.data.leadNextAction) && !(assignment.data.accountManagerId === undefined ? existingCompany.accountManagerId : assignment.data.accountManagerId)) return Response.json({ error: 'Selecione o gerente de contas responsável pela próxima ação.' }, { status: 400 });
     const company = await prisma.$transaction(async (tx) => {
       const updatedCompany = await tx.company.update({
         where: { id: companyId },
@@ -333,6 +339,9 @@ export default async function handler(req) {
           state: body.state,
           status: body.status !== undefined ? normalizeCompanyStatus(body.status) : undefined,
           leadScore: body.leadScore,
+          leadOrigin: body.leadOrigin === undefined ? undefined : (typeof body.leadOrigin === 'string' ? body.leadOrigin.trim() || null : null),
+          leadOriginDetail: body.leadOriginDetail === undefined ? undefined : (typeof body.leadOriginDetail === 'string' ? body.leadOriginDetail.trim() || null : null),
+          ...nextAction.data,
           leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined,
           ...assignment.data,
           tenantCompanyId: isMasterUser && body.tenantCompanyId !== undefined ? body.tenantCompanyId : undefined
@@ -406,6 +415,10 @@ export default async function handler(req) {
 
     try {
       await prisma.$transaction(async (tx) => {
+        await runOptionalCleanup(() => tx.companyDocument.deleteMany({
+          where: { companyId }
+        }));
+
         const companyOpportunities = await tx.opportunity.findMany({
           where: { companyId },
           select: { id: true }
@@ -527,10 +540,6 @@ export default async function handler(req) {
         }));
 
         await runOptionalCleanup(() => tx.churnAlert.deleteMany({
-          where: { companyId }
-        }));
-
-        await runOptionalCleanup(() => tx.companyDocument.deleteMany({
           where: { companyId }
         }));
 

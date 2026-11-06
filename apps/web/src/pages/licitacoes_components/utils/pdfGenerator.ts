@@ -9,6 +9,10 @@ export const gerarPdfFichaTecnica = (
   ficha: FichaTecnicaEditalTR,
   modo: 'bloburl' | 'download' = 'download'
 ): string | void => {
+  // Document text is untrusted when embedded in the printable HTML report.
+  ficha = JSON.parse(JSON.stringify(ficha, (_key, value) => typeof value === 'string'
+    ? value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+    : value));
   const htmlContent = `
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -63,7 +67,7 @@ export const gerarPdfFichaTecnica = (
       </div>
       <div>
         <span class="label">Modalidade</span>
-        <span class="value">${ficha.modalidade_contratacao || 'Pregão Eletrônico'}</span>
+        <span class="value">${ficha.modalidade_contratacao || 'Não identificado'}</span>
       </div>
       <div>
         <span class="label">Critério de Julgamento</span>
@@ -86,7 +90,7 @@ export const gerarPdfFichaTecnica = (
       </div>
       <div>
         <span class="label">Vigência Contratual</span>
-        <span class="value">${ficha.prazos_e_locais?.vigencia_contrato || '12 meses'}</span>
+        <span class="value">${ficha.prazos_e_locais?.vigencia_contrato || 'Não identificado'}</span>
       </div>
     </div>
     <div style="margin-top:10px;">

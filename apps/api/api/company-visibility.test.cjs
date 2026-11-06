@@ -32,7 +32,7 @@ for (const root of ['apps/api', 'backend']) {
   } };
   const source = fs.readFileSync(path.join(base, 'api/companies.js'), 'utf8')
     .replace(/^import .*;\n/gm, '').replace('export default async function handler', 'async function handler');
-  const context = vm.createContext({ companyVisibility: visibility, prisma, Response, console,
+  const context = vm.createContext({ contractService: require(path.join(base, 'lib/contract-service.cjs')), leadNextAction: require(path.join(base, 'lib/lead-next-action.cjs')), companyAssignment: require(path.join(base, 'lib/company-assignment.cjs')), companyVisibility: visibility, prisma, Response, console,
     tenantScopedWhere: user => user.actualRole === 'MASTER' ? {} : { tenantCompanyId: user.tenantCompanyId },
     isTenantRecordVisible: (user, company) => user.actualRole === 'MASTER' || company.tenantCompanyId === user.tenantCompanyId,
     forbiddenTenantResponse: () => new Response('Forbidden', { status: 403 })
