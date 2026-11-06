@@ -101,6 +101,19 @@ const safeMeetingForNotes = (meeting) => ({
 
 const asList = (value) => (Array.isArray(value) ? value : []);
 
+const getStoredUser = () => {
+  try {
+    return JSON.parse(localStorage.getItem('user') || '{}');
+  } catch {
+    return {};
+  }
+};
+
+const canDeleteKickoffMeetings = (user) => {
+  const role = toCanonicalRole(user?.role, user);
+  return role === ROLES.ADMIN || role === ROLES.MASTER;
+};
+
 const MINUTES_TEMPLATES = {
   INTERNAL: {
     title: 'Ata de Kickoff Interno',
