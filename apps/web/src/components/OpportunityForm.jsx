@@ -1,5 +1,6 @@
+import SellerProfile from './SellerProfile';
 import { normalizeNegotiationType, projectClientTypeFromNegotiation } from '../utils/opportunity-negotiation.mjs';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 
 const TABS = [
   { id: 'identificacao', label: 'Identificação' },
@@ -122,6 +123,10 @@ export default function OpportunityForm({
   const [b2gForm, setB2gForm] = useState(() => ({ ...DEFAULT_B2G }));
   const [customSelectFields, setCustomSelectFields] = useState({});
 
+  // Busca de empresa no formulário B2B
+  const [companySearch, setCompanySearch] = useState('');
+  const companySearchRef = useRef(null);
+
   // Produtos selecionados (lista dinâmica)
   const [productItems, setProductItems] = useState(() => {
     const existing = selectedOpportunity?.products || formData?.products || [];
@@ -211,7 +216,7 @@ export default function OpportunityForm({
       ...merged,
       numeroEdital: merged.numeroEdital || formData.title || selectedOpportunity?.title || '',
       uasgId: merged.uasgId || '',
-      orgaoEntidade: merged.orgaoEntidade || selectedOpportunity?.company?.name || '',
+      orgaoEntidade: selectedOpportunity?.company?.name || merged.orgaoEntidade || '',
       esfera: merged.esfera || 'Municipal',
       ufCidade: merged.ufCidade || '',
       modalidade: merged.modalidade || '',
@@ -286,10 +291,33 @@ export default function OpportunityForm({
     selectedOpportunity?.value
   ]);
 
+  const [sessionUserId] = useState(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem('user') || '{}');
+      return user.id || user.userId || '';
+    } catch { return ''; }
+  });
+  const seller = (users || []).find(user => user.id === formData.ownerId) ||
+    (selectedOpportunity?.owner?.id === formData.ownerId ? selectedOpportunity.owner : null);
+
+  useEffect(() => {
+    if (!selectedOpportunity && !formData.ownerId && (users || []).some(user => user.id === sessionUserId)) {
+      setFormData(previous => ({ ...previous, ownerId: sessionUserId }));
+    }
+  }, [selectedOpportunity, formData.ownerId, users, sessionUserId, setFormData]);
+
+  useEffect(() => {
+    if (!seller) return;
+    setFormData(previous => previous.ownerEmail === (seller.email || '') && previous.ownerPhone === (seller.phone || '')
+      ? previous : { ...previous, ownerEmail: seller.email || '', ownerPhone: seller.phone || '' });
+  }, [seller, setFormData]);
+
   const handleSubmitB2G = (e) => {
     e.preventDefault();
     const normalizedB2GForm = {
       ...b2gForm,
+      ownerEmail: seller ? seller.email || '' : b2gForm.ownerEmail,
+      ownerPhone: seller ? seller.phone || '' : b2gForm.ownerPhone,
       valorEstimadoTotal: resolveB2GTotalValue(b2gForm, toNumberOr(formData.value, 0))
     };
     const updatedDescription = JSON.stringify({
@@ -339,11 +367,11 @@ export default function OpportunityForm({
       companyId: nextProjectClientType === 'NEW_CLIENT' ? '' : prev.companyId
     }));
     if (nextProjectClientType === 'BASE_CLIENT' || nextProjectClientType === 'RENEWAL') {
-      onRefreshCompanies?.();
+      // BASE_CLIENT → só empresas com contratos; RENEWAL → lista geral
+      onRefreshCompanies?.({ onlyWithContracts: nextProjectClientType === 'BASE_CLIENT' });
     }
-    if (nextProjectClientType === 'NEW_CLIENT' && !selectedOpportunity) {
-      onCreateCompany?.();
-    }
+    // Removido: não navega mais automaticamente para cadastro de empresa ao selecionar "Cliente Novo"
+    // O usuário deve buscar primeiro; só se não encontrar deve cadastrar.
   };
 
   const renderSelectWithOther = ({ label, value, options, onChange, placeholder = 'Selecione...', required = false }) => {
@@ -467,30 +495,128 @@ export default function OpportunityForm({
             </div>
           </div>
 
-          {shouldSelectExistingCompany && (
+          {(shouldSelectExistingCompany || shouldCreateCompanyFirst) && (
             <div className="sm:col-span-2">
-              <label className={labelCls}>Cliente</label>
-              <select className={inputCls} value={formData.companyId || ''} onChange={e => setFormData(p => ({ ...p, companyId: e.target.value }))} required>
-                <option value="">Selecione um cliente cadastrado...</option>
-                {(companies || []).filter(Boolean).map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                {(companies || []).length === 0 && (
-                  <option value="" disabled>Nenhuma empresa cadastrada encontrada</option>
+              <label className={labelCls}>
+                {shouldCreateCompanyFirst ? 'Empresa do cliente' : 'Cliente'}
+                {projectClientType === 'BASE_CLIENT' && (
+                  <span className="ml-1 text-[10px] text-[var(--crm-muted)] font-normal">(apenas empresas com contrato fechado)</span>
                 )}
-              </select>
-            </div>
-          )}
+              </label>
 
-          {shouldCreateCompanyFirst && (
-            <div className="sm:col-span-2 rounded-xl border border-amber-400/35 bg-amber-400/10 p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-[var(--crm-ink)]">Cadastre a empresa para continuar.</p>
-                  <p className="mt-1 text-xs text-[var(--crm-muted)]">Depois do cadastro, a oportunidade volta aberta com a empresa selecionada.</p>
+              {/* Empresa já selecionada — card de confirmação */}
+              {formData.companyId && !companySearch ? (
+                <div className="flex items-center justify-between gap-2 rounded-lg border border-green-400/40 bg-green-400/10 px-3 py-2">
+                  <div className="min-w-0">
+                    <span className="text-sm font-semibold text-[var(--crm-ink)] truncate">
+                      {(companies || []).find(c => c.id === formData.companyId)?.name || 'Empresa selecionada'}
+                    </span>
+                    {(companies || []).find(c => c.id === formData.companyId)?.document && (
+                      <span className="ml-2 text-xs text-[var(--crm-muted)]">
+                        {(companies || []).find(c => c.id === formData.companyId)?.document}
+                      </span>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    className="text-xs text-[var(--crm-muted)] hover:text-[var(--crm-ink)] underline whitespace-nowrap"
+                    onClick={() => {
+                      setFormData(p => ({ ...p, companyId: '' }));
+                      setCompanySearch('');
+                      setTimeout(() => companySearchRef.current?.focus(), 50);
+                    }}
+                  >
+                    Trocar
+                  </button>
                 </div>
-                <button type="button" onClick={onCreateCompany} className="crm-btn crm-btn-primary whitespace-nowrap">
-                  Nova Empresa
-                </button>
-              </div>
+              ) : (
+                <>
+                  {/* Campo de busca */}
+                  <input
+                    ref={companySearchRef}
+                    type="text"
+                    className={inputCls}
+                    placeholder={
+                      shouldCreateCompanyFirst
+                        ? 'Buscar empresa pelo nome ou CNPJ...'
+                        : `Buscar entre ${(companies || []).length} empresa(s) com contrato...`
+                    }
+                    value={companySearch}
+                    onChange={e => setCompanySearch(e.target.value)}
+                    autoComplete="off"
+                  />
+
+                  {/* Resultados filtrados */}
+                  {(() => {
+                    const term = companySearch.trim().toLowerCase();
+                    if (!term) return null;
+
+                    const filtered = (companies || []).filter(c =>
+                      (c.name || '').toLowerCase().includes(term) ||
+                      (c.document || '').replace(/\D/g, '').includes(term.replace(/\D/g, ''))
+                    );
+
+                    if (filtered.length > 0) {
+                      return (
+                        <ul className="mt-1 rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] divide-y divide-[var(--crm-border)] max-h-48 overflow-y-auto shadow-md">
+                          {filtered.slice(0, 8).map(c => (
+                            <li key={c.id}>
+                              <button
+                                type="button"
+                                className="w-full text-left px-3 py-2 text-sm hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)] transition-colors"
+                                onClick={() => {
+                                  setFormData(p => ({ ...p, companyId: c.id }));
+                                  setCompanySearch('');
+                                }}
+                              >
+                                <span className="font-medium text-[var(--crm-ink)]">{c.name}</span>
+                                {c.document && (
+                                  <span className="ml-2 text-xs text-[var(--crm-muted)]">{c.document}</span>
+                                )}
+                              </button>
+                            </li>
+                          ))}
+                          {filtered.length > 8 && (
+                            <li className="px-3 py-1.5 text-xs text-[var(--crm-muted)] text-center">
+                              {filtered.length - 8} resultado(s) a mais — refine a busca
+                            </li>
+                          )}
+                        </ul>
+                      );
+                    }
+
+                    // Nenhum resultado
+                    return (
+                      <div className="mt-1 rounded-lg border border-amber-400/35 bg-amber-400/10 p-3 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--crm-ink)]">
+                            Nenhuma empresa encontrada para &ldquo;{companySearch}&rdquo;.
+                          </p>
+                          <p className="text-xs text-[var(--crm-muted)] mt-0.5">
+                            {shouldCreateCompanyFirst
+                              ? 'Deseja cadastrar como nova empresa?'
+                              : 'Verifique se a empresa já possui contrato cadastrado, ou ajuste a busca.'}
+                          </p>
+                        </div>
+                        {shouldCreateCompanyFirst && (
+                          <button type="button" onClick={onCreateCompany} className="crm-btn crm-btn-primary whitespace-nowrap text-sm">
+                            + Nova Empresa
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </>
+              )}
+
+              {/* Instrução inicial quando sem busca e sem empresa selecionada */}
+              {!formData.companyId && !companySearch && (
+                <p className="text-xs text-[var(--crm-muted)] mt-1">
+                  {shouldCreateCompanyFirst
+                    ? 'Digite o nome ou CNPJ para buscar. Se não encontrar, você poderá cadastrar uma nova empresa.'
+                    : 'Digite o nome ou CNPJ para filtrar as empresas com contrato.'}
+                </p>
+              )}
             </div>
           )}
 
@@ -694,16 +820,17 @@ export default function OpportunityForm({
               <option value="">Selecione o responsável...</option>
               {(users || []).filter(Boolean).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select>
+            <SellerProfile seller={seller} />
           </div>
 
           <div>
             <label className={labelCls}>Email do Responsável</label>
-            <input type="email" className={inputCls} value={formData.ownerEmail || ''} onChange={e => setFormData(p => ({ ...p, ownerEmail: e.target.value }))} placeholder="email@empresa.com" />
+            <input type="email" className={inputCls} value={seller ? seller.email || '' : formData.ownerEmail || ''} readOnly placeholder="email@empresa.com" />
           </div>
 
           <div>
             <label className={labelCls}>Telefone do Responsável</label>
-            <input type="tel" className={inputCls} value={formData.ownerPhone || ''} onChange={e => setFormData(p => ({ ...p, ownerPhone: e.target.value }))} placeholder="(00) 00000-0000" />
+            <input type="tel" className={inputCls} value={seller ? seller.phone || '' : formData.ownerPhone || ''} readOnly placeholder="(00) 00000-0000" />
           </div>
 
           <div className="sm:col-span-2">
@@ -956,6 +1083,7 @@ export default function OpportunityForm({
                   <option value="">Selecione o responsável...</option>
                   {(users || []).filter(Boolean).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                 </select>
+                <SellerProfile seller={seller} />
               </div>
               <div>
                 <label className={labelCls}>Esfera</label>
@@ -1027,14 +1155,15 @@ export default function OpportunityForm({
                   <option value="">Selecione...</option>
                   {(users || []).filter(Boolean).map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                 </select>
+                <SellerProfile seller={seller} />
               </div>
               <div>
                 <label className={labelCls}>Email do Responsável</label>
-                <input type="email" className={inputCls} value={b2gForm.ownerEmail || ''} onChange={e => setB2g('ownerEmail', e.target.value)} placeholder="email@empresa.com" />
+                <input type="email" className={inputCls} value={seller ? seller.email || '' : b2gForm.ownerEmail || ''} readOnly placeholder="email@empresa.com" />
               </div>
               <div>
                 <label className={labelCls}>Telefone do Responsável</label>
-                <input type="tel" className={inputCls} value={b2gForm.ownerPhone || ''} onChange={e => setB2g('ownerPhone', e.target.value)} placeholder="(00) 00000-0000" />
+                <input type="tel" className={inputCls} value={seller ? seller.phone || '' : b2gForm.ownerPhone || ''} readOnly placeholder="(00) 00000-0000" />
               </div>
             </div>
           </div>

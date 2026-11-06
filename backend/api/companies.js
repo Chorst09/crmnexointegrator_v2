@@ -1,3 +1,9 @@
+import contractService from '../lib/contract-service.cjs';
+const { contractScope } = contractService;
+import leadNextAction from '../lib/lead-next-action.cjs';
+const { normalizeLeadNextAction } = leadNextAction;
+import companyAssignment from '../lib/company-assignment.cjs';
+const { resolveCompanyAssignment } = companyAssignment;
 import companyVisibility from '../lib/company-visibility.cjs';
 const { companyVisibilityWhere, canViewCompany, ownCompaniesOnly } = companyVisibility;
 import { prisma } from '../lib/prisma.js';
@@ -69,22 +75,8 @@ const runOptionalCleanup = async (operation) => {
 };
 
 
-const resolveAssignment = async (user, body, tenantCompanyId, creating) => {
-  const restricted = ownCompaniesOnly(user) && (body.clientType || 'B2B') === 'B2B';
-  const selfId = user.userId || user.id;
-  if (restricted && body.accountManagerId && body.accountManagerId !== selfId) {
-    return { error: 'Você só pode atribuir empresas B2B a si mesmo.' };
-  }
-  const id = restricted ? selfId : body.accountManagerId;
-  if (!restricted && !creating && id === undefined) return { data: {} };
-  if (!id) return { data: { accountManagerId: null, accountManagerName: null } };
-  const owner = await prisma.user.findFirst({
-    where: { id, tenantCompanyId: tenantCompanyId || null },
-    select: { id: true, name: true }
-  });
-  if (!owner) return { error: 'Responsável inválido para esta empresa.' };
-  return { data: { accountManagerId: owner.id, accountManagerName: owner.name } };
-};
+const resolveAssignment = (user, body, tenantCompanyId, creating) =>
+  resolveCompanyAssignment(prisma, user, body, tenantCompanyId, creating);
 
 export default async function handler(req) {
   if (req.method === 'GET') {
@@ -100,6 +92,7 @@ export default async function handler(req) {
         where: { id },
         include: {
           contacts: true,
+          contracts: { where: contractScope(req.user), include: { opportunity: { select: { id: true, number: true, title: true } } }, orderBy: { createdAt: 'desc' } },
           opportunities: {
             include: {
               owner: {
@@ -138,8 +131,16 @@ export default async function handler(req) {
       return Response.json(company);
     }
     
+    // hasContracts=true → retorna apenas empresas com ao menos 1 contrato "fechado"
+    // (qualquer status fora de DRAFT/AWAITING_SIGNATURE, ou seja, já assinou/executou)
+    const CONTRACT_CLOSED_STATUSES = ['ACTIVE', 'RENEWAL_PENDING', 'EXPIRED', 'CANCELLED', 'RENEWED'];
+    const hasContracts = req.query?.hasContracts === 'true';
+    const contractsFilter = hasContracts
+      ? { contracts: { some: { status: { in: CONTRACT_CLOSED_STATUSES }, ...contractScope(req.user) } } }
+      : {};
+
     const companies = await prisma.company.findMany({
-      where: { ...where, ...companyVisibilityWhere(req.user) },
+      where: { ...where, ...companyVisibilityWhere(req.user), ...contractsFilter },
       include: {
         contacts: true,
         opportunities: {
@@ -150,7 +151,8 @@ export default async function handler(req) {
         _count: {
           select: {
             opportunities: true,
-            activities: true
+            activities: true,
+            contracts: true
           }
         }
       },
@@ -161,6 +163,8 @@ export default async function handler(req) {
 
   if (req.method === 'POST') {
     const body = await req.json();
+    const nextAction = normalizeLeadNextAction(body);
+    if (nextAction.error) return Response.json({ error: nextAction.error }, { status: 400 });
     const autoDistribute = body.autoDistribute !== false;
     const tenantCompanyId = getTenantCompanyId(req.user) || body.tenantCompanyId || null;
     const requesterId = req.user?.userId || req.user?.id || null;
@@ -179,7 +183,8 @@ export default async function handler(req) {
     }
 
     const assignment = await resolveAssignment(req.user, body, tenantCompanyId, true);
-    if (assignment.error) return new Response(assignment.error, { status: 403 });
+    if (assignment.error) return Response.json({ error: assignment.error }, { status: 403 });
+    if (nextAction.data.leadNextAction && !assignment.data.accountManagerId) return Response.json({ error: 'Selecione o gerente de contas responsável pela próxima ação.' }, { status: 400 });
     const company = await prisma.company.create({
       data: {
         name: body.name,
@@ -196,6 +201,9 @@ export default async function handler(req) {
         tenantCompanyId,
         status: normalizeCompanyStatus(body.status, 'LEAD'),
         leadScore: Number.isFinite(Number(body.leadScore)) ? Number(body.leadScore) : undefined,
+        leadOrigin: typeof body.leadOrigin === 'string' ? body.leadOrigin.trim() || null : null,
+        leadOriginDetail: typeof body.leadOriginDetail === 'string' ? body.leadOriginDetail.trim() || null : null,
+        ...nextAction.data,
         leadEntryDate: parseDateInput(body.leadEntryDate) || new Date(),
         ...assignment.data,
         contacts: body.contacts ? {
@@ -250,14 +258,17 @@ export default async function handler(req) {
 
     const existingCompany = await prisma.company.findUnique({
       where: { id: companyId },
-      select: { accessB2B: true, accessB2G: true, accessPreSales: true, tenantCompanyId: true }
+      select: { accountManagerId: true, leadNextAction: true, leadNextActionAt: true, leadReminderMinutes: true, accessB2B: true, accessB2G: true, accessPreSales: true, tenantCompanyId: true }
     });
     if (!existingCompany) return new Response('Empresa não encontrada', { status: 404 });
     if (!await canViewCompany(prisma, req.user, companyId)) return new Response('Acesso negado', { status: 403 });
     if (!isTenantRecordVisible(req.user, existingCompany)) return forbiddenTenantResponse();
 
+    const nextAction = normalizeLeadNextAction(body, existingCompany);
+    if (nextAction.error) return Response.json({ error: nextAction.error }, { status: 400 });
     const assignment = await resolveAssignment(req.user, body, existingCompany.tenantCompanyId, false);
-    if (assignment.error) return new Response(assignment.error, { status: 403 });
+    if (assignment.error) return Response.json({ error: assignment.error }, { status: 403 });
+    if ((nextAction.data.leadNextAction === undefined ? existingCompany.leadNextAction : nextAction.data.leadNextAction) && !(assignment.data.accountManagerId === undefined ? existingCompany.accountManagerId : assignment.data.accountManagerId)) return Response.json({ error: 'Selecione o gerente de contas responsável pela próxima ação.' }, { status: 400 });
     const company = await prisma.company.update({
       where: { id: companyId },
       data: {
@@ -274,6 +285,9 @@ export default async function handler(req) {
         state: body.state,
         status: body.status !== undefined ? normalizeCompanyStatus(body.status) : undefined,
         leadScore: body.leadScore,
+        leadOrigin: body.leadOrigin === undefined ? undefined : (typeof body.leadOrigin === 'string' ? body.leadOrigin.trim() || null : null),
+        leadOriginDetail: body.leadOriginDetail === undefined ? undefined : (typeof body.leadOriginDetail === 'string' ? body.leadOriginDetail.trim() || null : null),
+        ...nextAction.data,
         leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined,
         ...assignment.data
       },
@@ -309,6 +323,10 @@ export default async function handler(req) {
     if (!isTenantRecordVisible(req.user, company)) return forbiddenTenantResponse();
 
     await prisma.$transaction(async (tx) => {
+      await runOptionalCleanup(() => tx.companyDocument.deleteMany({
+        where: { companyId }
+      }));
+
       const companyOpportunities = await tx.opportunity.findMany({
         where: { companyId },
         select: { id: true }
@@ -422,10 +440,6 @@ export default async function handler(req) {
       }));
 
       await runOptionalCleanup(() => tx.churnAlert.deleteMany({
-        where: { companyId }
-      }));
-
-      await runOptionalCleanup(() => tx.companyDocument.deleteMany({
         where: { companyId }
       }));
 

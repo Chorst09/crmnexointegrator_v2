@@ -36,6 +36,7 @@ import AnimatedStats from '../components/AnimatedStats';
 import GradientCard from '../components/GradientCard';
 import Modal from '../components/Modal';
 import OpportunityForm from '../components/OpportunityForm';
+import OpportunityDocuments from '../components/OpportunityDocuments';
 import OpportunityCalendarAlert from '../components/OpportunityCalendarAlert';
 import CloseOpportunityModal from '../components/CloseOpportunityModal';
 import OpportunityAttentionPoints from '../components/OpportunityAttentionPoints';
@@ -125,12 +126,15 @@ export default function Oportunidades() {
   const [showModal, setShowModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
   const [selectedOpportunity, setSelectedOpportunity] = useState(null);
+  const [opportunityFilesState, setOpportunityFilesState] = useState({ pending: false, busy: false });
+  const canLeaveOpportunityFiles = () => !opportunityFilesState.busy && (!opportunityFilesState.pending || window.confirm('Há arquivos selecionados que ainda não foram anexados. Deseja descartá-los?'));
   const [searchTerm, setSearchTerm] = useState('');
   const [stageFilter, setStageFilter] = useState('');
   const [sellerFilter, setSellerFilter] = useState('');
   const [viewMode, setViewMode] = useState('pipeline'); // 'pipeline' | 'historico'
   const [pipelineLayout, setPipelineLayout] = useState('kanban'); // 'kanban' | 'list'
   const [pendingCloseOpportunity, setPendingCloseOpportunity] = useState(null);
+  const [followUpFiles, setFollowUpFiles] = useState([]);
   const [followUpText, setFollowUpText] = useState('');
   const [followUpSubmitting, setFollowUpSubmitting] = useState(false);
   const [followUpError, setFollowUpError] = useState('');
@@ -144,6 +148,7 @@ export default function Oportunidades() {
 
   const requestedClientType = normalizeClientType(searchParams.get('clientType'));
   const pipelineClientType = requestedClientType || 'B2B';
+  const compactB2B = pipelineClientType === 'B2B';
   const pipelineLabel = pipelineClientType === 'B2G' ? 'B2G Governo' : 'B2B Privado';
   const pipelineTitle = pipelineClientType === 'B2G' ? 'Oportunidades B2G' : 'Oportunidades';
   const pipelineSubtitle = pipelineClientType === 'B2G'
@@ -172,6 +177,10 @@ export default function Oportunidades() {
   const scopedCompaniesUrl = pipelineClientType === 'B2B'
     ? buildApiUrl('/companies')
     : buildApiUrl(`/companies?${scopedClientTypeQuery}`);
+  // URL para buscar apenas empresas com contratos fechados (usado em "Cliente da Base")
+  const scopedCompaniesWithContractsUrl = pipelineClientType === 'B2B'
+    ? buildApiUrl('/companies?hasContracts=true')
+    : buildApiUrl(`/companies?${scopedClientTypeQuery}&hasContracts=true`);
 
   const handleDragStart = (e, opportunity) => {
     setDraggedItem(opportunity);
@@ -374,10 +383,11 @@ export default function Oportunidades() {
     }
   };
 
-  const fetchDependencies = async () => {
+  const fetchDependencies = async ({ onlyWithContracts = false } = {}) => {
     try {
+      const companiesUrl = onlyWithContracts ? scopedCompaniesWithContractsUrl : scopedCompaniesUrl;
       const [companiesRes, usersRes, productsRes] = await Promise.all([
-        fetch(scopedCompaniesUrl, { headers: getAuthHeaders() }),
+        fetch(companiesUrl, { headers: getAuthHeaders() }),
         fetch(API_ENDPOINTS.users, { headers: getAuthHeaders() }),
         fetch(buildApiUrl('/products'), { headers: getAuthHeaders() })
       ]);
@@ -624,6 +634,10 @@ export default function Oportunidades() {
 
   const handleSubmit = async (e, overrideFormData = null) => {
     if (e && typeof e.preventDefault === 'function') e.preventDefault();
+    if (opportunityFilesState.pending || opportunityFilesState.busy) {
+      window.alert('Anexe ou remova os arquivos selecionados antes de salvar a oportunidade.');
+      return;
+    }
     const payloadFormData = overrideFormData || formData;
     console.log('[DEBUG handleSubmit] Iniciando submit:', selectedOpportunity ? 'EDIT' : 'CREATE');
     console.log('[DEBUG handleSubmit] payloadFormData keys:', Object.keys(payloadFormData));
@@ -722,6 +736,7 @@ export default function Oportunidades() {
         customerTurnDate: payloadFormData.customerTurnDate || null,
         exitDate: payloadFormData.exitDate || null,
         companyId: payloadFormData.companyId || '',
+        orgaoEntidade: payloadFormData.orgaoEntidade || null,
         ownerId: resolvedOwnerId,
         b2gStage: selectedOpportunity ? (selectedOpportunity.b2gStage || payloadFormData.b2gStage || null) : (payloadFormData.b2gStage || null),
         lossReason: payloadFormData.lossReason || null,
@@ -927,6 +942,7 @@ export default function Oportunidades() {
     setLossReasonDraft(opportunity?.lossReason || '');
     setLossReasonError('');
     setFollowUpText('');
+    setFollowUpFiles([]);
     setFollowUpError('');
     setFollowUpType('NOTE');
     setShowDetailsModal(true);
@@ -1005,8 +1021,8 @@ export default function Oportunidades() {
 
   const handleAddOpportunityFollowUp = async () => {
     const description = followUpText.trim();
-    if (!selectedOpportunity?.id || !description) {
-      setFollowUpError('Informe o acompanhamento antes de salvar.');
+    if (!selectedOpportunity?.id || (!description && !followUpFiles.length)) {
+      setFollowUpError('Informe o acompanhamento ou anexe um print do WhatsApp.');
       return;
     }
 
@@ -1014,14 +1030,15 @@ export default function Oportunidades() {
     setFollowUpError('');
 
     try {
+      const body = new FormData();
+      body.append('opportunityId', selectedOpportunity.id);
+      body.append('type', followUpType);
+      body.append('content', description);
+      followUpFiles.forEach(file => body.append('attachments', file));
+      const headers = getAuthHeaders();
+      delete headers['Content-Type'];
       const response = await fetch(buildApiUrl('/opportunity-followups'), {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify({
-          opportunityId: selectedOpportunity.id,
-          type: followUpType,
-          content: description
-        })
+        method: 'POST', headers, body
       });
 
       if (!response.ok) {
@@ -1030,7 +1047,8 @@ export default function Oportunidades() {
       }
 
       const createdFollowUp = await response.json();
-      setFollowUps([createdFollowUp, ...followUps]);
+      setFollowUps(previous => [createdFollowUp, ...previous]);
+      setFollowUpFiles([]);
       setFollowUpText('');
       setFollowUpType('NOTE');
     } catch (error) {
@@ -1246,11 +1264,12 @@ export default function Oportunidades() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className={compactB2B ? 'space-y-4' : 'space-y-8'}>
       {/* Header */}
       <PageHeader
+        compact={compactB2B}
         title={pipelineTitle}
-        subtitle={pipelineSubtitle}
+        subtitle={compactB2B ? 'Acompanhe o funil de vendas e suas oportunidades.' : pipelineSubtitle}
         icon={Target}
         gradient="blue"
         breadcrumbs={['CRM', pipelineLabel, 'Oportunidades']}
@@ -1265,8 +1284,9 @@ export default function Oportunidades() {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className={compactB2B ? 'grid grid-cols-2 xl:grid-cols-4 gap-3' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'}>
         <AnimatedStats
+          size={compactB2B ? 'dense' : 'default'}
           title="Total de Oportunidades"
           value={filteredStats.total}
           subtitle="Todas as oportunidades"
@@ -1276,6 +1296,7 @@ export default function Oportunidades() {
         />
         
         <AnimatedStats
+          size={compactB2B ? 'dense' : 'default'}
           title="Valor Total"
           value={formatCurrency(filteredStats.totalValue)}
           subtitle="Oportunidades abertas e históricas"
@@ -1285,6 +1306,7 @@ export default function Oportunidades() {
         />
         
         <AnimatedStats
+          size={compactB2B ? 'dense' : 'default'}
           title="Taxa de Conversão"
           value={`${filteredStats.conversionRate.toFixed(1)}%`}
           subtitle={`${filteredStats.won} oportunidades ganhas`}
@@ -1294,6 +1316,7 @@ export default function Oportunidades() {
         />
         
         <AnimatedStats
+          size={compactB2B ? 'dense' : 'default'}
           title="Ticket Médio"
           value={formatCurrency(filteredStats.avgValue)}
           subtitle="Valor médio por oportunidade"
@@ -1308,7 +1331,7 @@ export default function Oportunidades() {
         <div className="flex items-center gap-1" role="group" aria-label="Seção de oportunidades">
         <button
           onClick={() => setViewMode('pipeline')}
-          className={`flex items-center gap-2 ${(pipelineClientType === 'B2B') ? 'px-3 py-2 rounded-lg text-xs font-semibold' : 'px-6 py-2.5 rounded-xl text-sm font-bold'} transition-all ${
+          className={`flex items-center gap-2 ${compactB2B ? 'px-3 py-2 rounded-lg text-xs font-semibold' : 'px-6 py-2.5 rounded-xl text-sm font-bold'} transition-all ${
             viewMode === 'pipeline'
               ? 'bg-blue-600 text-white shadow-md'
               : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)]'
@@ -1319,7 +1342,7 @@ export default function Oportunidades() {
         </button>
         <button
           onClick={() => setViewMode('historico')}
-          className={`flex items-center gap-2 ${(pipelineClientType === 'B2B') ? 'px-3 py-2 rounded-lg text-xs font-semibold' : 'px-6 py-2.5 rounded-xl text-sm font-bold'} transition-all ${
+          className={`flex items-center gap-2 ${compactB2B ? 'px-3 py-2 rounded-lg text-xs font-semibold' : 'px-6 py-2.5 rounded-xl text-sm font-bold'} transition-all ${
             viewMode === 'historico'
               ? 'bg-blue-600 text-white shadow-md'
               : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)]'
@@ -1334,7 +1357,7 @@ export default function Oportunidades() {
         <button
           type="button"
           onClick={() => setPipelineLayout('list')}
-          className={`flex items-center justify-center gap-2 transition-all ${(pipelineClientType === 'B2B') ? 'min-w-[88px] rounded-lg px-3 py-2 text-xs font-semibold' : 'min-w-[120px] rounded-xl px-5 py-3 text-sm font-bold'} ${
+          className={`flex items-center justify-center gap-2 transition-all ${compactB2B ? 'min-w-[88px] rounded-lg px-3 py-2 text-xs font-semibold' : 'min-w-[120px] rounded-xl px-5 py-3 text-sm font-bold'} ${
             pipelineLayout === 'list'
               ? 'bg-blue-600 text-white shadow-md'
               : 'text-[var(--crm-muted)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)] hover:text-[var(--crm-ink)]'
@@ -1346,7 +1369,7 @@ export default function Oportunidades() {
         <button
           type="button"
           onClick={() => setPipelineLayout('kanban')}
-          className={`flex items-center justify-center gap-2 transition-all ${(pipelineClientType === 'B2B') ? 'min-w-[88px] rounded-lg px-3 py-2 text-xs font-semibold' : 'min-w-[120px] rounded-xl px-5 py-3 text-sm font-bold'} ${
+          className={`flex items-center justify-center gap-2 transition-all ${compactB2B ? 'min-w-[88px] rounded-lg px-3 py-2 text-xs font-semibold' : 'min-w-[120px] rounded-xl px-5 py-3 text-sm font-bold'} ${
             pipelineLayout === 'kanban'
               ? 'bg-blue-600 text-white shadow-md'
               : 'text-[var(--crm-muted)] hover:bg-[rgb(var(--crm-accent-rgb)_/_0.08)] hover:text-[var(--crm-ink)]'
@@ -1361,16 +1384,16 @@ export default function Oportunidades() {
 
       {viewMode === 'pipeline' ? (
       <>
-      <div className="rounded-3xl border border-[color:var(--crm-border)] bg-[var(--crm-surface)] p-5 shadow-sm">
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center">
+      <div className={`border border-[color:var(--crm-border)] bg-[var(--crm-surface)] shadow-sm ${compactB2B ? 'rounded-xl p-3' : 'rounded-3xl p-5'}`}>
+        <div className={`grid ${compactB2B ? 'gap-3' : 'gap-4'} lg:grid-cols-[minmax(0,1fr)_auto_auto] lg:items-center`}>
           <div className="relative">
-            <Search className="absolute left-5 top-1/2 h-6 w-6 -translate-y-1/2 text-[var(--crm-muted)]" />
+            <Search className={`absolute top-1/2 -translate-y-1/2 text-[var(--crm-muted)] ${compactB2B ? 'left-3 h-4 w-4' : 'left-5 h-6 w-6'}`} />
             <input
               type="search"
               placeholder="Buscar por cliente ou nome do projeto..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="crm-input h-16 rounded-2xl pl-14 text-lg"
+              className={compactB2B ? 'crm-input !h-10 !rounded-lg !pl-9 !py-2 !text-sm' : 'crm-input h-16 rounded-2xl pl-14 text-lg'}
               aria-label="Buscar por cliente ou nome do projeto"
             />
           </div>
@@ -1380,7 +1403,7 @@ export default function Oportunidades() {
             <select
               value={stageFilter}
               onChange={(e) => setStageFilter(e.target.value)}
-              className="crm-input h-12 w-full min-w-[220px] lg:w-auto"
+              className={compactB2B ? 'crm-input !h-10 w-full min-w-[160px] lg:w-auto !py-2 !text-xs' : 'crm-input h-12 w-full min-w-[220px] lg:w-auto'}
               aria-label="Filtrar por etapa"
             >
               <option value="">Todas as etapas</option>
@@ -1395,7 +1418,7 @@ export default function Oportunidades() {
             <select
               value={sellerFilter}
               onChange={(e) => setSellerFilter(e.target.value)}
-              className="crm-input h-12 w-full min-w-[220px] lg:w-auto"
+              className={compactB2B ? 'crm-input !h-10 w-full min-w-[160px] lg:w-auto !py-2 !text-xs' : 'crm-input h-12 w-full min-w-[220px] lg:w-auto'}
               aria-label="Filtrar por vendedor"
             >
               <option value="">Todos os vendedores</option>
@@ -1808,7 +1831,7 @@ export default function Oportunidades() {
       {showModal && (
         <Modal
           isOpen={showModal}
-          onClose={() => { setShowModal(false); resetForm(); }}
+          onClose={() => { if (!canLeaveOpportunityFiles()) return; setShowModal(false); resetForm(); }}
           title={selectedOpportunity ? 'Editar Oportunidade' : 'Nova Oportunidade'}
           closeOnOverlayClick={false}
           size="large"
@@ -1828,11 +1851,12 @@ export default function Oportunidades() {
             modalActionsClass={modalActionsClass}
             modalCancelButtonClass={modalCancelButtonClass}
             modalSubmitButtonClass={modalSubmitButtonClass}
-            onCancel={() => { setShowModal(false); resetForm(); }}
+            onCancel={() => { if (!canLeaveOpportunityFiles()) return; setShowModal(false); resetForm(); }}
             onSubmit={handleSubmit}
             onCreateCompany={openNewCompanyFromOpportunity}
             onRefreshCompanies={fetchDependencies}
           />
+          {selectedOpportunity?.id && <div className="mt-6"><OpportunityDocuments key={selectedOpportunity.id} opportunity={selectedOpportunity} onStateChange={setOpportunityFilesState} /></div>}
         </Modal>
       )}
 
@@ -1841,6 +1865,7 @@ export default function Oportunidades() {
         <Modal
           isOpen={showDetailsModal}
           onClose={() => {
+            if (!canLeaveOpportunityFiles()) return;
             setShowDetailsModal(false);
             setSelectedOpportunity(null);
             setLossReasonDraft('');
@@ -2157,6 +2182,8 @@ export default function Oportunidades() {
             )}
 
             {/* ── Reuniões de Kickoff ─────────────────────────────────────── */}
+            <OpportunityDocuments key={selectedOpportunity.id} opportunity={selectedOpportunity} focusType={searchParams.get('attachmentType') || ''} onStateChange={setOpportunityFilesState} />
+
             <KickoffSection 
               opportunityId={selectedOpportunity.id}
               kickoffRoute="/b2b-kickoff"
@@ -2217,6 +2244,41 @@ export default function Oportunidades() {
                   rows={4}
                 />
 
+                <div className="space-y-2">
+                  <label className="block space-y-2 text-sm font-semibold text-[var(--crm-ink)]">
+                    <span>Anexar conversa do WhatsApp</span>
+                    <input type="file" className="block w-full min-w-0 rounded-lg border border-[color:var(--crm-border)] p-2 text-sm file:mr-3 file:rounded-md file:border-0 file:bg-cyan-600 file:px-3 file:py-2 file:text-white" multiple
+                      accept="image/jpeg,image/png,image/webp,image/gif"
+                      disabled={followUpSubmitting}
+                      onChange={event => {
+                        const files = Array.from(event.target.files || []);
+                        event.target.value = '';
+                        if (followUpFiles.length + files.length > 5) {
+                          setFollowUpError('Envie no máximo 5 prints por acompanhamento.');
+                          return;
+                        }
+                        if (files.some(file => !['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type) || file.size > 10 * 1024 * 1024)) {
+                          setFollowUpError('Envie imagens JPG, PNG, WEBP ou GIF de até 10 MB cada.');
+                          return;
+                        }
+                        setFollowUpFiles(previous => [...previous, ...files]);
+                        setFollowUpType('WHATSAPP');
+                        setFollowUpError('');
+                      }} />
+                  </label>
+                  <p className="text-xs text-[var(--crm-muted)]">Até 5 prints, com no máximo 10 MB cada. O texto é opcional.</p>
+                  {followUpFiles.map((file, index) => (
+                    <div key={`${file.name}-${index}`} className="flex items-center gap-2 text-sm text-[var(--crm-ink)]">
+                      <span className="truncate">{file.name}</span>
+                      <button type="button" disabled={followUpSubmitting}
+                        aria-label={`Remover ${file.name}`}
+                        onClick={() => setFollowUpFiles(previous => previous.filter((_, item) => item !== index))}>
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
                 {followUpError && (
                   <p className="text-sm font-semibold text-red-700 dark:text-red-300">{followUpError}</p>
                 )}
@@ -2225,7 +2287,7 @@ export default function Oportunidades() {
                   <button
                     type="button"
                     onClick={handleAddOpportunityFollowUp}
-                    disabled={followUpSubmitting || !followUpText.trim()}
+                    disabled={followUpSubmitting || (!followUpText.trim() && !followUpFiles.length)}
                     className="crm-btn min-w-[190px] text-[rgb(var(--crm-ink-rgb)_/_1)] border border-cyan-300/45 bg-[linear-gradient(135deg,#2563eb_0%,#0891b2_100%)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <Send className="h-4 w-4" />
@@ -2249,6 +2311,11 @@ export default function Oportunidades() {
                       MEETING: Users,
                       WHATSAPP: MessageCircle
                     };
+                    let attachments = [];
+                    try {
+                      const parsed = typeof followUp.attachments === 'string' ? JSON.parse(followUp.attachments) : followUp.attachments;
+                      attachments = Array.isArray(parsed) ? parsed.filter(item => /^\/uploads\/opportunity-followups\/[a-zA-Z0-9_.-]+$/.test(item?.url || '')) : [];
+                    } catch { /* Older entries may have no attachments. */ }
                     const TypeIcon = typeIcons[followUp.type] || StickyNote;
                     const typeLabels = {
                       NOTE: 'Nota',
@@ -2288,6 +2355,16 @@ export default function Oportunidades() {
                             </div>
                             <div className="text-sm text-[var(--crm-ink)] whitespace-pre-wrap">
                               {followUp.content}
+                            </div>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              {attachments.map(attachment => (
+                                <a key={attachment.url} href={attachment.url} target="_blank" rel="noopener noreferrer"
+                                  className="block max-w-[200px] text-xs text-cyan-700 dark:text-cyan-400">
+                                  <img src={attachment.url} alt={attachment.name || 'Conversa do WhatsApp'} loading="lazy"
+                                    className="h-32 w-40 rounded-lg border border-[color:var(--crm-border)] object-cover" />
+                                  <span className="block truncate mt-1">{attachment.name || 'Abrir print'}</span>
+                                </a>
+                              ))}
                             </div>
                           </div>
                           {(isAdmin || followUp.userId === userId) && (
@@ -2329,6 +2406,7 @@ export default function Oportunidades() {
             <div className={modalActionsClass}>
               <button
                 onClick={() => {
+                  if (!canLeaveOpportunityFiles()) return;
                   setShowDetailsModal(false);
                   setSelectedOpportunity(null);
                 }}
@@ -2339,6 +2417,7 @@ export default function Oportunidades() {
 
               <button
                 onClick={() => {
+                  if (!canLeaveOpportunityFiles()) return;
                   handleEdit(selectedOpportunity);
                   setShowDetailsModal(false);
                 }}
