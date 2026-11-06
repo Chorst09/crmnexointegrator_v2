@@ -3,7 +3,7 @@ const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
 const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
+const { createRateLimits } = require('./lib/rate-limits.cjs');
 const path = require('path');
 
 // Catch unhandled promise rejections to prevent the process from crashing.
@@ -49,23 +49,8 @@ app.use(helmet({
   crossOriginEmbedderPolicy: false
 }));
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 500,
-  message: { error: 'Muitas requisições. Tente novamente mais tarde.' },
-  standardHeaders: true,
-  legacyHeaders: false
-});
-app.use('/api/', limiter);
-
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 50,
-  message: { error: 'Muitas tentativas de login. Aguarde 15 minutos.' },
-  standardHeaders: true,
-  legacyHeaders: false,
-  skipSuccessfulRequests: true
-});
+const { apiLimiter, authLimiter } = createRateLimits();
+app.use('/api/', apiLimiter);
 app.use('/api/auth/login', authLimiter);
 
 app.use(cors({
@@ -146,6 +131,8 @@ app.post('/', (req, res) => {
 });
 
 // Servir arquivos estáticos (uploads)
+// Contract files are available only through authenticated download routes.
+app.use('/uploads/contracts', (_req, res) => res.sendStatus(404));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/uploads', express.static(path.join(__dirname, '../apps/api/uploads')));
 
@@ -213,8 +200,14 @@ const handleLegacyAPI = (apiPath) => {
 };
 
 // Rotas das APIs antigas (ES modules)
+const leadCalendar = require('./lib/lead-calendar.cjs').createLeadCalendar({ prisma: require('./lib/prisma.cjs').prisma, authenticateToken });
+app.use('/api/lead-calendar', leadCalendar.router);
+leadCalendar.start();
+
 app.use('/api/clients', authenticateToken, handleLegacyAPI('./api/clients.js'));
+app.use('/api/companies', require('./api/company-documents.cjs'));
 app.use('/api/companies', authenticateToken, handleLegacyAPI('./api/companies.js'));
+app.use('/api/opportunities', require('./api/opportunity-documents.cjs'));
 app.use('/api/opportunities', authenticateToken, handleLegacyAPI('./api/opportunities.js'));
 app.use('/api/activities', authenticateToken, handleLegacyAPI('./api/activities.js'));
 app.use('/api/activities-simple', authenticateToken, require('./api/activities-simple.cjs'));
