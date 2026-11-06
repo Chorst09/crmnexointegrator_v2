@@ -1205,18 +1205,6 @@ export default function Oportunidades() {
   const getOpportunityProjectName = (opportunity) =>
     opportunity?.projectName || opportunity?.PROJECTNAME || opportunity?.title || opportunity?.TITLE || '';
 
-  const normalizeSearchText = (value) => String(value || '')
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .toLowerCase()
-    .trim();
-
-  const getOpportunityCompanyName = (opportunity) =>
-    opportunity?.company?.name || opportunity?.company?.NAME || opportunity?.companyName || opportunity?.COMPANYNAME || '';
-
-  const getOpportunityProjectName = (opportunity) =>
-    opportunity?.projectName || opportunity?.PROJECTNAME || opportunity?.title || opportunity?.TITLE || '';
-
   // Filtrar oportunidades
   const filteredOpportunities = Array.isArray(opportunities) ? opportunities.filter(opp => {
     if (!opp) return false;
