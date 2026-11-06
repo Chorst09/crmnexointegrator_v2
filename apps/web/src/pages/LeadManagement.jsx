@@ -1,3 +1,5 @@
+import LeadNextActionFields from '../components/LeadNextActionFields';
+import LeadCalendarConnections from '../components/LeadCalendarConnections';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
@@ -16,6 +18,8 @@ import {
   CheckCircle2,
   ThumbsDown,
   Calendar,
+  Search,
+  Pencil,
   X
 } from 'lucide-react';
 
@@ -29,6 +33,19 @@ const PROJECT_CLIENT_TYPE_OPTIONS = [
   { value: 'NEW_CLIENT', label: 'Cliente Novo' },
   { value: 'BASE_CLIENT', label: 'Cliente da Base' },
   { value: 'RENEWAL', label: 'Renovação' }
+];
+
+const LEAD_ORIGIN_OPTIONS = [
+  'Indicação de cliente', 'Indicação de parceiro', 'Indicação de colaborador',
+  'Marketing digital', 'Google Ads', 'Meta Ads (Facebook/Instagram)', 'LinkedIn Ads',
+  'Outras mídias pagas', 'Busca orgânica (Google/SEO)', 'Site / formulário de contato',
+  'Landing page', 'Blog / conteúdo', 'E-mail marketing', 'WhatsApp', 'Telefone receptivo',
+  'Instagram', 'Facebook', 'LinkedIn', 'YouTube', 'TikTok', 'Outras redes sociais',
+  'Prospecção por telefone', 'Prospecção por e-mail', 'Prospecção por redes sociais',
+  'Visita comercial', 'Feira / congresso', 'Evento / networking', 'Webinar',
+  'Parceiro / representante comercial', 'Marketplace / diretório de empresas',
+  'Campanha offline (rádio, TV, impresso)', 'Relacionamento com cliente da base',
+  'Reativação de contato', 'Importação de base', 'Outro'
 ];
 
 const COMPANY_SIZE_OPTIONS = [
@@ -60,6 +77,8 @@ const formatDateBR = (value) => {
 const MANUAL_LEAD_INITIAL_STATE = {
   name: '',
   document: '',
+  leadOrigin: '',
+  leadOriginDetail: '',
   leadEntryDate: toDateInputValue(),
   segment: '',
   size: '',
@@ -70,6 +89,10 @@ const MANUAL_LEAD_INITIAL_STATE = {
   contactName: '',
   contactEmail: '',
   contactPhone: '',
+  leadNextAction: '',
+  leadNextActionAt: '',
+  leadReminderMinutes: 15,
+  accountManagerId: '',
   autoDistribute: false
 };
 
@@ -77,12 +100,18 @@ const LEAD_DECISION_INITIAL_STATE = {
   projectName: '',
   projectClientType: 'NEW_CLIENT',
   sellerId: '',
-  noGoReason: ''
+  noGoReason: '',
+  leadNextAction: '',
+  leadNextActionAt: '',
+  leadReminderMinutes: 15,
+  accountManagerId: ''
 };
 
 export default function LeadManagement() {
   const [leadStats, setLeadStats] = useState({});
   const [companies, setCompanies] = useState([]);
+  const [searchInput, setSearchInput] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [sellers, setSellers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingScores, setProcessingScores] = useState(false);
@@ -93,6 +122,8 @@ export default function LeadManagement() {
   const [projectNameByCompany, setProjectNameByCompany] = useState({});
   const [projectClientTypeByCompany, setProjectClientTypeByCompany] = useState({});
   const [showManualLeadModal, setShowManualLeadModal] = useState(false);
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [editingLeadId, setEditingLeadId] = useState(null);
   const [savingManualLead, setSavingManualLead] = useState(false);
   const [manualLeadForm, setManualLeadForm] = useState(MANUAL_LEAD_INITIAL_STATE);
   const [selectedLead, setSelectedLead] = useState(null);
@@ -101,7 +132,18 @@ export default function LeadManagement() {
   const [searchParams] = useSearchParams();
   const requestedClientType = normalizeClientType(searchParams.get('clientType'));
   const leadClientType = requestedClientType || 'B2B';
+  const compactB2B = leadClientType === 'B2B';
   const scopedClientTypeQuery = `clientType=${encodeURIComponent(leadClientType)}`;
+  const normalizeSearch = (value) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+  const filteredCompanies = companies.filter((company) => {
+    if (!compactB2B || !searchTerm) return true;
+    const term = normalizeSearch(searchTerm);
+    const documentDigits = searchTerm.replace(/\D/g, '');
+    return [company.name, company.document, company.segment, company.city, company.state]
+      .some((value) => normalizeSearch(value).includes(term))
+      || (documentDigits.length > 0 && /^[\d\s./-]+$/.test(searchTerm)
+        && String(company.document ?? '').replace(/\D/g, '').includes(documentDigits));
+  });
 
   useEffect(() => {
     fetchLeadStats();
@@ -154,6 +196,51 @@ export default function LeadManagement() {
     }));
   };
 
+  const openLeadEditor = (lead = null) => {
+    setEditingLeadId(lead?.id || null);
+    setSelectedLead(null);
+    setManualLeadForm(lead ? {
+      ...MANUAL_LEAD_INITIAL_STATE,
+      ...Object.fromEntries(['name', 'document', 'segment', 'size', 'website', 'address', 'city', 'state',
+        'leadOrigin', 'leadOriginDetail', 'leadNextAction', 'accountManagerId'].map((key) => [key, lead[key] || ''])),
+      leadEntryDate: toDateInputValue(lead.leadEntryDate || lead.createdAt),
+      leadNextActionAt: lead.leadNextActionAt
+        ? `${toDateInputValue(lead.leadNextActionAt)}T${String(new Date(lead.leadNextActionAt).getHours()).padStart(2, '0')}:${String(new Date(lead.leadNextActionAt).getMinutes()).padStart(2, '0')}` : '',
+      leadReminderMinutes: lead.leadReminderMinutes ?? 15,
+    } : { ...MANUAL_LEAD_INITIAL_STATE, leadEntryDate: toDateInputValue() });
+    setShowManualLeadModal(true);
+  };
+
+  const nextActionPayload = (form) => {
+    const action = form.leadNextAction.trim();
+    if (Boolean(action) !== Boolean(form.leadNextActionAt)) throw new Error('Informe a próxima ação e a data/horário, ou limpe ambos.');
+    if (action && !form.accountManagerId) throw new Error('Selecione o gerente de contas responsável pela próxima ação.');
+    return {
+      leadNextAction: action || null,
+      leadNextActionAt: form.leadNextActionAt ? new Date(form.leadNextActionAt).toISOString() : null,
+      leadReminderMinutes: Number(form.leadReminderMinutes),
+      ...(form.accountManagerId ? { accountManagerId: form.accountManagerId } : {})
+    };
+  };
+
+  const saveNextAction = async (event) => {
+    event.preventDefault();
+    if (processingLeadDecision) return;
+    try {
+      const payload = nextActionPayload(leadDecisionForm);
+      setProcessingLeadDecision(true);
+      const response = await fetch(buildApiUrl(`/companies/${encodeURIComponent(selectedLead.id)}?${scopedClientTypeQuery}`), {
+        method: 'PUT', headers: getAuthHeaders(), body: JSON.stringify({ ...payload, clientType: leadClientType })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Erro ao salvar próxima ação.');
+      setSelectedLead((prev) => ({ ...prev, ...result }));
+      await fetchCompanies();
+      alert('Próxima ação salva. A sincronização depende da agenda conectada pelo responsável.');
+    } catch (error) { alert(error.message); }
+    finally { setProcessingLeadDecision(false); }
+  };
+
   const createManualLead = async (event) => {
     event.preventDefault();
 
@@ -174,11 +261,13 @@ export default function LeadManagement() {
     }
 
     try {
+      const followUp = nextActionPayload(manualLeadForm);
       setSavingManualLead(true);
-      const response = await fetch(buildApiUrl(`/companies?${scopedClientTypeQuery}`), {
-        method: 'POST',
+      const response = await fetch(buildApiUrl(`/companies${editingLeadId ? `/${encodeURIComponent(editingLeadId)}` : ''}?${scopedClientTypeQuery}`), {
+        method: editingLeadId ? 'PUT' : 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({
+          ...followUp,
           name: leadName,
           document: manualLeadForm.document.trim() || null,
           segment: manualLeadForm.segment.trim() || null,
@@ -188,31 +277,32 @@ export default function LeadManagement() {
           city: manualLeadForm.city.trim() || null,
           state: manualLeadForm.state.trim().toUpperCase() || null,
           leadEntryDate: manualLeadForm.leadEntryDate || null,
-          status: 'LEAD',
+          leadOrigin: manualLeadForm.leadOrigin,
+          leadOriginDetail: manualLeadForm.leadOriginDetail.trim() || null,
           clientType: leadClientType,
-          autoDistribute: manualLeadForm.autoDistribute,
-          contacts
+          ...(!editingLeadId ? { status: 'LEAD', autoDistribute: manualLeadForm.autoDistribute, contacts } : {})
         })
       });
 
       const result = await response.json().catch(() => ({}));
 
       if (!response.ok) {
-        alert(`❌ ${result.error || 'Erro ao cadastrar lead manualmente'}`);
+        alert(`❌ ${result.error || 'Erro ao salvar lead'}`);
         return;
       }
 
       const autoDistributionMessage = result?.autoDistribution?.assignedSeller?.name
         ? `\n\nLead distribuído automaticamente para ${result.autoDistribution.assignedSeller.name}.`
         : '';
-      alert(`✅ Lead cadastrado com sucesso.${autoDistributionMessage}`);
+      alert(editingLeadId ? '✅ Lead atualizado com sucesso.' : `✅ Lead cadastrado com sucesso.${autoDistributionMessage}`);
 
       setShowManualLeadModal(false);
+      setEditingLeadId(null);
       setManualLeadForm(MANUAL_LEAD_INITIAL_STATE);
       await Promise.all([fetchLeadStats(), fetchCompanies(), fetchSellers()]);
     } catch (error) {
       console.error('Erro ao cadastrar lead manual:', error);
-      alert('❌ Erro de conexão ao cadastrar lead');
+      alert(`❌ ${error.message || 'Erro de conexão ao cadastrar lead'}`);
     } finally {
       setSavingManualLead(false);
     }
@@ -225,7 +315,11 @@ export default function LeadManagement() {
       projectName: projectNameByCompany[company.id] || `Projeto ${company.name}`,
       projectClientType: projectClientTypeByCompany[company.id] || 'NEW_CLIENT',
       sellerId: selectedSellerByCompany[company.id] || '',
-      noGoReason: ''
+      noGoReason: '',
+      leadNextAction: company.leadNextAction || '',
+      leadNextActionAt: company.leadNextActionAt ? `${toDateInputValue(company.leadNextActionAt)}T${String(new Date(company.leadNextActionAt).getHours()).padStart(2, '0')}:${String(new Date(company.leadNextActionAt).getMinutes()).padStart(2, '0')}` : '',
+      leadReminderMinutes: company.leadReminderMinutes ?? 15,
+      accountManagerId: company.accountManagerId || ''
     });
   };
 
@@ -492,7 +586,7 @@ export default function LeadManagement() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className={compactB2B ? 'space-y-4' : 'space-y-8'}>
       {/* Loading Overlay */}
       <Modal
         isOpen={processingScores || processingDistribution}
@@ -524,7 +618,7 @@ export default function LeadManagement() {
           setShowManualLeadModal(false);
           setManualLeadForm(MANUAL_LEAD_INITIAL_STATE);
         }}
-        title="Cadastro Manual de Lead"
+        title={editingLeadId ? 'Editar Lead' : 'Cadastro Manual de Lead'}
       >
         <form onSubmit={createManualLead} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -538,6 +632,21 @@ export default function LeadManagement() {
                 className="crm-input"
                 placeholder="Nome da empresa"
               />
+            </div>
+            <div>
+              <label htmlFor="lead-origin" className="block text-sm font-semibold text-[var(--crm-ink)] mb-1.5">Origem do lead *</label>
+              <select id="lead-origin" required value={manualLeadForm.leadOrigin}
+                onChange={(e) => updateManualLeadField('leadOrigin', e.target.value)} className="crm-input">
+                <option value="">Selecione como o lead chegou</option>
+                {LEAD_ORIGIN_OPTIONS.map((origin) => <option key={origin} value={origin}>{origin}</option>)}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="lead-origin-detail" className="block text-sm font-semibold text-[var(--crm-ink)] mb-1.5">Detalhes da origem{manualLeadForm.leadOrigin === 'Outro' ? ' *' : ''}</label>
+              <input id="lead-origin-detail" type="text" required={manualLeadForm.leadOrigin === 'Outro'}
+                value={manualLeadForm.leadOriginDetail}
+                onChange={(e) => updateManualLeadField('leadOriginDetail', e.target.value)}
+                className="crm-input" placeholder="Quem indicou, campanha, evento ou outro meio" />
             </div>
             <div>
               <label className="block text-sm font-semibold text-[var(--crm-ink)] mb-1.5">CNPJ</label>
@@ -622,7 +731,7 @@ export default function LeadManagement() {
                 maxLength={2}
               />
             </div>
-            <div className="md:col-span-2 border-t border-[var(--crm-border)] pt-3">
+            {!editingLeadId && <div className="md:col-span-2 border-t border-[var(--crm-border)] pt-3">
               <p className="text-sm font-semibold text-[var(--crm-ink)] mb-2">Contato principal</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <input
@@ -647,8 +756,8 @@ export default function LeadManagement() {
                   placeholder="Telefone"
                 />
               </div>
-            </div>
-            <div className="md:col-span-2 flex items-center gap-2">
+            </div>}
+            {!editingLeadId && <div className="md:col-span-2 flex items-center gap-2">
               <input
                 id="manualLeadAutoDistribute"
                 type="checkbox"
@@ -659,8 +768,9 @@ export default function LeadManagement() {
               <label htmlFor="manualLeadAutoDistribute" className="text-sm text-[var(--crm-ink)]">
                 Distribuir lead automaticamente após cadastrar
               </label>
-            </div>
+            </div>}
           </div>
+          <LeadNextActionFields value={manualLeadForm} onChange={updateManualLeadField} sellers={sellers} prefix="new-lead" disabled={savingManualLead} />
           <div className="flex justify-end gap-2 pt-2">
             <button
               type="button"
@@ -678,7 +788,7 @@ export default function LeadManagement() {
               className="crm-btn crm-btn-primary"
               disabled={savingManualLead}
             >
-              {savingManualLead ? 'Salvando...' : 'Cadastrar Lead'}
+              {savingManualLead ? 'Salvando...' : editingLeadId ? 'Salvar alterações' : 'Cadastrar Lead'}
             </button>
           </div>
         </form>
@@ -709,11 +819,25 @@ export default function LeadManagement() {
               <div className="mt-3 grid grid-cols-1 gap-2 text-sm text-[var(--crm-muted)] md:grid-cols-2">
                 <div>Contatos: {selectedLead.contacts?.length || 0}</div>
                 <div>Oportunidades: {selectedLead.opportunities?.length || 0}</div>
+                <div>Origem do lead: {selectedLead.leadOrigin || 'Não informada'}</div>
+                {selectedLead.leadOriginDetail && <div>Detalhes da origem: {selectedLead.leadOriginDetail}</div>}
                 <div>Entrada do Lead: {formatDateBR(selectedLead.leadEntryDate || selectedLead.createdAt)}</div>
                 <div>Cidade/UF: {[selectedLead.city, selectedLead.state].filter(Boolean).join('/') || '-'}</div>
                 <div>CNPJ: {selectedLead.document || '-'}</div>
               </div>
             </div>
+
+            <form onSubmit={saveNextAction} className="space-y-3">
+              <LeadNextActionFields value={leadDecisionForm} onChange={updateLeadDecisionField} sellers={sellers} prefix="edit-lead" disabled={processingLeadDecision} />
+              <button type="submit" className="crm-btn crm-btn-primary" disabled={processingLeadDecision}>
+                {processingLeadDecision ? 'Salvando...' : 'Salvar próxima ação'}
+              </button>
+            </form>
+
+            <button type="button" className="crm-btn crm-btn-secondary" disabled={processingLeadDecision}
+              onClick={() => openLeadEditor(selectedLead)}>
+              <Pencil className="h-4 w-4" /> Editar Lead
+            </button>
 
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="crm-card p-4 border border-emerald-500/25">
@@ -812,17 +936,28 @@ export default function LeadManagement() {
         )}
       </Modal>
 
+      <Modal isOpen={showCalendarModal} onClose={() => setShowCalendarModal(false)} title="Minha agenda">
+        {showCalendarModal && <LeadCalendarConnections />}
+      </Modal>
+
       {/* Header */}
       <PageHeader
+        compact={compactB2B}
         title="Lead"
-        subtitle="Sistema inteligente de pontuação e distribuição de leads"
+        subtitle={compactB2B ? 'Pontuação e distribuição de leads.' : 'Sistema inteligente de pontuação e distribuição de leads'}
         icon={Target}
         gradient="blue"
         breadcrumbs={['CRM', 'Lead']}
         actions={[
           {
+            label: 'Minha agenda',
+            onClick: () => setShowCalendarModal(true),
+            icon: Calendar,
+            variant: 'secondary'
+          },
+          {
             label: 'Novo Lead',
-            onClick: () => setShowManualLeadModal(true),
+            onClick: () => openLeadEditor(),
             icon: Plus,
             variant: 'secondary',
             disabled: processingScores || processingDistribution
@@ -844,15 +979,58 @@ export default function LeadManagement() {
         ]}
       />
 
+      {compactB2B && (
+        <form
+          role="search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            setSearchTerm(searchInput.trim());
+          }}
+          className="crm-panel p-4"
+        >
+          <label htmlFor="lead-b2b-search" className="mb-2 block text-sm font-semibold text-[var(--crm-ink)]">Pesquisar leads</label>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input
+              id="lead-b2b-search"
+              type="search"
+              value={searchInput}
+              onChange={(event) => setSearchInput(event.target.value)}
+              placeholder="Empresa, CNPJ, segmento ou cidade"
+              className="crm-input min-w-0 flex-1"
+            />
+            <button type="submit" className="crm-btn crm-btn-primary">
+              <Search className="h-4 w-4" />
+              Pesquisar
+            </button>
+            {(searchInput || searchTerm) && (
+              <button type="button" className="crm-btn crm-btn-secondary" onClick={() => {
+                setSearchInput('');
+                setSearchTerm('');
+              }}>
+                <X className="h-4 w-4" />
+                Limpar
+              </button>
+            )}
+          </div>
+          {searchTerm && (
+            <p className="mt-2 text-sm text-[var(--crm-muted)]" role="status">
+              {filteredCompanies.filter((company) => company.status === 'LEAD').length} lead(s) encontrado(s) para “{searchTerm}”.
+            </p>
+          )}
+        </form>
+      )}
+
+      <LeadCalendarConnections />
+
       {/* Tabs */}
-      <div className="crm-panel-muted p-2 flex flex-wrap gap-2">
+      <div className={`crm-panel-muted flex flex-wrap gap-2 ${compactB2B ? 'rounded-xl p-1.5' : 'p-2'}`} >
         <button
           type="button"
           onClick={() => setActiveTab('scoring')}
           className={[
-            'flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-extrabold transition-all duration-200',
+            `flex items-center gap-2 transition-all duration-200 ${compactB2B ? 'px-3 py-1.5 rounded-lg text-xs font-semibold' : 'px-4 py-2 rounded-2xl text-sm font-extrabold'}`,
             activeTab === 'scoring'
-              ? 'bg-[rgb(var(--crm-accent-rgb)_/_0.20)] border border-[rgb(var(--crm-accent-rgb)_/_0.35)] text-[var(--crm-ink)] shadow-soft-xl'
+              ? (compactB2B ? 'bg-blue-600 border border-blue-600 text-white shadow-sm' : 'bg-[rgb(var(--crm-accent-rgb)_/_0.20)] border border-[rgb(var(--crm-accent-rgb)_/_0.35)] text-[var(--crm-ink)] shadow-soft-xl')
               : 'bg-[rgb(var(--crm-surface-rgb)_/_0.70)] border border-[color:var(--crm-border)] text-[var(--crm-ink)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.85)]'
           ].join(' ')}
         >
@@ -864,9 +1042,9 @@ export default function LeadManagement() {
           type="button"
           onClick={() => setActiveTab('distribution')}
           className={[
-            'flex items-center gap-2 px-4 py-2 rounded-2xl text-sm font-extrabold transition-all duration-200',
+            `flex items-center gap-2 transition-all duration-200 ${compactB2B ? 'px-3 py-1.5 rounded-lg text-xs font-semibold' : 'px-4 py-2 rounded-2xl text-sm font-extrabold'}`,
             activeTab === 'distribution'
-              ? 'bg-[rgb(var(--crm-accent-rgb)_/_0.20)] border border-[rgb(var(--crm-accent-rgb)_/_0.35)] text-[var(--crm-ink)] shadow-soft-xl'
+              ? (compactB2B ? 'bg-blue-600 border border-blue-600 text-white shadow-sm' : 'bg-[rgb(var(--crm-accent-rgb)_/_0.20)] border border-[rgb(var(--crm-accent-rgb)_/_0.35)] text-[var(--crm-ink)] shadow-soft-xl')
               : 'bg-[rgb(var(--crm-surface-rgb)_/_0.70)] border border-[color:var(--crm-border)] text-[var(--crm-ink)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.85)]'
           ].join(' ')}
         >
@@ -876,10 +1054,11 @@ export default function LeadManagement() {
       </div>
 
       {activeTab === 'scoring' && (
-        <div className="space-y-8">
+        <div className={compactB2B ? 'space-y-4' : 'space-y-8'}>
           {/* Estatísticas de Lead Scoring */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className={compactB2B ? 'grid grid-cols-2 xl:grid-cols-4 gap-3' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'}>
             <AnimatedStats
+              size={compactB2B ? 'dense' : 'default'}
               title="Hot Leads"
               value={leadStats.hotLeads || 0}
               subtitle="Score 80-100 pontos"
@@ -889,6 +1068,7 @@ export default function LeadManagement() {
             />
             
             <AnimatedStats
+              size={compactB2B ? 'dense' : 'default'}
               title="Warm Leads"
               value={leadStats.warmLeads || 0}
               subtitle="Score 60-79 pontos"
@@ -898,6 +1078,7 @@ export default function LeadManagement() {
             />
             
             <AnimatedStats
+              size={compactB2B ? 'dense' : 'default'}
               title="Cold Leads"
               value={leadStats.coldLeads || 0}
               subtitle="Score 40-59 pontos"
@@ -907,6 +1088,7 @@ export default function LeadManagement() {
             />
             
             <AnimatedStats
+              size={compactB2B ? 'dense' : 'default'}
               title="Low Priority"
               value={leadStats.lowPriority || 0}
               subtitle="Score 0-39 pontos"
@@ -917,7 +1099,7 @@ export default function LeadManagement() {
           </div>
 
           {/* Ações Rápidas */}
-          <GradientCard gradient="indigo" className="p-6">
+          <GradientCard gradient="indigo" className={compactB2B ? "!rounded-xl p-4" : "p-6"}>
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">Ações Rápidas</h3>
@@ -976,13 +1158,13 @@ export default function LeadManagement() {
             </div>
             
             <div className="space-y-3">
-              {companies.filter((company) => company.status === 'LEAD').length === 0 && (
+              {filteredCompanies.filter((company) => company.status === 'LEAD').length === 0 && (
                 <div className="crm-card p-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Nenhum lead em aberto para análise.
                 </div>
               )}
 
-              {[...companies]
+              {[...filteredCompanies]
                 .filter((company) => company.status === 'LEAD')
                 .sort((a, b) => b.leadScore - a.leadScore)
                 .slice(0, 20)
@@ -1031,6 +1213,9 @@ export default function LeadManagement() {
                         <Calendar className="w-4 h-4" />
                         Entrada: {formatDateBR(company.leadEntryDate || company.createdAt)}
                       </span>
+                      {company.leadNextAction && <span>
+                        Próxima ação: {company.leadNextAction} • {new Date(company.leadNextActionAt).toLocaleString('pt-BR')}
+                      </span>}
                       {company.status === 'LEAD' && (
                         <span className="font-bold text-[rgb(var(--crm-accent-rgb)_/_0.95)]">
                           Clique para converter ou No Go
@@ -1041,6 +1226,11 @@ export default function LeadManagement() {
                   
                   {company.status === 'LEAD' && (
                     <div className="flex items-center gap-2 flex-wrap justify-end">
+                      <button type="button" className="crm-btn crm-btn-secondary"
+                        onKeyDown={(event) => event.stopPropagation()}
+                        onClick={(event) => { event.stopPropagation(); openLeadEditor(company); }}>
+                        <Pencil className="h-4 w-4" /> Editar Lead
+                      </button>
                       <input
                         type="text"
                         value={projectNameByCompany[company.id] || `Projeto ${company.name}`}
@@ -1107,7 +1297,7 @@ export default function LeadManagement() {
       )}
 
       {activeTab === 'distribution' && (
-        <div className="space-y-8">
+        <div className={compactB2B ? 'space-y-4' : 'space-y-8'}>
           {/* Configuração de Estratégia */}
           <GradientCard gradient="green" className="p-6">
             <div className="flex items-center justify-between mb-6">
@@ -1233,13 +1423,13 @@ export default function LeadManagement() {
             </div>
 
             <div className="space-y-3">
-              {companies.filter((company) => company.status === 'LEAD').length === 0 && (
+              {filteredCompanies.filter((company) => company.status === 'LEAD').length === 0 && (
                 <div className="crm-card p-4 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   Nenhum lead pendente para distribuição.
                 </div>
               )}
 
-              {companies
+              {filteredCompanies
                 .filter((company) => company.status === 'LEAD')
                 .sort((a, b) => b.leadScore - a.leadScore)
                 .slice(0, 20)
@@ -1266,6 +1456,9 @@ export default function LeadManagement() {
                         <Calendar className="h-3.5 w-3.5" />
                         Entrada: {formatDateBR(company.leadEntryDate || company.createdAt)}
                       </div>
+                      {company.leadNextAction && <div className="mt-1 text-sm text-[var(--crm-muted)]">
+                        Próxima ação: {company.leadNextAction} • {new Date(company.leadNextActionAt).toLocaleString('pt-BR')}
+                      </div>}
                       <div className="mt-1 text-xs font-bold text-[rgb(var(--crm-accent-rgb)_/_0.95)]">
                         Clique para converter ou registrar No Go
                       </div>

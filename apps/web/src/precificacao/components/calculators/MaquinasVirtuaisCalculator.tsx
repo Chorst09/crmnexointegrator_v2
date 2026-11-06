@@ -1,3 +1,4 @@
+import { ConvertToB2BOpportunityButton } from '@/components/proposals/ConvertToB2BOpportunityButton';
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -2396,6 +2397,7 @@ const MaquinasVirtuaisCalculator = ({ onBackToDashboard, initialProposalId }: Ma
                                                             >
                                                                 <Edit className="h-4 w-4 mr-2" /> Editar
                                                             </Button>
+                                                    <ConvertToB2BOpportunityButton proposal={p} />
                                                             <Button
                                                                 variant="destructive"
                                                                 size="sm"

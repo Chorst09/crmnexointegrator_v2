@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Bell, LogIn, LogOut, Menu, Monitor, Moon, Sun, User, Rocket } from 'lucide-react';
+import { LogIn, LogOut, Menu, Monitor, Moon, Sun, User, Rocket } from 'lucide-react';
 import { useTheme } from '../theme/ThemeProvider';
 import { useLocation, useNavigate } from 'react-router-dom';
 import B2BTestFlowModal from '../components/B2BTestFlowModal';
+import PreSalesReturnNotifications from '../components/PreSalesReturnNotifications';
 
 const ROUTE_META = {
   '/dashboard': { title: 'Dashboard', subtitle: 'Visao geral e indicadores' },
@@ -107,7 +108,7 @@ export default function Topbar({ onMenuClick }) {
           className="relative hidden h-[5.15rem] min-w-0 flex-1 overflow-hidden rounded-[24px] border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-cover bg-center shadow-[0_24px_54px_-36px_rgba(34,211,238,0.58)] md:block"
           style={{ backgroundImage: "url('/b2g/govflow-header.png')" }}
         >
-          <div className="absolute inset-0 bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[linear-gradient(90deg,rgb(var(--crm-surface-2-rgb)_/_0.82)_0%,rgb(var(--crm-surface-2-rgb)_/_0.56)_36%,rgb(var(--crm-surface-2-rgb)_/_0.2)_70%,rgba(35,211,238,0.26)_100%)]" />
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgb(var(--crm-surface-rgb)_/_0.88)_0%,rgb(var(--crm-surface-rgb)_/_0.60)_38%,rgb(var(--crm-surface-rgb)_/_0.18)_70%,rgba(34,211,238,0.10)_100%)] dark:bg-[linear-gradient(90deg,rgb(var(--crm-surface-2-rgb)_/_0.82)_0%,rgb(var(--crm-surface-2-rgb)_/_0.56)_36%,rgb(var(--crm-surface-2-rgb)_/_0.2)_70%,rgba(35,211,238,0.26)_100%)]" />
           <div className="absolute left-3 top-1/2 max-w-[min(30rem,56%)] -translate-y-1/2 rounded-[16px] bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.34)] px-5 py-2.5 shadow-[0_22px_44px_-26px_rgba(0,0,0,0.95)] backdrop-blur-sm">
             <div className="text-[10px] font-semibold uppercase tracking-[0.42em] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-cyan-50/78">Sistema</div>
             <div className="mt-0.5 truncate text-xl font-black leading-none text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{headerTitle}</div>
@@ -123,14 +124,7 @@ export default function Topbar({ onMenuClick }) {
         </div>
 
         <div className="ml-auto flex shrink-0 items-center gap-3 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-cyan-50">
-          <button
-            type="button"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-transparent text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-cyan-50 transition hover:border-cyan-200/16 dark:hover:border-cyan-800/16 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.78)] sm:inline-flex"
-            aria-label="Notificações"
-            title="Notificações"
-          >
-            <Bell className="h-5 w-5" />
-          </button>
+          <PreSalesReturnNotifications />
 
           <button
             type="button"

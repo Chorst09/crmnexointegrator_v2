@@ -46,8 +46,8 @@ for (const root of ['apps/api', 'backend']) {
   // Run the actual route logic with an in-memory database, without touching local data.
   let source = fs.readFileSync(path.join(__dirname, '../../', root, 'api/companies.js'), 'utf8');
   source = source.replace(/^import .*;\n/gm, '').replace('export default async function handler', 'return async function handler');
-  const handler = new Function('prisma', 'companyVisibility', 'tenantScopedWhere', 'isTenantRecordVisible', 'forbiddenTenantResponse', 'getTenantCompanyId', 'validateCustomerOwnership', 'updateCompanyLeadScore', source)(
-    prisma, visibility, user => ({ tenantCompanyId: user.tenantCompanyId }),
+  const handler = new Function('contractService', 'leadNextAction', 'companyAssignment', 'prisma', 'companyVisibility', 'tenantScopedWhere', 'isTenantRecordVisible', 'forbiddenTenantResponse', 'getTenantCompanyId', 'validateCustomerOwnership', 'updateCompanyLeadScore', source)(
+    require(`../../${root}/lib/contract-service.cjs`), require(`../../${root}/lib/lead-next-action.cjs`), require(`../../${root}/lib/company-assignment.cjs`), prisma, visibility, user => ({ tenantCompanyId: user.tenantCompanyId }),
     (user, row) => row.tenantCompanyId === user.tenantCompanyId,
     () => new Response('Acesso negado', { status: 403 }),
     user => user.tenantCompanyId, async () => ({ permitido: true }), async () => {}

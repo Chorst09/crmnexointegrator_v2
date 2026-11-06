@@ -157,6 +157,7 @@ const formFromRequest = (request, currentUser = {}) => {
     fornecedorId: firstCotacao?.fornecedorId || '',
     fornecedor: firstCotacao?.fornecedor || '',
     observacoesCotacao: firstCotacao?.observacoesCotacao || '',
+    anexosDistribuidor: Array.isArray(firstCotacao?.anexosDistribuidor) ? firstCotacao.anexosDistribuidor : [],
     solicitanteId: request?.solicitanteId || request?.solicitante?.id || currentUser.id || '',
     encaminhadoParaId: request?.assignedToId || '',
     opportunityId: request?.opportunityId || request?.opportunity?.id || '',
@@ -187,6 +188,7 @@ const buildEmptyForm = (currentUser = {}, existingRequests = []) => ({
   fornecedorId: '',
   fornecedor: '',
   observacoesCotacao: '',
+  anexosDistribuidor: [],
   solicitanteId: currentUser.id || '',
   encaminhadoParaId: '',
   opportunityId: '',
@@ -496,6 +498,7 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
   const [opportunities, setOpportunities] = useState([]);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState('');
+  const [readingAttachment, setReadingAttachment] = useState(false);
   const isEditing = Boolean(editingRequest?.id);
 
   const loadUsers = useCallback(async () => {
@@ -556,6 +559,38 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
   }, [isOpen, isEditing, editingRequest?.id, existingRequests.length, loadCompanies, loadOpportunities, loadRegistry, loadUsers]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const setField = (key, value) => setForm((p) => ({ ...p, [key]: value }));
+
+  const attachDistributorBudget = async (event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      setFeedback('O anexo deve ter no máximo 10 MB.');
+      return;
+    }
+    setReadingAttachment(true);
+    setFeedback('');
+    try {
+      const dataUrl = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = () => reject(new Error('Não foi possível ler o arquivo. Tente novamente.'));
+        reader.readAsDataURL(file);
+      });
+      setField('anexosDistribuidor', [{
+        id: `UP-${Date.now()}`,
+        fileName: file.name,
+        size: file.size,
+        dataUrl,
+        createdAt: new Date().toISOString(),
+        createdByName: currentUser.name || ''
+      }]);
+    } catch (error) {
+      setFeedback(error.message);
+    } finally {
+      setReadingAttachment(false);
+    }
+  };
 
   const selectDistributor = (selected) => {
     setForm((p) => ({
@@ -679,6 +714,7 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (readingAttachment) return;
     if (!form.titulo.trim()) { setFeedback('Título é obrigatório.'); return; }
     try {
       setSaving(true);
@@ -700,7 +736,7 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
         form.fornecedor.trim() ||
         form.distribuidorId ||
         form.fornecedorId ||
-        cleanItems.length > 0
+        cleanItems.length > 0 || form.anexosDistribuidor.length > 0
       );
       const matchedDistributor = form.distribuidorId
         ? null
@@ -711,6 +747,7 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
       const nowIso = new Date().toISOString();
       const initialQuote = shouldCreateInitialQuote
         ? {
+          ...previousCotacoes.find((item) => item.id === form.cotacaoId),
           id: form.cotacaoId || `COT-${Date.now()}`,
           modalidade: form.modalidade,
           distribuidorId: form.distribuidorId || matchedDistributor?.id || '',
@@ -721,6 +758,7 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
           itens: cleanItems,
           subtotal: cleanItems.reduce((sum, item) => sum + (item.quantidade * item.custoUnitario), 0),
           observacoesCotacao: form.observacoesCotacao.trim(),
+          anexosDistribuidor: form.anexosDistribuidor,
           createdAt: previousCotacoes.find((item) => item.id === form.cotacaoId)?.createdAt || nowIso,
           updatedAt: nowIso,
           createdByName: currentUser.name || ''
@@ -766,7 +804,12 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
         calculoDetalhes: {
           ...previousDetails,
           dadosProposta,
-          cotacoes: nextCotacoes
+          cotacoes: nextCotacoes,
+          uploadsCotacao: [
+            ...(Array.isArray(previousDetails.uploadsCotacao) ? previousDetails.uploadsCotacao : [])
+              .filter((upload) => !upload.cotacaoId || upload.cotacaoId !== initialQuote?.id),
+            ...form.anexosDistribuidor.map((upload) => ({ ...upload, cotacaoId: initialQuote?.id }))
+          ]
         },
         items: cleanItems
       };
@@ -1150,14 +1193,36 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Observações do orçamento</label>
-            <input
-              type="text"
+            <label htmlFor="observacoes-orcamento" className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Observações do orçamento</label>
+            <textarea
+              id="observacoes-orcamento"
+              rows={5}
               value={form.observacoesCotacao}
               onChange={(e) => setField('observacoesCotacao', e.target.value)}
               placeholder="Condições comerciais, prazo, impostos inclusos..."
-              className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] px-4 py-2.5 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+              className="w-full min-h-[120px] resize-y rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] px-4 py-2.5 text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-sky-500/50"
             />
+          </div>
+
+          <div>
+            <label htmlFor="anexo-distribuidor" className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Orçamento do distribuidor</label>
+            <input
+              id="anexo-distribuidor"
+              type="file"
+              disabled={saving || readingAttachment}
+              onChange={attachDistributorBudget}
+              className="block w-full text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] file:mr-3 file:rounded-lg file:border-0 file:bg-sky-500/20 file:px-4 file:py-2 file:text-sky-700 dark:text-sky-300"
+            />
+            <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Anexe o arquivo do distribuidor (até 10 MB). O anexo será salvo ao salvar o orçamento.</p>
+            {readingAttachment && <p className="mt-2 text-sm text-sky-700 dark:text-sky-300">Lendo arquivo...</p>}
+            {form.anexosDistribuidor.map((attachment) => (
+              <div key={attachment.id} className="mt-3 flex items-center gap-3 rounded-lg border border-[var(--crm-border)] p-3">
+                <FileText className="h-5 w-5 shrink-0 text-sky-700 dark:text-sky-300" />
+                <span className="min-w-0 flex-1 break-words text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{attachment.fileName}</span>
+                <a href={attachment.dataUrl} download={attachment.fileName} className="text-sm text-sky-700 dark:text-sky-300 hover:underline">Baixar</a>
+                <button type="button" disabled={saving || readingAttachment} onClick={() => setField('anexosDistribuidor', [])} aria-label={`Remover ${attachment.fileName}`} className="rounded p-2 text-red-700 dark:text-red-300 hover:bg-red-500/10"><Trash2 className="h-4 w-4" /></button>
+              </div>
+            ))}
           </div>
 
           {feedback && (
@@ -1177,7 +1242,7 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
             </button>
             <button
               type="submit"
-              disabled={saving}
+              disabled={saving || readingAttachment}
               className="inline-flex items-center gap-2 rounded-lg bg-sky-500 px-5 py-2.5 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-sky-400 disabled:opacity-60"
             >
               {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}

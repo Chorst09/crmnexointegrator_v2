@@ -1,4 +1,4 @@
-const B2G_SIGNAL_PATTERN = /(\bB2G\b|GOVERNO|\bGOV\b|LICIT|EDITAL|TERMO DE REFER[ÊE]NCIA)/i;
+const B2G_SIGNAL_PATTERN = /(\bB2G\b|\bGOVERNO\b|\bGOV\b|\bLICIT|\bEDITA(?:L|IS)\b|TERMO DE REFER[ÊE]NCIA)/i;
 
 const toNormalizedText = (value) => String(value || '').trim();
 

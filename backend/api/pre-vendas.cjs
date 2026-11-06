@@ -1,15 +1,24 @@
 const express = require('express');
 const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken } = require('../lib/auth');
-const { canAccessModule } = require('../lib/permissions');
+const { canAccessModule, normalizeRole } = require('../lib/permissions');
 const { getTenantCompanyId, mergeRelationWhere } = require('../lib/tenantScope.cjs');
 
+const { registerCommercialReturnNotifications, createPreSalesClosureHandler, isNegativeStatus } = require('../lib/pre-sales-closure.cjs');
+const { getTenantCompanyId: closureTenantId } = require('../lib/tenantScope.cjs');
+
 const router = express.Router();
+const closePreSales = createPreSalesClosureHandler({
+  prisma, tenantId: closureTenantId,
+  canOperate: (user) => ['MASTER', 'ADMIN'].includes(normalizeRole(user.actualRole || user.role)) || canAccessModule(user, 'PRE_SALES')
+});
 const ACTIVITY_FLOW_MARKER = '[CRM_ACTIVITY_FLOW]';
 const PROPOSAL_SENT_STAGE = 'PROPOSTA_ENVIADA';
 
 // Middleware de autenticação para todas as rotas
 router.use(authenticateToken);
+router.post('/:id/encerrar', closePreSales);
+registerCommercialReturnNotifications(router, prisma);
 
 const scopePreSalesWhere = (req, where = {}) => {
   const tenantCompanyId = getTenantCompanyId(req.user);
@@ -726,8 +735,12 @@ router.post('/', async (req, res) => {
 
 // PUT /api/pre-vendas/:id - Atualizar solicitação
 router.put('/:id', async (req, res) => {
+  if (isNegativeStatus(req.body.status)) return closePreSales(req, res);
   try {
     const { id } = req.params;
+    const closureCheck = await prisma.preSalesRequest.findUnique({ where: { id }, select: { status: true } });
+    if (isNegativeStatus(closureCheck?.status)) return res.status(409).json({ success: false, message: 'Esta solicitação já foi encerrada' });
+
     const {
       titulo,
       descricao,
@@ -857,6 +870,9 @@ router.put('/:id', async (req, res) => {
 router.post('/:id/devolver-comercial', async (req, res) => {
   try {
     const { id } = req.params;
+    const closureCheck = await prisma.preSalesRequest.findUnique({ where: { id }, select: { status: true } });
+    if (isNegativeStatus(closureCheck?.status)) return res.status(409).json({ success: false, message: 'Esta solicitação já foi encerrada' });
+
 
     const accessCheck = await ensurePreSalesRequestAccess(req, id);
     if (accessCheck.error) {
@@ -913,6 +929,9 @@ router.post('/:id/devolver-comercial', async (req, res) => {
 router.post('/:id/calcular', async (req, res) => {
   try {
     const { id } = req.params;
+    const closureCheck = await prisma.preSalesRequest.findUnique({ where: { id }, select: { status: true } });
+    if (isNegativeStatus(closureCheck?.status)) return res.status(409).json({ success: false, message: 'Esta solicitação já foi encerrada' });
+
     const {
       custoUnitario,
       quantidade = 1,
@@ -1022,6 +1041,9 @@ router.post('/:id/calcular', async (req, res) => {
 router.post('/:id/aprovar', async (req, res) => {
   try {
     const { id } = req.params;
+    const closureCheck = await prisma.preSalesRequest.findUnique({ where: { id }, select: { status: true } });
+    if (isNegativeStatus(closureCheck?.status)) return res.status(409).json({ success: false, message: 'Esta solicitação já foi encerrada' });
+
     const { observacoes } = req.body;
 
     // Verificar se o usuário tem permissão para aprovar
@@ -1081,65 +1103,9 @@ router.post('/:id/aprovar', async (req, res) => {
 });
 
 // POST /api/pre-vendas/:id/rejeitar - Rejeitar solicitação
-router.post('/:id/rejeitar', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { observacoes } = req.body;
-
-    // Verificar se o usuário tem permissão para rejeitar
-    if (req.user.role !== 'ADMIN' && req.user.role !== 'MANAGER') {
-      return res.status(403).json({
-        success: false,
-        message: 'Sem permissão para rejeitar solicitações'
-      });
-    }
-
-    const accessCheck = await ensurePreSalesRequestAccess(req, id);
-    if (accessCheck.error) {
-      return res.status(accessCheck.status).json({
-        success: false,
-        message: accessCheck.error
-      });
-    }
-
-    // Atualizar status e criar registro de rejeição
-    const [solicitacaoAtualizada] = await Promise.all([
-      prisma.preSalesRequest.update({
-        where: { id },
-        data: {
-          status: 'REPROVADO',
-          dataRejeicao: new Date(),
-          rejeitadoPorId: req.user.userId
-        },
-        include: {
-          solicitante: {
-            select: { id: true, name: true, email: true }
-          }
-        }
-      }),
-      prisma.preSalesApproval.create({
-        data: {
-          preSalesRequestId: id,
-          aprovadorId: req.user.userId,
-          status: 'REJEITADA',
-          observacoes
-        }
-      })
-    ]);
-
-    res.json({
-      success: true,
-      message: 'Solicitação rejeitada',
-      data: solicitacaoAtualizada
-    });
-  } catch (error) {
-    console.error('Erro ao rejeitar solicitação:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Erro interno do servidor',
-      error: error.message
-    });
-  }
+router.post('/:id/rejeitar', (req, res) => {
+  req.body.status = 'REPROVADO';
+  return closePreSales(req, res);
 });
 
 // DELETE /api/pre-vendas/:id - Excluir solicitação
@@ -1156,9 +1122,9 @@ router.delete('/:id', async (req, res) => {
     }
     const solicitacao = accessCheck.solicitacao;
 
-    // Verificar permissões - apenas ADMIN ou o próprio solicitante
-    const isAdmin = req.user.role === 'ADMIN';
-    const isOwner = solicitacao.solicitanteId === req.user.userId;
+    // MASTER e ADMIN podem excluir; demais usuários apenas as próprias solicitações.
+    const isAdmin = ['MASTER', 'ADMIN'].includes(normalizeRole(req.user.actualRole || req.user.role));
+    const isOwner = solicitacao.solicitanteId === (req.user.userId || req.user.id);
 
     if (!isAdmin && !isOwner) {
       return res.status(403).json({
@@ -1167,7 +1133,7 @@ router.delete('/:id', async (req, res) => {
       });
     }
 
-    // ADMIN pode excluir qualquer orçamento, independente do status
+    // MASTER e ADMIN podem excluir qualquer orçamento, independente do status
     // Usuário comum só pode excluir se não estiver finalizada
     if (!isAdmin && solicitacao.status === 'FINALIZADA') {
       return res.status(400).json({

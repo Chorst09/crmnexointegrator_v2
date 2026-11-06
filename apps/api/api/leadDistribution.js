@@ -5,6 +5,8 @@ import {
   getAvailableSellers,
   DISTRIBUTION_STRATEGIES
 } from '../lib/leadDistribution.js';
+import { prisma } from '../lib/prisma.js';
+import { listLeadAccountManagers } from '../lib/lead-account-managers.cjs';
 
 export default async function handler(req) {
   if (req.method === 'GET') {
@@ -13,10 +15,7 @@ export default async function handler(req) {
     try {
       if (!action || action === 'sellers') {
         // Listar vendedores disponíveis (padrão)
-        const sellers = await getAvailableSellers(region, { 
-          clientType: clientType || 'B2B',
-          currentUser: req.user 
-        });
+        const sellers = await listLeadAccountManagers(prisma, req.user, clientType || 'B2B');
         return Response.json(sellers);
       }
       

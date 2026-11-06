@@ -92,6 +92,7 @@ const sanitizeUser = (user) => {
     id: user.id,
     name: user.name,
     email: user.email,
+    phone: user.phone || null,
     role,
     region: user.region,
     regionId: user.regionId || user.region?.id || null,
@@ -133,6 +134,7 @@ export default async function handler(req) {
           id: true,
           name: true,
           email: true,
+        phone: true,
           role: true,
           regionId: true,
           region: { select: { id: true, name: true, code: true } },
@@ -183,6 +185,7 @@ export default async function handler(req) {
         id: true,
         name: true,
         email: true,
+        phone: true,
         role: true,
         regionId: true,
         region: {
@@ -280,6 +283,7 @@ export default async function handler(req) {
       data: {
         name: body.name,
         email: normalizedEmail,
+        phone: String(body.phone || '').trim() || null,
         password: hashedPassword,
         role,
         regionId: body.regionId || null,
@@ -306,6 +310,7 @@ export default async function handler(req) {
         id: true,
         name: true,
         email: true,
+        phone: true,
         role: true,
         regionId: true,
         region: {
@@ -349,6 +354,7 @@ export default async function handler(req) {
       select: {
         id: true,
         email: true,
+        phone: true,
         role: true,
         tenantCompanyId: true,
         isCompanyOwner: true
@@ -395,6 +401,7 @@ export default async function handler(req) {
 
     const updateData = {
       name: body.name,
+      phone: body.phone === undefined ? undefined : (String(body.phone || '').trim() || null),
       role: nextRole,
       regionId: body.regionId || null,
       quota: body.quota,
@@ -452,6 +459,7 @@ export default async function handler(req) {
         id: true,
         name: true,
         email: true,
+        phone: true,
         role: true,
         regionId: true,
         region: {
@@ -512,13 +520,20 @@ export default async function handler(req) {
       return Response.json({ error: 'Sem permissão para excluir usuário de outra empresa' }, { status: 403 });
     }
 
-    if (user.isCompanyOwner) {
+    if (user.isCompanyOwner && !isMaster(req.user)) {
       return Response.json({ error: 'Não é permitido excluir usuário dono da empresa' }, { status: 403 });
     }
 
-    await prisma.user.delete({
-      where: { id }
-    });
+    try {
+      await prisma.user.delete({ where: { id } });
+    } catch (error) {
+      if (error.code === 'P2003') {
+        return Response.json({
+          error: 'Este usuário possui registros vinculados (como oportunidades ou atividades). Resolva esses vínculos antes de excluí-lo. Nenhum registro foi excluído.'
+        }, { status: 409 });
+      }
+      throw error;
+    }
 
     return Response.json({ message: 'Usuário excluído com sucesso' });
   }

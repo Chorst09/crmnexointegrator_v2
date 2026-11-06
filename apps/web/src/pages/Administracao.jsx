@@ -1,3 +1,4 @@
+import DriveBackup from '../components/DriveBackup';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ModernTable from '../components/ModernTable';
@@ -352,6 +353,7 @@ export default function Administracao() {
   const [userForm, setUserForm] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     role: 'USER',
     tenantCompanyId: '',
@@ -389,6 +391,7 @@ export default function Administracao() {
   const [companyUserForm, setCompanyUserForm] = useState({
     name: '',
     email: '',
+    phone: '',
     password: '',
     role: 'USER',
     accessB2B: true,
@@ -817,6 +820,7 @@ export default function Administracao() {
     setUserForm({
       name: '',
       email: '',
+      phone: '',
       password: '',
       role: 'USER',
       tenantCompanyId: isMasterSession ? '' : contractedCompany?.id || '',
@@ -849,6 +853,7 @@ export default function Administracao() {
     setUserForm({
       name: user?.name || '',
       email: user?.email || '',
+      phone: user?.phone || '',
       password: '',
       role: normalizedRole,
       tenantCompanyId: user?.tenantCompanyId || user?.tenantCompany?.id || '',
@@ -883,6 +888,7 @@ export default function Administracao() {
       const payload = {
         name: userForm.name?.trim(),
         email: userForm.email?.trim(),
+        phone: userForm.phone?.trim() || null,
         role: normalizeRole(userForm.role),
         tenantCompanyId: userForm.tenantCompanyId || null,
         regionId: userForm.regionId || null,
@@ -2002,6 +2008,7 @@ export default function Administracao() {
     setCompanyUserForm({
       name: '',
       email: '',
+      phone: '',
       password: '',
       role: 'USER',
       ...defaultAccess
@@ -2617,10 +2624,14 @@ export default function Administracao() {
               }`}
             >
               <span>🛡️</span>
-              <span>4. Rotina Automatizada (Segunda a Sexta às 17h)</span>
+              <span>4. Rotina Automatizada (Diário às 02h30)</span>
               <span className="px-2 py-0.5 text-xs bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 rounded-full font-mono">
                 Ativo
               </span>
+            </button>
+
+            <button type="button" onClick={() => setActiveBackupSubTab('drive')} className={`px-4 py-2 rounded-xl text-sm font-semibold ${activeBackupSubTab === 'drive' ? "bg-cyan-600/20 text-cyan-700 dark:text-cyan-400 border border-cyan-500/40" : "text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
+              ☁️ Google Drive · Diário às 18h
             </button>
 
             <button
@@ -2637,6 +2648,8 @@ export default function Administracao() {
             </button>
           </div>
 
+          {activeBackupSubTab === 'drive' && <DriveBackup />}
+
           {activeBackupSubTab === 'rotina' && (
             <div className="space-y-6">
               {/* Card 1: Status Geral da Rotina */}
@@ -2648,13 +2661,12 @@ export default function Administracao() {
                       <h2 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] tracking-wide">
                         Rotina de Backup Automatizada do Banco de Dados
                       </h2>
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/40 animate-pulse">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                        Cron Ativo
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                        {routineStatus?.overdue ? 'Backup atrasado' : routineStatus?.active ? 'Agendador ativo' : 'Agendador não confirmado'}
                       </span>
                     </div>
                     <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                      Cópia de segurança programada do banco PostgreSQL nativo com integridade estrutural validada e retenção de 14 dias.
+                      Cópia de segurança programada do banco PostgreSQL nativo com retenção de 14 dias.
                     </p>
                   </div>
 
@@ -2669,6 +2681,8 @@ export default function Administracao() {
                   </button>
                 </div>
 
+                {routineStatus?.overdue && <p role="alert" className="text-sm text-amber-700 dark:text-amber-300">Não foi encontrado o backup automático esperado desde {new Date(routineStatus.expectedBackupAt).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })}. Verifique os registros da rotina.</p>}
+                {routineStatus?.scheduler && !routineStatus.scheduler.serviceActive && <p role="alert" className="text-sm text-amber-700 dark:text-amber-300">Serviço cron inativo ou indisponível para consulta.</p>}
                 {/* 4 Blocos Informativos Principais */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_0.6)] border border-[var(--crm-border)] space-y-1">
@@ -2683,8 +2697,8 @@ export default function Administracao() {
                     <div className="text-xs uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] font-semibold flex items-center gap-1.5">
                       <span>🗄️</span> Banco de Dados
                     </div>
-                    <div className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">nexoscrm</div>
-                    <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">PostgreSQL (porta 5433 · 126 Tabelas)</div>
+                    <div className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{routineStatus?.database || 'doublecrm'}</div>
+                    <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">PostgreSQL (porta 5433 · schema public)</div>
                   </div>
 
                   <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_0.6)] border border-[var(--crm-border)] space-y-1">
@@ -2699,7 +2713,7 @@ export default function Administracao() {
                     <div className="text-xs uppercase tracking-wider text-[rgb(var(--crm-muted-rgb)_/_1)] font-semibold flex items-center gap-1.5">
                       <span>✅</span> Integridade Estrutural
                     </div>
-                    <div className="text-sm font-bold text-emerald-700 dark:text-emerald-400">100% Comprovada</div>
+                    <div className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Consulte o log de validação</div>
                     <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Validação pós-dump (pg_restore)</div>
                   </div>
                 </div>
@@ -2709,17 +2723,17 @@ export default function Administracao() {
                   <div className="flex items-center gap-2 text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     <span className="font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">🌐 Domínio Produção:</span>
                     <a
-                      href="https://nexos.chorstconsult.com.br"
+                      href="http://double.chorstconsult.com.br"
                       target="_blank"
                       rel="noreferrer"
                       className="text-cyan-700 dark:text-cyan-400 underline font-mono hover:text-cyan-700 dark:hover:text-cyan-300"
                     >
-                      https://nexos.chorstconsult.com.br
+                      http://double.chorstconsult.com.br
                     </a>
                   </div>
                   <div className="flex items-center gap-2 text-[rgb(var(--crm-ink-rgb)_/_1)] font-mono text-[11px]">
                     <span className="font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">📁 Armazenamento:</span>
-                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-0.5 rounded">/root/backups/nexoscrm-3026/</span>
+                    <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] px-2 py-0.5 rounded">/BACKUP/</span>
                   </div>
                 </div>
               </div>
@@ -2734,7 +2748,7 @@ export default function Administracao() {
                     </h3>
                   </div>
                   <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                    Retidos em <code className="text-cyan-700 dark:text-cyan-300">/root/backups/nexoscrm-3026/</code>
+                    Retidos em <code className="text-cyan-700 dark:text-cyan-300">/BACKUP/</code>
                   </span>
                 </div>
 
@@ -2768,8 +2782,8 @@ export default function Administracao() {
                               </span>
                             </td>
                             <td className="px-4 py-3 text-right">
-                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30">
-                                ✓ Íntegro
+                              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)]">
+                                Não verificada nesta consulta
                               </span>
                             </td>
                           </tr>
@@ -2797,13 +2811,13 @@ export default function Administracao() {
                   {/* Bloco 1: Restauração Sandbox */}
                   <div className="p-4 rounded-xl bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] space-y-2">
                     <div className="font-bold text-amber-700 dark:text-amber-300 flex items-center gap-1.5">
-                      <span>🧪</span> 1. Testar Restauração em Sandbox (Sem Risco)
+                      <span>🧪</span> 1. Conferir Catálogo do Backup
                     </div>
                     <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
-                      Cria uma base temporária, restaura as 126 tabelas, confere contagens de clientes e editais e depois remove a base de teste:
+                      Lista o catálogo do arquivo. Esta verificação não substitui um teste completo de restauração:
                     </p>
                     <pre className="p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-emerald-700 dark:text-emerald-400 font-mono text-[11px] overflow-x-auto border border-[var(--crm-border)]">
-                      /root/backups/backup-nexoscrm-3026.sh --test &lt;caminho_do_dump&gt;
+                      docker exec -i nexoscrm-postgres pg_restore --list &lt; &lt;caminho_do_dump&gt;
                     </pre>
                   </div>
 
@@ -2813,10 +2827,10 @@ export default function Administracao() {
                       <span>⚠️</span> 2. Restauração Direta em Produção
                     </div>
                     <p className="text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
-                      Gera um snapshot de segurança prévio, para a aplicação temporariamente, restaura a base e reaplica as permissões:
+                      A restauração deve ser realizada pelo administrador em janela de manutenção, após validar uma cópia e criar um backup prévio.
                     </p>
                     <pre className="p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-cyan-700 dark:text-cyan-300 font-mono text-[11px] overflow-x-auto border border-[var(--crm-border)]">
-                      /root/backups/backup-nexoscrm-3026.sh --live &lt;caminho_do_dump&gt;
+                      Banco de destino: doublecrm · Usuário: nexoscrm
                     </pre>
                   </div>
 
@@ -2829,7 +2843,7 @@ export default function Administracao() {
                       Para acompanhar a execução do agendamento das 02h30 em tempo real na VPS:
                     </p>
                     <pre className="p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-mono text-[11px] overflow-x-auto border border-[var(--crm-border)]">
-                      tail -f /var/log/nexoscrm-3026-backup.log
+                      tail -f /BACKUP/backup.log
                     </pre>
                   </div>
 
@@ -2842,7 +2856,7 @@ export default function Administracao() {
                       Para disparar um backup sob demanda pelo terminal a qualquer momento:
                     </p>
                     <pre className="p-2.5 rounded bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] font-mono text-[11px] overflow-x-auto border border-[var(--crm-border)]">
-                      /root/backups/backup-nexoscrm-3026.sh
+                      /BACKUP/backup-doublecrm.sh
                     </pre>
                   </div>
                 </div>
@@ -2854,7 +2868,7 @@ export default function Administracao() {
                       <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-1.5">
                         <span>📟</span> Últimas Linhas do Log de Execução no Servidor:
                       </span>
-                      <span className="font-mono text-[11px]">/var/log/nexoscrm-3026-backup.log</span>
+                      <span className="font-mono text-[11px]">/BACKUP/backup.log</span>
                     </div>
                     <pre className="p-3 rounded-xl bg-black/80 text-emerald-700 dark:text-emerald-400 font-mono text-[11px] overflow-x-auto border border-[var(--crm-border)] leading-relaxed max-h-48 overflow-y-auto">
                       {routineStatus.lastLogSnippet}
@@ -4078,6 +4092,19 @@ export default function Administracao() {
               onChange={(e) => setUserForm((f) => ({ ...f, email: e.target.value }))}
               className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               placeholder="email@empresa.com"
+            />
+          </div>
+
+          <div>
+            <label htmlFor="user-phone" className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Telefone</label>
+            <input
+              id="user-phone"
+              type="tel"
+              autoComplete="tel"
+              value={userForm.phone || ''}
+              onChange={(e) => setUserForm((f) => ({ ...f, phone: e.target.value }))}
+              className="w-full px-3 py-2 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="(00) 00000-0000"
             />
           </div>
 

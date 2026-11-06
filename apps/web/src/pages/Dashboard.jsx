@@ -271,9 +271,9 @@ export default function Dashboard() {
   ].filter(Boolean).join(' • ');
 
   return (
-    <div ref={presentationRef} className={`b2b-dashboard${presentationMode ? " h-screen overflow-y-auto overflow-x-hidden bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-2 pb-24" : ''}`}>
+    <div ref={presentationRef} className={`b2b-dashboard${presentationMode ? ' h-screen overflow-y-auto overflow-x-hidden bg-[var(--crm-bg-base)] p-2 pb-24' : ''}`}>
       {error ? <div role="alert" className="mb-3 flex items-center justify-between gap-3 rounded-lg border border-rose-500/40 bg-rose-50/40 dark:bg-rose-950/40 p-3 text-sm text-rose-700 dark:text-rose-100">{error}<button type="button" onClick={() => fetchDashboardData(selectedOwnerId, selectedTemperature, timeRange)} className="underline">Tentar novamente</button></div> : null}
-      {!dashboardData ? <div role="status" className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-8 text-center text-[rgb(var(--crm-ink-rgb)_/_1)]">{loading ? 'Carregando indicadores B2B…' : 'Os indicadores serão exibidos quando os dados estiverem disponíveis.'}</div> : <>
+      {!dashboardData ? <div role="status" className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-8 text-center text-[var(--crm-muted)]">{loading ? 'Carregando indicadores B2B…' : 'Os indicadores serão exibidos quando os dados estiverem disponíveis.'}</div> : <>
         <PipelineDashboardModel
           title="Dashboard Comercial B2B"
           subtitle={`Carteira atual completa • Histórico de entradas e resultados: ${historyLabel}`}
@@ -294,13 +294,13 @@ export default function Dashboard() {
             <button type="button" onClick={handlePresentation} title="Apresentação" aria-label="Abrir apresentação"><Maximize2 className="h-4 w-4" /></button>
           </>}
           metrics={[
-            { label: 'Leads em Aberto', value: kpis.activeLeads || 0, percent: (Number(kpis.activeLeads || 0) / opportunityBase) * 100, color: '#ff7a00' },
+            { label: 'Leads em Aberto', value: kpis.activeLeads || 0, percent: (Number(kpis.activeLeads || 0) / opportunityBase) * 100, color: '#2563eb' },
             { label: 'Total de Oportunidades', value: kpis.totalOpportunities || 0, percent: kpis.totalOpportunities ? 100 : 0, color: '#18c8df' },
             { label: 'Vendas Ganhas', value: kpis.wonOpportunities || 0, percent: (Number(kpis.wonOpportunities || 0) / opportunityBase) * 100, color: '#22c55e' },
             { label: 'Taxa de Vitória', value: formatPercent(kpis.conversionRate), percent: kpis.conversionRate, color: '#f6b40b' }
           ]}
           executiveSignals={[
-            { title: 'Pipeline em Aberto', label: `${kpis.openOpportunities || 0} oportunidades`, value: formatCurrency(kpis.pipelineValue), detail: `${kpis.unpricedOpportunities || 0} oportunidades sem valor comercial`, color: '#ff7a00' },
+            { title: 'Pipeline em Aberto', label: `${kpis.openOpportunities || 0} oportunidades`, value: formatCurrency(kpis.pipelineValue), detail: `${kpis.unpricedOpportunities || 0} oportunidades sem valor comercial`, color: '#2563eb' },
             { title: 'Pipeline Ponderado', label: 'Valor × probabilidade de cada oportunidade', value: formatCurrency(kpis.weightedPipelineValue), detail: 'Potencial estimado da carteira em aberto', color: '#18c8df' },
             { title: 'Prazos de Fechamento', label: 'Oportunidades com previsão vencida', value: kpis.overdueOpportunities || 0, detail: `${kpis.unscheduledOpportunities || 0} oportunidades sem previsão de fechamento`, color: '#f6b40b' }
           ]}
@@ -316,7 +316,7 @@ export default function Dashboard() {
             title: 'Previsão de Fechamento', subtitle: 'Próximos 6 meses • valores previstos por data de fechamento', type: 'bar', unit: 'currency',
             labels: forecast.map(row => new Date(`${row.month}T12:00:00Z`).toLocaleDateString('pt-BR', { month: 'short', year: '2-digit', timeZone: 'UTC' })),
             hasData: forecastDeals > 0,
-            datasets: [{ label: 'Nominal', data: forecast.map(row => row.nominal), color: '#ff7a00' }, { label: 'Ponderado', data: forecast.map(row => row.forecast), color: '#18c8df' }],
+            datasets: [{ label: 'Nominal', data: forecast.map(row => row.nominal), color: '#2563eb' }, { label: 'Ponderado', data: forecast.map(row => row.forecast), color: '#18c8df' }],
             emptyLabel: 'Nenhum fechamento previsto nos próximos 6 meses. Revise as datas das oportunidades.',
             note: `${forecastDeals} oportunidades previstas • ${kpis.overdueOpportunities || 0} atrasadas • ${kpis.unscheduledOpportunities || 0} sem data`
           }}
@@ -342,14 +342,14 @@ export default function Dashboard() {
         />
         <section className="mt-5 grid gap-4 px-2 pb-8 md:grid-cols-2 xl:grid-cols-3" aria-label="Análises da carteira em aberto">
           <DashboardAdvancedChart title="Valor por Etapa" subtitle="Carteira aberta • nominal e ponderado (R$)" icon={<BarChart3 className="h-4 w-4" />} type="bar" height={240}
-            data={{ labels: opportunityInsights.stageRows.map(row => row.label), datasets: [{ label: 'Nominal', data: opportunityInsights.stageRows.map(row => row.value), backgroundColor: '#ff7a00', borderRadius: 6 }, { label: 'Ponderado', data: opportunityInsights.stageRows.map(row => row.weightedValue), backgroundColor: '#18c8df', borderRadius: 6 }] }}
+            data={{ labels: opportunityInsights.stageRows.map(row => row.label), datasets: [{ label: 'Nominal', data: opportunityInsights.stageRows.map(row => row.value), backgroundColor: '#2563eb', borderRadius: 6 }, { label: 'Ponderado', data: opportunityInsights.stageRows.map(row => row.weightedValue), backgroundColor: '#18c8df', borderRadius: 6 }] }}
             customOptions={currencyOptions} isEmpty={!opportunityInsights.stageRows.some(row => row.value > 0)} emptyMessage={hasOpen ? 'Informe o valor das oportunidades para analisar o potencial por etapa.' : 'Nenhuma oportunidade em aberto nos filtros selecionados.'} />
           <DashboardAdvancedChart title="Probabilidade de Fechamento" subtitle="Volume de oportunidades em aberto por faixa" icon={<Target className="h-4 w-4" />} type="bar" height={240} showLegend={false}
             data={{ labels: opportunityInsights.temperatureRows.map(row => row.label), datasets: [{ label: 'Oportunidades', data: opportunityInsights.temperatureRows.map(row => row.count), backgroundColor: opportunityInsights.temperatureRows.map(row => row.color), borderRadius: 6 }] }} customOptions={countOptions} isEmpty={!hasOpen} emptyMessage="Nenhuma oportunidade em aberto nos filtros selecionados." />
           <DashboardAdvancedChart title="Envelhecimento do Pipeline" subtitle="Dias desde a entrada da oportunidade • carteira aberta" icon={<Clock3 className="h-4 w-4" />} type="bar" height={240} showLegend={false}
             data={{ labels: opportunityInsights.agingRows.map(row => row.label), datasets: [{ label: 'Oportunidades', data: opportunityInsights.agingRows.map(row => row.count), backgroundColor: ['#22c55e', '#18c8df', '#1f7fe5', '#f6b40b', '#ef4444', '#64748b'], borderRadius: 6 }] }} customOptions={countOptions} isEmpty={!hasOpen} emptyMessage="Nenhuma oportunidade em aberto nos filtros selecionados." />
           <DashboardAdvancedChart title="Perfil da Carteira" subtitle="Oportunidades abertas: novos clientes, base e renovação" icon={<PieChart className="h-4 w-4" />} type="doughnut" height={240} legendPosition="bottom"
-            data={{ labels: opportunityInsights.clientTypeRows.map(row => row.label), datasets: [{ data: opportunityInsights.clientTypeRows.map(row => row.count), backgroundColor: ['#18c8df', '#ff7a00', '#22c55e', '#64748b'] }] }} isEmpty={!hasOpen} emptyMessage="Nenhuma oportunidade em aberto nos filtros selecionados." />
+            data={{ labels: opportunityInsights.clientTypeRows.map(row => row.label), datasets: [{ data: opportunityInsights.clientTypeRows.map(row => row.count), backgroundColor: ['#18c8df', '#2563eb', '#22c55e', '#64748b'] }] }} isEmpty={!hasOpen} emptyMessage="Nenhuma oportunidade em aberto nos filtros selecionados." />
           <DashboardAdvancedChart title="Torres de Projeto" subtitle="Volume de oportunidades abertas por solução" icon={<BarChart3 className="h-4 w-4" />} type="bar" height={240} showLegend={false}
             data={{ labels: towers.map(row => row.label), datasets: [{ label: 'Oportunidades', data: towers.map(row => row.count), backgroundColor: '#18c8df', borderRadius: 6 }] }}
             customOptions={{ indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { color: '#bcd4ee', precision: 0 }, grid: { color: 'rgba(125,162,206,0.18)' } }, y: { ticks: { color: '#bcd4ee', font: { size: 10 } }, grid: { display: false } } } }} isEmpty={!hasOpen} emptyMessage="Nenhuma oportunidade em aberto nos filtros selecionados." />
@@ -364,10 +364,10 @@ export default function Dashboard() {
             <DashboardAdvancedChart title="Evolução das Receitas" subtitle={`Vendas ganhas • ${historyLabel}`} type="bar" height={260}
               data={{ labels: revenueTimeline.map(row => row.label), datasets: [
                 { label: 'Recorrente', data: revenueTimeline.map(row => row.recurring), backgroundColor: '#18c8df', borderRadius: 6 },
-                { label: 'Pontual + setup', data: revenueTimeline.map(row => row.oneTime), backgroundColor: '#ff7a00', borderRadius: 6 }
+                { label: 'Pontual + setup', data: revenueTimeline.map(row => row.oneTime), backgroundColor: '#2563eb', borderRadius: 6 }
               ] }} customOptions={currencyOptions} isEmpty={!revenueTimeline.some(row => row.recurring > 0 || row.oneTime > 0)} emptyMessage="Nenhuma receita projetada para o período selecionado." />
             <DashboardAdvancedChart title="Composição da Receita" subtitle="Vendas ganhas • valores projetados no período" type="doughnut" height={260} legendPosition="bottom"
-              data={{ labels: ['Recorrente', 'Pontual + setup'], datasets: [{ data: [revenue.periodRecurring || 0, revenue.periodOneTime || 0], backgroundColor: ['#18c8df', '#ff7a00'] }] }}
+              data={{ labels: ['Recorrente', 'Pontual + setup'], datasets: [{ data: [revenue.periodRecurring || 0, revenue.periodOneTime || 0], backgroundColor: ['#18c8df', '#2563eb'] }] }}
               customOptions={{ plugins: { tooltip: { callbacks: { label: context => `${context.label}: ${formatCurrency(context.parsed)}` } } } }}
               isEmpty={!revenue.periodRecurring && !revenue.periodOneTime} emptyMessage="Nenhuma receita projetada para o período selecionado." />
           </div>

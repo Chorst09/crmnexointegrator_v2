@@ -45,6 +45,7 @@ import {
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 
 import { buildApiUrl, getAuthHeaders } from '../config/api';
+import { normalizeTextList } from '../lib/text-utils.ts';
 import DashboardKPICard from '../components/DashboardKPICard';
 import Modal from '../components/Modal';
 import PresentationControls from '../components/PresentationControls';
@@ -439,7 +440,7 @@ export default function PreVendas() {
       console.error('📄 Dados:', error.response?.data);
       console.error('🔗 URL:', error.config?.url);
       
-      const errorMsg = error.response?.data?.message || error.message;
+      const errorMsg = error.response?.data?.message || error.response?.data?.error || error.message;
       
       if (error.response?.status === 403) {
         alert(`🚫 Sem Permissão\n\n${errorMsg}\n\nApenas o solicitante ou administradores podem excluir esta solicitação.`);

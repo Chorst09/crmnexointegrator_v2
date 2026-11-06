@@ -129,10 +129,21 @@ if (!isPlaceholderUrl) {
     realPrisma = new PrismaClient(prismaOptions);
     ensureB2GTablesExist();
   } catch (err) {
-    console.warn('[AI Studio] Erro ao instanciar PrismaClient real, usando mock em memória:', err.message);
+    console.warn('[AI Studio] Erro ao instanciar PrismaClient real:', err.message);
     realPrisma = null;
     isDatabaseConnected = false;
   }
+}
+
+// A configured database is authoritative. SQL and connection errors must remain
+// errors; switching to demonstration data would discard user writes and identity.
+if (!isPlaceholderUrl) {
+  if (!realPrisma) throw new Error('Falha ao inicializar o banco configurado. O modo de demonstração não pode substituir o banco real.');
+  module.exports = { prisma: realPrisma };
+  return;
+}
+if (process.env.NODE_ENV === 'production') {
+  throw new Error('DATABASE_URL precisa apontar para o banco real em produção.');
 }
 
 // In-Memory Database Store for complete CRM functionality

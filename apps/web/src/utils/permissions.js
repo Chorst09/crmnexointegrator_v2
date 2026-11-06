@@ -335,6 +335,7 @@ export const moduleFromPath = (pathname = '') => {
   }
 
   if (
+    path.startsWith('/contratos') ||
     path.startsWith('/projetos') ||
     path.startsWith('/kickoff') ||
     path.startsWith('/produtos') ||

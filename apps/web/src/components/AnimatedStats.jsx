@@ -81,8 +81,33 @@ const AnimatedStats = ({
 
   const classes = colorClasses[color] || colorClasses.blue;
   const compact = size === 'compact';
+  const dense = size === 'dense';
   const formattedDisplayValue = typeof displayValue === 'number' ? displayValue.toLocaleString() : displayValue;
   const valueText = `${prefix}${formattedDisplayValue ?? ''}${suffix}`;
+  if (dense) {
+    return (
+      <div
+        className={`crm-panel relative min-w-0 rounded-xl p-3.5 transition-colors ${onClick ? 'cursor-pointer hover:border-cyan-500/40' : ''}`}
+        style={{ containerType: 'inline-size' }}
+        onClick={onClick}
+        data-stat-density="dense"
+      >
+        <div className="flex min-h-7 items-center justify-between gap-2">
+          <p className="min-w-0 text-xs font-semibold leading-snug text-[var(--crm-muted)]">{title}</p>
+          <div className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-gradient-to-br ${classes.light} ${classes.icon}`}>
+            {typeof Icon === 'string' ? <span className="text-base">{Icon}</span> : Icon ? <Icon className="h-4 w-4" /> : null}
+          </div>
+        </div>
+        <p
+          className={`mt-2 max-w-full font-bold leading-tight tracking-tight tabular-nums ${classes.text}`}
+          style={{ fontSize: String(valueText).length > 9 ? 'clamp(0.875rem, 6.5cqi, 1.5rem)' : '1.75rem', overflowWrap: 'anywhere' }}
+          title={valueTitle || valueText}
+          data-stat-value
+        >{valueText}</p>
+        {subtitle && <p className="mt-1 text-[11px] leading-snug text-[var(--crm-muted)]">{subtitle}</p>}
+      </div>
+    );
+  }
   const isLongValue = String(valueText).length > (compact ? 9 : 12);
   const valueSizeClass = compact
     ? (isLongValue ? 'text-[clamp(1.45rem,2vw,1.9rem)]' : 'text-2xl')

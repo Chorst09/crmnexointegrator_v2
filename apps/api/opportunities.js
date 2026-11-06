@@ -25,7 +25,7 @@ const normalizeClientType = (value) => {
   return normalized === 'B2B' || normalized === 'B2G' ? normalized : null;
 };
 
-const hasB2GSignal = (value) => /\bB2G\b|GOVERNO|\bGOV\b|LICIT|EDITAL|TERMO DE REFER[ÊE]NCIA/i.test(String(value || ''));
+const hasB2GSignal = (value) => /\bB2G\b|\bGOVERNO\b|\bGOV\b|\bLICIT|\bEDITA(?:L|IS)\b|TERMO DE REFER[ÊE]NCIA/i.test(String(value || ''));
 
 const hasB2GDescriptionShape = (value) => {
   const text = String(value || '').trim();

@@ -277,13 +277,13 @@ export default function KanbanBoard({
   };
 
   return (
-    <div className="h-full flex flex-col bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-hidden text-[rgb(var(--crm-ink-rgb)_/_1)] font-sans">
+    <div className="h-full flex flex-col bg-transparent overflow-hidden text-[var(--crm-ink)] font-sans">
       <style>{printStyles}</style>
       {/* Toolbar com botões de exportação */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)]">
-        <h2 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-2">
+      <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.5)]">
+        <h2 className="text-sm font-bold text-[var(--crm-ink)] flex items-center gap-2">
           <span>Quadro Kanban</span>
-          <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] font-normal">
+          <span className="text-xs text-[var(--crm-muted)] font-normal">
             {issues.length} {issues.length === 1 ? 'tarefa' : 'tarefas'}
           </span>
         </h2>
@@ -291,7 +291,7 @@ export default function KanbanBoard({
           <button
             onClick={printBoard}
             disabled={isExportingPDF}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md hover:border-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[var(--crm-ink)] bg-transparent border border-[var(--crm-border)] rounded-md hover:border-[#2563eb] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Imprimir quadro"
           >
             <Printer className="w-4 h-4" />
@@ -300,7 +300,7 @@ export default function KanbanBoard({
           <button
             onClick={exportToPDF}
             disabled={isExportingPDF}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#ff7a00] rounded-md hover:bg-[#f6b40b] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#2563eb] rounded-md hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Exportar para PDF"
           >
             <FileDown className="w-4 h-4" />
@@ -333,7 +333,7 @@ export default function KanbanBoard({
                           if (e.key === 'Enter') handleColumnTitleChange(column.id, e.currentTarget.value);
                           if (e.key === 'Escape') setEditingColumnId(null);
                         }}
-                        className={cn("w-32 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[10px] font-bold tracking-wider rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-[#ff7a00]", column.colorClass.split('bg-')[0])}
+                        className={cn("w-32 bg-[var(--crm-surface)] text-[10px] font-bold tracking-wider rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-[#2563eb]", column.colorClass.split('bg-')[0])}
                       />
                     ) : (
                       <span
@@ -346,20 +346,20 @@ export default function KanbanBoard({
                         {column.title}
                       </span>
                     )}
-                    <span className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                    <span className="text-xs font-medium text-[var(--crm-muted)]">
                       {columnIssues.length}
                     </span>
                   </div>
-                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity text-[rgb(var(--crm-muted-rgb)_/_1)] gap-1">
-                    <button onClick={() => handleAddTask(column.id)} className="p-1 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded transition-colors"><Plus className="w-4 h-4" /></button>
-                    <button onClick={() => setEditingColumnId(column.id)} className="p-1 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
+                  <div className="flex items-center opacity-0 group-hover:opacity-100 transition-opacity text-[var(--crm-muted)] gap-1">
+                    <button onClick={() => handleAddTask(column.id)} className="p-1 hover:bg-[var(--crm-surface-2)] hover:text-[var(--crm-ink)] rounded transition-colors"><Plus className="w-4 h-4" /></button>
+                    <button onClick={() => setEditingColumnId(column.id)} className="p-1 hover:bg-[var(--crm-surface-2)] hover:text-[var(--crm-ink)] rounded transition-colors"><MoreHorizontal className="w-4 h-4" /></button>
                   </div>
                 </div>
 
                 {/* Column Cards Container */}
                 <div className={cn(
                   "flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-3 px-1 pb-4 transition-colors duration-200",
-                  isDragActive && "bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] rounded-md ring-2 ring-[#ff7a00]/30"
+                  isDragActive && "bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] rounded-md ring-2 ring-[#2563eb]/30"
                 )}>
                   {columnIssues.map(issue => {
                     const checklist = getChecklist(issue.id);
@@ -379,17 +379,17 @@ export default function KanbanBoard({
                             onTaskClick?.(issue);
                           }
                         }}
-                        className="group/card relative bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-md border border-[var(--crm-border)] hover:border-[var(--crm-border)] shadow-sm hover:shadow-lg cursor-pointer transition-all duration-200 overflow-hidden flex flex-col"
+                        className="group/card relative bg-[var(--crm-surface)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-md border border-[var(--crm-border)] hover:border-[var(--crm-border)] shadow-sm hover:shadow-lg cursor-pointer transition-all duration-200 overflow-hidden flex flex-col"
                       >
                         {/* Priority Top Border Highlight */}
                         <div className={cn(
                           "absolute top-0 left-0 right-0 h-[2px]",
-                          issue.priority === 'Alta' ? 'bg-yellow-500' : "bg-[rgb(var(--crm-surface-rgb)_/_1)]"
+                          issue.priority === 'Alta' ? 'bg-yellow-500' : 'bg-[var(--crm-surface-2)]'
                         )} />
 
                         {/* Drag Handle & ID */}
                         <div className="px-4 pt-3 flex items-center justify-between mb-2">
-                          <span className="text-[10px] font-mono text-[rgb(var(--crm-muted-rgb)_/_1)] tracking-wider" title="Código da fase">
+                          <span className="text-[10px] font-mono text-[var(--crm-muted)] tracking-wider" title="Código da fase">
                             {getTaskId(issue.id, issue.key)}
                           </span>
                           <div className="flex items-center gap-1">
@@ -399,7 +399,7 @@ export default function KanbanBoard({
                                 e.stopPropagation();
                                 setEditingTitleId(issue.id);
                               }}
-                              className="rounded p-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:text-[#ffb15c]"
+                              className="rounded p-1 text-[var(--crm-muted)] hover:bg-[var(--crm-surface-2)] hover:text-[var(--pm-accent-text)]"
                               title="Editar nome da fase"
                             >
                               <Pencil className="w-3.5 h-3.5" />
@@ -412,14 +412,14 @@ export default function KanbanBoard({
                                   onDeleteIssue?.(issue);
                                 }
                               }}
-                              className="rounded p-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-red-50/40 dark:hover:bg-red-900/40 hover:text-red-700 dark:hover:text-red-400"
+                              className="rounded p-1 text-[var(--crm-muted)] hover:bg-red-50/40 dark:hover:bg-red-900/40 hover:text-red-700 dark:hover:text-red-400"
                               title="Excluir fase"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                             <button
                               type="button"
-                              className="rounded p-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] hover:text-[rgb(var(--crm-muted-rgb)_/_1)] cursor-grab active:cursor-grabbing"
+                              className="rounded p-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[var(--crm-surface-2)] hover:text-[var(--crm-muted)] cursor-grab active:cursor-grabbing"
                               title="Mover fase"
                             >
                               <GripVertical className="w-4 h-4" />
@@ -443,14 +443,14 @@ export default function KanbanBoard({
                                     handleTitleChange(issue.id, issue.title);
                                   }
                                 }}
-                                className="w-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[#ff7a00] text-[13px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] rounded px-2 py-1 outline-none shadow-sm"
+                                className="w-full bg-transparent border border-[#2563eb] text-[13px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] rounded px-2 py-1 outline-none shadow-sm"
                                 placeholder="Digite o nome da fase..."
                               />
                             ) : (
                               <div
                                 onClick={() => setEditingTitleId(issue.id)}
                                 className={cn(
-                                  "min-h-[38px] text-[13px] font-bold leading-relaxed px-1 -mx-1 cursor-text hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded transition-colors break-words text-[rgb(var(--crm-ink-rgb)_/_1)] line-clamp-2"
+                                  "min-h-[38px] text-[13px] font-bold leading-relaxed px-1 -mx-1 cursor-text hover:bg-[var(--crm-surface-2)] rounded transition-colors break-words text-[var(--crm-ink)] line-clamp-2"
                                 )}
                               >
                                 {issue.title || 'Fase sem nome'}
@@ -471,9 +471,9 @@ export default function KanbanBoard({
                           {issue.customFields && issue.customFields.length > 0 && (
                             <div className="flex flex-col gap-1.5 mb-3">
                               {issue.customFields.map((cf) => (
-                                <div key={cf.id} className="flex items-center justify-between bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded px-2 py-1 text-[10px]">
-                                  <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium truncate max-w-[45%]">{cf.name}:</span>
-                                  <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] truncate max-w-[50%]">{cf.value}</span>
+                                <div key={cf.id} className="flex items-center justify-between bg-[var(--crm-surface)] rounded px-2 py-1 text-[10px]">
+                                  <span className="text-[var(--crm-muted)] font-medium truncate max-w-[45%]">{cf.name}:</span>
+                                  <span className="text-[var(--crm-ink)] truncate max-w-[50%]">{cf.value}</span>
                                 </div>
                               ))}
                             </div>
@@ -481,17 +481,17 @@ export default function KanbanBoard({
 
                         </div>
                         {/* Footer (Stats & Avatars) */}
-                        <div className="px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] border-t border-[var(--crm-border)] flex items-center justify-between mt-auto">
+                        <div className="px-4 py-3 bg-[rgb(var(--crm-surface-rgb)/0.5)] border-t border-[var(--crm-border)] flex items-center justify-between mt-auto">
 
                           {/* Badges/Stats */}
                           <div className="flex items-center gap-3">
-                            <div className={cn("flex items-center gap-1 text-[11px]", checklist.done === checklist.total ? "text-emerald-500" : "text-[rgb(var(--crm-muted-rgb)_/_1)]")}>
+                            <div className={cn("flex items-center gap-1 text-[11px]", checklist.done === checklist.total ? "text-emerald-500" : "text-[var(--crm-muted)]")}>
                               <CheckSquare className="w-3.5 h-3.5" />
                               <span className="font-medium">{checklist.done}/{checklist.total}</span>
                             </div>
 
                             {commentsCount > 0 && (
-                              <div className="flex items-center gap-1 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                              <div className="flex items-center gap-1 text-[11px] text-[var(--crm-muted)]">
                                 <MessageSquare className="w-3.5 h-3.5" />
                                 <span className="font-medium">{commentsCount}</span>
                               </div>
@@ -500,7 +500,7 @@ export default function KanbanBoard({
                             {issue.dueDate && (
                               <div className={cn(
                                 "flex items-center gap-1 text-[11px] font-medium",
-                                issue.status === 'EM RISCO' ? "text-red-700 dark:text-red-400" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"
+                                issue.status === 'EM RISCO' ? "text-red-700 dark:text-red-400" : "text-[var(--crm-muted)]"
                               )}>
                                 <Calendar className="w-3 h-3" />
                                 {issue.dueDate.substring(5).replace('-', '/')}
@@ -512,13 +512,13 @@ export default function KanbanBoard({
                           <div>
                             {issue.assignee ? (
                               <div className={cn(
-                                "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm ring-2 ring-[#111827]",
+                                "w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm ring-2 ring-[var(--crm-surface)]",
                                 issue.assignee.color
                               )}>
                                 {issue.assignee.initials}
                               </div>
                             ) : (
-                              <div className="w-6 h-6 rounded-full flex items-center justify-center bg-[rgb(var(--crm-surface-2-rgb)_/_1)] ring-2 ring-[#111827] text-[rgb(var(--crm-muted-rgb)_/_1)] border border-dashed border-[var(--crm-border)]">
+                              <div className="w-6 h-6 rounded-full flex items-center justify-center bg-[var(--crm-surface-2)] ring-2 ring-[var(--crm-surface)] text-[var(--crm-muted)] border border-dashed border-[var(--crm-border)]">
                                 <UserIcon className="w-3 h-3" />
                               </div>
                             )}
@@ -531,11 +531,11 @@ export default function KanbanBoard({
 
                   {/* Drop zone placeholder if empty */}
                   {columnIssues.length === 0 && isDragActive && (
-                    <div className="h-24 border-2 border-dashed border-[#ff7a00]/30 rounded-md bg-[#ff7a00]/5"></div>
+                    <div className="h-24 border-2 border-dashed border-[#2563eb]/30 rounded-md bg-[#2563eb]/5"></div>
                   )}
 
                   {/* Add task button at the bottom of the column */}
-                  <button onClick={() => handleAddTask(column.id)} className="flex items-center gap-2 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 rounded-lg w-full text-left transition-colors border border-transparent hover:border-[var(--crm-border)] mt-1 group">
+                  <button onClick={() => handleAddTask(column.id)} className="flex items-center gap-2 text-sm text-[var(--crm-muted)] hover:text-[var(--crm-ink)] hover:bg-[var(--crm-surface)] px-3 py-2 rounded-lg w-full text-left transition-colors border border-transparent hover:border-[var(--crm-border)] mt-1 group">
                     <Plus className="w-4 h-4 opacity-70" />
                     <span>Adicionar Fase</span>
                   </button>

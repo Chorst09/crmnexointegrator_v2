@@ -2,7 +2,14 @@ const express = require('express');
 const { prisma } = require('../lib/prisma.cjs');
 const { getTenantId } = require('../lib/access-control.cjs');
 
+const { canAccessModule, normalizeRole } = require('../lib/permissions.cjs');
+const { createPreSalesClosureHandler, parseClosureFlow } = require('../lib/pre-sales-closure.cjs');
 const router = express.Router();
+const closePreSalesActivity = createPreSalesClosureHandler({
+  prisma, tenantId: getTenantId, sourceType: 'ACTIVITY',
+  canOperate: (user) => ['MASTER', 'ADMIN'].includes(normalizeRole(user.actualRole || user.role)) || canAccessModule(user, 'PRE_SALES')
+});
+router.post('/:id/encerrar-prevendas', closePreSalesActivity);
 const ACTIVITY_FLOW_MARKER = '[CRM_ACTIVITY_FLOW]';
 const PRE_SALES_TARGET = 'PRE_VENDAS';
 
@@ -61,6 +68,19 @@ const parseFlowFromDescription = (description) => {
 
 const getAuthenticatedUserId = (req) => req.user?.userId || req.user?.id || null;
 
+const canUsePreSalesQueue = (user = {}) => Boolean(
+  getTenantId(user) && (user.accessPreSales === true || ['PRE_SALES', 'PRE_VENDAS'].includes(String(user.actualRole || user.role || '').trim().toUpperCase()))
+);
+
+const isPreSalesActivity = (activity = {}) => {
+  const { flow, hasMarker } = parseFlowFromDescription(activity.description);
+  return hasMarker && [flow.sourceArea, flow.targetArea].some((area) => normalizeFlowArea(area) === PRE_SALES_TARGET);
+};
+
+const canCollaborateOnActivity = (user, activity) => (
+  getTenantId(user) && activity.tenantCompanyId === getTenantId(user) && canUsePreSalesQueue(user) && isPreSalesActivity(activity)
+);
+
 const generatePreSalesNumber = async () => {
   const year = new Date().getFullYear();
   const prefix = `PRE-${year}-`;
@@ -92,7 +112,7 @@ router.get('/', async (req, res) => {
       where.tenantCompanyId = tenantId;
     }
 
-    if (req.user?.role === 'SELLER') {
+    if (req.user?.role === 'SELLER' && !canUsePreSalesQueue(req.user)) {
       where.assignedToId = getAuthenticatedUserId(req);
     }
 
@@ -111,8 +131,11 @@ router.get('/', async (req, res) => {
       ]
     });
 
+    const visibleActivities = req.user?.role === 'SELLER'
+      ? activities.filter((act) => act.assignedToId === getAuthenticatedUserId(req) || canCollaborateOnActivity(req.user, act))
+      : activities;
     const enriched = await Promise.all(
-      activities.map(async (act) => {
+      visibleActivities.map(async (act) => {
         let company = act.company;
         if (!company && act.companyId) {
           try {
@@ -359,44 +382,55 @@ router.post('/', async (req, res) => {
       : (req.body.description || '');
 
     const requestedAssignedToId = String(req.body.assignedToId || '').trim();
-    let assignedToId = currentUserId;
-
-    if (req.user.role === 'SELLER') {
-      assignedToId = currentUserId;
-    } else if (requestedAssignedToId) {
-      const assignedUser = await prisma.user.findUnique({
-        where: { id: requestedAssignedToId },
-        select: { id: true }
-      });
-
-      if (assignedUser?.id) {
-        assignedToId = assignedUser.id;
-      } else {
-        console.warn('⚠️ assignedToId inválido recebido em /activities-simple, usando usuário autenticado.', {
-          requestedAssignedToId,
-          fallbackUserId: currentUserId
-        });
-      }
+    const actorRole = String(req.user.actualRole || req.user.role || '').trim().toUpperCase();
+    const canAssignToOthers = ['MASTER', 'ADMIN'].includes(actorRole) || req.user.role !== 'SELLER';
+    const assignedToId = canAssignToOthers && requestedAssignedToId ? requestedAssignedToId : currentUserId;
+    const assignedUser = await prisma.user.findUnique({
+      where: { id: assignedToId },
+      select: { id: true, tenantCompanyId: true }
+    });
+    if (!assignedUser) {
+      return res.status(400).json({ error: 'Responsável não encontrado' });
     }
-    
+    const actorTenantCompanyId = getTenantId(req.user);
+    if (actorTenantCompanyId && assignedUser.tenantCompanyId && assignedUser.tenantCompanyId !== actorTenantCompanyId) {
+      return res.status(403).json({ error: 'Responsável não pertence a este tenant' });
+    }
+    const tenantCompanyId = actorTenantCompanyId || assignedUser.tenantCompanyId || req.user.tenantCompanyId || null;
+
     const activityData = {
       type: req.body.type || 'TASK',
       subject: req.body.subject || 'Sem título',
       description: descriptionWithFlow,
       status: req.body.status || 'PENDING',
       priority: req.body.priority || 'MEDIUM',
-      assignedToId
+      assignedToId,
+      tenantCompanyId
     };
     
     // Adicionar campos opcionais se fornecidos
     if (req.body.companyId && req.body.companyId.trim() !== '') {
       console.log('📎 Adicionando companyId:', req.body.companyId);
-      activityData.companyId = req.body.companyId;
+      const company = await prisma.company.findUnique({
+        where: { id: req.body.companyId },
+        select: { id: true, tenantCompanyId: true }
+      });
+      if (!company || (tenantCompanyId && company.tenantCompanyId !== tenantCompanyId)) {
+        return res.status(403).json({ error: 'Empresa não pertence a este tenant' });
+      }
+      activityData.companyId = company.id;
     }
     
     if (req.body.opportunityId && req.body.opportunityId.trim() !== '') {
       console.log('📎 Adicionando opportunityId:', req.body.opportunityId);
-      activityData.opportunityId = req.body.opportunityId;
+      const opportunity = await prisma.opportunity.findUnique({
+        where: { id: req.body.opportunityId },
+        select: { id: true, tenantCompanyId: true }
+      });
+      if (!opportunity || (tenantCompanyId && opportunity.tenantCompanyId !== tenantCompanyId)) {
+        return res.status(403).json({ error: 'Oportunidade não pertence a este tenant' });
+      }
+      activityData.opportunityId = opportunity.id;
     }
     
     if (req.body.dueDate) {
@@ -494,15 +528,24 @@ router.put('/', async (req, res) => {
     if (!req.user) return res.status(401).json({ error: 'Token não fornecido' });
 
     const { id, status } = req.body;
+    const closureActivity = await prisma.activity.findUnique({ where: { id } });
+    if (parseClosureFlow(closureActivity?.description).flow.preSalesClosure) {
+      return res.status(409).json({ error: 'Esta cotação já foi encerrada; o retorno ao comercial deve ser preservado' });
+    }
+    if (status === 'CANCELLED' && isPreSalesActivity(closureActivity || {})) {
+      req.params = { ...req.params, id };
+      req.body.status = 'CANCELADA';
+      return closePreSalesActivity(req, res);
+    }
     const currentUserId = getAuthenticatedUserId(req);
 
     if (req.user?.role === 'SELLER') {
       const existing = await prisma.activity.findUnique({
         where: { id },
-        select: { assignedToId: true }
+        select: { assignedToId: true, tenantCompanyId: true, description: true }
       });
       if (!existing) return res.status(404).json({ error: 'Not found' });
-      if (existing.assignedToId !== currentUserId) {
+      if (existing.assignedToId !== currentUserId && !canCollaborateOnActivity(req.user, existing)) {
         return res.status(403).json({ error: 'Acesso negado' });
       }
     }

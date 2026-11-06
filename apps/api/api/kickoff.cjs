@@ -381,17 +381,23 @@ router.post('/meetings', authenticateToken, async (req, res) => {
       return res.status(403).json({ error: 'Acesso negado' });
     }
 
-    // Gerar número sequencial
+    const parsedScheduledDate = parseDateTime(scheduledDate);
+    if (!parsedScheduledDate) {
+      return res.status(400).json({ error: 'Data da reunião inválida' });
+    }
+
+    // Use o maior número existente: exclusões não podem reutilizar números.
     const year = new Date().getFullYear();
-    const count = await prisma.kickoffMeeting.count({
-      where: {
-        createdAt: {
-          gte: new Date(`${year}-01-01`),
-          lt: new Date(`${year + 1}-01-01`)
-        }
-      }
+    const prefix = `KICK${year}`;
+    const previousMeetings = await prisma.kickoffMeeting.findMany({
+      where: { number: { startsWith: prefix } },
+      select: { number: true }
     });
-    const number = `KICK${year}${String(count + 1).padStart(4, '0')}`;
+    let sequence = previousMeetings.reduce((max, meeting) => {
+      const suffix = meeting.number.slice(prefix.length);
+      return /^\d+$/.test(suffix) ? Math.max(max, Number(suffix)) : max;
+    }, 0) + 1;
+    let number = `${prefix}${String(sequence).padStart(4, '0')}`;
 
     // Se template informado e não houver pauta/checklist explícitos, carregar do template
     let finalTemplateId = templateId;
@@ -416,7 +422,7 @@ router.post('/meetings', authenticateToken, async (req, res) => {
       }
     }
 
-    const meeting = await prisma.kickoffMeeting.create({
+    const createMeeting = () => prisma.kickoffMeeting.create({
       data: {
         number,
         title,
@@ -425,7 +431,7 @@ router.post('/meetings', authenticateToken, async (req, res) => {
         status: 'AGENDADA',
         platform: platform || 'MEET',
         meetingLink,
-        scheduledDate: new Date(scheduledDate),
+        scheduledDate: parsedScheduledDate,
         startTime,
         endTime,
         opportunityId,
@@ -461,6 +467,21 @@ router.post('/meetings', authenticateToken, async (req, res) => {
       },
       include: MEETING_INCLUDE
     });
+
+    let meeting;
+    for (let attempt = 0; attempt < 3; attempt += 1) {
+      try {
+        meeting = await createMeeting();
+        break;
+      } catch (error) {
+        const target = error.meta?.target;
+        const numberConflict = error.code === 'P2002' &&
+          (Array.isArray(target) ? target.includes('number') : String(target || '').includes('number'));
+        if (!numberConflict || attempt === 2) throw error;
+        sequence += 1;
+        number = `${prefix}${String(sequence).padStart(4, '0')}`;
+      }
+    }
 
     res.status(201).json(meeting);
   } catch (error) {

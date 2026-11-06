@@ -32,7 +32,29 @@ export default async function handler(req) {
 
   if (req.method === 'POST') {
     const body = await req.json();
-    const tenantCompanyId = getTenantCompanyId(req.user) || body.tenantCompanyId || null;
+    const actorRole = String(req.user?.actualRole || req.user?.role || '').trim().toUpperCase();
+    const canAssignToOthers = ['MASTER', 'ADMIN'].includes(actorRole) || req.user?.role !== 'SELLER';
+    const assignedToId = canAssignToOthers
+      ? (body.assignedToId || req.user?.userId || req.user?.id)
+      : (req.user?.userId || req.user?.id);
+    if (!assignedToId) return Response.json({ error: 'assignedToId é obrigatório' }, { status: 400 });
+    const assignedUser = await prisma.user.findUnique({
+      where: { id: assignedToId }, select: { id: true, tenantCompanyId: true }
+    });
+    if (!assignedUser) return Response.json({ error: 'Responsável não encontrado' }, { status: 400 });
+    const actorTenantCompanyId = actorRole === 'MASTER' ? null : (req.user?.tenantCompanyId || null);
+    if (actorTenantCompanyId && assignedUser.tenantCompanyId && assignedUser.tenantCompanyId !== actorTenantCompanyId) {
+      return Response.json({ error: 'Responsável não pertence a este tenant' }, { status: 403 });
+    }
+    const tenantCompanyId = actorTenantCompanyId || assignedUser.tenantCompanyId || req.user?.tenantCompanyId || null;
+    for (const relation of ['company', 'opportunity']) {
+      const relationId = body[`${relation}Id`];
+      if (!relationId) continue;
+      const record = await prisma[relation].findUnique({ where: { id: relationId }, select: { tenantCompanyId: true } });
+      if (!record || (tenantCompanyId && record.tenantCompanyId !== tenantCompanyId)) {
+        return Response.json({ error: 'Vínculo não pertence a este tenant' }, { status: 403 });
+      }
+    }
     const activity = await prisma.activity.create({
       data: {
         type: body.type,
@@ -43,7 +65,7 @@ export default async function handler(req) {
         dueDate: body.dueDate ? new Date(body.dueDate) : null,
         companyId: body.companyId,
         opportunityId: body.opportunityId,
-        assignedToId: body.assignedToId,
+        assignedToId,
         tenantCompanyId
       },
       include: {

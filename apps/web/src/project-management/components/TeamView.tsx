@@ -68,7 +68,7 @@ const providerOptions: Array<{
   description: string;
   accent: string;
 }> = [
-  { name: 'Gmail', description: 'Conta Google individual', accent: '#ff7a00' },
+  { name: 'Gmail', description: 'Conta Google individual', accent: '#2563eb' },
   { name: 'Google Workspace', description: 'Domínio corporativo Google', accent: '#22c55e' },
   { name: 'Outlook', description: 'Conta Microsoft pessoal', accent: '#18c8df' },
   { name: 'Microsoft 365', description: 'Tenant corporativo Microsoft', accent: '#3b82f6' },
@@ -245,7 +245,7 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
     return teamMembers.map((member, index) => {
       const name = member.user?.name || 'Usuario sem nome';
       const email = member.user?.email || '';
-      const colors = ['bg-[#ff7a00]', 'bg-[#18c8df]', 'bg-[#22c55e]', 'bg-[#f6b40b]', 'bg-[#3b82f6]', "bg-[rgb(var(--crm-surface-rgb)_/_1)]"];
+      const colors = ['bg-[#2563eb]', 'bg-[#18c8df]', 'bg-[#22c55e]', 'bg-[#f6b40b]', 'bg-[#3b82f6]', "bg-[rgb(var(--crm-surface-rgb)_/_1)]"];
       return {
         id: member.id,
         memberId: member.id,
@@ -398,31 +398,31 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
   };
 
   return (
-    <div className="h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-y-auto p-8 text-[rgb(var(--crm-ink-rgb)_/_1)] custom-scrollbar">
+    <div className="h-full bg-transparent overflow-y-auto p-8 text-[var(--crm-ink)] custom-scrollbar">
       <div className="max-w-6xl mx-auto">
 
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center gap-3">
-              <Users className="w-6 h-6 text-[#ff7a00]" />
+            <h1 className="text-2xl font-bold text-[var(--crm-ink)] flex items-center gap-3">
+              <Users className="w-6 h-6 text-[#2563eb]" />
               Equipe do Projeto
             </h1>
-            {projectName && <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Projeto: {projectName}</p>}
+            {projectName && <p className="mt-1 text-sm text-[var(--crm-muted)]">Projeto: {projectName}</p>}
           </div>
           <div className="flex items-center gap-3">
             <div className="relative">
-              <Search className="w-4 h-4 text-[rgb(var(--crm-muted-rgb)_/_1)] absolute left-3 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-[var(--crm-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Procurar membro..."
-                className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-md pl-9 pr-4 py-1.5 focus:outline-none focus:border-[#ff7a00] w-64"
+                className="bg-[var(--crm-surface)] border border-[var(--crm-border)] text-sm text-[var(--crm-ink)] rounded-md pl-9 pr-4 py-1.5 focus:outline-none focus:border-[#2563eb] w-64"
               />
             </div>
             <button
               onClick={() => setInviteOpen(true)}
-              className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#ff7a00] hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] px-4 py-1.5 rounded-md transition-colors font-medium"
+              className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#2563eb] hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] px-4 py-1.5 rounded-md transition-colors font-medium"
             >
               <UserPlus className="w-4 h-4" /> Convidar
             </button>
@@ -430,38 +430,38 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-[linear-gradient(140deg,rgba(255,122,0,0.15),rgb(var(--crm-surface-2-rgb)_/_0.98))] border border-[var(--crm-border)] rounded-md p-5">
+          <div className="bg-[linear-gradient(140deg,rgba(37,99,235,0.15),rgb(var(--crm-surface-rgb)/0.98))] border border-[var(--crm-border)] rounded-md p-5">
             <div className="flex justify-between items-start mb-2">
-              <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm font-medium">Membros Totais</div>
-              <Users className="w-4 h-4 text-[#ff7a00]" />
+              <div className="text-[var(--crm-muted)] text-sm font-medium">Membros Totais</div>
+              <Users className="w-4 h-4 text-[#2563eb]" />
             </div>
-            <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{displayedUsers.length}</div>
+            <div className="text-2xl font-bold text-[var(--crm-ink)]">{displayedUsers.length}</div>
           </div>
-          <div className="bg-[linear-gradient(140deg,rgba(34,197,94,0.14),rgb(var(--crm-surface-2-rgb)_/_0.98))] border border-[var(--crm-border)] rounded-md p-5">
+          <div className="bg-[linear-gradient(140deg,rgba(34,197,94,0.14),rgb(var(--crm-surface-rgb)/0.98))] border border-[var(--crm-border)] rounded-md p-5">
             <div className="flex justify-between items-start mb-2">
-              <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm font-medium">Membros Ativos</div>
+              <div className="text-[var(--crm-muted)] text-sm font-medium">Membros Ativos</div>
               <Activity className="w-4 h-4 text-[#22c55e]" />
             </div>
-            <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{displayedUsers.filter(user => user.isActive !== false).length}</div>
+            <div className="text-2xl font-bold text-[var(--crm-ink)]">{displayedUsers.filter(user => user.isActive !== false).length}</div>
           </div>
-          <div className="bg-[linear-gradient(140deg,rgba(246,180,11,0.14),rgb(var(--crm-surface-2-rgb)_/_0.98))] border border-[var(--crm-border)] rounded-md p-5">
+          <div className="bg-[linear-gradient(140deg,rgba(246,180,11,0.14),rgb(var(--crm-surface-rgb)/0.98))] border border-[var(--crm-border)] rounded-md p-5">
             <div className="flex justify-between items-start mb-2">
-              <div className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-sm font-medium">Convites Pendentes</div>
+              <div className="text-[var(--crm-muted)] text-sm font-medium">Convites Pendentes</div>
               <Mail className="w-4 h-4 text-[#f6b40b]" />
             </div>
-            <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{pendingInvites}</div>
+            <div className="text-2xl font-bold text-[var(--crm-ink)]">{pendingInvites}</div>
           </div>
         </div>
 
         <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
-          <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-md overflow-hidden shadow-sm">
+          <div className="bg-[var(--crm-surface)] border border-[var(--crm-border)] rounded-md overflow-hidden shadow-sm">
             {teamError && (
-              <div className="border-b border-[#ff7a00]/35 bg-[#ff7a00]/10 px-6 py-3 text-sm font-semibold text-[#ffb15c]">
+              <div className="border-b border-[#2563eb]/35 bg-[#2563eb]/10 px-6 py-3 text-sm font-semibold text-[var(--pm-accent-text)]">
                 {teamError}
               </div>
             )}
             <table className="w-full text-left text-sm">
-              <thead className="border-b border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)]">
+              <thead className="border-b border-[var(--crm-border)] text-[var(--crm-muted)] bg-[var(--crm-surface-2)]">
                 <tr>
                   <th className="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Membro</th>
                   <th className="px-6 py-4 font-semibold uppercase tracking-wider text-xs">Função</th>
@@ -470,39 +470,39 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
                   <th className="px-6 py-4 font-semibold uppercase tracking-wider text-xs text-right">Ações</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[var(--crm-border)]">
+              <tbody className="divide-y divide-[var(--crm-surface-2)]">
                 {isLoadingTeam && (
                   <tr>
-                    <td colSpan={5} className="px-6 py-10 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                      <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin text-[#ff7a00]" />
+                    <td colSpan={5} className="px-6 py-10 text-center text-sm text-[var(--crm-muted)]">
+                      <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin text-[#2563eb]" />
                       Carregando equipe...
                     </td>
                   </tr>
                 )}
                 {!isLoadingTeam && filteredUsers.length === 0 && (
                   <tr>
-                    <td colSpan={5} className="px-6 py-10 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                    <td colSpan={5} className="px-6 py-10 text-center text-sm text-[var(--crm-muted)]">
                       Nenhum membro encontrado.
                     </td>
                   </tr>
                 )}
                 {!isLoadingTeam && filteredUsers.map((user, idx) => (
-                  <tr key={user.id} className="hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] transition-colors group">
+                  <tr key={user.id} className="hover:bg-[var(--crm-surface-2)] transition-colors group">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-inner ${user.color}`}>
                           {user.initials}
                         </div>
                         <div>
-                          <p className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{user.name}</p>
-                          <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center gap-1 mt-0.5">
+                          <p className="font-semibold text-[var(--crm-ink)]">{user.name}</p>
+                          <p className="text-xs text-[var(--crm-muted)] flex items-center gap-1 mt-0.5">
                             <Mail className="w-3 h-3" /> {user.email}
                           </p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] px-2.5 py-1 rounded-md text-[11px] font-medium flex items-center gap-1.5 w-fit">
+                      <span className="bg-[var(--crm-surface-2)] border border-[var(--crm-border)] text-[var(--crm-ink)] px-2.5 py-1 rounded-md text-[11px] font-medium flex items-center gap-1.5 w-fit">
                         {user.role === 'Admin' && <Shield className="w-3 h-3 text-[#22c55e]" />}
                         {user.role}
                       </span>
@@ -510,10 +510,10 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1.5">
                         <span className={`w-2 h-2 rounded-full ${user.isActive !== false ? 'bg-[#22c55e]' : "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}`}></span>
-                        <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs">{user.isActive !== false ? 'Ativo' : 'Inativo'}</span>
+                        <span className="text-[var(--crm-ink)] text-xs">{user.isActive !== false ? 'Ativo' : 'Inativo'}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-[rgb(var(--crm-muted-rgb)_/_1)] text-xs font-medium">
+                    <td className="px-6 py-4 text-[var(--crm-muted)] text-xs font-medium">
                       {user.lastAccess || (idx === 0 ? 'Agora mesmo' : idx === 1 ? 'Ha 5 min' : 'Ha 2 dias')}
                     </td>
                     <td className="px-6 py-4 text-right">
@@ -522,7 +522,7 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
                         onClick={() => projectId ? removeMember(user.memberId || user.id, user.name) : undefined}
                         disabled={!projectId || removingMemberId === (user.memberId || user.id)}
                         title={projectId ? 'Excluir membro' : 'Disponivel em um projeto selecionado'}
-                        className="text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-red-700 dark:hover:text-red-300 p-1.5 rounded hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-30"
+                        className="text-[var(--crm-muted)] hover:text-red-700 dark:hover:text-red-300 p-1.5 rounded hover:bg-red-500/10 transition-colors opacity-0 group-hover:opacity-100 disabled:cursor-not-allowed disabled:opacity-30"
                       >
                         {projectId ? <Trash2 className="w-4 h-4" /> : <MoreHorizontal className="w-4 h-4" />}
                       </button>
@@ -534,10 +534,10 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5">
+            <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-5">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Integrações de e-mail</h2>
-                <Settings className="h-4 w-4 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
+                <h2 className="text-sm font-bold text-[var(--crm-ink)]">Integrações de e-mail</h2>
+                <Settings className="h-4 w-4 text-[var(--crm-muted)]" />
               </div>
               <div className="space-y-3">
                 {providerOptions.map(item => (
@@ -548,13 +548,13 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
                       setProvider(item.name);
                       setInviteOpen(true);
                     }}
-                    className="w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3 text-left transition-colors hover:border-[#ff7a00] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)]"
+                    className="w-full rounded-md border border-[var(--crm-border)] bg-transparent p-3 text-left transition-colors hover:border-[#2563eb] hover:bg-[var(--crm-surface-2)]"
                   >
                     <div className="flex items-center gap-3">
                       <span className="h-3 w-3 rounded-full" style={{ backgroundColor: item.accent, boxShadow: `0 0 12px ${item.accent}88` }} />
                       <div>
-                        <p className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.name}</p>
-                        <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.description}</p>
+                        <p className="text-sm font-semibold text-[var(--crm-ink)]">{item.name}</p>
+                        <p className="text-xs text-[var(--crm-muted)]">{item.description}</p>
                       </div>
                     </div>
                   </button>
@@ -562,24 +562,24 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
               </div>
             </div>
 
-            <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5">
+            <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-5">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Convites recentes</h2>
+                <h2 className="text-sm font-bold text-[var(--crm-ink)]">Convites recentes</h2>
                 <Mail className="h-4 w-4 text-[#f6b40b]" />
               </div>
               <div className="space-y-3">
                 {invites.slice(0, 5).map(invite => (
-                  <div key={invite.id} className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-3">
+                  <div key={invite.id} className="rounded-md border border-[var(--crm-border)] bg-transparent p-3">
                     <div className="mb-2 flex items-center justify-between gap-2">
-                      <span className="rounded-full bg-[#ff7a00]/10 px-2 py-1 text-[10px] font-bold text-[#ffb15c]">{invite.provider}</span>
-                      <span className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{formatDate(invite.createdAt)}</span>
+                      <span className="rounded-full bg-[#2563eb]/10 px-2 py-1 text-[10px] font-bold text-[var(--pm-accent-text)]">{invite.provider}</span>
+                      <span className="text-[10px] text-[var(--crm-muted)]">{formatDate(invite.createdAt)}</span>
                     </div>
-                    <p className="truncate text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{invite.emails.join(', ')}</p>
-                    <p className="mt-1 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{invite.role} · {invite.status}</p>
+                    <p className="truncate text-xs font-semibold text-[var(--crm-ink)]">{invite.emails.join(', ')}</p>
+                    <p className="mt-1 text-[11px] text-[var(--crm-muted)]">{invite.role} · {invite.status}</p>
                   </div>
                 ))}
                 {invites.length === 0 && (
-                  <div className="rounded-md border border-dashed border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 text-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                  <div className="rounded-md border border-dashed border-[var(--crm-border)] bg-transparent p-5 text-center text-sm text-[var(--crm-muted)]">
                     Nenhum convite enviado.
                   </div>
                 )}
@@ -591,22 +591,22 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
 
       {inviteOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-3xl overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-2xl">
-            <div className="relative border-b border-[var(--crm-border)] bg-[radial-gradient(circle_at_15%_0%,rgba(255,122,0,0.24),transparent_30%),linear-gradient(120deg,rgb(var(--crm-surface-2-rgb)_/_1),rgb(var(--crm-surface-2-rgb)_/_1))] px-6 py-5">
+          <div className="w-full max-w-3xl overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface-2)] shadow-2xl">
+            <div className="relative border-b border-[var(--crm-border)] bg-[radial-gradient(circle_at_15%_0%,rgba(37,99,235,0.24),transparent_30%),linear-gradient(120deg,rgb(var(--crm-surface-2-rgb)_/_1),rgb(var(--crm-surface-2-rgb)_/_1))] px-6 py-5">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="mb-2 flex items-center gap-2">
-                    <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[#ff7a00] text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                    <span className="flex h-9 w-9 items-center justify-center rounded-md bg-[#2563eb] text-[rgb(var(--crm-ink-rgb)_/_1)]">
                       <Send className="h-5 w-5" />
                     </span>
                     <span className="rounded-full border border-[#22c55e]/40 bg-[#22c55e]/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-[#22c55e]">
                       Convite de equipe
                     </span>
                   </div>
-                  <h2 className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">Enviar convite</h2>
-                  <p className="mt-1 text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Selecione o provedor, defina permissões e envie para um ou vários e-mails.</p>
+                  <h2 className="text-2xl font-black text-[var(--crm-ink)]">Enviar convite</h2>
+                  <p className="mt-1 text-sm text-[var(--crm-muted)]">Selecione o provedor, defina permissões e envie para um ou vários e-mails.</p>
                 </div>
-                <button onClick={closeInvite} className="rounded-md border border-[var(--crm-border)] p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:border-[#ff7a00] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                <button onClick={closeInvite} className="rounded-md border border-[var(--crm-border)] p-2 text-[var(--crm-muted)] hover:border-[#2563eb] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                   <X className="h-5 w-5" />
                 </button>
               </div>
@@ -614,22 +614,22 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
 
             <div className="grid gap-5 p-6">
               {inviteError && (
-                <div className="rounded-md border border-[#ff7a00]/40 bg-[#ff7a00]/10 px-4 py-3 text-sm font-semibold text-[#ffb15c]">
+                <div className="rounded-md border border-[#2563eb]/40 bg-[#2563eb]/10 px-4 py-3 text-sm font-semibold text-[var(--pm-accent-text)]">
                   {inviteError}
                 </div>
               )}
 
               <div className="grid gap-4 md:grid-cols-2">
                 <label className="block">
-                  <span className="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]"><AtSign className="h-4 w-4" /> Provedor</span>
-                  <select value={provider} onChange={(e) => setProvider(e.target.value as EmailProvider)} className="w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-[#ff7a00]">
+                  <span className="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[var(--crm-muted)]"><AtSign className="h-4 w-4" /> Provedor</span>
+                  <select value={provider} onChange={(e) => setProvider(e.target.value as EmailProvider)} className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm text-[var(--crm-ink)] outline-none focus:border-[#2563eb]">
                     {providerOptions.map(item => <option key={item.name}>{item.name}</option>)}
                   </select>
                 </label>
 
                 <label className="block">
-                  <span className="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]"><Shield className="h-4 w-4" /> Permissão</span>
-                  <select value={role} onChange={(e) => setRole(e.target.value as TeamRole)} className="w-full rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-[#ff7a00]">
+                  <span className="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[var(--crm-muted)]"><Shield className="h-4 w-4" /> Permissão</span>
+                  <select value={role} onChange={(e) => setRole(e.target.value as TeamRole)} className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm text-[var(--crm-ink)] outline-none focus:border-[#2563eb]">
                     <option>Admin</option>
                     <option>Gerente</option>
                     <option>Membro</option>
@@ -639,7 +639,7 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
               </div>
 
               <label className="block">
-                <span className="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]"><Mail className="h-4 w-4" /> E-mails</span>
+                <span className="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[var(--crm-muted)]"><Mail className="h-4 w-4" /> E-mails</span>
                 <textarea
                   value={inviteEmails}
                   onChange={(e) => {
@@ -647,30 +647,30 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
                     setInviteError('');
                   }}
                   placeholder="ana@empresa.com; joao@empresa.com"
-                  className="min-h-[88px] w-full resize-none rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#ff7a00]"
+                  className="min-h-[88px] w-full resize-none rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm text-[var(--crm-ink)] outline-none placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#2563eb]"
                 />
               </label>
 
               <label className="block">
-                <span className="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]"><Building2 className="h-4 w-4" /> Mensagem</span>
+                <span className="mb-1.5 flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-[var(--crm-muted)]"><Building2 className="h-4 w-4" /> Mensagem</span>
                 <textarea
                   value={message}
                   onChange={(e) => setMessage(e.target.value)}
-                  className="min-h-[96px] w-full resize-none rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#ff7a00]"
+                  className="min-h-[96px] w-full resize-none rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm text-[var(--crm-ink)] outline-none placeholder:text-[rgb(var(--crm-muted-rgb)_/_1)] focus:border-[#2563eb]"
                 />
               </label>
 
-              <div className="rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4">
+              <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{selectedProvider.name}</p>
-                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{selectedProvider.description}</p>
+                    <p className="text-sm font-bold text-[var(--crm-ink)]">{selectedProvider.name}</p>
+                    <p className="text-xs text-[var(--crm-muted)]">{selectedProvider.description}</p>
                   </div>
                   <span className="h-3 w-3 rounded-full" style={{ backgroundColor: selectedProvider.accent }} />
                 </div>
-                <div className="flex items-center gap-2 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-3 py-2">
-                  <p className="min-w-0 flex-1 truncate text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">{inviteLink}</p>
-                  <button onClick={copyInviteLink} className="flex items-center gap-1.5 text-xs font-semibold text-[#ffb15c] hover:text-[#f6b40b]">
+                <div className="flex items-center gap-2 rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2">
+                  <p className="min-w-0 flex-1 truncate text-xs text-[var(--crm-muted)]">{inviteLink}</p>
+                  <button onClick={copyInviteLink} className="flex items-center gap-1.5 text-xs font-semibold text-[var(--pm-accent-text)] hover:text-[#f6b40b]">
                     {copied ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
                     {copied ? 'Copiado' : 'Copiar'}
                   </button>
@@ -678,11 +678,11 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 border-t border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-6 py-4">
-              <button onClick={closeInvite} className="rounded-md border border-[var(--crm-border)] px-4 py-2 text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
+            <div className="flex items-center justify-end gap-3 border-t border-[var(--crm-border)] bg-[var(--crm-surface)] px-6 py-4">
+              <button onClick={closeInvite} className="rounded-md border border-[var(--crm-border)] px-4 py-2 text-sm font-semibold text-[var(--crm-ink)] hover:bg-[var(--crm-surface-2)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 Cancelar
               </button>
-              <button onClick={sendInvite} className="flex items-center gap-2 rounded-md bg-[#ff7a00] px-5 py-2 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#f6b40b] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
+              <button onClick={sendInvite} className="flex items-center gap-2 rounded-md bg-[#2563eb] px-5 py-2 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 <Send className="h-4 w-4" /> Enviar convite
               </button>
             </div>
