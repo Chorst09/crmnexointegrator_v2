@@ -613,6 +613,10 @@ router.put('/meetings/:id/notes', authenticateToken, async (req, res) => {
 // DELETE /api/kickoff/meetings/:id
 router.delete('/meetings/:id', authenticateToken, requireRole(['ADMIN', 'MASTER']), async (req, res) => {
   try {
+    if (!['MASTER', 'ADMIN'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Apenas Admin e Master podem excluir reuniões de kickoff' });
+    }
+
     const { id } = req.params;
 
     const accessCheck = await findAccessibleMeeting(req, id);
