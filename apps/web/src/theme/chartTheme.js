@@ -1,4 +1,5 @@
 import { Chart } from 'chart.js';
+import './chartDepth';
 
 // Canvas does not resolve CSS variables. Resolve the shared palette at update
 // time, including charts that were already mounted when the theme changed.

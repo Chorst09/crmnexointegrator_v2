@@ -1,3 +1,4 @@
+import { Bar3DShape, Pie3DShape } from '../../charts/Chart3DShapes';
 
 import React, { useState, useEffect, useMemo } from 'react';
 // PostgreSQL via Prisma - APIs REST
@@ -1373,7 +1374,7 @@ const DashboardView = () => {
               <Tooltip cursor={{ fill: "rgb(var(--crm-ink-rgb) / 0.03)" }}
                 contentStyle={chartTooltipStyle}
                 formatter={(v: number | string) => [`${v} propostas`, "Volume"]}/>
-              <Bar dataKey="proposals" radius={[8, 8, 2, 2]} animationDuration={1200} stroke="rgba(255,255,255,0.2)" strokeWidth={1}>
+              <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="proposals" radius={[8, 8, 2, 2]} animationDuration={1200} stroke="rgba(255,255,255,0.2)" strokeWidth={1}>
                 {chartData.map((_, i) => <Cell key={i} fill={`url(#svcGrad-${i})`}/>)}
               </Bar>
             </BarChart>
@@ -1397,7 +1398,7 @@ const DashboardView = () => {
                     </radialGradient>
                   ))}
                 </defs>
-                <Pie data={safeProposalDistributionData} cx="50%" cy="50%" innerRadius={68} outerRadius={100}
+                <Pie activeIndex={-1} inactiveShape={<Pie3DShape />} activeShape={<Pie3DShape />} data={safeProposalDistributionData} cx="50%" cy="50%" innerRadius={68} outerRadius={100}
                   paddingAngle={4} dataKey="value" animationDuration={1200}
                   stroke="rgba(255,255,255,0.15)" strokeWidth={1}>
                   {safeProposalDistributionData.map((_, i) => <Cell key={i} fill={`url(#ppGrad-${i})`}/>)}
@@ -1444,7 +1445,7 @@ const DashboardView = () => {
                 tickFormatter={v => formatCurrencyCompact(Number(v))} fontSize={11}/>
               <Tooltip contentStyle={chartTooltipStyle}
                 formatter={(v: number | string, name: string | number) => name === "Valor" ? [formatCurrency(Number(v)), "Valor"] : [`${v} propostas`, "Volume"]}/>
-              <Bar yAxisId="left" dataKey="proposals" name="Propostas" fill="rgba(32,212,245,0.22)" radius={[6, 6, 2, 2]}
+              <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} yAxisId="left" dataKey="proposals" name="Propostas" fill="rgba(32,212,245,0.22)" radius={[6, 6, 2, 2]}
                 stroke="rgba(32,212,245,0.5)" strokeWidth={1} animationDuration={1000}/>
               <Line yAxisId="right" type="monotone" dataKey="amount" name="Valor" stroke="url(#lineGradColor)"
                 strokeWidth={3} dot={{ r: 4, fill: "#18d97c", stroke: "rgb(var(--crm-ink-rgb) / 1)", strokeWidth: 2 }}
@@ -1470,7 +1471,7 @@ const DashboardView = () => {
                     </radialGradient>
                   ))}
                 </defs>
-                <Pie data={safeValueDistributionData} cx="50%" cy="50%" innerRadius={68} outerRadius={100}
+                <Pie activeIndex={-1} inactiveShape={<Pie3DShape />} activeShape={<Pie3DShape />} data={safeValueDistributionData} cx="50%" cy="50%" innerRadius={68} outerRadius={100}
                   paddingAngle={4} dataKey="value" animationDuration={1200}
                   stroke="rgba(255,255,255,0.15)" strokeWidth={1}>
                   {safeValueDistributionData.map((_, i) => <Cell key={i} fill={`url(#vpGrad-${i})`}/>)}

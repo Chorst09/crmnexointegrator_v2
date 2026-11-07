@@ -22,6 +22,7 @@ import {
 import { Line, Bar, Doughnut, Radar, PolarArea } from 'react-chartjs-2';
 import { DASHBOARD_COLORS as BASE_DASHBOARD_COLORS, CHART_CONFIG } from '../constants/dashboardTheme';
 import '../styles/dashboardEffects.css';
+import { CHART_3D_PALETTE } from '../theme/chart3dGeometry.mjs';
 
 ChartJS.register(
   CategoryScale,
@@ -64,12 +65,7 @@ const DashboardAdvancedChart = ({
   }, [resolvedTheme]);
   // Cores baseadas no tema
   const colorPalettes = {
-    multi: [
-      DASHBOARD_COLORS.neon.orange,
-      DASHBOARD_COLORS.neon.cyan,
-      DASHBOARD_COLORS.neon.blue,
-      DASHBOARD_COLORS.neon.green
-    ],
+    multi: CHART_3D_PALETTE,
     blue: [DASHBOARD_COLORS.neon.cyan, DASHBOARD_COLORS.neon.blue],
     warm: [
       DASHBOARD_COLORS.neon.orange,
@@ -257,19 +253,7 @@ const DashboardAdvancedChart = ({
               <Line data={processedData} options={chartOptions} />
             )}
             {type === 'bar' && (
-              <Bar
-                data={processedData}
-                options={{
-                  ...chartOptions,
-                  scales: {
-                    ...chartOptions.scales,
-                    y: {
-                      ...chartOptions.scales.y,
-                      stacked: false
-                    }
-                  }
-                }}
-              />
+              <Bar data={processedData} options={chartOptions} />
             )}
             {type === 'doughnut' && (
               <Doughnut

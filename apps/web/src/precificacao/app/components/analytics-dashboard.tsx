@@ -1,3 +1,4 @@
+import { Bar3DShape, Pie3DShape } from '../../../components/charts/Chart3DShapes';
 
 'use client';
 
@@ -68,7 +69,7 @@ export function AnalyticsDashboard({ results, params }: AnalyticsDashboardProps)
           <CardContent className="p-6 h-[300px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
-                <Pie
+                <Pie activeIndex={-1} inactiveShape={<Pie3DShape />} activeShape={<Pie3DShape />}
                   data={costData}
                   cx="50%"
                   cy="50%"
@@ -107,7 +108,7 @@ export function AnalyticsDashboard({ results, params }: AnalyticsDashboardProps)
                   formatter={(value: number) => formatCurrency(value)}
                   contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
                 />
-                <Bar dataKey="value" radius={[0, 8, 8, 0]} barSize={40}>
+                <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="value" radius={[0, 8, 8, 0]} barSize={40}>
                   {benchmarkData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={index === 0 ? '#cbd5e1' : '#6366f1'} />
                   ))}

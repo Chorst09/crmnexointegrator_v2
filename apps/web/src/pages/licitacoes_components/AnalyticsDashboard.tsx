@@ -1,3 +1,4 @@
+import { Bar3DShape, Pie3DShape } from '../../components/charts/Chart3DShapes';
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
@@ -528,7 +529,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                           boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.25)' 
                         }}
                       />
-                      <Bar dataKey="valor" radius={[6, 6, 0, 0]}>
+                      <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="valor" radius={[6, 6, 0, 0]}>
                         {gerenciadasStats.funilData.map((entry, index) => (
                           <Cell key={`cell-fase-${index}`} fill={entry.fill} />
                         ))}
@@ -547,7 +548,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                 <div className="h-[190px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie
+                      <Pie activeIndex={-1} inactiveShape={<Pie3DShape />} activeShape={<Pie3DShape />}
                         data={gerenciadasStats.funilData.filter(d => d.quantidade > 0)}
                         cx="50%"
                         cy="50%"
@@ -699,7 +700,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                           borderRadius: '8px' 
                         }}
                       />
-                      <Bar dataKey="quantidade" fill="#f59e0b" radius={[6, 6, 0, 0]} />
+                      <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="quantidade" fill="#f59e0b" radius={[6, 6, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -714,7 +715,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                 <div className="h-[190px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
-                      <Pie
+                      <Pie activeIndex={-1} inactiveShape={<Pie3DShape />} activeShape={<Pie3DShape />}
                         data={proximosStats.modalidadeData}
                         cx="50%"
                         cy="50%"
@@ -856,7 +857,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                           borderRadius: '8px' 
                         }}
                       />
-                      <Bar dataKey="oportunidades" fill="#8b5cf6" radius={[0, 6, 6, 0]} />
+                      <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="oportunidades" fill="#8b5cf6" radius={[0, 6, 6, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>
@@ -884,7 +885,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
                           borderRadius: '8px' 
                         }}
                       />
-                      <Bar dataKey="alertas" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
+                      <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="alertas" fill="#0ea5e9" radius={[4, 4, 0, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

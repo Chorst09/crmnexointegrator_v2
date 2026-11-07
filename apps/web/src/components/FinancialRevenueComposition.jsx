@@ -1,3 +1,4 @@
+import { Bar3DShape, Pie3DShape } from './charts/Chart3DShapes';
 import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -57,7 +58,7 @@ export default function FinancialRevenueComposition({ revenue, scope }) {
             <XAxis dataKey="label" stroke="#94A3B8" />
             <YAxis stroke="#94A3B8" tickFormatter={compact} width={65} />
             <Tooltip contentStyle={tooltip} formatter={value => [`${financialCurrency(value)} / mês`, 'Recorrente mensal']} cursor={{ fill: "rgb(var(--crm-ink-rgb) / 0.03137254901960784)" }} />
-            <Bar dataKey="recurringMonthly" name="Recorrente mensal (R$/mês)" fill={REVENUE_COLORS.recurring} radius={[6, 6, 0, 0]} maxBarSize={100} isAnimationActive={false} />
+            <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="recurringMonthly" name="Recorrente mensal (R$/mês)" fill={REVENUE_COLORS.recurring} radius={[6, 6, 0, 0]} maxBarSize={100} isAnimationActive={false} />
           </BarChart>
         </ResponsiveContainer> : <div className="h-60 flex items-center justify-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] text-center">Nenhuma mensalidade informada neste recorte.</div>}
         <ul className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{groups.map(row => <li key={row.label}><strong>{row.label}:</strong> {financialCurrency(row.recurringMonthly)} / mês</li>)}</ul>
@@ -66,7 +67,7 @@ export default function FinancialRevenueComposition({ revenue, scope }) {
         <h3 className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Composição do valor total</h3>
         <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1 mb-4">Aqui a recorrência considera todo o prazo contratado, em R$.</p>
         {summary.total > 0 ? <ResponsiveContainer width="100%" height={220}>
-          <PieChart><Pie data={parts} dataKey="value" nameKey="name" innerRadius={58} outerRadius={90} paddingAngle={parts.length > 1 ? 3 : 0} stroke="none" isAnimationActive={false}>{parts.map(part => <Cell key={part.name} fill={part.color} />)}</Pie><Tooltip contentStyle={tooltip} formatter={(value, name) => [financialCurrency(value), name]} /></PieChart>
+          <PieChart><Pie activeIndex={-1} inactiveShape={<Pie3DShape />} activeShape={<Pie3DShape />} data={parts} dataKey="value" nameKey="name" innerRadius={58} outerRadius={90} paddingAngle={parts.length > 1 ? 3 : 0} stroke="none" isAnimationActive={false}>{parts.map(part => <Cell key={part.name} fill={part.color} />)}</Pie><Tooltip contentStyle={tooltip} formatter={(value, name) => [financialCurrency(value), name]} /></PieChart>
         </ResponsiveContainer> : <div className="h-60 flex items-center justify-center text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] text-center">Nenhum valor informado neste recorte.</div>}
         <ul className="space-y-2 text-sm">{parts.map(part => <li key={part.name} className="flex flex-wrap justify-between gap-2"><span className="flex items-center gap-2 text-[rgb(var(--crm-ink-rgb)_/_1)]"><span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: part.color }} />{part.name}</span><span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{financialCurrency(part.value)} <span className="font-normal text-[rgb(var(--crm-muted-rgb)_/_1)]">({(part.value / summary.total * 100).toFixed(1)}%)</span></span></li>)}</ul>
       </div>
