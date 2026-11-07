@@ -7,7 +7,7 @@
 ```bash
 scp crm-update-darkmode.tar.gz usuario@72.60.195.200:/tmp/
 ```
-**Senha quando pedir:** `Ch@#horst1977#@`
+**Senha quando pedir:** `<SSH_PASSWORD>`
 
 ---
 
@@ -16,7 +16,7 @@ scp crm-update-darkmode.tar.gz usuario@72.60.195.200:/tmp/
 ```bash
 ssh usuario@72.60.195.200
 ```
-**Senha:** `Ch@#horst1977#@`
+**Senha:** `<SSH_PASSWORD>`
 
 ---
 

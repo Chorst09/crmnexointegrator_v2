@@ -211,6 +211,12 @@ model Opportunity {
   lossReason      String?
   stageDecisionDetails Json?
   notes           String?
+  revenueType String?
+  contractPeriodMonths Int?
+  monthlyRecurringValue Float?
+  totalContractValue Float?
+  totalProductsValue Float?
+  setupValue Float?
   contactName     String?
   contactFullName String?
   contactEmail    String?
