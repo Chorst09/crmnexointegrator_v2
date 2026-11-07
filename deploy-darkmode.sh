@@ -8,7 +8,7 @@ BLUE='\033[0;34m'
 NC='\033[0m'
 
 SERVER="usuario@72.60.195.200"
-PASSWORD='Ch@#horst1977#@'
+PASSWORD="${SSH_PASSWORD:?Defina SSH_PASSWORD no ambiente antes de executar}"
 
 echo -e "${BLUE}📤 Enviando arquivos para o servidor...${NC}"
 

@@ -8,7 +8,7 @@ Abra um terminal e execute:
 scp crm-update-darkmode.tar.gz usuario@72.60.195.200:/tmp/
 ```
 
-Quando pedir a senha, digite: `Ch@#horst1977#@`
+Quando pedir a senha, digite: `<SSH_PASSWORD>`
 
 ---
 
@@ -18,7 +18,7 @@ Quando pedir a senha, digite: `Ch@#horst1977#@`
 ssh usuario@72.60.195.200
 ```
 
-Senha: `Ch@#horst1977#@`
+Senha: `<SSH_PASSWORD>`
 
 ---
 

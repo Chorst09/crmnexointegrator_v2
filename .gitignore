@@ -90,3 +90,12 @@ BACKUP/
 BACKUPS/*.dump
 BACKUPS/*.sql
 BACKUPS/*.sql.gz
+
+# Local rollback copies and private database files
+.git-temp-untracked/
+.rollback-*/
+/database/imports/
+/database/backup/
+*.dump
+*.sql.gz
+*.backup

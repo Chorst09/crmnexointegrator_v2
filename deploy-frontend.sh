@@ -6,7 +6,7 @@ set -e
 SERVER_IP="209.50.241.25"
 SERVER_USER="root"
 SERVER_PORT="22"
-SSH_PASSWORD="tq6vJPwtZbOCW3kj"
+SSH_PASSWORD="${SSH_PASSWORD:?Defina SSH_PASSWORD no ambiente antes de executar}"
 APP_DIR="/opt/nexoscrm/apps/web"
 
 # Configurar SSH com senha

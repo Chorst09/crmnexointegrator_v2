@@ -1,0 +1,115 @@
+// Simulated APIs only: no real CRM records or files are changed by this test.
+const { chromium } = require('playwright');
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+(async () => {
+  const browser = await chromium.launch({ headless: true, channel: process.env.PLAYWRIGHT_CHANNEL || 'chrome' });
+  try {
+    const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
+    const user = { id: 'qa-master', name: 'QA', role: 'MASTER', accessB2B: true, accessB2G: true };
+    const legacy = { id: 'legacy-contract', title: 'Contrato cadastrado anteriormente', number: 'LEGACY-001', value: 500, startDate: '2026-01-01', endDate: '2026-12-31', status: 'ACTIVE' };
+    const company = { id: 'qa-company', name: 'Reali QA', clientType: 'B2B', status: 'ACTIVE', size: 'SMALL', contacts: [], opportunities: [], contracts: [legacy], _count: { opportunities: 1 } };
+    const opportunity = { id: 'qa-won', number: 'B2B-2026-00382', title: 'Segurança Reali QA', projectName: 'Segurança Reali QA', stage: 'WON', companyId: company.id, company, ownerId: user.id, owner: user, value: 1500, products: [], activities: [], createdAt: '2026-11-05T12:00:00Z' };
+    company.opportunities = [{ ...opportunity, company: undefined }];
+    const documents = [], uploads = [], errors = [], unexpectedWrites = [];
+    let failSecond = true;
+    page.on('pageerror', error => errors.push(error.message));
+    page.on('dialog', dialog => dialog.accept());
+    await page.addInitScript(user => {
+      localStorage.setItem('token', 'mock-only'); localStorage.setItem('user', JSON.stringify(user)); localStorage.setItem('crm-theme', 'dark');
+    }, user);
+    await page.route('**/api/**', async route => {
+      const request = route.request(), url = new URL(request.url()), path = url.pathname;
+      let data = [], status = 200;
+      if (path.endsWith('/auth/me')) data = { user };
+      else if (path.endsWith('/users')) data = [user];
+      else if (path.endsWith('/opportunities/qa-won/documents') && request.method() === 'POST') {
+        const payload = request.postDataBuffer().toString();
+        assert.ok(!payload.includes('name="opportunityId"'), 'opportunity comes from the URL');
+        assert.ok(!payload.includes('name="companyId"'), 'company comes from the opportunity');
+        const documentType = payload.match(/name="documentType"\r\n\r\n([^\r]+)/)?.[1];
+        const originalName = payload.match(/filename="([^"]+)"/)?.[1];
+        uploads.push({ documentType, originalName });
+        if (originalName === 'falha.txt' && failSecond) { failSecond = false; status = 503; data = { error: 'Falha simulada. Tente novamente.' }; }
+        else { data = { id: 'doc-' + documents.length, originalName, opportunityId: opportunity.id, documentType, size: 100, opportunity: { id: opportunity.id, number: opportunity.number, title: opportunity.title }, createdAt: '2026-11-05T12:00:00Z' }; documents.push(data); }
+      } else if (request.method() !== 'GET') { unexpectedWrites.push(path); data = {}; }
+      else if (path.endsWith('/documents')) data = documents.filter(item => !url.searchParams.has('documentType') || item.documentType === url.searchParams.get('documentType'));
+      else if (path.endsWith('/opportunities/qa-won')) data = opportunity;
+      else if (path.endsWith('/opportunities')) data = [opportunity];
+      else if (path.endsWith('/companies')) data = url.searchParams.has('id') ? company : [company];
+      else if (path.endsWith('/settings')) data = {};
+      await route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(data) });
+    });
+    const base = process.argv[2] || 'http://127.0.0.1:5313';
+    await page.goto(base + '/oportunidades?opportunityId=qa-won');
+    let dialog = page.getByRole('dialog', { name: opportunity.title, exact: true });
+    const files = dialog.getByRole('region', { name: 'Arquivos da oportunidade', exact: true });
+    const contracts = files.getByRole('region', { name: 'Contratos', exact: true });
+    const docs = files.getByRole('region', { name: 'Documentos', exact: true });
+    await page.waitForFunction(() => { const input = document.querySelector('section[aria-label="Contratos"] input'); return input && !input.disabled; });
+    assert.equal(await files.locator('select').count(), 0);
+    await contracts.locator('input[type=file]').setInputFiles({ name: 'contrato.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF-1.4 QA') });
+    await contracts.getByRole('button', { name: 'Anexar contratos', exact: true }).click();
+    await contracts.getByText('contrato.pdf', { exact: true }).waitFor();
+    assert.equal(await docs.getByText('contrato.pdf', { exact: true }).count(), 0);
+    await docs.locator('input[type=file]').setInputFiles([{ name: 'documento.txt', mimeType: 'text/plain', buffer: Buffer.from('QA') }, { name: 'falha.txt', mimeType: 'text/plain', buffer: Buffer.from('QA') }]);
+    await docs.getByRole('button', { name: 'Anexar documentos', exact: true }).click();
+    await docs.getByRole('alert').filter({ hasText: 'Falha simulada' }).waitFor();
+    await docs.getByRole('button', { name: 'Anexar documentos', exact: true }).click();
+    await docs.getByRole('button', { name: 'Anexar documentos', exact: true }).waitFor({ state: 'hidden' });
+    assert.deepEqual(uploads.map(item => item.originalName), ['contrato.pdf', 'documento.txt', 'falha.txt', 'falha.txt']);
+    assert.equal(documents.length, 3);
+    assert.equal(opportunity.value, 1500);
+    assert.equal(legacy.value, 500);
+    fs.mkdirSync('/tmp/double-opportunity-files-20261105', { recursive: true });
+    await files.scrollIntoViewIfNeeded();
+    await files.screenshot({ path: '/tmp/double-opportunity-files-20261105/opportunity-files-desktop.png' });
+    await page.goto(base + '/empresas');
+    await page.locator('button[title="Ver detalhes"]').first().click();
+    dialog = page.getByRole('dialog', { name: company.name, exact: true });
+    await dialog.getByRole('button', { name: 'Contratos', exact: true }).click();
+    let list = dialog.getByRole('region', { name: 'Contratos das oportunidades', exact: true });
+    await list.getByText('contrato.pdf', { exact: true }).waitFor();
+    assert.equal(await list.getByText(opportunity.number, { exact: true }).count(), 1);
+    assert.equal(await list.getByText('documento.txt', { exact: true }).count(), 0);
+    assert.equal(await list.locator('input[type=file]').count(), 0);
+    await dialog.getByText(legacy.title, { exact: true }).waitFor();
+    await list.screenshot({ path: '/tmp/double-opportunity-files-20261105/company-contracts-desktop.png' });
+    await dialog.getByRole('button', { name: 'Documentos', exact: true }).click();
+    const documentList = dialog.getByRole('region', { name: 'Documentos das oportunidades', exact: true });
+    await documentList.getByText('documento.txt', { exact: true }).waitFor();
+    assert.equal(await documentList.getByText('contrato.pdf', { exact: true }).count(), 0);
+    await dialog.getByRole('button', { name: 'Editar Empresa', exact: true }).click();
+    const edit = page.getByRole('dialog', { name: 'Editar Empresa', exact: true });
+    await edit.waitFor();
+    assert.equal(await edit.locator('input[type=file]').count(), 0);
+    await edit.getByRole('button', { name: 'Cancelar', exact: true }).click();
+    await page.locator('button[title="Ver detalhes"]').first().click();
+    await dialog.getByRole('button', { name: 'Contratos', exact: true }).click();
+    list = dialog.getByRole('region', { name: 'Contratos das oportunidades', exact: true });
+    await list.getByText('contrato.pdf', { exact: true }).waitFor();
+    await page.setViewportSize({ width: 390, height: 844 });
+    await list.scrollIntoViewIfNeeded();
+    await list.screenshot({ path: '/tmp/double-opportunity-files-20261105/company-contracts-mobile.png' });
+    assert.ok(await list.evaluate(element => element.scrollWidth <= element.clientWidth + 1));
+    await list.getByRole('button', { name: 'Abrir oportunidade', exact: true }).click();
+    await page.getByRole('dialog', { name: opportunity.title, exact: true }).getByRole('region', { name: 'Contratos', exact: true }).getByText('contrato.pdf', { exact: true }).waitFor();
+    assert.ok(page.url().includes('opportunityId=qa-won'));
+    await page.getByRole('dialog', { name: opportunity.title, exact: true }).getByRole('button', { name: 'Editar Oportunidade', exact: true }).click();
+    const opportunityEdit = page.getByRole('dialog', { name: 'Editar Oportunidade', exact: true });
+    const editContracts = opportunityEdit.getByRole('region', { name: 'Contratos', exact: true });
+    await page.waitForFunction(() => { const input = document.querySelector('section[aria-label="Contratos"] input'); return input && !input.disabled; });
+    await editContracts.locator('input[type=file]').setInputFiles({ name: 'pendente.pdf', mimeType: 'application/pdf', buffer: Buffer.from('%PDF QA') });
+    page.removeAllListeners('dialog');
+    page.once('dialog', dialog => dialog.dismiss());
+    await opportunityEdit.getByRole('button', { name: 'Cancelar', exact: true }).click();
+    assert.equal(await opportunityEdit.isVisible(), true);
+    assert.equal(await editContracts.getByText('pendente.pdf', { exact: true }).count(), 1);
+    await editContracts.getByRole('button', { name: 'Remover', exact: true }).click();
+    await opportunityEdit.getByRole('button', { name: 'Cancelar', exact: true }).click();
+    await opportunityEdit.waitFor({ state: 'hidden' });
+    assert.deepEqual(unexpectedWrites, []);
+    assert.deepEqual(errors, []);
+    console.log('UI validada: anexos na oportunidade com tipos separados; empresa somente consulta com oportunidade ao lado; contratos anteriores preservados; falha parcial sem duplicação; desktop e celular.');
+  } finally { await browser.close(); }
+})().catch(error => { console.error(error); process.exitCode = 1; });
