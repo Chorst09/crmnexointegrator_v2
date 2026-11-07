@@ -1,3 +1,4 @@
+import { Bar3DShape, Pie3DShape } from '../../components/charts/Chart3DShapes';
 import React, { useMemo, useState } from 'react';
 import {
   ArrowLeft, Briefcase, CheckCircle2, Clock3, Filter, Flag,
@@ -235,7 +236,7 @@ export default function Dashboard({
           <ChartPanel title="Distribuição por status" action={`${filteredIssues.length} filtradas`}>
             <ResponsiveContainer width="100%" height={310}>
               <PieChart>
-                <Pie
+                <Pie activeIndex={-1} inactiveShape={<Pie3DShape />} activeShape={<Pie3DShape />}
                   data={distributionRows.length ? distributionRows : [{ status: 'Sem fases', total: 1, color: '#374151' }]}
                   innerRadius={78}
                   outerRadius={118}
@@ -274,7 +275,7 @@ export default function Dashboard({
                 <XAxis dataKey="priority" stroke="#64748b" tickLine={false} axisLine={false} fontSize={11} />
                 <YAxis allowDecimals={false} stroke="#64748b" tickLine={false} axisLine={false} fontSize={11} />
                 <Tooltip content={<DashboardTooltip />} />
-                <Bar dataKey="fases" radius={[6, 6, 0, 0]}>
+                <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="fases" radius={[6, 6, 0, 0]}>
                   {priorityRows.map((_, index) => (
                     <Cell key={index} fill={['#ef4444', '#ff7a00', '#f6b40b', '#22c55e'][index]} />
                   ))}

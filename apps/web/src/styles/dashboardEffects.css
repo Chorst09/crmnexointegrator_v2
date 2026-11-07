@@ -3,6 +3,16 @@
  * Animações, transições, e visual effects
  */
 
+/* Depth for temporal series while retaining their original axes and scales. */
+.recharts-line-curve,
+.recharts-area-curve {
+  filter: drop-shadow(2px 4px 1px rgb(9 27 56 / 0.24));
+}
+
+.recharts-area-area {
+  filter: drop-shadow(0 5px 0 rgb(9 27 56 / 0.12));
+}
+
 /* ─── ANIMAÇÕES CUSTOMIZADAS ─────────────────────────────────────────────── */
 
 @keyframes fadeInUp {

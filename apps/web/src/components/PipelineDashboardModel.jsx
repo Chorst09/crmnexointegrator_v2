@@ -15,6 +15,7 @@ import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import { MoreVertical } from 'lucide-react';
 
 import './PipelineDashboardModel.css';
+import { CHART_3D_PALETTE } from '../theme/chart3dGeometry.mjs';
 
 ChartJS.register(
   ArcElement,
@@ -28,7 +29,7 @@ ChartJS.register(
   Tooltip
 );
 
-const DEFAULT_COLORS = ['#ff7a00', '#18c8df', '#f6b40b', '#22c55e', '#1f7fe5', '#ef4444'];
+const DEFAULT_COLORS = CHART_3D_PALETTE;
 const GRID_COLOR = 'rgba(75, 85, 99, 0.42)';
 const TEXT_COLOR = '#8f9caf';
 
@@ -353,7 +354,7 @@ function HorizontalPerformance({ chart }) {
             <div className="pipeline-model__performance-row" key={`${label}-${index}`}>
               <span className="pipeline-model__performance-label" title={label}>{label}</span>
               <div className="pipeline-model__performance-track">
-                <div className="pipeline-model__performance-bar" style={{ width: `${width}%`, backgroundColor: color }}>
+                <div className="pipeline-model__performance-bar" style={{ width: `${width}%`, backgroundColor: color, '--bar-color': color }}>
                   {width >= 34 ? <b>{chart.showShare ? ((values[index] / total) * 100).toFixed(0) : Math.round(width)}%</b> : null}
                 </div>
                 {targetPercent !== null ? <i className="pipeline-model__target-marker" style={{ left: `${targetPercent}%` }} /> : null}

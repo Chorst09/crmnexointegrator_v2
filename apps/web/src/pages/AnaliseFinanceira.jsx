@@ -1,3 +1,4 @@
+import { Bar3DShape, Pie3DShape } from '../components/charts/Chart3DShapes';
 import React, { useState, useEffect, useMemo } from 'react';
 import {
   BarChart3,
@@ -477,9 +478,9 @@ const AnaliseFinanceira = () => {
                       formatter={(val, name) => [formatBRL(val), name]}
                     />
                     <Legend />
-                    <Bar dataKey="realizado" name="Contratado (ganhos)" fill="#10B981" radius={[6, 6, 0, 0]} />
-                    <Bar dataKey="pipeline" name="Pipeline Ativo (Em Aberto)" fill="#3B82F6" radius={[6, 6, 0, 0]} />
-                    <Bar dataKey="estimativa_simulador" name="Simulador (Estimativa Ponderada)" fill="#F59E0B" radius={[6, 6, 0, 0]} />
+                    <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="realizado" name="Contratado (ganhos)" fill="#10B981" radius={[6, 6, 0, 0]} />
+                    <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="pipeline" name="Pipeline Ativo (Em Aberto)" fill="#3B82F6" radius={[6, 6, 0, 0]} />
+                    <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="estimativa_simulador" name="Simulador (Estimativa Ponderada)" fill="#F59E0B" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </GradientCard>
@@ -495,7 +496,7 @@ const AnaliseFinanceira = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-4">
                   <ResponsiveContainer width="100%" height={260}>
                     <PieChart>
-                      <Pie
+                      <Pie activeIndex={-1} inactiveShape={<Pie3DShape />} activeShape={<Pie3DShape />}
                         data={geral.grafico_origem || []}
                         dataKey="valor"
                         nameKey="origem"
@@ -738,9 +739,9 @@ const AnaliseFinanceira = () => {
                     formatter={(val, name) => [formatBRL(val), name]}
                   />
                   <Legend />
-                  <Bar dataKey="recurringTotal" name="Recorrente · total no prazo" stackId="receita" fill={REVENUE_COLORS.recurring} />
-                  <Bar dataKey="oneTime" name="Pontual" stackId="receita" fill={REVENUE_COLORS.oneTime} />
-                  <Bar dataKey="unclassified" name="Sem classificação" stackId="receita" fill={REVENUE_COLORS.unknown} />
+                  <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="recurringTotal" name="Recorrente · total no prazo" stackId="receita" fill={REVENUE_COLORS.recurring} />
+                  <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="oneTime" name="Pontual" stackId="receita" fill={REVENUE_COLORS.oneTime} />
+                  <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="unclassified" name="Sem classificação" stackId="receita" fill={REVENUE_COLORS.unknown} />
                 </BarChart>
               </ResponsiveContainer>
             </GradientCard>
@@ -862,9 +863,9 @@ const AnaliseFinanceira = () => {
                     formatter={(val, name) => [formatBRL(val), name]}
                   />
                   <Legend />
-                  <Bar dataKey="recurringTotal" name="Recorrente · total no prazo" stackId="receita" fill={REVENUE_COLORS.recurring} />
-                  <Bar dataKey="oneTime" name="Pontual" stackId="receita" fill={REVENUE_COLORS.oneTime} />
-                  <Bar dataKey="unclassified" name="Sem classificação" stackId="receita" fill={REVENUE_COLORS.unknown} />
+                  <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="recurringTotal" name="Recorrente · total no prazo" stackId="receita" fill={REVENUE_COLORS.recurring} />
+                  <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="oneTime" name="Pontual" stackId="receita" fill={REVENUE_COLORS.oneTime} />
+                  <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="unclassified" name="Sem classificação" stackId="receita" fill={REVENUE_COLORS.unknown} />
                 </BarChart>
               </ResponsiveContainer>
             </GradientCard>
@@ -1009,8 +1010,8 @@ const AnaliseFinanceira = () => {
                     formatter={(val, name) => [formatBRL(val), name]}
                   />
                   <Legend />
-                  <Bar dataKey="valor_total" name="Valor Nominal" fill="#64748B" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="valor_ponderado" name="Valor Ponderado (Probab.)" fill="#F59E0B" radius={[6, 6, 0, 0]} />
+                  <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="valor_total" name="Valor Nominal" fill="#64748B" radius={[6, 6, 0, 0]} />
+                  <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="valor_ponderado" name="Valor Ponderado (Probab.)" fill="#F59E0B" radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </GradientCard>
@@ -1032,7 +1033,7 @@ const AnaliseFinanceira = () => {
                     contentStyle={{ backgroundColor: "rgb(var(--crm-surface-2-rgb) / 1)", border: "1px solid var(--crm-border)", borderRadius: '8px' }}
                     formatter={(val, name) => [formatBRL(val), name]}
                   />
-                  <Bar dataKey="valor_total" name="Valor Total" fill="#0EA5E9" radius={[0, 6, 6, 0]} />
+                  <Bar shape={<Bar3DShape />} activeBar={<Bar3DShape />} dataKey="valor_total" name="Valor Total" fill="#0EA5E9" radius={[0, 6, 6, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </GradientCard>
