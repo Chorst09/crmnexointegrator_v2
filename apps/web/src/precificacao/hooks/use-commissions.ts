@@ -176,12 +176,34 @@ export function useCommissions(): UseCommissionsResult {
   };
 
   const fetchData = useCallback(async (_attempt = 0): Promise<void> => {
-    // MODO INTEGRADO CRM: usar apenas dados de fallback
-    // A API /api/commissions não existe neste sistema
-    console.log('✅ useCommissions: Usando tabelas padrão (modo integrado ao CRM)');
-    setIsLoading(false);
+    setIsLoading(true);
     setError(null);
+    try {
+      const res = await fetch('/api/simulator/commissions', {
+        headers: { 'Content-Type': 'application/json' }
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = await res.json();
+      const d = json.data || {};
+
+      if (d.channel_seller)   setChannelSeller(normalizeSingle<CommissionChannelSeller>(d.channel_seller));
+      if (d.channel_director) setChannelDirector(normalizeSingle<CommissionChannelDirector>(d.channel_director));
+      if (d.seller)           setSeller(normalizeSingle<CommissionSeller>(d.seller));
+      if (Array.isArray(d.channel_influencer) && d.channel_influencer.length > 0)
+        setChannelInfluencer(d.channel_influencer.map((r: any) => normalizeRangeRow<CommissionChannelInfluencer>(r)));
+      if (Array.isArray(d.channel_indicator) && d.channel_indicator.length > 0)
+        setChannelIndicator(d.channel_indicator.map((r: any) => normalizeRangeRow<CommissionChannelIndicator>(r)));
+    } catch (err) {
+      console.warn('useCommissions: usando fallback —', err);
+      // Mantém dados de fallback já carregados no estado inicial
+    } finally {
+      setIsLoading(false);
+    }
   }, [user]);
+
+  useEffect(() => {
+    fetchData(0);
+  }, [fetchData]);
 
   return {
     channelSeller,

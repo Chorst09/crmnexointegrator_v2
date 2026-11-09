@@ -24,17 +24,16 @@ export function useCommissionsEditor(options?: { onUpdated?: () => Promise<void>
         throw new Error('Não foi possível salvar: comissões ainda não carregadas do banco (ID inválido).');
       }
 
-      const response = await fetch('/api/commissions', {
+      const response = await fetch('/api/simulator/commissions', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           table,
-          data: {
-            id,
-            [field]: value
-          }
+          id,
+          field,
+          value
         }),
       });
 

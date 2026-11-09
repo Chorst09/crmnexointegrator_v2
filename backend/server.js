@@ -143,6 +143,10 @@ app.use('/api/post-sales', postSalesRoutes);
 app.use('/api/workflows', workflowsRoutes);
 app.use('/api/proposals', proposalsRoutes);
 app.use('/api/simulator/proposals', simulatorProposalsRoutes);
+
+// Tabelas de comissão do simulador (salvas em SystemSetting)
+const { createSimulatorCommissionsRouter } = require('./lib/simulator-commissions.cjs');
+app.use('/api/simulator/commissions', createSimulatorCommissionsRouter({ prisma: require('./lib/prisma.cjs').prisma, authenticateToken }));
 app.use('/api/proposal-templates', require('./api/proposal-templates'));
 app.use('/api/products', productsRoutes);
 app.use('/api/settings', authenticateToken, require('../apps/api/api/settings.cjs'));
