@@ -2615,7 +2615,7 @@ const DoubleFibraRadioCalculator: React.FC<DoubleFibraRadioCalculatorProps> = ({
                                                     <Button variant="outline" onClick={clearForm} className="border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]">
                                                         Limpar Tudo
                                                     </Button>
-                                                    {hasChanged && currentProposal?.id && (
+                                                    {currentProposal?.id && (
                                                         <Button
                                                             onClick={() => {
                                                                 if (currentProposal.id) {
