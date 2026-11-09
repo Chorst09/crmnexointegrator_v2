@@ -17,7 +17,7 @@ function requestKey(req) {
   return `ip:${req.ip}`;
 }
 
-function createRateLimits({ apiMax = 300, authMax = 50 } = {}) {
+function createRateLimits({ apiMax = 1000, authMax = 50 } = {}) {
   const common = { standardHeaders: true, legacyHeaders: false };
   return {
     apiLimiter: rateLimit({
