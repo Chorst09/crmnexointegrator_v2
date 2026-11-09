@@ -14,14 +14,10 @@ export function useCommissionsEditor(options?: { onUpdated?: () => Promise<void>
   const updateCommission = async ({ table, id, field, value }: UpdateCommissionParams) => {
     setIsUpdating(true);
     try {
-      const isUuid =
-        typeof id === 'string' &&
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
-
-      if (!isUuid) {
-        // Isso acontece quando o app está usando dados de fallback (IDs como "cd_default_001").
-        // Evita estourar erro do Prisma e informa o usuário.
-        throw new Error('Não foi possível salvar: comissões ainda não carregadas do banco (ID inválido).');
+      // IDs das comissões do simulador são strings curtas por design (ex: cd_default_001)
+      // e não UUIDs — a validação UUID foi removida pois bloqueava todo save.
+      if (!id || typeof id !== 'string' || id.trim() === '') {
+        throw new Error('ID da comissão inválido.');
       }
 
       const response = await fetch('/api/simulator/commissions', {
