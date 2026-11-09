@@ -1397,6 +1397,15 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                 proposal.previousMonthlyFee = metadata.previousMonthlyFee;
                 console.log('✅ Movendo previousMonthlyFee:', metadata.previousMonthlyFee);
             }
+            if (metadata.totalSetup !== undefined && !proposal.totalSetup) {
+                proposal.totalSetup = metadata.totalSetup;
+            }
+            if (metadata.totalMonthly !== undefined && !proposal.totalMonthly) {
+                proposal.totalMonthly = metadata.totalMonthly;
+            }
+            if (metadata.baseTotalMonthly !== undefined && !proposal.baseTotalMonthly) {
+                proposal.baseTotalMonthly = metadata.baseTotalMonthly;
+            }
         } else {
             console.log('⚠️ Metadata não encontrado');
         }
