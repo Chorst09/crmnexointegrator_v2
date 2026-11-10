@@ -89,6 +89,7 @@ const MANUAL_LEAD_INITIAL_STATE = {
   contactName: '',
   contactEmail: '',
   contactPhone: '',
+  prospectionNotes: '',
   leadNextAction: '',
   leadNextActionAt: '',
   leadReminderMinutes: 15,
@@ -202,7 +203,7 @@ export default function LeadManagement() {
     setManualLeadForm(lead ? {
       ...MANUAL_LEAD_INITIAL_STATE,
       ...Object.fromEntries(['name', 'document', 'segment', 'size', 'website', 'address', 'city', 'state',
-        'leadOrigin', 'leadOriginDetail', 'leadNextAction', 'accountManagerId'].map((key) => [key, lead[key] || ''])),
+        'leadOrigin', 'leadOriginDetail', 'prospectionNotes', 'leadNextAction', 'accountManagerId'].map((key) => [key, lead[key] || ''])),
       leadEntryDate: toDateInputValue(lead.leadEntryDate || lead.createdAt),
       leadNextActionAt: lead.leadNextActionAt
         ? `${toDateInputValue(lead.leadNextActionAt)}T${String(new Date(lead.leadNextActionAt).getHours()).padStart(2, '0')}:${String(new Date(lead.leadNextActionAt).getMinutes()).padStart(2, '0')}` : '',
@@ -279,6 +280,7 @@ export default function LeadManagement() {
           leadEntryDate: manualLeadForm.leadEntryDate || null,
           leadOrigin: manualLeadForm.leadOrigin,
           leadOriginDetail: manualLeadForm.leadOriginDetail.trim() || null,
+          prospectionNotes: manualLeadForm.prospectionNotes.trim() || null,
           clientType: leadClientType,
           ...(!editingLeadId ? { status: 'LEAD', autoDistribute: manualLeadForm.autoDistribute, contacts } : {})
         })
@@ -770,6 +772,20 @@ export default function LeadManagement() {
               </label>
             </div>}
           </div>
+          {/* Histórico de Abordagem */}
+          <fieldset className="crm-panel-muted space-y-2 p-4 md:col-span-2">
+            <legend className="px-1 text-sm font-bold text-[var(--crm-ink)]">Histórico de Abordagem</legend>
+            <p className="text-xs text-[var(--crm-muted)]">Registre como o lead foi abordado, contatos realizados e o andamento da prospecção.</p>
+            <textarea
+              className="crm-input min-h-[100px] resize-y"
+              maxLength={5000}
+              placeholder="Ex.: 10/11 — Ligação inicial, apresentei a empresa. Lead demonstrou interesse em soluções de conectividade. Próximo passo: enviar proposta por e-mail..."
+              value={manualLeadForm.prospectionNotes}
+              onChange={(e) => updateManualLeadField('prospectionNotes', e.target.value)}
+              disabled={savingManualLead}
+            />
+            <p className="text-xs text-[var(--crm-muted)] text-right">{(manualLeadForm.prospectionNotes || '').length}/5000</p>
+          </fieldset>
           <LeadNextActionFields value={manualLeadForm} onChange={updateManualLeadField} sellers={sellers} prefix="new-lead" disabled={savingManualLead} />
           <div className="flex justify-end gap-2 pt-2">
             <button

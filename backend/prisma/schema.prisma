@@ -103,6 +103,7 @@ model Company {
   leadReminderMinutes Int @default(15)
   leadOrigin String?
   leadOriginDetail String?
+  prospectionNotes String?  // Histórico de abordagem e contatos realizados
   leadEntryDate DateTime @default(now())
   accountManagerId String?
   accountManagerName     String?
