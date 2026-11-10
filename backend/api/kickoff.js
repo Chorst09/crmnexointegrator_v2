@@ -68,7 +68,10 @@ const scopeMeetingWhere = (req, where = {}) => {
   let scoped = { ...where };
   if (tenantCompanyId) {
     scoped = mergeRelationWhere(scoped, 'company', { tenantCompanyId });
-  } else if (req.user.role === 'SELLER') {
+  }
+  // SELLER e MANAGER veem apenas suas próprias reuniões
+  const role = String(req.user?.role || '').toUpperCase();
+  if (!tenantCompanyId && (role === 'SELLER' || role === 'MANAGER')) {
     scoped.ownerId = req.user.userId;
   }
   return scoped;

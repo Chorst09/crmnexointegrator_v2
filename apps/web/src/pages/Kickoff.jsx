@@ -497,6 +497,40 @@ const Kickoff = () => {
 
   const [viewMode, setViewMode] = useState('pipeline');
 
+  // Atas: lista agrupada por cliente, com filtro
+  const [atasClientFilter, setAtasClientFilter] = useState('');
+
+  // Empresas únicas das reuniões com ata preenchida
+  const meetingsWithNotes = useMemo(() =>
+    meetings.filter(m => m.meetingNotes && m.meetingNotes.trim() !== ''),
+    [meetings]
+  );
+
+  const uniqueCompaniesForAtas = useMemo(() => {
+    const seen = new Set();
+    return meetingsWithNotes
+      .map(m => m.company)
+      .filter(c => c && c.id && !seen.has(c.id) && seen.add(c.id));
+  }, [meetingsWithNotes]);
+
+  const filteredMeetingsWithNotes = useMemo(() =>
+    atasClientFilter
+      ? meetingsWithNotes.filter(m => m.company?.id === atasClientFilter)
+      : meetingsWithNotes,
+    [meetingsWithNotes, atasClientFilter]
+  );
+
+  // Agrupa atas por empresa
+  const atasGroupedByCompany = useMemo(() => {
+    const groups = {};
+    filteredMeetingsWithNotes.forEach(m => {
+      const key = m.company?.id || 'sem-empresa';
+      if (!groups[key]) groups[key] = { company: m.company, meetings: [] };
+      groups[key].meetings.push(m);
+    });
+    return Object.values(groups);
+  }, [filteredMeetingsWithNotes]);
+
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingMeeting, setEditingMeeting] = useState(null);
   const [detailMeeting, setDetailMeeting] = useState(null);
@@ -911,6 +945,128 @@ const Kickoff = () => {
           </div>
         </GradientCard>
       )}
+
+      {/* ===== ATAS DE REUNIÕES ===== */}
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-500/15 flex items-center justify-center">
+              <FileText className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-[var(--crm-ink)]">Atas de Reuniões</h2>
+              <p className="text-xs text-[var(--crm-muted)]">
+                {meetingsWithNotes.length} ata{meetingsWithNotes.length !== 1 ? 's' : ''} registrada{meetingsWithNotes.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+          </div>
+          {uniqueCompaniesForAtas.length > 0 && (
+            <select
+              value={atasClientFilter}
+              onChange={e => setAtasClientFilter(e.target.value)}
+              className="sm:w-72 px-4 py-2.5 text-sm border border-[var(--crm-border)] rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent bg-[var(--crm-surface)] text-[var(--crm-ink)] shadow-sm"
+            >
+              <option value="">Todos os clientes</option>
+              {uniqueCompaniesForAtas.map(c => (
+                <option key={c.id} value={c.id}>{c.name}</option>
+              ))}
+            </select>
+          )}
+        </div>
+
+        {meetingsWithNotes.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-[var(--crm-border)] p-10 text-center">
+            <FileText className="w-10 h-10 text-[var(--crm-muted)] mx-auto mb-3 opacity-40" />
+            <p className="text-sm font-medium text-[var(--crm-ink)]">Nenhuma ata registrada ainda</p>
+            <p className="text-xs text-[var(--crm-muted)] mt-1">As atas aparecem aqui depois de preenchidas nas reuniões realizadas.</p>
+          </div>
+        ) : atasGroupedByCompany.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-[var(--crm-border)] p-8 text-center">
+            <p className="text-sm text-[var(--crm-muted)]">Nenhuma ata encontrada para o cliente selecionado.</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {atasGroupedByCompany.map(({ company, meetings: companyMeetings }) => (
+              <div key={company?.id || 'sem-empresa'} className="rounded-2xl border border-[var(--crm-border)] bg-[var(--crm-surface)] overflow-hidden">
+                {/* Header do grupo */}
+                <div className="flex items-center gap-3 px-5 py-3 bg-indigo-50/50 dark:bg-indigo-900/20 border-b border-[var(--crm-border)]">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-100 dark:bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
+                    <span className="text-sm">🏢</span>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-sm font-bold text-[var(--crm-ink)] truncate">{company?.name || 'Empresa não identificada'}</span>
+                    {company?.document && (
+                      <span className="ml-2 text-xs text-[var(--crm-muted)]">{company.document}</span>
+                    )}
+                  </div>
+                  <span className="text-xs font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-500/15 px-2 py-0.5 rounded-full flex-shrink-0">
+                    {companyMeetings.length} ata{companyMeetings.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+
+                {/* Lista de atas */}
+                <div className="divide-y divide-[var(--crm-border)]">
+                  {companyMeetings.map(meeting => {
+                    const phase = PHASE_MAP[meeting.phase];
+                    return (
+                      <div
+                        key={meeting.id}
+                        className="p-5 hover:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] dark:hover:bg-[rgb(var(--crm-surface-rgb)_/_0.1)] transition-colors cursor-pointer"
+                        onClick={() => openDetail(meeting, 'minutes')}
+                      >
+                        <div className="flex items-start gap-4">
+                          <div className="flex-shrink-0 mt-0.5">
+                            <span className="text-xl">{phase?.icon || '📋'}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex flex-wrap items-center gap-2 mb-1">
+                              <span className="text-sm font-semibold text-[var(--crm-ink)] truncate">{meeting.title}</span>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${STATUS[meeting.status]?.color}`}>
+                                {STATUS[meeting.status]?.label}
+                              </span>
+                              <span className="text-[10px] font-medium text-indigo-600 dark:text-indigo-400 bg-indigo-100 dark:bg-indigo-500/15 px-2 py-0.5 rounded-full">
+                                {phase?.label || meeting.phase}
+                              </span>
+                            </div>
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-[var(--crm-muted)] mb-2">
+                              <span className="flex items-center gap-1">
+                                <Calendar className="w-3 h-3" />
+                                {new Date(meeting.scheduledDate).toLocaleDateString('pt-BR')}
+                                {meeting.startTime && ` • ${meeting.startTime}`}
+                              </span>
+                              {meeting.owner?.name && (
+                                <span className="flex items-center gap-1">
+                                  <Users className="w-3 h-3" />
+                                  {meeting.owner.name}
+                                </span>
+                              )}
+                              <span className="flex items-center gap-1">
+                                <FileText className="w-3 h-3" />
+                                {meeting.number}
+                              </span>
+                            </div>
+                            {/* Preview da ata */}
+                            <p className="text-xs text-[var(--crm-muted)] line-clamp-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.3)] rounded-lg px-3 py-2 border border-[var(--crm-border)]">
+                              {meeting.meetingNotes}
+                            </p>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={e => { e.stopPropagation(); openDetail(meeting, 'minutes'); }}
+                            className="flex-shrink-0 text-xs text-indigo-600 dark:text-indigo-400 hover:underline font-medium mt-0.5"
+                          >
+                            Ver ata →
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Modal Criação/Edição */}
       {showCreateModal && (
