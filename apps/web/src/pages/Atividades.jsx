@@ -12,6 +12,7 @@ import {
   LayoutGrid,
   List,
   Mail,
+  Pencil,
   PhoneCall,
   Plus,
   RefreshCcw,
@@ -202,6 +203,7 @@ export default function Atividades() {
   const [viewMode, setViewMode] = useState('KANBAN');
 
   const [showForm, setShowForm] = useState(false);
+  const [editingActivityId, setEditingActivityId] = useState(null);
   const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     type: 'CALL',
@@ -539,7 +541,28 @@ export default function Atividades() {
   const closeModal = () => {
     setShowForm(false);
     setSaving(false);
+    setEditingActivityId(null);
     resetForm();
+  };
+
+  const openEditActivity = (item) => {
+    const flow = item.flow || {};
+    setEditingActivityId(item.id);
+    setFormData({
+      type: item.type === 'TASK' && flow.targetArea === 'PRE_VENDAS' ? BUDGET_REQUEST_TYPE : (item.type || 'CALL'),
+      subject: item.subject || item.title || '',
+      description: item.description || '',
+      status: item.status || 'PENDING',
+      priority: item.priority || 'MEDIUM',
+      dueDate: item.dueDate ? item.dueDate.slice(0, 10) : '',
+      companyId: item.companyId || item.company?.id || '',
+      opportunityId: item.opportunityId || item.opportunity?.id || '',
+      assignedToId: item.assignedToId || item.assignedTo?.id || '',
+      sourceArea: flow.sourceArea || 'B2B',
+      targetArea: flow.targetArea || 'B2B'
+    });
+    setEmpresaSearch(item.company?.name || '');
+    setShowForm(true);
   };
 
   const handleSubmit = async (e) => {
@@ -568,11 +591,21 @@ export default function Atividades() {
         payload.assignedToId = assignedToId;
       }
 
-      await axios.post(
-        buildApiUrl(activityApiPath),
-        payload,
-        { headers: getAuthHeaders() }
-      );
+      if (editingActivityId) {
+        // PUT — atualizar atividade existente
+        await axios.put(
+          buildApiUrl('/activities-simple'),
+          { id: editingActivityId, ...payload },
+          { headers: getAuthHeaders() }
+        );
+      } else {
+        // POST — criar nova atividade
+        await axios.post(
+          buildApiUrl(activityApiPath),
+          payload,
+          { headers: getAuthHeaders() }
+        );
+      }
 
       closeModal();
       loadAtividades();
@@ -1084,6 +1117,17 @@ export default function Atividades() {
         <Eye className="h-4 w-4" />
         Detalhes
       </button>
+      {item.status !== 'COMPLETED' && item.status !== 'CANCELLED' && (
+        <button
+          type="button"
+          onClick={() => openEditActivity(item)}
+          className="crm-btn crm-btn-secondary px-3 py-1.5 text-xs"
+          title="Editar atividade"
+        >
+          <Pencil className="h-4 w-4" />
+          Editar
+        </button>
+      )}
       {canDeleteActivities && (
         <button
           type="button"
@@ -1910,7 +1954,7 @@ export default function Atividades() {
         </Modal>
       )}
 
-      <Modal isOpen={showForm} onClose={closeModal} title="Nova Atividade">
+      <Modal isOpen={showForm} onClose={closeModal} title={editingActivityId ? 'Editar Atividade' : 'Nova Atividade'}>
         <form onSubmit={handleSubmit} className="space-y-6">
           {formData.type === BUDGET_REQUEST_TYPE && (
             <div className="crm-panel-muted p-4">
