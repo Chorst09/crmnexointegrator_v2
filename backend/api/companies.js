@@ -287,6 +287,7 @@ export default async function handler(req) {
         leadScore: body.leadScore,
         leadOrigin: body.leadOrigin === undefined ? undefined : (typeof body.leadOrigin === 'string' ? body.leadOrigin.trim() || null : null),
         leadOriginDetail: body.leadOriginDetail === undefined ? undefined : (typeof body.leadOriginDetail === 'string' ? body.leadOriginDetail.trim() || null : null),
+        prospectionNotes: body.prospectionNotes === undefined ? undefined : (typeof body.prospectionNotes === 'string' ? body.prospectionNotes.trim() || null : null),
         ...nextAction.data,
         leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined,
         ...assignment.data
