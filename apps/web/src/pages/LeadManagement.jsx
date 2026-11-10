@@ -90,6 +90,7 @@ const MANUAL_LEAD_INITIAL_STATE = {
   contactEmail: '',
   contactPhone: '',
   prospectionNotes: '',
+  newProspectionEntry: '',
   leadNextAction: '',
   leadNextActionAt: '',
   leadReminderMinutes: 15,
@@ -210,6 +211,53 @@ export default function LeadManagement() {
       leadReminderMinutes: lead.leadReminderMinutes ?? 15,
     } : { ...MANUAL_LEAD_INITIAL_STATE, leadEntryDate: toDateInputValue() });
     setShowManualLeadModal(true);
+  };
+
+  // ── Histórico de Abordagem helpers ──────────────────────────────────────────
+  const parseProspectionNotes = (raw) => {
+    if (!raw) return [];
+    try {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed)) return parsed;
+    } catch {}
+    // Texto legado (string simples) → converte em entrada única
+    return [{ date: null, text: String(raw), author: '' }];
+  };
+
+  const [newProspectionEntry, setNewProspectionEntry] = useState('');
+  const [savingProspection, setSavingProspection] = useState(false);
+
+  const addProspectionEntry = async () => {
+    const text = newProspectionEntry.trim();
+    if (!text || !selectedLead) return;
+    setSavingProspection(true);
+    try {
+      const currentEntries = parseProspectionNotes(selectedLead.prospectionNotes);
+      const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+      const newEntry = {
+        date: new Date().toISOString(),
+        text,
+        author: currentUser.name || currentUser.email || 'Usuário'
+      };
+      const updatedEntries = [...currentEntries, newEntry];
+      const response = await fetch(buildApiUrl(`/companies/${encodeURIComponent(selectedLead.id)}?${scopedClientTypeQuery}`), {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          prospectionNotes: JSON.stringify(updatedEntries),
+          clientType: leadClientType
+        })
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || 'Erro ao salvar.');
+      setSelectedLead((prev) => ({ ...prev, prospectionNotes: JSON.stringify(updatedEntries) }));
+      setNewProspectionEntry('');
+      await fetchCompanies();
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      setSavingProspection(false);
+    }
   };
 
   const nextActionPayload = (form) => {
@@ -840,6 +888,66 @@ export default function LeadManagement() {
                 <div>Entrada do Lead: {formatDateBR(selectedLead.leadEntryDate || selectedLead.createdAt)}</div>
                 <div>Cidade/UF: {[selectedLead.city, selectedLead.state].filter(Boolean).join('/') || '-'}</div>
                 <div>CNPJ: {selectedLead.document || '-'}</div>
+              </div>
+            </div>
+
+            {/* ── Histórico de Abordagem ── */}
+            <div className="crm-panel-muted p-4 space-y-3">
+              <h4 className="text-sm font-bold text-[var(--crm-ink)] flex items-center gap-2">
+                <span>📋</span> Histórico de Abordagem
+              </h4>
+
+              {(() => {
+                const entries = parseProspectionNotes(selectedLead.prospectionNotes);
+                if (entries.length === 0) {
+                  return (
+                    <p className="text-xs text-[var(--crm-muted)] italic">
+                      Nenhum registro ainda. Use o campo abaixo para registrar o primeiro contato.
+                    </p>
+                  );
+                }
+                return (
+                  <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                    {[...entries].reverse().map((entry, idx) => (
+                      <div key={idx} className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-3">
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className="text-[11px] font-semibold text-[var(--crm-accent)]">
+                            {entry.author || 'Usuário'}
+                          </span>
+                          <span className="text-[11px] text-[var(--crm-muted)]">
+                            {entry.date
+                              ? new Date(entry.date).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })
+                              : 'Data não registrada'}
+                          </span>
+                        </div>
+                        <p className="text-xs text-[var(--crm-ink)] whitespace-pre-wrap">{entry.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
+
+              <div className="space-y-2 pt-2 border-t border-[var(--crm-border)]">
+                <label className="text-xs font-semibold text-[var(--crm-ink)]">Registrar novo contato / abordagem</label>
+                <textarea
+                  className="crm-input min-h-[72px] resize-y text-sm"
+                  placeholder="Ex.: Ligação realizada — cliente demonstrou interesse, solicitou proposta até sexta..."
+                  value={newProspectionEntry}
+                  onChange={(e) => setNewProspectionEntry(e.target.value)}
+                  disabled={savingProspection}
+                  maxLength={2000}
+                />
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-[var(--crm-muted)]">{newProspectionEntry.length}/2000</span>
+                  <button
+                    type="button"
+                    onClick={addProspectionEntry}
+                    disabled={savingProspection || !newProspectionEntry.trim()}
+                    className="crm-btn crm-btn-secondary text-sm px-4"
+                  >
+                    {savingProspection ? 'Salvando...' : '+ Registrar'}
+                  </button>
+                </div>
               </div>
             </div>
 
