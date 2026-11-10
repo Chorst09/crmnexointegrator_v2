@@ -1045,9 +1045,21 @@ const Kickoff = () => {
                                 {meeting.number}
                               </span>
                             </div>
-                            {/* Preview da ata */}
+                            {/* Preview da ata — extrai texto legível do JSON serializado */}
                             <p className="text-xs text-[var(--crm-muted)] line-clamp-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.3)] rounded-lg px-3 py-2 border border-[var(--crm-border)]">
-                              {meeting.meetingNotes}
+                              {(() => {
+                                const docs = parseMinutesDocuments(meeting.meetingNotes);
+                                if (docs.length === 0) return meeting.meetingNotes;
+                                // Concatena o conteúdo de todos os documentos, removendo markdown
+                                const text = docs
+                                  .map(d => d.content || '')
+                                  .join(' ')
+                                  .replace(/\*\*([^*]+)\*\*/g, '$1')
+                                  .replace(/#{1,6}\s?/g, '')
+                                  .replace(/\n+/g, ' ')
+                                  .trim();
+                                return text || docs[0]?.title || 'Ver ata completa';
+                              })()}
                             </p>
                           </div>
                           <button
