@@ -1910,7 +1910,15 @@ export default function Calculadoras({
       setRentalItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, [field]: value } : item)));
       return;
     }
-    setServiceItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, [field]: value } : item)));
+    // Para serviços: ao mudar billingType para PONTUAL, ajusta servicePeriod para 1
+    setServiceItems((prev) => prev.map((item) => {
+      if (item.id !== itemId) return item;
+      const updated = { ...item, [field]: value };
+      if (field === 'billingType' && value === 'PONTUAL') {
+        updated.servicePeriod = 1;
+      }
+      return updated;
+    }));
   };
 
   const removeOperationItem = (itemId) => {
