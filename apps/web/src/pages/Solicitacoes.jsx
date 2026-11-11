@@ -20,7 +20,8 @@ import {
   Undo2,
   Save,
   ArrowLeft,
-  FileText
+  FileText,
+  Trash2
 } from 'lucide-react';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
 import Modal from '../components/Modal';
