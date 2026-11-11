@@ -125,6 +125,7 @@ export default function OpportunityForm({
 
   // Busca de empresa no formulário B2B
   const [companySearch, setCompanySearch] = useState('');
+  const [showCompanyDropdown, setShowCompanyDropdown] = useState(false);
   const companySearchRef = useRef(null);
 
   // Produtos selecionados (lista dinâmica)
@@ -541,27 +542,41 @@ export default function OpportunityForm({
                         : `Buscar entre ${(companies || []).length} empresa(s) cadastrada(s)...`
                     }
                     value={companySearch}
-                    onChange={e => setCompanySearch(e.target.value)}
+                    onChange={e => {
+                      setCompanySearch(e.target.value);
+                      setShowCompanyDropdown(true);
+                    }}
                     onFocus={() => {
+                      setShowCompanyDropdown(true);
                       // Se ainda não carregou empresas, recarrega ao focar
                       if ((companies || []).length === 0) {
                         onRefreshCompanies?.({ onlyWithContracts: false });
                       }
+                    }}
+                    onBlur={() => {
+                      // Delay para permitir clique no item antes de fechar
+                      setTimeout(() => setShowCompanyDropdown(false), 200);
                     }}
                     autoComplete="off"
                   />
 
                   {/* Resultados filtrados */}
                   {(() => {
+                    if (!showCompanyDropdown) return null;
+                    
                     const term = companySearch.trim().toLowerCase();
-                    if (!term) return (companies || []).length === 0 ? (
-                      <p className="text-xs text-[var(--crm-muted)] mt-1">Carregando empresas...</p>
-                    ) : null;
-
-                    const filtered = (companies || []).filter(c =>
-                      (c.name || '').toLowerCase().includes(term) ||
-                      (c.document || '').replace(/\D/g, '').includes(term.replace(/\D/g, ''))
-                    );
+                    
+                    // Se não digitou nada, mostra as primeiras 10 empresas
+                    const filtered = !term 
+                      ? (companies || []).slice(0, 10)
+                      : (companies || []).filter(c =>
+                          (c.name || '').toLowerCase().includes(term) ||
+                          (c.document || '').replace(/\D/g, '').includes(term.replace(/\D/g, ''))
+                        );
+                    
+                    if ((companies || []).length === 0) {
+                      return <p className="text-xs text-[var(--crm-muted)] mt-1">Carregando empresas...</p>;
+                    }
 
                     if (filtered.length > 0) {
                       return (
@@ -574,6 +589,7 @@ export default function OpportunityForm({
                                 onClick={() => {
                                   setFormData(p => ({ ...p, companyId: c.id }));
                                   setCompanySearch('');
+                                  setShowCompanyDropdown(false);
                                 }}
                               >
                                 <span className="font-medium text-[var(--crm-ink)]">{c.name}</span>
