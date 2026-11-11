@@ -1902,6 +1902,8 @@ export default function Calculadoras({
   const createItemId = (prefix) => createEntityId(prefix);
 
   const updateOperationItem = (itemId, field, value) => {
+    console.log(`[updateOperationItem] itemId=${itemId}, field=${field}, value=${value}, operationType=${operationType}`);
+    
     if (operationType === 'venda') {
       setSaleItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, [field]: value } : item)));
       return;
@@ -1911,14 +1913,19 @@ export default function Calculadoras({
       return;
     }
     // Para serviços: ao mudar billingType para PONTUAL, ajusta servicePeriod para 1
-    setServiceItems((prev) => prev.map((item) => {
-      if (item.id !== itemId) return item;
-      const updated = { ...item, [field]: value };
-      if (field === 'billingType' && value === 'PONTUAL') {
-        updated.servicePeriod = 1;
-      }
+    setServiceItems((prev) => {
+      const updated = prev.map((item) => {
+        if (item.id !== itemId) return item;
+        const newItem = { ...item, [field]: value };
+        if (field === 'billingType' && value === 'PONTUAL') {
+          console.log('[updateOperationItem] Detectado billingType=PONTUAL, ajustando servicePeriod para 1');
+          newItem.servicePeriod = 1;
+        }
+        return newItem;
+      });
+      console.log('[updateOperationItem] serviceItems após update:', updated);
       return updated;
-    }));
+    });
   };
 
   const removeOperationItem = (itemId) => {
@@ -3519,7 +3526,10 @@ export default function Calculadoras({
       return (
         <select
           value={item[column.key] ?? ''}
-          onChange={(event) => updateOperationItem(item.id, column.key, event.target.value)}
+          onChange={(event) => {
+            console.log(`[Calculadoras] Atualizando ${column.key} de "${item[column.key]}" para "${event.target.value}"`);
+            updateOperationItem(item.id, column.key, event.target.value);
+          }}
           className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
         >
           {(column.options || []).map((option) => (
