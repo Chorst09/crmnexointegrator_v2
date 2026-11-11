@@ -579,9 +579,13 @@ export default function OpportunityForm({
                     }
 
                     if (filtered.length > 0) {
+                      const displayLimit = 50; // Mostra até 50 resultados
+                      const hasMore = filtered.length > displayLimit;
+                      
                       return (
-                        <ul className="mt-1 rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] divide-y divide-[var(--crm-border)] max-h-48 overflow-y-auto shadow-md">
-                          {filtered.slice(0, 8).map(c => (
+                        <>
+                          <ul className="mt-1 rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] divide-y divide-[var(--crm-border)] max-h-64 overflow-y-auto shadow-md">
+                            {filtered.slice(0, displayLimit).map(c => (
                             <li key={c.id}>
                               <button
                                 type="button"
@@ -599,9 +603,9 @@ export default function OpportunityForm({
                               </button>
                             </li>
                           ))}
-                          {filtered.length > 8 && (
-                            <li className="px-3 py-1.5 text-xs text-[var(--crm-muted)] text-center">
-                              {filtered.length - 8} resultado(s) a mais — refine a busca
+                          {filtered.length > displayLimit && (
+                            <li className="px-3 py-1.5 text-xs text-[var(--crm-muted)] text-center bg-[var(--crm-surface-2)]">
+                              {filtered.length - displayLimit} resultado(s) a mais — refine a busca
                             </li>
                           )}
                         </ul>
