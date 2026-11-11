@@ -367,7 +367,9 @@ export default function OpportunityForm({
       companyId: nextProjectClientType === 'NEW_CLIENT' ? '' : prev.companyId
     }));
     if (nextProjectClientType === 'BASE_CLIENT' || nextProjectClientType === 'RENEWAL') {
-      // Carrega todas as empresas cadastradas para qualquer tipo de cliente
+      onRefreshCompanies?.({ onlyWithContracts: false });
+    }
+    if (nextProjectClientType === 'NEW_CLIENT') {
       onRefreshCompanies?.({ onlyWithContracts: false });
     }
     // Removido: não navega mais automaticamente para cadastro de empresa ao selecionar "Cliente Novo"
@@ -540,13 +542,21 @@ export default function OpportunityForm({
                     }
                     value={companySearch}
                     onChange={e => setCompanySearch(e.target.value)}
+                    onFocus={() => {
+                      // Se ainda não carregou empresas, recarrega ao focar
+                      if ((companies || []).length === 0) {
+                        onRefreshCompanies?.({ onlyWithContracts: false });
+                      }
+                    }}
                     autoComplete="off"
                   />
 
                   {/* Resultados filtrados */}
                   {(() => {
                     const term = companySearch.trim().toLowerCase();
-                    if (!term) return null;
+                    if (!term) return (companies || []).length === 0 ? (
+                      <p className="text-xs text-[var(--crm-muted)] mt-1">Carregando empresas...</p>
+                    ) : null;
 
                     const filtered = (companies || []).filter(c =>
                       (c.name || '').toLowerCase().includes(term) ||
@@ -592,7 +602,7 @@ export default function OpportunityForm({
                           <p className="text-xs text-[var(--crm-muted)] mt-0.5">
                             {shouldCreateCompanyFirst
                               ? 'Deseja cadastrar como nova empresa?'
-                              : 'Verifique se a empresa já possui contrato cadastrado, ou ajuste a busca.'}
+                              : 'Ajuste a busca ou verifique se a empresa está cadastrada.'}
                           </p>
                         </div>
                         {shouldCreateCompanyFirst && (
