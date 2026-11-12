@@ -1262,6 +1262,7 @@ enum Role {
   ADMIN
   MANAGER
   DIRECTOR
+  SDR
   SELLER
   USER
   USER_B2B
