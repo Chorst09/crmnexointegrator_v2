@@ -114,7 +114,7 @@ const canAccessChorstData = (user = {}) => {
 };
 
 const canSeeAllOpportunities = (user = {}) =>
-  ['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(normalizeRole(user));
+  ['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR', 'SDR'].includes(normalizeRole(user));
 
 const canAccessClientType = (user = {}, clientType = 'B2B') => {
   const type = normalizeClientType(clientType) || 'B2B';
