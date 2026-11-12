@@ -20,19 +20,34 @@ export default function OpportunityCalendarAlert({ opportunity, notes = '' }) {
 
   function generate() {
     const start = new Date(when);
+    const now = new Date();
     setStatus('');
+    
+    console.log('[OpportunityCalendarAlert] generate() chamado');
+    console.log('[OpportunityCalendarAlert] title:', title);
+    console.log('[OpportunityCalendarAlert] when:', when);
+    console.log('[OpportunityCalendarAlert] start:', start);
+    console.log('[OpportunityCalendarAlert] now:', now);
+    console.log('[OpportunityCalendarAlert] start.getTime():', start.getTime());
+    console.log('[OpportunityCalendarAlert] isFinite:', Number.isFinite(start.getTime()));
+    console.log('[OpportunityCalendarAlert] start <= now:', start <= now);
+    
     if (!title.trim()) {
+      console.log('[OpportunityCalendarAlert] ERRO: título vazio');
       setError('Informe a ação / título do alerta.');
       return;
     }
     if (!when || !Number.isFinite(start.getTime())) {
+      console.log('[OpportunityCalendarAlert] ERRO: data inválida');
       setError('Informe uma data e horário válidos.');
       return;
     }
-    if (start <= new Date()) {
-      setError(`O horário escolhido (${start.toLocaleString('pt-BR')}) já passou no seu fuso local. Escolha um horário após ${new Date().toLocaleString('pt-BR')}.`);
+    if (start <= now) {
+      console.log('[OpportunityCalendarAlert] ERRO: data no passado');
+      setError(`O horário escolhido (${start.toLocaleString('pt-BR')}) já passou no seu fuso local. Escolha um horário após ${now.toLocaleString('pt-BR')}.`);
       return;
     }
+    console.log('[OpportunityCalendarAlert] Validações OK, gerando alerta');
     setError('');
     const end = new Date(start.getTime() + 30 * 60000);
     const details = [description.trim(), `Oportunidade: ${opportunity.title || opportunity.name || opportunity.id}`,
