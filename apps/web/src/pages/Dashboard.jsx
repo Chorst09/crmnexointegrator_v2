@@ -3,7 +3,7 @@ import { BarChart3, Clock3, Maximize2, PieChart, RefreshCw, Rocket, Target, X } 
 import B2BTestFlowModal from '../components/B2BTestFlowModal';
 import PresentationControls from '../components/PresentationControls';
 import SalesFunnel from '../components/SalesFunnel';
-import B2BRevenueCards from '../components/B2BRevenueCards';
+import B2BRevenuePanel from '../components/B2BRevenuePanel';
 import DashboardAdvancedChart from '../components/DashboardAdvancedChart';
 import PipelineDashboardModel from '../components/PipelineDashboardModel';
 import '../styles/dashboardEffects.css';
@@ -255,7 +255,6 @@ export default function Dashboard() {
   const towers = topCategories(opportunityInsights.towerRows, 7);
   const timeline = charts.timeline || [];
   const revenue = dashboardData?.revenue || {};
-  const revenueTimeline = charts.revenueTimeline || [];
   const forecast = charts.forecast || [];
   const forecastDeals = forecast.reduce((total, row) => total + row.deals, 0);
   const probabilityMean = Number(kpis.pipelineTemperature || 0);
@@ -359,18 +358,7 @@ export default function Dashboard() {
         </section>
 
         <section className="mt-5 px-2" aria-label="Receitas recorrentes e pontuais">
-          <B2BRevenueCards revenue={revenue} historyLabel={historyLabel} />
-          <div className="mt-4 grid gap-4 lg:grid-cols-2">
-            <DashboardAdvancedChart title="Evolução das Receitas" subtitle={`Vendas ganhas • ${historyLabel}`} type="bar" height={260}
-              data={{ labels: revenueTimeline.map(row => row.label), datasets: [
-                { label: 'Recorrente', data: revenueTimeline.map(row => row.recurring), backgroundColor: '#18c8df', borderRadius: 6 },
-                { label: 'Pontual + setup', data: revenueTimeline.map(row => row.oneTime), backgroundColor: '#2563eb', borderRadius: 6 }
-              ] }} customOptions={currencyOptions} isEmpty={!revenueTimeline.some(row => row.recurring > 0 || row.oneTime > 0)} emptyMessage="Nenhuma receita projetada para o período selecionado." />
-            <DashboardAdvancedChart title="Composição da Receita" subtitle="Vendas ganhas • valores projetados no período" type="doughnut" height={260} legendPosition="bottom"
-              data={{ labels: ['Recorrente', 'Pontual + setup'], datasets: [{ data: [revenue.periodRecurring || 0, revenue.periodOneTime || 0], backgroundColor: ['#18c8df', '#2563eb'] }] }}
-              customOptions={{ plugins: { tooltip: { callbacks: { label: context => `${context.label}: ${formatCurrency(context.parsed)}` } } } }}
-              isEmpty={!revenue.periodRecurring && !revenue.periodOneTime} emptyMessage="Nenhuma receita projetada para o período selecionado." />
-          </div>
+          <B2BRevenuePanel revenue={revenue} insights={dashboardData?.revenueInsights} historyLabel={historyLabel} />
         </section>
       </>}
       <B2BTestFlowModal isOpen={isTestModalOpen} onClose={() => { setIsTestModalOpen(false); fetchDashboardData(selectedOwnerId, selectedTemperature, timeRange, { silent: true }); }} />

@@ -1,3 +1,4 @@
+import { buildB2BRevenueInsights } from './b2bRevenueInsights.js';
 const DAY = 86400000;
 const STAGES = ['LEAD', 'QUALIFICATION', 'DIAGNOSIS', 'PROPOSAL', 'NEGOTIATION', 'WON', 'LOST'];
 const LABELS = { LEAD: 'Lead', QUALIFICATION: 'Qualificação', DIAGNOSIS: 'Diagnóstico', PROPOSAL: 'Proposta', NEGOTIATION: 'Negociação', WON: 'Ganhas', LOST: 'Perdidas' };
@@ -59,7 +60,7 @@ export function buildB2BDashboardAnalytics(opportunities = [], { period = 'year'
   const range = getB2BPeriod(period, now, opportunities);
   const inPeriod = value => value && value >= range.start && value <= range.end;
   const rows = opportunities.map(item => {
-    if (item.revenueType === 'MENSAL') item = { ...item, projectType: 'MONTHLY', projectMonths: item.contractPeriodMonths || item.projectMonths || item.contractMonths, monthlyValue: item.monthlyRecurringValue ?? item.monthlyValue, value: item.totalContractValue ?? item.value };
+    if (item.revenueType === 'MENSAL') item = { ...item, projectType: 'MONTHLY', projectMonths: item.contractPeriodMonths || item.projectMonths || item.contractMonths, monthlyValue: item.monthlyRecurringValue ?? item.monthlyValue, value: item.totalContractValue ?? item.value, installationFee: item.setupValue ?? item.installationFee };
     if (item.revenueType === 'PONTUAL') item = { ...item, projectType: 'SINGLE', value: item.totalProductsValue ?? item.value, installationFee: item.setupValue ?? item.installationFee };
     const entry = date(item.leadEntryDate) || date(item.createdAt);
     const closed = date(item.actualCloseDate) || (item.stage === 'LOST' ? date(item.exitDate) : null);
@@ -184,6 +185,7 @@ export function buildB2BDashboardAnalytics(opportunities = [], { period = 'year'
   return {
     period: { start: key(range.start), end: key(range.end), daily: range.daily },
     revenue,
+    revenueInsights: buildB2BRevenueInsights(rows, range, period),
     kpis: {
       totalOpportunities: rows.length, openOpportunities: open.length, wonOpportunities: won.length, lostOpportunities: lost.length,
       activeLeads: open.filter(row => row.stage === 'LEAD').length, pipelineValue: round(sum(open, '__value')), weightedPipelineValue: round(sum(open, '__weightedValue')),

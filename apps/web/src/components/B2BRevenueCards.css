@@ -1,28 +1,86 @@
-.b2b-revenue {
-  min-width: 0;
-  font-family: ui-sans-serif, system-ui, sans-serif;
-  color: var(--crm-ink);
-}
-.b2b-revenue__heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
-.b2b-revenue .b2b-revenue__heading h2 { margin: 0; font: 700 20px/1.35 ui-sans-serif, system-ui, sans-serif; letter-spacing: -0.025em; }
-.b2b-revenue__heading p, .b2b-revenue__group-heading p { margin: 5px 0 0; color: var(--crm-muted); font-size: 12px; line-height: 1.6; }
-.b2b-revenue__period { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; padding: 7px 10px; border: 1px solid var(--crm-border); border-radius: 8px; color: var(--crm-muted); font-size: 11px; }
+.b2b-revenue { min-width: 0; color: var(--crm-ink); font-family: ui-sans-serif, system-ui, sans-serif; }
+.b2b-revenue__heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-bottom: 18px; }
+.b2b-revenue .b2b-revenue__heading h2 { margin: 0; font: 700 18px/1.35 ui-sans-serif, system-ui, sans-serif; letter-spacing: -.025em; }
+.b2b-revenue__heading p { margin: 4px 0 0; color: var(--crm-muted); font-size: 12px; }
+.b2b-revenue__period { display: inline-flex; align-items: center; gap: 7px; padding: 6px 9px; border: 1px solid var(--crm-border); border-radius: 7px; color: var(--crm-muted); font-size: 11px; }
 .b2b-revenue__period svg { flex-shrink: 0; }
-.b2b-revenue__group + .b2b-revenue__group { margin-top: 22px; }
-.b2b-revenue__group-heading { margin-bottom: 11px; }
-.b2b-revenue__group-heading > div { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.b2b-revenue .b2b-revenue__group-heading h3 { margin: 0; font: 700 14px/1.4 ui-sans-serif, system-ui, sans-serif; }
-.b2b-revenue__group-heading span { padding: 3px 8px; border-radius: 5px; background: rgb(var(--crm-surface-2-rgb) / 0.8); color: var(--crm-muted); font-size: 10px; }
-.b2b-revenue__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.b2b-revenue__card { --revenue-accent: #18c8df; position: relative; min-width: 0; padding: 18px; border: 1px solid var(--crm-border); border-radius: 12px; background: linear-gradient(125deg, color-mix(in srgb, var(--revenue-accent) 7%, transparent), transparent 65%), var(--crm-workspace-panel); box-shadow: inset 0 2px 0 color-mix(in srgb, var(--revenue-accent) 65%, transparent); }
-.b2b-revenue__card--green { --revenue-accent: #22c55e; }
+.b2b-revenue__group + .b2b-revenue__group { margin-top: 16px; }
+.b2b-revenue__group-heading { margin-bottom: 8px; }
+.b2b-revenue__group-heading > div { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
+.b2b-revenue .b2b-revenue__group-heading h3 { margin: 0; font: 650 12px/1.4 ui-sans-serif, system-ui, sans-serif; }
+.b2b-revenue__group-heading > div > svg { color: var(--crm-muted); width: 14px; height: 14px; }
+.b2b-revenue__group-heading span { color: var(--crm-muted); font-size: 10px; padding-left: 8px; border-left: 1px solid var(--crm-border); }
+.b2b-revenue__grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.b2b-revenue__card { --revenue-accent: #18c8df; min-width: 0; padding: 12px 14px; border: 1px solid var(--crm-border); border-left: 3px solid color-mix(in srgb, var(--revenue-accent) 65%, transparent); border-radius: 9px; background: var(--crm-workspace-panel); }
 .b2b-revenue__card--orange { --revenue-accent: #ff8a26; }
-.b2b-revenue__card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
-.b2b-revenue__icon { display: inline-flex; padding: 8px; border-radius: 9px; color: var(--revenue-accent); background: color-mix(in srgb, var(--revenue-accent) 12%, transparent); }
-.b2b-revenue__tag { color: var(--crm-muted); font-size: 10px; text-align: right; }
-.b2b-revenue h4 { margin: 0; font: 600 13px/1.5 ui-sans-serif, system-ui, sans-serif; color: var(--crm-ink); }
-.b2b-revenue__value { margin: 8px 0 12px; color: var(--revenue-accent); font-size: clamp(22px, 2.4vw, 34px); font-weight: 750; line-height: 1.25; letter-spacing: -0.035em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
-.b2b-revenue__detail { margin: 0; color: var(--crm-muted); font-size: 11px; line-height: 1.6; }
-.b2b-revenue__note { margin: 14px 0 0; color: var(--crm-muted); font-size: 11px; line-height: 1.6; }
-@media (max-width: 1023px) { .b2b-revenue__grid { grid-template-columns: 1fr; } .b2b-revenue__value { font-size: 30px; } }
-@media (prefers-reduced-motion: no-preference) { .b2b-revenue__card { transition: border-color 160ms ease; } .b2b-revenue__card:hover { border-color: color-mix(in srgb, var(--revenue-accent) 55%, var(--crm-border)); } }
+.b2b-revenue__card-top { display: flex; align-items: center; gap: 8px; }
+.b2b-revenue__icon { display: inline-flex; padding: 5px; border-radius: 6px; flex-shrink: 0; color: var(--revenue-accent); background: color-mix(in srgb, var(--revenue-accent) 10%, transparent); }
+.b2b-revenue .b2b-revenue__card h4 { margin: 0; font: 550 12px/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--crm-muted); }
+.b2b-revenue .b2b-revenue__value { margin: 8px 0 6px; color: var(--crm-ink); font-size: clamp(20px, 1.9vw, 28px); font-weight: 700; line-height: 1.2; letter-spacing: -.035em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.b2b-revenue__card-bottom { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.b2b-revenue__tag { color: var(--crm-muted); font-size: 10px; }
+.b2b-revenue__help { display: inline-flex; align-items: center; justify-content: center; width: 14px; height: 14px; border: 1px solid var(--crm-border); border-radius: 50%; color: var(--crm-muted); font-size: 9px; cursor: help; }
+.b2b-revenue__help:focus-visible { outline: 2px solid var(--revenue-accent); outline-offset: 3px; }
+.b2b-revenue__composition { display: grid; grid-template-columns: minmax(180px, .8fr) minmax(0, 2fr); align-items: center; gap: 28px; margin-top: 16px; padding: 16px; border: 1px solid var(--crm-border); border-radius: 9px; background: var(--crm-workspace-panel); }
+.b2b-revenue .b2b-revenue__composition-total h3 { margin: 0 0 5px; font: 600 12px/1.4 ui-sans-serif, system-ui, sans-serif; color: var(--crm-muted); }
+.b2b-revenue__composition-total > strong { display: block; font-size: 25px; line-height: 1.25; letter-spacing: -.025em; font-variant-numeric: tabular-nums; }
+.b2b-revenue__composition-total > span { display: block; margin-top: 4px; color: var(--crm-muted); font-size: 10px; }
+.b2b-revenue__mix-labels { display: flex; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.b2b-revenue__mix-labels > div:last-child { text-align: right; }
+.b2b-revenue__mix-labels span { display: inline-flex; align-items: center; gap: 5px; color: var(--crm-muted); font-size: 11px; }
+.b2b-revenue__mix-labels strong { display: block; margin-top: 4px; font-size: 14px; font-weight: 650; font-variant-numeric: tabular-nums; }
+.b2b-revenue__mix-labels small { margin-left: 6px; color: var(--crm-muted); font-size: 10px; font-weight: 500; }
+.b2b-revenue__dot { display: inline-block; width: 7px; height: 7px; border-radius: 2px; background: #18c8df; }
+.b2b-revenue__dot--orange { background: #ff8a26; }
+.b2b-revenue__mix-bar { display: flex; gap: 3px; height: 9px; overflow: hidden; border-radius: 4px; background: rgb(var(--crm-surface-2-rgb) / .8); }
+.b2b-revenue__mix-bar span:first-child { background: #18c8df; }
+.b2b-revenue__mix-bar span:last-child { background: #ff8a26; }
+.b2b-revenue__note { margin: 9px 0 0; color: var(--crm-muted); font-size: 10px; line-height: 1.5; }
+@media (max-width: 1100px) { .b2b-revenue__grid { gap: 8px; } .b2b-revenue__card { padding: 11px; } .b2b-revenue__composition { gap: 16px; } }
+@media (max-width: 700px) { .b2b-revenue__grid { grid-template-columns: 1fr; } .b2b-revenue__card { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 12px; align-items: center; } .b2b-revenue .b2b-revenue__value { font-size: 22px; margin: 0; text-align: right; } .b2b-revenue__card-bottom { grid-column: 1 / -1; margin-top: 6px; } .b2b-revenue__composition { grid-template-columns: 1fr; } .b2b-revenue__mix-labels strong { font-size: 13px; } .b2b-revenue__mix-labels small { display: block; margin: 3px 0 0; } }
+@media (max-width: 380px) { .b2b-revenue__card { grid-template-columns: 1fr; } .b2b-revenue .b2b-revenue__value { text-align: left; margin-top: 7px; } }
+
+.b2b-revenue__inspect { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; width: 100%; padding: 0; border: 0; background: none; color: var(--crm-ink); text-align: left; cursor: pointer; }
+.b2b-revenue__inspect .b2b-revenue__value { display: block; }
+.b2b-revenue__inspect-hint { color: var(--crm-muted); font-size: 10px; white-space: nowrap; }
+.b2b-revenue__inspect:hover .b2b-revenue__value { color: var(--revenue-accent); }
+.b2b-revenue__change { margin: 1px 0 7px; font-size: 10px; color: var(--crm-ink); font-variant-numeric: tabular-nums; }
+.b2b-revenue__change span { color: var(--crm-muted); }
+.b2b-revenue-panel { color: var(--crm-ink); font-family: ui-sans-serif, system-ui, sans-serif; min-width: 0; }
+.b2b-revenue-panel button:focus-visible, .b2b-revenue-dialog button:focus-visible { outline: 2px solid #18c8df; outline-offset: 3px; }
+.b2b-revenue-panel__breakdown { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px 0; color: var(--crm-muted); font-size: 11px; }
+.b2b-revenue-panel__breakdown button { display: inline-flex; gap: 8px; align-items: center; border: 1px solid var(--crm-border); border-radius: 6px; padding: 7px 10px; color: var(--crm-ink); background: var(--crm-workspace-panel); cursor: pointer; }
+.b2b-revenue-panel__renewals { padding: 14px; border: 1px solid var(--crm-border); border-radius: 9px; background: var(--crm-workspace-panel); }
+.b2b-revenue-panel .b2b-revenue-panel__renewals h3 { margin: 0; font: 600 13px/1.4 ui-sans-serif, system-ui, sans-serif; }
+.b2b-revenue-panel__renewals p, .b2b-revenue-panel__caption { margin: 5px 0 12px; font-size: 11px; color: var(--crm-muted); line-height: 1.6; }
+.b2b-revenue-panel__bands { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.b2b-revenue-panel__bands button { padding: 10px 12px; border: 1px solid var(--crm-border); border-radius: 7px; background: transparent; color: var(--crm-ink); text-align: left; cursor: pointer; }
+.b2b-revenue-panel__bands button:hover { border-color: #eab308; }
+.b2b-revenue-panel__bands span { display: block; color: var(--crm-muted); font-size: 11px; }
+.b2b-revenue-panel__bands strong { display: block; margin-top: 5px; font-size: 19px; font-variant-numeric: tabular-nums; }
+.b2b-revenue-panel__bands small { font-size: 11px; font-weight: 400; color: var(--crm-muted); }
+.b2b-revenue-panel__evolution { margin-top: 14px; }
+.b2b-revenue-panel__toolbar { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 10px; }
+.b2b-revenue-panel__toggle { display: inline-flex; gap: 3px; padding: 3px; border: 1px solid var(--crm-border); border-radius: 7px; background: var(--crm-workspace-panel); }
+.b2b-revenue-panel__toolbar button { display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 7px 10px; border-radius: 5px; border: 1px solid transparent; background: none; color: var(--crm-muted); font-size: 11px; cursor: pointer; }
+.b2b-revenue-panel__toolbar button[aria-pressed=true] { color: var(--crm-ink); background: rgb(var(--crm-surface-2-rgb) / 1); border-color: var(--crm-border); }
+.b2b-revenue-panel__toolbar button:disabled { opacity: .5; cursor: default; }
+.b2b-revenue-panel__actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.b2b-revenue-panel__actions > button { border-color: var(--crm-border); }
+.b2b-revenue-panel__table-scroll { overflow-x: auto; border: 1px solid var(--crm-border); border-radius: 8px; background: var(--crm-workspace-panel); }
+.b2b-revenue-panel table, .b2b-revenue-dialog table { border-collapse: collapse; width: 100%; font-size: 12px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.b2b-revenue-panel table caption { padding: 12px; text-align: left; color: var(--crm-muted); }
+.b2b-revenue-panel th, .b2b-revenue-panel td, .b2b-revenue-dialog th, .b2b-revenue-dialog td { text-align: right; padding: 11px 12px; border-bottom: 1px solid var(--crm-border); }
+.b2b-revenue-panel th, .b2b-revenue-dialog th { color: var(--crm-muted); font-weight: 600; }
+.b2b-revenue-panel tr > :first-child, .b2b-revenue-dialog tr > :first-child { text-align: left; }
+.b2b-revenue-panel tfoot { font-weight: 700; }
+.b2b-revenue-dialog { width: min(1080px, calc(100vw - 32px)); max-height: 85vh; padding: 0; border: 1px solid var(--crm-border); border-radius: 12px; background: var(--crm-workspace-panel); color: var(--crm-ink); font-family: ui-sans-serif, system-ui, sans-serif; }
+.b2b-revenue-dialog::backdrop { background: rgba(0,0,0,.65); }
+.b2b-revenue-dialog__body { padding: 20px; }
+.b2b-revenue-dialog header { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+.b2b-revenue-dialog h2 { margin: 0; font: 700 18px/1.4 ui-sans-serif, system-ui, sans-serif; }
+.b2b-revenue-dialog p { font-size: 12px; line-height: 1.6; color: var(--crm-muted); }
+.b2b-revenue-dialog header button { padding: 5px; color: var(--crm-ink); background: none; border: 0; cursor: pointer; }
+.b2b-revenue-dialog td span { display: block; margin-top: 4px; color: var(--crm-muted); font-size: 11px; }
+@media (max-width: 700px) { .b2b-revenue__inspect { grid-column: 2; grid-row: 1; justify-content: end; flex-wrap: wrap; } .b2b-revenue__inspect-hint { display: none; } .b2b-revenue__change { grid-column: 1 / -1; } .b2b-revenue-panel__bands { grid-template-columns: 1fr; } .b2b-revenue-panel__bands button { display: flex; align-items: center; justify-content: space-between; gap: 12px; } .b2b-revenue-panel__bands strong { font-size: 17px; margin: 0; } .b2b-revenue-dialog__body { padding: 14px; } }
+@media (max-width: 380px) { .b2b-revenue__inspect { grid-column: 1; grid-row: auto; justify-content: start; } }

@@ -2,9 +2,34 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 const analytics = import('../../apps/api/lib/b2bDashboardAnalytics.js');
 const now = new Date('2026-10-14T15:00:00Z');
 const opportunity = overrides => ({ id: 'opp', stage: 'LEAD', value: 1000, probability: 15, ownerId: 'owner-1', owner: { id: 'owner-1', name: 'Gerente Um' }, leadEntryDate: '2026-03-01', createdAt: '2026-10-01', updatedAt: '2026-10-01', projectClientType: 'NEW_CLIENT', projectTower: 'Conectividade', ...overrides });
+
+test('B2B route imports with installed dependencies and serves a complete dashboard', () => {
+  // Import the real module: the scoped-query tests below replace imports and
+  // cannot detect missing runtime dependencies or CommonJS calls inside ESM.
+  const result = spawnSync(process.execPath, ['--input-type=module', '-e', `
+    import assert from 'node:assert/strict';
+    const { default: handler } = await import('./apps/api/api/dashboard.js');
+    const response = await handler({ method: 'GET', query: { type: 'b2b', period: 'year' }, user: { role: 'MASTER' } });
+    assert.equal(response.status, 200);
+    const data = await response.json();
+    assert.ok(data.kpis);
+    assert.ok(data.charts);
+    assert.ok(data.revenue);
+    assert.ok(data.insights);
+    const denied = await handler({ method: 'GET', query: { type: 'b2b' }, user: { role: 'SELLER' } });
+    assert.equal(denied.status, 403);
+  `], {
+    cwd: path.resolve(__dirname, '../..'),
+    env: { ...process.env, DATABASE_URL: '', NODE_ENV: 'test' },
+    encoding: 'utf8',
+    timeout: 10000
+  });
+  assert.equal(result.status, 0, result.error?.message || result.stderr || result.stdout);
+});
 
 test('a portfolio without wins still has history, owners and full pipeline totals', async () => {
   const { buildB2BDashboardAnalytics } = await analytics;
