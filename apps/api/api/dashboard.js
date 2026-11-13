@@ -494,67 +494,6 @@ export default async function handler(req) {
       }
 
       if (type === 'b2b') {
-  // ---------- Begin safe B2B block ----------
-  try {
-    const b2bOpportunityFilter = { b2gStage: null };
-    const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' } });
-    const effectiveOwnerId = canSeeAllOpportunitiesDash(req.user)
-      ? (ownerId || null)
-      : (req.user?.userId || req.user?.id);
-    if (!canSeeAllOpportunitiesDash(req.user) && !effectiveOwnerId) {
-      return Response.json({ error: 'Usuário não identificado' }, { status: 403 });
-    }
-    if (effectiveOwnerId) baseWhere.ownerId = effectiveOwnerId;
-    const temperatureRange = {
-      '0': { gte: 0, lte: 0 },
-      '25': { gte: 1, lte: 25 },
-      '50': { gte: 26, lte: 50 },
-      '75': { gte: 51, lte: 75 },
-      '100': { gte: 76, lte: 100 }
-    };
-    const whereClause = { ...baseWhere };
-    if (tempFilter && temperatureRange[tempFilter]) {
-      whereClause.probability = temperatureRange[tempFilter];
-    }
-    const [totalCompanies, totalOpportunities, opportunities, probabilities] = await Promise.all([
-      prisma.company.count({ where: withCompanyTenant({ clientType: 'B2B' }) }),
-      prisma.opportunity.count({ where: { ...whereClause } }),
-      prisma.opportunity.findMany({
-        where: whereClause,
-        select: {
-          id: true, title: true, number: true, stage: true, value: true, probability: true,
-          ownerId: true, leadEntryDate: true, expectedCloseDate: true, actualCloseDate: true,
-          exitDate: true, createdAt: true, updatedAt: true, leadSourceDetail: true, source: true,
-          projectTower: true, projectClientType: true,
-          projectType: true, projectMonths: true, contractMonths: true, monthlyValue: true, installationFee: true,
-          revenueType: true, contractPeriodMonths: true, monthlyRecurringValue: true,
-          totalContractValue: true, totalProductsValue: true, setupValue: true,
-          company: { select: { id: true, name: true } },
-          owner: { select: { id: true, name: true } }
-        },
-        orderBy: { updatedAt: 'desc' }
-      }),
-      prisma.opportunity.groupBy({ by: ['probability'], where: baseWhere, _count: { probability: true } })
-    ]);
-    const analytics = buildB2BDashboardAnalytics(opportunities, { period });
-    const temperatureCounts = Object.fromEntries(Object.entries(temperatureRange).map(([level, band]) => [
-      level,
-      probabilities
-        .filter(row => row.probability >= band.gte && row.probability <= band.lte)
-        .reduce((total, row) => total + row._count.probability, 0)
-    ]));
-    return Response.json({
-      ...analytics,
-      kpis: { ...analytics.kpis, totalCompanies, totalOpportunities },
-      temperatureCounts,
-      opportunities
-    });
-  } catch (err) {
-    const logger = require('../lib/logger');
-    logger.error('Error in B2B dashboard handler', err);
-    return Response.json({ error: 'Falha ao gerar dashboard B2B' }, { status: 500 });
-  }
-  // ---------- End safe B2B block ----------
         const b2bOpportunityFilter = { b2gStage: null };
         const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' } });
         const effectiveOwnerId = canSeeAllOpportunitiesDash(req.user)
