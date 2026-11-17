@@ -1424,7 +1424,18 @@ router.post(['/analise-tr/processar-arquivo', '/processar-arquivo'], ...requireA
   try {
     req.setTimeout?.(180000);
     res.setTimeout?.(180000);
-    const ficha = await analyzeFiles(req.body?.files, { id_licitacao: req.body?.id_licitacao }, getTenant(req) || getUserId(req));
+    const context = {
+      id_licitacao: req.body?.id_licitacao,
+      orgao: req.body?.orgao || req.body?.orgao_comprador,
+      cnpj: req.body?.cnpj || req.body?.orgao_cnpj,
+      modalidade: req.body?.modalidade || req.body?.modalidade_contratacao,
+      portal: req.body?.portal || req.body?.portal_compras,
+      link: req.body?.link || req.body?.linkSistemaOrigem,
+      data_abertura: req.body?.data_abertura || req.body?.dataAbertura,
+      data_limite_proposta: req.body?.data_limite_proposta || req.body?.dataLimiteProposta,
+      valor_estimado_total: req.body?.valor_estimado_total || req.body?.valorTotal
+    };
+    const ficha = await analyzeFiles(req.body?.files, context, getTenant(req) || getUserId(req));
     return res.json({ success: true, fonte: 'Extração do texto dos documentos originais', ficha });
   } catch (error) {
     console.error('[analise-tr] Falha na extração:', error.message);
