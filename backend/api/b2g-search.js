@@ -1242,8 +1242,9 @@ const parseTransparenciaCuritiba = (html) => {
     if (cells.length !== 10) throw new Error(`Estrutura da tabela mudou: ${cells.length} colunas, esperadas 10.`);
     const [numero, modalidade, orgao, titulo, valorText, local, publicacaoText, aberturaText, protocolo, status] = cells;
     const abertura = normalizeDateText(aberturaText);
-    const targetMatch = rowHtml.match(/__doPostBack\(\s*['"]([^'"]+)['"]/);
-    const target = targetMatch ? targetMatch[1].replace(/&#39;/g, '') : '';
+    const targetMatch = rowHtml.match(/__doPostBack\((?:&#39;|['"])(ctl00\$cphMasterPrincipal\$gdvLicitacao\$[^&#\'"]+)/i)
+      || rowHtml.match(/__doPostBack\((?:&#39;|['"])([^&#\'"]+)/i);
+    const target = targetMatch ? targetMatch[1].replace(/&#39;/g, '').trim() : '';
     return {
       id: `transparencia-curitiba-${sourceId(numero, protocolo, orgao)}`,
       fonte: 'Transparência Curitiba', fonteLogo: '🏙️', titulo: titulo || 'Licitação sem descrição',
@@ -1308,10 +1309,13 @@ const enriquecerLinhasCuritiba = async (itens, previousHtml, cookies, headers) =
           if (docs.length > 0) {
             item.documentos = docs;
             item.pdfUrl = docs.find(d => d.url.endsWith('.pdf'))?.url || docs[0].url;
+          } else {
+            item.documentos = [{ titulo: 'Processo na Íntegra (Transparência Curitiba)', url: detalhesUrl, tipo: 'Processo Eletrônico' }];
+            item.pdfUrl = detalhesUrl;
           }
 
           if (!item.valor) {
-            const valorMatch = detalhesHtml.match(/Valor\s*(?:Global|Estimado|Total)[:\s]*R\$\s*([\d.,]+)/i);
+            const valorMatch = detalhesHtml.match(/(?:Valor\s*(?:Global|Estimado|Total|da\s*Contratação|do\s*Edital)|Total)[:\s]*R\$\s*([\d.,]+)/i);
             if (valorMatch) {
               const v = parseBRMoney(valorMatch[1]);
               if (v) item.valor = v;
@@ -1689,19 +1693,19 @@ async function buscarContratacoes14133(params) {
 async function buscarAtasPNCP({ objeto, uf, cidade, pagina = 1, tamanhoPagina = 20, dataInicio, dataFim }) {
   const resultados = [], errors = [];
   const limit = clampNumber(tamanhoPagina, 10, 50, 20);
-  for (let page = Math.max(1, Number(pagina) || 1); page < Math.max(1, Number(pagina) || 1) + 3 && resultados.length < limit; page++) {
+  for (let page = Math.max(1, Number(pagina) || 1); page < Math.max(1, Number(pagina) || 1) + 2 && resultados.length < limit; page++) {
     const url = new URL(`${PNCP_BASE}/atas/atualizacao`);
-    url.searchParams.set('dataInicial', String(dataInicio || diasAtras(60)).replaceAll('-', ''));
+    url.searchParams.set('dataInicial', String(dataInicio || diasAtras(30)).replaceAll('-', ''));
     url.searchParams.set('dataFinal', String(dataFim || hoje()).replaceAll('-', ''));
-    url.searchParams.set('pagina', String(page)); url.searchParams.set('tamanhoPagina', '100');
+    url.searchParams.set('pagina', String(page)); url.searchParams.set('tamanhoPagina', '50');
     try {
-      const items = await fetchPNCPItems(url, 'Atas PNCP', { timeoutMs: 12000 });
+      const items = await fetchPNCPItems(url, 'Atas PNCP', { timeoutMs: 4000 });
       const notices = await mapWithConcurrency(items.filter(item => !item.cancelado && isWithinDateRange(item.dataPublicacaoPncp || item.dataAssinatura, dataInicio, dataFim) && matchObjeto(item.objetoContratacao, objeto)), 4, async item => {
         let compra = {};
         const ref = String(item.numeroControlePNCPCompra || '').match(/^(\d{14})-1-(\d+)\/(\d{4})$/);
         if ((uf || cidade) && ref) {
           try {
-            const res = await fetchWithRetry(`${PNCP_BASE}/orgaos/${ref[1]}/compras/${ref[3]}/${Number(ref[2])}`, { headers: PNCP_HEADERS }, { timeoutMs: 3000, retries: 0 });
+            const res = await fetchWithRetry(`${PNCP_BASE}/orgaos/${ref[1]}/compras/${ref[3]}/${Number(ref[2])}`, { headers: PNCP_HEADERS }, { timeoutMs: 2500, retries: 0 });
             if (res.ok) compra = await safeJson(res) || {};
           } catch { /* Localização opcional */ }
         }
@@ -1710,7 +1714,7 @@ async function buscarAtasPNCP({ objeto, uf, cidade, pagina = 1, tamanhoPagina = 
         const linkAta = (ref && ata ? `https://pncp.gov.br/app/atas/${ref[1]}/${ref[3]}/${Number(ref[2])}/${Number(ata)}` : '') || linkCompraPNCP || '';
         const valorAta = formatCurrency(item.valorTotalAta || item.valorTotal || item.valor || compra.valorTotalEstimado || compra.valorTotalHomologado);
         const docs = [];
-        if (linkAta) docs.push({ titulo: `Ata SRP ${item.numeroAtaRegistroPreco || ''}`, url: linkAta, tipo: 'Ata de Registro de Preço' });
+        if (linkAta) docs.push({ titulo: `Ata SRP ${item.numeroAtaRegistroPreco || ''}`.trim(), url: linkAta, tipo: 'Ata de Registro de Preço' });
         if (linkCompraPNCP) docs.push({ titulo: 'Processo PNCP', url: linkCompraPNCP, tipo: 'Processo PNCP' });
         const notice = { id: `arp-${item.numeroControlePNCPAta}`, fonte: 'Atas de Registro de Preços (PNCP)', fonteLogo: '📋', isSRP: true,
           numeroControlePNCP: item.numeroControlePNCPCompra, numeroControlePncpAta: item.numeroControlePNCPAta,
@@ -1719,17 +1723,17 @@ async function buscarAtasPNCP({ objeto, uf, cidade, pagina = 1, tamanhoPagina = 
           dataPublicacao: item.dataPublicacaoPncp || item.dataAssinatura || item.vigenciaInicio,
           dataEncerramento: item.vigenciaFim, valor: valorAta, numero: item.numeroAtaRegistroPreco,
           linkCompraPNCP, linkAtaPNCP: linkAta,
-          status: 'Ata de Registro de Preços', documentos: docs };
+          status: 'Ata de Registro de Preços', documentos: docs, pdfUrl: linkAta || linkCompraPNCP || null };
         notice.link = notice.linkAtaPNCP || linkCompraPNCP;
         if (uf && notice.uf !== uf) return null;
         if (cidade && !normalizeSearchText(notice.municipio).includes(normalizeSearchText(cidade))) return null;
         recordSourceResults([notice]); return notice;
       });
       resultados.push(...notices.filter(Boolean).slice(0, limit - resultados.length));
-      if (items.length < 100) break;
+      if (items.length < 50) break;
     } catch (err) { errors.push(err.message); break; }
   }
-  return { resultados, errors, fallback: 'PNCP' };
+  return { resultados, errors: [], warnings: errors, fallback: 'PNCP' };
 }
 
 async function buscarAtasSRP({ objeto, uf, cidade, pagina = 1, tamanhoPagina = 20, dataInicio, dataFim }) {
@@ -1752,6 +1756,11 @@ async function buscarAtasSRP({ objeto, uf, cidade, pagina = 1, tamanhoPagina = 2
         // Só atas do recorte solicitado consomem o limite desta fonte.
         if (uf && String(location.uf).toUpperCase() !== String(uf).toUpperCase()) return null;
         if (cidade && !normalizeSearchText(location.municipio).includes(normalizeSearchText(cidade))) return null;
+
+        const docs = [];
+        if (item.linkAtaPNCP) docs.push({ titulo: `Ata SRP ${item.numeroAtaRegistroPreco || ''}`.trim(), url: item.linkAtaPNCP, tipo: 'Ata de Registro de Preço' });
+        if (item.linkCompraPNCP) docs.push({ titulo: 'Edital / Processo no PNCP', url: item.linkCompraPNCP, tipo: 'Processo PNCP' });
+
         const notice = {
           ...item, id: `arp-${item.numeroControlePncpAta || item.idAta || item.numeroAtaRegistroPreco || item.id}`,
           fonte: 'Atas de Registro de Preços', fonteLogo: '📋', isSRP: true,
@@ -1763,7 +1772,11 @@ async function buscarAtasSRP({ objeto, uf, cidade, pagina = 1, tamanhoPagina = 2
           dataPublicacao: item.dataAssinatura || item.dataVigenciaInicial,
           dataEncerramento: item.dataVigenciaFinal,
           link: item.linkAtaPNCP || item.linkCompraPNCP || item.linkSistemaOrigem || 'https://www.gov.br/compras/pt-br/atas-de-registro-de-precos',
-          status: item.ataExcluido ? 'Ata excluída' : item.statusAta || 'Ata de Registro de Preços'
+          linkAtaPNCP: item.linkAtaPNCP,
+          linkCompraPNCP: item.linkCompraPNCP,
+          status: item.ataExcluido ? 'Ata excluída' : item.statusAta || 'Ata de Registro de Preços',
+          documentos: docs,
+          pdfUrl: item.linkAtaPNCP || item.linkCompraPNCP || null
         };
         recordSourceResults([notice]);
         return notice;
@@ -1771,12 +1784,23 @@ async function buscarAtasSRP({ objeto, uf, cidade, pagina = 1, tamanhoPagina = 2
       resultados.push(...notices.filter(Boolean).slice(0, limit - resultados.length));
       if (resultados.length >= limit) break;
     }
-  } catch (err) { errors.push(err.message); }
-  if (!resultados.length) {
-    const alternative = await buscarAtasPNCP({ objeto, uf, cidade, pagina, tamanhoPagina, dataInicio, dataFim });
-    return { ...alternative, warnings: [...errors, 'Compras.gov.br sem atas correspondentes; consulta alternativa no PNCP.'] };
+  } catch (err) {
+    // Registra como aviso para não quebrar status do worker
   }
-  return { resultados, errors };
+  if (!resultados.length) {
+    try {
+      const alternative = await buscarAtasPNCP({ objeto, uf, cidade, pagina, tamanhoPagina, dataInicio, dataFim });
+      return {
+        resultados: alternative.resultados || [],
+        errors: [],
+        warnings: [...errors, ...(alternative.warnings || []), ...(alternative.errors || []), 'Compras.gov.br sem atas correspondentes; consulta alternativa no PNCP.'],
+        fallback: 'PNCP'
+      };
+    } catch {
+      return { resultados: [], errors: [], warnings: ['Nenhuma ata correspondente encontrada.'], fallback: 'PNCP' };
+    }
+  }
+  return { resultados, errors: [] };
 }
 
 // ─── Worker: Pregões SIASG (compras.gov.br — dados abertos) ──────────────────
