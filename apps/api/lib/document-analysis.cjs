@@ -246,6 +246,19 @@ function analyzeText(documents, context = {}) {
   });
 }
 
+const sanitizeExtractedText = (raw) => {
+  if (!raw) return '';
+  return String(raw)
+    .replace(/\u0000/g, '')
+    .replace(/\r/g, '\n')
+    .replace(/\uFB00/g, 'ff')
+    .replace(/\uFB01/g, 'fi')
+    .replace(/\uFB02/g, 'fl')
+    .replace(/\uFB03/g, 'ffi')
+    .replace(/\uFB04/g, 'ffl')
+    .normalize('NFC');
+};
+
 async function extractDocument(file) {
   const ext = path.extname(file.name || '').toLowerCase();
   const base64 = String(file.base64 || '').replace(/^data:[^,]*;base64,/, '').replace(/\s/g, '');
@@ -259,13 +272,19 @@ async function extractDocument(file) {
     let text;
     if (ext === '.pdf' && buffer.subarray(0, 5).toString() === '%PDF-') {
       try {
-        const result = await exec('pdftotext', ['-layout', source, '-'], { timeout: 60000, maxBuffer: 8 * 1024 * 1024 });
-        text = result.stdout;
-      } catch (error) {
-        if (error.code !== 'ENOENT') throw error;
         const { PDFParse } = require('pdf-parse');
         const parser = new PDFParse({ data: buffer });
         try { text = (await parser.getText()).text; } finally { await parser.destroy(); }
+      } catch (err) {
+        text = null;
+      }
+      if (!text || text.trim().length < 80) {
+        try {
+          const result = await exec('pdftotext', ['-layout', source, '-'], { timeout: 60000, maxBuffer: 8 * 1024 * 1024 });
+          text = result.stdout;
+        } catch (error) {
+          if (!text && error.code !== 'ENOENT') throw error;
+        }
       }
     } else if (ext === '.docx' && buffer.subarray(0, 2).toString() === 'PK') {
       const code = "import sys,zipfile,xml.etree.ElementTree as E\nwith zipfile.ZipFile(sys.argv[1]) as z:\n info=z.getinfo('word/document.xml')\n if info.file_size>20000000: raise ValueError('DOCX muito grande')\n root=E.fromstring(z.read(info))\n ns={'w':'http://schemas.openxmlformats.org/wordprocessingml/2006/main'}\n print('\\n'.join(''.join(p.itertext()) for p in root.findall('.//w:p',ns)))";
@@ -273,16 +292,247 @@ async function extractDocument(file) {
     } else if (ext === '.doc' && buffer.subarray(0, 4).toString('hex') === 'd0cf11e0') {
       text = (await exec('antiword', [source], { timeout: 30000, maxBuffer: 8 * 1024 * 1024 })).stdout;
     } else throw new Error(`Formato inválido em ${file.name}. Envie um PDF, DOCX ou DOC real.`);
+    text = sanitizeExtractedText(text);
     if (clean(text).length < 80 || (text.match(/[A-Za-zÀ-ÿ]/g) || []).length < 40) throw new Error(`${file.name}: não foi possível ler texto suficiente. Se o PDF for digitalizado, aplique OCR antes de reenviar.`);
-    return { name: path.basename(file.name), text: String(text).replace(/\u0000/g, '').replace(/\r/g, '\n'), buffer, ext, sha256: crypto.createHash('sha256').update(buffer).digest('hex') };
+    return { name: path.basename(file.name), text, buffer, ext, sha256: crypto.createHash('sha256').update(buffer).digest('hex') };
   } finally { await fs.rm(directory, { recursive: true, force: true }); }
+}
+
+async function analyzeWithGemini(documents, context = {}) {
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
+  if (!apiKey) return null;
+
+  const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-2.5-flash';
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  // Amostra do texto mantendo estrutura completa do edital e TR (até 450.000 caracteres, dentro de 1M tokens)
+  const fullText = documents.map(d => clean(d.text)).join('\n\n');
+  const textSample = fullText.slice(0, 450000);
+
+  const prompt = `Você é um especialista em Licitações Públicas Brasileiras (Leis 14.133/2021 e 8.666/1993) e análise de contratos administrativos. 
+
+Sua tarefa é analisar o texto extraído de um Edital de Licitação ou Termo de Referência (TR) e extrair rigorosamente as informações mais críticas, incluindo a listagem completa de itens/produtos solicitados.
+
+REGRAS DE EXTRAÇÃO:
+1. Seja extremamente preciso. Baseie-se APENAS no texto fornecido.
+2. Se uma informação não estiver presente, retorne o valor nulo (null) ou "Não informado".
+3. Na seção "lista_de_itens", extraia todos os itens, produtos ou serviços solicitados. Se houver divisão por Lotes e Itens, deixe isso claro na descrição.
+4. O resultado final DEVE ser EXCLUSIVAMENTE um objeto JSON válido, sem formatações markdown externas como \`\`\`json, e com as seguintes chaves:
+
+ESTRUTURA DO JSON ESPERADO:
+{
+  "orgao_licitante": "Nome completo do órgão público",
+  "numero_edital": "Número do edital e ano",
+  "modalidade_e_lei": "Modalidade e lei regente",
+  "objeto_resumo": "Um resumo claro e direto do que está sendo comprado ou contratado",
+  "criterio_julgamento": "Critério de julgamento (ex: Menor Preço Global, Menor Preço por Item)",
+  "valor_estimado_total": "Valor total estimado ou máximo aceitável. Se sigiloso, informar 'Sigiloso'",
+  
+  "lista_de_itens": [
+    {
+      "numero_item_ou_lote": "Número do Lote ou do Item",
+      "descricao_produto": "Descrição clara do produto ou serviço exigido",
+      "quantidade": "Quantidade total solicitada (apenas números, se possível)",
+      "unidade_medida": "Unidade de medida (ex: UN, KG, SC, MESES)",
+      "valor_unitario_estimado": "Valor unitário estimado ou máximo aceitável",
+      "valor_total_item": "Valor total estimado para este item específico"
+    }
+  ],
+
+  "datas_prazos": {
+    "data_limite_esclarecimentos": "Data/hora limite para impugnações",
+    "data_entrega_propostas": "Data/hora limite para envio das propostas",
+    "data_abertura_sessao": "Data/hora da abertura da sessão pública"
+  },
+  "exigencias_participacao": {
+    "exclusividade_me_epp": "Exclusivo para ME/EPP ou cotas? (Sim/Não e detalhes)",
+    "exigencias_tecnicas": "Resumo das exigências de qualificação técnica",
+    "exigencias_economico_financeiras": "Índices contábeis, balanço, capital mínimo, etc."
+  },
+  "execucao_e_contrato": {
+    "prazo_entrega_ou_execucao": "Prazo para entrega/execução após assinatura",
+    "local_entrega": "Local de entrega/prestação",
+    "prazo_vigencia_contrato": "Tempo total de duração do contrato",
+    "garantia_contratual": "Há exigência de garantia contratual? (Sim/Não e a porcentagem)"
+  },
+  "alertas_criticos": [
+    "Liste até 3 armadilhas do edital (ex: vistoria obrigatória, amostras, penalidades)"
+  ]
+}
+
+TEXTO DO EDITAL/TR PARA ANÁLISE:
+"""
+${textSample}
+"""`;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 120000);
+
+  try {
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.1,
+          responseMimeType: 'application/json'
+        }
+      }),
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.warn('[Gemini TR] Erro na resposta da IA:', response.status, errText.slice(0, 200));
+      return null;
+    }
+
+    const data = await response.json();
+    const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!candidateText) return null;
+
+    return JSON.parse(candidateText.trim().replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim());
+  } catch (error) {
+    console.warn('[Gemini TR] Falha na chamada Gemini:', error.message);
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function analyzeFiles(files, context = {}, scope = '') {
   if (!Array.isArray(files) || files.length < 1 || files.length > 10) throw new Error('Envie entre 1 e 10 documentos reais, com até 20 MB por arquivo.');
   const documents = [];
   for (const file of files) documents.push(await extractDocument(file));
-  const ficha = analyzeText(documents, context);
+  
+  // 1. Extração determinística inicial completa
+  let ficha = analyzeText(documents, context);
+
+  // 2. Chamada opcional inteligente com Gemini API (se chave configurada)
+  try {
+    const aiData = await analyzeWithGemini(documents, context);
+    if (aiData && typeof aiData === 'object') {
+      const isInformado = (v) => v && typeof v === 'string' && !/^(?:null|n[aã]o\s+informad[oa]|n\/a|-)$/iu.test(v.trim());
+      
+      if (isInformado(aiData.orgao_licitante) && ficha.orgao_comprador === UNKNOWN) {
+        ficha.orgao_comprador = aiData.orgao_licitante.trim();
+      }
+      if (isInformado(aiData.numero_edital) && !ficha.processo_administrativo) {
+        ficha.processo_administrativo = aiData.numero_edital.trim();
+      }
+      if (isInformado(aiData.modalidade_e_lei) && ficha.modalidade_contratacao === UNKNOWN) {
+        ficha.modalidade_contratacao = aiData.modalidade_e_lei.trim();
+      }
+      if (isInformado(aiData.objeto_resumo) && ficha.resumo_executivo === UNKNOWN) {
+        ficha.resumo_executivo = aiData.objeto_resumo.trim();
+      }
+      if (isInformado(aiData.criterio_julgamento) && ficha.criterio_julgamento === UNKNOWN) {
+        ficha.criterio_julgamento = aiData.criterio_julgamento.trim();
+      }
+      if (aiData.valor_estimado_total) {
+        if (/sigiloso/i.test(String(aiData.valor_estimado_total))) {
+          ficha.pricesWithheld = true;
+        } else {
+          const aiTotal = money(String(aiData.valor_estimado_total));
+          if (aiTotal !== null && (!ficha.valor_estimado_total || ficha.valor_estimado_total === 0)) {
+            ficha.valor_estimado_total = aiTotal;
+          }
+        }
+      }
+      // Prazos e datas da IA
+      if (isInformado(aiData.datas_prazos?.data_abertura_sessao) && ficha.data_abertura === UNKNOWN) {
+        ficha.data_abertura = aiData.datas_prazos.data_abertura_sessao.trim();
+      }
+      if (isInformado(aiData.datas_prazos?.data_entrega_propostas) && ficha.data_limite_proposta === UNKNOWN) {
+        ficha.data_limite_proposta = aiData.datas_prazos.data_entrega_propostas.trim();
+      }
+      if (isInformado(aiData.datas_prazos?.data_limite_esclarecimentos) && ficha.data_fim_esclarecimento === UNKNOWN) {
+        ficha.data_fim_esclarecimento = aiData.datas_prazos.data_limite_esclarecimentos.trim();
+      }
+      // Habilitação e exigências
+      if (isInformado(aiData.exigencias_participacao?.exigencias_tecnicas)) {
+        ficha.requisitos_habilitacao.atestados_capacidade_tecnica = [
+          ...new Set([aiData.exigencias_participacao.exigencias_tecnicas.trim(), ...ficha.requisitos_habilitacao.atestados_capacidade_tecnica])
+        ].slice(0, 8);
+      }
+      if (isInformado(aiData.exigencias_participacao?.exigencias_economico_financeiras)) {
+        ficha.requisitos_habilitacao.exigencias_contabeis = [
+          { nome_indice: 'Índices Contábeis / ME-EPP', regra: aiData.exigencias_participacao.exigencias_economico_financeiras.trim() },
+          ...ficha.requisitos_habilitacao.exigencias_contabeis
+        ].slice(0, 6);
+      }
+      // Execução e locais
+      if (isInformado(aiData.execucao_e_contrato?.prazo_entrega_ou_execucao) && ficha.prazos_e_locais.prazo_inicio_entrega === UNKNOWN) {
+        ficha.prazos_e_locais.prazo_inicio_entrega = aiData.execucao_e_contrato.prazo_entrega_ou_execucao.trim();
+      }
+      if (isInformado(aiData.execucao_e_contrato?.local_entrega)) {
+        ficha.prazos_e_locais.locais_prestacao_entrega = [
+          ...new Set([aiData.execucao_e_contrato.local_entrega.trim(), ...ficha.prazos_e_locais.locais_prestacao_entrega])
+        ].slice(0, 5);
+      }
+      if (isInformado(aiData.execucao_e_contrato?.prazo_vigencia_contrato) && ficha.prazos_e_locais.vigencia_contrato === UNKNOWN) {
+        ficha.prazos_e_locais.vigencia_contrato = aiData.execucao_e_contrato.prazo_vigencia_contrato.trim();
+      }
+      if (isInformado(aiData.execucao_e_contrato?.garantia_contratual) && ficha.pontos_de_atencao_risco.garantia_contratual === UNKNOWN) {
+        ficha.pontos_de_atencao_risco.garantia_contratual = aiData.execucao_e_contrato.garantia_contratual.trim();
+      }
+      if (Array.isArray(aiData.alertas_criticos) && aiData.alertas_criticos.length > 0) {
+        const novosAlertas = aiData.alertas_criticos.filter(isInformado).map(s => s.trim());
+        ficha.pontos_de_atencao_risco.pontos_de_atencao_gerais = [
+          ...new Set([...novosAlertas, ...ficha.pontos_de_atencao_risco.pontos_de_atencao_gerais])
+        ].slice(0, 10);
+      }
+      // Processamento e mesclagem de lista_de_itens
+      if (Array.isArray(aiData.lista_de_itens) && aiData.lista_de_itens.length > 0) {
+        const aiItems = aiData.lista_de_itens.map((it, idx) => {
+          const num = Number(String(it.numero_item_ou_lote || '').replace(/\D/g, '')) || (idx + 1);
+          const unit = money(String(it.valor_unitario_estimado || ''));
+          const tot = money(String(it.valor_total_item || ''));
+          const qtd = Number(String(it.quantidade || '').replace(/[^\d.]/g, '')) || 1;
+          return {
+            item_numero: num,
+            codigo_catalogo: `ITEM-${num}`,
+            especificacao_sucinta: String(it.descricao_produto || '').trim(),
+            unidade: String(it.unidade_medida || 'UN').toUpperCase().trim().slice(0, 10),
+            quantitativo: qtd,
+            valor_estimado_unitario: unit,
+            valor_estimado_total: tot || (unit ? Number((unit * qtd).toFixed(2)) : null)
+          };
+        }).filter(it => it.especificacao_sucinta.length > 2);
+
+        // Se a extração determinística não encontrou itens ou encontrou muito menos itens que a IA:
+        if (!ficha.matriz_itens || ficha.matriz_itens.length < aiItems.length) {
+          ficha.matriz_itens = deduplicateItems([...(ficha.matriz_itens || []), ...aiItems]);
+        } else {
+          // Se determinística já tem itens completos, enriquece especificações com a IA
+          const aiMap = new Map(aiItems.map(it => [it.item_numero, it]));
+          ficha.matriz_itens = ficha.matriz_itens.map(detItem => {
+            const aiMatch = aiMap.get(detItem.item_numero);
+            if (!aiMatch) return detItem;
+            return {
+              ...detItem,
+              especificacao_sucinta: (detItem.especificacao_sucinta && detItem.especificacao_sucinta.length > 30) ? detItem.especificacao_sucinta : (aiMatch.especificacao_sucinta || detItem.especificacao_sucinta),
+              valor_estimado_unitario: detItem.valor_estimado_unitario || aiMatch.valor_estimado_unitario,
+              valor_estimado_total: detItem.valor_estimado_total || aiMatch.valor_estimado_total,
+              quantitativo: detItem.quantitativo || aiMatch.quantitativo
+            };
+          });
+        }
+      }
+
+      // Recalcula total se necessário
+      if ((!ficha.valor_estimado_total || ficha.valor_estimado_total === 0) && ficha.matriz_itens?.length > 0) {
+        const sum = ficha.matriz_itens.reduce((acc, it) => acc + (it.valor_estimado_total || 0), 0);
+        if (sum > 0) ficha.valor_estimado_total = Number(sum.toFixed(2));
+      }
+
+      ficha = normalizeFicha(ficha);
+    }
+  } catch (err) {
+    console.warn('[analyzeFiles] Prosseguindo com dados extraídos deterministicamente:', err.message);
+  }
+
   const scopeHash = crypto.createHash('sha256').update(String(scope)).digest('hex').slice(0, 24);
   const directory = path.resolve(__dirname, '../../../backend/private/edital-analysis', scopeHash);
   await fs.mkdir(directory, { recursive: true, mode: 0o700 });
