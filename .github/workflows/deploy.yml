@@ -1,0 +1,48 @@
+# .github/workflows/deploy.yml
+name: Deploy 🚀
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+    inputs:
+      domain:
+        description: 'Override production domain (optional)'
+        required: false
+        default: ''
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up SSH agent
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy to VPS via SSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          PROD_DOMAIN: ${{ secrets.PROD_DOMAIN }}
+          DOMAIN_OVERRIDE: ${{ github.event.inputs.domain }}
+        run: |
+          TARGET_DOMAIN=${DOMAIN_OVERRIDE:-$PROD_DOMAIN}
+          echo "Deploying to $TARGET_DOMAIN ($SSH_HOST)"
+          ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} << 'EOF'
+            set -e
+            cd /var/www/${TARGET_DOMAIN}
+            echo "Pulling latest code..."
+            git fetch --all
+            git reset --hard origin/main
+            echo "Installing dependencies..."
+            npm ci
+            echo "Building..."
+            npm run build
+            echo "Restarting application..."
+            pm2 reload all || pm2 start ecosystem.config.cjs --env production
+            echo "Deploy finished"
+          EOF

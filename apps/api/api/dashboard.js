@@ -493,7 +493,50 @@ export default async function handler(req) {
         });
       }
 
-      if (type === 'b2b') {
+      // ----------------------------------------------------
+// B2G – Editais (com filtro de datas avançado)
+// ----------------------------------------------------
+if (type === 'b2g') {
+  // Parâmetros esperados na querystring: startDate, endDate (formato YYYY-MM-DD)
+  const rawStart = req.query.startDate;
+  const rawEnd   = req.query.endDate;
+
+  const parse = (s) => s ? new Date(s) : undefined;
+  let start = parse(rawStart);
+  let end   = parse(rawEnd);
+
+  // Garante start <= end
+  if (start && end && start > end) { const tmp = start; start = end; end = tmp; }
+
+  const dateWhere = (start && end)
+    ? { createdAt: { gte: start, lte: end } }
+    : start ? { createdAt: { gte: start } }
+    : end   ? { createdAt: { lte: end } }
+    : {};
+
+  const tenantWhere = getTenantCompanyId(req.user)
+    ? { tenantCompanyId: getTenantCompanyId(req.user) }
+    : {};
+
+  const b2gNotices = await prisma.bidNotice.findMany({
+    where: {
+      ...tenantWhere,
+      ...dateWhere,
+    },
+    select: {
+      id: true,
+      status: true,
+      estimatedValue: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+    orderBy: { updatedAt: 'desc' },
+  });
+
+  return Response.json({ b2gNotices });
+}
+// ----------------------------------------------------
+if (type === 'b2b') {
         const b2bOpportunityFilter = { b2gStage: null };
         const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' } });
         const effectiveOwnerId = canSeeAllOpportunitiesDash(req.user)
