@@ -317,7 +317,7 @@ export default function KanbanBoard({
             return (
               <div
                 key={column.id}
-                className="w-[320px] flex-shrink-0 flex flex-col h-full"
+                className="w-[320px] flex-shrink-0 flex flex-col h-full min-h-0"
                 onDragOver={(e) => handleDragOver(e, column.id)}
                 onDrop={(e) => handleDrop(e, column.id)}
               >
@@ -358,7 +358,7 @@ export default function KanbanBoard({
 
                 {/* Column Cards Container */}
                 <div className={cn(
-                  "flex-1 overflow-y-auto custom-scrollbar flex flex-col gap-3 px-1 pb-4 transition-colors duration-200",
+                  "flex-1 min-h-0 overflow-y-auto custom-scrollbar flex flex-col gap-3 px-1 pb-4 transition-colors duration-200",
                   isDragActive && "bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] rounded-md ring-2 ring-[#2563eb]/30"
                 )}>
                   {columnIssues.map(issue => {
@@ -379,7 +379,7 @@ export default function KanbanBoard({
                             onTaskClick?.(issue);
                           }
                         }}
-                        className="group/card relative bg-[var(--crm-surface)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-md border border-[var(--crm-border)] hover:border-[var(--crm-border)] shadow-sm hover:shadow-lg cursor-pointer transition-all duration-200 overflow-hidden flex flex-col"
+                        className="group/card relative bg-[var(--crm-surface)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-md border border-[var(--crm-border)] hover:border-[var(--crm-border)] shadow-sm hover:shadow-lg cursor-pointer transition-all duration-200 overflow-hidden flex flex-col shrink-0 min-h-[120px]"
                       >
                         {/* Priority Top Border Highlight */}
                         <div className={cn(
@@ -388,7 +388,7 @@ export default function KanbanBoard({
                         )} />
 
                         {/* Drag Handle & ID */}
-                        <div className="px-4 pt-3 flex items-center justify-between mb-2">
+                        <div className="px-4 pt-3 flex items-center justify-between mb-1.5 shrink-0">
                           <span className="text-[10px] font-mono text-[var(--crm-muted)] tracking-wider" title="Código da fase">
                             {getTaskId(issue.id, issue.key)}
                           </span>
@@ -428,9 +428,9 @@ export default function KanbanBoard({
                         </div>
 
                         {/* Content */}
-                        <div className="px-4 flex-1">
+                        <div className="px-4 flex-1 pb-2">
                           {/* Title - Smart Input Editable */}
-                          <div className="mb-3" onClick={(e) => e.stopPropagation()}>
+                          <div className="mb-2" onClick={(e) => e.stopPropagation()}>
                             {editingTitleId === issue.id ? (
                               <input
                                 autoFocus
@@ -450,7 +450,7 @@ export default function KanbanBoard({
                               <div
                                 onClick={() => setEditingTitleId(issue.id)}
                                 className={cn(
-                                  "min-h-[38px] text-[13px] font-bold leading-relaxed px-1 -mx-1 cursor-text hover:bg-[var(--crm-surface-2)] rounded transition-colors break-words text-[var(--crm-ink)] line-clamp-2"
+                                  "text-[13px] font-bold leading-snug px-1 -mx-1 cursor-text hover:bg-[var(--crm-surface-2)] rounded transition-colors break-words text-[var(--crm-ink)] line-clamp-3"
                                 )}
                               >
                                 {issue.title || 'Fase sem nome'}
@@ -459,17 +459,19 @@ export default function KanbanBoard({
                           </div>
 
                           {/* Tags */}
-                          <div className="flex flex-wrap gap-1.5 mb-2.5">
-                            {tags.map((tag, idx) => (
-                              <span key={idx} className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded border", tag.color)}>
-                                {tag.label}
-                              </span>
-                            ))}
-                          </div>
+                          {tags.length > 0 && (
+                            <div className="flex flex-wrap gap-1.5 mb-2">
+                              {tags.map((tag, idx) => (
+                                <span key={idx} className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded border", tag.color)}>
+                                  {tag.label}
+                                </span>
+                              ))}
+                            </div>
+                          )}
 
                           {/* Custom Fields */}
                           {issue.customFields && issue.customFields.length > 0 && (
-                            <div className="flex flex-col gap-1.5 mb-3">
+                            <div className="flex flex-col gap-1.5 mb-2">
                               {issue.customFields.map((cf) => (
                                 <div key={cf.id} className="flex items-center justify-between bg-[var(--crm-surface)] rounded px-2 py-1 text-[10px]">
                                   <span className="text-[var(--crm-muted)] font-medium truncate max-w-[45%]">{cf.name}:</span>
@@ -481,7 +483,7 @@ export default function KanbanBoard({
 
                         </div>
                         {/* Footer (Stats & Avatars) */}
-                        <div className="px-4 py-3 bg-[rgb(var(--crm-surface-rgb)/0.5)] border-t border-[var(--crm-border)] flex items-center justify-between mt-auto">
+                        <div className="px-4 py-2.5 bg-[rgb(var(--crm-surface-rgb)/0.5)] border-t border-[var(--crm-border)] flex items-center justify-between mt-auto shrink-0">
 
                           {/* Badges/Stats */}
                           <div className="flex items-center gap-3">
@@ -535,7 +537,7 @@ export default function KanbanBoard({
                   )}
 
                   {/* Add task button at the bottom of the column */}
-                  <button onClick={() => handleAddTask(column.id)} className="flex items-center gap-2 text-sm text-[var(--crm-muted)] hover:text-[var(--crm-ink)] hover:bg-[var(--crm-surface)] px-3 py-2 rounded-lg w-full text-left transition-colors border border-transparent hover:border-[var(--crm-border)] mt-1 group">
+                  <button onClick={() => handleAddTask(column.id)} className="flex items-center gap-2 text-sm text-[var(--crm-muted)] hover:text-[var(--crm-ink)] hover:bg-[var(--crm-surface)] px-3 py-2 rounded-lg w-full text-left transition-colors border border-transparent hover:border-[var(--crm-border)] mt-1 group shrink-0">
                     <Plus className="w-4 h-4 opacity-70" />
                     <span>Adicionar Fase</span>
                   </button>
