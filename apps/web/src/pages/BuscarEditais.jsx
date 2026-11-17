@@ -13,7 +13,9 @@ import {
   FileText,
   FileCheck,
   Settings,
-  ArrowLeft
+  ArrowLeft,
+  Menu,
+  X
 } from 'lucide-react';
 import { SearchPage } from './licitacoes_components/SearchPage';
 import { AlertsPage } from './licitacoes_components/AlertsPage';
@@ -31,6 +33,7 @@ export default function BuscarEditais() {
   const navigate = useNavigate();
   const [currentView, setCurrentView] = useState('search');
   const [fichaParaBancada, setFichaParaBancada] = useState(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigation = [
     { 
@@ -79,12 +82,27 @@ export default function BuscarEditais() {
 
   return (
     <ThemeProvider>
-      <div className="flex h-full bg-[var(--crm-bg-base)] text-[var(--crm-ink)] overflow-hidden">
-        {/* Sidebar com tema escuro/teal */}
-        <aside className="w-72 flex flex-col h-full flex-shrink-0 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-r border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xl">
+      <div className="relative flex h-full bg-[var(--crm-bg-base)] text-[var(--crm-ink)] overflow-hidden">
+        {/* Backdrop escurecido no mobile */}
+        {mobileMenuOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-xs lg:hidden transition-opacity"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Sidebar com tema escuro/teal (Drawer no mobile, fixo no desktop) */}
+        <aside
+          className={cn(
+            "fixed inset-y-0 left-0 z-50 w-72 flex flex-col h-full bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-r border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-2xl transition-transform duration-300 ease-in-out",
+            "lg:static lg:translate-x-0 lg:shadow-xl lg:flex-shrink-0",
+            mobileMenuOpen ? "translate-x-0" : "-translate-x-full"
+          )}
+        >
           {/* Brand */}
-          <div className="p-4 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)]">
-            <div className="flex items-center gap-3 p-3 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
+          <div className="p-4 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] flex items-center justify-between">
+            <div className="flex items-center gap-3 p-2.5 rounded-xl bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] flex-1 mr-2">
               <div className="relative flex items-center justify-center w-9 h-6">
                 <div className="absolute left-0 w-5 h-5 rounded-full border-2 border-cyan-400 shadow-[0_0_6px_rgba(34,211,238,0.4)]" />
                 <div className="absolute right-0 w-5 h-5 rounded-full border-2 border-amber-500 shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
@@ -101,6 +119,16 @@ export default function BuscarEditais() {
                 </span>
               </div>
             </div>
+
+            {/* Botão fechar gaveta no mobile */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(false)}
+              className="lg:hidden p-2 rounded-xl text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)]"
+              aria-label="Fechar menu"
+            >
+              <X className="w-5 h-5" />
+            </button>
           </div>
           
           {/* Botão de Voltar ao CRM */}
@@ -115,7 +143,7 @@ export default function BuscarEditais() {
           </div>
           
           {/* Navigation Cards */}
-          <div className="flex-1 py-3 px-3 space-y-2 overflow-y-auto">
+          <div className="flex-1 py-3 px-3 space-y-2 overflow-y-auto custom-scrollbar">
             {navigation.map((item) => {
               const Icon = item.icon;
               const isActive = currentView === item.id;
@@ -123,7 +151,10 @@ export default function BuscarEditais() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => setCurrentView(item.id)}
+                  onClick={() => {
+                    setCurrentView(item.id);
+                    setMobileMenuOpen(false);
+                  }}
                   className={cn(
                     "relative w-full rounded-xl py-3 px-3 flex items-center gap-3 text-left transition-all cursor-pointer group",
                     isActive 
@@ -174,37 +205,66 @@ export default function BuscarEditais() {
         </aside>
 
         {/* Main Content com fundo escuro */}
-        <main className="flex-1 overflow-hidden bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_0.9)] via-[rgb(var(--crm-surface-2-rgb)_/_0.9)] to-[rgb(var(--crm-surface-2-rgb)_/_0.95)]">
-          {currentView === 'analytics' && (
-            <AnalyticsDashboard onNavigate={(view) => setCurrentView(view)} />
-          )}
-          {currentView === 'search' && <SearchPage onNavigateToPipeline={() => setCurrentView('pipeline')} />}
-          {currentView === 'analise' && (
-            <AnaliseEditaisPage 
-              onNavigateToSearch={() => setCurrentView('search')} 
-              onNavigateToAnalisados={() => setCurrentView('analisados')}
-              initialFicha={fichaParaBancada}
-              onClearInitialFicha={() => setFichaParaBancada(null)}
-            />
-          )}
-          {currentView === 'analisados' && (
-            <EditaisAnalisadosPage 
-              onOpenInWorkbench={(ficha) => {
-                setFichaParaBancada(ficha);
-                setCurrentView('analise');
-              }}
-              onNavigateToAnalise={(ficha) => {
-                if (ficha) {
+        <main className="flex-1 min-w-0 flex flex-col overflow-hidden bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_0.9)] via-[rgb(var(--crm-surface-2-rgb)_/_0.9)] to-[rgb(var(--crm-surface-2-rgb)_/_0.95)]">
+          {/* Header Mobile com Hamburger */}
+          <div className="lg:hidden flex items-center justify-between px-4 py-3 bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] border-b border-[var(--crm-border)] shrink-0 z-20 shadow-sm">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(true)}
+                className="p-2 rounded-xl bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-cyan-400"
+                aria-label="Abrir menu de módulos"
+              >
+                <Menu className="w-5 h-5 text-cyan-700 dark:text-cyan-400" />
+              </button>
+              <div className="min-w-0">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-cyan-700 dark:text-cyan-400">Licitações B2G</div>
+                <div className="text-sm font-black truncate text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                  {navigation.find(n => n.id === currentView)?.name || 'Buscar Editais'}
+                </div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => navigate('/b2g-dashboard')}
+              className="text-xs font-bold text-cyan-700 dark:text-cyan-400 hover:underline flex items-center gap-1 shrink-0"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Voltar
+            </button>
+          </div>
+
+          <div className="flex-1 min-h-0 overflow-y-auto">
+            {currentView === 'analytics' && (
+              <AnalyticsDashboard onNavigate={(view) => setCurrentView(view)} />
+            )}
+            {currentView === 'search' && <SearchPage onNavigateToPipeline={() => setCurrentView('pipeline')} />}
+            {currentView === 'analise' && (
+              <AnaliseEditaisPage 
+                onNavigateToSearch={() => setCurrentView('search')} 
+                onNavigateToAnalisados={() => setCurrentView('analisados')}
+                initialFicha={fichaParaBancada}
+                onClearInitialFicha={() => setFichaParaBancada(null)}
+              />
+            )}
+            {currentView === 'analisados' && (
+              <EditaisAnalisadosPage 
+                onOpenInWorkbench={(ficha) => {
                   setFichaParaBancada(ficha);
-                }
-                setCurrentView('analise');
-              }}
-              onNavigateToSearch={() => setCurrentView('search')}
-            />
-          )}
-          {currentView === 'gerenciadas' && <GerenciadasPage onNavigateToSearch={() => setCurrentView('search')} />}
-          {currentView === 'alerts' && <AlertsPage />}
-          {currentView === 'pipeline' && <PipelineMonitor />}
+                  setCurrentView('analise');
+                }}
+                onNavigateToAnalise={(ficha) => {
+                  if (ficha) {
+                    setFichaParaBancada(ficha);
+                  }
+                  setCurrentView('analise');
+                }}
+                onNavigateToSearch={() => setCurrentView('search')}
+              />
+            )}
+            {currentView === 'gerenciadas' && <GerenciadasPage onNavigateToSearch={() => setCurrentView('search')} />}
+            {currentView === 'alerts' && <AlertsPage />}
+            {currentView === 'pipeline' && <PipelineMonitor />}
+          </div>
         </main>
       </div>
     </ThemeProvider>

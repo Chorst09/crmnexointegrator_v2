@@ -5,7 +5,7 @@ import {
   BarChart2, LayoutTemplate, MoreHorizontal,
   Search, Bell, Settings, Plus, ChevronDown, CheckCircle2,
   List as ListIcon, Calendar, Activity, Upload,
-  Users2, GanttChartSquare, ArrowLeft, X, Target, Briefcase, DollarSign
+  Users2, GanttChartSquare, ArrowLeft, X, Target, Briefcase, DollarSign, Menu
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -572,6 +572,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
   const issueSaveTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
   const [activeView, setActiveView] = useState<ViewMode>('board');
   const [globalView, setGlobalView] = useState('spaces');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [issues, setIssues] = useState<Issue[]>(() => {
     return getStoredProjectIssues();
@@ -1317,9 +1318,86 @@ export default function App({ onBack }: { onBack?: () => void }) {
   return (
     <div className="flex h-screen bg-transparent font-sans overflow-hidden text-[var(--crm-ink)] text-sm">
 
-      {/* Far Left Thin Navigation */}
+      {/* Mobile Drawer (Celular e Tablet) */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
+            onClick={() => setMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+          <div className="relative flex max-w-[88vw] h-full shadow-2xl z-10 animate-in slide-in-from-left duration-200">
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="absolute top-2.5 right-2.5 z-30 p-1.5 rounded-full bg-[var(--crm-surface-2)] text-[var(--crm-ink)] hover:bg-[var(--crm-surface)]"
+              title="Fechar menu"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <nav className="w-14 bg-[var(--crm-surface-2)] flex-shrink-0 flex flex-col items-center py-4 border-r border-[var(--crm-border)]">
+              <div className="w-8 h-8 bg-[#22c55e] rounded text-white flex items-center justify-center font-bold mb-4 cursor-pointer shadow-sm">
+                C
+              </div>
+              <div className="flex flex-col gap-3 w-full px-1">
+                <NavItem icon={Home} label="Início" active={globalView === 'home'} onClick={() => { setGlobalView('home'); setMobileMenuOpen(false); }} />
+                <NavItem icon={Compass} label="Projetos" active={globalView === 'spaces'} onClick={() => { setGlobalView('spaces'); setMobileMenuOpen(false); }} />
+                <NavItem icon={CheckSquare} label="Planejado" active={globalView === 'planned'} onClick={() => { setGlobalView('planned'); setMobileMenuOpen(false); }} />
+                <NavItem icon={Users} label="Equipes" active={globalView === 'teams'} onClick={() => { setGlobalView('teams'); setMobileMenuOpen(false); }} />
+                <NavItem icon={FileText} label="Documentos" active={globalView === 'docs'} onClick={() => { setGlobalView('docs'); setMobileMenuOpen(false); }} />
+                <NavItem icon={BarChart2} label="Painéis" active={globalView === 'dashboards'} onClick={() => { setGlobalView('dashboards'); setMobileMenuOpen(false); }} />
+                <NavItem icon={LayoutTemplate} label="Quadros" active={globalView === 'whiteboards'} onClick={() => { setGlobalView('whiteboards'); setMobileMenuOpen(false); }} />
+              </div>
+            </nav>
+            {globalView === 'spaces' && (
+              <aside className="w-[250px] bg-[var(--crm-surface)] flex flex-col h-full border-r border-[var(--crm-border)]">
+                <div className="p-3.5 flex items-center justify-between border-b border-[var(--crm-border)] bg-[linear-gradient(90deg,rgba(37,99,235,0.13),transparent)]">
+                  <h2 className="font-semibold text-[var(--crm-ink)] text-sm">Projetos</h2>
+                  <button
+                    onClick={() => { setIsCreatingSpace(true); setMobileMenuOpen(false); }}
+                    className="bg-[#2563eb] text-white text-xs font-semibold px-2.5 py-1.5 rounded flex items-center gap-1 shadow-sm"
+                  >
+                    <Plus className="w-3 h-3" /> Criar
+                  </button>
+                </div>
+                <div className="p-2.5 flex-1 overflow-y-auto">
+                  <div
+                    className="flex items-center gap-2 text-[var(--crm-muted)] hover:bg-[var(--crm-surface-2)] p-1.5 rounded cursor-pointer mb-3"
+                    onClick={() => { setGlobalView('home'); setMobileMenuOpen(false); }}
+                  >
+                    <LayoutTemplate className="w-4 h-4" />
+                    <span className="text-sm">Todos os projetos</span>
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    {spaces.map(space => (
+                      <div key={space.id}>
+                        <div
+                          className={cn(
+                            "flex items-center justify-between p-2 rounded cursor-pointer group",
+                            activeSpaceId === space.id ? "bg-[var(--crm-border)] text-[var(--crm-ink)] ring-1 ring-[#2563eb]/35" : "text-[var(--crm-ink)] hover:bg-[var(--crm-surface-2)]"
+                          )}
+                          onClick={() => { setActiveSpaceId(space.id); setMobileMenuOpen(false); }}
+                        >
+                          <div className="flex items-center gap-2 min-w-0 flex-1 mr-2">
+                            <div className={cn("w-4 h-4 rounded-sm text-[8px] flex items-center justify-center font-bold text-white flex-shrink-0", space.color)}>{space.initial}</div>
+                            <div className="min-w-0 flex-1">
+                              <span className="block truncate font-medium text-xs text-[var(--crm-ink)]" title={space.name}>{space.name}</span>
+                              <span className="block truncate text-[10px] text-[var(--crm-muted)]">{space.client || space.status || 'Projeto'}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </aside>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Far Left Thin Navigation (Desktop) */}
       {!isDashboardFocus && (
-      <nav className="w-16 bg-transparent flex-shrink-0 flex flex-col items-center py-4 border-r border-[var(--crm-border)] z-30">
+      <nav className="w-16 bg-transparent flex-shrink-0 hidden lg:flex flex-col items-center py-4 border-r border-[var(--crm-border)] z-30">
         <div className="w-8 h-8 bg-[#22c55e] rounded text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center justify-center font-bold mb-6 cursor-pointer shadow-[0_0_22px_rgba(34,197,94,0.25)]">
           C
         </div>
@@ -1336,9 +1414,9 @@ export default function App({ onBack }: { onBack?: () => void }) {
       </nav>
       )}
 
-      {/* Second Sidebar (Spaces) */}
+      {/* Second Sidebar (Spaces - Desktop) */}
       {globalView === 'spaces' && !isDashboardFocus && (
-        <aside className="w-[280px] bg-[var(--crm-surface)] flex-shrink-0 flex flex-col h-full border-r border-[var(--crm-border)] z-20">
+        <aside className="w-[280px] bg-[var(--crm-surface)] flex-shrink-0 hidden lg:flex flex-col h-full border-r border-[var(--crm-border)] z-20">
           <div className="p-4 flex items-center justify-between border-b border-[var(--crm-border)] bg-[linear-gradient(90deg,rgba(37,99,235,0.13),transparent)]">
           <h2 className="font-semibold text-[var(--crm-ink)]">Projetos</h2>
           <button onClick={() => setIsCreatingSpace(true)} className="bg-[#2563eb] hover:bg-[#1d4ed8] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-semibold px-3 py-2 rounded flex items-center gap-1 transition-colors">
@@ -1406,27 +1484,35 @@ export default function App({ onBack }: { onBack?: () => void }) {
 
         {/* Top Global Bar */}
         {!isDashboardFocus && (
-        <header className="h-12 border-b border-[var(--crm-border)] px-4 flex items-center justify-between bg-[var(--crm-surface)] flex-shrink-0">
-          <div className="flex items-center gap-2">
+        <header className="h-12 border-b border-[var(--crm-border)] px-3 sm:px-4 flex items-center justify-between bg-[var(--crm-surface)] flex-shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-1.5 rounded-md hover:bg-[var(--crm-surface-2)] text-[var(--crm-muted)] hover:text-[var(--crm-ink)] flex-shrink-0"
+              title="Menu de projetos"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
             {onBack && (
               <button
                 type="button"
                 onClick={onBack}
-                className="flex h-8 items-center gap-1.5 rounded-md border border-[var(--crm-border)] px-2.5 text-xs font-semibold text-[var(--crm-ink)] transition-colors hover:border-[#2563eb] hover:bg-[var(--crm-surface-2)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                className="flex h-8 items-center gap-1 sm:gap-1.5 rounded-md border border-[var(--crm-border)] px-2 sm:px-2.5 text-xs font-semibold text-[var(--crm-ink)] transition-colors hover:border-[#2563eb] hover:bg-[var(--crm-surface-2)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] flex-shrink-0"
                 title="Voltar ao CRM"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Voltar
+                <span className="hidden sm:inline">Voltar</span>
               </button>
             )}
-            <div className="flex items-center gap-2 cursor-pointer hover:bg-[var(--crm-surface-2)] px-2 py-1 rounded transition-colors">
-              <div className="w-5 h-5 bg-[#22c55e] rounded text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center justify-center font-bold text-xs">C</div>
-              <span className="font-semibold text-[var(--crm-ink)]">Gestão de Projetos</span>
-              <ChevronDown className="w-4 h-4 text-[var(--crm-muted)]" />
+            <div className="flex items-center gap-1.5 sm:gap-2 cursor-pointer hover:bg-[var(--crm-surface-2)] px-1.5 sm:px-2 py-1 rounded transition-colors min-w-0">
+              <div className="w-5 h-5 bg-[#22c55e] rounded text-[rgb(var(--crm-ink-rgb)_/_1)] flex items-center justify-center font-bold text-xs flex-shrink-0">C</div>
+              <span className="font-semibold text-xs sm:text-sm text-[var(--crm-ink)] truncate max-w-[130px] sm:max-w-none">Gestão de Projetos</span>
+              <ChevronDown className="w-4 h-4 text-[var(--crm-muted)] hidden sm:block flex-shrink-0" />
             </div>
           </div>
 
-          <div className="flex-1 max-w-lg mx-4 flex items-center gap-2">
+          <div className="hidden md:flex flex-1 max-w-lg mx-4 items-center gap-2">
             <div className="flex-1 relative group">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search className="h-3.5 w-3.5 text-[var(--crm-muted)]" />
@@ -1438,13 +1524,13 @@ export default function App({ onBack }: { onBack?: () => void }) {
                 onClick={() => alert('Pesquisa global ativada. Use ⌘ K para buscar fases, documentos ou pessoas.')}
               />
             </div>
-            <button onClick={() => alert('Abrindo painel de Chat com IA...')} className="bg-[var(--crm-surface-2)] hover:bg-[var(--crm-surface-2)] border border-[var(--crm-border)] text-[var(--crm-ink)] px-3 py-1 rounded-md text-xs font-medium flex items-center gap-2 transition-colors">
+            <button onClick={() => alert('Abrindo painel de Chat com IA...')} className="bg-[var(--crm-surface-2)] hover:bg-[var(--crm-surface-2)] border border-[var(--crm-border)] text-[var(--crm-ink)] px-3 py-1 rounded-md text-xs font-medium flex items-center gap-2 transition-colors whitespace-nowrap">
               Chats com IA <Sparkles className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" />
             </button>
           </div>
 
-          <div className="flex items-center gap-3 text-[var(--crm-muted)]">
-            <CheckCircle2 onClick={() => setGlobalView('planned')} className="w-5 h-5 hover:text-[var(--crm-ink)] cursor-pointer" />
+          <div className="flex items-center gap-2 sm:gap-3 text-[var(--crm-muted)] flex-shrink-0">
+            <CheckCircle2 onClick={() => setGlobalView('planned')} className="w-5 h-5 hover:text-[var(--crm-ink)] cursor-pointer hidden sm:block" />
             <Bell onClick={() => alert('Painel de Notificações')} className="w-5 h-5 hover:text-[var(--crm-ink)] cursor-pointer" />
             <div onClick={() => alert('Menu do Perfil')} className="w-6 h-6 rounded-full bg-[#2563eb] flex items-center justify-center text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-bold ring-2 ring-[var(--crm-surface)] cursor-pointer">
               CH
@@ -1469,28 +1555,28 @@ export default function App({ onBack }: { onBack?: () => void }) {
           <>
             {/* Project Header & Tabs */}
             <div className="bg-[var(--crm-surface)] border-b border-[var(--crm-border)] flex-shrink-0">
-          <div className="px-6 pt-4 pb-0 flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-xl font-bold text-[var(--crm-ink)] min-w-0 flex-1 mr-4">
+          <div className="px-4 sm:px-6 pt-3 sm:pt-4 pb-0 flex flex-col gap-3 sm:gap-4">
+            <div className="flex items-center justify-between flex-wrap gap-2">
+              <div className="flex items-center gap-2 text-base sm:text-xl font-bold text-[var(--crm-ink)] min-w-0 flex-1 mr-2">
                 <div className={cn("w-5 h-5 rounded-sm text-[10px] flex items-center justify-center font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mr-1 flex-shrink-0", activeProject?.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]")}>
                   {activeProject?.initial || "P"}
                 </div>
-                <span className="truncate max-w-[300px] sm:max-w-[500px] md:max-w-[750px] lg:max-w-[950px]" title={activeProject?.name || "Projetos"}>
+                <span className="truncate max-w-[200px] sm:max-w-[400px] md:max-w-[700px] lg:max-w-[900px]" title={activeProject?.name || "Projetos"}>
                   {activeProject?.name || (isLoadingProjects ? "Carregando projetos..." : "Projetos")}
                 </span>
-                <span className="text-[var(--crm-muted)] font-normal flex-shrink-0">/</span>
-                <ListIcon className="w-5 h-5 text-[var(--crm-muted)] ml-1 flex-shrink-0" /> <span className="flex-shrink-0">Fases</span>
-                <ChevronDown className="w-5 h-5 text-[var(--crm-muted)] cursor-pointer flex-shrink-0" />
+                <span className="text-[var(--crm-muted)] font-normal flex-shrink-0 hidden sm:inline">/</span>
+                <ListIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--crm-muted)] ml-1 flex-shrink-0 hidden sm:inline" /> <span className="flex-shrink-0 hidden sm:inline">Fases</span>
+                <ChevronDown className="w-4 h-4 text-[var(--crm-muted)] cursor-pointer flex-shrink-0 hidden sm:inline" />
               </div>
 
-              <div className="flex items-center gap-4 text-xs font-medium text-[var(--crm-muted)]">
-                <button onClick={() => setIsAgentsModalOpen(true)} className="hover:text-[var(--crm-ink)] flex items-center gap-1 transition-colors"><Users2 className="w-4 h-4 text-cyan-700 dark:text-cyan-400" /> Agentes</button>
-                <button onClick={() => setIsBrainModalOpen(true)} className="hover:text-[var(--crm-ink)] flex items-center gap-1 transition-colors"><Sparkles className="w-4 h-4 text-teal-700 dark:text-teal-400" /> Brain</button>
-                <button onClick={handleOpenShareModal} className="hover:text-[var(--crm-ink)] flex items-center gap-1 transition-colors"><Users className="w-4 h-4 text-orange-700 dark:text-orange-400" /> Compartilhar</button>
+              <div className="flex items-center gap-2 sm:gap-4 text-xs font-medium text-[var(--crm-muted)]">
+                <button onClick={() => setIsAgentsModalOpen(true)} className="hover:text-[var(--crm-ink)] flex items-center gap-1 transition-colors"><Users2 className="w-3.5 h-3.5 text-cyan-700 dark:text-cyan-400" /> <span className="hidden sm:inline">Agentes</span></button>
+                <button onClick={() => setIsBrainModalOpen(true)} className="hover:text-[var(--crm-ink)] flex items-center gap-1 transition-colors"><Sparkles className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" /> <span className="hidden sm:inline">Brain</span></button>
+                <button onClick={handleOpenShareModal} className="hover:text-[var(--crm-ink)] flex items-center gap-1 transition-colors"><Users className="w-3.5 h-3.5 text-orange-700 dark:text-orange-400" /> <span className="hidden sm:inline">Compartilhar</span></button>
               </div>
             </div>
 
-            <div className="flex items-center gap-6 overflow-x-auto text-sm font-medium hide-scrollbar">
+            <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto text-xs sm:text-sm font-medium pb-2 custom-scrollbar">
               <Tab icon={Users} label="Equipe" active={activeView === 'team'} onClick={() => setActiveView('team')} />
               <Tab icon={BarChart2} label="Painéis" active={activeView === 'dashboard'} onClick={() => setActiveView('dashboard')} />
               <Tab icon={ListIcon} label="Lista" active={activeView === 'list'} onClick={() => setActiveView('list')} />
@@ -1500,50 +1586,50 @@ export default function App({ onBack }: { onBack?: () => void }) {
               <Tab icon={CheckCircle2} label="Matriz RACI" active={activeView === 'raci'} onClick={() => setActiveView('raci')} />
               <Tab icon={Activity} label="Atividade" active={activeView === 'activity'} onClick={() => setActiveView('activity')} />
               <Tab icon={ListIcon} label="Carga de trabalho" active={activeView === 'workload'} onClick={() => setActiveView('workload')} />
-              <div className="flex items-center gap-1 text-[var(--crm-muted)] hover:text-[var(--crm-ink)] cursor-pointer pb-2">
-                <Plus className="w-4 h-4" /> Visualização
+              <div className="flex items-center gap-1 text-[var(--crm-muted)] hover:text-[var(--crm-ink)] cursor-pointer pb-2 whitespace-nowrap">
+                <Plus className="w-3.5 h-3.5" /> Visualização
               </div>
             </div>
           </div>
         </div>
 
         {/* Toolbar */}
-        <div className="px-6 py-3 flex flex-col gap-3 flex-shrink-0 bg-transparent border-b border-[var(--crm-border)]">
+        <div className="px-4 sm:px-6 py-2.5 sm:py-3 flex flex-col gap-2.5 sm:gap-3 flex-shrink-0 bg-transparent border-b border-[var(--crm-border)]">
           {activeProject && (
-            <div className="grid gap-3 lg:grid-cols-[1.2fr_1fr_1fr]">
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-3">
+            <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr]">
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-2.5 sm:p-3">
                 <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--crm-muted)]">Escopo</p>
-                <p className="mt-1 line-clamp-2 text-xs text-[var(--crm-ink)]">{activeProject.scope || 'Escopo ainda não informado.'}</p>
+                <p className="mt-0.5 line-clamp-2 text-xs text-[var(--crm-ink)]">{activeProject.scope || 'Escopo ainda não informado.'}</p>
               </div>
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-3">
+              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-2.5 sm:p-3">
                 <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--crm-muted)]">Objetivo</p>
-                <p className="mt-1 line-clamp-2 text-xs text-[var(--crm-ink)]">{activeProject.objective || 'Objetivo ainda não informado.'}</p>
+                <p className="mt-0.5 line-clamp-2 text-xs text-[var(--crm-ink)]">{activeProject.objective || 'Objetivo ainda não informado.'}</p>
               </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(37,99,235,0.16),rgb(var(--crm-surface-rgb)/0.98))] p-3">
+              <div className="grid grid-cols-2 gap-2 sm:gap-3 col-span-1 sm:col-span-2 lg:col-span-1">
+                <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(37,99,235,0.16),rgb(var(--crm-surface-rgb)/0.98))] p-2.5 sm:p-3">
                   <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--crm-muted)]">Status</p>
-                  <p className="mt-1 text-sm font-black text-[var(--pm-accent-text)]">{PROJECT_STATUS_LABELS[activeProject.status || 'PLANEJADO']}</p>
+                  <p className="mt-0.5 text-xs sm:text-sm font-black text-[var(--pm-accent-text)] truncate">{PROJECT_STATUS_LABELS[activeProject.status || 'PLANEJADO']}</p>
                 </div>
-                <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(34,197,94,0.14),rgb(var(--crm-surface-rgb)/0.98))] p-3">
+                <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(34,197,94,0.14),rgb(var(--crm-surface-rgb)/0.98))] p-2.5 sm:p-3">
                   <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--crm-muted)]">Fases</p>
-                  <p className="mt-1 text-sm font-black text-[#22c55e]">{activeProjectIssues.length}</p>
+                  <p className="mt-0.5 text-xs sm:text-sm font-black text-[#22c55e]">{activeProjectIssues.length}</p>
                 </div>
               </div>
             </div>
           )}
-          <div className="flex items-center gap-3">
-            <button onClick={() => alert('Controles de Visão (Filtros, Agrupamento)')} className="bg-[var(--crm-surface)] hover:bg-[var(--crm-surface-2)] text-[var(--crm-ink)] px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-2 border border-[var(--crm-border)]">
-              <LayersIcon className="w-4 h-4 text-[#2563eb]" /> Controles
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <button onClick={() => alert('Controles de Visão (Filtros, Agrupamento)')} className="bg-[var(--crm-surface)] hover:bg-[var(--crm-surface-2)] text-[var(--crm-ink)] px-2.5 sm:px-3 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 border border-[var(--crm-border)]">
+              <LayersIcon className="w-3.5 h-3.5 text-[#2563eb]" /> Controles
             </button>
 
-          <div className="ml-auto flex items-center gap-3 text-[var(--crm-muted)]">
-            <button onClick={() => alert('Busca específica na lista atual')} className="hover:bg-[var(--crm-surface)] p-1.5 rounded"><Search className="w-4 h-4" /></button>
-            <button onClick={() => alert('Configurações da visualização atual')} className="hover:bg-[var(--crm-surface)] p-1.5 rounded"><Settings className="w-4 h-4" /></button>
-            <div className="h-4 w-px bg-[rgb(var(--crm-surface-rgb)_/_1)] mx-1"></div>
-            <button onClick={handleCreateTask} className="bg-[#2563eb] hover:bg-[#1d4ed8] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] px-4 py-1.5 rounded-md text-xs font-semibold flex items-center gap-2 transition-colors">
-              <Plus className="w-3.5 h-3.5" /> Fase <ChevronDown className="w-3 h-3 ml-1" />
-            </button>
-          </div>
+            <div className="flex items-center gap-1.5 sm:gap-2 text-[var(--crm-muted)]">
+              <button onClick={() => alert('Busca específica na lista atual')} className="hover:bg-[var(--crm-surface)] p-1.5 rounded" title="Buscar"><Search className="w-3.5 h-3.5" /></button>
+              <button onClick={() => alert('Configurações da visualização atual')} className="hover:bg-[var(--crm-surface)] p-1.5 rounded" title="Configurações"><Settings className="w-3.5 h-3.5" /></button>
+              <div className="h-4 w-px bg-[rgb(var(--crm-surface-rgb)_/_1)] mx-0.5"></div>
+              <button onClick={handleCreateTask} className="bg-[#2563eb] hover:bg-[#1d4ed8] text-[rgb(var(--crm-ink-rgb)_/_1)] px-3 sm:px-4 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-sm whitespace-nowrap">
+                <Plus className="w-3.5 h-3.5" /> Fase <ChevronDown className="w-3 h-3 ml-0.5" />
+              </button>
+            </div>
           </div>
         </div>
 

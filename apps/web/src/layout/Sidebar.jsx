@@ -420,7 +420,10 @@ export default function Sidebar({
       <NavLink
         to={item.path}
         title={collapsed ? `${item.label} - ${item.description}` : item.description}
-        onClick={saveSidebarScroll}
+        onClick={() => {
+          saveSidebarScroll();
+          onOpenChange(false);
+        }}
         className={({ isActive }) => [
           'group relative flex w-full overflow-hidden rounded-2xl',
           collapsed ? 'items-start gap-3 px-3 py-2.5 lg:items-center lg:justify-center lg:gap-0 lg:px-2' : 'items-start gap-3 px-3 py-2.5',

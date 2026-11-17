@@ -29,17 +29,17 @@ const priorityColors: Record<string, string> = {
 export default function ListView({ issues, onTaskClick, onDeleteIssue }: { issues: Issue[], onTaskClick?: (issue: Issue) => void, onDeleteIssue?: (issue: Issue) => void | Promise<void> }) {
   return (
     <div className="h-full bg-transparent flex flex-col text-[var(--crm-ink)]">
-      <div className="flex-1 overflow-auto p-6">
-        <div className="border border-[var(--crm-border)] rounded-lg shadow-sm overflow-hidden bg-[var(--crm-surface)]">
-          <table className="w-full text-left text-sm whitespace-nowrap">
+      <div className="flex-1 overflow-auto p-3 sm:p-6 custom-scrollbar">
+        <div className="border border-[var(--crm-border)] rounded-lg shadow-sm overflow-x-auto bg-[var(--crm-surface)]">
+          <table className="w-full text-left text-sm whitespace-nowrap min-w-[640px]">
             <thead className="bg-[var(--crm-surface)] border-b border-[var(--crm-border)] text-[var(--crm-muted)]">
               <tr>
-                <th className="px-6 py-3 font-semibold w-full">Nome da Fase</th>
-                <th className="px-6 py-3 font-semibold">Status</th>
-                <th className="px-6 py-3 font-semibold">Prioridade</th>
-                <th className="px-6 py-3 font-semibold">Responsável</th>
-                <th className="px-6 py-3 font-semibold">Data Final</th>
-                <th className="px-6 py-3 font-semibold">Ações</th>
+                <th className="px-3 sm:px-6 py-3 font-semibold w-full">Nome da Fase</th>
+                <th className="px-3 sm:px-6 py-3 font-semibold">Status</th>
+                <th className="px-3 sm:px-6 py-3 font-semibold">Prioridade</th>
+                <th className="px-3 sm:px-6 py-3 font-semibold">Responsável</th>
+                <th className="px-3 sm:px-6 py-3 font-semibold">Data Final</th>
+                <th className="px-3 sm:px-6 py-3 font-semibold">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--crm-surface-2)]">
@@ -49,21 +49,21 @@ export default function ListView({ issues, onTaskClick, onDeleteIssue }: { issue
                   className="hover:bg-[var(--crm-surface)] transition-colors group cursor-pointer"
                   onClick={() => onTaskClick?.(issue)}
                 >
-                  <td className="px-6 py-3 font-medium text-[var(--crm-ink)] group-hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors truncate max-w-md flex items-center gap-2">
+                  <td className="px-3 sm:px-6 py-3 font-medium text-[var(--crm-ink)] group-hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors truncate max-w-md flex items-center gap-2">
                     <span className="text-[var(--crm-muted)] text-[10px] font-mono">{issue.key || `PRJ-${issue.id.slice(-3)}`}</span>
                     {issue.title}
                   </td>
-                  <td className="px-6 py-3">
+                  <td className="px-3 sm:px-6 py-3">
                     <span className={cn("px-2 py-0.5 rounded text-[10px] font-bold tracking-wider", statusColors[issue.status])}>
                       {issue.status}
                     </span>
                   </td>
-                  <td className="px-6 py-3">
+                  <td className="px-3 sm:px-6 py-3">
                     <span className={cn("flex items-center gap-1 font-medium", priorityColors[issue.priority])}>
                       {issue.priority}
                     </span>
                   </td>
-                  <td className="px-6 py-3">
+                  <td className="px-3 sm:px-6 py-3">
                     {issue.assignee ? (
                       <div className="flex items-center gap-2">
                         <div className={cn("w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]", issue.assignee.color)}>
@@ -80,10 +80,10 @@ export default function ListView({ issues, onTaskClick, onDeleteIssue }: { issue
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-3 text-[var(--crm-muted)] text-xs">
+                  <td className="px-3 sm:px-6 py-3 text-[var(--crm-muted)] text-xs">
                     {issue.dueDate ? issue.dueDate : '-'}
                   </td>
-                  <td className="px-6 py-3">
+                  <td className="px-3 sm:px-6 py-3">
                     <button
                       type="button"
                       onClick={(e) => {
