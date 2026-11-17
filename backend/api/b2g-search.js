@@ -1568,7 +1568,6 @@ router.get('/curitiba-ecompras', auth, async (req, res) => {
 });
 
 const publicationPeriod = (start = '', end = '') => {
-  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Sao_Paulo' }).format(new Date());
   const parse = value => {
     if (!value) return '';
     const text = String(value).trim().replace(/^(\d{4})(\d{2})(\d{2})$/, '$1-$2-$3');
@@ -1578,10 +1577,11 @@ const publicationPeriod = (start = '', end = '') => {
     return text;
   };
   const dataInicio = parse(start);
-  const requestedEnd = parse(end) || today;
-  const dataFim = requestedEnd > today ? today : requestedEnd;
-  if (dataInicio && dataInicio > dataFim) throw Object.assign(new Error('A data inicial de publicação deve ser anterior ou igual à data final e não pode estar no futuro.'), { status: 400 });
-  return { dataInicio, dataFim, avisoPeriodo: requestedEnd > today ? 'A data final de publicação foi ajustada para hoje; editais ainda não publicados não entram na consulta.' : '' };
+  const dataFim = parse(end);
+  if (dataInicio && dataFim && dataInicio > dataFim) {
+    throw Object.assign(new Error('A data inicial de publicação deve ser anterior ou igual à data final.'), { status: 400 });
+  }
+  return { dataInicio, dataFim, avisoPeriodo: '' };
 };
 
 // ─── GET /api/b2g-search/search ───────────────────────────────────────────────

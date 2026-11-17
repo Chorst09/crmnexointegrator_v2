@@ -510,7 +510,6 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                 type="date"
                 className="border border-[var(--crm-border)] rounded-lg px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none text-sm"
                 aria-label="Publicado de"
-                max={getTodayISO()}
                 value={dataInicial}
                 onChange={(e) => setDataInicial(e.target.value)}
               />
@@ -521,7 +520,6 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                 type="date"
                 className="border border-[var(--crm-border)] rounded-lg px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none text-sm"
                 aria-label="Publicado até"
-                max={getTodayISO()}
                 value={dataFinal}
                 onChange={(e) => setDataFinal(e.target.value)}
               />
