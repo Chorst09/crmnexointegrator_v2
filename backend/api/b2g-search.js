@@ -1242,6 +1242,8 @@ const parseTransparenciaCuritiba = (html) => {
     if (cells.length !== 10) throw new Error(`Estrutura da tabela mudou: ${cells.length} colunas, esperadas 10.`);
     const [numero, modalidade, orgao, titulo, valorText, local, publicacaoText, aberturaText, protocolo, status] = cells;
     const abertura = normalizeDateText(aberturaText);
+    const targetMatch = rowHtml.match(/__doPostBack\(\s*['"]([^'"]+)['"]/);
+    const target = targetMatch ? targetMatch[1].replace(/&#39;/g, '') : '';
     return {
       id: `transparencia-curitiba-${sourceId(numero, protocolo, orgao)}`,
       fonte: 'Transparência Curitiba', fonteLogo: '🏙️', titulo: titulo || 'Licitação sem descrição',
@@ -1250,9 +1252,79 @@ const parseTransparenciaCuritiba = (html) => {
       dataAbertura: abertura,
       dataSessao: abertura && !/\d{2}:\d{2}/.test(aberturaText) ? abertura.slice(0, 10) : abertura,
       dataEncerramento: null, numero, ano: numero.match(/\b(20\d{2})\b/)?.[1] || '',
-      protocolo, link: TRANSPARENCIA_CURITIBA_URL, status, local
+      protocolo, link: TRANSPARENCIA_CURITIBA_URL, status, local,
+      documentos: [],
+      _target: target
     };
   });
+};
+
+const enriquecerLinhasCuritiba = async (itens, previousHtml, cookies, headers) => {
+  if (!itens || !itens.length) return;
+  await Promise.all(itens.slice(0, 10).map(async (item) => {
+    if (!item._target) return;
+    try {
+      const fields = curitibaFormFields(previousHtml);
+      fields.set('__EVENTTARGET', item._target);
+      fields.set('__EVENTARGUMENT', '');
+      const res = await fetchWithRetry(TRANSPARENCIA_CURITIBA_URL, {
+        method: 'POST',
+        headers: {
+          ...headers,
+          'Content-Type': 'application/x-www-form-urlencoded',
+          ...(cookies.size ? { Cookie: [...cookies].map(([key, value]) => `${key}=${value}`).join('; ') } : {})
+        },
+        body: fields.toString(),
+        redirect: 'manual'
+      }, { timeoutMs: 4000, retries: 0 });
+
+      const location = res.headers.get('location');
+      if (location) {
+        const detalhesUrl = new URL(location, 'https://www.transparencia.curitiba.pr.gov.br').toString();
+        item.link = detalhesUrl;
+        item.linkSistemaOrigem = detalhesUrl;
+        item.linkProcessoEletronico = detalhesUrl;
+
+        const resDetalhes = await fetchWithRetry(detalhesUrl, {
+          headers: {
+            ...headers,
+            ...(cookies.size ? { Cookie: [...cookies].map(([key, value]) => `${key}=${value}`).join('; ') } : {})
+          }
+        }, { timeoutMs: 4000, retries: 0 });
+
+        if (resDetalhes.ok) {
+          const detalhesHtml = await resDetalhes.text();
+          const gdvMatch = detalhesHtml.match(/<table[^>]*id=["']cphMasterPrincipal_gdvArquivos["'][\s\S]*?<\/table>/i);
+          const docs = [];
+          if (gdvMatch) {
+            const rows = [...gdvMatch[0].matchAll(/<tr\b[^>]*class=["'][^"']*grid_(?:Row|AlternatingRow)[^"']*["'][^>]*>([\s\S]*?)<\/tr>/gi)];
+            for (const r of rows) {
+              const cells = [...r[1].matchAll(/<td\b[^>]*>([\s\S]*?)<\/td>/gi)].map(c => c[1].trim());
+              const nomeDoc = cleanHtmlText(cells[0] || 'Documento Oficial');
+              const href = cells[1]?.match(/href=['"]([^'"]+)['"]/i)?.[1];
+              if (href) docs.push({ titulo: nomeDoc, url: href, tipo: 'Edital / Anexo' });
+            }
+          }
+          if (docs.length > 0) {
+            item.documentos = docs;
+            item.pdfUrl = docs.find(d => d.url.endsWith('.pdf'))?.url || docs[0].url;
+          }
+
+          if (!item.valor) {
+            const valorMatch = detalhesHtml.match(/Valor\s*(?:Global|Estimado|Total)[:\s]*R\$\s*([\d.,]+)/i);
+            if (valorMatch) {
+              const v = parseBRMoney(valorMatch[1]);
+              if (v) item.valor = v;
+            }
+          }
+        }
+      }
+    } catch {
+      // Ignora erro individual para não travar a lista
+    } finally {
+      delete item._target;
+    }
+  }));
 };
 
 const parseCuritibaAsyncResponse = (body, previousHtml) => {
@@ -1335,6 +1407,10 @@ async function buscarTransparenciaCuritiba({ objeto, uf, cidade, dataInicio, dat
       const target = `ctl00$cphMasterPrincipal$ucPaginadorBaixo$${page + 1}_pg${page + 1}`;
       if (page === 3 || !decodeHtmlEntities(html).includes(`__doPostBack('${target}'`)) break;
       html = await readPage(postFields(target));
+    }
+
+    if (resultados.length > 0) {
+      await enriquecerLinhasCuritiba(resultados, html, cookies, headers);
     }
 
     return { resultados, errors };
@@ -1626,20 +1702,24 @@ async function buscarAtasPNCP({ objeto, uf, cidade, pagina = 1, tamanhoPagina = 
         if ((uf || cidade) && ref) {
           try {
             const res = await fetchWithRetry(`${PNCP_BASE}/orgaos/${ref[1]}/compras/${ref[3]}/${Number(ref[2])}`, { headers: PNCP_HEADERS }, { timeoutMs: 3000, retries: 0 });
-            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-            compra = await safeJson(res) || {};
-          } catch (err) { errors.push(`Localização da ata ${item.numeroAtaRegistroPreco}: ${err.message}`); }
+            if (res.ok) compra = await safeJson(res) || {};
+          } catch { /* Localização opcional */ }
         }
         const ata = String(item.numeroControlePNCPAta || '').match(/-(\d+)$/)?.[1];
         const linkCompraPNCP = ref ? pncpLink(ref[1], ref[3], Number(ref[2])) : '';
+        const linkAta = (ref && ata ? `https://pncp.gov.br/app/atas/${ref[1]}/${ref[3]}/${Number(ref[2])}/${Number(ata)}` : '') || linkCompraPNCP || '';
+        const valorAta = formatCurrency(item.valorTotalAta || item.valorTotal || item.valor || compra.valorTotalEstimado || compra.valorTotalHomologado);
+        const docs = [];
+        if (linkAta) docs.push({ titulo: `Ata SRP ${item.numeroAtaRegistroPreco || ''}`, url: linkAta, tipo: 'Ata de Registro de Preço' });
+        if (linkCompraPNCP) docs.push({ titulo: 'Processo PNCP', url: linkCompraPNCP, tipo: 'Processo PNCP' });
         const notice = { id: `arp-${item.numeroControlePNCPAta}`, fonte: 'Atas de Registro de Preços (PNCP)', fonteLogo: '📋', isSRP: true,
           numeroControlePNCP: item.numeroControlePNCPCompra, numeroControlePncpAta: item.numeroControlePNCPAta,
           titulo: item.objetoContratacao, orgao: item.nomeOrgao || item.nomeUnidadeOrgao || '', cnpjOrgao: item.cnpjOrgao,
           uf: compra.unidadeOrgao?.ufSigla || '', municipio: compra.unidadeOrgao?.municipioNome || '',
           dataPublicacao: item.dataPublicacaoPncp || item.dataAssinatura || item.vigenciaInicio,
-          dataEncerramento: item.vigenciaFim, valor: null, numero: item.numeroAtaRegistroPreco,
-          linkCompraPNCP, linkAtaPNCP: ref && ata ? `https://pncp.gov.br/app/atas/${ref[1]}/${ref[3]}/${Number(ref[2])}/${Number(ata)}` : '',
-          status: 'Ata de Registro de Preços', documentos: [] };
+          dataEncerramento: item.vigenciaFim, valor: valorAta, numero: item.numeroAtaRegistroPreco,
+          linkCompraPNCP, linkAtaPNCP: linkAta,
+          status: 'Ata de Registro de Preços', documentos: docs };
         notice.link = notice.linkAtaPNCP || linkCompraPNCP;
         if (uf && notice.uf !== uf) return null;
         if (cidade && !normalizeSearchText(notice.municipio).includes(normalizeSearchText(cidade))) return null;
@@ -1667,7 +1747,7 @@ async function buscarAtasSRP({ objeto, uf, cidade, pagina = 1, tamanhoPagina = 2
         let location = { uf: item.unidadeOrgaoUfSigla || '', municipio: item.unidadeOrgaoMunicipioNome || '' };
         if ((uf && !location.uf) || (cidade && !location.municipio)) {
           try { location = await getUasgLocation(item.codigoUnidadeGerenciadora); }
-          catch (err) { errors.push(`Atas SRP: ${err.message}`); }
+          catch { /* Localização uasg opcional */ }
         }
         // Só atas do recorte solicitado consomem o limite desta fonte.
         if (uf && String(location.uf).toUpperCase() !== String(uf).toUpperCase()) return null;

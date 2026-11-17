@@ -18,7 +18,14 @@ export function getNoticeValue(notice) {
 export function formatNoticeValue(notice) {
   if (notice.orcamentoSigiloso) return 'Orçamento sigiloso';
   const value = getNoticeValue(notice);
-  return value == null ? 'Não informado' : new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  if (value != null) {
+    return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+  }
+  const modalidade = String(notice.modalidade || notice.modalidadeNome || '').toLowerCase();
+  if (modalidade.includes('pregão') || modalidade.includes('pregao') || modalidade.includes('concorrência') || modalidade.includes('concorrencia') || modalidade.includes('disputa')) {
+    return 'A definir na disputa';
+  }
+  return 'Não informado';
 }
 
 export function parseNoticeDate(value, endOfDay = false) {
