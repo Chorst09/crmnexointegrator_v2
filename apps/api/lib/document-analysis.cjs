@@ -6,7 +6,7 @@ const { execFile } = require('child_process');
 const { promisify } = require('util');
 const exec = promisify(execFile);
 const { normalizeFicha } = require('./ficha-normalizer.cjs');
-const { extractCatalogTable } = require('./edital-table.cjs');
+const { extractCatalogTable, deduplicateItems } = require('./edital-table.cjs');
 const UNKNOWN = 'Não identificado';
 
 const clean = text => String(text || '').replace(/\u0000/g, '').replace(/\r/g, '\n').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
@@ -55,8 +55,18 @@ function analyzeText(documents, context = {}) {
   }
   if (agency !== UNKNOWN) evidence.orgao_comprador = agency;
 
-  const cnpjMatch = text.match(/(?:CNPJ(?:\/MF)?(?:\s*sob\s*o?\s*n[º°o.]?)?|inscri[cç][aã]o\s+no\s+CNPJ\s*[:\-]?)\s*[:\-]?\s*(\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})/iu);
-  const agencyCnpj = cnpjMatch ? cnpjMatch[1] : (context.cnpj || null);
+  const cnpjMatch = text.match(/(?:CNPJ(?:\/MF)?(?:\s*sob\s*o?\s*n[º°o.]?)?|inscri[cç][aã]o\s+no\s+CNPJ\s*[:\-]?)\s*[:\-]?\s*(\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})/iu) ||
+                     text.match(/\b(\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2})\b/);
+  let agencyCnpj = cnpjMatch ? cnpjMatch[1] : null;
+  if (!agencyCnpj) {
+    const pcaMatch = text.match(/\bID\s+PCA\s+(?:no\s+PNCP)?\s*[:\-]?\s*(\d{14})\b/iu) ||
+                     text.match(/\b(\d{14})-0-\d+\/\d{4}\b/iu);
+    if (pcaMatch) {
+      const c = pcaMatch[1];
+      agencyCnpj = c.replace(/^(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})$/, '$1.$2.$3/$4-$5');
+    }
+  }
+  agencyCnpj = agencyCnpj || context.cnpj || null;
   if (agencyCnpj) evidence.orgao_cnpj = agencyCnpj;
 
   // 2. PORTAL A LICITAR
@@ -118,7 +128,7 @@ function analyzeText(documents, context = {}) {
   if (total !== null && totals.length > 0) evidence.valor_estimado_total = totals.find(t => t.value === total)?.text;
 
   // 5. DATA DE ABERTURA
-  const openingSnippet = capture('data_abertura', /(?:data\s+(?:de|da)\s+abertura|abertura\s+(?:da\s+)?sess[aã]o|sess[aã]o\s+p[úu]blica|in[ií]cio\s+(?:da\s+)?disputa|data\s+(?:do\s+)?preg[aã]o|sess[aã]o\s+de\s+disputa)/iu, 2);
+  const openingSnippet = capture('data_abertura', /(?:data\s+(?:de|da)\s+abertura|abertura\s+(?:da\s+)?sess[aã]o|sess[aã]o\s+p[úu]blica|in[ií]cio\s+(?:da\s+)?disputa|data\s+(?:do\s+)?preg[aã]o|sess[aã]o\s+de\s+disputa)/iu, 3);
   let openingDate = openingSnippet.match(/\b\d{2}[\/.]\d{2}[\/.]\d{4}\b/)?.[0];
   if (!openingDate) {
     const extensoMatch = openingSnippet.match(/(\d{1,2})\s+de\s+([a-zç]+)\s+de\s+(\d{4})/iu);
@@ -128,21 +138,25 @@ function analyzeText(documents, context = {}) {
       if (m) openingDate = `${extensoMatch[1].padStart(2, '0')}/${m}/${extensoMatch[3]}`;
     }
   }
-  const openingTimeMatch = openingSnippet.match(/\b(\d{1,2})[:h](\d{2})\b/iu);
-  const openingTime = openingTimeMatch ? `${openingTimeMatch[1].padStart(2, '0')}:${openingTimeMatch[2]}` : null;
+  const openingTimeMatch = openingSnippet.match(/\b(\d{1,2})(?:[:h](\d{2})|h\b)/iu);
+  const openingTime = openingTimeMatch ? `${openingTimeMatch[1].padStart(2, '0')}:${(openingTimeMatch[2] || '00').padStart(2, '0')}` : null;
   const fullOpeningDate = openingDate ? `${openingDate}${openingTime ? ' às ' + openingTime : ''}` : (context.data_abertura || UNKNOWN);
 
   // 6. DATA LIMITE PARA ENVIO DE PROPOSTAS
   let proposalLimit = UNKNOWN;
-  if (/(?:recebimento|envio|acolhimento)\s+(?:das?\s+)?propostas?.*?(?:at[eé].*?abertura|at[eé]\s+o\s+in[ií]cio\s+da\s+sess[aã]o)/iu.test(text)) {
-    proposalLimit = fullOpeningDate !== UNKNOWN ? `Até a abertura da sessão (${fullOpeningDate})` : 'Até a data e horário de abertura da sessão pública';
+  const propUntilOpening = /(?:recebimento|envio|acolhimento|encaminhar[aã]o|apresenta[cç][aã]o)\s+(?:das?\s+|de\s+)?propostas?[\s\S]{0,160}?(?:at[eé].*?abertura|at[eé]\s+o\s+in[ií]cio\s+da\s+sess[aã]o)/iu.test(text);
+  if (propUntilOpening && fullOpeningDate !== UNKNOWN) {
+    proposalLimit = `Até a abertura da sessão (${fullOpeningDate})`;
   } else {
     const propSnippet = capture('data_limite_proposta', /(?:limite|encerramento|prazo\s+final|recebimento|acolhimento|receber)\s+(?:para\s+|de\s+|das\s+)?(?:envio\s+de\s+)?propostas/iu, 2);
     if (propSnippet !== UNKNOWN) {
       const propDate = propSnippet.match(/\b\d{2}[\/.]\d{2}[\/.]\d{4}\b/)?.[0];
-      const propTime = propSnippet.match(/\b\d{1,2}[:h]\d{2}\b/iu)?.[0];
+      const propTimeMatch = propSnippet.match(/\b(\d{1,2})(?:[:h](\d{2})|h\b)/iu);
+      const propTime = propTimeMatch ? `${propTimeMatch[1].padStart(2, '0')}:${(propTimeMatch[2] || '00').padStart(2, '0')}` : null;
       if (propDate) {
-        proposalLimit = `${propDate}${propTime ? ' às ' + propTime.replace('h', ':') : ''}`;
+        proposalLimit = `${propDate}${propTime ? ' às ' + propTime : ''}`;
+      } else if (fullOpeningDate !== UNKNOWN) {
+        proposalLimit = `Até a abertura da sessão (${fullOpeningDate})`;
       } else {
         proposalLimit = propSnippet.slice(0, 180);
       }
@@ -154,7 +168,7 @@ function analyzeText(documents, context = {}) {
   }
 
   // 7. ITENS, QUANTIDADES E VALORES DO TERMO DE REFERÊNCIA
-  const catalogItems = documents.flatMap(d => extractCatalogTable(d.text));
+  const catalogItems = deduplicateItems(documents.flatMap(d => extractCatalogTable(d.text)));
   const items = catalogItems.length ? catalogItems : [];
 
   if ((total === null || total === 0) && items.length > 0) {
