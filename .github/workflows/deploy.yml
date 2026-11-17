@@ -1,48 +1,39 @@
-# .github/workflows/deploy.yml
-name: Deploy 🚀
+name: Deploy CRM Nexo Integrator v2
 
 on:
   push:
-    branches: [main, master]
+    branches:
+      - main
   workflow_dispatch:
-    inputs:
-      domain:
-        description: 'Override production domain (optional)'
-        required: false
-        default: ''
 
 jobs:
   deploy:
+    name: Deploy to Integrator VPS
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Set up SSH agent
-        uses: webfactory/ssh-agent@v0.5.4
+      - name: Executar Deploy na VPS via SSH
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script_stop: true
+          script: |
+            cd /var/www/crmnexointegrator_v2
 
-      - name: Deploy to VPS via SSH
-        env:
-          SSH_HOST: ${{ secrets.SSH_HOST }}
-          SSH_USER: ${{ secrets.SSH_USER }}
-          PROD_DOMAIN: ${{ secrets.PROD_DOMAIN }}
-          DOMAIN_OVERRIDE: ${{ github.event.inputs.domain }}
-        run: |
-          TARGET_DOMAIN=${DOMAIN_OVERRIDE:-$PROD_DOMAIN}
-          echo "Deploying to $TARGET_DOMAIN ($SSH_HOST)"
-          ssh -o StrictHostKeyChecking=no ${SSH_USER}@${SSH_HOST} << 'EOF'
-            set -e
-            cd /var/www/${TARGET_DOMAIN}
-            echo "Pulling latest code..."
-            git fetch --all
+            echo ">>> Atualizando código a partir da branch main..."
+            git fetch origin main
             git reset --hard origin/main
-            echo "Installing dependencies..."
-            npm ci
-            echo "Building..."
+
+            echo ">>> Instalando dependências..."
+            npm install --production=false
+
+            echo ">>> Gerando build do projeto..."
             npm run build
-            echo "Restarting application..."
-            pm2 reload all || pm2 start ecosystem.config.cjs --env production
-            echo "Deploy finished"
-          EOF
+
+            echo ">>> Reiniciando aplicação no PM2..."
+            pm2 reload crmnexointegrator_v2_3025 || pm2 restart crmnexointegrator_v2_3025
+
+            echo ">>> Deploy finalizado com sucesso!"
