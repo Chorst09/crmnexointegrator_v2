@@ -134,7 +134,7 @@ const PNCP_HEADERS = {
 
 const PNCP_CACHE_TTL_MS = 5 * 60 * 1000;
 const PNCP_STALE_TTL_MS = 30 * 60 * 1000;
-const PNCP_CIRCUIT_OPEN_MS = 2 * 60 * 1000;
+const PNCP_CIRCUIT_OPEN_MS = 10 * 1000;
 const pncpCache = new Map();
 let pncpCircuitOpenUntil = 0;
 
@@ -1844,8 +1844,25 @@ const wrapWorker = async (id, fn, ...args) => {
     const result = await Promise.race([sourceScope.run(scope, () => fn(...args)), timeout]);
     const resultados = (result.resultados || []).map(item => ({ ...item, sourceId: id,
       origens: [{ id, nome: item.fonte || id, url: item.linkSistemaOrigem || item.link || '' }] }));
-    const status = result.errors?.length ? (resultados.length ? 'partial' : 'error') : result.fallback ? 'fallback' : 'ok';
-    const snapshot = { id, runId, status, lastRunAt: new Date().toISOString(), lastError: result.errors?.[0] || null, totalResults: resultados.length, fallback: result.fallback || null, warnings: result.warnings || [], durationMs: Date.now() - startedAt };
+    const isFatal = Boolean(result.fatalError);
+    const status = isFatal
+      ? 'error'
+      : result.errors?.length
+        ? (resultados.length ? 'partial' : (result.fallback ? 'fallback' : 'ok'))
+        : result.fallback
+          ? 'fallback'
+          : 'ok';
+    const snapshot = {
+      id,
+      runId,
+      status,
+      lastRunAt: new Date().toISOString(),
+      lastError: isFatal ? (result.errors?.[0] || 'Falha na consulta desta fonte') : (status === 'partial' ? result.errors?.[0] : null),
+      totalResults: resultados.length,
+      fallback: result.fallback || null,
+      warnings: result.warnings || [],
+      durationMs: Date.now() - startedAt
+    };
     setWorkerStatus(id, snapshot);
     return { ...result, resultados, fonteStatus: snapshot };
   } catch (err) {
@@ -1966,7 +1983,9 @@ router.get('/search', auth, async (req, res) => {
     for (const r of settled) {
       if (r.status === 'fulfilled') {
         todosResultados.push(...(r.value.resultados || []));
-        todosErros.push(...(r.value.errors || []));
+        if (r.value.fonteStatus?.status === 'error') {
+          todosErros.push(...(r.value.errors || []));
+        }
         if (r.value.fonteStatus) statusFontes.push({ ...r.value.fonteStatus, nome: WORKER_CATALOG.find(w => w.id === r.value.fonteStatus.id)?.nome || r.value.fonteStatus.id });
       } else {
         todosErros.push(r.reason?.message || 'Erro desconhecido');
@@ -2007,6 +2026,7 @@ router.get('/search', auth, async (req, res) => {
       }
     }
 
+    const errosDeduplicados = Array.from(new Set(todosErros.filter(Boolean)));
     res.json({
       data: ordenados.map(item => ({ ...item, classificacaoTI: {
         ...ti.classifyITNotice(item),
@@ -2020,7 +2040,7 @@ router.get('/search', auth, async (req, res) => {
       periodoConsulta: { dataInicio, dataFim },
       avisoPeriodo: avisoPeriodo || undefined,
       fontesConsultadas: statusFontes.map(source => source.id),
-      erros: todosErros.length > 0 ? todosErros : undefined,
+      erros: errosDeduplicados.length > 0 ? errosDeduplicados : undefined,
       timestamp: new Date().toISOString()
     });
   } catch (err) {
