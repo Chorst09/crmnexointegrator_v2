@@ -280,7 +280,7 @@ export default function KanbanBoard({
     <div className="h-full flex flex-col bg-transparent overflow-hidden text-[var(--crm-ink)] font-sans">
       <style>{printStyles}</style>
       {/* Toolbar com botões de exportação */}
-      <div className="flex items-center justify-between px-6 py-3 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.5)]">
+      <div className="flex flex-wrap items-center justify-between px-3 sm:px-6 py-2.5 sm:py-3 border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.5)] gap-2">
         <h2 className="text-sm font-bold text-[var(--crm-ink)] flex items-center gap-2">
           <span>Quadro Kanban</span>
           <span className="text-xs text-[var(--crm-muted)] font-normal">
@@ -291,33 +291,33 @@ export default function KanbanBoard({
           <button
             onClick={printBoard}
             disabled={isExportingPDF}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[var(--crm-ink)] bg-transparent border border-[var(--crm-border)] rounded-md hover:border-[#2563eb] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-[var(--crm-ink)] bg-transparent border border-[var(--crm-border)] rounded-md hover:border-[#2563eb] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Imprimir quadro"
           >
-            <Printer className="w-4 h-4" />
-            Imprimir
+            <Printer className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Imprimir</span>
           </button>
           <button
             onClick={exportToPDF}
             disabled={isExportingPDF}
-            className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#2563eb] rounded-md hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 text-xs font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#2563eb] rounded-md hover:bg-[#1d4ed8] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title="Exportar para PDF"
           >
-            <FileDown className="w-4 h-4" />
-            {isExportingPDF ? 'Exportando...' : 'Exportar PDF'}
+            <FileDown className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">{isExportingPDF ? 'Exportando...' : 'Exportar PDF'}</span>
           </button>
         </div>
       </div>
 
-      <div ref={boardContainerRef} id="kanban-board-container" className="flex-1 overflow-x-auto overflow-y-hidden p-6 custom-scrollbar">
-        <div className="flex gap-5 items-start h-full pb-4 pr-6">{columns.map(column => {
+      <div ref={boardContainerRef} id="kanban-board-container" className="flex-1 overflow-x-auto overflow-y-hidden p-3 sm:p-6 custom-scrollbar snap-x snap-mandatory">
+        <div className="flex gap-3.5 sm:gap-5 items-start h-full pb-4 pr-4 sm:pr-6">{columns.map(column => {
             const columnIssues = sortIssuesBySequence(issues.filter(i => i.status === column.id));
             const isDragActive = dragOverCol === column.id;
 
             return (
               <div
                 key={column.id}
-                className="w-[320px] flex-shrink-0 flex flex-col h-full min-h-0"
+                className="w-[82vw] max-w-[320px] sm:w-[320px] flex-shrink-0 flex flex-col h-full min-h-0 snap-center"
                 onDragOver={(e) => handleDragOver(e, column.id)}
                 onDrop={(e) => handleDrop(e, column.id)}
               >
