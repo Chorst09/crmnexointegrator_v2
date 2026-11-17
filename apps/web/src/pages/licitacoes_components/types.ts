@@ -105,6 +105,7 @@ export interface ExigenciaContabil {
 }
 
 export interface RequisitosHabilitacao {
+  habilitacao_juridica?: string[];
   atestados_capacidade_tecnica: string[];
   certidoes_e_registros_especificos: string[];
   exigencias_contabeis: ExigenciaContabil[];
@@ -128,9 +129,12 @@ export interface RegrasVistoria {
 export interface PontosDeAtencaoRisco {
   regras_vistoria: RegrasVistoria;
   exigencia_amostra?: string;
+  exigencia_amostra_poc?: string;
   garantia_contratual?: string;
+  clausulas_punitivas_multas?: string[];
   indices_liquidacao_risco?: string[];
   penalidades_multas?: string[];
+  pontos_de_atencao_gerais?: string[];
   outros_riscos?: string[];
 }
 
@@ -144,6 +148,7 @@ export interface FichaTecnicaEditalTR {
   id?: string;
   id_licitacao: string;
   orgao_comprador: string;
+  orgao_cnpj?: string | null;
   resumo_executivo: string;
   modalidade_contratacao?: string;
   criterio_julgamento?: string;
@@ -151,6 +156,7 @@ export interface FichaTecnicaEditalTR {
   data_abertura?: string;
   data_limite_proposta?: string;
   data_fim_esclarecimento?: string;
+  data_fim_impugnacao?: string;
   valor_estimado_total?: number | null;
   portal_compras?: string;
   requisitos_habilitacao: RequisitosHabilitacao;
