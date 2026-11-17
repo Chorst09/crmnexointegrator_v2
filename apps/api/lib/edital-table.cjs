@@ -170,19 +170,26 @@ function extractCguApendiceItems(text) {
 // 2. Extração para tabelas delimitadas (| ou múltiplos ponto-e-vírgulas em CSV)
 function extractTableDelimited(lines) {
   const items = [];
-  const tableLines = lines.filter(l => l.includes('|') || (l.match(/;/g) || []).length >= 2);
-  if (tableLines.length < 2) return [];
+  const pipeLines = lines.filter(l => l.includes('|'));
+  const hasPipeData = pipeLines.some(l => /^\s*\|?\s*\d{1,4}\s*\|/u.test(l));
 
-  const headerIdx = tableLines.findIndex(l => 
-    /(?:item|lote)/iu.test(l) && 
-    /(?:descri|objeto|especifica|produto)/iu.test(l) && 
-    /(?:quant|qtd|unid|valor|pre[cç]o)/iu.test(l)
-  );
+  let startLines = [];
+  if (hasPipeData) {
+    startLines = pipeLines;
+  } else {
+    const tableLines = lines.filter(l => (l.match(/;/g) || []).length >= 2);
+    if (tableLines.length < 2) return [];
 
-  // Sem cabeçalho legítimo, evita capturar frases narrativas
-  if (headerIdx < 0) return [];
+    const headerIdx = tableLines.findIndex(l => 
+      /(?:item|lote)/iu.test(l) && 
+      /(?:descri|objeto|especifica|produto)/iu.test(l) && 
+      /(?:quant|qtd|unid|valor|pre[cç]o)/iu.test(l)
+    );
 
-  const startLines = tableLines.slice(headerIdx + 1);
+    // Sem cabeçalho legítimo para CSV, evita capturar frases narrativas
+    if (headerIdx < 0) return [];
+    startLines = tableLines.slice(headerIdx + 1);
+  }
 
   for (const line of startLines) {
     if (/^\s*\|?\s*[-:=+\s|]+\s*\|?\s*$/.test(line)) continue;
@@ -190,7 +197,7 @@ function extractTableDelimited(lines) {
 
     const delim = line.includes('|') ? '|' : ';';
     const parts = line.split(delim).map(p => p.trim()).filter((p, i, arr) => !(i === 0 && p === '') && !(i === arr.length - 1 && p === ''));
-    if (parts.length < 3) continue;
+    if (parts.length < 2) continue;
 
     const itemMatch = parts[0].match(/^(?:item|lote)?\s*(\d{1,4})/iu);
     if (!itemMatch) continue;
@@ -249,6 +256,44 @@ function extractTableDelimited(lines) {
   }
 
   return deduplicateItems(items);
+}
+
+// 2b. Extração para minuta com layout colunar posicional e quebras de descrição entre linhas
+function extractCuritibaDraftTable(text) {
+  const lines = String(text || '').split(/\r?\n|\f/);
+  const header = lines.findIndex(line => /ITEM\s+C[ÓO]DIGO\s+DESCRI[CÇ][AÃ]O\s+QTDE/i.test(line));
+  if (header < 0) return [];
+  const descriptionColumn = lines[header].search(/DESCRI[CÇ][AÃ]O/i);
+  const quantityColumn = lines[header].search(/QTDE/i);
+  const rows = [];
+  let gap = [];
+  let last;
+  for (const line of lines.slice(header + 1)) {
+    if (/^\s*\d+\.\d+\.\s/.test(line) || /^\s*(?:TOTAL\s+GLOBAL|GLOBAL)\s*$/i.test(line)) break;
+    const match = line.match(/^\s*(\d+)\s+(\d{2}\.\d{2}\.\d{2}\.\d{5}-\d)\s+(.*?)\s*(\d[\d.,]*)\s+(R\$\s*[\dxX.,]+)\s+(R\$\s*[\dxX.,]+)\s*$/i);
+    if (match) {
+      const ownDescription = match[3].trim();
+      let previousCount = Math.floor(gap.length / 2);
+      if (gap.length % 2 && last && (!last.ownDescription || ownDescription)) previousCount++;
+      if (!last) previousCount = 0;
+      if (last) last.description.push(...gap.slice(0, previousCount));
+      const row = {
+        item_numero: Number(match[1]), codigo_catalogo: match[2],
+        quantitativo: parseNumber(match[4]),
+        valor_estimado_unitario: parseNumber(match[5]), valor_estimado_total: parseNumber(match[6]),
+        ownDescription, description: [...gap.slice(previousCount), ...(ownDescription ? [ownDescription] : [])]
+      };
+      rows.push(row); last = row; gap = [];
+    } else if (last && /^\s{12,}\S/.test(line) && !/^\s*(?:PROCESSO|VALOR|UNIT[ÁA]RIO|TOTAL|GLOBAL)/i.test(line)) {
+      const detail = line.slice(descriptionColumn - 2, quantityColumn).trim();
+      if (detail && !/R\$/.test(detail)) gap.push(detail);
+    }
+  }
+  if (last) last.description.push(...gap);
+  return rows.map(({ ownDescription, description, ...row }) => ({ ...row,
+    especificacao_sucinta: description.join(' ').replace(/\s+/g, ' ').trim(),
+    unidade: 'Não identificado'
+  }));
 }
 
 // 3. Extração para tabelas posicionais / colunares
@@ -393,6 +438,12 @@ function extractCatalogTable(text) {
   try {
     const cguItems = extractCguApendiceItems(text);
     if (cguItems.length > 0) candidates.push(cguItems);
+  } catch (e) {}
+
+  // 1b. Minuta com layout colunar e wrapping de texto (Curitiba / Municípios)
+  try {
+    const draftItems = extractCuritibaDraftTable(text);
+    if (draftItems.length > 0) candidates.push(draftItems);
   } catch (e) {}
 
   // 2. Tabela delimitada (| ou CSV com ;)
