@@ -33,7 +33,7 @@ import {
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import ModernTable from '../components/ModernTable';
 import GradientCard from '../components/GradientCard';
 import Modal from '../components/Modal';
@@ -514,21 +514,21 @@ const PosVenda = () => {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AnimatedStats
+        <DashboardKPICard
           title="Onboardings Ativos"
           value={onboardings.filter(o => o.status === 'IN_PROGRESS').length}
           subtitle={`${onboardings.length} total`}
           icon={UserCheck}
           color="blue"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Tickets Abertos"
           value={tickets.filter(t => ['OPEN', 'IN_PROGRESS'].includes(t.status)).length}
           subtitle="SLA médio: 24h"
           icon={HeadphonesIcon}
           color="green"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="NPS Médio"
           value={npsData.length > 0 
             ? (npsData.reduce((sum, survey) => sum + (survey.score || 0), 0) / npsData.length).toFixed(1)
@@ -538,7 +538,7 @@ const PosVenda = () => {
           icon={Award}
           color="yellow"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Alertas de Churn"
           value={churnAlerts.filter(a => a.status === 'ACTIVE').length}
           subtitle={`${churnAlerts.filter(a => a.riskLevel === 'CRITICAL').length} críticos`}

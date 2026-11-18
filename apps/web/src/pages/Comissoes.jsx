@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import ModernTable from '../components/ModernTable';
 import Modal from '../components/Modal';
 import { API_ENDPOINTS, getAuthHeaders } from '../config/api';
@@ -392,10 +392,10 @@ export default function Comissoes() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
-        <AnimatedStats title="Total" value={Math.round(totals.total)} prefix="R$ " subtitle="No periodo" icon={Receipt} color="blue" />
-        <AnimatedStats title="Pagas" value={Math.round(totals.paid)} prefix="R$ " subtitle="Liquidadas" icon={Check} color="green" />
-        <AnimatedStats title="Aprovadas" value={Math.round(totals.approved)} prefix="R$ " subtitle="Aguardando pagamento" icon={DollarSign} color="purple" />
-        <AnimatedStats title="Pendentes" value={Math.round(totals.pending)} prefix="R$ " subtitle="Para revisar" icon={X} color="orange" />
+        <DashboardKPICard title="Total" value={Math.round(totals.total)} prefix="R$ " subtitle="No periodo" icon={Receipt} color="blue" />
+        <DashboardKPICard title="Pagas" value={Math.round(totals.paid)} prefix="R$ " subtitle="Liquidadas" icon={Check} color="green" />
+        <DashboardKPICard title="Aprovadas" value={Math.round(totals.approved)} prefix="R$ " subtitle="Aguardando pagamento" icon={DollarSign} color="purple" />
+        <DashboardKPICard title="Pendentes" value={Math.round(totals.pending)} prefix="R$ " subtitle="Para revisar" icon={X} color="orange" />
       </div>
 
       <section className="mb-8 overflow-hidden rounded-2xl border border-[var(--crm-border)] bg-[var(--crm-surface)] shadow-sm">

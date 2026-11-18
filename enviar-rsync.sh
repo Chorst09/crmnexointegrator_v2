@@ -18,7 +18,7 @@ fi
 echo "✅ Diretório correto"
 echo ""
 
-SERVER="root@72.60.195.200"
+SERVER="root@209.50.241.25"
 REMOTE_DIR="/var/www/crm-comercial"
 
 # Testar conexão SSH

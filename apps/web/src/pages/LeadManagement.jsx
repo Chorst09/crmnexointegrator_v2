@@ -24,7 +24,7 @@ import {
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import GradientCard from '../components/GradientCard';
 import Modal from '../components/Modal';
 import { normalizeClientType } from '../utils/businessModel';
@@ -1181,7 +1181,7 @@ export default function LeadManagement() {
         <div className={compactB2B ? 'space-y-4' : 'space-y-8'}>
           {/* Estatísticas de Lead Scoring */}
           <div className={compactB2B ? 'grid grid-cols-2 xl:grid-cols-4 gap-3' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'}>
-            <AnimatedStats
+            <DashboardKPICard
               size={compactB2B ? 'dense' : 'default'}
               title="Hot Leads"
               value={leadStats.hotLeads || 0}
@@ -1191,7 +1191,7 @@ export default function LeadManagement() {
               trend={{ direction: 'up', value: '+12% esta semana' }}
             />
             
-            <AnimatedStats
+            <DashboardKPICard
               size={compactB2B ? 'dense' : 'default'}
               title="Warm Leads"
               value={leadStats.warmLeads || 0}
@@ -1201,7 +1201,7 @@ export default function LeadManagement() {
               trend={{ direction: 'up', value: '+8% esta semana' }}
             />
             
-            <AnimatedStats
+            <DashboardKPICard
               size={compactB2B ? 'dense' : 'default'}
               title="Cold Leads"
               value={leadStats.coldLeads || 0}
@@ -1211,7 +1211,7 @@ export default function LeadManagement() {
               trend={{ direction: 'down', value: '-3% esta semana' }}
             />
             
-            <AnimatedStats
+            <DashboardKPICard
               size={compactB2B ? 'dense' : 'default'}
               title="Low Priority"
               value={leadStats.lowPriority || 0}

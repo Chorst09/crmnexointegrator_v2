@@ -78,7 +78,7 @@ ChartJS.register(
   Legend
 );
 
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import B2GFunnelStrategic from '../components/B2GFunnelStrategic';
 import DashboardKPICard from '../components/DashboardKPICard';
 import DashboardAdvancedChart from '../components/DashboardAdvancedChart';
@@ -5942,28 +5942,28 @@ export default function B2GEditais() {
       ) : activeTab === 'leads' ? (
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <AnimatedStats
+            <DashboardKPICard
               title="Leads filtrados"
               value={filteredLeads.length}
               subtitle="Base atual"
               icon={Users}
               color="blue"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Prospects"
               value={filteredLeads.filter((item) => item?.status === 'PROSPECT').length}
               subtitle="Em qualificação"
               icon={Target}
               color="purple"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Hot leads"
               value={filteredLeads.filter((item) => Number(item?.leadScore || 0) >= 80).length}
               subtitle="Score 80+"
               icon={AlertTriangle}
               color="orange"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Cobertura UF"
               value={leadRegionalCoverage}
               subtitle="Estados com lead"
@@ -6050,28 +6050,28 @@ export default function B2GEditais() {
       ) : activeTab === 'oportunidades' ? (
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <AnimatedStats
+            <DashboardKPICard
               title="Oportunidades"
               value={filteredOpportunities.length}
               subtitle="Pipeline filtrado"
               icon={Target}
               color="blue"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Em aberto"
               value={openOpportunitiesCount}
               subtitle="Sem ganho/perda"
               icon={Workflow}
               color="purple"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Alta probabilidade"
               value={highProbabilityOpportunities}
               subtitle="Probabilidade 70%+"
               icon={TrendingUp}
               color="green"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Ganhas"
               value={
                 filteredOpportunities.filter(
@@ -7266,28 +7266,28 @@ export default function B2GEditais() {
       ) : activeTab === 'resumos' ? (
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <AnimatedStats
+            <DashboardKPICard
               title="Resumos gerados"
               value={summaries.length}
               subtitle="Editais com resumo"
               icon={FileText}
               color="blue"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Cobertura"
               value={summaryCoverage}
               subtitle="% dos editais filtrados"
               icon={BarChart3}
               color="purple"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Com análise AI"
               value={summaries.filter((item) => !!item?.aiAnalysis).length}
               subtitle="Parecer completo"
               icon={Brain}
               color="green"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Sem resumo"
               value={Math.max(filteredNotices.length - summaries.length, 0)}
               subtitle="Pendentes de geração"
@@ -7384,28 +7384,28 @@ export default function B2GEditais() {
         <><div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 flex-1">
-              <AnimatedStats
+              <DashboardKPICard
                 title="Atas RP"
                 value={atasStats.total}
                 subtitle="Total filtrado"
                 icon={Landmark}
                 color="blue"
               />
-              <AnimatedStats
+              <DashboardKPICard
                 title="Ativas"
                 value={atasStats.active}
                 subtitle="Não encerradas"
                 icon={CheckCircle2}
                 color="green"
               />
-              <AnimatedStats
+              <DashboardKPICard
                 title="Em análise"
                 value={atasStats.inProgress}
                 subtitle="Status em andamento"
                 icon={Brain}
                 color="purple"
               />
-              <AnimatedStats
+              <DashboardKPICard
                 title="Enviadas"
                 value={atasStats.sent}
                 subtitle="Fase final"
@@ -7648,28 +7648,28 @@ export default function B2GEditais() {
       ) : activeTab === 'atividades' ? (
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <AnimatedStats
+            <DashboardKPICard
               title="Atividades"
               value={activitiesStats.total}
               subtitle="Total filtrado"
               icon={Workflow}
               color="blue"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Em aberto"
               value={activitiesStats.open}
               subtitle="Pendentes ou em andamento"
               icon={CalendarClock}
               color="purple"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Vencendo em 7 dias"
               value={activitiesStats.dueSoon}
               subtitle="Prioridade operacional"
               icon={AlertTriangle}
               color="orange"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Atrasadas"
               value={activitiesStats.overdue}
               subtitle="Necessita ação imediata"
@@ -7930,21 +7930,21 @@ export default function B2GEditais() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-3">
-            <AnimatedStats
+            <DashboardKPICard
               title="Documentos válidos"
               value={documentationStats.valid}
               subtitle="Em conformidade"
               icon={CheckCircle2}
               color="green"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Próximos ao vencimento"
               value={documentationStats.expiring}
               subtitle={`Até ${B2G_REPOSITORY_EXPIRING_THRESHOLD_DAYS} dias`}
               icon={Clock3}
               color="orange"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Documentos expirados"
               value={documentationStats.expired}
               subtitle="Necessitam renovação"
@@ -8189,28 +8189,28 @@ export default function B2GEditais() {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <AnimatedStats
+            <DashboardKPICard
               title="Total no histórico"
               value={historicalOutcomeOpportunities.length}
               subtitle="NO GO, perdidas e ganhas"
               icon={History}
               color="blue"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="NO GO"
               value={historicalNoGoCount}
               subtitle="Encerradas por inviabilidade"
               icon={AlertTriangle}
               color="orange"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Perdidas"
               value={historicalLostCount}
               subtitle="Status perdido"
               icon={Target}
               color="purple"
             />
-            <AnimatedStats
+            <DashboardKPICard
               title="Ganhas"
               value={historicalWonCount}
               subtitle="Status ganho"

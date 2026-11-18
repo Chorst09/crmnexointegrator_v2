@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import ModernTable from '../components/ModernTable';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
 import { API_ENDPOINTS, getAuthHeaders } from '../config/api';
@@ -411,27 +411,27 @@ export default function MetasPerformance() {
       )}
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <AnimatedStats
+        <DashboardKPICard
           title="Meta Total"
           value={formatCurrency(totalTargetValue)}
           icon="🎯"
           color="blue"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Realizado"
           value={formatCurrency(totalRealized)}
           subtitle={`${formatPercent(averageProgress)} da meta`}
           icon="💰"
           color="green"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Metas Atingidas"
           value={`${achievedTargets}/${salesTargets.length}`}
           subtitle={`${salesTargets.length > 0 ? ((achievedTargets / salesTargets.length) * 100).toFixed(1) : 0}% de sucesso`}
           icon="🏆"
           color="yellow"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Comissões Ganhas"
           value={formatCurrency(totalCommissions)}
           subtitle={`${formatCurrency(totalPendingCommissions)} pendente`}

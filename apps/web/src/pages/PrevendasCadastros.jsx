@@ -34,7 +34,7 @@ import {
 } from 'lucide-react';
 
 import { buildApiUrl, getAuthHeaders } from '../config/api';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
 import { applyPipelineOpportunity, filterPipelineOpportunities, getPipelineClient, getPipelineType } from '../utils/pipeline-opportunity.mjs';
@@ -2596,7 +2596,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {stats.map((item) => (
-          <AnimatedStats key={item.title} {...item} />
+          <DashboardKPICard key={item.title} {...item} />
         ))}
       </div>
 

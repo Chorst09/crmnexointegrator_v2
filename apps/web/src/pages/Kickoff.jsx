@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import ModernTable from '../components/ModernTable';
 import GradientCard from '../components/GradientCard';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
@@ -694,35 +694,35 @@ const Kickoff = () => {
 
       {/* Métricas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-        <AnimatedStats
+        <DashboardKPICard
           title="Total de Reuniões"
           value={stats?.total || 0}
           subtitle="Todos os status"
           icon={Rocket}
           color="indigo"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Agendadas"
           value={getStatusCount('AGENDADA')}
           subtitle="Aguardando realização"
           icon={Calendar}
           color="blue"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Realizadas"
           value={getStatusCount('REALIZADA')}
           subtitle="Concluídas com sucesso"
           icon={CheckCircle2}
           color="green"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Reagendadas"
           value={getStatusCount('REAGENDADA')}
           subtitle="Nova data definida"
           icon={Clock}
           color="yellow"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Canceladas"
           value={getStatusCount('CANCELADA')}
           subtitle="Não realizadas"

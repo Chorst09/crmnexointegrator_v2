@@ -28,9 +28,10 @@ import {
 import { Line, Doughnut } from 'react-chartjs-2';
 
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
+
 import GradientCard from '../components/GradientCard';
-import SalesFunnel from '../components/SalesFunnel';
+import FunnelChart from '../components/FunnelChart';
 
 // Registrar componentes do Chart.js
 ChartJS.register(
@@ -240,40 +241,40 @@ export default function Dashboard() {
 
       {/* KPIs Principais */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AnimatedStats
+        <DashboardKPICard
           title="Pipeline Total"
           value={formatCurrency(kpis.pipelineValue)}
           subtitle={`${kpis.totalOpportunities} leads no funil`}
           icon={Target}
-          color="blue"
-          trend={{ direction: 'up', value: `+${kpis.monthlyGrowth}% este mês` }}
+          colorTheme="blue"
+          trend={kpis.monthlyGrowth}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Receita Fechada"
           value={formatCurrency(kpis.wonValue)}
           subtitle={`${kpis.wonOpportunities} vendas concluídas`}
           icon={DollarSign}
-          color="green"
-          trend={{ direction: 'up', value: '+18% vs mês anterior' }}
+          colorTheme="green"
+          trend={18}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Taxa de Conversão"
           value={formatPercent(kpis.conversionRate)}
           subtitle="Do lead até o fechamento"
           icon={TrendingUp}
-          color="yellow"
-          trend={{ direction: 'up', value: '+1.2% este mês' }}
+          colorTheme="yellow"
+          trend={1.2}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Ticket Médio"
           value={formatCurrency(kpis.avgTicket)}
           subtitle={`${kpis.totalCompanies} empresas ativas`}
           icon={Award}
-          color="purple"
-          trend={{ direction: 'up', value: '+8.5% vs média' }}
+          colorTheme="purple"
+          trend={8.5}
         />
       </div>
 
@@ -291,7 +292,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="h-96">
-            <SalesFunnel data={charts.funnel} />
+            <FunnelChart data={charts.funnel} />
           </div>
         </GradientCard>
 

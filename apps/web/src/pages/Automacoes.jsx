@@ -31,7 +31,7 @@ import {
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import ModernTable from '../components/ModernTable';
 import GradientCard from '../components/GradientCard';
 import Modal from '../components/Modal';
@@ -817,7 +817,7 @@ const Automacoes = () => {
 
       {/* Métricas Resumo */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AnimatedStats
+        <DashboardKPICard
           title="Workflows Ativos"
           value={workflows.filter(w => isWorkflowActive(w)).length}
           subtitle={`${workflows.length} total`}
@@ -826,7 +826,7 @@ const Automacoes = () => {
           trend={{ direction: 'up', value: '+3 este mês' }}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Regras Ativas"
           value={automationRules.filter(r => r.active).length}
           subtitle={`${automationRules.length} total`}
@@ -835,7 +835,7 @@ const Automacoes = () => {
           trend={{ direction: 'up', value: '+2 esta semana' }}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Notificações Hoje"
           value={notifications.filter(n => {
             const today = new Date().toDateString();
@@ -847,7 +847,7 @@ const Automacoes = () => {
           trend={{ direction: 'up', value: '+15% hoje' }}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Taxa de Sucesso"
           value={workflows.length ? '96' : '0'}
           suffix="%"

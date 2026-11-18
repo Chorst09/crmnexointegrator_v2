@@ -25,7 +25,7 @@ import {
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import Modal from '../components/Modal';
 import { API_ENDPOINTS, getAuthHeaders } from '../config/api';
 
@@ -470,10 +470,10 @@ export default function Integracoes() {
 
       {/* KPIs */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <AnimatedStats title="Plataformas" value={CRM_PLATFORMS.length} subtitle="Disponíveis" icon={PlugZap} color="blue" />
-        <AnimatedStats title="Conectadas" value={connectedCount} subtitle="Ativas" icon={CheckCircle2} color="green" />
-        <AnimatedStats title="Configuradas" value={configuredCount} subtitle="Com credenciais" icon={Key} color="purple" />
-        <AnimatedStats title="Customizadas" value={integracoes.filter(i => i.isActive).length} subtitle="Ativas" icon={Webhook} color="orange" />
+        <DashboardKPICard title="Plataformas" value={CRM_PLATFORMS.length} subtitle="Disponíveis" icon={PlugZap} color="blue" />
+        <DashboardKPICard title="Conectadas" value={connectedCount} subtitle="Ativas" icon={CheckCircle2} color="green" />
+        <DashboardKPICard title="Configuradas" value={configuredCount} subtitle="Com credenciais" icon={Key} color="purple" />
+        <DashboardKPICard title="Customizadas" value={integracoes.filter(i => i.isActive).length} subtitle="Ativas" icon={Webhook} color="orange" />
       </div>
 
       {/* Tabs */}

@@ -392,7 +392,7 @@ const Contratos = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AnimatedStats
+        <DashboardKPICard
           title="Total de Contratos"
           value={stats.total}
           subtitle="Todos os contratos"
@@ -401,7 +401,7 @@ const Contratos = () => {
           trend={{ direction: 'up', value: '+12% este mês' }}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Contratos Ativos"
           value={stats.active}
           subtitle="Em vigência"
@@ -410,7 +410,7 @@ const Contratos = () => {
           trend={{ direction: 'up', value: '+5% este mês' }}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Valor Total"
           value={stats.totalValue}
           subtitle="Receita contratada"
@@ -420,7 +420,7 @@ const Contratos = () => {
           trend={{ direction: 'up', value: '+18% este mês' }}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Vencendo em 30 dias"
           value={stats.expiringSoon}
           subtitle="Requer atenção"

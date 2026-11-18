@@ -1,0 +1,37 @@
+/* -------------------------------------------------
+   NEXOS – Design Tokens (pixel‑perfect)
+   ------------------------------------------------- */
+:root {
+  /* 1️⃣ Fundo principal */
+  --c-bg-primary: #0a0e2a;               /* azul‑marinho profundo */
+
+  /* 2️⃣ Paleta neon (ciano, azul elétrico, laranja, verde, vermelho) */
+  --c-neon-cyan:   #00e5ff;
+  --c-neon-blue:   #1e90ff;
+  --c-neon-orange:#ff7a00;
+  --c-neon-green:  #7cff00;
+  --c-neon-red:    #ff2d2d;
+
+  /* 3️⃣ Transparências (glassmorphism) */
+  --glass-bg:       rgba(10,14,42,0.68);
+  --glass-blur:     blur(12px);
+  --glass-border:   1px solid rgba(255,255,255,0.12);
+
+  /* 4️⃣ Sombras e profundidade */
+  --shadow-card:    0 4px 12px rgba(0,0,0,0.45);
+  --shadow-neon:    0 0 8px var(--c-neon-cyan), 0 0 16px var(--c-neon-cyan);
+}
+
+/* Componentes base – reutilizáveis */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: var(--glass-border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-card);
+}
+.neon-badge {
+  background: var(--c-neon-cyan);
+  box-shadow: var(--shadow-neon);
+  color: #000;
+}

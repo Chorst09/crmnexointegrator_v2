@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ModernTable from '../components/ModernTable';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import Modal from '../components/Modal';
 
 export default function MetasPerformance() {

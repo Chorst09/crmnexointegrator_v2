@@ -21,7 +21,7 @@ import {
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import ModernTable from '../components/ModernTable';
 import GradientCard from '../components/GradientCard';
 import Modal from '../components/Modal';
@@ -442,7 +442,7 @@ const Contratos = () => {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AnimatedStats
+        <DashboardKPICard
           title="Total de Contratos"
           value={stats.total}
           subtitle="Todos os contratos"
@@ -450,7 +450,7 @@ const Contratos = () => {
           color="blue"
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Contratos Ativos"
           value={stats.active}
           subtitle="Em vigência"
@@ -458,7 +458,7 @@ const Contratos = () => {
           color="green"
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Valor Total"
           value={stats.totalValue}
           subtitle="Receita contratada"
@@ -467,7 +467,7 @@ const Contratos = () => {
           prefix="R$ "
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           title="Vencendo em 30 dias"
           value={stats.expiringSoon}
           subtitle="Requer atenção"

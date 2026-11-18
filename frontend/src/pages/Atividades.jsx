@@ -16,7 +16,7 @@ import {
 
 import { buildApiUrl, getAuthHeaders } from '../config/api';
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import ModernTable from '../components/ModernTable';
 import Modal from '../components/Modal';
 import {
@@ -427,8 +427,8 @@ export default function Atividades() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 mb-8">
-        <AnimatedStats title="Total" value={kpis.total} subtitle="Atividades" icon={Calendar} color="blue" />
-        <AnimatedStats title="Pendentes" value={kpis.pending} subtitle="Aguardando inicio" icon={RefreshCcw} color="orange" />
+        <DashboardKPICard title="Total" value={kpis.total} subtitle="Atividades" icon={Calendar} color="blue" />
+        <DashboardKPICard title="Pendentes" value={kpis.pending} subtitle="Aguardando inicio" icon={RefreshCcw} color="orange" />
         <AnimatedStats title="Em andamento" value={kpis.inProgress} subtitle="Sendo executadas" icon={RefreshCcw} color="purple" />
         <AnimatedStats title="Concluidas" value={kpis.completed} subtitle="Finalizadas" icon={CheckSquare} color="green" />
         <AnimatedStats title="Atrasadas" value={kpis.overdue} subtitle="Requer atencao" icon={X} color="red" />

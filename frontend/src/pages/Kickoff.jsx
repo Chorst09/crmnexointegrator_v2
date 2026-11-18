@@ -28,7 +28,7 @@ import {
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import ModernTable from '../components/ModernTable';
 import GradientCard from '../components/GradientCard';
 import { buildApiUrl, getAuthHeaders } from '../config/api';

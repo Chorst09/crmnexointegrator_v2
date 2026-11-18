@@ -11,7 +11,7 @@ import {
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import ModernTable from '../components/ModernTable';
 import Modal from '../components/Modal';
 import { API_ENDPOINTS, getAuthHeaders } from '../config/api';
@@ -230,12 +230,12 @@ export default function Produtos() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-6 gap-4 mb-8">
-        <AnimatedStats title="Total" value={kpis.total} subtitle="Produtos" icon={Package} color="blue" />
-        <AnimatedStats title="Ativos" value={kpis.active} subtitle="Disponiveis" icon={ToggleRight} color="green" />
-        <AnimatedStats title="Inativos" value={kpis.inactive} subtitle="Desabilitados" icon={ToggleLeft} color="orange" />
-        <AnimatedStats title="Categorias" value={kpis.categories} subtitle="Grupos" icon={Tag} color="purple" />
-        <AnimatedStats title="Preco medio" value={Number(kpis.avgPrice.toFixed(0))} prefix="R$ " subtitle="Base" icon={DollarSign} color="yellow" />
-        <AnimatedStats title="Margem media" value={Number(kpis.avgMargin.toFixed(1))} suffix="%" subtitle="Estimativa" icon={Percent} color="red" />
+        <DashboardKPICard title="Total" value={kpis.total} subtitle="Produtos" icon={Package} color="blue" />
+        <DashboardKPICard title="Ativos" value={kpis.active} subtitle="Disponiveis" icon={ToggleRight} color="green" />
+        <DashboardKPICard title="Inativos" value={kpis.inactive} subtitle="Desabilitados" icon={ToggleLeft} color="orange" />
+        <DashboardKPICard title="Categorias" value={kpis.categories} subtitle="Grupos" icon={Tag} color="purple" />
+        <DashboardKPICard title="Preco medio" value={Number(kpis.avgPrice.toFixed(0))} prefix="R$ " subtitle="Base" icon={DollarSign} color="yellow" />
+        <DashboardKPICard title="Margem media" value={Number(kpis.avgMargin.toFixed(1))} suffix="%" subtitle="Estimativa" icon={Percent} color="red" />
       </div>
 
       <ModernTable
