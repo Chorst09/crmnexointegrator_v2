@@ -177,76 +177,76 @@ model Product {
 
 // === FUNIL DE VENDAS ===
 model Opportunity {
-  contracts Contract[]
-  id              String   @id @default(uuid())
-  number          String?  @unique
-  title           String
-  projectName     String?
-  projectClientType String?
-  negotiationType String?
+  id                    String      @id @default(uuid())
+  number                Int         @unique
+  title                 String
+  projectName           String?
+  projectClientType     String?
+  negotiationType       String?
   projectClassification String?
-  projectTower    String?
-  projectDetail   String?
-  manufacturer    String?
-  licenseCount    Int?
-  contractMonths  Int?
-  monthlyValue    Float?
-  installationFee Float?
-  leadSourceDetail String?
-  importSource    String?
-  importSourceRow Int?
-  projectType     String   @default("SINGLE")
-  projectMonths   Int?
-  description     String?
-  value           Float
-  probability     Int      @default(50)
-  stage           Stage
-  b2gStage        String?
-  source          LeadSource?
-  leadEntryDate   DateTime @default(now())
-  expectedCloseDate DateTime?
-  actualCloseDate DateTime?
-  customerTurnDate DateTime?
-  exitDate        DateTime?
-  lossReason      String?
-  stageDecisionDetails Json?
-  notes           String?
-  revenueType String?
-  contractPeriodMonths Int?
+  projectTower          String?
+  projectDetail         String?
+  manufacturer          String?
+  licenseCount          Int?
+  contractMonths        Int?
+  monthlyValue          Float?
+  installationFee       Float?
+  leadSourceDetail      String?
+  importSource          String?
+  importSourceRow       Int?
+  projectType           String      @default("SINGLE")
+  projectMonths         Int?
+  description           String?
+  value                 Float
+  probability           Int         @default(50)
+  stage                 Stage
+  b2gStage              String?
+  source                LeadSource?
+  leadEntryDate         DateTime    @default(now())
+  expectedCloseDate     DateTime?
+  actualCloseDate       DateTime?
+  customerTurnDate      DateTime?
+  exitDate              DateTime?
+  lossReason            String?
+  stageDecisionDetails  Json?
+  notes                 String?
+  revenueType           String?
+  contractPeriodMonths  Int?
   monthlyRecurringValue Float?
-  totalContractValue Float?
-  totalProductsValue Float?
-  setupValue Float?
-  contactName     String?
-  contactFullName String?
-  contactEmail    String?
-  contactPhone    String?
+  totalContractValue    Float?
+  totalProductsValue    Float?
+  setupValue            Float?
+  contactName           String?
+  contactFullName       String?
+  contactEmail          String?
+  contactPhone          String?
   
   // Relacionamentos
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-  ownerId   String
-  owner     User    @relation(fields: [ownerId], references: [id])
-  tenantCompanyId String?
-  tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+  companyId             String?
+  company               Company?    @relation(fields: [companyId], references: [id])
+  ownerId               String?
+  owner                 User?       @relation(fields: [ownerId], references: [id])
+  tenantCompanyId       String?
+  tenantCompany         TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
   
-  products    OpportunityProduct[]
-  activities  Activity[]
-  proposals   Proposal[]
-  commission  Commission?
-  competitors CompetitorComparison[]
-  preSalesRequests PreSalesRequest[]
-  integrationOrders IntegrationOrder[]
-  followUps   OpportunityFollowUp[]
-  project     Project?
-  attentionPoints OpportunityAttentionPoint[]
-  learnings       OpportunityLearning[]
-  kickoffMeetings KickoffMeeting[]
+  contracts             Contract[]
+  products              OpportunityProduct[]
+  activities            Activity[]
+  proposals             Proposal[]
+  commission            Commission?
+  competitors           CompetitorComparison[]
+  preSalesRequests      PreSalesRequest[]
+  integrationOrders     IntegrationOrder[]
+  followUps             OpportunityFollowUp[]
+  project               Project?
+  attentionPoints       OpportunityAttentionPoint[]
+  learnings             OpportunityLearning[]
+  kickoffMeetings       KickoffMeeting[]
 
-  companyDocuments CompanyDocument[]
+  companyDocuments      CompanyDocument[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
 
   @@index([b2gStage])
   @@index([tenantCompanyId])
@@ -1601,13 +1601,6 @@ enum ActivityStatus {
   CANCELLED
 }
 
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
-}
-
 enum ProposalStatus {
   DRAFT
   SENT
@@ -2042,6 +2035,13 @@ model ProjectMilestone {
   @@index([projectId])
   @@index([phaseId])
   @@index([status])
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
 }
 
 model ProjectTask {

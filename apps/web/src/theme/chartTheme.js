@@ -16,7 +16,7 @@ function resolveColor(value, palette) {
   const probe = document.createElement('span');
   probe.style.cssText = 'display:none';
   probe.style.color = value;
-  document.body.appendChild(probe);
+  (palette.root || document.body).appendChild(probe);
   const resolved = getComputedStyle(probe).color;
   probe.remove();
   colorCache.set(key, resolved);
@@ -26,10 +26,12 @@ function resolveColor(value, palette) {
 Chart.register({
   id: 'crmTheme',
   beforeUpdate(chart) {
-    const styles = getComputedStyle(document.documentElement);
+    const scope = chart.canvas.closest('.nex-module-dashboard');
+    const styles = getComputedStyle(scope || document.documentElement);
     const read = (name) => styles.getPropertyValue(`--crm-${name}`).trim();
     const palette = {
-      theme: document.documentElement.dataset.theme,
+      theme: scope ? 'dashboard-neon' : document.documentElement.dataset.theme,
+      root: scope,
       surface: read('surface'), ink: read('ink'), muted: read('muted'),
       border: read('border'), track: read('chart-track')
     };

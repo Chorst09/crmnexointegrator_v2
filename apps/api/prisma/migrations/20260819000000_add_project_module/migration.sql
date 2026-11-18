@@ -45,6 +45,7 @@ CREATE TYPE "AcceptanceType" AS ENUM ('PROVISIONAL', 'FINAL');
 
 -- CreateEnum
 CREATE TYPE "AcceptanceStatus" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'CONDITIONALLY_APPROVED');
+CREATE TYPE "Priority" AS ENUM ('LOW', 'MEDIUM', 'HIGH', 'URGENT');
 
 -- CreateTable
 CREATE TABLE "Project" (

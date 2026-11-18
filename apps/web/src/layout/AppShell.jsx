@@ -1,9 +1,14 @@
+import { getDashboardMarket } from '../utils/dashboardMarket.mjs';
+import { NEON_DASHBOARD_ROUTES } from '../utils/dashboardPresentation';
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
 export default function AppShell() {
+  const pathname = useLocation().pathname;
+  const executive = NEON_DASHBOARD_ROUTES.has(pathname);
+  const market = getDashboardMarket(pathname);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -20,7 +25,7 @@ export default function AppShell() {
   };
 
   return (
-    <div className="relative flex h-screen min-h-screen text-[var(--crm-ink)]">
+    <div data-market={market || 'GENERAL'} className={`relative flex h-screen min-h-screen text-[var(--crm-ink)] ${executive ? 'nex-dashboard-shell' : ''}`}>
       <div className="crm-workspace-backdrop pointer-events-none fixed inset-0 -z-10" />
 
       <Sidebar

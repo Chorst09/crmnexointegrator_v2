@@ -159,6 +159,7 @@ for (const apiFile of ['apps/api/api/dashboard.js', 'backend/api/dashboard.js'])
     assert.equal(query.where.tenantCompanyId, 'tenant-1');
     assert.deepEqual(query.where.probability, { gte: 1, lte: 25 });
     assert.deepEqual(query.where.company, { clientType: 'B2B' });
+    assert.deepEqual(query.where.OR, [{ number: null }, { NOT: { number: { startsWith: 'B2G-' } } }]);
     assert.ok(!Object.hasOwn(query, 'take'));
     assert.deepEqual(query.select.owner, { select: { id: true, name: true } });
     calls.length = 0;
