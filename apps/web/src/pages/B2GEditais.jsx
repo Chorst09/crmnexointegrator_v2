@@ -80,7 +80,6 @@ ChartJS.register(
 
 import DashboardKPICard from '../components/DashboardKPICard';
 import B2GFunnelStrategic from '../components/B2GFunnelStrategic';
-import DashboardKPICard from '../components/DashboardKPICard';
 import DashboardAdvancedChart from '../components/DashboardAdvancedChart';
 import TemperatureGauge from '../components/TemperatureGauge';
 import Modal from '../components/Modal';
