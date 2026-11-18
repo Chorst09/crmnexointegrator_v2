@@ -1,46 +1,42 @@
 #!/usr/bin/env bash
-
-# deploy.sh – Quick deployment script
-# Usage: ./deploy.sh "Commit message" "domain.com"
-#   $1 – Commit message (default: "Deploy $(date +'%%Y-%%m-%%d %%H:%%M:%%S')")
-#   $2 – Target domain (overrides PROD_DOMAIN secret, default: empty)
+# --------------------------------------------------------------
+# Deploy rápido – Nexos v2
+# Uso: ./deploy.sh "Mensagem do commit" nexosv2.cnorstconsult.com.br
+# --------------------------------------------------------------
 
 set -euo pipefail
 
-# Default values
-DEFAULT_MSG="Deploy $(date '+%Y-%m-%d %H:%M:%S')"
-COMMIT_MSG="${1:-$DEFAULT_MSG}"
-DOMAIN_OVERRIDE="${2:-}" 
+# ----- Parâmetros ------------------------------------------------
+COMMIT_MSG="${1:-\"Deploy automático $(date +'%Y-%m-%d %H:%M')\"}"
+TARGET_DOMAIN="${2:-\"nexosv2.cnorstconsult.com.br\"}"
 
-# Show summary
-echo "--- Deploy script starting ---"
-echo "Commit message: $COMMIT_MSG"
-if [[ -n "$DOMAIN_OVERRIDE" ]]; then
-  echo "Domain override: $DOMAIN_OVERRIDE"
-else
-  echo "No domain override (will use PROD_DOMAIN secret)"
+# ----- Verificar alterações locais --------------------------------
+if ! git diff-index --quiet HEAD --; then
+  echo "⚠️  Há mudanças não commitadas. Abortando."
+  exit 1
 fi
 
-# Stage changes
+# ----- Commit ----------------------------------------------------
+echo "🗂️  Adicionando arquivos ao commit…"
 git add .
-# Check if there are changes to commit
+
 if git diff --cached --quiet; then
-  echo "No changes to commit. Skipping commit step."
+  echo "🔎 Nenhuma alteração a ser commitada. Pulando commit."
 else
+  echo "✍️  Commitando: $COMMIT_MSG"
   git commit -m "$COMMIT_MSG"
 fi
 
-# Push to remote (current branch)
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
-git push origin "$CURRENT_BRANCH"
+# ----- Push ------------------------------------------------------
+echo "🚀 Enviando para o remote…"
+git push origin HEAD
 
-# Trigger GitHub Actions workflow (optional, GitHub automatically runs on push)
-# If you want to manually dispatch:
-if [[ -n "$DOMAIN_OVERRIDE" ]]; then
-  echo "Dispatching workflow with domain override..."
-  gh run watch --repo "${GITHUB_REPOSITORY}" --branch "$CURRENT_BRANCH" --json "{\"domain\":\"$DOMAIN_OVERRIDE\"}"
-else
-  echo "Push completed – workflow will run automatically."
+# ----- Disparar workflow manual (opcional) -----------------------
+if [[ -n "$TARGET_DOMAIN" ]]; then
+  echo "⚡ Disparando workflow manual para o domínio $TARGET_DOMAIN …"
+  gh workflow run deploy.yml -f domain="$TARGET_DOMAIN"
 fi
 
-echo "--- Deploy script finished ---"
+# ----- Acompanhar logs (opcional) -------------------------------
+echo "📺 Aguardando logs do workflow…"
+gh run watch --exit-status
