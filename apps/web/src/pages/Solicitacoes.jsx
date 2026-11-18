@@ -27,7 +27,7 @@ import { buildApiUrl, getAuthHeaders } from '../config/api';
 import Modal from '../components/Modal';
 import PreSalesClosureNotice, { getPreSalesClosure } from '../components/PreSalesClosureNotice';
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import { addFlowMetadataToDescription, getAreaLabel, hydrateActivityFlow } from '../utils/activityFlow';
 import { openPreSalesBudgetPdf } from '../utils/preSalesBudgetPrint';
 
@@ -1873,7 +1873,7 @@ export default function Solicitacoes() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
         {stats.map((stat) => (
-          <AnimatedStats key={stat.title} {...stat} />
+          <DashboardKPICard key={stat.title} {...stat} />
         ))}
       </div>
 

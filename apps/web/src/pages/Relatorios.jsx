@@ -40,7 +40,7 @@ import {
 
 import PageHeader from "../components/PageHeader";
 import GradientCard from "../components/GradientCard";
-import AnimatedStats from "../components/AnimatedStats";
+import DashboardKPICard from "../components/DashboardKPICard";
 import ModernTable from "../components/ModernTable";
 import { buildApiUrl, getAuthHeaders } from "../config/api";
 
@@ -1028,16 +1028,16 @@ export default function Relatorios() {
       {activeReport === "executive" && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-            <AnimatedStats title="Pipeline Aberto" value={formatCurrency(analysis.kpis.pipelineValue)} subtitle={`${analysis.kpis.openCount} oportunidades abertas`} icon={Briefcase} color="blue" />
-            <AnimatedStats title="Forecast Ponderado" value={formatCurrency(analysis.kpis.weightedPipeline)} subtitle="Valor x probabilidade" icon={Target} color="purple" />
-            <AnimatedStats title="Receita Ganha" value={formatCurrency(analysis.kpis.wonValue)} subtitle={`${analysis.kpis.wonCount} negócios fechados`} icon={TrendingUp} color="green" />
-            <AnimatedStats title="Conversão" value={formatPercent(analysis.kpis.conversionRate)} subtitle={`${analysis.kpis.wonCount} ganhos / ${analysis.kpis.lostCount} perdas`} icon={CheckCircle2} color="orange" />
+            <DashboardKPICard title="Pipeline Aberto" value={formatCurrency(analysis.kpis.pipelineValue)} subtitle={`${analysis.kpis.openCount} oportunidades abertas`} icon={Briefcase} color="blue" />
+            <DashboardKPICard title="Forecast Ponderado" value={formatCurrency(analysis.kpis.weightedPipeline)} subtitle="Valor x probabilidade" icon={Target} color="purple" />
+            <DashboardKPICard title="Receita Ganha" value={formatCurrency(analysis.kpis.wonValue)} subtitle={`${analysis.kpis.wonCount} negócios fechados`} icon={TrendingUp} color="green" />
+            <DashboardKPICard title="Conversão" value={formatPercent(analysis.kpis.conversionRate)} subtitle={`${analysis.kpis.wonCount} ganhos / ${analysis.kpis.lostCount} perdas`} icon={CheckCircle2} color="orange" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-            <AnimatedStats title="Ticket Médio" value={formatCurrency(analysis.kpis.avgTicket)} subtitle="Base em ganhos" icon={PieChart} color="green" />
-            <AnimatedStats title="Clientes Filtrados" value={analysis.kpis.companiesCount} subtitle="Base de empresas" icon={Building2} color="blue" />
-            <AnimatedStats title="Atividades Atrasadas" value={analysis.kpis.overdueActivitiesCount} subtitle={`${analysis.kpis.activitiesCount} atividades no filtro`} icon={Activity} color="red" />
-            <AnimatedStats title="Contratos a Vencer" value={analysis.kpis.expiringContractsCount} subtitle={`${formatCurrency(analysis.kpis.contractValue)} ativos`} icon={CalendarDays} color="yellow" />
+            <DashboardKPICard title="Ticket Médio" value={formatCurrency(analysis.kpis.avgTicket)} subtitle="Base em ganhos" icon={PieChart} color="green" />
+            <DashboardKPICard title="Clientes Filtrados" value={analysis.kpis.companiesCount} subtitle="Base de empresas" icon={Building2} color="blue" />
+            <DashboardKPICard title="Atividades Atrasadas" value={analysis.kpis.overdueActivitiesCount} subtitle={`${analysis.kpis.activitiesCount} atividades no filtro`} icon={Activity} color="red" />
+            <DashboardKPICard title="Contratos a Vencer" value={analysis.kpis.expiringContractsCount} subtitle={`${formatCurrency(analysis.kpis.contractValue)} ativos`} icon={CalendarDays} color="yellow" />
           </div>
         </>
       )}
@@ -1132,10 +1132,10 @@ export default function Relatorios() {
       {activeReport === "projects" && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-            <AnimatedStats title="Projetos Ativos" value={analysis.kpis.activeProjectsCount} subtitle={`${analysis.kpis.projectsCount} projetos no filtro`} icon={FolderKanban} color="blue" />
-            <AnimatedStats title="Orçamento Total" value={formatCurrency(analysis.kpis.projectBudget)} subtitle="Budget consolidado" icon={Briefcase} color="orange" />
-            <AnimatedStats title="Saúde Média" value={formatPercent(analysis.kpis.avgProjectHealth)} subtitle="Health score dos projetos" icon={Gauge} color="green" />
-            <AnimatedStats title="Atrasados" value={analysis.kpis.delayedProjectsCount} subtitle="Fim previsto vencido" icon={CalendarDays} color="red" />
+            <DashboardKPICard title="Projetos Ativos" value={analysis.kpis.activeProjectsCount} subtitle={`${analysis.kpis.projectsCount} projetos no filtro`} icon={FolderKanban} color="blue" />
+            <DashboardKPICard title="Orçamento Total" value={formatCurrency(analysis.kpis.projectBudget)} subtitle="Budget consolidado" icon={Briefcase} color="orange" />
+            <DashboardKPICard title="Saúde Média" value={formatPercent(analysis.kpis.avgProjectHealth)} subtitle="Health score dos projetos" icon={Gauge} color="green" />
+            <DashboardKPICard title="Atrasados" value={analysis.kpis.delayedProjectsCount} subtitle="Fim previsto vencido" icon={CalendarDays} color="red" />
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             <GradientCard gradient="blue" className="p-6">
@@ -1180,10 +1180,10 @@ export default function Relatorios() {
       {activeReport === "kickoff" && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-            <AnimatedStats title="Reuniões de Kickoff" value={analysis.kpis.kickoffCount} subtitle="Internas, externas e comerciais" icon={Rocket} color="orange" />
-            <AnimatedStats title="Realizadas" value={analysis.kpis.completedKickoffCount} subtitle={formatPercent(analysis.kpis.kickoffCompletionRate)} icon={CheckCircle2} color="green" />
-            <AnimatedStats title="Agendadas" value={analysis.kpis.scheduledKickoffCount} subtitle={`${analysis.kpis.overdueKickoffCount} vencidas`} icon={CalendarDays} color="blue" />
-            <AnimatedStats title="Ações" value={analysis.kpis.kickoffActionItems} subtitle="Itens gerados nas atas" icon={Activity} color="purple" />
+            <DashboardKPICard title="Reuniões de Kickoff" value={analysis.kpis.kickoffCount} subtitle="Internas, externas e comerciais" icon={Rocket} color="orange" />
+            <DashboardKPICard title="Realizadas" value={analysis.kpis.completedKickoffCount} subtitle={formatPercent(analysis.kpis.kickoffCompletionRate)} icon={CheckCircle2} color="green" />
+            <DashboardKPICard title="Agendadas" value={analysis.kpis.scheduledKickoffCount} subtitle={`${analysis.kpis.overdueKickoffCount} vencidas`} icon={CalendarDays} color="blue" />
+            <DashboardKPICard title="Ações" value={analysis.kpis.kickoffActionItems} subtitle="Itens gerados nas atas" icon={Activity} color="purple" />
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
             <GradientCard gradient="orange" className="p-6">

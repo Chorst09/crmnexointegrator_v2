@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import AuditCostAccessModal from '../components/AuditCostAccessModal';
 import { openPreSalesBudgetPdf } from '../utils/preSalesBudgetPrint';
 import { logCostAccessAudit } from '../utils/auditLogger';
@@ -1829,7 +1829,7 @@ export default function OrcamentosPrevendas() {
       {/* stats */}
       <div className="grid grid-cols-2 xl:grid-cols-4 gap-4">
         {stats.map((s) => (
-          <AnimatedStats key={s.title} {...s} />
+          <DashboardKPICard key={s.title} {...s} />
         ))}
       </div>
 

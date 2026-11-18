@@ -4,7 +4,7 @@ import { Building2, Flame, Plus, Sparkles, Users, Mail, Phone, MapPin, Globe, Fi
 
 import PageHeader from '../components/PageHeader';
 import SellerProfile from '../components/SellerProfile';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import ModernTable from '../components/ModernTable';
 import Modal from '../components/Modal';
 import CompanyDocuments from '../components/CompanyDocuments';
@@ -694,11 +694,11 @@ export default function Empresas({ clientType = 'B2B' }) {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-5 gap-4 mb-8">
-        <AnimatedStats title="Total" value={kpis.total} subtitle={`${entityLabelPlural} cadastrados`} icon={Building2} color="blue" />
-        <AnimatedStats title="Leads" value={kpis.leads} subtitle="Novas oportunidades" icon={Users} color="purple" />
-        <AnimatedStats title="Ativos" value={kpis.active} subtitle="Clientes em andamento" icon={Users} color="green" />
-        <AnimatedStats title="Hot" value={kpis.hot} subtitle="Score 80+" icon={Flame} color="red" />
-        <AnimatedStats title="Warm" value={kpis.warm} subtitle="Score 60-79" icon={Sparkles} color="yellow" />
+        <DashboardKPICard title="Total" value={kpis.total} subtitle={`${entityLabelPlural} cadastrados`} icon={Building2} color="blue" />
+        <DashboardKPICard title="Leads" value={kpis.leads} subtitle="Novas oportunidades" icon={Users} color="purple" />
+        <DashboardKPICard title="Ativos" value={kpis.active} subtitle="Clientes em andamento" icon={Users} color="green" />
+        <DashboardKPICard title="Hot" value={kpis.hot} subtitle="Score 80+" icon={Flame} color="red" />
+        <DashboardKPICard title="Warm" value={kpis.warm} subtitle="Score 60-79" icon={Sparkles} color="yellow" />
       </div>
 
       <ModernTable

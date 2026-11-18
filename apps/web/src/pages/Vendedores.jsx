@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import ModernTable from '../components/ModernTable';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import Modal from '../components/Modal';
 import PageHeader from '../components/PageHeader';
 import { API_ENDPOINTS, getAuthHeaders } from '../config/api';
@@ -409,27 +409,27 @@ export default function Vendedores() {
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <AnimatedStats
+        <DashboardKPICard
           title="Total Vendedores"
           value={totalSellers}
           subtitle={`${activeSellers} ativos`}
           icon="👥"
           color="blue"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Meta Total"
           value={formatCurrency(totalTargetValue)}
           icon="🎯"
           color="green"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Realizado"
           value={formatCurrency(totalRealized)}
           subtitle={`${formatPercent(averageProgress)} da meta`}
           icon="💰"
           color="yellow"
         />
-        <AnimatedStats
+        <DashboardKPICard
           title="Performance Média"
           value={formatPercent(averageProgress)}
           icon="📈"

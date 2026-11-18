@@ -32,7 +32,7 @@ import {
 } from 'lucide-react';
 
 import PageHeader from '../components/PageHeader';
-import AnimatedStats from '../components/AnimatedStats';
+import DashboardKPICard from '../components/DashboardKPICard';
 import GradientCard from '../components/GradientCard';
 import Modal from '../components/Modal';
 import OpportunityForm from '../components/OpportunityForm';
@@ -1285,7 +1285,7 @@ export default function Oportunidades() {
 
       {/* Stats Cards */}
       <div className={compactB2B ? 'grid grid-cols-2 xl:grid-cols-4 gap-3' : 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6'}>
-        <AnimatedStats
+        <DashboardKPICard
           size={compactB2B ? 'dense' : 'default'}
           title="Total de Oportunidades"
           value={filteredStats.total}
@@ -1295,7 +1295,7 @@ export default function Oportunidades() {
           trend={{ direction: 'up', value: '+12% este mês' }}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           size={compactB2B ? 'dense' : 'default'}
           title="Valor Total"
           value={formatCurrency(filteredStats.totalValue)}
@@ -1305,7 +1305,7 @@ export default function Oportunidades() {
           trend={{ direction: 'up', value: '+18% este mês' }}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           size={compactB2B ? 'dense' : 'default'}
           title="Taxa de Conversão"
           value={`${filteredStats.conversionRate.toFixed(1)}%`}
@@ -1315,7 +1315,7 @@ export default function Oportunidades() {
           trend={{ direction: 'up', value: '+2.3% este mês' }}
         />
         
-        <AnimatedStats
+        <DashboardKPICard
           size={compactB2B ? 'dense' : 'default'}
           title="Ticket Médio"
           value={formatCurrency(filteredStats.avgValue)}
