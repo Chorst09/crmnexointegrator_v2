@@ -88,7 +88,7 @@ export const ROLE_POLICY_MODULES = [
 
 export const ROLE_ACCESS_POLICY = {
   [ROLES.USER]: {
-    dashboard: false,
+    dashboard: true,
     leads: true,
     opportunities: true,
     publicOpportunities: true,
@@ -112,7 +112,7 @@ export const ROLE_ACCESS_POLICY = {
     accessAutomation: false
   },
   [ROLES.SELLER]: {
-    dashboard: false,
+    dashboard: true,
     leads: true,
     opportunities: true,
     publicOpportunities: true,
@@ -136,7 +136,7 @@ export const ROLE_ACCESS_POLICY = {
     accessAutomation: false
   },
   [ROLES.PRE_SALES]: {
-    dashboard: false,
+    dashboard: true,
     leads: true,
     opportunities: true,
     publicOpportunities: false,
