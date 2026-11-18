@@ -2,38 +2,60 @@ name: Deploy CRM Nexo Integrator v2
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main, master ]
   workflow_dispatch:
+    inputs:
+      domain:
+        description: "Domínio de destino (ex.: nexosv2.cnorstconsult.com.br)"
+        required: false
+        default: "nexosv2.cnorstconsult.com.br"
+
+env:
+  SSH_HOST: ${{ secrets.SSH_HOST }}
+  SSH_USER: ${{ secrets.SSH_USER }}
+  SSH_PORT: ${{ secrets.SSH_PORT }}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
 
 jobs:
   deploy:
-    name: Deploy to Integrator VPS
+    name: Deploy na VPS via SSH
     runs-on: ubuntu-latest
 
     steps:
-      - name: Executar Deploy na VPS via SSH
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          port: ${{ secrets.VPS_PORT }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script_stop: true
-          script: |
-            cd /var/www/crmnexointegrator_v2
+      - name: Checkout do código
+        uses: actions/checkout@v4
 
-            echo ">>> Atualizando código a partir da branch main..."
-            git fetch origin main
+      - name: Configurar SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ env.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+
+      - name: Executar Deploy na VPS
+        run: |
+          DOMAIN="${{ github.event.inputs.domain }}"
+          echo "🚀 Deploy para $DOMAIN (host ${{ env.SSH_HOST }})"
+
+          ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.SSH_HOST }} <<'ENDSSH'
+            set -e
+            echo "📂 Entrando em /var/www/nexosv2"
+            cd /var/www/nexosv2
+
+            echo "🔄 Atualizando código a partir da branch main..."
+            git fetch origin
+            git checkout main
             git reset --hard origin/main
 
-            echo ">>> Instalando dependências..."
-            npm install --production=false
-
-            echo ">>> Gerando build do projeto..."
+            echo "📦 Instalando dependências..."
+            cd apps/api
+            npm install --production
+            cd ../../apps/web
+            npm install
             npm run build
 
-            echo ">>> Reiniciando aplicação no PM2..."
-            pm2 reload crmnexointegrator_v2_3025 || pm2 restart crmnexointegrator_v2_3025
+            echo "🔄 Reiniciando aplicação (PM2)..."
+            pm2 restart nexosv2-api || pm2 restart all
 
-            echo ">>> Deploy finalizado com sucesso!"
+            echo "✅ Deploy finalizado com sucesso!"
+          ENDSSH
