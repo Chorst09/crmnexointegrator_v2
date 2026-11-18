@@ -1,0 +1,79 @@
+{
+  "date": "2026-11-18",
+  "domain": "https://nexosv2.chorstconsult.com.br",
+  "status": "deployed",
+  "buildBaseline": "d49f2ef",
+  "dashboardSourcePresentInCommit": "9abf913",
+  "scope": {
+    "baseline": "d49f2ef",
+    "excluded": [
+      "PreVendas.jsx",
+      "CI/CD",
+      "schema",
+      "migrations",
+      "dependencies",
+      "PPTX changes"
+    ],
+    "frontendOwned": [
+      "apps/web/public/dashboard/neon-ribbons.svg",
+      "apps/web/public/dashboard/nexos-b2b-globe-energy.png",
+      "apps/web/public/dashboard/nexos-city-energy.png",
+      "apps/web/src/components/ExecutiveHeaderSearch.jsx",
+      "apps/web/src/components/ExecutiveMarketCards.jsx",
+      "apps/web/src/components/ExecutiveModuleCards.css",
+      "apps/web/src/components/ExecutiveModuleCards.jsx",
+      "apps/web/src/components/ExecutiveModuleNavigation.jsx",
+      "apps/web/src/components/ExecutivePipelineDashboard.css",
+      "apps/web/src/components/ExecutiveVisuals.jsx",
+      "apps/web/src/components/GeneralDashboardExecutive.css",
+      "apps/web/src/components/GeneralDashboardExecutive.jsx",
+      "apps/web/src/components/GeneralDashboardExecutiveSkin.css",
+      "apps/web/src/components/PipelineDashboardModel.jsx",
+      "apps/web/src/components/brazilStatesGeometry.json",
+      "apps/web/src/components/executiveModuleMetrics.mjs",
+      "apps/web/src/components/generalDashboardMetrics.mjs",
+      "apps/web/src/components/useExecutiveModules.js",
+      "apps/web/src/layout/AppShell.jsx",
+      "apps/web/src/layout/Sidebar.jsx",
+      "apps/web/src/layout/Topbar.jsx",
+      "apps/web/src/pages/B2GEditais.jsx",
+      "apps/web/src/pages/Dashboard.jsx",
+      "apps/web/src/pages/DashboardGeral.jsx",
+      "apps/web/src/theme/chartTheme.js",
+      "apps/web/src/utils/dashboardMarket.mjs",
+      "apps/web/src/utils/dashboardPresentation.js"
+    ]
+  },
+  "apiSha256": {
+    "apps/api/api/dashboard.js": "ef76b4e877de59df59ba4f860d98b6fc17f87c1950dfbb8e30a42abf653464b6",
+    "apps/api/lib/marketDashboardOverview.mjs": "5d11b899bf67a0e43b4cf5039e5359c88a0a174c1c012d0654a3e2d7999bbcb7",
+    "backend/api/dashboard.js": "e95b148e91bb30a464915af1fc2630c7d230d7b4331b09a977ea687a5e4b849c",
+    "backend/lib/marketDashboardOverview.mjs": "5d11b899bf67a0e43b4cf5039e5359c88a0a174c1c012d0654a3e2d7999bbcb7"
+  },
+  "frontendRelease": "/var/www/crmnexointegrator_v2/apps/web/releases/20261118-165119-164616",
+  "backup": "/var/www/crmnexointegrator_v2/backups/dashboard-20261118-165105",
+  "previousFrontend": "/var/www/crmnexointegrator_v2/apps/web/releases/dashboard-before-20261118-165105",
+  "publicSha256": {
+    "index.html": "4a7225f9f88c59dc8a72c5bf4d35fee2599d4088463d814095875fd0e6c4c9ef",
+    "dashboard/nexos-b2b-globe-energy.png": "fd90fb1ce2e201f2a202dd12ac00366a2198ef7f2fec47814007298c78f979df",
+    "dashboard/nexos-city-energy.png": "23b63e9036b72a93d09c6d2bae0ab64f654df3fbae2ef8083c8112ece90c6d3d"
+  },
+  "checks": {
+    "regressionTestsPassed": 34,
+    "prebuildTestsPassed": 3,
+    "isolatedBuild": "passed",
+    "publicFilesComparedBySha256": 15,
+    "apiHealth": "ok",
+    "database": "connected",
+    "unauthenticatedEndpointStatus": 401,
+    "handlerStatuses": {
+      "general": 200,
+      "b2b": 200,
+      "B2B-module-overview": 200,
+      "B2G-module-overview": 200
+    },
+    "productionOpportunityOverlap": 0,
+    "browserVisualQA": "not completed: CUA transport closed"
+  },
+  "migrationsExecuted": false
+}
