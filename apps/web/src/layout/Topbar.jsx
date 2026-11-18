@@ -1,8 +1,11 @@
+import { getDashboardMarket } from '../utils/dashboardMarket.mjs';
+import { NEON_DASHBOARD_ROUTES } from '../utils/dashboardPresentation';
 import { useState } from 'react';
-import { LogIn, LogOut, Menu, Monitor, Moon, Sun, User, Rocket } from 'lucide-react';
+import { LogIn, LogOut, Menu, Monitor, Moon, Sun, User, Rocket, Sparkles, Bell } from 'lucide-react';
 import { useTheme } from '../theme/ThemeProvider';
 import { useLocation, useNavigate } from 'react-router-dom';
 import B2BTestFlowModal from '../components/B2BTestFlowModal';
+import ExecutiveHeaderSearch from '../components/ExecutiveHeaderSearch';
 import PreSalesReturnNotifications from '../components/PreSalesReturnNotifications';
 
 const ROUTE_META = {
@@ -55,6 +58,8 @@ export default function Topbar({ onMenuClick }) {
   const { theme, resolvedTheme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
+  const executive = NEON_DASHBOARD_ROUTES.has(location.pathname);
+  const market = getDashboardMarket(location.pathname);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isTestFlowOpen, setIsTestFlowOpen] = useState(false);
   const meta = ROUTE_META[location.pathname] || { title: 'CRM NEXOS', subtitle: 'Conexões que impulsionam negócios' };
@@ -92,7 +97,7 @@ export default function Topbar({ onMenuClick }) {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[radial-gradient(ellipse_at_76%_0%,rgba(37,196,218,0.22)_0%,transparent_44%),radial-gradient(ellipse_at_18%_0%,rgb(var(--crm-surface-2-rgb)_/_0.34)_0%,transparent_48%),linear-gradient(180deg,rgb(var(--crm-surface-2-rgb)_/_0.98)_0%,rgb(var(--crm-surface-2-rgb)_/_0.96)_100%)] px-4 py-3 shadow-[0_22px_54px_-38px_rgba(34,211,238,0.55)] backdrop-blur-2xl sm:px-6 lg:px-8">
+    <header className={`${executive ? 'nex-topbar' : ''} sticky top-0 z-30 border-b border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[radial-gradient(ellipse_at_76%_0%,rgba(37,196,218,0.22)_0%,transparent_44%),radial-gradient(ellipse_at_18%_0%,rgb(var(--crm-surface-2-rgb)_/_0.34)_0%,transparent_48%),linear-gradient(180deg,rgb(var(--crm-surface-2-rgb)_/_0.98)_0%,rgb(var(--crm-surface-2-rgb)_/_0.96)_100%)] px-4 py-3 shadow-[0_22px_54px_-38px_rgba(34,211,238,0.55)] backdrop-blur-2xl sm:px-6 lg:px-8`}>
       <div className="mx-auto flex h-[5.65rem] w-full max-w-[1920px] items-center gap-5">
         <button
           type="button"
@@ -104,7 +109,7 @@ export default function Topbar({ onMenuClick }) {
           <Menu className="h-5 w-5" />
         </button>
 
-        <div
+        {executive ? <ExecutiveHeaderSearch key={market || 'general'} market={market}/> : <><div
           className="relative hidden h-[5.15rem] min-w-0 flex-1 overflow-hidden rounded-[24px] border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-cover bg-center shadow-[0_24px_54px_-36px_rgba(34,211,238,0.58)] md:block"
           style={{ backgroundImage: "url('/b2g/govflow-header.png')" }}
         >
@@ -123,8 +128,11 @@ export default function Topbar({ onMenuClick }) {
           </div>
         </div>
 
+        </>}
+
         <div className="ml-auto flex shrink-0 items-center gap-3 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-cyan-50">
-          <PreSalesReturnNotifications />
+          {market ? <button type="button" className="nex-market-agenda" aria-label={`Agenda ${market}`} title={`Agenda ${market}`} onClick={()=>navigate(market==='B2G'?'/b2g-atividades':'/atividades')}><Bell size={20}/></button> : <PreSalesReturnNotifications />}
+          {executive && <button className="nex-ai-button" onClick={() => window.dispatchEvent(new Event('nexos-open-intelligence'))}><Sparkles size={19}/>NEXOS AI</button>}
 
           <button
             type="button"

@@ -1,3 +1,4 @@
+import { buildMarketDashboardOverview } from '../lib/marketDashboardOverview.mjs';
 import { prisma } from '../lib/prisma.js';
 import { buildB2BDashboardAnalytics } from '../lib/b2bDashboardAnalytics.js';
 import { getTenantCompanyId } from '../lib/tenantScope.js';
@@ -342,6 +343,14 @@ export default async function handler(req) {
       tenantCompanyId ? mergeRelationWhere(where, 'opportunity', { tenantCompanyId }) : where;
 
     try {
+      if (type === 'module-overview') {
+        const market=String(req.query?.market || '').toUpperCase();
+        try {
+          return Response.json(await buildMarketDashboardOverview({prisma,user:req.user,market,tenantCompanyId}));
+        } catch(error) {
+          return Response.json({error:error.message},{status:error.status || 500});
+        }
+      }
       if (type === 'general') {
         return Response.json(await buildGeneralDashboard(req.user));
       }
@@ -537,7 +546,7 @@ if (type === 'b2g') {
 }
 // ----------------------------------------------------
 if (type === 'b2b') {
-        const b2bOpportunityFilter = { b2gStage: null };
+        const b2bOpportunityFilter = { b2gStage: null, OR: [{ number: null }, { NOT: { number: { startsWith: 'B2G-' } } }] };
         const baseWhere = withOpportunityTenant({ ...b2bOpportunityFilter, company: { clientType: 'B2B' } });
         const effectiveOwnerId = canSeeAllOpportunitiesDash(req.user)
           ? (ownerId || null)

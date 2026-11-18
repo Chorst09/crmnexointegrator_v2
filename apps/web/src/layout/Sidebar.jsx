@@ -1,3 +1,4 @@
+import { getDashboardMarket } from '../utils/dashboardMarket.mjs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
@@ -68,6 +69,7 @@ export default function Sidebar({
   onToggleCollapsed = () => {}
 }) {
   const location = useLocation();
+  const market = getDashboardMarket(location.pathname);
   const navRef = useRef(null);
   const lastActiveSectionIdRef = useRef(null);
   let user = null;
@@ -253,13 +255,14 @@ export default function Sidebar({
 
   const filteredMenuSections = useMemo(() => {
     const master = isMaster(user || {});
+    const scopedSections = menuSections.filter(section => !market || (market === 'B2B' ? section.id !== 'b2g' : !['vendas','gestao','prevendas'].includes(section.id)));
 
     // Master has access to everything. This is the simplest and most reliable check.
     if (master) {
-      return menuSections;
+      return scopedSections;
     }
 
-    return menuSections
+    return scopedSections
       .map((section) => {
         // The 'administracao' section is MASTER only
         if (section.id === 'administracao') {
@@ -352,7 +355,7 @@ export default function Sidebar({
       })
       .filter(Boolean)
       .filter((section) => section.items && section.items.length > 0);
-  }, [menuSections, role, access.accessB2B, access.accessB2G, access.accessPreSales, access.accessManagement, access.accessAutomation, user]);
+  }, [market, menuSections, role, access.accessB2B, access.accessB2G, access.accessPreSales, access.accessManagement, access.accessAutomation, user]);
 
   useEffect(() => {
     const activeSection = filteredMenuSections.find((section) =>
@@ -478,7 +481,9 @@ export default function Sidebar({
         <div className="absolute inset-0 bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[radial-gradient(ellipse_at_88%_0%,rgba(35,211,238,0.20)_0%,transparent_48%),linear-gradient(180deg,rgb(var(--crm-surface-2-rgb)_/_0.72)_0%,rgb(var(--crm-surface-2-rgb)_/_0.18)_100%)]" />
 
         <div className={["relative flex items-center justify-center overflow-hidden rounded-[22px] border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_0.88)_0%,rgb(var(--crm-surface-2-rgb)_/_0.92)_54%,rgb(var(--crm-surface-rgb)_/_0.72)_100%)] shadow-[0_22px_48px_-34px_rgba(34,211,238,0.62)]", collapsed ? 'h-[4.6rem] lg:h-14' : 'h-[4.6rem]'].join(' ')}>
-          {resolvePublicUrl(branding.logoUrl) ? (
+          {market ? (
+            <div className="nex-sidebar-market-brand"><img src="/double-logo.svg" alt="Double"/><strong>NEXOS <span>{market}</span></strong></div>
+          ) : resolvePublicUrl(branding.logoUrl) ? (
             <img
               src={resolvePublicUrl(branding.logoUrl)}
               alt="Logo"
@@ -598,7 +603,7 @@ export default function Sidebar({
         <div className="absolute inset-0 bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[linear-gradient(180deg,rgb(var(--crm-surface-2-rgb)_/_0.12)_0%,rgb(var(--crm-surface-rgb)_/_0.28)_100%)]" />
         <div className="relative rounded-xl border border-cyan-200/[0.055] bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.56)] px-3 py-2 text-center text-[10px] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_0.7)] shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]">
           <div className={collapsed ? "font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-cyan-50/80 lg:text-[9px]" : "font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-cyan-50/80"}>
-            <span className={collapsed ? 'lg:hidden' : ''}>{branding.appName || 'CRM NEXOS'}</span>
+            <span className={collapsed ? 'lg:hidden' : ''}>{market ? `NEXOS ${market}` : (branding.appName || 'CRM NEXOS')}</span>
             <span className={collapsed ? 'hidden lg:inline' : 'hidden'}>NEXOS</span> v2
           </div>
           <div className={collapsed ? 'opacity-80 lg:hidden' : 'opacity-80'}>© 2026</div>

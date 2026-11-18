@@ -70,6 +70,7 @@ export default function Dashboard() {
 
   const fetchDashboardData = async (ownerId, temperature, period, { silent = false } = {}) => {
     const requestId = ++dashboardRequestRef.current;
+    window.dispatchEvent(new Event('nexos-refresh-modules'));
     if (!silent) setLoading(true);
     try {
       const params = new URLSearchParams({ type: 'b2b', period });
@@ -270,11 +271,14 @@ export default function Dashboard() {
   ].filter(Boolean).join(' • ');
 
   return (
-    <div ref={presentationRef} className={`b2b-dashboard${presentationMode ? ' h-screen overflow-y-auto overflow-x-hidden bg-[var(--crm-bg-base)] p-2 pb-24' : ''}`}>
+    <div ref={presentationRef} className={`b2b-dashboard nex-module-dashboard${presentationMode ? ' h-screen overflow-y-auto overflow-x-hidden bg-[var(--crm-bg-base)] p-2 pb-24' : ''}`}>
       {error ? <div role="alert" className="mb-3 flex items-center justify-between gap-3 rounded-lg border border-rose-500/40 bg-rose-50/40 dark:bg-rose-950/40 p-3 text-sm text-rose-700 dark:text-rose-100">{error}<button type="button" onClick={() => fetchDashboardData(selectedOwnerId, selectedTemperature, timeRange)} className="underline">Tentar novamente</button></div> : null}
       {!dashboardData ? <div role="status" className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-8 text-center text-[var(--crm-muted)]">{loading ? 'Carregando indicadores B2B…' : 'Os indicadores serão exibidos quando os dados estiverem disponíveis.'}</div> : <>
         <PipelineDashboardModel
           title="Dashboard Comercial B2B"
+          market="B2B"
+          ranking={sellerRows.map(row=>({id:row.sellerId,name:row.sellerName,total:row.total ?? ((row.open || 0)+(row.won || 0)+(row.lost || 0)),won:row.won || 0,pipeline:row.pipelineValue || 0}))}
+          mapRecords={dashboardData?.opportunities || []}
           subtitle={`Carteira atual completa • Histórico de entradas e resultados: ${historyLabel}`}
           controls={<>
             <select value={timeRange} onChange={event => setTimeRange(event.target.value)} aria-label="Período">
@@ -293,10 +297,10 @@ export default function Dashboard() {
             <button type="button" onClick={handlePresentation} title="Apresentação" aria-label="Abrir apresentação"><Maximize2 className="h-4 w-4" /></button>
           </>}
           metrics={[
-            { label: 'Leads em Aberto', value: kpis.activeLeads || 0, percent: (Number(kpis.activeLeads || 0) / opportunityBase) * 100, color: '#2563eb' },
-            { label: 'Total de Oportunidades', value: kpis.totalOpportunities || 0, percent: kpis.totalOpportunities ? 100 : 0, color: '#18c8df' },
-            { label: 'Vendas Ganhas', value: kpis.wonOpportunities || 0, percent: (Number(kpis.wonOpportunities || 0) / opportunityBase) * 100, color: '#22c55e' },
-            { label: 'Taxa de Vitória', value: formatPercent(kpis.conversionRate), percent: kpis.conversionRate, color: '#f6b40b' }
+            { label: 'Valor das Vendas Ganhas', value: formatCurrency(kpis.wonValue), subtitle: `${kpis.wonOpportunities || 0} oportunidades ganhas`, color: '#008dff' },
+            { label: 'Pipeline Comercial', value: formatCurrency(kpis.pipelineValue), subtitle: `${kpis.openOpportunities || 0} oportunidades em aberto`, color: '#00caff' },
+            { label: 'Oportunidades', value: kpis.totalOpportunities || 0, subtitle: `${kpis.activeLeads || 0} leads em aberto`, color: '#ffbd23' },
+            { label: 'Taxa de Vitória', value: formatPercent(kpis.conversionRate), subtitle: 'Ganhas / oportunidades encerradas', percent: kpis.conversionRate, color: '#f6b40b' }
           ]}
           executiveSignals={[
             { title: 'Pipeline em Aberto', label: `${kpis.openOpportunities || 0} oportunidades`, value: formatCurrency(kpis.pipelineValue), detail: `${kpis.unpricedOpportunities || 0} oportunidades sem valor comercial`, color: '#2563eb' },
@@ -357,7 +361,7 @@ export default function Dashboard() {
             customOptions={hasValue ? { plugins: { tooltip: { callbacks: { label: context => `${context.label}: ${formatCurrency(context.parsed)}` } } } } : {}} isEmpty={!hasOpen} emptyMessage="Nenhuma oportunidade em aberto nos filtros selecionados." />
         </section>
 
-        <section className="mt-5 px-2" aria-label="Receitas recorrentes e pontuais">
+        <section className="mt-5 px-2" id="receitas-b2b" aria-label="Receitas recorrentes e pontuais">
           <B2BRevenuePanel revenue={revenue} insights={dashboardData?.revenueInsights} historyLabel={historyLabel} />
         </section>
       </>}

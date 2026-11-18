@@ -4670,7 +4670,7 @@ export default function B2GEditais() {
                   </select>
                   <button
                     type="button"
-                    onClick={() => { loadNotices({ preserveSelection: true }); loadSupportData(); }}
+                    onClick={() => { window.dispatchEvent(new Event('nexos-refresh-modules')); loadNotices({ preserveSelection: true }); loadSupportData(); }}
                     className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-[#7ab8ff66] bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
                     title="Atualizar dados do dashboard"
                   >
@@ -5570,6 +5570,15 @@ export default function B2GEditais() {
       return { modalityRows, organizationRows, stageRows, deadlineBuckets, criticalRows };
     })();
 
+    const executiveRanking = Object.values(dashboardFilteredOpportunities.reduce((group,item)=>{
+      const key=item.owner?.id || item.ownerId || 'unassigned';
+      if(!group[key]) group[key]={id:key,name:item.owner?.name || 'Sem responsável',total:0,won:0,pipeline:0};
+      group[key].total+=1;
+      if(item.__columnId==='GANHO') group[key].won+=1;
+      if(!['GANHO','PERDIDO','NO_GO'].includes(item.__columnId)) group[key].pipeline+=item.__value;
+      return group;
+    },{})).sort((a,b)=>b.pipeline-a.pipeline || b.total-a.total);
+
     return (
       <div
         ref={dashboardPresentationRef}
@@ -5577,6 +5586,9 @@ export default function B2GEditais() {
       >
         <PipelineDashboardModel
           title="Dashboard Estratégico B2G"
+          market="B2G"
+          ranking={executiveRanking}
+          mapRecords={dashboardFilteredOpportunities}
           subtitle="Performance comercial e pipeline de governo"
           controls={(
             <>
@@ -5600,7 +5612,7 @@ export default function B2GEditais() {
                 <AlertTriangle className="h-4 w-4" />
                 {opportunityOpeningAlerts.length > 0 ? opportunityOpeningAlerts.length : ''}
               </button>
-              <button type="button" onClick={() => { loadNotices({ preserveSelection: true }); loadSupportData(); }} title="Atualizar dados" aria-label="Atualizar dados"><RefreshCcw className="h-4 w-4" /></button>
+              <button type="button" onClick={() => { window.dispatchEvent(new Event('nexos-refresh-modules')); loadNotices({ preserveSelection: true }); loadSupportData(); }} title="Atualizar dados" aria-label="Atualizar dados"><RefreshCcw className="h-4 w-4" /></button>
               <button type="button" onClick={handleDashboardFullscreen} title="Apresentação" aria-label="Abrir apresentação"><Maximize2 className="h-4 w-4" /></button>
             </>
           )}
@@ -5915,7 +5927,7 @@ export default function B2GEditais() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className={activeTab === 'dashboard' ? 'space-y-6 nex-module-dashboard' : 'space-y-6'}>
       {feedback.message && (
         <div
           className={[

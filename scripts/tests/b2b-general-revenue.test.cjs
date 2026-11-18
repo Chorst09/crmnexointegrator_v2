@@ -2,17 +2,11 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
-// Execute the general dashboard's actual financial reducer without mounting charts.
-const page = fs.readFileSync('apps/web/src/pages/DashboardGeral.jsx', 'utf8');
-const helpers = page.slice(page.indexOf('const normalizeProjectType ='), page.indexOf('const revenueBreakdownFromNotices ='));
-const generalRevenue = new Function('toArray', 'toNumber', 'parseJsonObject', 'MONTHLY_PROJECT_TYPE', `${helpers}\nreturn revenueBreakdownFromOpportunities;`)(
-  value => Array.isArray(value) ? value : [],
-  value => Number.isFinite(Number(value)) ? Number(value) : 0,
-  value => { try { return JSON.parse(value) || {}; } catch { return {}; } },
-  'MONTHLY'
-);
+// Import the shared reducer used by all three dashboard presentations.
+const generalMetrics = import('../../apps/web/src/components/generalDashboardMetrics.mjs');
 
 test('general and B2B dashboards agree on monthly contracts, products and setup', async () => {
+  const { revenueBreakdownFromOpportunities: generalRevenue } = await generalMetrics;
   const { buildB2BDashboardAnalytics } = await import('../../apps/api/lib/b2bDashboardAnalytics.js');
   for (const item of [
     { projectType: 'MONTHLY', projectMonths: 24, monthlyValue: 150.5, value: 3612 },
@@ -34,7 +28,8 @@ test('general and B2B dashboards agree on monthly contracts, products and setup'
   assert.equal(generalRevenue([{ projectType: 'SINGLE', value: 1800, installationFee: 250 }]).total, 2050);
 });
 
-test('B2G monthly and one-time calculations remain intact', () => {
+test('B2G monthly and one-time calculations remain intact', async () => {
+  const { revenueBreakdownFromOpportunities: generalRevenue } = await generalMetrics;
   const result = generalRevenue([{ b2gStage: 'analise', value: 999, description: JSON.stringify({ valorEstimadoMensal: 100, prazoContratual: 24, valorEstimadoPontual: 50 }) }]);
   assert.equal(result.monthly, 100);
   assert.equal(result.contract, 2400);
@@ -44,6 +39,7 @@ test('B2G monthly and one-time calculations remain intact', () => {
 
 for (const file of ['apps/api/api/dashboard.js', 'backend/api/dashboard.js']) {
   test(`${file}: general API supplies persisted revenue fields to the dashboard`, async () => {
+    const { revenueBreakdownFromOpportunities: generalRevenue } = await generalMetrics;
     const fixture = { id: 'monthly', value: 3612, projectType: 'MONTHLY', projectMonths: 24, contractMonths: 24, monthlyValue: 150.5, installationFee: 0 };
     const queries = [];
     const model = { count: async () => 0, findMany: async () => [], findUnique: async () => null };

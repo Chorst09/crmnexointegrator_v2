@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import {
   ArcElement,
   BarElement,
@@ -12,9 +12,17 @@ import {
   Tooltip
 } from 'chart.js';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
-import { MoreVertical } from 'lucide-react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import ExecutiveMarketCards from './ExecutiveMarketCards';
+import ExecutiveModuleNavigation from './ExecutiveModuleNavigation';
+import useExecutiveModules from './useExecutiveModules';
+import { ArrowRight, CalendarDays, MoreVertical, Coins, Handshake, Trophy, Target, TrendingUp, TriangleAlert } from 'lucide-react';
+import { ExecutiveIcon, ExecutiveBrazilMap, getOpportunityLocations } from './ExecutiveVisuals';
 
 import './PipelineDashboardModel.css';
+import './GeneralDashboardExecutive.css';
+import './GeneralDashboardExecutiveSkin.css';
+import './ExecutivePipelineDashboard.css';
 import { CHART_3D_PALETTE } from '../theme/chart3dGeometry.mjs';
 
 ChartJS.register(
@@ -29,7 +37,7 @@ ChartJS.register(
   Tooltip
 );
 
-const DEFAULT_COLORS = CHART_3D_PALETTE;
+const DEFAULT_COLORS = ['#00caff', '#008dff', '#16e8ac', '#b277ff', '#ffbd23', '#ff665c'];
 const GRID_COLOR = 'rgba(75, 85, 99, 0.42)';
 const TEXT_COLOR = '#8f9caf';
 
@@ -84,50 +92,13 @@ function EmptyChart({ label = 'Sem dados para o periodo selecionado' }) {
 }
 
 function KpiRing({ metric, index }) {
-  const percent = clampPercent(metric.percent);
-  const primary = metric.color || DEFAULT_COLORS[index % DEFAULT_COLORS.length];
-  const secondary = metric.secondaryColor;
-  const chartData = secondary
-    ? {
-        datasets: [{
-          data: [percent * 0.62, percent * 0.38, 100 - percent],
-          backgroundColor: [primary, secondary, '#1f2937'],
-          borderWidth: 0,
-          hoverOffset: 0
-        }]
-      }
-    : {
-        datasets: [{
-          data: [percent, 100 - percent],
-          backgroundColor: [primary, '#1f2937'],
-          borderWidth: 0,
-          hoverOffset: 0
-        }]
-      };
-
-  return (
-    <article className="pipeline-model__kpi" style={{ '--metric-color': primary }}>
-      <div className="pipeline-model__ring">
-        <Doughnut
-          data={chartData}
-          options={{
-            responsive: true,
-            maintainAspectRatio: false,
-            cutout: '71%',
-            rotation: -90,
-            plugins: { legend: { display: false }, tooltip: { enabled: false } },
-            animation: { duration: 650 }
-          }}
-        />
-        <span>{Math.round(percent)}%</span>
-      </div>
-      <div className="pipeline-model__kpi-copy">
-        <strong>{metric.value}</strong>
-        <span>{metric.label}</span>
-      </div>
-      <MoreVertical aria-hidden="true" className="pipeline-model__kpi-menu" />
-    </article>
-  );
+  const icon = [Coins, Handshake, Trophy, Target][index % 4];
+  const kind = ['coins', null, 'trophy', null][index % 4];
+  const tone = ['blue', 'cyan', 'amber', 'blue'][index % 4];
+  return <article className={`nex-panel nex-kpi nex-${tone}`}>
+    <span className="nex-icon"><ExecutiveIcon icon={metric.icon || icon} kind={metric.kind || kind}/></span>
+    <div><h2>{metric.label}</h2><strong>{metric.value}</strong><small>{metric.subtitle || 'Carteira filtrada'}</small></div>
+  </article>;
 }
 
 function MiniSignalCard({ title, label, value, detail = 'período selecionado', data = [], color = DEFAULT_COLORS[0] }) {
@@ -489,109 +460,77 @@ export default function PipelineDashboardModel({
   table,
   alerts,
   teamChart,
-  presentationControls
+  presentationControls,
+  mapRecords,
+  market = 'B2B',
+  ranking = []
 }) {
+  const navigate = useNavigate();
+  const location = useLocation();
+  useEffect(()=>{
+    const target=location.hash==='#mapa'?'nex-pipeline-map':location.hash==='#receitas-b2b'?'receitas-b2b':null;
+    if(target) document.getElementById(target)?.scrollIntoView({behavior:'smooth',block:'center'});
+  },[location.hash]);
+  const modules = useExecutiveModules(market);
+  const rankingDialog = useRef(null);
+  const intelligenceDialog = useRef(null);
+  const agendaRoute = market === 'B2G' ? '/b2g-atividades' : '/atividades';
+  const upcoming = (Array.isArray(modules.data.activities) ? modules.data.activities : []).filter(item => {
+    const type = item.clientType || item.company?.clientType || item.opportunity?.clientType;
+    return (type === market) && item.dueDate && new Date(item.dueDate) >= new Date() && !['COMPLETED','CANCELLED'].includes(String(item.status).toUpperCase());
+  }).sort((a,b)=>new Date(a.dueDate)-new Date(b.dueDate));
+  useEffect(() => {
+    const open = () => { if (!intelligenceDialog.current?.open) intelligenceDialog.current?.showModal(); };
+    window.addEventListener('nexos-open-intelligence', open);
+    return () => window.removeEventListener('nexos-open-intelligence', open);
+  }, []);
+  const score = clampPercent(health?.value ?? temperature);
+  const mapLocations = getOpportunityLocations(mapRecords || []);
   return (
-    <div className="pipeline-model">
-      <header className="pipeline-model__toolbar">
-        <div>
-          <h2>{title}</h2>
-          {subtitle ? <p>{subtitle}</p> : null}
-        </div>
+    <div data-market={market} className="pipeline-model nex-executive nex-pipeline">
+      {market==='B2B' && <section className="nex-market-masthead" aria-label="NEXOS Comercial B2B"><div className="nex-market-brand"><img src="/double-logo.svg" alt="Double"/><span>NEXOS <b>CRM</b></span></div><div><strong>Inteligência que conecta negócios.</strong><p>Gestão comercial e crescimento B2B.</p></div></section>}
+      <dialog ref={intelligenceDialog} className="nex-ai-dialog" aria-labelledby="pipeline-intelligence-title">
+        <h2 id="pipeline-intelligence-title">NEXOS Intelligence</h2><p>{title} · resumo dos filtros ativos.</p>
+        {metrics.map(metric => <p key={metric.label}>{metric.label}: <strong>{metric.value}</strong></p>)}
+        <p>{alerts?.items?.length || 0} prioridades no painel atual.</p>
+        <button onClick={() => intelligenceDialog.current.close()}>Fechar</button>
+      </dialog>
+      <header className="nex-welcome nex-pipeline-welcome" data-section="header">
+        <div className="nex-welcome-copy"><TrendingUp size={38}/><div><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div></div>
         <div className="pipeline-model__controls">{controls}</div>
       </header>
-
-      <section className="pipeline-model__kpis" aria-label="Indicadores principais">
-        {metrics.slice(0, 4).map((metric, index) => (
-          <KpiRing key={metric.label} metric={metric} index={index} />
-        ))}
-      </section>
-
-      <ExecutiveSignals metrics={metrics} trendChart={trendChart} performanceChart={performanceChart} temperature={temperature} signals={executiveSignals} />
-
-      <section className="pipeline-model__main-grid">
-        <article className="pipeline-model__panel pipeline-model__funnel-panel">
-          <PanelHeader title={funnelTitle} subtitle={funnelSubtitle} />
-          <div className="pipeline-model__funnel-layout">
-            <div className="pipeline-model__funnel">{funnel}</div>
-            <TemperatureScale value={temperature} levels={temperatureLevels} color={temperatureColor} />
-          </div>
-        </article>
-
-        <div className="pipeline-model__side-stack">
-          <article className="pipeline-model__panel pipeline-model__chart-panel">
-            <PanelHeader title={performanceChart?.title || 'Performance'} subtitle={performanceChart?.subtitle} />
-            <div className="pipeline-model__chart"><HorizontalPerformance chart={performanceChart} /></div>
-          </article>
-          <article className="pipeline-model__panel pipeline-model__chart-panel">
-            <PanelHeader title={trendChart?.title || 'Tendencia Mensal'} subtitle={trendChart?.subtitle} />
-            <div className="pipeline-model__chart"><TrendChart chart={trendChart} /></div>
-            {trendChart?.note ? <p className="pipeline-model__note">{trendChart.note}</p> : null}
-          </article>
-        </div>
-      </section>
-
-      <section className="pipeline-model__insight-grid">
-        <article className="pipeline-model__panel pipeline-model__temporal-panel">
-          <PanelHeader title={temporalChart?.title || 'Visão Temporal'} subtitle={temporalChart?.subtitle || 'Evolução comparada do período selecionado'} />
-          <div className="pipeline-model__temporal-chart"><TemporalAreaChart chart={temporalChart || trendChart} /></div>
-          {temporalChart?.note ? <p className="pipeline-model__note">{temporalChart.note}</p> : null}
-        </article>
-
-        <article className="pipeline-model__panel pipeline-model__health-panel">
-          <PanelHeader title={health?.title || 'Saúde do Pipeline'} subtitle={health?.subtitle || 'Score ponderado por conversão e temperatura'} />
-          <HealthDonut value={health?.value ?? temperature} label={health?.label} />
+      <section className="nex-kpis" aria-label="Indicadores principais" data-section="kpis">
+        {metrics.slice(0,4).map((metric,index) => <KpiRing key={metric.label} metric={metric} index={index}/>)}
+        <article className="nex-panel nex-health" title={health?.subtitle || 'Média de probabilidade das oportunidades filtradas'}>
+          <div className="nex-ring" style={{'--progress':`${score}%`,'--ring-green':`${score*.55}%`,'--ring-yellow':`${score*.7}%`}}><strong>{Math.round(score)}%</strong></div>
+          <div><h2>{health?.title || 'Probabilidade Média'}</h2><strong className="nex-positive">{health?.label || 'Pipeline filtrado'}</strong><small>{health?.subtitle || 'Probabilidades cadastradas'}</small></div>
         </article>
       </section>
-
-      <section className="pipeline-model__bottom-grid">
-        <article className="pipeline-model__panel pipeline-model__table-panel">
-          <PanelHeader title={table?.title || 'Performance Comercial'} subtitle={table?.subtitle} />
-          <div className="pipeline-model__table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  {(table?.columns || []).map((column) => (
-                    <th key={column.label} className={column.align === 'right' ? 'is-right' : ''}>{column.label}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {(table?.rows || []).map((row) => (
-                  <tr key={row.id}>
-                    {row.cells.map((cell, index) => (
-                      <td key={`${row.id}-${index}`} className={table?.columns?.[index]?.align === 'right' ? 'is-right' : ''}>{cell}</td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            {!table?.rows?.length ? <EmptyChart label={table?.emptyLabel || 'Sem registros para exibir'} /> : null}
-          </div>
-        </article>
-
-        <article className="pipeline-model__panel pipeline-model__alerts-panel">
-          <PanelHeader title={alerts?.title || 'Alertas do Pipeline'} subtitle={alerts?.subtitle} />
-          <div className="pipeline-model__alerts">
-            {(alerts?.items || []).map((item) => (
-              <div key={item.id} className={`pipeline-model__alert is-${item.tone || 'blue'}`}>
-                <span className="pipeline-model__alert-dot" />
-                <div>
-                  <strong>{item.title}</strong>
-                  <p>{item.detail}</p>
-                </div>
-              </div>
-            ))}
-            {!alerts?.items?.length ? <EmptyChart label="Nenhum alerta no momento" /> : null}
-          </div>
-        </article>
-
-        <article className="pipeline-model__panel pipeline-model__team-panel">
-          <PanelHeader title={teamChart?.title || 'Performance da Equipe'} subtitle={teamChart?.subtitle} />
-          <div className="pipeline-model__team-chart"><TeamPerformance chart={teamChart} /></div>
-        </article>
+      <section className="nex-three nex-charts nex-pipeline-main" data-section="charts" aria-label="Gráficos principais">
+        <article className="nex-panel"><PanelHeader title={trendChart?.title || 'Evolução'} subtitle={trendChart?.subtitle}/><div className="nex-pipeline-chart"><TrendChart chart={trendChart}/></div>{trendChart?.note && <p className="nex-pipeline-note">{trendChart.note}</p>}</article>
+        <article className="nex-panel"><PanelHeader title={funnelTitle} subtitle={funnelSubtitle}/><div className="nex-pipeline-funnel">{funnel}</div></article>
+        {mapRecords ? <article id="nex-pipeline-map" className="nex-panel"><PanelHeader title="Mapa de Oportunidades" subtitle={`Distribuição da carteira ${market} filtrada`}/><div className="nex-pipeline-geography"><ExecutiveBrazilMap locations={mapLocations} category={market}/><div><strong>{compactNumber(mapRecords.length)}</strong><span>oportunidades</span><strong>{compactNumber(mapLocations.length)}</strong><span>com localização</span><small>{mapLocations.some(item => item.approximate) ? 'Inclui localização aproximada por UF' : mapLocations.length ? 'Coordenadas cadastradas' : 'Cadastre UF ou coordenadas para exibir pontos.'}</small></div></div></article> : <article className="nex-panel"><PanelHeader title={performanceChart?.title || 'Performance'} subtitle={performanceChart?.subtitle}/><div className="nex-pipeline-chart"><HorizontalPerformance chart={performanceChart}/></div></article>}
       </section>
-
+      <section className="nex-three nex-lists nex-pipeline-executive-lists" data-section="lists" aria-label="Equipe, alertas e agenda">
+        <article className="nex-panel"><div className="nex-panel-heading"><h2>Performance da Equipe</h2><button className="nex-link" onClick={()=>rankingDialog.current?.showModal()}>Ver ranking<ArrowRight size={13}/></button></div><div className="nex-list-body">{ranking.length ? ranking.map((item,index)=>{const rate=item.total ? item.won/item.total*100 : 0;return <div className="nex-team-row" key={item.id || item.name}><span className="nex-rank">{index === 0 ? <Trophy size={15}/> : index+1}</span><span className="nex-avatar">{String(item.name || '?').split(' ').slice(0,2).map(part=>part[0]).join('')}</span><div className="nex-team-name"><strong>{item.name}</strong><small>{compactNumber(item.total)} oportunidades</small></div><span className="nex-progress"><i style={{width:`${clampPercent(rate)}%`}}/></span><strong title="Oportunidades ganhas / total">{rate.toLocaleString('pt-BR',{maximumFractionDigits:1})}%</strong></div>;}) : <EmptyChart label="Sem dados de equipe nos filtros selecionados"/>}</div></article>
+        <article className="nex-panel"><div className="nex-panel-heading"><h2>Alertas e Ações {(alerts?.items?.length || 0)>0 && <span className="nex-count">{alerts.items.length}</span>}</h2><button className="nex-link" onClick={()=>navigate(agendaRoute)}>Ver agenda<ArrowRight size={13}/></button></div><div className="nex-list-body">{(alerts?.items || []).map(item=><div key={item.id} className={`pipeline-model__alert is-${item.tone || 'blue'}`}><span className={`nex-status-icon nex-alert-${item.tone || 'blue'}`}><TriangleAlert size={17}/></span><div><strong>{item.title}</strong><p>{item.detail}</p></div></div>)}{!alerts?.items?.length && <EmptyChart label="Nenhum alerta nos filtros atuais"/>}</div></article>
+        <article className="nex-panel"><div className="nex-panel-heading"><h2>Próximos Compromissos</h2><button className="nex-link" onClick={()=>navigate(agendaRoute)}>Ver agenda<ArrowRight size={13}/></button></div><div className="nex-list-body">{modules.loading ? <EmptyChart label="Carregando agenda..."/> : upcoming.length ? upcoming.map((item,index)=><button key={item.id || index} className="nex-action-row" onClick={()=>navigate(agendaRoute)}><span className="nex-status-icon"><CalendarDays size={19}/></span><span className="nex-row-copy"><strong>{item.subject || 'Atividade'}</strong><small>{new Date(item.dueDate).toLocaleDateString('pt-BR')}</small></span><b>{new Date(item.dueDate).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</b></button>) : <EmptyChart label={modules.error ? 'Agenda indisponível no momento' : 'Nenhum compromisso futuro cadastrado'}/>}</div></article>
+      </section>
+      <dialog ref={rankingDialog} className="nex-ai-dialog" aria-labelledby="pipeline-ranking-title"><h2 id="pipeline-ranking-title">Performance da Equipe · {market}</h2><p>Carteira atual com os filtros ativos. Conversão = oportunidades ganhas / total.</p><div style={{maxHeight:'60vh',overflow:'auto'}}>{ranking.map((item,index)=><p key={item.id || item.name}>{index+1}. {item.name} · {item.total} oportunidades · {item.won} ganhas · {new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(item.pipeline || 0)} em aberto</p>)}</div><button onClick={()=>rankingDialog.current.close()}>Fechar</button></dialog>
+      <div className="nex-pipeline-module-caption"><h2>Visão da Operação {market}</h2><span>Carteira atual · indicadores exclusivos {market}</span></div>
+      {modules.loading ? <div className="nex-panel nex-modules-loading" role="status">Carregando os módulos...</div> : <>{modules.error && <p className="nex-warning" role="status">{modules.error}</p>}<ExecutiveMarketCards computed={modules.computed} data={modules.data} market={market}/></>}
+      <ExecutiveModuleNavigation market={market} access={modules.access} adminLike={modules.adminLike} onIntelligence={()=>intelligenceDialog.current?.showModal()}/>
+      <details className="nex-pipeline-details"><summary>Análises detalhadas da carteira {market}</summary>
+      <div data-section="signals"><ExecutiveSignals metrics={metrics} trendChart={trendChart} performanceChart={performanceChart} temperature={temperature} signals={executiveSignals}/></div>
+      <section className="nex-pipeline-analysis" data-section="analysis">
+        {mapRecords && <article className="nex-panel"><PanelHeader title={performanceChart?.title || 'Performance'} subtitle={performanceChart?.subtitle}/><div className="nex-pipeline-chart"><HorizontalPerformance chart={performanceChart}/></div></article>}
+        <article className="nex-panel"><PanelHeader title={temporalChart?.title || 'Visão Temporal'} subtitle={temporalChart?.subtitle || 'Evolução no período selecionado'}/><div className="nex-pipeline-temporal"><TemporalAreaChart chart={temporalChart || trendChart}/></div>{temporalChart?.note && <p className="nex-pipeline-note">{temporalChart.note}</p>}</article>
+        <article className="nex-panel"><PanelHeader title="Temperatura do Pipeline" subtitle="Probabilidade média e faixas de qualificação"/><TemperatureScale value={temperature} levels={temperatureLevels} color={temperatureColor}/></article>
+      </section>
+      <section className="nex-pipeline-detailed-lists">
+        <article className="nex-panel"><PanelHeader title={table?.title || 'Performance Comercial'} subtitle={table?.subtitle}/><div className="pipeline-model__table-wrap"><table><thead><tr>{(table?.columns || []).map(column=><th key={column.label} className={column.align === 'right' ? 'is-right' : ''}>{column.label}</th>)}</tr></thead><tbody>{(table?.rows || []).map(row=><tr key={row.id}>{row.cells.map((cell,index)=><td key={index} className={table?.columns?.[index]?.align === 'right' ? 'is-right' : ''}>{cell}</td>)}</tr>)}</tbody></table>{!table?.rows?.length && <EmptyChart label={table?.emptyLabel}/>}</div></article>
+        <article className="nex-panel"><PanelHeader title={teamChart?.title || 'Distribuição da Carteira'} subtitle={teamChart?.subtitle}/><div className="nex-pipeline-team-chart"><TeamPerformance chart={teamChart}/></div></article>
+      </section></details>
       {presentationControls}
     </div>
   );
