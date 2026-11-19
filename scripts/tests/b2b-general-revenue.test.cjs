@@ -50,8 +50,8 @@ for (const file of ['apps/api/api/dashboard.js', 'backend/api/dashboard.js']) {
       }
     } : model });
     const source = fs.readFileSync(file, 'utf8').replace(/^import .*;\n/gm, '').replace('export default async function handler', 'return async function handler');
-    const handler = new Function('prisma', 'getTenantCompanyId', source)(prisma, () => 'tenant-qa');
-    const response = await handler({ method: 'GET', query: { type: 'general' }, user: {} });
+    const handler = new Function('prisma', 'getTenantCompanyId', 'activityMarket', source)(prisma, () => 'tenant-qa', require('../../backend/lib/activityMarket.cjs'));
+    const response = await handler({ method: 'GET', query: { type: 'general' }, user: {role:'MASTER'} });
     assert.equal(response.status, 200);
     const { data } = await response.json();
     assert.equal(data.opportunitiesB2B[0].monthlyValue, 150.5);

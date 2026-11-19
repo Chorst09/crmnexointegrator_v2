@@ -1,3 +1,4 @@
+const { resolveActivityMarket } = require('../lib/activityMarket.cjs');
 const express = require('express');
 const { prisma } = require('../lib/prisma.cjs');
 const { getTenantId } = require('../lib/access-control.cjs');
@@ -336,7 +337,10 @@ router.get('/', async (req, res) => {
       })
     );
     
-    res.json(enriched);
+    const market = String(req.query?.clientType || '').toUpperCase();
+    if (market && !['B2B','B2G'].includes(market)) return res.status(400).json({ error: 'Mercado inválido' });
+    const scoped = market ? enriched.filter(act => resolveActivityMarket(act) === market) : enriched;
+    res.json(scoped.map(act=>({...act,clientType:resolveActivityMarket(act)})));
   } catch (error) {
     console.error('Erro ao buscar atividades:', error);
     res.status(500).json({ error: 'Erro interno do servidor' });

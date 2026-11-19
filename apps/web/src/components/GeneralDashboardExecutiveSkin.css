@@ -242,3 +242,13 @@
   .nex-charts .nex-panel-heading { padding-right: 76px; }
 }
 .nex-dashboard-shell {--crm-ink:#eaf4ff;--crm-ink-rgb:234 244 255;--crm-muted:#a6bfd9;--crm-muted-rgb:166 191 217;--crm-surface:#04162c;--crm-surface-rgb:4 22 44;--crm-surface-2:#061b35;--crm-surface-2-rgb:6 27 53;--crm-border:#1c608b66;--crm-accent:#00caff;--crm-accent-rgb:0 202 255;--crm-bg:#010c1f}
+
+/* General overview: both real funnels and the operational cards requested in the reference. */
+.nex-general-dashboard .nex-general-charts {grid-template-columns:repeat(2,minmax(0,1fr))}
+.nex-general-dashboard .nex-general-charts > .nex-panel {height:330px}
+.nex-general-dashboard .nex-general-charts .nex-funnel-layout {height:262px}
+.nex-general-dashboard .nex-general-charts .nex-chart {height:246px}
+.nex-general-dashboard .nex-lists {margin-top:16px}
+.nex-general-dashboard .nex-lists > .nex-panel {height:190px}
+.nex-general-dashboard .nex-lists .nex-list-body {height:140px}
+@media(max-width:760px){.nex-general-dashboard .nex-general-charts{grid-template-columns:1fr}.nex-general-dashboard .nex-lists{grid-template-columns:1fr}}

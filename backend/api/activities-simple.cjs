@@ -1,3 +1,4 @@
+const { resolveActivityMarket } = require('../lib/activityMarket.cjs');
 const express = require('express');
 const { prisma } = require('../lib/prisma.cjs');
 const { getTenantCompanyId, isTenantRecordVisible, tenantScopedWhere } = require('../lib/tenantScope.cjs');
@@ -163,7 +164,10 @@ router.get('/', async (req, res) => {
     const visibleActivities = req.user?.role === 'SELLER'
       ? activities.filter((act) => act.assignedToId === getAuthenticatedUserId(req) || canCollaborateOnActivity(req.user, act))
       : activities;
-    const sanitized = visibleActivities.map((act) => {
+    const market = String(req.query?.clientType || '').toUpperCase();
+    if (market && !['B2B','B2G'].includes(market)) return res.status(400).json({ error: 'Mercado inválido' });
+    const scopedActivities = market ? visibleActivities.filter(act => resolveActivityMarket(act) === market) : visibleActivities;
+    const sanitized = scopedActivities.map((act) => {
       let desc = act.description || '';
       if (!isPreSalesUser && desc) {
         desc = desc
@@ -173,6 +177,7 @@ router.get('/', async (req, res) => {
       }
       return {
         ...act,
+        clientType: resolveActivityMarket(act),
         description: desc
       };
     });

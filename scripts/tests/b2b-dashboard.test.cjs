@@ -148,7 +148,7 @@ for (const apiFile of ['apps/api/api/dashboard.js', 'backend/api/dashboard.js'])
       }
     };
     const source = fs.readFileSync(path.resolve(apiFile), 'utf8').replace(/^import .*;\n/gm, '').replace('export default async function handler', 'return async function handler');
-    const handler = new Function('prisma', 'getTenantCompanyId', 'buildB2BDashboardAnalytics', source)(prisma, user => user.tenantCompanyId, buildB2BDashboardAnalytics);
+    const handler = new Function('prisma', 'getTenantCompanyId', 'buildB2BDashboardAnalytics', 'activityMarket', source)(prisma, user => user.tenantCompanyId, buildB2BDashboardAnalytics, require('../../backend/lib/activityMarket.cjs'));
     const response = await handler({ method: 'GET', query: { type: 'b2b', ownerId: 'another-owner', temperature: '25', period: 'year' }, user: { id: 'owner-1', role: 'SELLER', tenantCompanyId: 'tenant-1' } });
     assert.equal(response.status, 200);
     const result = await response.json();

@@ -49,9 +49,10 @@ for (const base of apiRoots) {
     const file = `${base}/api/dashboard.js`;
     const source = fs.readFileSync(file, 'utf8').replace(/^import .*;\n/gm, '')
       .replace('export default async function handler', 'return async function handler');
-    const handler = new Function('prisma', 'getTenantCompanyId', 'buildB2BDashboardAnalytics', source)(
+    const handler = new Function('prisma', 'getTenantCompanyId', 'buildB2BDashboardAnalytics', 'activityMarket', source)(
       prisma, user => user.tenantCompanyId,
-      (rows, options) => buildB2BDashboardAnalytics(rows, { ...options, now })
+      (rows, options) => buildB2BDashboardAnalytics(rows, { ...options, now }),
+      require('../../backend/lib/activityMarket.cjs')
     );
     const response = await handler({ method: 'GET', query: { type: 'b2b', ownerId: 'nilton', period: 'year' },
       user: { userId: 'master', role: 'MASTER', tenantCompanyId: 'tenant-1' } });

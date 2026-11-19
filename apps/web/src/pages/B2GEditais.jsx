@@ -1,3 +1,4 @@
+import { activityRoute } from '../utils/dashboardFlow.mjs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -1434,6 +1435,8 @@ export default function B2GEditais() {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [supportLoading, setSupportLoading] = useState(true);
+  const [dashboardSourceErrors,setDashboardSourceErrors] = useState({});
+  const setDashboardSourceError = (source,failed) => setDashboardSourceErrors(previous=>({...previous,[source]:failed}));
   const [saving, setSaving] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [feedback, setFeedback] = useState({ type: '', message: '' });
@@ -2259,7 +2262,7 @@ export default function B2GEditais() {
       const monthlyPart = item.__monthlyValue || (projectType === 'MONTHLY' ? (value / item.__contractMonths) : value);
 
       pipelineValue += value;
-      projectedValue += value * (probability / 100);
+      if(!['GANHO','PERDIDO','NO_GO'].includes(columnId))projectedValue += value * (probability / 100);
 
       if (projectType === 'MONTHLY') {
         monthlyValue += monthlyPart;
@@ -2284,11 +2287,11 @@ export default function B2GEditais() {
     });
 
     const totalCount = dashboardFilteredOpportunities.length;
-    const fallbackMonthlyValue = monthlyValue > 0 ? monthlyValue : wonValue;
+
 
     return {
       pipelineValue,
-      monthlyValue: fallbackMonthlyValue,
+      monthlyValue,
       punctualValue: Math.max(punctualValue, 0),
       projectedValue,
       openValue,
@@ -2599,24 +2602,29 @@ export default function B2GEditais() {
       const data = await response.json().catch(() => []);
       const rows = Array.isArray(data) ? data : [];
       if (requestId === b2gOpportunityRequestRef.current) {
+        setDashboardSourceError('Oportunidades',false);
         setOpportunities(
           rows.filter((item) => isOpportunityInClientType(item, 'B2G', item?.company || null))
         );
       }
     } catch (error) {
       console.error('Erro ao sincronizar oportunidades B2G:', error);
+      if(requestId===b2gOpportunityRequestRef.current)setDashboardSourceError('Oportunidades',true);
     }
   };
 
   const loadSupportData = async () => {
     try {
       setSupportLoading(true);
+      setDashboardSourceError('Dados complementares',false);
       const [companiesRes, , activitiesRes] = await Promise.all([
         fetch(buildApiUrl('/companies?clientType=B2G'), { headers: getAuthHeaders() }),
         refreshB2GOpportunities(),
         fetch(buildApiUrl('/activities-simple?clientType=B2G'), { headers: getAuthHeaders() })
       ]);
 
+      setDashboardSourceError('Órgãos',!companiesRes.ok);
+      setDashboardSourceError('Agenda',!activitiesRes.ok);
       if (companiesRes.ok) {
         const companiesData = await companiesRes.json().catch(() => []);
         const companiesRows = Array.isArray(companiesData) ? companiesData : [];
@@ -2633,6 +2641,7 @@ export default function B2GEditais() {
       }
     } catch (error) {
       console.error('Erro ao carregar dados complementares B2G:', error);
+      setDashboardSourceError('Dados complementares',true);
       setLeads([]);
       setActivities([]);
     } finally {
@@ -5474,9 +5483,11 @@ export default function B2GEditais() {
       { value: 75, label: 'Ciano / Quente', color: palette[5] },
       { value: 100, label: dashboardPhaseFilter === 'GANHO' ? 'Ganho' : 'Fechado', color: dashboardPhaseFilter === 'GANHO' ? '#22c55e' : palette[9] }
     ];
-    const monthTotals = monthlyProjectData.months.map((_, monthIndex) => (
-      monthlyProjectData.datasets.reduce((sum, dataset) => sum + Number(dataset.data?.[monthIndex] || 0), 0)
-    ));
+    const monthlyEntries = monthlyProjectData.months.map(month=>{
+      const rows=dashboardFilteredOpportunities.filter(item=>String(item.createdAt || '').slice(0,7)===month);
+      return {total:rows.reduce((sum,item)=>sum+item.__value,0),weighted:rows.filter(item=>!['GANHO','PERDIDO','NO_GO'].includes(item.__columnId)).reduce((sum,item)=>sum+item.__value*item.__probability/100,0)};
+    });
+    const monthTotals = monthlyEntries.map(item=>item.total);
     const monthLabels = monthlyProjectData.months.map((month) => {
       const [year, monthNumber] = month.split('-').map(Number);
       return new Date(year, monthNumber - 1, 1).toLocaleDateString('pt-BR', { month: 'short' });
@@ -5489,12 +5500,14 @@ export default function B2GEditais() {
     }));
     const openingAlerts = opportunityOpeningAlerts.slice(0, 4).map((item) => ({
       id: item.opportunityId || item.id,
+      route: `/b2g-oportunidades?opportunityId=${encodeURIComponent(item.opportunityId || item.id)}&mode=view`,
       title: item.title || item.projectName || 'Oportunidade com abertura próxima',
       detail: `${item.company?.name || 'Órgão não informado'} • abertura ${formatDateFlexible(item.openingDate)}`,
       tone: item.alertType === 'TODAY' ? 'red' : item.alertType === 'TOMORROW' ? 'yellow' : 'blue'
     }));
     const activityAlert = dashboardCriticalActivity ? [{
       id: dashboardCriticalActivity.id || 'critical-activity',
+      route: activityRoute(dashboardCriticalActivity),
       title: dashboardCriticalActivity.subject || 'Atividade com SLA crítico',
       detail: `Vencimento ${formatDateFlexible(dashboardCriticalActivity.dueDate)}`,
       tone: 'blue'
@@ -5584,6 +5597,7 @@ export default function B2GEditais() {
         ref={dashboardPresentationRef}
         className={dashboardPresentationMode ? "h-screen overflow-y-auto overflow-x-hidden bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-2 pb-24" : ''}
       >
+        {Object.values(dashboardSourceErrors).some(Boolean) && <p className="nex-warning" role="alert">Dados indisponíveis: {Object.entries(dashboardSourceErrors).filter(([,failed])=>failed).map(([label])=>label).join(', ')}. Atualize para tentar novamente.</p>}
         <PipelineDashboardModel
           title="Dashboard Estratégico B2G"
           market="B2G"
@@ -5643,12 +5657,12 @@ export default function B2GEditais() {
             targetPercent: 85
           }}
           trendChart={{
-            title: 'Tendência Mensal',
-            subtitle: 'Valor mensal e projeção ponderada',
+            title: 'Entradas por Mês',
+            subtitle: 'Valor contratado e projeção individual das oportunidades filtradas',
             labels: monthLabels,
             datasets: [
               { label: 'Pipeline', data: monthTotals, color: '#ff7a00', fill: true, fillColor: 'rgba(255, 122, 0, 0.20)' },
-              { label: 'Projeção', data: monthTotals.map((value) => value * (dashboardForecastScore / 100)), color: '#22c55e', fill: false }
+              { label: 'Projeção', data: monthlyEntries.map(item=>item.weighted), color: '#22c55e', fill: false }
             ]
           }}
           table={{

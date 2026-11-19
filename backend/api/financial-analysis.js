@@ -1,3 +1,4 @@
+const { financialDashboardScope } = require('../lib/financial-dashboard-scope.cjs');
 const express = require('express');
 const router = express.Router();
 const { prisma } = require('../lib/prisma');
@@ -115,6 +116,11 @@ router.get('/dashboard', async (req, res) => {
     }
 
     // Buscar dados do banco
+    const scope=await financialDashboardScope(prisma,req.user);
+    oppWhere.AND=[...(oppWhere.AND || []),scope.opportunity];
+    commWhere.AND=[...(commWhere.AND || []),scope.commission];
+    simWhere.AND=[...(simWhere.AND || []),scope.simulator];
+
     const [rawOpportunities, allCommissions, allSimProposals] = await Promise.all([
       prisma.opportunity.findMany({
         where: oppWhere,
@@ -449,7 +455,7 @@ router.get('/dashboard', async (req, res) => {
     });
   } catch (error) {
     console.error('❌ [Análise Financeira] Erro ao consolidar métricas:', error);
-    res.status(500).json({ error: error.message || 'Erro ao carregar análise financeira' });
+    res.status(error.status===403 ? 403 : 500).json({ error: error.message || 'Erro ao carregar análise financeira' });
   }
 });
 

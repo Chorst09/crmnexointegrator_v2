@@ -55,6 +55,9 @@ const B2G_STAGE_SUMMARY = [
   { key: 'PROPOSTA_ENVIADA', label: 'Proposta enviada', tone: "text-amber-700 dark:text-amber-200", bar: 'bg-amber-400', chartColor: '#fbbf24' },
   { key: 'HABILITACAO', label: 'Habilitação', tone: "text-indigo-700 dark:text-indigo-200", bar: 'bg-indigo-400', chartColor: '#818cf8' },
   { key: 'RECURSO', label: 'Recurso', tone: "text-orange-700 dark:text-orange-200", bar: 'bg-orange-400', chartColor: '#fb923c' },
+  { key: 'SUSPENSO', label: 'Suspenso', chartColor: '#94a3b8' },
+  { key: 'HOMOLOGADO', label: 'Homologado', chartColor: '#60a5fa' },
+  { key: 'CONCLUIDO', label: 'Concluído', chartColor: '#c084fc' },
   { key: 'GANHO', label: 'Ganho', tone: "text-emerald-700 dark:text-emerald-200", bar: 'bg-emerald-400', chartColor: '#34d399' }
 ];
 
@@ -68,6 +71,9 @@ const normalizeB2GStageKey = (value) => {
     .replace(/^_+|_+$/g, '');
 
   const aliases = {
+    LEAD: 'ANALISE',
+    QUALIFICATION: 'ANALISE',
+    DIAGNOSIS: 'ANALISE',
     ANALISE: 'ANALISE',
     ANALISE_EM_ANDAMENTO: 'ANALISE',
     PROPOSTA: 'PROPOSTA_ENVIADA',
@@ -306,11 +312,11 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
     const contractsRange = contracts.filter((item) => inRange(item.createdAt || item.updatedAt || item.startDate));
 
     const openB2B = opportunitiesB2BRange.filter((item) => OPEN_STAGES.has(String(item.stage || '').toUpperCase()));
-    const wonB2B = opportunitiesB2BRange.filter((item) => String(item.stage || '').toUpperCase() === 'WON');
+    const wonB2B = opportunitiesB2B.filter((item) => String(item.stage || '').toUpperCase() === 'WON' && inRange(item.actualCloseDate));
     const lostB2B = opportunitiesB2BRange.filter((item) => String(item.stage || '').toUpperCase() === 'LOST');
 
-    const openB2GOpps = opportunitiesB2GRange.filter((item) => OPEN_STAGES.has(String(item.stage || '').toUpperCase()));
-    const wonB2GOpps = opportunitiesB2GRange.filter((item) => String(item.stage || '').toUpperCase() === 'WON');
+    const openB2GOpps = opportunitiesB2GRange.filter((item) => !['GANHO','PERDIDO','NO_GO'].includes(resolveB2GSummaryStage(item)));
+    const wonB2GOpps = opportunitiesB2G.filter((item) => resolveB2GSummaryStage(item) === 'GANHO' && inRange(item.actualCloseDate));
 
     const activeNoticeStatuses = new Set([
       'MONITORANDO',
@@ -348,12 +354,12 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
       return dueDate < new Date() && !finalPocStatuses.has(String(item.status || '').toUpperCase());
     });
 
-    const pendingActivities = activitiesRange.filter((item) => {
+    const pendingActivities = activities.filter((item) => {
       const status = String(item.status || '').toUpperCase();
-      return status === 'PENDING' || status === 'OPEN' || status === 'IN_PROGRESS';
+      return status === 'PENDING' || status === 'OPEN' || status === 'IN_PROGRESS' || status === 'SCHEDULED';
     });
 
-    const overdueActivities = activitiesRange.filter((item) => {
+    const overdueActivities = activities.filter((item) => {
       const dueDate = toDate(item.dueDate);
       if (!dueDate) return false;
       const status = String(item.status || '').toUpperCase();
@@ -414,17 +420,18 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
     };
     const previousOpportunities = [...opportunitiesB2B, ...opportunitiesB2G].filter(inPreviousRange);
     const previousMetrics = {
-      revenue: revenueBreakdownFromOpportunities(previousOpportunities.filter(item => String(item.stage || '').toUpperCase() === 'WON')).total,
-      pipeline: revenueBreakdownFromOpportunities(previousOpportunities.filter(item => OPEN_STAGES.has(String(item.stage || '').toUpperCase()))).total,
+      revenue: revenueBreakdownFromOpportunities([...opportunitiesB2B,...opportunitiesB2G].filter(item=>{const date=toDate(item.actualCloseDate);return (String(item.stage).toUpperCase()==='WON' || resolveB2GSummaryStage(item)==='GANHO') && date && date>=previousStart && date<rangeStart;})).total,
+      pipeline: revenueBreakdownFromOpportunities(previousOpportunities.filter(item => item.b2gStage ? !['GANHO','PERDIDO','NO_GO'].includes(resolveB2GSummaryStage(item)) : OPEN_STAGES.has(String(item.stage || '').toUpperCase()))).total,
       opportunities: previousOpportunities.length,
+      publicOpportunities: opportunitiesB2G.filter(inPreviousRange).filter(item=>!['GANHO','PERDIDO','NO_GO'].includes(resolveB2GSummaryStage(item))).length,
       notices: b2gNotices.filter(inPreviousRange).filter(item => activeNoticeStatuses.has(String(item.status || '').toUpperCase())).length
     };
 
     const b2bConversion = opportunitiesB2BRange.length > 0
-      ? (wonB2B.length / opportunitiesB2BRange.length) * 100
+      ? (opportunitiesB2BRange.filter(item=>String(item.stage).toUpperCase()==='WON').length / opportunitiesB2BRange.length) * 100
       : 0;
     const b2gConversion = opportunitiesB2GRange.length > 0
-      ? (wonB2GOpps.length / opportunitiesB2GRange.length) * 100
+      ? (opportunitiesB2GRange.filter(item=>resolveB2GSummaryStage(item)==='GANHO').length / opportunitiesB2GRange.length) * 100
       : 0;
     const preSalesApproval = preSalesRange.length > 0
       ? (donePreSales.length / preSalesRange.length) * 100
@@ -445,30 +452,22 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
     const teamMap = {};
     [...opportunitiesB2BRange, ...opportunitiesB2GRange].forEach((item) => {
       const ownerName = item?.owner?.name || 'Sem responsável';
-      if (!teamMap[ownerName]) {
-        teamMap[ownerName] = { name: ownerName, total: 0, won: 0, pipeline: 0 };
+      const ownerKey = item.ownerId || item.owner?.id || ownerName;
+      if (!teamMap[ownerKey]) {
+        teamMap[ownerKey] = { id: ownerKey, name: ownerName, total: 0, won: 0, pipeline: 0 };
       }
-      teamMap[ownerName].total += 1;
-      if (String(item.stage || '').toUpperCase() === 'WON') {
-        teamMap[ownerName].won += 1;
+      teamMap[ownerKey].total += 1;
+      if (String(item.stage || '').toUpperCase() === 'WON' || resolveB2GSummaryStage(item) === 'GANHO') {
+        teamMap[ownerKey].won += 1;
       }
-      if (OPEN_STAGES.has(String(item.stage || '').toUpperCase())) {
-        teamMap[ownerName].pipeline += revenueBreakdownFromOpportunities([item]).total;
+      if (item.b2gStage ? !['GANHO','PERDIDO','NO_GO'].includes(resolveB2GSummaryStage(item)) : OPEN_STAGES.has(String(item.stage || '').toUpperCase())) {
+        teamMap[ownerKey].pipeline += revenueBreakdownFromOpportunities([item]).total;
       }
     });
 
     let teamPerformance = Object.values(teamMap)
-      .sort((a, b) => b.pipeline - a.pipeline || b.total - a.total)
-      .slice(0, 6);
+      .sort((a, b) => b.pipeline - a.pipeline || b.total - a.total);
 
-    if (teamPerformance.length === 0 && sellers.length > 0) {
-      teamPerformance = sellers.slice(0, 6).map((seller) => ({
-        name: seller.name,
-        total: toNumber(seller?._count?.opportunities),
-        won: 0,
-        pipeline: 0
-      }));
-    }
 
     const buckets = createMonthBuckets(12);
     const monthIndex = new Map(buckets.map((item, idx) => [item.key, idx]));
@@ -501,15 +500,13 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
     opportunitiesB2BRange.forEach((item) => addOpportunityRevenueToBucket(item, monthlyB2B));
     opportunitiesB2GRange.forEach((item) => addOpportunityRevenueToBucket(item, monthlyB2G));
 
-    [...opportunitiesB2B, ...opportunitiesB2G].forEach((item) => {
-      const createdDate = toDate(item.createdAt || item.updatedAt);
-      if (!createdDate) return;
-      const idx = monthIndex.get(monthKey(createdDate));
-      if (idx === undefined) return;
-      monthlyPotential[idx] += revenueBreakdownFromOpportunities([item]).total;
-      if (String(item.stage || '').toUpperCase() === 'WON') {
-        monthlyWon[idx] += revenueBreakdownFromOpportunities([item]).total;
-      }
+    [...opportunitiesB2B.map(item=>({...item,__won:String(item.stage).toUpperCase()==='WON',__open:OPEN_STAGES.has(String(item.stage).toUpperCase())})), ...opportunitiesB2G.map(item=>({...item,__won:resolveB2GSummaryStage(item)==='GANHO',__open:!['GANHO','PERDIDO','NO_GO'].includes(resolveB2GSummaryStage(item))}))].forEach(item=>{
+      const entry = toDate(item.createdAt || item.updatedAt);
+      const close = toDate(item.actualCloseDate);
+      const entryIndex = entry ? monthIndex.get(monthKey(entry)) : undefined;
+      const closeIndex = close ? monthIndex.get(monthKey(close)) : undefined;
+      if(item.__open && entryIndex!==undefined)monthlyPotential[entryIndex]+=revenueBreakdownFromOpportunities([item]).total;
+      if(item.__won && closeIndex!==undefined)monthlyWon[closeIndex]+=revenueBreakdownFromOpportunities([item]).total;
     });
 
     activitiesRange.forEach((item) => {
@@ -565,6 +562,7 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
       overdueActivities,
       activeProducts,
       activeB2GNotices,
+      activeB2GOpportunities: openB2GOpps,
       inAnalysisB2G,
       pendingPreSales,
       donePreSales,
@@ -585,6 +583,7 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
       b2gWonRevenue,
       totalPipeline,
       totalWonValue,
+      undatedWonCount: [...opportunitiesB2B.filter(item=>String(item.stage).toUpperCase()==='WON'),...opportunitiesB2G.filter(item=>resolveB2GSummaryStage(item)==='GANHO')].filter(item=>!toDate(item.actualCloseDate)).length,
       previousMetrics,
       b2bPipelineValue,
       b2bWonValue,
