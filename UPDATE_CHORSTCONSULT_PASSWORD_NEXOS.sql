@@ -4,7 +4,7 @@
 
 UPDATE users 
 SET 
-  password = '$2b$10$lTKAs0VqeitQZRE5/t5ZtuLnZ83pcXURoJAmtBgB/zUlqaa4BnvTw.',
+  password = 'Admin@2026',
   role = 'MASTER',
   company_id = NULL,
   active = 1,
