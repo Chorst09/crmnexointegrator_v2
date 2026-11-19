@@ -1,3 +1,5 @@
+import activityMarket from './activityMarket.cjs';
+const { resolveActivityMarket } = activityMarket;
 const ADMIN_ROLES = new Set(['MASTER','ADMIN','MANAGER','DIRECTOR']);
 
 /** Query one commercial domain before aggregation. Never load the other domain. */
@@ -26,9 +28,11 @@ export async function buildMarketDashboardOverview({prisma,user={},market,tenant
   const [opportunities,companies,activities,contracts,proposals]=await Promise.all([
     query(`opportunities${market}`,`Oportunidades ${market}`,()=>prisma.opportunity.findMany({where:opportunityWhere,select:opportunitySelect,orderBy:{updatedAt:'desc'}})),
     query(`companies${market}`,market==='B2G'?'Órgãos B2G':'Clientes B2B',()=>prisma.company.findMany({where:companyWhere,select:companySelect,orderBy:{name:'asc'}})),
-    query('activities',`Agenda ${market}`,()=>prisma.activity.findMany({where:{...tenant,...(ownerId?{assignedToId:ownerId}:{}),OR:[{opportunity:opportunityWhere},{opportunityId:null,company:companyWhere}]},select:{id:true,subject:true,status:true,type:true,dueDate:true,createdAt:true,updatedAt:true,companyId:true,opportunityId:true},orderBy:{dueDate:'asc'}})),
+    query('activities',`Agenda ${market}`,()=>prisma.activity.findMany({where:{...tenant,...(ownerId?{assignedToId:ownerId}:{}),OR:[{opportunity:opportunityWhere},{opportunityId:null,company:companyWhere},{opportunityId:null,companyId:null}]},select:{id:true,subject:true,description:true,status:true,type:true,dueDate:true,createdAt:true,updatedAt:true,companyId:true,opportunityId:true,company:{select:{clientType:true}},opportunity:{select:{b2gStage:true,number:true,company:{select:{clientType:true}}}}},orderBy:{dueDate:'asc'}})),
     query('contracts',`Contratos ${market}`,()=>prisma.contract.findMany({where:{company:companyWhere,...(ownerId?{opportunity:opportunityWhere}:{OR:[{opportunity:opportunityWhere},{opportunityId:null}]})},select:{id:true,title:true,value:true,status:true,startDate:true,endDate:true,createdAt:true,updatedAt:true,companyId:true},orderBy:{updatedAt:'desc'}})),
     query('proposals',`Propostas ${market}`,()=>prisma.proposal.findMany({where:{opportunity:opportunityWhere},select:{id:true,title:true,status:true,totalValue:true,createdAt:true,updatedAt:true},orderBy:{updatedAt:'desc'}}))
   ]);
-  return {market,data:{[`opportunities${market}`]:opportunities,[`companies${market}`]:companies,activities:activities.map(item=>({...item,clientType:market})),contracts,proposals},moduleHealth:health};
+  const visibleActivities=activities.filter(item=>resolveActivityMarket(item)===market);
+  const activityHealth=health.find(item=>item.key==='activities');if(activityHealth)activityHealth.count=visibleActivities.length;
+  return {market,data:{[`opportunities${market}`]:opportunities,[`companies${market}`]:companies,activities:visibleActivities.map(item=>({...item,clientType:market})),contracts,proposals},moduleHealth:health};
 }

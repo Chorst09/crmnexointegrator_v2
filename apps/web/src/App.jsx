@@ -11,7 +11,6 @@ const AppShell = lazy(() => import('./layout/AppShell'));
 const DashboardGeral = lazy(() => import('./pages/DashboardGeral'));
 const DashboardHome = lazy(() => import('./pages/DashboardHome'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
-const DashboardModernized = lazy(() => import('./pages/DashboardModernized'));
 const Empresas = lazy(() => import('./pages/Empresas'));
 const Oportunidades = lazy(() => import('./pages/Oportunidades'));
 const AnaliseFinanceira = lazy(() => import('./pages/AnaliseFinanceira'));
@@ -172,7 +171,7 @@ export default function App() {
         >
           <Route path="dashboard" element={<Dashboard />} />
 
-          <Route path="dashboard-modernized" element={<DashboardModernized />} />
+          <Route path="dashboard-modernized" element={<Navigate to="/dashboard-geral" replace />} />
 
           <Route
             path="dashboard-geral"

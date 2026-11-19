@@ -24,8 +24,10 @@ export default function ExecutiveHeaderSearch({market=null}) {
         setLoading(false);
       }
     };
+    const invalidate=()=>{cache.current=null;requestId.current+=1;setResults(null);setLoading(false);};
     window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    window.addEventListener('nexos-refresh-modules',invalidate);
+    return () => {window.removeEventListener('keydown', onKey);window.removeEventListener('nexos-refresh-modules',invalidate);};
   }, []);
   const search = async event => {
     event.preventDefault();

@@ -1,5 +1,6 @@
+import { buildApiUrl, getAuthHeaders } from '../config/api';
 import { Bar3DShape, Pie3DShape } from '../components/charts/Chart3DShapes';
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import {
   BarChart3,
   TrendingUp,
@@ -34,6 +35,7 @@ const AnaliseFinanceira = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const requestRef = useRef(0);
 
   // Segmento Ativo: 'geral' | 'b2b' | 'b2g' | 'simulador'
   const [segmentoAtivo, setSegmentoAtivo] = useState('geral');
@@ -83,6 +85,7 @@ const AnaliseFinanceira = () => {
   ];
 
   const fetchFinancialData = async () => {
+    const requestId=++requestRef.current;
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -93,11 +96,9 @@ const AnaliseFinanceira = () => {
       });
 
       const response = await fetch(
-        `/api/gestao/analise-financeira/dashboard?${params.toString()}`,
+        buildApiUrl(`/gestao/analise-financeira/dashboard?${params.toString()}`),
         {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('token')}`
-          }
+          headers: getAuthHeaders()
         }
       );
 
@@ -106,18 +107,20 @@ const AnaliseFinanceira = () => {
       }
 
       const json = await response.json();
+      if(requestId!==requestRef.current)return;
       setData(json);
       setError(null);
     } catch (err) {
       console.error('Erro ao carregar análise financeira:', err);
-      setError(err.message || 'Falha ao sincronizar dados financeiros');
+      if(requestId===requestRef.current)setError(err.message || 'Falha ao sincronizar dados financeiros');
     } finally {
-      setLoading(false);
+      if(requestId===requestRef.current)setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchFinancialData();
+    return ()=>{requestRef.current+=1;};
   }, [periodo, dataInicio, dataFim, vendedor]);
 
   // Propostas do Simulador filtradas para a tabela

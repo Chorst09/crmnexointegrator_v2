@@ -1,3 +1,4 @@
+import { loadPreSalesDashboardRows } from '../utils/preSalesDashboardData.mjs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -351,6 +352,8 @@ export default function PreVendas() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [dataErrors,setDataErrors] = useState({});
+  const setSourceError = (source,failed) => setDataErrors(previous=>({...previous,[source]:failed}));
 
   const [activities, setActivities] = useState([]);
   const [activitiesLoading, setActivitiesLoading] = useState(false);
@@ -399,18 +402,10 @@ export default function PreVendas() {
   const loadSolicitacoes = async () => {
     try {
       setLoading(true);
-      const response = await axios.get(buildApiUrl('/pre-vendas?limit=200'), {
-        headers: getAuthHeaders()
+      const apiRows = await loadPreSalesDashboardRows(async(page,limit)=>{
+        const response=await axios.get(buildApiUrl(`/pre-vendas?limit=${limit}&page=${page}`),{headers:getAuthHeaders()});
+        return response.data;
       });
-
-      const apiRows = Array.isArray(response?.data?.solicitacoes)
-        ? response.data.solicitacoes
-        : Array.isArray(response?.data?.data)
-          ? response.data.data
-          : Array.isArray(response?.data)
-            ? response.data
-            : [];
-
       const mapped = apiRows.map((row) => ({
         id: row.id,
         numero: row.numero,
@@ -428,7 +423,9 @@ export default function PreVendas() {
       }));
 
       setSolicitacoes(mapped);
+      setSourceError('Solicitações',false);
     } catch (error) {
+      setSourceError('Solicitações',true);
       console.error('Erro ao carregar solicitações:', error);
       setSolicitacoes([]);
     } finally {
@@ -448,7 +445,9 @@ export default function PreVendas() {
         .filter((activity) => activity?.flow?.targetArea === 'PRE_VENDAS' || activity?.flow?.sourceArea === 'PRE_VENDAS')
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setActivities(relatedToPreSales);
+      setSourceError('Atividades',false);
     } catch (error) {
+      setSourceError('Atividades',true);
       console.error('Erro ao carregar atividades do Pré-Vendas:', error);
     } finally {
       setActivitiesLoading(false);
@@ -470,7 +469,9 @@ export default function PreVendas() {
           : [];
 
       setRegistroOportunidades(rows);
+      setSourceError('Registro de oportunidades',false);
     } catch (error) {
+      setSourceError('Registro de oportunidades',true);
       console.error('Erro ao carregar registro de oportunidades:', error);
       setRegistroOportunidades([]);
     } finally {
@@ -532,7 +533,9 @@ export default function PreVendas() {
       const payload = response?.data || {};
       setDistribuidores(Array.isArray(payload.distribuidores) ? payload.distribuidores : []);
       setFornecedores(Array.isArray(payload.fornecedores) ? payload.fornecedores : []);
+      setSourceError('Cadastros',false);
     } catch (error) {
+      setSourceError('Cadastros',true);
       console.error('Erro ao carregar cadastros de pré-vendas:', error);
       setDistribuidores([]);
       setFornecedores([]);
@@ -553,7 +556,9 @@ export default function PreVendas() {
           ? response.data.pocs
           : [];
       setPocs(rows);
+      setSourceError('POCs',false);
     } catch (error) {
+      setSourceError('POCs',true);
       console.error('Erro ao carregar POCs:', error);
       setPocs([]);
     } finally {
@@ -1233,6 +1238,7 @@ export default function PreVendas() {
 
   return (
     <div className="space-y-6">
+      {Object.values(dataErrors).some(Boolean) && <div role="alert" className="mb-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-400">Dados indisponíveis: {Object.entries(dataErrors).filter(([,failed])=>failed).map(([label])=>label).join(', ')}. Atualize para tentar novamente.</div>}
       <div
         ref={presentationRef}
         className={[

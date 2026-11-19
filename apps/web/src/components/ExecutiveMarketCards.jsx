@@ -1,3 +1,4 @@
+import { isFinalActivity } from '../utils/dashboardFlow.mjs';
 import { ArrowRight, BriefcaseBusiness, CalendarDays, Coins, FileText, Landmark, Layers, TrendingUp, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ExecutiveBrazilMap, ExecutiveDonut, ExecutiveIcon, ExecutiveMiniBars, ExecutiveSparkline, getOpportunityLocations } from './ExecutiveVisuals';
@@ -22,8 +23,8 @@ export default function ExecutiveMarketCards({computed:c,data,market}) {
   const proposals=data.proposals || [];
   const contracts=data.contracts || [];
   const activities=data.activities || [];
-  const future=activities.filter(item=>item.dueDate && new Date(item.dueDate)>=new Date() && !['COMPLETED','CANCELLED'].includes(item.status));
-  const overdue=activities.filter(item=>item.dueDate && new Date(item.dueDate)<new Date() && !['COMPLETED','CANCELLED'].includes(item.status));
+  const future=activities.filter(item=>item.dueDate && new Date(item.dueDate)>=new Date() && !isFinalActivity(item));
+  const overdue=activities.filter(item=>item.dueDate && new Date(item.dueDate)<new Date() && !isFinalActivity(item));
   const locations=getOpportunityLocations(opportunities,companies);
   const monthly=market==='B2B'?c.monthlyB2B:c.monthlyB2G;
   const values=(monthly?.single || []).map((value,index)=>value+(monthly.contract[index] || 0));

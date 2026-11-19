@@ -52,11 +52,11 @@ export function ExecutiveRevenueChart({ labels, won, potential }) {
   </svg><div className="nex-chart-legend"><span><i/>Receita contratada</span><button aria-pressed={showPotential} onClick={() => setShowPotential(value => !value)}><i className="nex-projected-key"/>{showPotential ? 'Ocultar potencial' : 'Exibir potencial'}</button></div></div>;
 }
 
-export function ExecutiveFunnel({ stages, mode, formatMoney, formatNumber }) {
+export function ExecutiveFunnel({ stages, mode, formatMoney, formatNumber, ariaLabel = "Funil comercial B2B por estágio" }) {
   const id = useId().replace(/:/g, '');
   const total = stages.reduce((sum, item) => sum + item.count, 0);
   const colors = [['#00cfff','#007bff','#0035b8'],['#00baff','#0065eb','#002891'],['#00e0bd','#009b94','#004c55'],['#24ed8a','#00a965','#00552e'],['#ffd327','#f29100','#8f3600'],['#ff9f21','#f35300','#a62a00']];
-  return <svg className="nex-funnel-3d" viewBox={`0 0 290 ${stages.length * 48 + 10}`} role="img" aria-label="Funil comercial B2B por estágio">
+  return <svg className="nex-funnel-3d" viewBox={`0 0 290 ${stages.length * 48 + 10}`} role="img" aria-label={ariaLabel}>
     <defs>{stages.map((stage, index) => <linearGradient id={`${id}-${index}`} key={stage.key}><stop stopColor={colors[index % colors.length][2]}/><stop offset=".3" stopColor={colors[index % colors.length][1]}/><stop offset=".55" stopColor={colors[index % colors.length][0]}/><stop offset="1" stopColor={colors[index % colors.length][2]}/></linearGradient>)}<radialGradient id={`${id}-floor`}><stop stopColor="#ff6a00" stopOpacity=".65"/><stop offset="1" stopColor="#ff6a00" stopOpacity="0"/></radialGradient></defs>
     <ellipse cx="145" cy={stages.length * 48 + 1} rx="78" ry="9" fill={`url(#${id}-floor)`}/>
     {stages.map((item, index) => {const y = 12 + index * 47, half = 137 - index * 14, lower = half - 13, color = colors[index % colors.length];return <g key={item.key}><title>{`${item.label}: ${formatNumber(item.count)} · ${formatMoney(item.total)}`}</title><path d={`M${145-half} ${y}Q145 ${y+15} ${145+half} ${y}L${145+lower} ${y+38}Q145 ${y+51} ${145-lower} ${y+38}Z`} fill={`url(#${id}-${index})`} stroke={color[0]} strokeWidth="1.2"/><ellipse cx="145" cy={y} rx={half} ry="9" fill={color[1]} stroke={color[0]} strokeWidth="1.7"/><path d={`M${145-half+4} ${y+2}Q145 ${y+16} ${145+half-4} ${y+2}`} fill="none" stroke="#c2ffff" strokeOpacity=".6" strokeWidth="1"/><text x="145" y={y+23} textAnchor="middle" className="nex-funnel-label">{item.label}</text><text x="145" y={y+37} textAnchor="middle" className="nex-funnel-label nex-funnel-value">{mode === 'value' ? formatMoney(item.total) : `${formatNumber(item.count)} (${total ? Math.round(item.count / total * 100) : 0}%)`}</text></g>;})}

@@ -1,3 +1,4 @@
+import { buildApiUrl, getAuthHeaders } from '../config/api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BarChart3, Clock3, Maximize2, PieChart, RefreshCw, Rocket, Target, X } from 'lucide-react';
 import B2BTestFlowModal from '../components/B2BTestFlowModal';
@@ -77,7 +78,7 @@ export default function Dashboard() {
       const effectiveOwnerId = restrictedOwnerId || ownerId;
       if (effectiveOwnerId) params.set('ownerId', effectiveOwnerId);
       if (temperature) params.set('temperature', temperature);
-      const res = await fetch(`/api/dashboard?${params}`, { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }, cache: 'no-store' });
+      const res = await fetch(buildApiUrl(`/dashboard?${params}`), { headers: getAuthHeaders(), cache: 'no-store' });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       const data = await res.json();
       if (requestId === dashboardRequestRef.current) { setDashboardData(data); setError(''); }
@@ -92,7 +93,7 @@ export default function Dashboard() {
   useEffect(() => {
     if (!canSeeAllOpps) return;
     const controller = new AbortController();
-    fetch('/api/users', { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }, signal: controller.signal })
+    fetch(buildApiUrl('/users'), { headers: getAuthHeaders(), signal: controller.signal })
       .then(res => res.ok ? res.json() : [])
       .then(data => setUsers(Array.isArray(data) ? data : []))
       .catch(() => {});
@@ -335,7 +336,7 @@ export default function Dashboard() {
             rows: sellerRows.map(row => ({ id: row.sellerId, cells: [row.sellerName, row.open, formatCurrency(row.pipelineValue), formatCurrency(row.weightedValue), row.periodDeals] })),
             emptyLabel: 'Nenhum gerente com oportunidades nos filtros selecionados'
           }}
-          alerts={{ title: 'Prioridades do Pipeline', subtitle: 'Prazos vencidos, falta de atualização ou dados comerciais', items: opportunityInsights.riskRows.slice(0, 4).map(row => ({ id: row.id, title: row.title || row.company?.name || 'Oportunidade', detail: row.__riskReason, tone: row.__riskPriority >= 4 ? 'red' : row.__riskPriority >= 3 ? 'yellow' : 'blue' })) }}
+          alerts={{ title: 'Prioridades do Pipeline', subtitle: 'Prazos vencidos, falta de atualização ou dados comerciais', items: opportunityInsights.riskRows.slice(0, 4).map(row => ({ id: row.id, title: row.title || row.company?.name || 'Oportunidade', detail: row.__riskReason, route: `/oportunidades?opportunityId=${encodeURIComponent(row.id)}&mode=view`, tone: row.__riskPriority >= 4 ? 'red' : row.__riskPriority >= 3 ? 'yellow' : 'blue' })) }}
           teamChart={{
             title: 'Distribuição da Carteira', subtitle: 'Situação atual das oportunidades por gerente', horizontal: true, stacked: true, unit: 'count', labels: teamRows.map(row => row.sellerName),
             datasets: [{ label: 'Abertas', data: teamRows.map(row => row.open), color: '#18c8df' }, { label: 'Ganhas', data: teamRows.map(row => row.won), color: '#22c55e' }, { label: 'Perdidas', data: teamRows.map(row => row.lost), color: '#ef4444' }],

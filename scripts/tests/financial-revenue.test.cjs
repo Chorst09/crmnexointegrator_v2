@@ -85,7 +85,7 @@ for (const filename of ['backend/api/financial-analysis.js', 'apps/api/api/finan
         return require(path.resolve(path.dirname(filename), name));
       }, module: { exports: {} }, console
     });
-    await handler({ query: { periodo: 'ano', vendedor: 'Maria' }, user: {} }, { json(body) { response = body; }, status(code) { throw new Error(`Unexpected HTTP ${code}`); } });
+    await handler({ query: { periodo: 'ano', vendedor: 'Maria' }, user: {role:'MASTER'} }, { json(body) { response = body; }, status(code) { throw new Error(`Unexpected HTTP ${code}`); } });
     assert.equal(response.geral.receita_realizada, 6200);
     assert.equal(response.b2b.receita_realizada, 1250);
     assert.equal(response.b2g.receita_realizada, 4950);

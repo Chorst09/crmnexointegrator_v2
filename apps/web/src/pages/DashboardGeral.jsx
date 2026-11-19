@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
 import { getUserAccess, normalizeRole } from '../utils/permissions';
 import { buildGeneralDashboardMetrics, toNumber, parseUserFromStorage } from '../components/generalDashboardMetrics.mjs';
@@ -10,6 +10,8 @@ export default function DashboardGeral() {
   const [updatedAt, setUpdatedAt] = useState(null);
   const [data, setData] = useState({});
   const [moduleHealth, setModuleHealth] = useState([]);
+  const requestRef = useRef(0);
+  const abortRef = useRef(null);
 
   const user = parseUserFromStorage() || {};
   const access = getUserAccess(user);
@@ -17,11 +19,15 @@ export default function DashboardGeral() {
   const adminLike = ['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(role);
 
   const loadData = async () => {
+    const requestId=++requestRef.current;
+    abortRef.current?.abort();
+    const controller=new AbortController();abortRef.current=controller;
+    window.dispatchEvent(new Event('nexos-refresh-modules'));
     setLoading(true);
     const headers = getAuthHeaders();
 
     try {
-      const response = await fetch(buildApiUrl('/dashboard?type=general'), { headers });
+      const response = await fetch(buildApiUrl('/dashboard?type=general'), { headers, signal:controller.signal });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
@@ -31,12 +37,14 @@ export default function DashboardGeral() {
         throw new Error('Resposta agregada inválida');
       }
 
+      if(requestId!==requestRef.current)return;
       setData(payload.data);
       setModuleHealth(payload.moduleHealth);
       setUpdatedAt(new Date());
       setLoading(false);
       return;
     } catch (error) {
+      if(error.name==='AbortError' || requestId!==requestRef.current)return;
       console.warn('Dashboard geral agregado indisponível, usando carregamento legado:', error);
     }
 
@@ -85,7 +93,7 @@ export default function DashboardGeral() {
         }
 
         try {
-          const response = await fetch(buildApiUrl(module.endpoint), { headers });
+          const response = await fetch(buildApiUrl(module.endpoint), { headers, signal:controller.signal });
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
           }
@@ -114,6 +122,7 @@ export default function DashboardGeral() {
       return acc;
     }, {});
 
+    if(requestId!==requestRef.current)return;
     setData(nextData);
     setModuleHealth(health);
     setUpdatedAt(new Date());
@@ -122,6 +131,9 @@ export default function DashboardGeral() {
 
   useEffect(() => {
     loadData();
+    const refresh=()=>{if(document.visibilityState==='visible')loadData();};
+    window.addEventListener('focus',refresh);
+    return ()=>{requestRef.current+=1;abortRef.current?.abort();window.removeEventListener('focus',refresh);};
   }, []);
 
   const computed = useMemo(() => buildGeneralDashboardMetrics(data, timeRange), [data, timeRange]);
