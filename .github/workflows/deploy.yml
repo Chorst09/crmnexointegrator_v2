@@ -1,5 +1,8 @@
 name: Deploy CRM Nexo Integrator v2
 
+# -------------------------------------------------
+#  Gatilhos
+# -------------------------------------------------
 on:
   push:
     branches: [ main, master ]
@@ -10,6 +13,9 @@ on:
         required: false
         default: "nexosv2.cnorstconsult.com.br"
 
+# -------------------------------------------------
+#  Variáveis de ambiente (segredos)
+# -------------------------------------------------
 env:
   SSH_HOST: ${{ secrets.SSH_HOST }}
   SSH_USER: ${{ secrets.SSH_USER }}
@@ -22,16 +28,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # -------------------------------------------------
+      #  1️⃣ Checkout do código
+      # -------------------------------------------------
       - name: Checkout do código
         uses: actions/checkout@v4
 
+      # -------------------------------------------------
+      #  2️⃣ Configurar SSH (usa o secret SSH_PRIVATE_KEY)
+      # -------------------------------------------------
       - name: Configurar SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ env.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          # desabilita a confirmação interativa de host (útil na primeira execução)
           echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
 
+      # -------------------------------------------------
+      #  3️⃣ Executar Deploy na VPS
+      # -------------------------------------------------
       - name: Executar Deploy na VPS
         run: |
           DOMAIN="${{ github.event.inputs.domain }}"
@@ -39,23 +55,32 @@ jobs:
 
           ssh -p ${{ env.SSH_PORT }} ${{ env.SSH_USER }}@${{ env.SSH_HOST }} <<'ENDSSH'
             set -e
-            echo "📂 Entrando em /var/www/nexosv2"
-            cd /var/www/nexosv2
 
+            # ----- Diretório da aplicação no servidor -----
+            echo "📂 Entrando em /var/www/crm-integrator"
+            cd /var/www/crm-integrator
+
+            # ----- Atualiza o código -----
             echo "🔄 Atualizando código a partir da branch main..."
             git fetch origin
             git checkout main
             git reset --hard origin/main
 
-            echo "📦 Instalando dependências..."
+            # ----- Instalação das dependências -----
+            echo "📦 Instalando dependências do backend..."
             cd apps/api
             npm install --production
+
+            echo "📦 Instalando dependências do frontend..."
             cd ../../apps/web
             npm install
             npm run build
 
+            # ----- Reiniciar a aplicação (PM2) -----
             echo "🔄 Reiniciando aplicação (PM2)..."
-            pm2 restart nexosv2-api || pm2 restart all
+            # Caso o processo tenha outro nome, troque abaixo:
+            # pm2 restart <nome‑do‑processo> || pm2 restart all
+            pm2 restart all
 
             echo "✅ Deploy finalizado com sucesso!"
           ENDSSH
