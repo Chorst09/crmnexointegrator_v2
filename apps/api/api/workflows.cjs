@@ -178,6 +178,8 @@ router.get('/automation-rules', authenticateToken, async (req, res) => {
 
     if (!automationRuleDelegate) {
       return res.json({
+        available: false,
+        error: 'Regras de automação indisponíveis: estrutura do banco não configurada.',
         rules: [],
         pagination: emptyPagination(page, limit)
       });
@@ -357,8 +359,12 @@ router.get('/notifications', authenticateToken, async (req, res) => {
     if (status) where.status = status;
 
     // Filtrar por usuário se não for admin
-    if (req.user.role !== 'ADMIN') {
-      where.recipientId = req.user.userId;
+    const role = String(req.user.actualRole || req.user.role || '').toUpperCase();
+    if (!['MASTER','ADMIN','MANAGER','DIRECTOR'].includes(role)) {
+      where.recipientId = req.user.id || req.user.userId || '__missing_actor__';
+    }
+    if (role !== 'MASTER' && req.user.tenantCompanyId) {
+      where.recipient = {tenantCompanyId:req.user.tenantCompanyId};
     }
 
     const [notifications, total] = await Promise.all([

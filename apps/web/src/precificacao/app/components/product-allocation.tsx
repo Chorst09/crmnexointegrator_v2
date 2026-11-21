@@ -838,10 +838,10 @@ export function ProductAllocation({ params, onSaveAllocation }: ProductAllocatio
                 <CardDescription>{selectedPreview.name} · cálculo mensal em {selectedPreview.durationMonths} meses.</CardDescription>
               </CardHeader>
               <CardContent className="p-6 space-y-4">
-                <div className="rounded-3xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-5 flex items-center justify-between">
+                <div className="nex-stat-surface rounded-3xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-5 flex items-center justify-between">
                   <div>
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Total mensal rateado</p>
-                    <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] font-headline">{formatCurrency(selectedPreview.totalMonthlyAllocated)}</p>
+                    <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] font-headline" data-stat-value>{formatCurrency(selectedPreview.totalMonthlyAllocated)}</p>
                   </div>
                   <div className="text-right">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)]">Método</p>

@@ -1,3 +1,4 @@
+import ExecutiveStatCard from '../components/ExecutiveStatCard';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -929,27 +930,7 @@ const B2GAnaliseEditaisTR = () => {
     }
   };
 
-  const MetricCard = ({ icon: Icon, label, value, tone = 'sky' }) => {
-    const tones = {
-      sky: "border-sky-400/15 bg-sky-400/10 text-sky-700 dark:text-sky-300",
-      emerald: "border-emerald-400/15 bg-emerald-400/10 text-emerald-700 dark:text-emerald-300",
-      amber: "border-amber-400/15 bg-amber-400/10 text-amber-700 dark:text-amber-300"
-    };
-
-    return (
-      <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] p-5 shadow-[0_18px_36px_-30px_rgba(15,23,42,0.95)]">
-        <div className="flex items-center justify-between gap-4">
-          <div>
-            <p className="text-[10px] font-black uppercase tracking-[0.18em] text-[rgb(var(--crm-muted-rgb)_/_1)]">{label}</p>
-            <h4 className="mt-2 text-4xl font-black leading-none text-[rgb(var(--crm-ink-rgb)_/_1)]">{value}</h4>
-          </div>
-          <div className={`flex h-12 w-12 items-center justify-center rounded-xl border ${tones[tone] || tones.sky}`}>
-            <Icon className="h-6 w-6" />
-          </div>
-        </div>
-      </div>
-    );
-  };
+  const MetricCard = ({icon,label,value,tone='sky'}) => <ExecutiveStatCard title={label} value={value} icon={icon} color={tone}/>;
 
   const Sidebar = () => (
     <div className="w-64 shrink-0 border-r border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 shadow-2xl z-30">

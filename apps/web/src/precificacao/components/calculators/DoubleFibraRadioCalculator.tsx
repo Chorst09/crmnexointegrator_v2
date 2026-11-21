@@ -1976,10 +1976,10 @@ const DoubleFibraRadioCalculator: React.FC<DoubleFibraRadioCalculatorProps> = ({
 
                             {/* Seção de Resumo Financeiro com Cliente Existente */}
                             {(currentProposal?.isExistingClient ?? currentProposal?.metadata?.isExistingClient) && (currentProposal?.previousMonthlyFee || currentProposal?.metadata?.previousMonthlyFee) && (currentProposal.previousMonthlyFee || currentProposal?.metadata?.previousMonthlyFee || 0) > 0 ? (
-                                <div className="p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg space-y-3 mb-4">
+                                <div className="nex-stat-surface p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg space-y-3 mb-4">
                                     <div className="flex justify-between items-center pb-3 border-b border-[var(--crm-border)]">
                                         <span className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">💰 Valor Original do Cliente:</span>
-                                        <span className="font-bold text-2xl text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(currentProposal.previousMonthlyFee || currentProposal?.metadata?.previousMonthlyFee || 0)}</span>
+                                        <span className="font-bold text-2xl text-[rgb(var(--crm-ink-rgb)_/_1)]" data-stat-value>{formatCurrency(currentProposal.previousMonthlyFee || currentProposal?.metadata?.previousMonthlyFee || 0)}</span>
                                     </div>
                                     
                                     <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
@@ -1997,17 +1997,17 @@ const DoubleFibraRadioCalculator: React.FC<DoubleFibraRadioCalculatorProps> = ({
                                         <span className="font-semibold">{formatCurrency(currentProposal?.totalMonthly || 0)}</span>
                                     </div>
                                     
-                                    <div className={`flex justify-between items-center p-3 rounded-lg mt-2 ${
+                                    <div className={"nex-stat-surface " + (`flex justify-between items-center p-3 rounded-lg mt-2 ${
                                         (currentProposal?.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0
                                             ? "bg-red-50/40 dark:bg-red-900/40 border-2 border-red-600"
                                             : "bg-green-50/40 dark:bg-green-900/40 border-2 border-green-600"
-                                    }`}>
+                                    }`)}>
                                         <span className="font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">📊 Diferença de Valor:</span>
                                         <span className={`font-bold text-2xl ${
                                             (currentProposal?.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0
                                                 ? "text-red-700 dark:text-red-400"
                                                 : "text-green-700 dark:text-green-400"
-                                        }`}>
+                                        }`} data-stat-value>
                                             {(currentProposal?.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0 ? '+' : ''}
                                             {formatCurrency((currentProposal?.totalMonthly || 0) - currentProposal.previousMonthlyFee)}
                                         </span>

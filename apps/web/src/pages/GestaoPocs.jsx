@@ -1,3 +1,4 @@
+import ExecutiveStatCard from '../components/ExecutiveStatCard';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -117,15 +118,7 @@ const normalizeClient = (item, fallbackType = 'B2B') => ({
   type: String(item.clientType || fallbackType || 'B2B').toUpperCase() === 'B2G' ? 'B2G' : 'B2B'
 });
 
-const StatCard = ({ label, value, icon: Icon, color }) => (
-  <div className="crm-card flex min-h-[118px] items-center justify-between rounded-[8px] px-6 py-5">
-    <div>
-      <p className="text-[15px] text-[var(--crm-muted)]">{label}</p>
-      <p className="mt-2 text-[34px] font-semibold leading-none text-[var(--crm-ink)]">{value}</p>
-    </div>
-    <Icon className={`h-8 w-8 ${color}`} strokeWidth={2.4} />
-  </div>
-);
+const StatCard = ({label,value,icon,color}) => <ExecutiveStatCard title={label} value={value} icon={icon} color={color?.includes('emerald')?'green':color?.includes('amber')?'yellow':color?.includes('rose')?'red':'blue'}/>;
 
 const SelectShell = ({ children }) => (
   <div className="relative">

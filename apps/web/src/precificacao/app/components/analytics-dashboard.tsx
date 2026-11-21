@@ -1,3 +1,4 @@
+import ExecutiveStatCard from '../../../components/ExecutiveStatCard';
 import { Bar3DShape, Pie3DShape } from '../../../components/charts/Chart3DShapes';
 
 'use client';
@@ -122,17 +123,4 @@ export function AnalyticsDashboard({ results, params }: AnalyticsDashboardProps)
   );
 }
 
-function MetricCard({ title, value, description, icon }: { title: string, value: string, description: string, icon: React.ReactNode }) {
-  return (
-    <Card className="rounded-3xl border-[var(--crm-border)] shadow-sm bg-[rgb(var(--crm-surface-rgb)_/_1)]">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-[10px] font-bold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-widest">{title}</span>
-          <div className="p-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-xl">{icon}</div>
-        </div>
-        <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] font-headline">{value}</div>
-        <p className="text-[10px] text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">{description}</p>
-      </CardContent>
-    </Card>
-  );
-}
+function MetricCard({title,value,description,icon}: {title:string;value:string;description:string;icon:React.ReactNode}) {return <ExecutiveStatCard title={title} value={value} icon={icon} subtitle={description}/>;}

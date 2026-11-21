@@ -1,3 +1,5 @@
+const { canAccessChorstData } = require('../lib/chorst-privacy.cjs');
+const { financialDashboardScope } = require('../lib/financial-dashboard-scope.cjs');
 /**
  * API de Propostas do Módulo Simuladores
  * Rota: /api/simulator/proposals
@@ -35,27 +37,18 @@ const normalizeProposal = (data) => ({
 router.get('/', authenticateToken, async (req, res) => {
   try {
     const { type, all, dashboard } = req.query;
-    const userId = req.user?.userId || req.user?.id;
-
-    // Filtro base
-    const where = {};
-    if (type && type !== 'all') where.type = type.toUpperCase();
-
-    // Usuários comuns só veem as próprias propostas
-    const role = String(req.user?.role || '').toUpperCase();
-    if (!['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(role)) {
-      // Calculadoras antigas gravavam o ID; outras gravam o e-mail.
-      // Reconhece ambos sem ampliar o acesso para propostas de outros usuários.
-      where.OR = [
-        ...(userId ? [{ createdBy: userId }] : []),
-        ...(req.user?.email ? [{ createdBy: { equals: req.user.email.trim(), mode: 'insensitive' } }] : []),
-      ];
+    const scope = await financialDashboardScope(prisma, req.user);
+    const where = { AND: [scope.simulator] };
+    if (type && type !== 'all') where.type = String(type).toUpperCase();
+    if (!canAccessChorstData(req.user)) {
+      where.AND.push(
+        {NOT:{createdBy:{contains:'chorstconsult@gmail.com',mode:'insensitive'}}},
+        {OR:[{accountManager:null},{NOT:{accountManager:{contains:'chorstconsult@gmail.com',mode:'insensitive'}}}]}
+      );
     }
-
+    const fullPortfolio = ['true','1'].includes(String(all)) || ['true','1'].includes(String(dashboard));
     const rows = await prisma.simulatorProposal.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: all || dashboard ? 1000 : 100,
+      where, orderBy:{createdAt:'desc'}, ...(fullPortfolio ? {} : {take:100})
     });
 
     const proposals = rows.map(r => ({

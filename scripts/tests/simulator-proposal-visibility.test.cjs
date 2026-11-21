@@ -10,7 +10,7 @@ for (const file of ['backend/api/simulator-proposals.js', 'apps/api/api/simulato
     let query;
     const router = Object.fromEntries(['get', 'post', 'put', 'delete'].map(method => [method, (url, ...handlers) => { routes[`${method} ${url}`] = handlers.at(-1); }]));
     vm.runInNewContext(fs.readFileSync(path.resolve(file), 'utf8'), {
-      require: name => name.includes('simulator-proposal-owner') ? require('../../backend/lib/simulator-proposal-owner.cjs') : name === 'express' ? { Router: () => router }
+      require: name => name.includes('financial-dashboard-scope') ? require('../../backend/lib/financial-dashboard-scope.cjs') : name.includes('simulator-proposal-owner') ? require('../../backend/lib/simulator-proposal-owner.cjs') : name === 'express' ? { Router: () => router }
         : name.includes('prisma') ? { prisma: { simulatorProposal: { findMany: async args => { query = args; return []; } } } }
         : name.includes('chorst-privacy') ? { canAccessChorstData: () => false }
         : { authenticateToken() {} },
@@ -20,15 +20,15 @@ for (const file of ['backend/api/simulator-proposals.js', 'apps/api/api/simulato
     const res = { json: value => value, status() { return this; } };
     await routes['get /']({ user, query: { type: 'vm', all: 'true' } }, res);
     const where = JSON.parse(JSON.stringify(query.where));
-    assert.deepEqual(where.OR, [
+    assert.deepEqual(where.AND[0].OR, [
       { createdBy: user.userId },
       { createdBy: { equals: user.email, mode: 'insensitive' } },
     ]);
     assert.equal(where.type, 'VM');
-    assert.equal(query.take, 1000);
+    assert.equal(query.take, undefined, 'dashboard reads the complete scoped portfolio');
     if (file.startsWith('apps/')) assert.ok(where.AND.length, 'preserva isolamento existente');
     await routes['get /']({ user: { ...user, role: 'ADMIN' }, query: {} }, res);
-    assert.equal(query.where.OR, undefined, 'preserva acesso administrativo');
+    assert.equal(query.where.AND[0].OR, undefined, 'preserva acesso administrativo');
   });
 }
 
@@ -38,7 +38,7 @@ for (const file of ['backend/api/simulator-proposals.js', 'apps/api/api/simulato
     let inserted;
     const router = Object.fromEntries(['get', 'post', 'put', 'delete'].map(method => [method, (url, ...handlers) => { routes[`${method} ${url}`] = handlers.at(-1); }]));
     vm.runInNewContext(fs.readFileSync(path.resolve(file), 'utf8'), {
-      require: name => name.includes('simulator-proposal-owner') ? require('../../backend/lib/simulator-proposal-owner.cjs') : name === 'express' ? { Router: () => router }
+      require: name => name.includes('financial-dashboard-scope') ? require('../../backend/lib/financial-dashboard-scope.cjs') : name.includes('simulator-proposal-owner') ? require('../../backend/lib/simulator-proposal-owner.cjs') : name === 'express' ? { Router: () => router }
         : name === 'crypto' ? require('node:crypto')
         : name.includes('prisma') ? { prisma: { simulatorProposal: {
           findFirst: async () => ({ id: 'old', baseId: 'Prop_Inter_Radio_003_v1' }),

@@ -1,3 +1,4 @@
+import useDashboardSync from '../hooks/useDashboardSync';
 import { loadPreSalesDashboardRows } from '../utils/preSalesDashboardData.mjs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
@@ -30,7 +31,8 @@ import {
   MapPin,
   Tags,
   Globe2,
-  User
+  User,
+  Users
 } from 'lucide-react';
 import {
   Chart as ChartJS,
@@ -273,71 +275,6 @@ const PartnerRegistryCard = ({ item, type = 'distributor' }) => {
 };
 
 export default function PreVendas() {
-  // ------------------------------------------------------------------
-  // Visual padrão "glass‑morphism / neon" – início da página
-  // ------------------------------------------------------------------
-  // Container principal com background escuro semitransparente
-  // (mantém a cor geral do tema da aplicação)
-  const pageWrapper = (
-    <div className="p-6 bg-blue-900/10 min-h-screen">
-      {/* Título da página */}
-      <h1 className="text-2xl font-bold text-white mb-6">
-        Dashboard de Pré‑Vendas
-      </h1>
-
-      {/* Grid de KPIs – mesmo padrão usado nos demais dashboards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-        {/* Exemplo de 5 cards – ajuste os valores conforme sua lógica */}
-        <DashboardKPICard
-          title="Novos Leads"
-          value="1.248"
-          icon={Users}
-          trend="up"
-          trendValue="+12%"
-          className="bg-blue-900/40 backdrop-blur-md border border-blue-500/30 shadow-[0_0_15px_rgba(0,150,255,0.15)] rounded-xl p-4"
-        />
-        <DashboardKPICard
-          title="Propostas Enviadas"
-          value="342"
-          icon={FileText}
-          trend="up"
-          trendValue="+8%"
-          className="bg-blue-900/40 backdrop-blur-md border border-blue-500/30 shadow-[0_0_15px_rgba(0,150,255,0.15)] rounded-xl p-4"
-        />
-        <DashboardKPICard
-          title="Taxa de Conversão"
-          value="27.4%"
-          icon={TrendingUp}
-          trend="down"
-          trendValue="‑1.5%"
-          className="bg-blue-900/40 backdrop-blur-md border border-blue-500/30 shadow-[0_0_15px_rgba(0,150,255,0.15)] rounded-xl p-4"
-        />
-        <DashboardKPICard
-          title="Valor Total Filtrado"
-          value="R$ 452.300"
-          icon={BadgeDollarSign}
-          trend="up"
-          trendValue="+3.2%"
-          className="bg-blue-900/40 backdrop-blur-md border border-blue-500/30 shadow-[0_0_15px_rgba(0,150,255,0.15)] rounded-xl p-4"
-        />
-        <DashboardKPICard
-          title="Tempo Médio de Resposta"
-          value="14 min"
-          icon={Clock}
-          trend="up"
-          trendValue="+5%"
-          className="bg-blue-900/40 backdrop-blur-md border border-blue-500/30 shadow-[0_0_15px_rgba(0,150,255,0.15)] rounded-xl p-4"
-        />
-      </div>
-    </div>
-  );
-
-  // ------------------------------------------------------------------
-  // O restante da lógica original permanece inalterado – a partir daqui
-  // retornamos o JSX original, envolvendo‑o no `pageWrapper` quando a
-  // página ainda está carregando ou quando o conteúdo já foi buscado.
-  // ------------------------------------------------------------------
-
   const navigate = useNavigate();
   const presentationRef = useRef(null);
   const [presentationMode, setPresentationMode] = useState(false);
@@ -399,9 +336,11 @@ export default function PreVendas() {
     loadPocs();
   }, []);
 
-  const loadSolicitacoes = async () => {
+  useDashboardSync(() => Promise.all([loadSolicitacoes(true), loadPreSalesActivities(true), loadRegistroOportunidades(true), loadPrevendasCadastros(true), loadPocs(true)]));
+
+  const loadSolicitacoes = async (silent = false) => {
     try {
-      setLoading(true);
+      if (silent !== true) setLoading(true);
       const apiRows = await loadPreSalesDashboardRows(async(page,limit)=>{
         const response=await axios.get(buildApiUrl(`/pre-vendas?limit=${limit}&page=${page}`),{headers:getAuthHeaders()});
         return response.data;
@@ -429,13 +368,13 @@ export default function PreVendas() {
       console.error('Erro ao carregar solicitações:', error);
       setSolicitacoes([]);
     } finally {
-      setLoading(false);
+      if (silent !== true) setLoading(false);
     }
   };
 
-  const loadPreSalesActivities = async () => {
+  const loadPreSalesActivities = async (silent = false) => {
     try {
-      setActivitiesLoading(true);
+      if (silent !== true) setActivitiesLoading(true);
       const response = await axios.get(buildApiUrl('/activities-simple'), {
         headers: getAuthHeaders()
       });
@@ -450,13 +389,13 @@ export default function PreVendas() {
       setSourceError('Atividades',true);
       console.error('Erro ao carregar atividades do Pré-Vendas:', error);
     } finally {
-      setActivitiesLoading(false);
+      if (silent !== true) setActivitiesLoading(false);
     }
   };
 
-  const loadRegistroOportunidades = async () => {
+  const loadRegistroOportunidades = async (silent = false) => {
     try {
-      setRegistroLoading(true);
+      if (silent !== true) setRegistroLoading(true);
       const response = await axios.get(buildApiUrl('/prevendas-cadastros/oportunidades'), {
         headers: getAuthHeaders()
       });
@@ -475,7 +414,7 @@ export default function PreVendas() {
       console.error('Erro ao carregar registro de oportunidades:', error);
       setRegistroOportunidades([]);
     } finally {
-      setRegistroLoading(false);
+      if (silent !== true) setRegistroLoading(false);
     }
   };
 
@@ -524,9 +463,9 @@ export default function PreVendas() {
   };
 
 
-  const loadPrevendasCadastros = async () => {
+  const loadPrevendasCadastros = async (silent = false) => {
     try {
-      setCadastrosLoading(true);
+      if (silent !== true) setCadastrosLoading(true);
       const response = await axios.get(buildApiUrl('/prevendas-cadastros'), {
         headers: getAuthHeaders()
       });
@@ -540,13 +479,13 @@ export default function PreVendas() {
       setDistribuidores([]);
       setFornecedores([]);
     } finally {
-      setCadastrosLoading(false);
+      if (silent !== true) setCadastrosLoading(false);
     }
   };
 
-  const loadPocs = async () => {
+  const loadPocs = async (silent = false) => {
     try {
-      setPocsLoading(true);
+      if (silent !== true) setPocsLoading(true);
       const response = await axios.get(buildApiUrl('/pre-sales-pocs'), {
         headers: getAuthHeaders()
       });
@@ -562,7 +501,7 @@ export default function PreVendas() {
       console.error('Erro ao carregar POCs:', error);
       setPocs([]);
     } finally {
-      setPocsLoading(false);
+      if (silent !== true) setPocsLoading(false);
     }
   };
 

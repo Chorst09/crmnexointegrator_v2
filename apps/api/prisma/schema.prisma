@@ -178,7 +178,7 @@ model Product {
 // === FUNIL DE VENDAS ===
 model Opportunity {
   id                    String      @id @default(uuid())
-  number                Int         @unique
+  number                String?     @unique
   title                 String
   projectName           String?
   projectClientType     String?
@@ -1547,6 +1547,7 @@ enum Role {
   USER
   PRE_SALES
   USER_B2B
+  USER_B2G
 }
 
 enum Stage {
@@ -2451,33 +2452,24 @@ model SimulatorLicitacao {
 // === MÓDULO SIMULADOR - PROPOSTAS ===
 model SimulatorProposal {
   id                  String   @id @default(uuid())
-  base_id             String   @map("base_id")
+  baseId              String
   version             Int      @default(1)
   title               String
   client              String
-  type                String   @default("STANDARD")
-  value               Decimal  @default(0) @db.Decimal(15, 4)
+  type                String
+  value               Float    @default(0)
   status              String   @default("Rascunho")
-  forecast_temperature Float?  @map("forecast_temperature")
-  
-  // Campos JSON que armazenam dados estruturados
-  metadata            Json     @default("{}")
-  account_manager     String?  @map("account_manager")
-  
-  // Identificação
-  distributor_id      String?  @map("distributor_id")
-  created_by          String?  @map("created_by")
-  
-  // Timestamps
-  created_at          DateTime @default(now()) @map("created_at")
-  updated_at          DateTime @updatedAt @map("updated_at")
+  forecastTemperature Float?
+  metadata            Json?
+  createdBy           String
+  accountManager      String?
+  distributorId       String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  @@unique([base_id, version])
-  @@index([base_id])
+  @@index([baseId])
+  @@index([createdBy])
   @@index([type])
-  @@index([status])
-  @@index([created_by])
-  @@map("simulator_proposal")
 }
 
 // === TABELA DE AUDITORIA CORPORATIVA (AUDIT_LOGS) ===

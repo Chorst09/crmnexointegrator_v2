@@ -180,9 +180,9 @@ export default function Propostas() {
       {mode === 'list' ? (
         <>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-            <div className="crm-panel p-6">
+            <div className="nex-stat-surface crm-panel p-6">
               <p className="text-sm font-semibold text-[var(--crm-muted)]">Propostas salvas</p>
-              <p className="mt-3 text-4xl font-bold text-[var(--crm-ink)]">{savedProposals.length}</p>
+              <p className="mt-3 text-4xl font-bold text-[var(--crm-ink)]" data-stat-value>{savedProposals.length}</p>
             </div>
             <div className="crm-panel p-6">
               <p className="text-sm font-semibold text-[var(--crm-muted)]">Ultimo salvamento</p>

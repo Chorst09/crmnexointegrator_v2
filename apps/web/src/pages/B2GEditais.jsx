@@ -1,3 +1,4 @@
+import useDashboardSync from '../hooks/useDashboardSync';
 import { activityRoute } from '../utils/dashboardFlow.mjs';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -2561,9 +2562,9 @@ export default function B2GEditais() {
     }) || null;
   }, [openActivities]);
 
-  const loadNotices = async ({ preserveSelection = true } = {}) => {
+  const loadNotices = async ({ preserveSelection = true, silent = false } = {}) => {
     try {
-      setLoading(true);
+      if (!silent) setLoading(true);
       const response = await fetch(buildApiUrl('/b2g/editais'), { headers: getAuthHeaders() });
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
@@ -2584,7 +2585,7 @@ export default function B2GEditais() {
       console.error('Erro ao carregar editais B2G:', error);
       setFeedback({ type: 'error', message: 'Não foi possível carregar os editais B2G.' });
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -2613,9 +2614,9 @@ export default function B2GEditais() {
     }
   };
 
-  const loadSupportData = async () => {
+  const loadSupportData = async (silent = false) => {
     try {
-      setSupportLoading(true);
+      if (silent !== true) setSupportLoading(true);
       setDashboardSourceError('Dados complementares',false);
       const [companiesRes, , activitiesRes] = await Promise.all([
         fetch(buildApiUrl('/companies?clientType=B2G'), { headers: getAuthHeaders() }),
@@ -2645,7 +2646,7 @@ export default function B2GEditais() {
       setLeads([]);
       setActivities([]);
     } finally {
-      setSupportLoading(false);
+      if (silent !== true) setSupportLoading(false);
     }
   };
 
@@ -2969,25 +2970,7 @@ export default function B2GEditais() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  useEffect(() => {
-    if (activeTab !== 'dashboard') return undefined;
-
-    const syncWhenVisible = () => {
-      if (document.visibilityState === 'visible') refreshB2GOpportunities();
-    };
-
-    refreshB2GOpportunities();
-    const intervalId = window.setInterval(refreshB2GOpportunities, 30000);
-    window.addEventListener('focus', refreshB2GOpportunities);
-    document.addEventListener('visibilitychange', syncWhenVisible);
-
-    return () => {
-      window.clearInterval(intervalId);
-      window.removeEventListener('focus', refreshB2GOpportunities);
-      document.removeEventListener('visibilitychange', syncWhenVisible);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab]);
+  useDashboardSync(() => Promise.all([loadSupportData(true),loadNotices({preserveSelection:true,silent:true})]), {enabled:activeTab === 'dashboard'});
 
   useEffect(() => {
     if (activeTab !== 'dashboard' && activeTab !== 'oportunidades') return undefined;
@@ -4691,7 +4674,7 @@ export default function B2GEditais() {
 
             <div className="space-y-3">
               <div
-                className="rounded-xl border border-[#7ec3ff45] p-3"
+                className="nex-stat-surface rounded-xl border border-[#7ec3ff45] p-3"
                 style={{
                   background:
                     "linear-gradient(150deg, rgba(27,72,123,0.82) 0%, rgb(var(--crm-surface-rgb) / 0.9) 72%, rgb(var(--crm-surface-2-rgb) / 0.98) 100%)"
@@ -4700,7 +4683,7 @@ export default function B2GEditais() {
                 <div className="text-xs uppercase tracking-[0.12em] text-[#8bb3d7]">
                   Pipeline
                 </div>
-                <div className="mt-1.5 break-words text-xl font-black leading-none text-[#8fd2ff] sm:text-2xl">
+                <div className="mt-1.5 break-words text-xl font-black leading-none text-[#8fd2ff] sm:text-2xl" data-stat-value>
                   {formatCurrency(dashboardTotals.pipelineValue)}
                 </div>
                 <div className="mt-2 flex items-center justify-between text-[10px] sm:text-xs">
@@ -4714,7 +4697,7 @@ export default function B2GEditais() {
               </div>
 
               <div
-                className="rounded-xl border border-[#7ec3ff45] p-3"
+                className="nex-stat-surface rounded-xl border border-[#7ec3ff45] p-3"
                 style={{
                   background:
                     "linear-gradient(150deg, rgb(var(--crm-surface-rgb) / 0.8) 0%, rgb(var(--crm-surface-rgb) / 0.92) 76%, rgb(var(--crm-surface-2-rgb) / 0.98) 100%)"
@@ -4723,7 +4706,7 @@ export default function B2GEditais() {
                 <div className="text-xs uppercase tracking-[0.12em] text-[#9bb8d7]">
                   Vitória
                 </div>
-                <div className="mt-1.5 text-xl font-black leading-none text-[#84de9f] sm:text-2xl">
+                <div className="mt-1.5 text-xl font-black leading-none text-[#84de9f] sm:text-2xl" data-stat-value>
                   {dashboardTotals.winRate.toFixed(1)}%
                 </div>
               </div>
@@ -6680,38 +6663,38 @@ export default function B2GEditais() {
               </button>
             </div>
 
-            <div className="crm-card p-5">
+            <div className="nex-stat-surface crm-card p-5">
               <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-emerald-500/35 bg-emerald-500/14">
-                <BadgeCheck className="h-6 w-6 text-emerald-600 dark:text-emerald-300" />
+                <BadgeCheck className="h-6 w-6 text-emerald-600 dark:text-emerald-300"  data-stat-icon/>
               </div>
               <div className="mt-4 text-xs font-black uppercase tracking-[0.08em] text-[var(--crm-muted)]">
                 Total analisados
               </div>
-              <div className="mt-1 text-4xl font-black text-[var(--crm-ink)]">
+              <div className="mt-1 text-4xl font-black text-[var(--crm-ink)]" data-stat-value>
                 {analyzedNotices.length}
               </div>
             </div>
 
-            <div className="crm-card p-5">
+            <div className="nex-stat-surface crm-card p-5">
               <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-amber-500/35 bg-amber-500/14">
-                <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-300" />
+                <AlertTriangle className="h-6 w-6 text-amber-600 dark:text-amber-300"  data-stat-icon/>
               </div>
               <div className="mt-4 text-xs font-black uppercase tracking-[0.08em] text-[var(--crm-muted)]">
                 Não conformes (TR)
               </div>
-              <div className="mt-1 text-4xl font-black text-[var(--crm-ink)]">
+              <div className="mt-1 text-4xl font-black text-[var(--crm-ink)]" data-stat-value>
                 {nonConformTRCount}
               </div>
             </div>
 
-            <div className="crm-card p-5">
+            <div className="nex-stat-surface crm-card p-5">
               <div className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-cyan-500/35 bg-cyan-500/14">
-                <CalendarClock className="h-6 w-6 text-cyan-600 dark:text-cyan-300" />
+                <CalendarClock className="h-6 w-6 text-cyan-600 dark:text-cyan-300"  data-stat-icon/>
               </div>
               <div className="mt-4 text-xs font-black uppercase tracking-[0.08em] text-[var(--crm-muted)]">
                 Economia de tempo
               </div>
-              <div className="mt-1 text-4xl font-black text-[var(--crm-ink)]">
+              <div className="mt-1 text-4xl font-black text-[var(--crm-ink)]" data-stat-value>
                 ~{analysisTimeSavedHours}h
               </div>
             </div>

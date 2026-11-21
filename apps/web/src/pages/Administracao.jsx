@@ -3518,10 +3518,10 @@ export default function Administracao() {
                 {licensingPlans.map((plan) => (
                   <div
                     key={plan.id}
-                    className="rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4 bg-[rgb(var(--crm-surface-rgb)_/_0.4)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)]"
+                    className="nex-stat-surface rounded-xl border border-[var(--crm-border)] dark:border-blue-500/20 p-4 bg-[rgb(var(--crm-surface-rgb)_/_0.4)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.35)]"
                   >
                     <div className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)]">{plan.name}</div>
-                    <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
+                    <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1" data-stat-value>
                       {Number(plan.price || 0).toLocaleString('pt-BR', {
                         style: 'currency',
                         currency: plan.currency || 'BRL'

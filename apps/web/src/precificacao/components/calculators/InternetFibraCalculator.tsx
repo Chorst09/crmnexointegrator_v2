@@ -2044,7 +2044,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                             )}
 
                             {/* Resumo de Valores - Layout conforme print */}
-                            <div className="space-y-3 mb-4 p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                            <div className="nex-stat-surface space-y-3 mb-4 p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]">
                                 {/* Valor Original do Cliente (se for cliente existente) */}
                                 {(currentProposal.isExistingClient || currentProposal.previousMonthlyFee) && currentProposal.previousMonthlyFee && currentProposal.previousMonthlyFee > 0 && (
                                     <>
@@ -2053,7 +2053,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                 <span className="mr-2">💰</span>
                                                 <strong>Valor Original do Cliente:</strong>
                                             </span>
-                                            <span className="font-bold text-2xl">{formatCurrency(currentProposal.previousMonthlyFee || currentProposal?.metadata?.previousMonthlyFee || 0)}</span>
+                                            <span className="font-bold text-2xl" data-stat-value>{formatCurrency(currentProposal.previousMonthlyFee || currentProposal?.metadata?.previousMonthlyFee || 0)}</span>
                                         </div>
                                     </>
                                 )}
@@ -2076,11 +2076,11 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                 {/* Diferença de Valor (se for cliente existente) */}
                                 {(currentProposal.isExistingClient || currentProposal.previousMonthlyFee) && currentProposal.previousMonthlyFee && currentProposal.previousMonthlyFee > 0 && (
                                     <>
-                                        <div className={`mt-4 p-4 rounded-lg border-2 ${
+                                        <div className={"nex-stat-surface " + (`mt-4 p-4 rounded-lg border-2 ${
                                             (currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0
                                                 ? "bg-red-50/30 dark:bg-red-900/30 border-red-500"
                                                 : "bg-green-50/30 dark:bg-green-900/30 border-green-500"
-                                        }`}>
+                                        }`)}>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-base flex items-center">
                                                     <span className="mr-2">📊</span>
@@ -2090,7 +2090,7 @@ const InternetFibraCalculator: React.FC<InternetFibraCalculatorProps> = ({ onBac
                                                     (currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0
                                                         ? "text-red-700 dark:text-red-400"
                                                         : "text-green-700 dark:text-green-400"
-                                                }`}>
+                                                }`} data-stat-value>
                                                     {(currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0 ? '+' : ''}
                                                     {formatCurrency((currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee)}
                                                 </span>

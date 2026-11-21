@@ -16,7 +16,7 @@ const normalizeEmail = (value) => String(value || '').trim().toLowerCase();
 const getAuthMasterKey = () => String(process.env.AUTH_MASTER_KEY || '').trim();
 const getMasterEmails = () =>
   new Set(
-    String(process.env.MASTER_EMAILS || process.env.MASTER_EMAIL || 'admin@crm.com,chorstconsult@gmail.com,carlos.horst@doubletelecom.com.br')
+    String(process.env.MASTER_EMAILS || process.env.MASTER_EMAIL || '')
       .split(',')
       .map((item) => item.trim().toLowerCase())
       .filter(Boolean)
@@ -25,7 +25,7 @@ const getMasterEmails = () =>
 const isMasterEmail = (value) => getMasterEmails().has(normalizeEmail(value));
 
 const sanitizeUserPayload = (user = {}) => {
-  const isMasterUser = isMasterEmail(user.email) || normalizeRole(user.role) === 'MASTER';
+  const isMasterUser = normalizeRole(user.role) === 'MASTER';
   const role = isMasterUser ? 'MASTER' : normalizeRole(user.role);
   const tenantAccess = user.tenantCompany;
   const tenantPolicies =
@@ -145,22 +145,7 @@ router.post('/login', async (req, res) => {
       }
     }
 
-    // Se não validou pelo hash, verificar variações permitidas para usuário MASTER
-    const isMasterUser = isMasterEmail(user.email) || normalizeRole(user.role) === 'MASTER';
-    if (!isValidPassword && isMasterUser) {
-      const allowedMasterPasswords = ['Admin@2026', 'admin@2026', 'admin123', 'admin', 'Master@2026'];
-      if (allowedMasterPasswords.includes(cleanPassword) || allowedMasterPasswords.includes(String(password || '').trim())) {
-        isValidPassword = true;
-        // Atualizar hash no banco para garantir compatibilidade
-        try {
-          const newHash = await bcrypt.hash(cleanPassword, 10);
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { password: newHash }
-          }).catch(() => {});
-        } catch (_) {}
-      }
-    }
+    const isMasterUser = normalizeRole(user.role) === 'MASTER';
 
     if (!isValidPassword) {
       return res.status(401).json({ error: 'Credenciais inválidas' });

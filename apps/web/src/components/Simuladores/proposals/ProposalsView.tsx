@@ -260,15 +260,15 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
 
       {/* Estatísticas Modernas */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-blue-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
+        <div className="nex-stat-surface bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-blue-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800 opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
           <div className="relative p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-blue-600 to-blue-800 shadow-lg">
-                <FileText className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+                <FileText className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]"  data-stat-icon/>
               </div>
               <div className="text-right">
-                <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
+                <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors" data-stat-value>
                   {proposals.length}
                 </div>
               </div>
@@ -283,15 +283,15 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
           <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_0.05)] to-transparent rounded-bl-full" />
         </div>
 
-        <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-green-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
+        <div className="nex-stat-surface bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-green-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-green-600 to-green-800 opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
           <div className="relative p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-green-600 to-green-800 shadow-lg">
-                <DollarSign className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+                <DollarSign className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]"  data-stat-icon/>
               </div>
               <div className="text-right">
-                <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
+                <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors" data-stat-value>
                   {formatCurrency(proposals.reduce((sum, p) => sum + (p.value || 0), 0))}
                 </div>
               </div>
@@ -306,15 +306,15 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
           <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_0.05)] to-transparent rounded-bl-full" />
         </div>
 
-        <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-emerald-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
+        <div className="nex-stat-surface bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-emerald-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-emerald-600 to-emerald-800 opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
           <div className="relative p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-emerald-600 to-emerald-800 shadow-lg">
-                <User className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+                <User className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]"  data-stat-icon/>
               </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
+                  <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors" data-stat-value>
                   {proposals.filter((p) => isApprovedStatus(p.status)).length}
                 </div>
               </div>
@@ -329,15 +329,15 @@ const ProposalsView: React.FC<ProposalsViewProps> = ({ proposals, partners, onSa
           <div className="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-[rgb(var(--crm-surface-rgb)_/_0.05)] to-transparent rounded-bl-full" />
         </div>
 
-        <div className="bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-yellow-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
+        <div className="nex-stat-surface bg-gradient-to-br from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-[rgb(var(--crm-surface-rgb)_/_1)] to-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-xl hover:shadow-yellow-500/25 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1 border border-[var(--crm-border)] group overflow-hidden relative">
           <div className="absolute inset-0 bg-gradient-to-br from-yellow-600 to-yellow-800 opacity-10 group-hover:opacity-20 transition-opacity duration-300" />
           <div className="relative p-6">
             <div className="flex items-center justify-between mb-4">
               <div className="p-3 rounded-xl bg-gradient-to-br from-yellow-600 to-yellow-800 shadow-lg">
-                <Calendar className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+                <Calendar className="h-6 w-6 text-[rgb(var(--crm-ink-rgb)_/_1)]"  data-stat-icon/>
               </div>
                 <div className="text-right">
-                  <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors">
+                  <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:text-cyan-700 dark:group-hover:text-cyan-300 transition-colors" data-stat-value>
                   {proposals.filter((p) => isPendingApprovalStatus(p.status)).length}
                 </div>
               </div>

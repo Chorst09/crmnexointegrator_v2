@@ -1,3 +1,5 @@
+import { buildProjectEntrySeries } from '../dashboardMetrics.mjs';
+import ExecutiveStatCard from '../../components/ExecutiveStatCard';
 import { Bar3DShape, Pie3DShape } from '../../components/charts/Chart3DShapes';
 import React, { useMemo, useState } from 'react';
 import {
@@ -74,11 +76,7 @@ export default function Dashboard({
   const projectIssues = useMemo(() => {
     if (!selectedProject || selectedProject.id === 'all') return issues;
 
-    const firstProjectId = projects[0]?.id;
-    return issues.filter(issue => {
-      if (issue.projectId === selectedProject.id) return true;
-      return !issue.projectId && selectedProject.id === firstProjectId;
-    });
+    return issues.filter(issue => issue.projectId === selectedProject.id);
   }, [issues, projects, selectedProject]);
 
   const filteredIssues = useMemo(() => {
@@ -90,38 +88,29 @@ export default function Dashboard({
     return STATUS_OPTIONS
       .filter((status): status is IssueStatus => status !== 'TODOS')
       .map(status => {
-        const total = projectIssues.filter(issue => issue.status === status).length;
+        const total = filteredIssues.filter(issue => issue.status === status).length;
         return {
           status,
           total,
-          percent: projectIssues.length ? Math.round((total / projectIssues.length) * 100) : 0,
+          percent: filteredIssues.length ? Math.round((total / filteredIssues.length) * 100) : 0,
           color: STATUS_COLORS[status]
         };
       });
-  }, [projectIssues]);
+  }, [filteredIssues]);
 
-  const doneCount = projectIssues.filter(issue => issue.status === 'CONCLUÍDO').length;
-  const riskCount = projectIssues.filter(issue => ['EM RISCO', 'ATUALIZAÇÃO NECESSÁRIA'].includes(issue.status)).length;
-  const activeCount = projectIssues.filter(issue => ['PLANEJAMENTO', 'EM PROGRESSO', 'EM ESPERA'].includes(issue.status)).length;
-  const completionRate = projectIssues.length ? Math.round((doneCount / projectIssues.length) * 100) : 0;
+  const doneCount = filteredIssues.filter(issue => issue.status === 'CONCLUÍDO').length;
+  const riskCount = filteredIssues.filter(issue => ['EM RISCO', 'ATUALIZAÇÃO NECESSÁRIA'].includes(issue.status)).length;
+  const activeCount = filteredIssues.filter(issue => ['PLANEJAMENTO', 'EM PROGRESSO', 'EM ESPERA'].includes(issue.status)).length;
+  const completionRate = filteredIssues.length ? Math.round((doneCount / filteredIssues.length) * 100) : 0;
 
-  const trendData = useMemo(() => {
-    const total = Math.max(projectIssues.length, 3);
-    return ['Sem 1', 'Sem 2', 'Sem 3', 'Sem 4', 'Sem 5', 'Sem 6'].map((label, index) => ({
-      label,
-      planejado: Math.max(1, Math.round(total * (0.45 + index * 0.12))),
-      progresso: Math.max(0, Math.round(activeCount * (0.35 + index * 0.1))),
-      concluido: Math.max(0, Math.round(doneCount * (0.25 + index * 0.16))),
-      risco: Math.max(0, Math.round(riskCount * (0.3 + index * 0.08)))
-    }));
-  }, [activeCount, doneCount, projectIssues.length, riskCount]);
+  const trendData = useMemo(() => buildProjectEntrySeries(filteredIssues), [filteredIssues]);
 
   const priorityRows = useMemo(() => {
     return ['Urgente', 'Alta', 'Normal', 'Baixa'].map(priority => ({
       priority,
-      fases: projectIssues.filter(issue => issue.priority === priority).length
+      fases: filteredIssues.filter(issue => issue.priority === priority).length
     }));
-  }, [projectIssues]);
+  }, [filteredIssues]);
 
   const distributionRows = statusRows.filter(row => row.total > 0);
 
@@ -202,14 +191,14 @@ export default function Dashboard({
         </header>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <KpiCard icon={Layers3} label="Fases totais" value={projectIssues.length.toString()} tone="cyan" delta="+14" />
+          <KpiCard icon={Layers3} label="Fases e tarefas" value={filteredIssues.length.toString()} tone="cyan" delta="Itens do filtro atual" />
           <KpiCard icon={CheckCircle2} label="Concluidas" value={doneCount.toString()} tone="green" delta={`${completionRate}%`} />
           <KpiCard icon={Flag} label="Em risco" value={riskCount.toString()} tone="orange" delta="atenção" />
-          <KpiCard icon={Zap} label="Em andamento" value={activeCount.toString()} tone="yellow" delta="+8%" />
+          <KpiCard icon={Zap} label="Em andamento" value={activeCount.toString()} tone="yellow" delta="Situação atual" />
         </div>
 
         <div className="grid gap-4 xl:grid-cols-[1.35fr_.85fr]">
-          <ChartPanel title="Evolução das fases" action="Últimas 6 semanas">
+          <ChartPanel title="Entradas por semana" action="Últimas 6 semanas · situação atual">
             <ResponsiveContainer width="100%" height={310}>
               <AreaChart data={trendData} margin={{ left: -18, right: 10, top: 10, bottom: 0 }}>
                 <defs>
@@ -346,30 +335,7 @@ function InfoPanel({ title, value, accent }: { title: string; value: string; acc
   );
 }
 
-function KpiCard({ icon: Icon, label, value, tone, delta }: { icon: any; label: string; value: string; tone: 'cyan' | 'green' | 'orange' | 'yellow'; delta: string }) {
-  const tones = {
-    cyan: ['#18c8df', 'rgba(24,200,223,0.16)'],
-    green: ['#22c55e', 'rgba(34,197,94,0.16)'],
-    orange: ['#2563eb', 'rgba(37,99,235,0.18)'],
-    yellow: ['#f6b40b', 'rgba(246,180,11,0.16)']
-  }[tone];
-
-  return (
-    <div className="relative overflow-hidden rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-5 shadow-xl shadow-black/20">
-      <div className="absolute inset-y-0 right-0 w-32 opacity-80" style={{ background: `linear-gradient(135deg, transparent, ${tones[1]})` }} />
-      <div className="relative flex items-start justify-between gap-4">
-        <span className="flex h-11 w-11 items-center justify-center rounded-lg border" style={{ borderColor: `${tones[0]}55`, color: tones[0], background: tones[1] }}>
-          <Icon className="h-5 w-5" />
-        </span>
-        <span className="rounded-full px-2.5 py-1 text-xs font-black" style={{ color: tones[0], background: tones[1] }}>{delta}</span>
-      </div>
-      <div className="relative mt-7">
-        <p className="text-4xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{value}</p>
-        <p className="mt-2 text-sm font-semibold text-[var(--crm-muted)]">{label}</p>
-      </div>
-    </div>
-  );
-}
+function KpiCard({icon,label,value,tone,delta}: {icon:any;label:string;value:string;tone:'cyan'|'green'|'orange'|'yellow';delta:string}) {return <ExecutiveStatCard title={label} value={value} icon={icon} color={tone} subtitle={delta}/>;}
 
 function ChartPanel({ title, action, children }: { title: string; action: string; children: React.ReactNode }) {
   return (

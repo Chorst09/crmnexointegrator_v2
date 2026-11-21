@@ -255,7 +255,8 @@ export default function Sidebar({
 
   const filteredMenuSections = useMemo(() => {
     const master = isMaster(user || {});
-    const scopedSections = menuSections.filter(section => !market || (market === 'B2B' ? section.id !== 'b2g' : !['vendas','gestao','prevendas'].includes(section.id)));
+    // Route context changes branding, never which authorized modules are visible.
+    const scopedSections = menuSections;
 
     // Master has access to everything. This is the simplest and most reliable check.
     if (master) {

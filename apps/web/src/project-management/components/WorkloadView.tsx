@@ -65,21 +65,21 @@ export default function WorkloadView({ issues, users }: WorkloadViewProps) {
         </div>
 
         <div className="mb-6 grid gap-4 md:grid-cols-4">
-          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+          <div className="nex-stat-surface rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
             <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Membros</p>
-            <p className="mt-2 text-2xl font-black text-[var(--crm-ink)]">{users.length}</p>
+            <p className="mt-2 text-2xl font-black text-[var(--crm-ink)]" data-stat-value>{users.length}</p>
           </div>
-          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+          <div className="nex-stat-surface rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
             <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Capacidade</p>
-            <p className="mt-2 text-2xl font-black text-[#22c55e]">{formatHours(totalCapacity)}</p>
+            <p className="mt-2 text-2xl font-black text-[#22c55e]" data-stat-value>{formatHours(totalCapacity)}</p>
           </div>
-          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+          <div className="nex-stat-surface rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
             <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Planejado</p>
-            <p className="mt-2 text-2xl font-black text-[var(--pm-accent-text)]">{formatHours(totalPlanned)}</p>
+            <p className="mt-2 text-2xl font-black text-[var(--pm-accent-text)]" data-stat-value>{formatHours(totalPlanned)}</p>
           </div>
-          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+          <div className="nex-stat-surface rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
             <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Sobrecarga</p>
-            <p className={`mt-2 text-2xl font-black ${overloadedCount ? "text-red-700 dark:text-red-400" : 'text-[#22c55e]'}`}>{overloadedCount}</p>
+            <p className={`mt-2 text-2xl font-black ${overloadedCount ? "text-red-700 dark:text-red-400" : 'text-[#22c55e]'}`} data-stat-value>{overloadedCount}</p>
           </div>
         </div>
 

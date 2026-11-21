@@ -433,6 +433,12 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
     const b2gConversion = opportunitiesB2GRange.length > 0
       ? (opportunitiesB2GRange.filter(item=>resolveB2GSummaryStage(item)==='GANHO').length / opportunitiesB2GRange.length) * 100
       : 0;
+    const previousB2B = opportunitiesB2B.filter(inPreviousRange);
+    const previousB2G = opportunitiesB2G.filter(inPreviousRange);
+    const conversionComparison = {
+      B2B: previousB2B.length ? b2bConversion - previousB2B.filter(item => String(item.stage).toUpperCase() === 'WON').length / previousB2B.length * 100 : null,
+      B2G: previousB2G.length ? b2gConversion - previousB2G.filter(item => resolveB2GSummaryStage(item) === 'GANHO').length / previousB2G.length * 100 : null
+    };
     const preSalesApproval = preSalesRange.length > 0
       ? (donePreSales.length / preSalesRange.length) * 100
       : 0;
@@ -470,6 +476,19 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
 
 
     const buckets = createMonthBuckets(12);
+    // Cohort conversion: current wins / entries in each month, using the active period.
+    const conversionHistory = (items, isWon) => buckets.map(bucket => {
+      const entries = items.filter(item => {
+        const date = toDate(item.createdAt || item.updatedAt);
+        return date && monthKey(date) === bucket.key;
+      });
+      const won = entries.filter(isWon).length;
+      return { label: bucket.label, total: entries.length, won, value: entries.length ? won / entries.length * 100 : null };
+    });
+    const conversionSeries = {
+      B2B: conversionHistory(opportunitiesB2BRange, item => String(item.stage).toUpperCase() === 'WON'),
+      B2G: conversionHistory(opportunitiesB2GRange, item => resolveB2GSummaryStage(item) === 'GANHO')
+    };
     const monthIndex = new Map(buckets.map((item, idx) => [item.key, idx]));
 
     const monthlyPotential = new Array(buckets.length).fill(0);
@@ -588,6 +607,8 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
       b2bPipelineValue,
       b2bWonValue,
       b2bConversion,
+      conversionComparison,
+      conversionSeries,
       b2gConversion,
       preSalesApproval,
       hotLeads,

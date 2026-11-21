@@ -1884,14 +1884,14 @@ export default function FinEdgeApp({ initialScenarioId = null, initialAction = n
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div className="rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 p-5 border border-primary/10">
+                          <div className="nex-stat-surface rounded-2xl bg-gradient-to-br from-primary/5 to-primary/10 p-5 border border-primary/10">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Preço Final Mensal</p>
-                            <p className="text-2xl font-bold text-primary">{formatCurrency(viewingScenario.results.finalMonthlyPrice)}</p>
+                            <p className="text-2xl font-bold text-primary" data-stat-value>{formatCurrency(viewingScenario.results.finalMonthlyPrice)}</p>
                             <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">/mês</p>
                           </div>
-                          <div className="rounded-2xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-5 border border-[var(--crm-border)]">
+                          <div className="nex-stat-surface rounded-2xl bg-[rgb(var(--crm-surface-rgb)_/_1)] p-5 border border-[var(--crm-border)]">
                             <p className="text-[10px] font-bold uppercase tracking-widest text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">TCV - Total do Contrato</p>
-                            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(viewingScenario.results.totalContractValue)}</p>
+                            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]" data-stat-value>{formatCurrency(viewingScenario.results.totalContractValue)}</p>
                             <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">{viewingScenario.inputs.durationMonths} meses</p>
                           </div>
                         </div>

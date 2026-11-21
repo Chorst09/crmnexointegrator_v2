@@ -570,12 +570,12 @@ export function PipelineMonitor() {
             ].map((kpi, i) => {
               const Icon = kpi.icon;
               return (
-                <div key={i} className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-xl p-4 flex items-center gap-4">
+                <div key={i} className="nex-stat-surface bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-xl p-4 flex items-center gap-4">
                   <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.8)] p-2.5 rounded-lg">
-                    <Icon className={cn('w-5 h-5', kpi.color)} />
+                    <Icon className={cn('w-5 h-5', kpi.color)}  data-stat-icon/>
                   </div>
                   <div>
-                    <p className="text-2xl font-extrabold text-[rgb(var(--crm-ink-rgb)_/_1)]">{kpi.value}</p>
+                    <p className="text-2xl font-extrabold text-[rgb(var(--crm-ink-rgb)_/_1)]" data-stat-value>{kpi.value}</p>
                     <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium">{kpi.label}</p>
                   </div>
                 </div>

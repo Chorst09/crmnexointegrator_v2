@@ -1,3 +1,4 @@
+import ExecutiveStatCard from './ExecutiveStatCard';
 import { upcomingActivities, activityRoute } from '../utils/dashboardFlow.mjs';
 import { useEffect, useMemo, useRef } from 'react';
 import {
@@ -96,10 +97,9 @@ function KpiRing({ metric, index }) {
   const icon = [Coins, Handshake, Trophy, Target][index % 4];
   const kind = ['coins', null, 'trophy', null][index % 4];
   const tone = ['blue', 'cyan', 'amber', 'blue'][index % 4];
-  return <article className={`nex-panel nex-kpi nex-${tone}`}>
-    <span className="nex-icon"><ExecutiveIcon icon={metric.icon || icon} kind={metric.kind || kind}/></span>
-    <div><h2>{metric.label}</h2><strong>{metric.value}</strong><small>{metric.subtitle || 'Carteira filtrada'}</small></div>
-  </article>;
+  return <ExecutiveStatCard title={metric.label} value={metric.value} color={tone}
+    icon={<ExecutiveIcon icon={metric.icon || icon} kind={metric.kind || kind}/>}
+    subtitle={metric.subtitle || 'Carteira filtrada'}/>;
 }
 
 function MiniSignalCard({ title, label, value, detail = 'período selecionado', data = [], color = DEFAULT_COLORS[0] }) {
@@ -118,7 +118,7 @@ function MiniSignalCard({ title, label, value, detail = 'período selecionado', 
   }), [color, data]);
 
   return (
-    <article className={`pipeline-model__signal-card${data.length ? '' : ' is-summary'}`} style={{ '--signal-color': color }}>
+    <article className={`nex-stat-surface pipeline-model__signal-card${data.length ? '' : ' is-summary'}`} style={{ '--signal-color': color }}>
       <div>
         <h4>{title}</h4>
         <span>{label}</span>

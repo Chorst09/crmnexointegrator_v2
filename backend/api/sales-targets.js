@@ -3,7 +3,11 @@ import { getTenantCompanyId, mergeRelationWhere } from '../lib/tenantScope.js';
 
 const scopeTargetWhere = (user = {}, where = {}) => {
   const tenantCompanyId = getTenantCompanyId(user);
-  return tenantCompanyId ? mergeRelationWhere(where, 'seller', { tenantCompanyId }) : where;
+  const role = String(user.actualRole || user.role || '').toUpperCase();
+  const privileged = ['MASTER','ADMIN','MANAGER','DIRECTOR'].includes(role);
+  const actorId = user.id || user.userId;
+  const scope = { ...(tenantCompanyId ? {tenantCompanyId} : {}), ...(!privileged ? {id:actorId || '__missing_actor__'} : {}) };
+  return mergeRelationWhere(where, 'seller', scope);
 };
 
 const canUseSeller = async (user = {}, sellerId) => {
@@ -70,6 +74,7 @@ export default async function handler(req) {
     });
 
     // Calcular realizado vs meta
+    const uniqueSales = new Map();
     const targetsWithProgress = await Promise.all(
       targets.map(async (target) => {
         // Buscar vendas realizadas no período
@@ -84,12 +89,13 @@ export default async function handler(req) {
             stage: 'WON',
             actualCloseDate: {
               gte: target.startDate,
-              lte: target.endDate
+              lte: new Date(new Date(target.endDate).setHours(23, 59, 59, 999))
             }
           },
-          select: { value: true }
+          select: { id: true, value: true }
         });
 
+        sales.forEach(sale => uniqueSales.set(sale.id, Number(sale.value) || 0));
         const realized = sales.reduce((sum, sale) => sum + sale.value, 0);
         const progress = target.targetValue > 0 ? (realized / target.targetValue) * 100 : 0;
 
@@ -103,6 +109,12 @@ export default async function handler(req) {
       })
     );
     
+    if (req.query?.includeSummary === 'true') {
+      return Response.json({targets:targetsWithProgress,summary:{
+        realized:Array.from(uniqueSales.values()).reduce((sum,value)=>sum+value,0),
+        realizedDeals:uniqueSales.size
+      }});
+    }
     return Response.json(targetsWithProgress);
   }
 

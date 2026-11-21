@@ -60,21 +60,24 @@ export function buildB2BDashboardAnalytics(opportunities = [], { period = 'year'
   const range = getB2BPeriod(period, now, opportunities);
   const inPeriod = value => value && value >= range.start && value <= range.end;
   const rows = opportunities.map(item => {
-    if (item.revenueType === 'MENSAL') item = { ...item, projectType: 'MONTHLY', projectMonths: item.contractPeriodMonths || item.projectMonths || item.contractMonths, monthlyValue: item.monthlyRecurringValue ?? item.monthlyValue, value: item.totalContractValue ?? item.value, installationFee: item.setupValue ?? item.installationFee };
-    if (item.revenueType === 'PONTUAL') item = { ...item, projectType: 'SINGLE', value: item.totalProductsValue ?? item.value, installationFee: item.setupValue ?? item.installationFee };
-    const entry = date(item.leadEntryDate) || date(item.createdAt);
-    const closed = date(item.actualCloseDate) || (item.stage === 'LOST' ? date(item.exitDate) : null);
-    const updated = date(item.updatedAt);
-    const expected = date(item.expectedCloseDate);
-    const monthly = item.projectType === 'MONTHLY';
+    // Normalizar dados de receita recorrente vs pontual
+    // Se revenueType é MENSAL, usar monthlyValue como base
+    // Se for PONTUAL, usar value como base
+    const monthly = item.projectType === 'MONTHLY' || item.revenueType === 'MENSAL';
     const months = Math.max(1, Math.trunc(number(item.projectMonths || item.contractMonths) || 12));
     const monthlyValue = item.monthlyValue !== null && item.monthlyValue !== undefined && item.monthlyValue !== ''
       ? Math.max(0, number(item.monthlyValue)) : Math.max(0, number(item.value)) / months;
     const setup = Math.max(0, number(item.installationFee));
     const value = monthly ? monthlyValue * months : Math.max(0, number(item.value)) + setup;
+    
+    const entry = date(item.leadEntryDate) || date(item.createdAt);
+    const closed = date(item.actualCloseDate) || (item.stage === 'LOST' ? date(item.exitDate) : null);
+    const updated = date(item.updatedAt);
+    const expected = date(item.expectedCloseDate);
     const age = entry && entry <= range.end ? Math.floor((range.end - entry) / DAY) : null;
     const idle = updated && updated <= range.end ? Math.floor((range.end - updated) / DAY) : null;
     const overdue = expected && expected < range.end ? Math.floor((range.end - expected) / DAY) : 0;
+    
     return { ...item, __monthly: monthly, __months: months, __monthlyValue: monthlyValue, __setup: setup, __stage: item.stage, __stageLabel: LABELS[item.stage] || item.stage, __entry: entry, __closed: closed, __expected: expected, __value: value, __probability: probability(item.probability), __weightedValue: value * probability(item.probability) / 100, __ageDays: age, __idleDays: idle, __overdueDays: overdue };
   });
   const open = rows.filter(row => !['WON', 'LOST'].includes(row.stage));

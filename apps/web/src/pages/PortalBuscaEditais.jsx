@@ -391,10 +391,10 @@ export default function PortalBuscaEditais() {
         ].map(kpi => (
           <div
             key={kpi.label}
-            className="rounded-xl border p-4"
+            className="nex-stat-surface rounded-xl border p-4"
             style={{ background: "var(--crm-surface, rgb(var(--crm-surface-rgb) / 1))", borderColor: "var(--crm-border, var(--crm-border))" }}
           >
-            <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{kpi.value}</div>
+            <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]" data-stat-value>{kpi.value}</div>
             <div className="mt-1 text-xs" style={{ color: "var(--crm-muted, rgb(var(--crm-muted-rgb) / 1))" }}>{kpi.label}</div>
           </div>
         ))}

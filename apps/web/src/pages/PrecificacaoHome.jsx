@@ -347,13 +347,13 @@ export default function PrecificacaoHome() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-            <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4">
+            <div className="nex-stat-surface rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Valor total salvo</p>
-              <p className="mt-2 text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(summary.totalContractValue)}</p>
+              <p className="mt-2 text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]" data-stat-value>{formatCurrency(summary.totalContractValue)}</p>
             </div>
-            <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4">
+            <div className="nex-stat-surface rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.7)] p-4">
               <p className="text-xs font-semibold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">Última atualização</p>
-              <p className="mt-2 text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{summary.lastUpdated}</p>
+              <p className="mt-2 text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]" data-stat-value>{summary.lastUpdated}</p>
             </div>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               <button

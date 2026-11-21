@@ -501,8 +501,8 @@ export function HomeView({
                   [String(projects.reduce((total, project) => total + (getPhaseCount?.(project.id) || 0), 0)), 'Fases', '#f6b40b'],
                   [String(projects.filter(project => project.status === 'EM_ANDAMENTO').length), 'Em andamento', '#18c8df']
                 ].map(([value, label, color]) => (
-                  <div key={label} className="rounded-lg border border-[var(--crm-border)] bg-transparent p-4 backdrop-blur">
-                    <p className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]" style={{ color }}>{value}</p>
+                  <div key={label} className="nex-stat-surface rounded-lg border border-[var(--crm-border)] bg-transparent p-4 backdrop-blur">
+                    <p className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]" style={{ color }} data-stat-value>{value}</p>
                     <p className="mt-1 text-[11px] font-semibold uppercase text-[var(--crm-muted)]">{label}</p>
                   </div>
                 ))}
@@ -1101,17 +1101,17 @@ export function DocsView({
                 <p className="mt-2 truncate text-base font-black text-[var(--crm-ink)]">{selectedProject?.name || 'Projeto'}</p>
                 <p className="mt-1 text-xs text-[var(--pm-accent-text)]">{selectedProject?.number || selectedProject?.status || 'Documento'}</p>
               </div>
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+              <div className="nex-stat-surface rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
                 <p className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">Total</p>
-                <p className="mt-2 text-2xl font-black text-[var(--crm-ink)]">{documents.length}</p>
+                <p className="mt-2 text-2xl font-black text-[var(--crm-ink)]" data-stat-value>{documents.length}</p>
               </div>
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+              <div className="nex-stat-surface rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
                 <p className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">Contratos/Aceites</p>
-                <p className="mt-2 text-2xl font-black text-[#22c55e]">{documents.filter((item) => ['CONTRACT', 'ACCEPTANCE'].includes(item.category)).length}</p>
+                <p className="mt-2 text-2xl font-black text-[#22c55e]" data-stat-value>{documents.filter((item) => ['CONTRACT', 'ACCEPTANCE'].includes(item.category)).length}</p>
               </div>
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+              <div className="nex-stat-surface rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
                 <p className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">Entregaveis</p>
-                <p className="mt-2 text-2xl font-black text-[#18c8df]">{documents.filter((item) => item.category === 'DELIVERABLE').length}</p>
+                <p className="mt-2 text-2xl font-black text-[#18c8df]" data-stat-value>{documents.filter((item) => item.category === 'DELIVERABLE').length}</p>
               </div>
             </div>
 
@@ -1986,9 +1986,9 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
         ].map(item => {
           const Icon = item.icon;
           return (
-            <div key={item.label} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4">
-              <Icon className="mb-4 h-5 w-5" style={{ color: item.tone }} />
-              <p className="text-3xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.value}</p>
+            <div key={item.label} className="nex-stat-surface rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4">
+              <Icon className="mb-4 h-5 w-5" style={{ color: item.tone }}  data-stat-icon/>
+              <p className="text-3xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]" data-stat-value>{item.value}</p>
               <p className="mt-1 text-xs font-bold uppercase tracking-wide text-[var(--crm-muted)]">{item.label}</p>
             </div>
           );
@@ -2207,9 +2207,9 @@ function ProductBrainstormBoard({ onBack }: { onBack: () => void }) {
         ].map(item => {
           const Icon = item.icon;
           return (
-            <div key={item.label} className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4">
-              <Icon className="mb-4 h-5 w-5" style={{ color: item.tone }} />
-              <p className="text-3xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.value}</p>
+            <div key={item.label} className="nex-stat-surface rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4">
+              <Icon className="mb-4 h-5 w-5" style={{ color: item.tone }}  data-stat-icon/>
+              <p className="text-3xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]" data-stat-value>{item.value}</p>
               <p className="mt-1 text-xs font-bold uppercase tracking-wide text-[var(--crm-muted)]">{item.label}</p>
             </div>
           );

@@ -1133,14 +1133,14 @@ export default function Empresas({ clientType = 'B2B' }) {
                       Estatísticas
                     </h4>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="crm-panel-muted p-4 text-center">
-                        <div className="text-2xl font-bold text-[var(--crm-ink)]">
+                      <div className="nex-stat-surface crm-panel-muted p-4 text-center">
+                        <div className="text-2xl font-bold text-[var(--crm-ink)]" data-stat-value>
                           {viewingCompany._count?.opportunities ?? 0}
                         </div>
                         <div className="text-xs text-[var(--crm-muted)] mt-1">Oportunidades</div>
                       </div>
-                      <div className="crm-panel-muted p-4 text-center">
-                        <div className="text-2xl font-bold text-[var(--crm-ink)]">
+                      <div className="nex-stat-surface crm-panel-muted p-4 text-center">
+                        <div className="text-2xl font-bold text-[var(--crm-ink)]" data-stat-value>
                           {viewingCompany.createdAt 
                             ? new Date(viewingCompany.createdAt).toLocaleDateString('pt-BR')
                             : '-'

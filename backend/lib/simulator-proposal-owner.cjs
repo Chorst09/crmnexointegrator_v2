@@ -8,7 +8,7 @@ async function assignProposalOwner(prisma, data, input, user) {
   if (sourceId || (match && version > 1)) {
     if (sourceId) {
       source = await prisma.simulatorProposal.findFirst({
-        where: { id: String(sourceId) },
+        where: { id: String(sourceId), type: data.type },
         orderBy: { version: 'asc' },
       });
     } else {
@@ -17,7 +17,7 @@ async function assignProposalOwner(prisma, data, input, user) {
 
       // Tenta v1 e v{N-1} da raiz exata primeiro
       source = await prisma.simulatorProposal.findFirst({
-        where: { baseId: { in: [`${root}_v1`, `${root}_v${version - 1}`] } },
+        where: { type: data.type, baseId: { in: [`${root}_v1`, `${root}_v${version - 1}`] } },
         orderBy: { version: 'asc' },
       });
 
@@ -28,7 +28,7 @@ async function assignProposalOwner(prisma, data, input, user) {
         const cleanPrefix = root.replace(/_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}.*$/i, '');
         if (cleanPrefix && cleanPrefix !== root) {
           source = await prisma.simulatorProposal.findFirst({
-            where: { baseId: { startsWith: cleanPrefix } },
+            where: { type: data.type, baseId: { startsWith: cleanPrefix } },
             orderBy: { version: 'asc' },
           });
         }
@@ -36,9 +36,7 @@ async function assignProposalOwner(prisma, data, input, user) {
     }
 
     if (!source?.createdBy || source.createdBy === 'vendedor') {
-      // Não bloqueia com 400 — apenas usa o ator atual como dono
-      if (actor) data.createdBy = actor;
-      return data;
+      throw Object.assign(new Error('Proposta original não encontrada ou sem responsável. Revise a origem antes de criar a versão.'), {status:400});
     }
     const identities = [user?.email, user?.userId, user?.id].filter(Boolean).map(x => String(x).toLowerCase());
     const elevated = ['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(String(user?.role || '').toUpperCase());
@@ -49,7 +47,7 @@ async function assignProposalOwner(prisma, data, input, user) {
     }
     data.createdBy = source.createdBy;
     data.metadata = { ...data.metadata, sourceProposalId: source.id, ...(actor ? { versionEditedBy: actor } : {}) };
-  } else if (!data.createdBy && actor) {
+  } else if (actor) {
     data.createdBy = actor;
   }
   return data;

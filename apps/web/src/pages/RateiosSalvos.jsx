@@ -1,3 +1,4 @@
+import ExecutiveStatCard from '../components/ExecutiveStatCard';
 import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -581,7 +582,7 @@ function RateioPreviewModal({
           </div>
 
           {isLocacao ? (
-            <div className="mt-6 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-5">
+            <div className="nex-stat-surface mt-6 rounded-xl border border-emerald-500/25 bg-emerald-500/10 p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-black uppercase text-emerald-700/80 dark:text-emerald-200/80">Total para o período do contrato</p>
@@ -589,7 +590,7 @@ function RateioPreviewModal({
                     {periodMonths > 0 ? `${currency(monthlyTotal)} mensal x ${periodMonths} meses` : "Prazo do contrato não informado no rateio salvo."}
                   </p>
                 </div>
-                <p className="font-mono text-2xl font-black text-emerald-700 dark:text-emerald-400">
+                <p className="font-mono text-2xl font-black text-emerald-700 dark:text-emerald-400" data-stat-value>
                   {periodMonths > 0 ? currency(monthlyTotal * periodMonths) : "-"}
                 </p>
               </div>
@@ -633,31 +634,7 @@ function RateioPreviewModal({
   );
 }
 
-function Kpi({
-  title,
-  value,
-  icon,
-  tone,
-}) {
-  const tones = {
-    blue: "border-blue-500/25 bg-blue-500/10 text-blue-500",
-    rose: "border-rose-500/25 bg-rose-500/10 text-rose-500",
-    amber: "border-amber-500/25 bg-amber-500/10 text-amber-500",
-    cyan: "border-cyan-500/25 bg-cyan-500/10 text-cyan-500",
-  };
-
-  return (
-    <div className={`rounded-xl border ${tones[tone]} bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-6`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-sm font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">{title}</p>
-          <p className="mt-3 text-2xl font-black">{value}</p>
-        </div>
-        <div className="rounded-lg bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] p-3 [&_svg]:h-6 [&_svg]:w-6">{icon}</div>
-      </div>
-    </div>
-  );
-}
+function Kpi({title,value,icon,tone}) {return <ExecutiveStatCard title={title} value={value} icon={icon} color={tone}/>;}
 
 function Metric({
   label,

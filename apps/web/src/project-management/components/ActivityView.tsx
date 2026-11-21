@@ -347,21 +347,21 @@ export default function ActivityView({ project, issues, users, onTaskClick }: Ac
         </div>
 
         <div className="mb-6 grid gap-4 md:grid-cols-4">
-          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+          <div className="nex-stat-surface rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
             <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Eventos</p>
-            <p className="mt-2 text-2xl font-black text-[var(--crm-ink)]">{events.length}</p>
+            <p className="mt-2 text-2xl font-black text-[var(--crm-ink)]" data-stat-value>{events.length}</p>
           </div>
-          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+          <div className="nex-stat-surface rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
             <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Itens</p>
-            <p className="mt-2 text-2xl font-black text-[var(--pm-accent-text)]">{itemEvents}</p>
+            <p className="mt-2 text-2xl font-black text-[var(--pm-accent-text)]" data-stat-value>{itemEvents}</p>
           </div>
-          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+          <div className="nex-stat-surface rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
             <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Equipe</p>
-            <p className="mt-2 text-2xl font-black text-[#18c8df]">{teamEvents}</p>
+            <p className="mt-2 text-2xl font-black text-[#18c8df]" data-stat-value>{teamEvents}</p>
           </div>
-          <div className="rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
+          <div className="nex-stat-surface rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] p-4">
             <p className="text-xs font-semibold uppercase text-[var(--crm-muted)]">Riscos</p>
-            <p className={`mt-2 text-2xl font-black ${riskEvents ? "text-red-700 dark:text-red-300" : 'text-[#22c55e]'}`}>{riskEvents}</p>
+            <p className={`mt-2 text-2xl font-black ${riskEvents ? "text-red-700 dark:text-red-300" : 'text-[#22c55e]'}`} data-stat-value>{riskEvents}</p>
           </div>
         </div>
 

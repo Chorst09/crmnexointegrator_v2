@@ -153,15 +153,15 @@ export default function ProjetosV2() {
             const Icon = kpi.icon;
             const styles = kpiStyles[kpi.color] || kpiStyles.blue;
             return (
-              <div key={i} className={`relative overflow-hidden rounded-xl bg-gradient-to-br ${styles.card} p-4 transition-all hover:shadow-lg`}>
+              <div key={i} className={"nex-stat-surface " + (`relative overflow-hidden rounded-xl bg-gradient-to-br ${styles.card} p-4 transition-all hover:shadow-lg`)}>
                 <div className="flex items-start justify-between">
                   <div>
                     <p className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wide">{kpi.label}</p>
-                    <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2">{kpi.value}</p>
+                    <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2" data-stat-value>{kpi.value}</p>
                     <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1">{kpi.trend}</p>
                   </div>
                   <div className={`p-3 rounded-lg ${styles.iconBg}`}>
-                    <Icon size={24} className={styles.iconColor} />
+                    <Icon size={24} className={styles.iconColor}  data-stat-icon/>
                   </div>
                 </div>
               </div>

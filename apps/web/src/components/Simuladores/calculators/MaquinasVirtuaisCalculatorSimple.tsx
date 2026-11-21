@@ -226,21 +226,21 @@ const MaquinasVirtuaisCalculatorSimple = () => {
                     </CardHeader>
                     <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="text-center p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg">
+                            <div className="nex-stat-surface text-center p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg">
                                 <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Valor de Setup</p>
-                                <p className="text-2xl font-bold text-blue-600">
+                                <p className="text-2xl font-bold text-blue-600" data-stat-value>
                                     R$ {setupCost.toFixed(2)}
                                 </p>
                             </div>
-                            <div className="text-center p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg">
+                            <div className="nex-stat-surface text-center p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg">
                                 <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Mensalidade</p>
-                                <p className="text-2xl font-bold text-green-600">
+                                <p className="text-2xl font-bold text-green-600" data-stat-value>
                                     R$ {monthlyPrice.toFixed(2)}
                                 </p>
                             </div>
-                            <div className="text-center p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg">
+                            <div className="nex-stat-surface text-center p-4 bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded-lg">
                                 <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Total 1º Mês</p>
-                                <p className="text-2xl font-bold text-purple-600">
+                                <p className="text-2xl font-bold text-purple-600" data-stat-value>
                                     R$ {totalFirstMonth.toFixed(2)}
                                 </p>
                             </div>

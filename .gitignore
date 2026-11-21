@@ -99,3 +99,16 @@ BACKUPS/*.sql.gz
 *.dump
 *.sql.gz
 *.backup
+
+# Private deployment files and customer data
+.env.*
+!.env.example
+!**/.env.example
+backups-preparados/
+.backups/
+.codex-backups/
+CREATE_MASTER_USER_NEXOS.sql
+UPDATE_CHORSTCONSULT_PASSWORD_NEXOS.sql
+CHECK_USER_NEXOS.sql
+SETUP_SUPABASE_NEXOS.sql
+SETUP_SUPABASE_NEXOS_CLEAN.sql

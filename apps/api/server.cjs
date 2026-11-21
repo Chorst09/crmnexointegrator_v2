@@ -43,7 +43,7 @@ const attentionPointsRoutes = require('./api/attention-points.cjs');
 const learningsRoutes = require('./api/learnings.cjs');
 const { ensureProposalTemplates } = require('./lib/ensure-proposal-templates.cjs');
 
-// Auto-sync do Simulador (blindagem contra perda de dados em reinicializações)
+// Demonstration fixtures are opt-in for development; persisted data needs no seed.
 let simulatorSyncDone = false;
 async function runSimulatorSync() {
   if (simulatorSyncDone) return;
@@ -56,8 +56,9 @@ async function runSimulatorSync() {
     console.warn('⚠️ Auto-sync do Simulador falhou (não crítico):', err.message);
   }
 }
-// Executar sync após 3 segundos de inicialização
-setTimeout(runSimulatorSync, 3000);
+if (process.env.NODE_ENV !== 'production' && process.env.SIMULATOR_ENABLE_DEMO_SEED === 'true') {
+  setTimeout(runSimulatorSync, 3000);
+}
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -126,6 +127,7 @@ const ensureTemplatesOnce = async () => {
 
   ensureTemplatesPromise = (async () => {
     try {
+      if (process.env.DISABLE_STARTUP_WRITES === 'true') return [];
       return await ensureProposalTemplates();
     } catch (e) {
       // Don't crash the server if DB isn't ready; routes will surface errors anyway.
@@ -404,7 +406,7 @@ const handleLegacyAPI = (apiPath) => {
         user: req.user
       };
 
-      console.log(`📦 Request data: ${JSON.stringify({ method: req.method, query: req.query, body: req.body }, null, 2)}`);
+
 
       const response = await handler(request);
       
@@ -438,12 +440,7 @@ const handleLegacyAPI = (apiPath) => {
       console.error('❌ Mensagem:', error.message);
       console.error('📚 Stack:', error.stack);
       console.error('🔢 Código:', error.code);
-      console.error('📦 Request que causou erro:', JSON.stringify({
-        method: req.method,
-        path: req.path,
-        query: req.query,
-        body: req.body
-      }, null, 2));
+
       
       res.status(500).json({ 
         error: 'Erro interno do servidor',
@@ -544,9 +541,7 @@ app.get('/api/health', async (req, res) => {
 // Middleware de debug global
 app.use((req, res, next) => {
   console.log(`🔵 ${new Date().toISOString()} - ${req.method} ${req.path}`);
-  if (req.body && Object.keys(req.body).length > 0) {
-    console.log('📦 Body:', JSON.stringify(req.body, null, 2));
-  }
+
   next();
 });
 
@@ -554,7 +549,7 @@ app.use((req, res, next) => {
 app.use((error, req, res, next) => {
   console.error('🔴 ERRO CAPTURADO PELO MIDDLEWARE:');
   console.error('📍 Rota:', req.method, req.path);
-  console.error('📦 Body:', req.body);
+
   console.error('❌ Erro:', error.message);
   console.error('📚 Stack:', error.stack);
   
@@ -586,14 +581,6 @@ if (require.main === module) {
     if (created.length) {
       console.log(`📄 Templates de proposta criados: ${created.join(', ')}`);
     }
-
-    try {
-      const { prisma } = require('./lib/prisma.cjs');
-      await prisma.user.updateMany({
-        where: { email: { in: ['admin@crm.com', 'chorstconsult@gmail.com'] } },
-        data: { role: 'MASTER' }
-      }).catch(() => {});
-    } catch {}
 
     app.listen(PORT, HOST, () => {
       console.log(`🚀 API Server running on http://localhost:${PORT} (bind ${HOST})`);

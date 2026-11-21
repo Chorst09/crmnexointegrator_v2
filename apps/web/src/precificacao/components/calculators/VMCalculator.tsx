@@ -933,9 +933,9 @@ const VMCalculator: React.FC<VMCalculatorProps> = ({ onSave, onCancel, proposalT
                     <CardTitle className="text-[rgb(var(--crm-ink-rgb)_/_1)]">Resumo Financeiro</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="bg-blue-600 p-4 rounded-lg">
+                    <div className="nex-stat-surface bg-blue-600 p-4 rounded-lg">
                       <div className="text-center">
-                        <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                        <div className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]" data-stat-value>
                           {formatCurrency(calculateTotalPrice)}
                         </div>
                         <div className="text-sm text-blue-700 dark:text-blue-100">Total Mensal</div>

@@ -1,4 +1,6 @@
 import { Bar3DShape, Pie3DShape } from './charts/Chart3DShapes';
+import ExecutiveStatCard from './ExecutiveStatCard';
+import { Repeat2, Package, Coins } from 'lucide-react';
 import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -30,21 +32,12 @@ export default function FinancialRevenueComposition({ revenue, scope }) {
     </div>
     <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{won ? 'Contratos ganhos' : 'Oportunidades em negociação'}: <strong>{summary.count}</strong> · {won ? 'Valores contratados; não são comprovantes de faturamento ou recebimento.' : 'Valores potenciais; dependem do fechamento das oportunidades.'}</p>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <div className="rounded-xl border border-[var(--crm-border)] p-4">
-        <p className="text-sm font-semibold" style={{ color: REVENUE_COLORS.recurring }}>Receita recorrente mensal</p>
-        <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2">{financialCurrency(summary.recurringMonthly)}<span className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] font-normal"> / mês</span></p>
-        <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Soma das mensalidades {won ? 'dos contratos ganhos' : 'em negociação'}. Não é o total do contrato.</p>
-      </div>
-      <div className="rounded-xl border border-[var(--crm-border)] p-4">
-        <p className="text-sm font-semibold" style={{ color: REVENUE_COLORS.oneTime }}>Receita pontual</p>
-        <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2">{financialCurrency(summary.oneTime)}</p>
-        <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Produtos, projetos e implantação. Cobranças que não se repetem mensalmente.</p>
-      </div>
-      <div className="rounded-xl border border-[var(--crm-border)] p-4">
-        <p className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{won ? 'Valor total contratado' : 'Valor total em negociação'}</p>
-        <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2">{financialCurrency(summary.total)}</p>
-        <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Recorrência no prazo: {financialCurrency(summary.recurringTotal)} + pontual{summary.unclassified > 0 ? ' + sem classificação' : ''}.</p>
-      </div>
+      <ExecutiveStatCard title="Receita recorrente mensal" value={financialCurrency(summary.recurringMonthly)} suffix=" / mês" icon={Repeat2} color="cyan"
+        subtitle={`Soma das mensalidades ${won ? 'dos contratos ganhos' : 'em negociação'}. Não é o total do contrato.`}/>
+      <ExecutiveStatCard title="Receita pontual" value={financialCurrency(summary.oneTime)} icon={Package} color="purple"
+        subtitle="Produtos, projetos e implantação. Cobranças que não se repetem mensalmente."/>
+      <ExecutiveStatCard title={won ? 'Valor total contratado' : 'Valor total em negociação'} value={financialCurrency(summary.total)} icon={Coins}
+        subtitle={`Recorrência no prazo: ${financialCurrency(summary.recurringTotal)} + pontual${summary.unclassified > 0 ? ' + sem classificação' : ''}.`}/>
     </div>
     {summary.incompleteCount > 0 && <p role="status" className="text-sm text-amber-700 dark:text-amber-300">{summary.incompleteCount} oportunidade(s) mensal(is) com prazo incompleto. Revise o cadastro para conferir a mensalidade e o total do contrato.</p>}
     {summary.unclassifiedCount > 0 && <p role="status" className="text-sm text-amber-700 dark:text-amber-300">{financialCurrency(summary.unclassified)} em {summary.unclassifiedCount} oportunidade(s) sem classificação. Esse valor está no total, separado das receitas mensal e pontual.</p>}

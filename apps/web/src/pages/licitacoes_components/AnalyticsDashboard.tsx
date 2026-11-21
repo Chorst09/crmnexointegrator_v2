@@ -1,3 +1,4 @@
+import useDashboardSync from '../../hooks/useDashboardSync';
 import { Bar3DShape, Pie3DShape } from '../../components/charts/Chart3DShapes';
 import React, { useState, useEffect, useMemo } from 'react';
 import { 
@@ -31,6 +32,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
   const isDark = resolvedTheme === 'dark';
   const [activeTab, setActiveTab] = useState<'geral' | 'gerenciadas' | 'proximos' | 'alertas'>('geral');
   const [loading, setLoading] = useState(true);
+  const [dataError, setDataError] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<Date>(new Date());
 
@@ -46,19 +48,23 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
       const token = localStorage.getItem('token');
       const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
       
-      const [resGerenciadas, resLicitacoes, resAlertas] = await Promise.all([
-        fetch('/api/b2g-licitacoes/gerenciadas', { headers }).then(r => r.ok ? r.json() : []),
-        fetch('/api/b2g-licitacoes/buscar', { headers }).then(r => r.ok ? r.json() : { data: [] }),
-        fetch('/api/b2g-licitacoes/alertas', { headers }).then(r => r.ok ? r.json() : [])
+      const read = async (url: string) => {
+        const response = await fetch(url, {headers,cache:'no-store'});
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json();
+      };
+      const [resGerenciadas, resAlertas] = await Promise.all([
+        read('/api/b2g-licitacoes/gerenciadas'), read('/api/b2g-licitacoes/alertas')
       ]);
-
       setGerenciadas(Array.isArray(resGerenciadas) ? resGerenciadas : []);
-      const licList = resLicitacoes?.data || (Array.isArray(resLicitacoes) ? resLicitacoes : []);
-      setLicitacoes(licList);
+      // Analytics reflects saved monitoring records, never demonstration search results.
+      setLicitacoes([]);
       setAlertas(Array.isArray(resAlertas) ? resAlertas : []);
+      setDataError('');
       setLastUpdated(new Date());
     } catch (err) {
       console.error('Erro ao carregar dados do Analytics:', err);
+      setDataError('Não foi possível sincronizar as licitações monitoradas. Os dados anteriores podem estar desatualizados.');
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -69,12 +75,14 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
     fetchData();
   }, []);
 
+  useDashboardSync(() => fetchData(true));
+
   // --- CÁLCULOS & ESTATÍSTICAS ---
 
   // 1. Licitações Gerenciadas Analytics
   const gerenciadasStats = useMemo(() => {
     const totalCount = gerenciadas.length;
-    const totalValor = gerenciadas.reduce((acc, g) => acc + (g.valor_estimado || g.valorTotalEstimado || 0), 0);
+    const totalValor = gerenciadas.reduce((acc, g) => acc + (Number(g.valor_estimado ?? g.valorTotalEstimado) || 0), 0);
     
     // Contagem por fase
     const fasesMap: Record<string, { count: number; valor: number }> = {
@@ -87,7 +95,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
 
     gerenciadas.forEach(g => {
       const fase = g.statusFase || 'Análise';
-      const val = g.valor_estimado || g.valorTotalEstimado || 0;
+      const val = Number(g.valor_estimado ?? g.valorTotalEstimado) || 0;
       if (fasesMap[fase]) {
         fasesMap[fase].count += 1;
         fasesMap[fase].valor += val;
@@ -124,10 +132,10 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
 
     // Filtra editais com data futura ou válida
     const futureList = allItems.filter(item => {
-      const dtStr = item.data_abertura || item.dataEncerramentoProposta || item.dataAtualizacao;
+      const dtStr = item.data_abertura || item.dataEncerramentoProposta;
       if (!dtStr) return false;
       const dt = new Date(dtStr);
-      return !isNaN(dt.getTime());
+      return !isNaN(dt.getTime()) && dt >= now;
     }).sort((a, b) => {
       const dtA = new Date(a.data_abertura || a.dataEncerramentoProposta || '').getTime();
       const dtB = new Date(b.data_abertura || b.dataEncerramentoProposta || '').getTime();
@@ -147,7 +155,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
       if (!dtStr) return;
       const dt = new Date(dtStr);
       const diffDays = Math.ceil((dt.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      const val = item.valor_estimado || item.valorTotalEstimado || 0;
+      const val = Number(item.valor_estimado ?? item.valorTotalEstimado) || 0;
 
       if (diffDays <= 3) {
         buckets['Em até 3 dias'].count += 1;
@@ -172,7 +180,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
 
     // Agrupamento por Modalidade
     const modalidadeMap: Record<string, number> = {};
-    allItems.forEach(item => {
+    futureList.forEach(item => {
       const mod = item.modalidade || item.modalidadeNome || 'Pregão Eletrônico';
       modalidadeMap[mod] = (modalidadeMap[mod] || 0) + 1;
     });
@@ -190,7 +198,7 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
       prazoData,
       modalidadeData,
       iminentes,
-      volumeTotalFuturo: futureList.reduce((acc, i) => acc + (i.valor_estimado || i.valorTotalEstimado || 0), 0)
+      volumeTotalFuturo: futureList.reduce((acc, i) => acc + (Number(i.valor_estimado ?? i.valorTotalEstimado) || 0), 0)
     };
   }, [gerenciadas, licitacoes]);
 
@@ -264,6 +272,8 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
 
   return (
     <div className="flex flex-col h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] overflow-y-auto transition-colors duration-200">
+      {dataError && <p role="alert" className="mb-4 rounded-lg border border-amber-400/40 p-3 text-sm text-amber-400">{dataError}</p>}
+      <p className="mb-3 text-xs text-[var(--crm-muted)]">Dados das licitações monitoradas no CRM.</p>
       {/* Header Superior */}
       <header className="px-8 py-6 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)] sticky top-0 z-10 shadow-xs transition-colors duration-200">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -369,18 +379,18 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
           {/* Card 1: Pipeline Gerenciado */}
           <div 
             onClick={() => setActiveTab('gerenciadas')}
-            className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-blue-300 dark:hover:border-blue-200 dark:hover:border-blue-700 hover:shadow-sm transition-all cursor-pointer group"
+            className="nex-stat-surface bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-blue-300 dark:hover:border-blue-200 dark:hover:border-blue-700 hover:shadow-sm transition-all cursor-pointer group"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="bg-blue-50 dark:bg-blue-950/60 p-2.5 rounded-lg text-blue-600 dark:text-blue-400 group-hover:bg-blue-600 group-hover:text-white transition-colors">
-                <Briefcase className="w-5 h-5" />
+                <Briefcase className="w-5 h-5"  data-stat-icon/>
               </div>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/60 text-blue-700 dark:text-blue-300 border border-blue-100 dark:border-blue-800">
                 {gerenciadasStats.emAndamentoCount} em disputa
               </span>
             </div>
             <p className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">Volume Gerenciado</p>
-            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1" data-stat-value>
               {formatCurrency(gerenciadasStats.totalValor)}
             </p>
             <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1.5 flex items-center justify-between">
@@ -394,18 +404,18 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
           {/* Card 2: Próximos Editais */}
           <div 
             onClick={() => setActiveTab('proximos')}
-            className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-amber-300 dark:hover:border-amber-200 dark:hover:border-amber-700 hover:shadow-sm transition-all cursor-pointer group"
+            className="nex-stat-surface bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-amber-300 dark:hover:border-amber-200 dark:hover:border-amber-700 hover:shadow-sm transition-all cursor-pointer group"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="bg-amber-50 dark:bg-amber-950/60 p-2.5 rounded-lg text-amber-600 dark:text-amber-400 group-hover:bg-amber-600 group-hover:text-white transition-colors">
-                <Calendar className="w-5 h-5" />
+                <Calendar className="w-5 h-5"  data-stat-icon/>
               </div>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-800">
                 Próximos 15 dias
               </span>
             </div>
             <p className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">Próximos Editais</p>
-            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1" data-stat-value>
               {formatCurrency(proximosStats.volumeTotalFuturo)}
             </p>
             <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1.5 flex items-center justify-between">
@@ -419,18 +429,18 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
           {/* Card 3: Taxa de Sucesso / Conversão */}
           <div 
             onClick={() => setActiveTab('gerenciadas')}
-            className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-emerald-300 dark:hover:border-emerald-200 dark:hover:border-emerald-700 hover:shadow-sm transition-all cursor-pointer group"
+            className="nex-stat-surface bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-emerald-300 dark:hover:border-emerald-200 dark:hover:border-emerald-700 hover:shadow-sm transition-all cursor-pointer group"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="bg-emerald-50 dark:bg-emerald-950/60 p-2.5 rounded-lg text-emerald-600 dark:text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition-colors">
-                <CheckCircle2 className="w-5 h-5" />
+                <CheckCircle2 className="w-5 h-5"  data-stat-icon/>
               </div>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800">
                 {gerenciadasStats.ganhasCount} Ganha{gerenciadasStats.ganhasCount !== 1 ? 's' : ''}
               </span>
             </div>
             <p className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">Taxa de Vitória (Win Rate)</p>
-            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1" data-stat-value>
               {gerenciadasStats.winRate > 0 ? `${gerenciadasStats.winRate}%` : 'Ativo'}
             </p>
             <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1.5 flex items-center justify-between">
@@ -444,18 +454,18 @@ export function AnalyticsDashboard({ onNavigate }: AnalyticsDashboardProps) {
           {/* Card 4: Alertas e Oportunidades */}
           <div 
             onClick={() => setActiveTab('alertas')}
-            className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-purple-300 dark:hover:border-purple-200 dark:hover:border-purple-700 hover:shadow-sm transition-all cursor-pointer group"
+            className="nex-stat-surface bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)] shadow-xs hover:border-purple-300 dark:hover:border-purple-200 dark:hover:border-purple-700 hover:shadow-sm transition-all cursor-pointer group"
           >
             <div className="flex items-center justify-between mb-3">
               <div className="bg-purple-50 dark:bg-purple-950/60 p-2.5 rounded-lg text-purple-600 dark:text-purple-400 group-hover:bg-purple-600 group-hover:text-white transition-colors">
-                <Bell className="w-5 h-5" />
+                <Bell className="w-5 h-5"  data-stat-icon/>
               </div>
               <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 border border-purple-100 dark:border-purple-800">
                 Monitor 24/7
               </span>
             </div>
             <p className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase tracking-wider">Alertas Ativos</p>
-            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1" data-stat-value>
               {alertasStats.totalAlertas} Regras
             </p>
             <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-1.5 flex items-center justify-between">

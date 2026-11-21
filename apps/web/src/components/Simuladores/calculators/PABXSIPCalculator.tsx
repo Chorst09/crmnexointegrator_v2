@@ -3245,7 +3245,7 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                             <CardContent>
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                                     {Object.entries(aiAgentPrices).map(([plan, data]) => (
-                                        <div key={plan} className="bg-gradient-to-b from-blue-900/30 to-cyan-900/30 rounded-lg p-4 border border-[var(--crm-border)]">
+                                        <div key={plan} className="nex-stat-surface bg-gradient-to-b from-blue-900/30 to-cyan-900/30 rounded-lg p-4 border border-[var(--crm-border)]">
                                             <div className="text-center mb-4">
                                                 <div className="w-16 h-16 mx-auto bg-gradient-to-r from-blue-600 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-lg mb-2">
                                                     {plan}
@@ -3273,9 +3273,9 @@ export const PABXSIPCalculator: React.FC<PABXSIPCalculatorProps> = ({ onBackToDa
                                                                 [plan]: { ...(prev as any)[plan], price: newPrice }
                                                             }));
                                                         }}
-                                                    />
+                                                     data-stat-icon/>
                                                 ) : (
-                                                    <p className="text-2xl font-bold">{formatCurrency(data.price)}</p>
+                                                    <p className="text-2xl font-bold" data-stat-value>{formatCurrency(data.price)}</p>
                                                 )}
                                                 <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">por mês</p>
                                             </div>

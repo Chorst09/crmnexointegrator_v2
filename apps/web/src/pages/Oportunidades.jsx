@@ -1884,9 +1884,9 @@ export default function Oportunidades() {
                 </div>
               )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div className="rounded-2xl border border-emerald-300/35 bg-[linear-gradient(140deg,rgba(16,185,129,0.2),rgb(var(--crm-surface-2-rgb)_/_0.5))] p-5">
+                <div className="nex-stat-surface rounded-2xl border border-emerald-300/35 bg-[linear-gradient(140deg,rgba(16,185,129,0.2),rgb(var(--crm-surface-2-rgb)_/_0.5))] p-5">
                   <h3 className="text-xs uppercase tracking-[0.08em] font-semibold text-emerald-700/90 dark:text-emerald-100/90">Valor da Oportunidade</h3>
-                  <p className="mt-2 text-3xl font-bold text-emerald-700 dark:text-emerald-200">
+                  <p className="mt-2 text-3xl font-bold text-emerald-700 dark:text-emerald-200" data-stat-value>
                     {formatCurrency(selectedOpportunity.value)}
                   </p>
                 </div>

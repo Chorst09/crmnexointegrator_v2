@@ -109,9 +109,9 @@ router.get('/dashboard', async (req, res) => {
       ];
     }
     if (!canSeeChorst) {
-      simWhere.NOT = [
-        { createdBy: CHORST_EMAIL },
-        { accountManager: CHORST_EMAIL }
+      simWhere.AND = [
+        {NOT:{createdBy:CHORST_EMAIL}},
+        {OR:[{accountManager:null},{NOT:{accountManager:CHORST_EMAIL}}]}
       ];
     }
 

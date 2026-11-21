@@ -1,3 +1,5 @@
+import useDashboardSync from '../hooks/useDashboardSync';
+import { loadDashboardPages } from '../utils/loadDashboardPages.mjs';
 import { useState, useEffect } from 'react';
 import { buildApiUrl, API_ENDPOINTS, getAuthHeaders } from '../config/api';
 import { 
@@ -89,6 +91,7 @@ const getTriggerLabel = (trigger) => {
 
 const Automacoes = () => {
   const [activeTab, setActiveTab] = useState('workflows');
+  const [syncError, setSyncError] = useState('');
   const [workflows, setWorkflows] = useState([]);
   const [automationRules, setAutomationRules] = useState([]);
   const [notifications, setNotifications] = useState([]);
@@ -130,39 +133,37 @@ const Automacoes = () => {
     active: true
   });
 
-  const fetchData = async () => {
+  const fetchData = async (silent = false) => {
     try {
-      setLoading(true);
-      const [workflowsRes, rulesRes, notificationsRes] = await Promise.all([
-        fetch(buildApiUrl('/advanced-workflows'), { headers: getAuthHeaders() }),
-        fetch(buildApiUrl('/workflows/automation-rules'), { headers: getAuthHeaders() }),
-        fetch(buildApiUrl('/workflows/notifications'), { headers: getAuthHeaders() })
+      if (silent !== true) setLoading(true);
+      const read = (path, key) => loadDashboardPages(async (page, limit) => {
+        const response = await fetch(buildApiUrl(`${path}?page=${page}&limit=${limit}`), {headers:getAuthHeaders(),cache:'no-store'});
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const payload = await response.json();
+        if (payload?.available === false) throw new Error(payload.error);
+        return payload;
+      }, {key});
+      const results = await Promise.allSettled([
+        read('/advanced-workflows','workflows'),read('/workflows/automation-rules','rules'),read('/workflows/notifications','notifications')
       ]);
+      const setters = [setWorkflows,setAutomationRules,setNotifications];
+      results.forEach((result,index) => {if(result.status==='fulfilled')setters[index](result.value);});
+      const failures=results.filter(result=>result.status==='rejected');
+      setSyncError(failures.length ? 'Algumas fontes de automação não estão disponíveis neste banco. Os indicadores dessas fontes não foram confirmados.' : '');
 
-      if (workflowsRes.ok) {
-        const data = await workflowsRes.json();
-        setWorkflows(Array.isArray(data) ? data : data.workflows || []);
-      }
-
-      if (rulesRes.ok) {
-        const data = await rulesRes.json();
-        setAutomationRules(data.rules || []);
-      }
-
-      if (notificationsRes.ok) {
-        const data = await notificationsRes.json();
-        setNotifications(data.notifications || []);
-      }
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
+      setSyncError('Não foi possível sincronizar as automações.');
     } finally {
-      setLoading(false);
+      if (silent !== true) setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchData();
   }, []);
+
+  useDashboardSync(() => fetchData(true));
 
   const executeWorkflow = async (workflowId) => {
     try {
@@ -712,6 +713,7 @@ const Automacoes = () => {
 
   return (
     <div className="space-y-8">
+      {syncError && <p role="alert" className="rounded-lg border border-amber-400/40 p-3 text-sm text-amber-400">{syncError}</p>}
       {/* Header */}
       <PageHeader
         title="Centro de Automações"
@@ -771,9 +773,9 @@ const Automacoes = () => {
               ].map((metric) => {
                 const Icon = metric.icon;
                 return (
-                  <div key={metric.label} className="rounded-xl border border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-rgb)_/_0.04)] p-4">
-                    <Icon className="mb-3 h-5 w-5" style={{ color: metric.color }} />
-                    <p className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{metric.value}</p>
+                  <div key={metric.label} className="nex-stat-surface rounded-xl border border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-rgb)_/_0.04)] p-4">
+                    <Icon className="mb-3 h-5 w-5" style={{ color: metric.color }}  data-stat-icon/>
+                    <p className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]" data-stat-value>{metric.value}</p>
                     <p className="text-xs font-bold uppercase tracking-wide text-[rgb(var(--crm-muted-rgb)_/_1)]">{metric.label}</p>
                   </div>
                 );

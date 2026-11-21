@@ -1,0 +1,86 @@
+{
+  "date": "2026-11-19",
+  "environment": "local",
+  "checks": [
+    "General: persisted B2B/B2G IDs, complete old pre-sales and actor scope reconcile",
+    "B2B and Financial: won revenue reconciles with persisted amount; foreign revenue excluded",
+    "Targets: own targets only; overlapping periods do not duplicate realized sales",
+    "Automation rules: missing local source explicitly reported as unavailable",
+    "Simulator: own proposals only; anonymous request denied",
+    "Browser: focus reload reads changed database value without manual page reload",
+    "Browser: shared synchronization reloads updated pre-sales records",
+    "Browser: simulator synchronization reads updated persisted values"
+  ],
+  "endpoints": [
+    {
+      "path": "dashboard?type=general",
+      "status": 200
+    },
+    {
+      "path": "dashboard?type=b2b&period=all",
+      "status": 200
+    },
+    {
+      "path": "dashboard?type=b2b&period=all&temperature=50",
+      "status": 200
+    },
+    {
+      "path": "gestao/analise-financeira/dashboard?periodo=todos",
+      "status": 200
+    },
+    {
+      "path": "sales-targets",
+      "status": 200
+    },
+    {
+      "path": "sales-targets?includeSummary=true",
+      "status": 200
+    },
+    {
+      "path": "simulator/proposals?dashboard=true&all=true",
+      "status": 200
+    },
+    {
+      "path": "workflows/automation-rules",
+      "status": 200
+    },
+    {
+      "path": "dashboard?type=module-overview&market=B2B",
+      "status": 200
+    },
+    {
+      "path": "dashboard?type=module-overview&market=B2G",
+      "status": 200
+    },
+    {
+      "path": "pre-vendas?limit=200&page=1",
+      "status": 200
+    },
+    {
+      "path": "projetos?limit=200&page=1",
+      "status": 200
+    },
+    {
+      "path": "projetos/dashboard",
+      "status": 200
+    },
+    {
+      "path": "b2g-licitacoes/gerenciadas",
+      "status": 200
+    },
+    {
+      "path": "b2g-licitacoes/alertas",
+      "status": 200
+    }
+  ],
+  "failures": [],
+  "browserErrors": [],
+  "tests": {
+    "passed": 130,
+    "failed": 0
+  },
+  "pending": [
+    "AutomationRule is not configured in the local database"
+  ],
+  "temporaryDataRemoved": true
+}

@@ -112,7 +112,7 @@ if (!isPlaceholderUrl) {
       }
     };
     realPrisma = new PrismaClient(prismaOptions);
-    ensureB2GTablesExist();
+    if (process.env.NODE_ENV !== 'production' && process.env.ALLOW_SCHEMA_BOOTSTRAP === 'true') ensureB2GTablesExist();
   } catch (err) {
     console.warn('[AI Studio] Erro ao instanciar PrismaClient real:', err.message);
     realPrisma = null;

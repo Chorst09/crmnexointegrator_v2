@@ -4635,12 +4635,12 @@ export default function Calculadoras({
                 </div>
               </div>
 
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-4">
+              <div className="nex-stat-surface rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] p-4">
                 <div className="text-center mb-4">
                   <div className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
                     {operationType === 'locacao' ? 'Preço Mensal Sugerido' : 'Preço Final Sugerido'}
                   </div>
-                  <div className="text-4xl font-black text-cyan-700 dark:text-cyan-300">
+                  <div className="text-4xl font-black text-cyan-700 dark:text-cyan-300" data-stat-value>
                     {formatCurrency(operationType === 'locacao'
                       ? calculationPreview.calculationResults.monthlyPrice
                       : calculationPreview.calculationResults.finalPrice)}

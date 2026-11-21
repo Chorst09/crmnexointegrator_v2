@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ExecutiveIcon, ExecutiveRevenueChart, ExecutiveFunnel, ExecutiveBrazilMap, getOpportunityLocations } from './ExecutiveVisuals';
+import { ExecutiveIcon, ExecutiveRevenueChart, ExecutiveConversionChart, ExecutiveFunnel, ExecutiveBrazilMap, getOpportunityLocations } from './ExecutiveVisuals';
 import { ArrowRight, ArrowUpRight, CalendarDays, CheckCircle2, ChevronRight, Clock3, Coins, Handshake, RefreshCcw, Rocket, TrendingUp, TriangleAlert, Trophy, Brain, BriefcaseBusiness, Landmark, Settings, Check } from 'lucide-react';
 import { activityMarket, activityRoute, upcomingActivities, opportunityAlerts } from '../utils/dashboardFlow.mjs';
 import ExecutiveModuleCards from './ExecutiveModuleCards';
+import ExecutiveStatCard from './ExecutiveStatCard';
 import './GeneralDashboardExecutive.css';
 import './GeneralDashboardExecutiveSkin.css';
 const money = n => new Intl.NumberFormat('pt-BR', {
@@ -36,7 +37,9 @@ function DashboardKPICard({
   subtitle,
   kind
 }) {
-  return <section className={`nex-panel nex-kpi nex-${tone}`}><span className="nex-icon"><ExecutiveIcon kind={kind} icon={Icon} /></span><div><h2>{title}</h2><strong>{value}</strong><small className={delta == null ? '' : delta < 0 ? 'nex-negative' : 'nex-positive'}>{delta == null ? subtitle : <><ArrowUpRight size={13} />{delta > 0 ? '+' : ''}{pct(delta)} <span>vs. período anterior</span></>}</small></div></section>;
+  return <ExecutiveStatCard title={title} value={value} icon={<ExecutiveIcon kind={kind} icon={Icon}/>} color={tone}
+    subtitle={delta == null ? subtitle : undefined}
+    trend={delta == null ? null : {direction:delta < 0 ? 'down' : 'up',value:`${delta > 0 ? '+' : ''}${pct(delta)}`,label:'vs. período anterior'}}/>;
 }
 export default function GeneralDashboardExecutive({
   computed: c,
@@ -69,7 +72,7 @@ export default function GeneralDashboardExecutive({
   }, []);
   const [months, setMonths] = useState('12');
   const [funnelMode, setFunnelMode] = useState('count');
-  const [mapCategory, setMapCategory] = useState('B2B');
+  const [mapCategory, setMapCategory] = useState('ALL');
   const opportunities = [...c.opportunitiesB2BRange, ...c.opportunitiesB2GRange];
   const change = (current, previous) => previous > 0 ? (current - previous) / previous * 100 : null;
   const growth = change(opportunities.length, c.previousMetrics.opportunities);
@@ -119,8 +122,14 @@ export default function GeneralDashboardExecutive({
   const stages = c.b2bStageBreakdown.filter(item => item.key !== 'LOST');
   const b2gStages = c.b2gStageBreakdown.filter(item=>!['PERDIDO','NO_GO'].includes(item.key));
   const chartCount = Number(months);
-  const mapRows = mapCategory === 'B2B' ? c.opportunitiesB2BRange : mapCategory === 'B2G' ? c.opportunitiesB2GRange : c.preSalesRange;
-  const geoPoints = getOpportunityLocations(mapRows, [...c.companiesB2B, ...c.companiesB2G]);
+  const [selectedState, setSelectedState] = useState(null);
+  const allGeoPoints = [
+    ...getOpportunityLocations(c.opportunitiesB2BRange, [...c.companiesB2B, ...c.companiesB2G]).map(point => ({...point, category:'B2B'})),
+    ...getOpportunityLocations(c.opportunitiesB2GRange, [...c.companiesB2B, ...c.companiesB2G]).map(point => ({...point, category:'B2G'})),
+    ...getOpportunityLocations(c.preSalesRange, [...c.companiesB2B, ...c.companiesB2G]).map(point => ({...point, category:'PRE'}))
+  ];
+  const geoPoints = allGeoPoints.filter(point => mapCategory === 'ALL' || point.category === mapCategory);
+  const statePoints = geoPoints.filter(point => point.state === selectedState);
   const failures = moduleHealth.filter(item => item.status === 'error');
   const hour = new Date().getHours();
   return <div className="nex-executive nex-general-dashboard">
@@ -150,9 +159,9 @@ export default function GeneralDashboardExecutive({
     {c.undatedWonCount>0 && <p className="nex-warning" role="status">{number(c.undatedWonCount)} vendas ganhas sem data de fechamento não entram na receita do período. Complete a data na oportunidade.</p>}
     <div className="nex-three nex-charts nex-general-charts" data-section="charts">
       <Panel title="Evolução da Receita"><label className="nex-chart-filter"><select aria-label="Horizonte da receita" value={months} onChange={e => setMonths(e.target.value)}><option value="12">12 meses</option><option value="6">6 meses</option></select></label><div className="nex-chart"><ExecutiveRevenueChart labels={c.buckets.slice(-chartCount).map(item => item.label)} won={c.monthlyWon.slice(-chartCount)} potential={c.monthlyPotential.slice(-chartCount)}/></div></Panel>
-      <Panel title="Funil Comercial B2B"><label className="nex-chart-filter"><select aria-label="Métrica do funil" value={funnelMode} onChange={e => setFunnelMode(e.target.value)}><option value="count">Pipeline</option><option value="value">Valor</option></select></label><div className="nex-funnel-layout"><div className="nex-funnel"><ExecutiveFunnel stages={stages} mode={funnelMode} formatMoney={money} formatNumber={number}/></div><div className="nex-conversion"><span>Taxa de conversão</span><strong>{pct(c.b2bConversion)}</strong><TrendingUp size={55} /><button className="nex-link" onClick={() => navigate('/oportunidades')}>Ver detalhes <ArrowRight size={13} /></button></div></div></Panel>
-      <Panel title="Funil Comercial B2G"><label className="nex-chart-filter"><select aria-label="Métrica do funil B2G" value={funnelMode} onChange={e=>setFunnelMode(e.target.value)}><option value="count">Pipeline</option><option value="value">Valor</option></select></label><div className="nex-funnel-layout"><div className="nex-funnel"><ExecutiveFunnel stages={b2gStages} ariaLabel="Funil comercial B2G por fase" mode={funnelMode} formatMoney={money} formatNumber={number}/></div><div className="nex-conversion"><span>Conversão B2G</span><strong>{pct(c.b2gConversion)}</strong><TrendingUp size={55}/><button className="nex-link" onClick={()=>navigate('/b2g-oportunidades')}>Ver licitações<ArrowRight size={13}/></button></div></div></Panel>
-      <Panel title="Mapa de Oportunidades"><div className="nex-map-layout"><ExecutiveBrazilMap locations={geoPoints} category={mapCategory}/><div className="nex-map-legend">{[{
+      <Panel title="Funil Comercial B2B"><label className="nex-chart-filter"><select aria-label="Métrica do funil" value={funnelMode} onChange={e => setFunnelMode(e.target.value)}><option value="count">Pipeline</option><option value="value">Valor</option></select></label><div className="nex-funnel-layout"><div className="nex-funnel"><ExecutiveFunnel stages={stages} mode={funnelMode} formatMoney={money} formatNumber={number}/></div><div className="nex-conversion"><span title="Vendas ganhas / oportunidades do período. Gráfico por mês de entrada.">Taxa de conversão</span><strong>{pct(c.b2bConversion)}</strong><span className="nex-conversion-change" data-direction={c.conversionComparison?.B2B == null ? 'none' : c.conversionComparison.B2B >= 0 ? 'up' : 'down'}>{c.conversionComparison?.B2B == null ? 'Sem base anterior' : `${c.conversionComparison.B2B >= 0 ? '▲ +' : '▼ '}${number(Math.round(c.conversionComparison.B2B * 10) / 10)} p.p.`}</span><ExecutiveConversionChart series={c.conversionSeries?.B2B} label="Conversão B2B por mês de entrada"/><button className="nex-link" onClick={() => navigate('/oportunidades')}>Ver detalhes <ArrowRight size={13} /></button></div></div></Panel>
+      <Panel title="Funil Comercial B2G"><label className="nex-chart-filter"><select aria-label="Métrica do funil B2G" value={funnelMode} onChange={e=>setFunnelMode(e.target.value)}><option value="count">Pipeline</option><option value="value">Valor</option></select></label><div className="nex-funnel-layout"><div className="nex-funnel"><ExecutiveFunnel stages={b2gStages} ariaLabel="Funil comercial B2G por fase" mode={funnelMode} formatMoney={money} formatNumber={number}/></div><div className="nex-conversion"><span title="Vendas ganhas / oportunidades do período. Gráfico por mês de entrada.">Taxa de conversão B2G</span><strong>{pct(c.b2gConversion)}</strong><span className="nex-conversion-change" data-direction={c.conversionComparison?.B2G == null ? 'none' : c.conversionComparison.B2G >= 0 ? 'up' : 'down'}>{c.conversionComparison?.B2G == null ? 'Sem base anterior' : `${c.conversionComparison.B2G >= 0 ? '▲ +' : '▼ '}${number(Math.round(c.conversionComparison.B2G * 10) / 10)} p.p.`}</span><ExecutiveConversionChart series={c.conversionSeries?.B2G} label="Conversão B2G por mês de entrada"/><button className="nex-link" onClick={()=>navigate('/b2g-oportunidades')}>Ver licitações<ArrowRight size={13}/></button></div></div></Panel>
+      <Panel title="Mapa de Oportunidades"><div className="nex-map-layout"><ExecutiveBrazilMap locations={geoPoints} category={mapCategory} onStateSelect={setSelectedState}/><div className="nex-map-legend">{[{
               key: 'B2B',
               label: 'B2B Privado',
               count: c.opportunitiesB2BRange.length
@@ -164,9 +173,9 @@ export default function GeneralDashboardExecutive({
               key: 'PRE',
               label: 'Pré-Vendas',
               count: c.preSalesRange.length
-            }].map((item, i) => <button key={item.key} className={mapCategory === item.key ? 'active' : ''} onClick={() => setMapCategory(item.key)}><i style={{
+            }].map((item, i) => <button key={item.key} className={mapCategory === item.key ? 'active' : ''} onClick={() => {setMapCategory(current => current === item.key ? 'ALL' : item.key);setSelectedState(null);}}><i style={{
                 background: ['#00bdff', '#ffb900', '#00e792'][i]
-              }} /><span>{item.label}<strong>{number(item.count)}</strong></span></button>)}<small>{geoPoints.length ? `${geoPoints.length} registros localizados${geoPoints.some(point => point.approximate) ? " · inclui localização por UF" : ""}` : 'Sem coordenadas cadastradas'}</small><button className="nex-link" onClick={() => navigate(mapCategory === 'B2G' ? '/b2g-oportunidades' : mapCategory === 'PRE' ? '/pre-vendas' : '/oportunidades')}>Ver oportunidades <ArrowRight size={13} /></button></div></div></Panel>
+              }} /><span>{item.label}<strong>{number(item.count)}</strong></span></button>)}<button className="nex-link" aria-pressed={mapCategory === 'ALL'} onClick={() => {setMapCategory('ALL');setSelectedState(null);}}>Todos os módulos</button>{selectedState && <div className="nex-state-summary" role="status"><strong>{selectedState}</strong>{['B2B','B2G','PRE'].map(key => <div key={key}>{key === 'PRE' ? 'Pré-vendas' : key}: {statePoints.filter(point => point.category === key).length}</div>)}</div>}<small>{geoPoints.length ? `${geoPoints.length} registros localizados${geoPoints.some(point => point.approximate) ? " · inclui localização por UF" : ""}` : 'Sem UF ou coordenadas cadastradas'}</small><button className="nex-link" onClick={() => navigate(mapCategory === 'B2G' ? '/b2g-oportunidades' : mapCategory === 'PRE' ? '/pre-vendas' : '/oportunidades')}>Ver oportunidades <ArrowRight size={13} /></button></div></div></Panel>
     </div>
     <ExecutiveModuleCards computed={c} access={access} adminLike={adminLike}/>
     <div className="nex-three nex-lists" data-section="lists">

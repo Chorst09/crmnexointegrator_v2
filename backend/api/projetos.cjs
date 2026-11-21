@@ -1,3 +1,4 @@
+const {projectDashboardWhere} = require('../lib/project-dashboard-scope.cjs');
 const express = require('express');
 const multer = require('multer');
 const { PDFParse } = require('pdf-parse');
@@ -511,8 +512,7 @@ ${sourceText}
 // Dashboard / KPIs
 router.get('/dashboard', authenticateToken, async (req, res) => {
   try {
-    const where = {};
-    if (req.user.role === 'SELLER') where.projectManagerId = req.user.id;
+    const where = projectDashboardWhere(req.user);
 
     const [total, active, delayed, avgMargin] = await Promise.all([
       prisma.project.count({ where: { ...where, status: { not: 'CANCELADO' } } }),
@@ -552,9 +552,8 @@ router.get('/', authenticateToken, async (req, res) => {
   try {
     const { status, type, phase, companyId, page = 1, limit = 20 } = req.query;
     const skip = (page - 1) * limit;
-    const where = {};
+    const where = projectDashboardWhere(req.user);
 
-    if (req.user.role === 'SELLER') where.projectManagerId = req.user.id;
     if (status) where.status = status;
     if (type) where.type = type;
     if (phase) where.phase = phase;

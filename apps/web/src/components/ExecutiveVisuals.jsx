@@ -52,6 +52,33 @@ export function ExecutiveRevenueChart({ labels, won, potential }) {
   </svg><div className="nex-chart-legend"><span><i/>Receita contratada</span><button aria-pressed={showPotential} onClick={() => setShowPotential(value => !value)}><i className="nex-projected-key"/>{showPotential ? 'Ocultar potencial' : 'Exibir potencial'}</button></div></div>;
 }
 
+export function ExecutiveConversionChart({ series = [], label = 'Evolução da taxa de conversão' }) {
+  const id = useId().replace(/:/g, '');
+  const samples = series.map((sample, index) => ({ ...sample, index }))
+    .filter(sample => sample.value != null && Number.isFinite(sample.value));
+  const max = Math.max(10, ...samples.map(sample => sample.value));
+  const x = index => 8 + index / Math.max(1, series.length - 1) * 134;
+  const y = value => 83 - Math.max(0, value) / max * 65;
+  const points = samples.map(sample => [x(sample.index), y(sample.value)]);
+  const line = points.map(([px, py], index) => `${index ? 'L' : 'M'}${px} ${py}`).join(' ');
+  const percent = value => `${new Intl.NumberFormat('pt-BR', { maximumFractionDigits: 1 }).format(value)}%`;
+  return <svg className="nex-conversion-chart" viewBox="0 0 150 95" role="img" aria-label={`${label}. ${samples.length ? samples.map(sample => `${sample.label}: ${percent(sample.value)}`).join('; ') : 'Sem oportunidades no período'}`}>
+    <defs>
+      <linearGradient id={`${id}-line`}><stop stopColor="#3089ff"/><stop offset=".55" stopColor="#53caff"/><stop offset="1" stopColor="#adfaff"/></linearGradient>
+      <linearGradient id={`${id}-area`} x1="0" y1="0" x2="0" y2="1"><stop stopColor="#76eaff" stopOpacity=".38"/><stop offset=".6" stopColor="#2389cf" stopOpacity=".16"/><stop offset="1" stopColor="#0b294f" stopOpacity="0"/></linearGradient>
+      <filter id={`${id}-glow`} x="-100%" y="-100%" width="300%" height="300%"><feGaussianBlur stdDeviation="2.4"/></filter>
+    </defs>
+    {[30, 55, 83].map(py => <path key={py} d={`M6 ${py}H144`} stroke="#367ba4" strokeOpacity=".1" strokeDasharray="2 4"/>)}
+    {points.length > 1 && <>
+      <path d={`${line} L${points.at(-1)[0]} 91 L${points[0][0]} 91 Z`} fill={`url(#${id}-area)`}/>
+      <path d={line} fill="none" stroke="#55d9ff" strokeWidth="3" opacity=".5" filter={`url(#${id}-glow)`}/>
+      <path d={line} fill="none" stroke={`url(#${id}-line)`} strokeWidth="1.5" strokeLinejoin="round" strokeLinecap="round"/>
+    </>}
+    {samples.map((sample, index) => <g key={sample.index}><title>{`${sample.label}: ${percent(sample.value)} · ${sample.won} ganhas / ${sample.total} oportunidades`}</title><circle cx={points[index][0]} cy={points[index][1]} r="5" fill="#64dfff" opacity=".6" filter={`url(#${id}-glow)`}/><circle cx={points[index][0]} cy={points[index][1]} r={index === samples.length - 1 ? 2.7 : 1.5} fill={index === samples.length - 1 ? '#a8f6ff' : '#53caff'}/></g>)}
+    {!samples.length && <text x="75" y="58" textAnchor="middle" fill="#a6bfd9" fontSize="9">Sem dados no período</text>}
+  </svg>;
+}
+
 export function ExecutiveFunnel({ stages, mode, formatMoney, formatNumber, ariaLabel = "Funil comercial B2B por estágio" }) {
   const id = useId().replace(/:/g, '');
   const total = stages.reduce((sum, item) => sum + item.count, 0);
@@ -66,27 +93,29 @@ export function ExecutiveFunnel({ stages, mode, formatMoney, formatNumber, ariaL
 export function getOpportunityLocations(records, companies = []) {
   const byId = new Map(companies.map(company => [String(company.id), company]));
   return records.flatMap(item => {
-    const company = item.company || byId.get(String(item.companyId)) || {};
-    const rawLat = item.latitude ?? company.latitude, rawLng = item.longitude ?? company.longitude;
-    if (rawLat != null && rawLat !== '' && rawLng != null && rawLng !== '') {
-      const lat = Number(rawLat), lng = Number(rawLng);
-      if (Number.isFinite(lat) && Number.isFinite(lng) && lat >= -34 && lat <= 6 && lng >= -74 && lng <= -34) return [{item, lat, lng, approximate:false}];
-    }
+    const linked = item.opportunity || {};
+    const companyId = item.companyId || linked.companyId || item.leadId || item.lead?.id || item.company?.id;
+    const company = { ...(byId.get(String(companyId)) || {}), ...(linked.company || {}), ...(item.lead || {}), ...(item.company || {}) };
     let address = company.address || item.address || {};
     if (typeof address === 'string') {try {address = JSON.parse(address);} catch {address = {};}}
     const normalizeState = value => String(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
     const stateName = normalizeState(item.state || item.uf || company.state || company.uf || address.state || address.uf || '').trim();
     const state = brazilStates.find(state => state.uf === stateName || normalizeState(state.name) === stateName);
+    const rawLat = item.latitude ?? company.latitude, rawLng = item.longitude ?? company.longitude;
+    if (rawLat != null && rawLat !== '' && rawLng != null && rawLng !== '') {
+      const lat = Number(rawLat), lng = Number(rawLng);
+      if (Number.isFinite(lat) && Number.isFinite(lng) && lat >= -34 && lat <= 6 && lng >= -74 && lng <= -34) return [{item, lat, lng, approximate:false, state:state?.uf}];
+    }
     return state ? [{item, lng:state.center[0], lat:state.center[1], approximate:true, state:state.uf}] : [];
   });
 }
 
-export function ExecutiveBrazilMap({ locations, category }) {
+export function ExecutiveBrazilMap({ locations, category, onStateSelect = () => {} }) {
   const id = useId().replace(/:/g, '');
   const color = category === 'B2G' ? '#ffb400' : category === 'PRE' ? '#00ee80' : '#00ccff';
   const grouped = new Map();
-  locations.forEach(point => {const key = `${point.lng.toFixed(2)},${point.lat.toFixed(2)}`; if (!grouped.has(key)) grouped.set(key,{...point,count:0}); grouped.get(key).count += 1;});
-  return <svg className="nex-map" viewBox="0 0 320 330" role="img" aria-label="Mapa do Brasil com limites estaduais e oportunidades por coordenadas ou estado cadastrado"><defs><radialGradient id={`${id}-land`}><stop stopColor="#086295"/><stop offset=".7" stopColor="#033c66"/><stop offset="1" stopColor="#031e3e"/></radialGradient><filter id={`${id}-glow`} x="-150%" y="-150%" width="400%" height="400%"><feGaussianBlur stdDeviation="4"/></filter></defs><g transform="translate(0 3)" opacity=".4">{brazilStates.map(state => <path key={state.uf} d={state.path} fill="#0072ab" stroke="#0099df" strokeWidth="1.2"/>)}</g>{brazilStates.map(state => <path key={state.uf} d={state.path} fill={`url(#${id}-land)`} stroke="#1398d4" strokeWidth=".8"><title>{state.name}</title></path>)}{Array.from(grouped.values()).map((point, index) => {const [x,y] = project(point.lng,point.lat);return <g key={index}><title>{`${point.state ? `${point.state} · ` : ''}${point.count} oportunidade(s)${point.approximate ? ' · localização aproximada pelo estado' : ''}`}</title><circle cx={x} cy={y} r="11" fill={color} filter={`url(#${id}-glow)`}/><circle cx={x} cy={y} r="4.3" fill={color}/><circle cx={x} cy={y} r="1.8" fill="#fff"/></g>;})}</svg>;
+  locations.forEach(point => {const key = `${point.state || `${point.lng.toFixed(2)},${point.lat.toFixed(2)}`}:${point.category || category}`; if (!grouped.has(key)) grouped.set(key,{...point,count:0}); grouped.get(key).count += 1;});
+  return <svg className="nex-map" viewBox="0 0 320 330" role="img" aria-label="Mapa do Brasil com limites estaduais e oportunidades por coordenadas ou estado cadastrado"><defs><radialGradient id={`${id}-land`}><stop stopColor="#086295"/><stop offset=".7" stopColor="#033c66"/><stop offset="1" stopColor="#031e3e"/></radialGradient><filter id={`${id}-glow`} x="-150%" y="-150%" width="400%" height="400%"><feGaussianBlur stdDeviation="4"/></filter></defs><g transform="translate(0 3)" opacity=".4">{brazilStates.map(state => <path key={state.uf} d={state.path} fill="#0072ab" stroke="#0099df" strokeWidth="1.2"/>)}</g>{brazilStates.map(state => <path key={state.uf} d={state.path} fill={`url(#${id}-land)`} stroke="#1398d4" strokeWidth=".8"><title>{`${state.name} (${state.uf}) · ${locations.filter(point => point.state === state.uf).length} registros`}</title></path>)}{Array.from(grouped.values()).map((point, index) => {const [baseX,y] = project(point.lng,point.lat); const x = baseX + (category === 'ALL' ? ({B2B:-5,B2G:0,PRE:5}[point.category] || 0) : 0); const dotColor = ({B2B:'#00ccff',B2G:'#ffb400',PRE:'#00ee80'})[point.category] || color; return <g key={index} role="button" tabIndex={0} aria-label={`${point.state || 'Localização'}: ${point.count} registros ${point.category || category}`} onClick={() => onStateSelect(point.state || null)} onKeyDown={event => {if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); onStateSelect(point.state || null); }}}><title>{`${point.state ? `${point.state} · ` : ''}${point.count} oportunidade(s)${point.approximate ? ' · localização aproximada pelo estado' : ''}`}</title><circle cx={x} cy={y} r="11" fill={dotColor} filter={`url(#${id}-glow)`}/><circle cx={x} cy={y} r="4.3" fill={dotColor}/><circle cx={x} cy={y} r="1.8" fill="#fff"/>{point.state && <text x={x + 7} y={y - 7} fill="#e8f7ff" fontSize="9" stroke="#04162c" strokeWidth="2" paintOrder="stroke">{point.state}</text>}</g>;})}</svg>;
 }
 
 export function ExecutivePlatform() {

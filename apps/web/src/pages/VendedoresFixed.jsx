@@ -1,3 +1,4 @@
+import useDashboardSync from '../hooks/useDashboardSync';
 import { useState, useEffect } from 'react';
 import ModernTable from '../components/ModernTable';
 import DashboardKPICard from '../components/DashboardKPICard';
@@ -38,6 +39,7 @@ export default function VendedoresFixed() {
   const [activeTab, setActiveTab] = useState('vendedores');
   const [sellers, setSellers] = useState([]);
   const [salesTargets, setSalesTargets] = useState([]);
+  const [targetSummary, setTargetSummary] = useState(null);
   const [regions, setRegions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -50,10 +52,10 @@ export default function VendedoresFixed() {
     loadData();
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (silent = false) => {
     try {
       console.log('Iniciando carregamento de dados...');
-      setLoading(true);
+      if (silent !== true) setLoading(true);
       setError(null);
       
       // Carregar equipe comercial e Pré-Vendas
@@ -91,14 +93,16 @@ export default function VendedoresFixed() {
 
       // Carregar metas de vendas (opcional)
       try {
-        const targetsResponse = await fetch(API_ENDPOINTS.salesTargets, {
+        const targetsResponse = await fetch(`${API_ENDPOINTS.salesTargets}?includeSummary=true`, {
           headers: getAuthHeaders()
         });
         if (targetsResponse.ok) {
           const targetsData = await targetsResponse.json();
-          setSalesTargets(targetsData || []);
+          if (!Array.isArray(targetsData.targets) || !targetsData.summary) throw new Error('Resumo de metas indisponível');
+          setSalesTargets(targetsData.targets);
+          setTargetSummary(targetsData.summary);
         }
-      } catch { /* ignora se não disponível */ }
+      } catch { setError('Não foi possível sincronizar as metas.'); }
 
       // Carregar regiões (opcional)
       try {
@@ -115,9 +119,11 @@ export default function VendedoresFixed() {
       console.error('Erro ao carregar dados:', error);
       setError(error.message);
     } finally {
-      setLoading(false);
+      if (silent !== true) setLoading(false);
     }
   };
+
+  useDashboardSync(() => loadData(true));
 
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('pt-BR', {
@@ -456,7 +462,7 @@ export default function VendedoresFixed() {
   const totalSellers = sellerUsers.length;
   const activeSellers = sellerUsers.filter(s => s._count?.opportunities > 0).length;
   const totalTargetValue = salesTargets.reduce((sum, target) => sum + target.targetValue, 0);
-  const totalRealized = salesTargets.reduce((sum, target) => sum + (target.realized || 0), 0);
+  const totalRealized = Number(targetSummary?.realized) || 0;
   const averageProgress = salesTargets.length > 0 
     ? salesTargets.reduce((sum, target) => sum + (target.progress || 0), 0) / salesTargets.length 
     : 0;
@@ -569,7 +575,7 @@ export default function VendedoresFixed() {
         <DashboardKPICard
           title="Realizado"
           value={formatCurrency(totalRealized)}
-          subtitle={`${formatPercent(averageProgress)} da meta`}
+          subtitle="Vendas distintas nos períodos das metas"
           icon="💰"
           color="yellow"
         />

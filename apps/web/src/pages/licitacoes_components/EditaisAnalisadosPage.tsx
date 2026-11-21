@@ -342,49 +342,49 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
 
         {/* Dashboard de Métricas Chave */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
+          <div className="nex-stat-surface bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Editais Salvos</span>
               <div className="p-2 bg-blue-50 dark:bg-blue-950/60 text-blue-600 dark:text-cyan-400 rounded-lg">
-                <FileCheck className="w-4 h-4" />
+                <FileCheck className="w-4 h-4"  data-stat-icon/>
               </div>
             </div>
-            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">{totalEditais}</p>
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1" data-stat-value>{totalEditais}</p>
             <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Fichas técnicas registradas</p>
           </div>
 
-          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
+          <div className="nex-stat-surface bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Volume Total Estimado</span>
               <div className="p-2 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 rounded-lg">
-                <DollarSign className="w-4 h-4" />
+                <DollarSign className="w-4 h-4"  data-stat-icon/>
               </div>
             </div>
-            <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 mt-1 truncate" title={formatarMoeda(fichas.some(f => f.valor_estimado_total !== null && f.valor_estimado_total !== undefined) ? valorTotalMapeado : null)}>
+            <p className="text-2xl font-bold text-emerald-700 dark:text-emerald-400 mt-1 truncate" title={formatarMoeda(fichas.some(f => f.valor_estimado_total !== null && f.valor_estimado_total !== undefined) ? valorTotalMapeado : null)} data-stat-value>
               {formatarMoeda(fichas.some(f => f.valor_estimado_total !== null && f.valor_estimado_total !== undefined) ? valorTotalMapeado : null)}
             </p>
             <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Soma dos orçamentos de referência</p>
           </div>
 
-          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
+          <div className="nex-stat-surface bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Itens Catalografados</span>
               <div className="p-2 bg-purple-50 dark:bg-purple-950/60 text-purple-600 dark:text-purple-400 rounded-lg">
-                <Layers className="w-4 h-4" />
+                <Layers className="w-4 h-4"  data-stat-icon/>
               </div>
             </div>
-            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">{totalItensExtraidos}</p>
+            <p className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1" data-stat-value>{totalItensExtraidos}</p>
             <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Itens mapeados nas matrizes do TR</p>
           </div>
 
-          <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
+          <div className="nex-stat-surface bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-4 shadow-sm">
             <div className="flex items-center justify-between">
               <span className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Alertas de Risco Crítico</span>
               <div className="p-2 bg-amber-50 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400 rounded-lg">
-                <ShieldAlert className="w-4 h-4" />
+                <ShieldAlert className="w-4 h-4"  data-stat-icon/>
               </div>
             </div>
-            <p className="text-2xl font-bold text-amber-700 dark:text-amber-400 mt-1">{totalComAmostraOuRisco}</p>
+            <p className="text-2xl font-bold text-amber-700 dark:text-amber-400 mt-1" data-stat-value>{totalComAmostraOuRisco}</p>
             <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Exigem Amostra/PoC ou Vistoria</p>
           </div>
         </div>

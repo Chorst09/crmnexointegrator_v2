@@ -247,6 +247,18 @@
 .nex-general-dashboard .nex-general-charts {grid-template-columns:repeat(2,minmax(0,1fr))}
 .nex-general-dashboard .nex-general-charts > .nex-panel {height:330px}
 .nex-general-dashboard .nex-general-charts .nex-funnel-layout {height:262px}
+.nex-general-dashboard .nex-conversion {min-width:110px;flex:1;gap:8px;color:#eaf4ff}
+.nex-general-dashboard .nex-conversion > strong {display:block;font-size:30px!important;color:#fff!important;line-height:1.15}
+.nex-general-dashboard .nex-conversion small {font-size:10px;color:#a6bfd9}
+.nex-general-dashboard .nex-conversion-change {font-size:12px;font-weight:600;color:#a6bfd9}
+.nex-general-dashboard .nex-conversion-change[data-direction="up"] {color:#79ed88}
+.nex-general-dashboard .nex-conversion-change[data-direction="down"] {color:#ffaf97}
+.nex-general-dashboard .nex-conversion > .nex-conversion-chart {width:100%;max-width:175px;height:95px;overflow:visible;filter:none;stroke-width:1;align-self:flex-start}
+.nex-general-dashboard .nex-conversion-change {text-shadow:0 0 10px currentColor}
+.nex-general-dashboard .nex-conversion > strong {text-shadow:0 2px 12px #b5dfff22}
+.nex-state-summary {font-size:10px;padding:6px;border:1px solid #1c608b;border-radius:7px;color:#eaf4ff}
+.nex-map g[role="button"] {cursor:pointer;outline:none}
+.nex-map g[role="button"]:focus > circle {stroke:white;stroke-width:2}
 .nex-general-dashboard .nex-general-charts .nex-chart {height:246px}
 .nex-general-dashboard .nex-lists {margin-top:16px}
 .nex-general-dashboard .nex-lists > .nex-panel {height:190px}

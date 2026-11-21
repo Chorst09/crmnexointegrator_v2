@@ -2008,11 +2008,11 @@ const InternetManRadioCalculator: React.FC<InternetManRadioCalculatorProps> = ({
                                 {/* Diferença de Valor (se for cliente existente) */}
                                 {(currentProposal.isExistingClient || currentProposal.previousMonthlyFee) && currentProposal.previousMonthlyFee && currentProposal.previousMonthlyFee > 0 && (
                                     <>
-                                        <div className={`mt-4 p-4 rounded-lg border-2 ${
+                                        <div className={"nex-stat-surface " + (`mt-4 p-4 rounded-lg border-2 ${
                                             (currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0
                                                 ? "bg-red-50/30 dark:bg-red-900/30 border-red-500"
                                                 : "bg-green-50/30 dark:bg-green-900/30 border-green-500"
-                                        }`}>
+                                        }`)}>
                                             <div className="flex justify-between items-center">
                                                 <span className="text-base flex items-center">
                                                     <span className="mr-2">📊</span>
@@ -2022,7 +2022,7 @@ const InternetManRadioCalculator: React.FC<InternetManRadioCalculatorProps> = ({
                                                     (currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0
                                                         ? "text-red-700 dark:text-red-400"
                                                         : "text-green-700 dark:text-green-400"
-                                                }`}>
+                                                }`} data-stat-value>
                                                     {(currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee >= 0 ? '+' : ''}
                                                     {formatCurrency((currentProposal.totalMonthly || 0) - currentProposal.previousMonthlyFee)}
                                                 </span>

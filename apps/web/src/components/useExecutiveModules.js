@@ -1,3 +1,4 @@
+import useDashboardSync from '../hooks/useDashboardSync';
 import { useEffect, useMemo, useState } from 'react';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
 import { getUserAccess, normalizeRole } from '../utils/permissions';
@@ -11,6 +12,7 @@ export default function useExecutiveModules(market) {
     window.addEventListener('nexos-refresh-modules',refresh);
     return ()=>window.removeEventListener('nexos-refresh-modules',refresh);
   },[]);
+  useDashboardSync(() => setRefreshKey(value => value + 1));
   const [state,setState] = useState({market,data:{},loading:true,error:''});
   const user = useMemo(()=>parseUserFromStorage(),[]);
   const access = getUserAccess(user);

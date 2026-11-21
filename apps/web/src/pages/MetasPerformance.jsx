@@ -1,3 +1,4 @@
+import useDashboardSync from '../hooks/useDashboardSync';
 import { useEffect, useState } from 'react';
 import ModernTable from '../components/ModernTable';
 import DashboardKPICard from '../components/DashboardKPICard';
@@ -39,6 +40,7 @@ export default function MetasPerformance() {
   const [activeTab, setActiveTab] = useState('metas');
   const [sellers, setSellers] = useState([]);
   const [salesTargets, setSalesTargets] = useState([]);
+  const [targetSummary, setTargetSummary] = useState(null);
   const [teamCommissions, setTeamCommissions] = useState([]);
   const [advancedWorkflows, setAdvancedWorkflows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -53,20 +55,21 @@ export default function MetasPerformance() {
     loadData();
   }, []);
 
-  const loadData = async () => {
+  const loadData = async (silent = false) => {
     try {
-      setLoading(true);
+      if (silent !== true) setLoading(true);
       setLoadError('');
 
       const [sellersResult, targetsResult, commissionsResult, workflowsResult] = await Promise.allSettled([
         fetchArray(`${API_ENDPOINTS.users}?role=SELLER`),
-        fetchArray(API_ENDPOINTS.salesTargets),
+        fetch(`${API_ENDPOINTS.salesTargets}?includeSummary=true`, {headers:getAuthHeaders()}).then(async response => {if (!response.ok) throw new Error('Metas indisponíveis');const data=await response.json();if (!Array.isArray(data.targets) || !data.summary) throw new Error('Resumo de metas indisponível');return data;}),
         fetchArray(`${API_ENDPOINTS.teamCommissions}?type=by_seller`),
         fetchArray(API_ENDPOINTS.advancedWorkflows)
       ]);
 
       const nextSellers = sellersResult.status === 'fulfilled' ? sellersResult.value : [];
-      const nextTargets = targetsResult.status === 'fulfilled' ? targetsResult.value : [];
+      const nextTargets = targetsResult.status === 'fulfilled' ? targetsResult.value.targets : [];
+      setTargetSummary(targetsResult.status === 'fulfilled' ? targetsResult.value.summary : null);
 
       setSellers(nextSellers);
       setSalesTargets(nextTargets);
@@ -84,9 +87,11 @@ export default function MetasPerformance() {
       setTeamCommissions([]);
       setAdvancedWorkflows([]);
     } finally {
-      setLoading(false);
+      if (silent !== true) setLoading(false);
     }
   };
+
+  useDashboardSync(() => loadData(true));
 
   const openTargetModal = () => {
     setModalType('meta');
@@ -351,9 +356,7 @@ export default function MetasPerformance() {
   const totalTargetValue = Array.isArray(salesTargets)
     ? salesTargets.reduce((sum, target) => sum + (target.targetValue || 0), 0)
     : 0;
-  const totalRealized = Array.isArray(salesTargets)
-    ? salesTargets.reduce((sum, target) => sum + (target.realized || 0), 0)
-    : 0;
+  const totalRealized = Number(targetSummary?.realized) || 0;
   const averageProgress = Array.isArray(salesTargets) && salesTargets.length > 0
     ? salesTargets.reduce((sum, target) => sum + (target.progress || 0), 0) / salesTargets.length
     : 0;

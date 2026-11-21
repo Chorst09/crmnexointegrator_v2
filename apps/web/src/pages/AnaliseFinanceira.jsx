@@ -1,3 +1,5 @@
+import useDashboardSync from '../hooks/useDashboardSync';
+import ExecutiveStatCard from '../components/ExecutiveStatCard';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
 import { Bar3DShape, Pie3DShape } from '../components/charts/Chart3DShapes';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
@@ -122,6 +124,8 @@ const AnaliseFinanceira = () => {
     fetchFinancialData();
     return ()=>{requestRef.current+=1;};
   }, [periodo, dataInicio, dataFim, vendedor]);
+
+  useDashboardSync(fetchFinancialData);
 
   // Propostas do Simulador filtradas para a tabela
   const filteredSimProposals = useMemo(() => {
@@ -355,10 +359,10 @@ const AnaliseFinanceira = () => {
       {segmentoAtivo === 'geral' && (
         <div className="space-y-6">
           {/* Banner Comparativo de Alta Transparência */}
-          <div className="bg-gradient-to-r from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-slate-850 to-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="nex-stat-surface bg-gradient-to-r from-[rgb(var(--crm-surface-2-rgb)_/_1)] via-slate-850 to-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div className="p-2.5 bg-cyan-500/10 rounded-lg text-cyan-700 dark:text-cyan-400 border border-cyan-500/20">
-                <CheckCircle2 className="w-5 h-5" />
+                <CheckCircle2 className="w-5 h-5"  data-stat-icon/>
               </div>
               <div>
                 <h4 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Valor contratado · negócios ganhos</h4>
@@ -366,7 +370,7 @@ const AnaliseFinanceira = () => {
               </div>
             </div>
             <div className="text-right">
-              <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400">{formatBRL(geral.receita_realizada)}</div>
+              <div className="text-2xl font-black text-emerald-700 dark:text-emerald-400" data-stat-value>{formatBRL(geral.receita_realizada)}</div>
               <div className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">{geral.total_ganhas || 0} negócios homologados</div>
             </div>
           </div>
@@ -374,66 +378,35 @@ const AnaliseFinanceira = () => {
           {/* Cards de KPIs Gerais */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Contratado B2B */}
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-emerald-200/40 dark:border-emerald-900/40 p-5 rounded-2xl relative overflow-hidden shadow-lg">
-              <div className="flex items-center justify-between text-emerald-700 dark:text-emerald-400 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Contratado B2B (Privado)</span>
-                <Building2 className="w-5 h-5 opacity-80" />
-              </div>
-              <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">{formatBRL(geral.receita_b2b_realizada)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center justify-between">
+            <ExecutiveStatCard title="Contratado B2B (Privado)" value={formatBRL(geral.receita_b2b_realizada)} icon={Building2} color="blue"><div className="nex-stat-card__subtitle"><div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center justify-between">
                 <span>{b2b.total_ganhas || 0} contratos ganhos</span>
                 <span className="text-emerald-700 dark:text-emerald-400 font-medium">Após comissões: {((b2b.margem || 0) * 100).toFixed(1)}%</span>
               </div>
-              <div className="mt-3 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">Pipeline ativo: {formatBRL(geral.pipeline_b2b_em_aberto)}</div>
-            </div>
+<div className="mt-3 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">Pipeline ativo: {formatBRL(geral.pipeline_b2b_em_aberto)}</div></div></ExecutiveStatCard>
 
             {/* Contratado B2G */}
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-blue-200/40 dark:border-blue-900/40 p-5 rounded-2xl relative overflow-hidden shadow-lg">
-              <div className="flex items-center justify-between text-blue-700 dark:text-blue-400 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Contratado B2G (Público)</span>
-                <Landmark className="w-5 h-5 opacity-80" />
-              </div>
-              <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">{formatBRL(geral.receita_b2g_realizada)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center justify-between">
+            <ExecutiveStatCard title="Contratado B2G (Público)" value={formatBRL(geral.receita_b2g_realizada)} icon={Landmark} color="blue"><div className="nex-stat-card__subtitle"><div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center justify-between">
                 <span>{b2g.total_ganhas || 0} licitações ganhas</span>
                 <span className="text-blue-700 dark:text-blue-400 font-medium">Após comissões: {((b2g.margem || 0) * 100).toFixed(1)}%</span>
               </div>
-              <div className="mt-3 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">Pipeline ativo: {formatBRL(geral.pipeline_b2g_em_aberto)}</div>
-            </div>
+<div className="mt-3 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">Pipeline ativo: {formatBRL(geral.pipeline_b2g_em_aberto)}</div></div></ExecutiveStatCard>
 
             {/* Estimativas do Simulador (SEPARADO - ESTIMATIVA) */}
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-amber-200/40 dark:border-amber-900/40 p-5 rounded-2xl relative overflow-hidden shadow-lg group hover:border-amber-200/60 dark:hover:border-amber-700/60 transition">
-              <div className="flex items-center justify-between text-amber-700 dark:text-amber-400 mb-2">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-semibold uppercase tracking-wider">Estimativas Simulador</span>
-                  <span className="bg-amber-500/20 text-amber-700 dark:text-amber-300 text-[10px] px-1.5 py-0.2 rounded font-bold">Projeção</span>
-                </div>
-                <Calculator className="w-5 h-5 opacity-80" />
-              </div>
-              <div className="text-2xl font-bold text-amber-700 dark:text-amber-300 mb-1">{formatBRL(simulador.valor_ponderado_estimado)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center justify-between">
+            <ExecutiveStatCard title="Estimativas Simulador" value={formatBRL(simulador.valor_ponderado_estimado)} icon={Calculator} color="yellow"><div className="nex-stat-card__subtitle"><div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center justify-between">
                 <span>Ponderado por Probabilidade</span>
                 <span className="text-amber-700 dark:text-amber-400 font-semibold">{simulador.total_propostas || 0} propostas</span>
               </div>
-              <div className="mt-3 text-[11px] text-amber-700/80 dark:text-amber-400/80 flex items-center gap-1">
+<div className="mt-3 text-[11px] text-amber-700/80 dark:text-amber-400/80 flex items-center gap-1">
                 <span>Nominal: {formatBRL(simulador.valor_total_estimado)}</span>
                 <HelpCircle className="w-3 h-3 cursor-help inline" title="Valor nominal total cadastrado no módulo Simulador antes da ponderação probabilística" />
-              </div>
-            </div>
+              </div></div></ExecutiveStatCard>
 
             {/* Resultado Líquido Geral */}
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-cyan-200/40 dark:border-cyan-900/40 p-5 rounded-2xl relative overflow-hidden shadow-lg">
-              <div className="flex items-center justify-between text-cyan-700 dark:text-cyan-400 mb-2">
-                <span className="text-xs font-semibold uppercase tracking-wider">Saldo após comissões</span>
-                <TrendingUp className="w-5 h-5 opacity-80" />
-              </div>
-              <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">{formatBRL(geral.resultado_liquido)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center justify-between">
+            <ExecutiveStatCard title="Saldo após comissões" value={formatBRL(geral.resultado_liquido)} icon={TrendingUp} color="blue"><div className="nex-stat-card__subtitle"><div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] flex items-center justify-between">
                 <span>Comissões: {formatBRL(geral.despesas)}</span>
                 <span className="text-cyan-700 dark:text-cyan-400 font-semibold">Após comissões: {((geral.margem || 0) * 100).toFixed(1)}%</span>
               </div>
-              <div className="mt-3 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">Contratos ganhos menos comissões aprovadas</div>
-            </div>
+<div className="mt-3 text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">Contratos ganhos menos comissões aprovadas</div></div></ExecutiveStatCard>
           </div>
 
           {/* Sub-Aba da Visão Geral */}
@@ -703,29 +676,13 @@ const AnaliseFinanceira = () => {
 
           {/* KPIs B2B */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-emerald-200/40 dark:border-emerald-800/40 p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-emerald-700 dark:text-emerald-400 mb-1">Valor contratado B2B</div>
-              <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatBRL(b2b.receita_realizada)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">{b2b.total_ganhas || 0} contratos ganhos</div>
-            </div>
+            <ExecutiveStatCard title={"Valor contratado B2B"} value={formatBRL(b2b.receita_realizada)} subtitle={<>{b2b.total_ganhas || 0} contratos ganhos</>} icon={Building2}/>
 
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Pipeline B2B em Aberto</div>
-              <div className="text-2xl font-bold text-cyan-700 dark:text-cyan-400">{formatBRL(b2b.pipeline_em_aberto)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">{b2b.total_em_aberto || 0} negociações ativas</div>
-            </div>
+            <ExecutiveStatCard title={"Pipeline B2B em Aberto"} value={formatBRL(b2b.pipeline_em_aberto)} subtitle={<>{b2b.total_em_aberto || 0} negociações ativas</>} icon={Building2}/>
 
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Ticket Médio B2B Ganho</div>
-              <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatBRL(b2b.ticket_medio)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Média por oportunidade</div>
-            </div>
+            <ExecutiveStatCard title={"Ticket Médio B2B Ganho"} value={formatBRL(b2b.ticket_medio)} subtitle={"Média por oportunidade"} icon={Building2}/>
 
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-emerald-700 dark:text-emerald-400 mb-1">Após comissões B2B</div>
-              <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{formatBRL(b2b.resultado_liquido)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Após comissões: {((b2b.margem || 0) * 100).toFixed(1)}%</div>
-            </div>
+            <ExecutiveStatCard title={"Após comissões B2B"} value={formatBRL(b2b.resultado_liquido)} subtitle={<>Após comissões: {((b2b.margem || 0) * 100).toFixed(1)}%</>} icon={Building2}/>
           </div>
 
           {/* Gráfico do Funil de Estágios B2B */}
@@ -827,29 +784,13 @@ const AnaliseFinanceira = () => {
 
           {/* KPIs B2G */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-blue-200/40 dark:border-blue-800/40 p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-blue-700 dark:text-blue-400 mb-1">Valor contratado B2G</div>
-              <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatBRL(b2g.receita_realizada)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">{b2g.total_ganhas || 0} pregão(ões) ganho(s)</div>
-            </div>
+            <ExecutiveStatCard title={"Valor contratado B2G"} value={formatBRL(b2g.receita_realizada)} subtitle={<>{b2g.total_ganhas || 0} pregão(ões) ganho(s)</>} icon={Landmark}/>
 
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Pipeline B2G em Disputa</div>
-              <div className="text-2xl font-bold text-cyan-700 dark:text-cyan-400">{formatBRL(b2g.pipeline_em_aberto)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">{b2g.total_em_aberto || 0} editais em andamento</div>
-            </div>
+            <ExecutiveStatCard title={"Pipeline B2G em Disputa"} value={formatBRL(b2g.pipeline_em_aberto)} subtitle={<>{b2g.total_em_aberto || 0} editais em andamento</>} icon={Landmark}/>
 
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Ticket Médio Homologado</div>
-              <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatBRL(b2g.ticket_medio)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Média por licitação</div>
-            </div>
+            <ExecutiveStatCard title={"Ticket Médio Homologado"} value={formatBRL(b2g.ticket_medio)} subtitle={"Média por licitação"} icon={Calculator}/>
 
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-blue-700 dark:text-blue-400 mb-1">Após comissões B2G</div>
-              <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">{formatBRL(b2g.resultado_liquido)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Após comissões: {((b2g.margem || 0) * 100).toFixed(1)}%</div>
-            </div>
+            <ExecutiveStatCard title={"Após comissões B2G"} value={formatBRL(b2g.resultado_liquido)} subtitle={<>Após comissões: {((b2g.margem || 0) * 100).toFixed(1)}%</>} icon={Landmark}/>
           </div>
 
           {/* Gráfico do Funil de Estágios B2G */}
@@ -956,38 +897,18 @@ const AnaliseFinanceira = () => {
               </div>
             </div>
 
-            <div className="text-right bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] px-4 py-3 rounded-xl border border-amber-500/30">
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Previsão Ponderada Total</div>
-              <div className="text-2xl font-black text-amber-700 dark:text-amber-400">{formatBRL(simulador.valor_ponderado_estimado)}</div>
-              <div className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">Nominal: {formatBRL(simulador.valor_total_estimado)}</div>
-            </div>
+            <ExecutiveStatCard title={"Previsão Ponderada Total"} value={formatBRL(simulador.valor_ponderado_estimado)} subtitle={<>Nominal: {formatBRL(simulador.valor_total_estimado)}</>} icon={Calculator}/>
           </div>
 
           {/* Cards de Métricas do Simulador */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Total de Propostas</div>
-              <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{simulador.total_propostas || 0}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Cotações ativas no simulador</div>
-            </div>
+            <ExecutiveStatCard title={"Total de Propostas"} value={simulador.total_propostas || 0} subtitle={"Cotações ativas no simulador"} icon={Calculator}/>
 
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-amber-700 dark:text-amber-400 mb-1">Previsão Ponderada (Probab.)</div>
-              <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">{formatBRL(simulador.valor_ponderado_estimado)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Ajustada pela temperatura do funil</div>
-            </div>
+            <ExecutiveStatCard title={"Previsão Ponderada (Probab.)"} value={formatBRL(simulador.valor_ponderado_estimado)} subtitle={"Ajustada pela temperatura do funil"} icon={TrendingUp}/>
 
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Valor Nominal Total</div>
-              <div className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatBRL(simulador.valor_total_estimado)}</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Soma de todas as cotações</div>
-            </div>
+            <ExecutiveStatCard title={"Valor Nominal Total"} value={formatBRL(simulador.valor_total_estimado)} subtitle={"Soma de todas as cotações"} icon={Calculator}/>
 
-            <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] p-5 rounded-2xl shadow-lg">
-              <div className="text-xs font-semibold uppercase text-cyan-700 dark:text-cyan-400 mb-1">Probabilidade Média</div>
-              <div className="text-2xl font-bold text-cyan-700 dark:text-cyan-300">{(simulador.taxa_media_probabilidade || 0).toFixed(1)}%</div>
-              <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-2">Índice ponderado de conversão</div>
-            </div>
+            <ExecutiveStatCard title={"Probabilidade Média"} value={<>{(simulador.taxa_media_probabilidade || 0).toFixed(1)}%</>} subtitle={"Índice ponderado de conversão"} icon={TrendingUp}/>
           </div>
 
           {/* Gráficos de Projeção do Simulador */}

@@ -1,3 +1,5 @@
+import useDashboardSync from '../hooks/useDashboardSync';
+import { loadDashboardPages } from '../utils/loadDashboardPages.mjs';
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -754,16 +756,11 @@ export default function App({ onBack }: { onBack?: () => void }) {
     setProjectLoadError('');
 
     try {
-      const response = await fetch(buildApiUrl('/projetos?limit=200'), {
-        headers: getAuthHeaders()
+      const projects = await loadDashboardPages(async (page: number, limit: number) => {
+        const response = await fetch(buildApiUrl(`/projetos?limit=${limit}&page=${page}`), {headers:getAuthHeaders(),cache:'no-store'});
+        if (!response.ok) throw new Error(`Erro ${response.status} ao carregar projetos`);
+        return response.json();
       });
-
-      if (!response.ok) {
-        throw new Error(`Erro ${response.status} ao carregar projetos`);
-      }
-
-      const payload = await response.json();
-      const projects = Array.isArray(payload) ? payload : payload.projects || payload.data || [];
       const mapped = Array.isArray(projects) ? projects.map(mapProjectToSpace) : [];
       const apiIssues = Array.isArray(projects)
         ? projects.flatMap((project: ApiProject) => {
@@ -847,6 +844,8 @@ export default function App({ onBack }: { onBack?: () => void }) {
     loadProjects();
     loadProjectDependencies();
   }, []);
+
+  useDashboardSync(loadProjects, {enabled:globalView === 'dashboards' || (globalView === 'spaces' && activeView === 'dashboard')});
 
   const activeProject = spaces.find(s => s.id === activeSpaceId) || spaces[0];
   const activeTeamUsers = (activeProject?.teamMembers || [])

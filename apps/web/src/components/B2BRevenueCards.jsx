@@ -46,7 +46,7 @@ export default function B2BRevenueCards({ revenue = {}, historyLabel, insights, 
           </header>
           <div className="b2b-revenue__grid">
             {cards.map(({ metric, title: cardTitle, tag, value, description: detail, Icon: CardIcon, tone }) => (
-              <article className={`b2b-revenue__card b2b-revenue__card--${tone}`} key={cardTitle}>
+              <article className={`nex-stat-surface b2b-revenue__card b2b-revenue__card--${tone}`} key={cardTitle}>
                 <div className="b2b-revenue__card-top"><span className="b2b-revenue__icon"><CardIcon size={15} aria-hidden="true" /></span><h4>{cardTitle}</h4></div>
                 <button type="button" className="b2b-revenue__inspect" onClick={() => onInspect?.(metric, cardTitle)} aria-label={`Ver composição de ${cardTitle}`}><span className="b2b-revenue__value">{currency.format(Number(value) || 0)}</span><span className="b2b-revenue__inspect-hint">Ver detalhes ↗</span></button>
                 {insights?.comparison?.available && insights.comparison.metrics[metric] && <p className="b2b-revenue__change">{insights.comparison.metrics[metric].delta > 0 ? '+' : ''}{currency.format(insights.comparison.metrics[metric].delta)} <span>({insights.comparison.metrics[metric].percent === null ? 'sem base percentual' : `${insights.comparison.metrics[metric].percent > 0 ? '+' : ''}${percent(insights.comparison.metrics[metric].percent)}`})</span></p>}

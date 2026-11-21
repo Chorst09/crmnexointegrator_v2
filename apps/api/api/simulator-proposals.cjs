@@ -1,3 +1,4 @@
+const { financialDashboardScope } = require('../lib/financial-dashboard-scope.cjs');
 /**
  * API de Propostas do Módulo Simuladores
  * Rota: /api/simulator/proposals
@@ -41,49 +42,22 @@ const optionalAuth = (req, res, next) => {
 };
 
 // ─── GET /api/simulator/proposals ─────────────────────────────────────────────
-router.get('/', optionalAuth, async (req, res) => {
+router.get('/', authenticateToken, async (req, res) => {
   try {
     const { type, all, dashboard } = req.query;
-    const userId = req.user?.userId || req.user?.id;
-
-    // Filtro base
-    const where = {};
-    if (type && type !== 'all') where.type = type.toUpperCase();
-
-    // Se usuário autenticado não-master/admin, filtra por criador caso tenha
-    const role = String(req.user?.role || '').toUpperCase();
-    if (userId && !['MASTER', 'ADMIN', 'MANAGER', 'DIRECTOR'].includes(role)) {
-      // Calculadoras antigas gravavam o ID; outras gravam o e-mail.
-      // Reconhece ambos sem ampliar o acesso para propostas de outros usuários.
-      where.OR = [
-        ...(userId ? [{ createdBy: userId }] : []),
-        ...(req.user?.email ? [{ createdBy: { equals: req.user.email.trim(), mode: 'insensitive' } }] : []),
-      ];
-    }
-
-    // Regra de Isolamento: Somente carlos.horst@doubletelecom.com.br (e o próprio chorstconsult)
-    // podem visualizar dados/propostas do usuário chorstconsult@gmail.com
+    const scope = await financialDashboardScope(prisma, req.user);
+    const where = { AND: [scope.simulator] };
+    if (type && type !== 'all') where.type = String(type).toUpperCase();
     if (!canAccessChorstData(req.user)) {
-      where.AND = where.AND || [];
-      where.AND.push({
-        NOT: [
-          { createdBy: { contains: 'chorstconsult@gmail.com', mode: 'insensitive' } },
-          { accountManager: { contains: 'chorstconsult@gmail.com', mode: 'insensitive' } }
-        ]
-      });
+      where.AND.push(
+        {NOT:{createdBy:{contains:'chorstconsult@gmail.com',mode:'insensitive'}}},
+        {OR:[{accountManager:null},{NOT:{accountManager:{contains:'chorstconsult@gmail.com',mode:'insensitive'}}}]}
+      );
     }
-
-    let rows = [];
-    try {
-      rows = await prisma.simulatorProposal.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        take: all || dashboard ? 1000 : 100,
-      });
-    } catch (dbErr) {
-      console.warn('⚠️ Falha ao buscar simulatorProposal do banco:', dbErr.message);
-      rows = [];
-    }
+    const fullPortfolio = ['true','1'].includes(String(all)) || ['true','1'].includes(String(dashboard));
+    const rows = await prisma.simulatorProposal.findMany({
+      where, orderBy:{createdAt:'desc'}, ...(fullPortfolio ? {} : {take:100})
+    });
 
     const proposals = (Array.isArray(rows) ? rows : []).map(r => ({
       id: r.id,

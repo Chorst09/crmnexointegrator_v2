@@ -1,3 +1,4 @@
+import useDashboardSync from '../../../hooks/useDashboardSync';
 import { Bar3DShape, Pie3DShape } from '../../charts/Chart3DShapes';
 
 import React, { useState, useEffect, useMemo } from 'react';
@@ -261,6 +262,9 @@ const DashboardView = () => {
   const { user } = useAuth();
   const [proposals, setProposals] = useState<Proposal[]>([]);
   const [partners, setPartners] = useState<Partner[]>([]);
+  const [syncKey, setSyncKey] = useState(0);
+  const [dataError, setDataError] = useState('');
+  useDashboardSync(() => setSyncKey(value => value + 1), {enabled:Boolean(user)});
   const [loading, setLoading] = useState(true);
   const [dashboardReady, setDashboardReady] = useState(false);
   const [selectedAccountManager, setSelectedAccountManager] = useState('all');
@@ -564,6 +568,7 @@ const DashboardView = () => {
     .find((level) => visualTemperaturePercent >= level.value) || TEMPERATURE_LEVELS[0];
 
   useEffect(() => {
+    let active = true;
     const animationTimer = setTimeout(() => setDashboardReady(true), 120);
 
     const fetchProposals = async () => {
@@ -585,8 +590,7 @@ const DashboardView = () => {
         });
 
         if (!response.ok) {
-          console.error('Error response:', response.status, response.statusText);
-          return;
+          throw new Error(`Erro ${response.status} ao consultar propostas`);
         }
 
         const proposalsData = await response.json();
@@ -678,9 +682,10 @@ const DashboardView = () => {
         });
         
         console.log('Processed proposals:', proposalsList);
-        setProposals(proposalsList);
+        if (active) {setProposals(proposalsList);setDataError('');}
       } catch (error) {
-        console.error("Error fetching proposals:", error);
+        console.error('Error fetching proposals:', error);
+        if (active) setDataError('Não foi possível sincronizar as propostas. Os dados exibidos podem estar desatualizados.');
       }
     };
 
@@ -721,13 +726,11 @@ const DashboardView = () => {
     };
 
     if (user) {
-      fetchProposals();
-      fetchPartners();
-    }
-    setLoading(false);
+      Promise.all([fetchProposals(), fetchPartners()]).finally(() => {if (active) setLoading(false);});
+    } else setLoading(false);
 
-    return () => clearTimeout(animationTimer);
-  }, [user]);
+    return () => {active = false;clearTimeout(animationTimer);};
+  }, [user, syncKey]);
 
   const handleSave = (proposal: Proposal) => {
     // Lógica para salvar (criar ou atualizar) uma proposta
@@ -976,6 +979,7 @@ const DashboardView = () => {
 
   return (
     <div className="market-dashboard min-h-screen space-y-6 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6" data-section="dashboard-main">
+      {dataError && <p role="alert" className="mb-4 rounded-lg border border-amber-400/40 p-3 text-sm text-amber-300">{dataError}</p>}
       <style>{`
         [data-section="dashboard-main"]:fullscreen { overflow-y: auto; padding: 1.5rem; }
         [data-section="dashboard-main"]:-webkit-full-screen { overflow-y: auto; padding: 1.5rem; }
@@ -1317,16 +1321,16 @@ const DashboardView = () => {
 
         <div className="border-t border-[var(--crm-border)] p-5">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-            <div className="rounded-lg border border-[#2384ff40] bg-[#2384ff12] px-4 py-3 text-center">
-              <p className="text-3xl font-black text-[#2384ff]">{funnelSummary.previstos}</p>
+            <div className="nex-stat-surface rounded-lg border border-[#2384ff40] bg-[#2384ff12] px-4 py-3 text-center">
+              <p className="text-3xl font-black text-[#2384ff]" data-stat-value>{funnelSummary.previstos}</p>
               <p className="mt-1 text-xs font-bold text-[rgb(var(--crm-muted-rgb)_/_1)]">Simulações no Funil</p>
             </div>
-            <div className="rounded-lg border border-[#20d4f540] bg-[#20d4f512] px-4 py-3 text-center">
-              <p className="text-3xl font-black text-[#20d4f5]">{funnelSummary.fechados}</p>
+            <div className="nex-stat-surface rounded-lg border border-[#20d4f540] bg-[#20d4f512] px-4 py-3 text-center">
+              <p className="text-3xl font-black text-[#20d4f5]" data-stat-value>{funnelSummary.fechados}</p>
               <p className="mt-1 text-xs font-bold text-[rgb(var(--crm-muted-rgb)_/_1)]">Propostas Aprovadas</p>
             </div>
-            <div className="rounded-lg border border-[#18d97c40] bg-[#18d97c12] px-4 py-3 text-center">
-              <p className="text-3xl font-black text-[#18d97c]">{funnelSummary.conversion.toFixed(1)}%</p>
+            <div className="nex-stat-surface rounded-lg border border-[#18d97c40] bg-[#18d97c12] px-4 py-3 text-center">
+              <p className="text-3xl font-black text-[#18d97c]" data-stat-value>{funnelSummary.conversion.toFixed(1)}%</p>
               <p className="mt-1 text-xs font-bold text-[rgb(var(--crm-muted-rgb)_/_1)]">Taxa de Conversão</p>
             </div>
           </div>
@@ -1517,13 +1521,13 @@ const DashboardView = () => {
             { icon: <Wifi className="w-5 h-5"/>, color: "from-[#2384ff] to-[#1d5ee8]", label: "Man/MPLS Fibra", count: countProposalsByType.man, value: valuesByType.man },
             { icon: <Radio className="w-5 h-5"/>, color: "from-[#ffb21a] to-[#ff6f0f]", label: "Man/MPLS Radio", count: countProposalsByType.manRadio, value: valuesByType.manRadio },
           ].map((stat, i) => (
-            <div key={i} className="anim-card relative overflow-hidden rounded-lg border p-4 shadow-[0_20px_44px_-30px_rgba(0,0,0,0.88)]" style={{ ...simulatorInnerStyle, animationDelay: `${500 + i * 50}ms` }}>
+            <div key={i} className="nex-stat-surface anim-card relative overflow-hidden rounded-lg border p-4 shadow-[0_20px_44px_-30px_rgba(0,0,0,0.88)]" style={{ ...simulatorInnerStyle, animationDelay: `${500 + i * 50}ms` }}>
               <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-20`}/>
               <div className="absolute inset-0 bg-[linear-gradient(135deg,rgb(var(--crm-surface-rgb)_/_0.06)_0%,transparent_60%)]"/>
               <div className="relative z-10">
                 <div className={`inline-flex p-2 rounded-lg bg-gradient-to-br ${stat.color} mb-3 shadow-lg text-[rgb(var(--crm-ink-rgb)_/_1)]`}>{stat.icon}</div>
                 <p className="mb-1 text-xs font-black uppercase tracking-[0.08em] text-[rgb(var(--crm-muted-rgb)_/_1)]">{stat.label}</p>
-                <p className="text-2xl font-black leading-none text-[rgb(var(--crm-ink-rgb)_/_1)]">{stat.count}</p>
+                <p className="text-2xl font-black leading-none text-[rgb(var(--crm-ink-rgb)_/_1)]" data-stat-value>{stat.count}</p>
                 <p className="mt-1 text-xs font-bold text-[#ffb21a]">{formatCurrencyCompact(stat.value)}</p>
               </div>
             </div>

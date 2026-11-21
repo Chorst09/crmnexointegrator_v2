@@ -1,3 +1,5 @@
+import { loadPreSalesDashboardRows } from '../utils/preSalesDashboardData.mjs';
+import useDashboardSync from '../hooks/useDashboardSync';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
 import { getUserAccess, normalizeRole } from '../utils/permissions';
@@ -93,12 +95,21 @@ export default function DashboardGeral() {
         }
 
         try {
+          if (module.key === 'preSales') {
+            const rows = await loadPreSalesDashboardRows(async (page, limit) => {
+              const response = await fetch(buildApiUrl(`/pre-vendas?limit=${limit}&page=${page}`), {headers,signal:controller.signal});
+              if (!response.ok) throw new Error(`HTTP ${response.status}`);
+              return response.json();
+            });
+            return {...module,status:'ok',count:rows.length,data:{rows,total:rows.length},error:null};
+          }
           const response = await fetch(buildApiUrl(module.endpoint), { headers, signal:controller.signal });
           if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
           }
 
           const raw = await response.json().catch(() => null);
+          if (raw?.available === false) throw new Error(raw.error || 'Fonte indisponível');
           const normalized = module.normalize(raw);
           const count = typeof module.count === 'function'
             ? module.count(normalized, raw)
@@ -131,10 +142,10 @@ export default function DashboardGeral() {
 
   useEffect(() => {
     loadData();
-    const refresh=()=>{if(document.visibilityState==='visible')loadData();};
-    window.addEventListener('focus',refresh);
-    return ()=>{requestRef.current+=1;abortRef.current?.abort();window.removeEventListener('focus',refresh);};
+    return ()=>{requestRef.current+=1;abortRef.current?.abort();};
   }, []);
+
+  useDashboardSync(loadData);
 
   const computed = useMemo(() => buildGeneralDashboardMetrics(data, timeRange), [data, timeRange]);
 

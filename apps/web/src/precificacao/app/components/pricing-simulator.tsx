@@ -28,14 +28,14 @@ export function PricingSimulator({ results, params, onAddToBudget }: SimulatorPr
           </div>
         </div>
 
-        <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] p-8 rounded-3xl shadow-sm border border-[var(--crm-border)] relative overflow-hidden flex flex-col justify-between">
+        <div className="nex-stat-surface bg-[rgb(var(--crm-surface-rgb)_/_1)] p-8 rounded-3xl shadow-sm border border-[var(--crm-border)] relative overflow-hidden flex flex-col justify-between">
            <div className="flex justify-between items-start">
              <div>
                <p className="text-[rgb(var(--crm-muted-rgb)_/_1)] font-medium mb-1 text-xs uppercase tracking-widest">Investimento Inicial (Setup)</p>
-               <p className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2 font-headline">{formatCurrency(results.totalUpfrontCost)}</p>
+               <p className="text-3xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2 font-headline" data-stat-value>{formatCurrency(results.totalUpfrontCost)}</p>
              </div>
              <div className="bg-indigo-50 dark:bg-indigo-950 p-2 rounded-xl text-primary">
-               <Zap size={20} />
+               <Zap size={20}  data-stat-icon/>
              </div>
            </div>
            <div className="mt-8 pt-6 border-t border-[var(--crm-border)] space-y-3">

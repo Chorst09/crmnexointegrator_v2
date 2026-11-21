@@ -138,7 +138,6 @@ const groupRevenueByMonth = (rows = [], dateField = 'actualCloseDate') => {
 };
 
 const buildGeneralDashboard = async (user = {}) => {
-  const since = rangeStartDate(730);
   const allOwners = canSeeAllOpportunitiesDash(user);
   const userId = user.id || user.userId;
   if (!allOwners && !userId) throw Object.assign(new Error('Usuário sem identificação'), { status: 403 });
@@ -175,7 +174,7 @@ const buildGeneralDashboard = async (user = {}) => {
     contractMonths: true,
     monthlyValue: true,
     installationFee: true,
-    revenueType: true, contractPeriodMonths: true, monthlyRecurringValue: true, totalContractValue: true, totalProductsValue: true, setupValue: true,
+    revenueType: true,
     number: true,
     stage: true,
     b2gStage: true,
@@ -240,19 +239,18 @@ const buildGeneralDashboard = async (user = {}) => {
     query('companiesB2B',() => prisma.company.findMany({ where: { ...tenantWhere, clientType: 'B2B', ...(!allOwners ? {opportunities:{some:ownerWhere}} : {}) }, select: companySelect }), []),
     query('companiesB2G',() => prisma.company.findMany({ where: { ...tenantWhere, clientType: 'B2G', ...(!allOwners ? {opportunities:{some:ownerWhere}} : {}) }, select: companySelect }), []),
     tenantCompanyId || !allOwners ? [] : query('b2g',() => prisma.bidNotice.findMany({
-      where: { OR: [{ createdAt: { gte: since } }, { updatedAt: { gte: since } }] },
+      where: {},
       select: { id: true, title: true, status: true, estimatedValue: true, createdAt: true, updatedAt: true },
       orderBy: { updatedAt: 'desc' }
     }), []),
     query('preSales',() => prisma.preSalesRequest.findMany({
-      where: { ...touchedSinceWhere(since), ...((tenantCompanyId || !allOwners) ? { solicitante: tenantUserRelationWhere } : {}) },
-      select: { id: true, titulo: true, numero: true, status: true, createdAt: true, updatedAt: true },
+      where: { ...((tenantCompanyId || !allOwners) ? { solicitante: tenantUserRelationWhere } : {}) },
+      select: { id: true, titulo: true, numero: true, status: true, createdAt: true, updatedAt: true, leadId: true, lead: { select: companySelect }, opportunity: { select: { companyId: true, company: { select: companySelect } } } },
       orderBy: { updatedAt: 'desc' }
     }), []),
     query('preSales',() => prisma.preSalesRequest.count({ where: (tenantCompanyId || !allOwners) ? { solicitante: tenantUserRelationWhere } : {} }), 0),
     query('preSalesPocs',() => prisma.preSalesPoc.findMany({
       where: {
-        OR: [{ createdAt: { gte: since } }, { updatedAt: { gte: since } }, { dueDate: { gte: since } }],
         ...(!allOwners ? { createdById: userId } : tenantCompanyId ? { createdById: { in: tenantUserIds } } : {})
       },
       select: {id:true,title:true,status:true,dueDate:true,createdAt:true,updatedAt:true},
@@ -265,13 +263,12 @@ const buildGeneralDashboard = async (user = {}) => {
     }), []),
     query('products',() => prisma.product.count({ where: { ...tenantWhere, active: true } }), 0),
     query('sellers',() => prisma.user.findMany({
-      where: { role: {in:['SELLER','USER']}, ...tenantUserRelationWhere },
+      where: { role: {in:['SELLER','USER','USER_B2B','USER_B2G']}, ...tenantUserRelationWhere },
       select: { id: true, name: true, _count: { select: { opportunities: true } } },
       orderBy: { name: 'asc' }
     }), []),
     query('proposals',() => prisma.proposal.findMany({
       where: {
-        OR: [{ createdAt: { gte: since } }, { updatedAt: { gte: since } }],
         ...((tenantCompanyId || !allOwners) ? { opportunity: { ...tenantWhere, ...ownerWhere } } : {})
       },
       select: { id:true,title:true,totalValue:true,status:true,createdAt:true,updatedAt:true }
@@ -286,7 +283,7 @@ const buildGeneralDashboard = async (user = {}) => {
     query('salesTargets',() => prisma.salesTarget.count({ where: (tenantCompanyId || !allOwners) ? { seller: tenantUserRelationWhere } : {} }), 0),
     query('leadStatsB2B',() => buildLeadStats('B2B', tenantCompanyId, allOwners ? null : userId), { hotLeads: 0, warmLeads: 0, coldLeads: 0, lowPriority: 0, total: 0 }),
     query('leadStatsB2G',() => buildLeadStats('B2G', tenantCompanyId, allOwners ? null : userId), { hotLeads: 0, warmLeads: 0, coldLeads: 0, lowPriority: 0, total: 0 }),
-    tenantCompanyId ? 0 : query('workflows',() => (prisma.workflow || prisma.advancedWorkflow).count(), 0),
+    tenantCompanyId ? 0 : query('workflows',() => (prisma.advancedWorkflow || prisma.workflow).count(), 0),
     tenantCompanyId ? 0 : query('automationRules',() => prisma.automationRule.count(), 0),
     query('automationNotifications',() => prisma.notification.count({ where: (tenantCompanyId || !allOwners) ? { recipient: tenantUserRelationWhere } : {} }), 0),
     tenantCompanyId ? 0 : query('integrations',() => prisma.integration.count(), 0),
@@ -556,9 +553,9 @@ export default async function handler(req) {
               id: true, title: true, number: true, stage: true, value: true, probability: true,
               ownerId: true, leadEntryDate: true, expectedCloseDate: true, actualCloseDate: true,
               exitDate: true, createdAt: true, updatedAt: true, leadSourceDetail: true, source: true,
-              revenueType: true, contractPeriodMonths: true, monthlyRecurringValue: true, totalContractValue: true, totalProductsValue: true, setupValue: true,
+              revenueType: true, contractMonths: true, monthlyValue: true, installationFee: true,
               projectTower: true, projectClientType: true,
-              projectType: true, projectMonths: true, contractMonths: true, monthlyValue: true, installationFee: true,
+              projectType: true, projectMonths: true,
               company: { select: { id: true, name: true } },
               owner: { select: { id: true, name: true } }
             },

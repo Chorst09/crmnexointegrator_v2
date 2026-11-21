@@ -1,12 +1,33 @@
 import { prisma } from '../lib/prisma.js';
+import { getTenantCompanyId, mergeRelationWhere } from '../lib/tenantScope.js';
+
+const scopeTargetWhere = (user = {}, where = {}) => {
+  const tenantCompanyId = getTenantCompanyId(user);
+  const role = String(user.actualRole || user.role || '').toUpperCase();
+  const privileged = ['MASTER','ADMIN','MANAGER','DIRECTOR'].includes(role);
+  const actorId = user.id || user.userId;
+  const scope = { ...(tenantCompanyId ? {tenantCompanyId} : {}), ...(!privileged ? {id:actorId || '__missing_actor__'} : {}) };
+  return mergeRelationWhere(where, 'seller', scope);
+};
+
+const canUseSeller = async (user = {}, sellerId) => {
+  const tenantCompanyId = getTenantCompanyId(user);
+  if (!tenantCompanyId) return true;
+  const seller = await prisma.user.findUnique({
+    where: { id: sellerId },
+    select: { tenantCompanyId: true }
+  });
+  return String(seller?.tenantCompanyId || '') === tenantCompanyId;
+};
 
 export default async function handler(req) {
   if (req.method === 'GET') {
     const { sellerId, period, regionId } = req.query || {};
     
-    const where = {};
+    let where = {};
     if (sellerId) where.sellerId = sellerId;
     if (regionId) where.seller = { regionId };
+    where = scopeTargetWhere(req.user, where);
     
     // Filtro por período
     if (period && period !== 'all') {
@@ -53,21 +74,28 @@ export default async function handler(req) {
     });
 
     // Calcular realizado vs meta
+    const uniqueSales = new Map();
     const targetsWithProgress = await Promise.all(
       targets.map(async (target) => {
         // Buscar vendas realizadas no período
         const sales = await prisma.opportunity.findMany({
           where: {
             ownerId: target.sellerId,
+            ...(
+              getTenantCompanyId(req.user)
+                ? { tenantCompanyId: getTenantCompanyId(req.user) }
+                : {}
+            ),
             stage: 'WON',
             actualCloseDate: {
               gte: target.startDate,
-              lte: target.endDate
+              lte: new Date(new Date(target.endDate).setHours(23, 59, 59, 999))
             }
           },
-          select: { value: true }
+          select: { id: true, value: true }
         });
 
+        sales.forEach(sale => uniqueSales.set(sale.id, Number(sale.value) || 0));
         const realized = sales.reduce((sum, sale) => sum + sale.value, 0);
         const progress = target.targetValue > 0 ? (realized / target.targetValue) * 100 : 0;
 
@@ -81,11 +109,20 @@ export default async function handler(req) {
       })
     );
     
+    if (req.query?.includeSummary === 'true') {
+      return Response.json({targets:targetsWithProgress,summary:{
+        realized:Array.from(uniqueSales.values()).reduce((sum,value)=>sum+value,0),
+        realizedDeals:uniqueSales.size
+      }});
+    }
     return Response.json(targetsWithProgress);
   }
 
   if (req.method === 'POST') {
     const body = await req.json();
+    if (!(await canUseSeller(req.user, body.sellerId))) {
+      return Response.json({ error: 'Vendedor não pertence a este tenant' }, { status: 403 });
+    }
     
     const target = await prisma.salesTarget.create({
       data: {
@@ -117,6 +154,15 @@ export default async function handler(req) {
   if (req.method === 'PUT') {
     const body = await req.json();
     const { id } = body;
+    const existing = await prisma.salesTarget.findUnique({
+      where: { id },
+      include: { seller: { select: { tenantCompanyId: true } } }
+    });
+    if (!existing) return Response.json({ error: 'Meta não encontrada' }, { status: 404 });
+    const tenantCompanyId = getTenantCompanyId(req.user);
+    if (tenantCompanyId && String(existing.seller?.tenantCompanyId || '') !== tenantCompanyId) {
+      return Response.json({ error: 'Acesso negado' }, { status: 403 });
+    }
     
     const target = await prisma.salesTarget.update({
       where: { id },
@@ -148,6 +194,15 @@ export default async function handler(req) {
   if (req.method === 'DELETE') {
     const body = await req.json();
     const { id } = body;
+    const existing = await prisma.salesTarget.findUnique({
+      where: { id },
+      include: { seller: { select: { tenantCompanyId: true } } }
+    });
+    if (!existing) return Response.json({ error: 'Meta não encontrada' }, { status: 404 });
+    const tenantCompanyId = getTenantCompanyId(req.user);
+    if (tenantCompanyId && String(existing.seller?.tenantCompanyId || '') !== tenantCompanyId) {
+      return Response.json({ error: 'Acesso negado' }, { status: 403 });
+    }
     
     await prisma.salesTarget.delete({
       where: { id }

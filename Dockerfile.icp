@@ -1,0 +1,44 @@
+# syntax=docker/dockerfile:1
+FROM node:22-bookworm-slim AS base
+RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+
+FROM base AS build
+COPY package.json package-lock.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/web/package.json apps/web/package.json
+RUN npm ci --include=dev --ignore-scripts
+COPY apps/api/ apps/api/
+COPY apps/web/ apps/web/
+COPY scripts/build-pptx-template.cjs scripts/build-pptx-template.cjs
+RUN ./node_modules/.bin/prisma generate --schema apps/api/prisma/schema.prisma
+RUN ./node_modules/.bin/prisma migrate diff --from-empty --to-schema-datamodel apps/api/prisma/schema.prisma --script > apps/api/prisma/icp-install.sql
+ARG VITE_API_URL=/api
+ENV VITE_API_URL=$VITE_API_URL
+RUN npm run build:web
+
+FROM base AS production-deps
+COPY package.json package-lock.json ./
+COPY apps/api/package.json apps/api/package.json
+COPY apps/web/package.json apps/web/package.json
+RUN npm ci --omit=dev --ignore-scripts --workspace=crm-api --include-workspace-root=false
+
+FROM base AS runtime
+ENV NODE_ENV=production HOST=0.0.0.0 PORT=3000 DISABLE_STARTUP_WRITES=true
+COPY --from=production-deps /app/node_modules ./node_modules
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=build /app/apps/api ./apps/api
+COPY --from=build /app/apps/web/dist ./apps/web/dist
+COPY deploy/icp/server.cjs deploy/icp/server.cjs
+COPY deploy/icp/smoke.cjs deploy/icp/smoke.cjs
+RUN mkdir -p apps/api/uploads apps/attachments/editais && chown -R node:node apps/api/uploads apps/attachments
+USER node
+EXPOSE 3000
+HEALTHCHECK --interval=15s --timeout=8s --start-period=60s --retries=5 CMD ["node", "-e", "fetch('http://127.0.0.1:3000/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+CMD ["node", "deploy/icp/server.cjs"]
+
+FROM build AS admin
+RUN apt-get update && apt-get install -y --no-install-recommends postgresql-client && rm -rf /var/lib/apt/lists/*
+COPY deploy/icp/ deploy/icp/
+ENV NODE_ENV=production DISABLE_STARTUP_WRITES=true
+ENTRYPOINT ["node", "deploy/icp/admin.cjs"]

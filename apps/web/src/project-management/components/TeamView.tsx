@@ -430,26 +430,26 @@ export default function TeamView({ projectId, projectName, users = [], onTeamCha
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <div className="bg-[linear-gradient(140deg,rgba(37,99,235,0.15),rgb(var(--crm-surface-rgb)/0.98))] border border-[var(--crm-border)] rounded-md p-5">
+          <div className="nex-stat-surface bg-[linear-gradient(140deg,rgba(37,99,235,0.15),rgb(var(--crm-surface-rgb)/0.98))] border border-[var(--crm-border)] rounded-md p-5">
             <div className="flex justify-between items-start mb-2">
               <div className="text-[var(--crm-muted)] text-sm font-medium">Membros Totais</div>
-              <Users className="w-4 h-4 text-[#2563eb]" />
+              <Users className="w-4 h-4 text-[#2563eb]"  data-stat-icon/>
             </div>
-            <div className="text-2xl font-bold text-[var(--crm-ink)]">{displayedUsers.length}</div>
+            <div className="text-2xl font-bold text-[var(--crm-ink)]" data-stat-value>{displayedUsers.length}</div>
           </div>
-          <div className="bg-[linear-gradient(140deg,rgba(34,197,94,0.14),rgb(var(--crm-surface-rgb)/0.98))] border border-[var(--crm-border)] rounded-md p-5">
+          <div className="nex-stat-surface bg-[linear-gradient(140deg,rgba(34,197,94,0.14),rgb(var(--crm-surface-rgb)/0.98))] border border-[var(--crm-border)] rounded-md p-5">
             <div className="flex justify-between items-start mb-2">
               <div className="text-[var(--crm-muted)] text-sm font-medium">Membros Ativos</div>
-              <Activity className="w-4 h-4 text-[#22c55e]" />
+              <Activity className="w-4 h-4 text-[#22c55e]"  data-stat-icon/>
             </div>
-            <div className="text-2xl font-bold text-[var(--crm-ink)]">{displayedUsers.filter(user => user.isActive !== false).length}</div>
+            <div className="text-2xl font-bold text-[var(--crm-ink)]" data-stat-value>{displayedUsers.filter(user => user.isActive !== false).length}</div>
           </div>
-          <div className="bg-[linear-gradient(140deg,rgba(246,180,11,0.14),rgb(var(--crm-surface-rgb)/0.98))] border border-[var(--crm-border)] rounded-md p-5">
+          <div className="nex-stat-surface bg-[linear-gradient(140deg,rgba(246,180,11,0.14),rgb(var(--crm-surface-rgb)/0.98))] border border-[var(--crm-border)] rounded-md p-5">
             <div className="flex justify-between items-start mb-2">
               <div className="text-[var(--crm-muted)] text-sm font-medium">Convites Pendentes</div>
-              <Mail className="w-4 h-4 text-[#f6b40b]" />
+              <Mail className="w-4 h-4 text-[#f6b40b]"  data-stat-icon/>
             </div>
-            <div className="text-2xl font-bold text-[var(--crm-ink)]">{pendingInvites}</div>
+            <div className="text-2xl font-bold text-[var(--crm-ink)]" data-stat-value>{pendingInvites}</div>
           </div>
         </div>
 

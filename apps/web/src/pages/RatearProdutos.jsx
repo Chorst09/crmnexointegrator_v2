@@ -1,3 +1,4 @@
+import ExecutiveStatCard from '../components/ExecutiveStatCard';
 import './RatearProdutos.css';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -1003,9 +1004,7 @@ function KpiGrid({ totals, itemCount }) {
   );
 }
 
-function Kpi({ label, value, highlight, tone }) {
-  return <div className={`rp-kpi ${highlight ? 'hi' : ''} ${tone || ''}`}><span>{label}</span><strong>{value}</strong></div>;
-}
+function Kpi({label,value,highlight,tone}) {return <ExecutiveStatCard title={label} value={value} color={tone || (highlight?'green':'blue')} size="dense"/>;}
 
 function ItemsTable({ items, totals, onRemove }) {
   return (
