@@ -182,10 +182,31 @@ export function buildB2BDashboardAnalytics(opportunities = [], { period = 'year'
     __riskReason: row.__overdueDays > 0 ? `Fechamento previsto atrasado há ${row.__overdueDays} dias` : row.__idleDays >= 30 ? `Sem atualização há ${row.__idleDays} dias` : !row.__expected ? 'Sem previsão de fechamento' : row.__value <= 0 ? 'Valor comercial não informado' : ''
   })).filter(row => row.__riskPriority > 0).sort((a, b) => b.__riskPriority - a.__riskPriority || b.__overdueDays - a.__overdueDays || b.__value - a.__value).slice(0, 5);
   const sourceRows = group(rows.map(row => ({ ...row, __source: row.leadSourceDetail || row.source })), '__source');
+  
+  let revenueInsights;
+  try {
+    revenueInsights = buildB2BRevenueInsights(rows, range, period);
+  } catch (error) {
+    console.error('[buildB2BDashboardAnalytics] Error building revenue insights:', error.message);
+    console.error('[buildB2BDashboardAnalytics] Stack:', error.stack);
+    console.error('[buildB2BDashboardAnalytics] Period:', period, 'Range:', { start: key(range.start), end: key(range.end) });
+    console.error('[buildB2BDashboardAnalytics] Sample rows:', rows.slice(0, 2).map(r => ({
+      id: r.id,
+      __closed: r.__closed,
+      __monthly: r.__monthly,
+      __months: r.__months,
+      __monthlyValue: r.__monthlyValue,
+      __setup: r.__setup,
+      __value: r.__value,
+      stage: r.stage
+    })));
+    throw error;
+  }
+  
   return {
     period: { start: key(range.start), end: key(range.end), daily: range.daily },
     revenue,
-    revenueInsights: buildB2BRevenueInsights(rows, range, period),
+    revenueInsights,
     kpis: {
       totalOpportunities: rows.length, openOpportunities: open.length, wonOpportunities: won.length, lostOpportunities: lost.length,
       activeLeads: open.filter(row => row.stage === 'LEAD').length, pipelineValue: round(sum(open, '__value')), weightedPipelineValue: round(sum(open, '__weightedValue')),

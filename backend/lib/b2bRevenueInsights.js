@@ -18,6 +18,18 @@ const monthlyBuckets = (start, end) => {
 
 // Receives the SAME normalized, authorized portfolio as the existing KPIs.
 export function buildB2BRevenueInsights(rows, { start, end }, period) {
+  if (!Array.isArray(rows)) {
+    console.warn('[buildB2BRevenueInsights] rows is not an array:', typeof rows);
+    rows = [];
+  }
+  if (!start || !(start instanceof Date) || !Number.isFinite(start.getTime())) {
+    console.warn('[buildB2BRevenueInsights] Invalid start date:', start);
+    start = new Date();
+  }
+  if (!end || !(end instanceof Date) || !Number.isFinite(end.getTime())) {
+    console.warn('[buildB2BRevenueInsights] Invalid end date:', end);
+    end = new Date();
+  }
   const won = rows.filter(r => r.stage === 'WON');
   const open = rows.filter(r => !['WON', 'LOST'].includes(r.stage));
   const previousEnd = new Date(start.getTime() - DAY);
