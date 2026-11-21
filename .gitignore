@@ -101,8 +101,10 @@ BACKUPS/*.sql.gz
 *.backup
 
 # Private deployment files and customer data
+.env
 .env.*
 !.env.example
+!.env.icp.example
 !**/.env.example
 backups-preparados/
 .backups/

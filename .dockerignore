@@ -1,33 +1,82 @@
-**/.env
-**/.env.*
-**/node_modules
-**/dist
-**/build
-**/.git
-**/.codex
-**/.agents
-**/.aws
-**/.ssh
-**/.backups
-**/.codex-backups
-**/BACKUP
-**/BACKUPS
-**/backups
-**/backups-preparados
-**/exports
-**/dumps
-**/uploads
-**/attachments
-**/logs
-**/*.log
-**/*.dump
-**/*.backup
-**/*.bak
-**/*.patch
-**/*.pem
-**/*.key
-**/*.p12
-**/*.zip
-**/*.tar*
-**/*.sql.gz
-**/.DS_Store
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+pnpm-lock.yaml
+yarn.lock
+
+# Build artifacts
+dist/
+build/
+.next/
+.tsbuildinfo
+.cache/
+
+# Development
+.env
+.env.*
+!.env.example
+.env.icp
+.env.icp.example
+.vscode/
+.idea/
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Testing
+coverage/
+.nyc_output/
+*.lcov
+
+# Docker
+docker-compose.yml
+docker-compose.override.yml
+Dockerfile
+.dockerignore
+
+# Documentation
+README.md
+docs/
+*.md
+
+# CI/CD
+.github/
+.gitlab-ci.yml
+.travis.yml
+
+# Logs
+logs/
+*.log
+
+# Temporary and backup files
+tmp/
+temp/
+*.tmp
+*.backup
+*.bak
+*.tar.gz
+*.zip
+
+# Database backups
+*.dump
+*.sql
+*.sql.gz
+BACKUPS/
+backups/
+
+# Private files
+.rollback-*/
+.git-temp-untracked/
+CREATE_MASTER_USER_*.sql
+UPDATE_*_PASSWORD_*.sql
+CHECK_USER_*.sql
+SETUP_*.sql
