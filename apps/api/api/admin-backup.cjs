@@ -1,7 +1,9 @@
 const express = require('express');
 const fs = require('fs/promises');
+const nodeFs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { execFile } = require('child_process');
 const { Prisma } = require('@prisma/client');
 const { prisma } = require('../lib/prisma.cjs');
 const { requireRole } = require('../lib/auth.cjs');
@@ -12,6 +14,19 @@ const uploadsRoot = process.env.UPLOADS_DIR || path.join(__dirname, '..', 'uploa
 const schemaPath = path.join(__dirname, '..', 'prisma', 'schema.prisma');
 const migrationsPath = path.join(__dirname, '..', 'prisma', 'migrations');
 const DEFAULT_UPLOAD_CONTENT_LIMIT = 100 * 1024 * 1024;
+
+// Diretório de backups salvos em disco (lista/download/restauração via interface web).
+// Em produção ICP, defina NEXOS_BACKUP_DIR para um caminho persistente (volume montado).
+const backupDir = process.env.NEXOS_BACKUP_DIR || path.join(__dirname, '..', 'backups');
+const restoreLogFile = process.env.NEXOS_RESTORE_LOG || path.join(backupDir, 'restore.log');
+// Container Docker da aplicação e do banco (ambiente ICP). Usados para snapshot de
+// segurança (pg_dump) e reinício do container após restauração. Quando o socket
+// Docker não está disponível dentro do container, há fallback automático.
+const appContainerName = process.env.NEXOS_CONTAINER_NAME || 'nexos-icp';
+const dbContainerName = process.env.NEXOS_DB_CONTAINER || process.env.DB_HOST || 'postgresql_17';
+const dbUser = process.env.DB_USER || process.env.POSTGRES_USER || 'nexos_icp';
+const dbName = process.env.DB_NAME || process.env.POSTGRES_DB || 'nexos_icp';
+const SAFE_BACKUP_FILENAME_RE = /^[A-Za-z0-9._-]+$/;
 
 const normalizeRole = (user = {}) => String(user.actualRole || user.role || '').trim().toUpperCase();
 const canManageFullBackup = (user = {}) => {
@@ -54,179 +69,6 @@ const getPrismaModels = () => {
   }
 };
 
-// Todas as tabelas que devem ser incluídas no backup/restore
-// Inclui: Prisma models + tabelas B2G + tabelas SIMULADOR
-const B2G_TABLES = [
-  'gerenciadas_licitacao',
-  'alertas_licitacao',
-  'editais_analisados',
-  'licitacoes_pncp'
-];
-
-const SIMULATOR_TABLES = [
-  'simulator_proposal',
-  'simulator_licitacao'
-];
-
-// Mapa de módulos: tableName (minúsculo) → módulo
-// Usado para agrupar logs de backup/restore por módulo funcional
-const MODULES_MAP = {
-  // ── B2B Core ───────────────────────────────────────────────────────────────
-  'User':                      'B2B Core',
-  'TenantCompany':             'B2B Core',
-  'LicensePlan':               'B2B Core',
-  'CompanyLicense':            'B2B Core',
-  'PendingSubscription':       'B2B Core',
-  'Region':                    'B2B Core',
-  'SystemSetting':             'B2B Core',
-
-  // ── CRM (clientes, pipeline, propostas) ───────────────────────────────────
-  'Company':                   'CRM',
-  'Contact':                   'CRM',
-  'Opportunity':               'CRM',
-  'OpportunityProduct':        'CRM',
-  'OpportunityFollowUp':       'CRM',
-  'OpportunityAttentionPoint': 'CRM',
-  'OpportunityLearning':       'CRM',
-  'Activity':                  'CRM',
-  'Proposal':                  'CRM',
-  'ProposalTemplate':          'CRM',
-  'ProposalItem':              'CRM',
-  'Commission':                'CRM',
-  'SalesTarget':               'CRM',
-  'Contract':                  'CRM',
-  'CompanyDocument':           'CRM',
-  'Product':                   'CRM',
-  'TeamBonusDistribution':     'CRM',
-
-  // ── B2G ────────────────────────────────────────────────────────────────────
-  'GerenciadaLicitacao':       'B2G',
-  'AlertaLicitacao':           'B2G',
-  'EditalAnalisado':           'B2G',
-  'LicitacaoPncp':             'B2G',
-  'gerenciadas_licitacao':     'B2G',
-  'alertas_licitacao':         'B2G',
-  'editais_analisados':        'B2G',
-  'licitacoes_pncp':           'B2G',
-  'BidNotice':                 'B2G',
-  'BidNoticeHistory':          'B2G',
-  'SavedAnalysis':             'B2G',
-
-  // ── SIMULADOR ──────────────────────────────────────────────────────────────
-  'SimulatorProposal':         'SIMULADOR',
-  'SimulatorLicitacao':        'SIMULADOR',
-  'simulator_proposal':        'SIMULADOR',
-  'simulator_licitacao':       'SIMULADOR',
-
-  // ── PRÉ-VENDAS ─────────────────────────────────────────────────────────────
-  'PreSalesRequest':           'PRÉ-VENDAS',
-  'PreSalesItem':              'PRÉ-VENDAS',
-  'PreSalesApproval':          'PRÉ-VENDAS',
-  'PreSalesPoc':               'PRÉ-VENDAS',
-  'PreSalesPocFollowUp':       'PRÉ-VENDAS',
-
-  // ── PROJETOS ───────────────────────────────────────────────────────────────
-  'Project':                   'PROJETOS',
-  'ProjectPhase':              'PROJETOS',
-  'ProjectTask':               'PROJETOS',
-  'ProjectTeam':               'PROJETOS',
-  'ProjectTimelog':            'PROJETOS',
-  'ProjectMilestone':          'PROJETOS',
-  'ProjectRisk':               'PROJETOS',
-  'ProjectIssue':              'PROJETOS',
-  'ProjectAttachment':         'PROJETOS',
-  'ProjectChangeRequest':      'PROJETOS',
-  'ProjectBilling':            'PROJETOS',
-  'ProjectAcceptance':         'PROJETOS',
-  'ProjectB2GConfig':          'PROJETOS',
-  'ProjectB2BConfig':          'PROJETOS',
-
-  // ── KICKOFF ────────────────────────────────────────────────────────────────
-  'KickoffMeeting':            'KICKOFF',
-  'KickoffParticipant':        'KICKOFF',
-  'KickoffAgendaItem':         'KICKOFF',
-  'KickoffChecklistItem':      'KICKOFF',
-  'KickoffActionItem':         'KICKOFF',
-  'KickoffHistory':            'KICKOFF',
-  'KickoffTemplate':           'KICKOFF',
-
-  // ── GESTÃO (Workflows, Notificações, Auditoria) ────────────────────────────
-  'Workflow':                  'GESTÃO',
-  'WorkflowExecution':         'GESTÃO',
-  'ApprovalRequest':           'GESTÃO',
-  'ApprovalStep':              'GESTÃO',
-  'Notification':              'GESTÃO',
-  'AuditLog':                  'GESTÃO',
-  'audit_logs':                'GESTÃO',
-  'IntegrationOrder':          'GESTÃO',
-  'IntegrationConfig':         'GESTÃO',
-
-  // ── PÓS-VENDAS (Onboarding, Suporte, Churn, NPS) ─────────────────────────
-  'CustomerOnboarding':        'PÓS-VENDAS',
-  'SupportTicket':             'PÓS-VENDAS',
-  'TicketResponse':            'PÓS-VENDAS',
-  'NPSSurvey':                 'PÓS-VENDAS',
-  'ChurnAlert':                'PÓS-VENDAS',
-};
-
-/**
- * Classifica uma lista de tabelas por módulo e retorna o resumo.
- * Cada entrada: { module, tables: [{tableName, rows?, restoredRows?}], totalRows }
- */
-const buildModulesSummary = (tablesData) => {
-  const moduleMap = {};
-
-  for (const entry of tablesData) {
-    const tn = entry.tableName || entry.name || '';
-    const module = MODULES_MAP[tn] || MODULES_MAP[tn.toLowerCase()] || 'OUTROS';
-    if (!moduleMap[module]) {
-      moduleMap[module] = { module, tables: [], totalRows: 0, tableCount: 0 };
-    }
-    const rows = entry.restoredRows ?? entry.count ?? entry.rows ?? 0;
-    const rowCount = typeof rows === 'number' ? rows : (Array.isArray(rows) ? rows.length : 0);
-    moduleMap[module].tables.push({
-      tableName: tn,
-      rows: rowCount
-    });
-    moduleMap[module].totalRows += rowCount;
-    moduleMap[module].tableCount += 1;
-  }
-
-  // Ordenar: módulos conhecidos primeiro, depois OUTROS
-  const order = ['B2B Core', 'CRM', 'B2G', 'SIMULADOR', 'PRÉ-VENDAS', 'PROJETOS', 'KICKOFF', 'GESTÃO', 'PÓS-VENDAS', 'OUTROS'];
-  return Object.values(moduleMap).sort((a, b) => {
-    const ai = order.indexOf(a.module);
-    const bi = order.indexOf(b.module);
-    return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
-  });
-};
-
-/**
- * Imprime o resumo de módulos no console em formato legível.
- * @param {'BACKUP'|'RESTORE'} operation
- * @param {Array} modulesSummary - resultado de buildModulesSummary()
- * @param {number} totalRows
- * @param {number} totalTables
- */
-const logModulesSummary = (operation, modulesSummary, totalRows, totalTables) => {
-  const label = operation === 'BACKUP' ? 'EXPORTAÇÃO' : 'RESTAURAÇÃO';
-  const sep = '─'.repeat(60);
-  console.log(`\n[Backup ${label}] ${sep}`);
-  console.log(`[Backup ${label}] Módulos incluídos no ${operation.toLowerCase()}:`);
-  console.log(`[Backup ${label}] ${sep}`);
-
-  for (const mod of modulesSummary) {
-    const tableList = mod.tables.map(t => `${t.tableName}(${t.rows})`).join(', ');
-    const icon = mod.totalRows > 0 ? '✓' : '○';
-    console.log(`[Backup ${label}]   ${icon} ${mod.module.padEnd(14)} ${mod.tableCount} tabelas | ${String(mod.totalRows).padStart(6)} registros`);
-    console.log(`[Backup ${label}]       → ${tableList}`);
-  }
-
-  console.log(`[Backup ${label}] ${sep}`);
-  console.log(`[Backup ${label}] TOTAL: ${totalTables} tabelas | ${totalRows} registros`);
-  console.log(`[Backup ${label}] ${sep}\n`);
-};
-
 const listDatabaseTables = async () => {
   try {
     const tables = await prisma.$queryRaw`
@@ -241,43 +83,29 @@ const listDatabaseTables = async () => {
       .map((row) => row.table_name || row.tableName)
       .filter(Boolean);
 
-    if (names.length > 0) {
-      // Garantir que todas as tabelas B2G e SIMULADOR estejam na lista
-      const nameSet = new Set(names.map(n => n.toLowerCase()));
-      const missingTables = [...B2G_TABLES, ...SIMULATOR_TABLES]
-        .filter(t => !nameSet.has(t.toLowerCase()));
-      
-      if (missingTables.length > 0) {
-        console.warn(`[Backup] Adicionando tabelas faltantes ao backup: ${missingTables.join(', ')}`);
-        return [...names, ...missingTables];
-      }
-      return names;
-    }
+    if (names.length > 0) return names;
   } catch (err) {
-    console.warn('[Backup] Falha ao listar tabelas via information_schema, usando lista fixa:', err.message);
+    console.warn('[Backup] Falha ao listar tabelas via information_schema, fallback para modelos:', err.message);
   }
 
-  // Combinar modelos Prisma com tabelas B2G e SIMULADOR
+  // Fallback para modelos definidos no schema do Prisma
   const models = getPrismaModels();
-  const prismaTableNames = models.map((m) => m.tableName);
-  
-  // Remover duplicatas e adicionar faltantes
-  const allTables = new Set([
-    ...prismaTableNames,
-    ...B2G_TABLES,
-    ...SIMULATOR_TABLES
-  ]);
+  if (models.length > 0) {
+    return models.map((m) => m.tableName);
+  }
 
-  return Array.from(allTables).sort();
+  return [
+    'User', 'TenantCompany', 'Company', 'LicensePlan', 'CompanyLicense',
+    'Contact', 'Product', 'Opportunity', 'OpportunityProduct', 'Activity',
+    'Proposal', 'ProposalTemplate', 'ProposalItem', 'Commission', 'Region',
+    'Contract', 'PreSalesRequest', 'KickoffMeeting', 'Project', 'AuditLog'
+  ];
 };
 
 const readDatabaseTables = async () => {
   const tableNames = await listDatabaseTables();
   const tables = {};
-  const tableStats = [];
   let totalRows = 0;
-
-  console.log(`[Backup EXPORTAÇÃO] Iniciando leitura de ${tableNames.length} tabelas...`);
 
   for (const tableName of tableNames) {
     try {
@@ -287,20 +115,14 @@ const readDatabaseTables = async () => {
         count: safeRows.length,
         rows: safeRows
       };
-      tableStats.push({ tableName, count: safeRows.length });
       totalRows += safeRows.length;
     } catch (err) {
       console.warn(`[Backup Export] Aviso ao ler tabela ${tableName}:`, err.message);
       tables[tableName] = { count: 0, rows: [] };
-      tableStats.push({ tableName, count: 0 });
     }
   }
 
-  // Log agrupado por módulo
-  const modulesSummary = buildModulesSummary(tableStats);
-  logModulesSummary('BACKUP', modulesSummary, totalRows, tableNames.length);
-
-  return { tableNames, tables, totalRows, modulesSummary };
+  return { tableNames, tables, totalRows };
 };
 
 const summarizeDatabaseTables = async () => {
@@ -701,14 +523,15 @@ const normalizeRestoreValue = (value, columnType) => {
   return value;
 };
 
-const insertRows = async (tx, tableName, rows, columnTypes = new Map()) => {
+const insertRows = async (_tx, tableName, rows, columnTypes = new Map()) => {
+  // IMPORTANTE: não usa o tx passado — usa prisma direto para evitar que
+  // um erro numa linha aborte toda a transação (erro 25P02)
   let inserted = 0;
 
   for (const row of rows) {
     if (!row || typeof row !== 'object' || Array.isArray(row)) continue;
 
     const rawColumns = Object.keys(row);
-    // Filtrar apenas colunas que realmente existem na tabela de destino quando columnTypes estiver disponível
     const columns = columnTypes.size > 0 ? rawColumns.filter((column) => columnTypes.has(column)) : rawColumns;
     if (columns.length === 0) continue;
 
@@ -719,16 +542,17 @@ const insertRows = async (tx, tableName, rows, columnTypes = new Map()) => {
     const values = columns.map((column) => normalizeRestoreValue(row[column], columnTypes.get(column)));
 
     try {
-      await tx.$executeRawUnsafe(
-        `INSERT INTO ${escapeIdentifier(tableName)} (${columnSql}) VALUES (${placeholders})`,
+      await prisma.$executeRawUnsafe(
+        `INSERT INTO ${escapeIdentifier(tableName)} (${columnSql}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`,
         ...values
       );
       inserted += 1;
     } catch (insertErr) {
-      console.warn(`[Backup Restore] Linha ignorada com erro na tabela ${tableName}:`, insertErr.message);
-      // Se a falha for chave duplicada, continua restaurando as demais
-      if (!insertErr.message.includes('unique constraint') && !insertErr.message.includes('duplicate key')) {
-        throw new Error(`Erro ao restaurar dados na tabela "${tableName}": ${insertErr.message}`);
+      console.warn(`[Backup Restore] Linha ignorada na tabela ${tableName}:`, insertErr.message);
+      // Força reset da conexão para limpar estado aborted
+      try { await prisma.$queryRawUnsafe('SELECT 1'); } catch (_) {
+        await prisma.$disconnect().catch(() => {});
+        await prisma.$connect().catch(() => {});
       }
     }
   }
@@ -758,104 +582,64 @@ const restoreDatabase = async (backupTables) => {
   }
 
   if (skippedTables.length > 0) {
-    console.warn(`[Backup RESTAURAÇÃO] Tabelas do backup ausentes no banco (ignoradas): ${skippedTables.join(', ')}`);
+    console.warn(`[Backup Restore] Tabelas do backup não presentes no banco e ignoradas: ${skippedTables.join(', ')}`);
   }
 
   if (validTableNames.length === 0) {
     throw new Error('Nenhuma tabela do arquivo de backup corresponde às tabelas existentes no banco de dados.');
   }
 
-  console.log(`[Backup RESTAURAÇÃO] ${validTableNames.length} tabelas reconhecidas para restauração.`);
-
   const orderedTableNames = await orderTablesForInsert(validTableNames);
   const columnTypesByTable = await readColumnTypes(validTableNames);
 
-  return prisma.$transaction(
-    async (tx) => {
-      // 1. Desativa temporariamente a verificação estrita de foreign keys
-      await tx.$executeRawUnsafe("SET CONSTRAINTS ALL DEFERRED;").catch(() => {});
-      await tx.$executeRawUnsafe("SET session_replication_role = 'replica';").catch(() => {});
+  // session_replication_role precisa ser definido FORA de transação no PostgreSQL
+  // Dentro de uma transação o SET só vale para aquela sessão mas o TRUNCATE pode abortar tudo
+  // Estratégia: desativa FK checks fora da tx, faz tudo em autocommit por tabela, reativa no final
 
-      // 2. Limpa as tabelas existentes
-      const truncateSql = validTableNames.map(escapeIdentifier).join(', ');
-      try {
-        await tx.$executeRawUnsafe(`TRUNCATE TABLE ${truncateSql} RESTART IDENTITY CASCADE`);
-        console.log(`[Backup RESTAURAÇÃO] Tabelas limpas (TRUNCATE CASCADE).`);
-      } catch (truncateErr) {
-        console.warn('[Backup RESTAURAÇÃO] TRUNCATE CASCADE falhou, usando DELETE:', truncateErr.message);
-        for (const tableName of [...orderedTableNames].reverse()) {
-          await tx.$executeRawUnsafe(`DELETE FROM ${escapeIdentifier(tableName)}`).catch(() => {});
-        }
-      }
+  // 1. Desativa FK checks fora de qualquer transação
+  // Usa $queryRawUnsafe para garantir que erros não abortam a conexão do pool
+  try { await prisma.$queryRawUnsafe("SELECT set_config('session_replication_role', 'replica', false)"); } catch (_) {}
 
-      // 3. Insere os registros na ordem correta, logando cada tabela
-      let restoredRows = 0;
-      const tables = [];
-
-      for (const tableName of orderedTableNames) {
-        const sourceRows = tableByName.get(tableName)?.rows || [];
-        const module = MODULES_MAP[tableName] || MODULES_MAP[tableName.toLowerCase()] || 'OUTROS';
-        const insertedRows = await insertRows(tx, tableName, sourceRows, columnTypesByTable.get(tableName));
-        restoredRows += insertedRows;
-        tables.push({ tableName, restoredRows: insertedRows, module });
-
-        // Log inline por tabela
-        const icon = insertedRows > 0 ? '✓' : (sourceRows.length === 0 ? '○' : '⚠');
-        console.log(
-          `[Backup RESTAURAÇÃO]   ${icon} ${tableName.padEnd(38)} ${String(insertedRows).padStart(5)} registros  [${module}]`
-        );
-      }
-
-      // 4. Sincroniza sequences numéricas
-      try {
-        await tx.$executeRawUnsafe(`
-          DO $$
-          DECLARE
-            seq RECORD;
-          BEGIN
-            FOR seq IN
-              SELECT sequence_name, table_name, column_name
-              FROM information_schema.columns
-              WHERE column_default LIKE 'nextval%'
-                AND table_schema = 'public'
-            LOOP
-              BEGIN
-                EXECUTE format(
-                  'SELECT setval(%L, COALESCE((SELECT MAX(%I) FROM %I), 1))',
-                  seq.sequence_name, seq.column_name, seq.table_name
-                );
-              EXCEPTION WHEN OTHERS THEN
-                NULL;
-              END;
-            END LOOP;
-          END $$;
-        `);
-      } catch (seqErr) {
-        console.warn('[Backup RESTAURAÇÃO] Aviso ao sincronizar sequences:', seqErr.message);
-      }
-
-      // 5. Restaura o modo normal de replicação
-      await tx.$executeRawUnsafe("SET session_replication_role = 'origin';").catch(() => {});
-
-      // 6. Log final agrupado por módulo
-      const modulesSummary = buildModulesSummary(
-        tables.map(t => ({ tableName: t.tableName, restoredRows: t.restoredRows }))
-      );
-      logModulesSummary('RESTORE', modulesSummary, restoredRows, orderedTableNames.length);
-
-      return {
-        tableCount: orderedTableNames.length,
-        totalRows: restoredRows,
-        tables,
-        modulesSummary,
-        skippedTables
-      };
-    },
-    {
-      maxWait: 30000,
-      timeout: Number(process.env.BACKUP_RESTORE_TIMEOUT_MS || 10 * 60 * 1000)
+  // 2. Limpa as tabelas fora de transação, tabela por tabela para isolar falhas
+  for (const tableName of [...orderedTableNames].reverse()) {
+    try {
+      await prisma.$queryRawUnsafe(`DELETE FROM ${escapeIdentifier(tableName)}`);
+    } catch (delErr) {
+      console.warn(`[Backup Restore] DELETE ${tableName} falhou:`, delErr.message);
+      // Força reset da conexão após erro para evitar 25P02
+      await prisma.$disconnect().catch(() => {});
+      await prisma.$connect().catch(() => {});
     }
-  );
+  }
+
+  // 3. Insere os dados por tabela diretamente (sem transação wrapper)
+  let restoredRows = 0;
+  const tables = [];
+
+  for (const tableName of orderedTableNames) {
+    const rows = tableByName.get(tableName)?.rows || [];
+    if (rows.length === 0) {
+      tables.push({ tableName, restoredRows: 0 });
+      continue;
+    }
+    console.log(`[Backup Restore] Restaurando tabela ${tableName} (${rows.length} linhas)...`);
+    try {
+      const insertedRows = await insertRows(null, tableName, rows, columnTypesByTable.get(tableName));
+      restoredRows += insertedRows;
+      tables.push({ tableName, restoredRows: insertedRows });
+      console.log(`[Backup Restore] ${tableName}: ${insertedRows}/${rows.length} inseridos`);
+    } catch (tableErr) {
+      console.error(`[Backup Restore] Erro fatal na tabela ${tableName}:`, tableErr.message);
+      tables.push({ tableName, restoredRows: 0, error: tableErr.message });
+      await prisma.$disconnect().catch(() => {});
+      await prisma.$connect().catch(() => {});
+    }
+  }
+
+  // 4. Restaura o modo normal de replicação
+  try { await prisma.$queryRawUnsafe("SELECT set_config('session_replication_role', 'origin', false)"); } catch (_) {}
+
+  return { tableCount: orderedTableNames.length, totalRows: restoredRows, tables };
 };
 
 const readRestoreSessionAnchor = async (requestUser = {}) => {
@@ -1088,6 +872,202 @@ router.use((req, res, next) => {
   });
 });
 
+// ===== Helpers para restauração via arquivos em disco =====
+
+const formatBytes = (bytes) => {
+  const n = Number(bytes || 0);
+  if (!Number.isFinite(n) || n <= 0) return '0 B';
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(2)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(2)} MB`;
+  return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+};
+
+const classifyBackupFile = (name) => {
+  const lower = String(name || '').toLowerCase();
+  if (lower.endsWith('.json')) return 'json';
+  if (lower.endsWith('.dump') || lower.endsWith('.backup') || lower.endsWith('.bin')) return 'dump';
+  if (lower.endsWith('.sql') || lower.endsWith('.sql.gz')) return 'sql';
+  return 'other';
+};
+
+// Normaliza e valida o nome do arquivo contra path traversal. Retorna apenas o basename.
+const safeBackupFilename = (filename) => {
+  const name = String(filename || '').trim();
+  if (!name || name === '.' || name === '..') {
+    throw new Error('Nome de arquivo inválido.');
+  }
+  if (name.includes('/') || name.includes('\\') || name.includes('\0') || name.startsWith('.')) {
+    throw new Error('Nome de arquivo inválido.');
+  }
+  if (!SAFE_BACKUP_FILENAME_RE.test(name)) {
+    throw new Error('Nome de arquivo inválido.');
+  }
+  const resolved = path.resolve(backupDir, name);
+  const root = path.resolve(backupDir);
+  if (resolved !== root && !resolved.startsWith(`${root}${path.sep}`)) {
+    throw new Error('Nome de arquivo inválido.');
+  }
+  return name;
+};
+
+const ensureBackupDir = async () => {
+  await fs.mkdir(backupDir, { recursive: true });
+};
+
+const listBackupFiles = async () => {
+  await ensureBackupDir();
+  let entries = [];
+  try {
+    entries = await fs.readdir(backupDir, { withFileTypes: true });
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+
+  const files = [];
+  for (const entry of entries) {
+    if (!entry.isFile()) continue;
+    const type = classifyBackupFile(entry.name);
+    if (type === 'other') continue;
+    try {
+      const stat = await fs.stat(path.join(backupDir, entry.name));
+      files.push({
+        name: entry.name,
+        type,
+        sizeBytes: stat.size,
+        sizeFormatted: formatBytes(stat.size),
+        createdAt: (stat.birthtime || stat.mtime).toISOString(),
+        modifiedAt: stat.mtime.toISOString(),
+        restorable: type === 'json'
+      });
+    } catch (error) {
+      console.warn(`[Backup Restore] Aviso ao stat do arquivo ${entry.name}:`, error.message);
+    }
+  }
+
+  files.sort((a, b) => new Date(b.modifiedAt) - new Date(a.modifiedAt));
+  return files;
+};
+
+// Verifica se o binário `docker` está disponível e consegue falar com o daemon
+// (ex.: socket Docker montado no container). Em ICP o socket normalmente não é
+// exposto ao container da aplicação, então retorna false e usamos os fallbacks.
+const isDockerCallable = () => new Promise((resolve) => {
+  execFile('docker', ['version', '--format', '{{.Server.Version}}'], { timeout: 4000 }, (err) => {
+    resolve(!err);
+  });
+});
+
+// Snapshot de segurança antes de restaurar. Tenta pg_dump via docker exec; se o
+// Docker não estiver disponível, gera um snapshot JSON pelo Prisma (mesmo formato
+// restaurável pelo endpoint /restore). O arquivo gerado aparece em /list.
+const createSafetyBackup = async () => {
+  await ensureBackupDir();
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+  if (await isDockerCallable()) {
+    const dumpName = `pre-restore-safety-${stamp}.sql`;
+    const dumpPath = path.join(backupDir, dumpName);
+    try {
+      await new Promise((resolve, reject) => {
+        const out = nodeFs.createWriteStream(dumpPath);
+        const child = execFile(
+          'docker',
+          ['exec', dbContainerName, 'pg_dump', '-U', dbUser, dbName],
+          { timeout: 300000, maxBuffer: 1024 * 1024 * 1024 },
+          (err) => (err ? reject(err) : resolve())
+        );
+        child.stdout.pipe(out);
+        child.on('error', reject);
+        out.on('error', reject);
+        out.on('finish', () => resolve());
+      });
+      return { ok: true, method: 'pg_dump', name: dumpName };
+    } catch (err) {
+      console.warn('[Backup Restore] pg_dump via docker falhou, usando snapshot JSON:', err.message);
+      await fs.unlink(dumpPath).catch(() => {});
+    }
+  }
+
+  const jsonName = `pre-restore-safety-${stamp}.json`;
+  const jsonPath = path.join(backupDir, jsonName);
+  const [database, uploads, system] = await Promise.all([
+    readDatabaseTables(),
+    collectUploads({ includeContents: true }),
+    readSystemMetadata()
+  ]);
+  const safetyBackup = {
+    format: 'nexoscrm-full-system-backup',
+    version: 1,
+    generatedAt: new Date().toISOString(),
+    generatedBy: { reason: 'safety-snapshot-before-restore' },
+    database: {
+      provider: 'postgresql',
+      schema: 'public',
+      tableCount: database.tableNames.length,
+      totalRows: database.totalRows,
+      tables: database.tables
+    },
+    uploads,
+    system,
+    notes: ['Snapshot de segurança gerado automaticamente antes da restauração via interface web.']
+  };
+  await fs.writeFile(jsonPath, JSON.stringify(safetyBackup, jsonReplacer, 2), 'utf8');
+  return { ok: true, method: 'json-snapshot', name: jsonName };
+};
+
+const appendRestoreLog = (entry) => {
+  const line = JSON.stringify({ at: new Date().toISOString(), ...entry });
+  return fs.appendFile(restoreLogFile, `${line}\n`, 'utf8').catch(() => {});
+};
+
+const readRestoreLog = async (limit = 200) => {
+  try {
+    const raw = await fs.readFile(restoreLogFile, 'utf8');
+    const lines = raw.split('\n').filter((line) => line.trim());
+    const selected = lines.slice(-Math.max(1, Number(limit) || 200));
+    const entries = [];
+    for (const line of selected) {
+      try {
+        entries.push(JSON.parse(line));
+      } catch {
+        // ignora linha corrompida
+      }
+    }
+    return entries;
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+};
+
+// Reinicia o container da aplicação após restaurar. Em ICP (sem socket Docker),
+// encerra o processo Node e o policy `--restart unless-stopped` sobe o container
+// novamente com os dados restaurados. Em dev, não encerra (mantém o servidor).
+const scheduleAppRestart = async () => {
+  if (await isDockerCallable()) {
+    try {
+      await new Promise((resolve, reject) => {
+        execFile('docker', ['restart', appContainerName], { timeout: 60000 }, (err) => (err ? reject(err) : resolve()));
+      });
+      await appendRestoreLog({ event: 'restart', method: 'docker-restart', status: 'requested' });
+      return;
+    } catch (err) {
+      await appendRestoreLog({ event: 'restart', method: 'docker-restart', status: 'failed', error: err.message });
+    }
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    await appendRestoreLog({ event: 'restart', method: 'process-exit', status: 'scheduled' });
+    setTimeout(() => process.exit(0), 1500);
+  } else {
+    await appendRestoreLog({ event: 'restart', method: 'none', status: 'skipped-dev' });
+  }
+};
+
+// ===== Rotas =====
+
 router.get('/summary', async (_req, res) => {
   try {
     const [database, uploads, system] = await Promise.all([
@@ -1183,22 +1163,11 @@ router.get('/export', async (req, res) => {
 
     const includeUploadContents = String(req.query.includeUploadContents || 'true') !== 'false';
     const generatedAt = new Date().toISOString();
-
-    console.log(`[Backup EXPORTAÇÃO] Iniciando exportação completa — ${generatedAt}`);
-
     const [database, uploads, system] = await Promise.all([
       readDatabaseTables(),
       collectUploads({ includeContents: includeUploadContents }),
       readSystemMetadata()
     ]);
-
-    // Montar resumo legível por módulo para incluir no JSON do backup
-    const modulesReport = (database.modulesSummary || []).map(m => ({
-      module: m.module,
-      tableCount: m.tableCount,
-      totalRows: m.totalRows,
-      tables: m.tables.map(t => `${t.tableName}(${t.rows})`)
-    }));
 
     const backup = {
       format: 'nexoscrm-full-system-backup',
@@ -1209,12 +1178,6 @@ router.get('/export', async (req, res) => {
         name: req.user?.name || null,
         email: req.user?.email || null,
         role: req.user?.actualRole || req.user?.role || null
-      },
-      // Resumo de módulos incluídos — visível ao abrir o arquivo de backup
-      modulesSummary: {
-        totalTables: database.tableNames.length,
-        totalRows: database.totalRows,
-        modules: modulesReport
       },
       database: {
         provider: 'postgresql',
@@ -1228,15 +1191,12 @@ router.get('/export', async (req, res) => {
       notes: [
         'Backup gerado pelo backend ativo do NexosCRM.',
         'Inclui todas as tabelas reais do schema public do PostgreSQL.',
-        'Inclui manifesto dos uploads e conteúdo base64 quando dentro do limite BACKUP_MAX_UPLOAD_BYTES.',
-        `Módulos incluídos: ${modulesReport.map(m => `${m.module}(${m.tableCount}t/${m.totalRows}r)`).join(', ')}`
+        'Inclui manifesto dos uploads e conteúdo base64 quando dentro do limite BACKUP_MAX_UPLOAD_BYTES.'
       ]
     };
 
     const body = JSON.stringify(backup, jsonReplacer, 2);
     const filename = `nexoscrm-backup-completo-${generatedAt.slice(0, 19).replace(/[:T]/g, '-')}.json`;
-
-    console.log(`[Backup EXPORTAÇÃO] Arquivo gerado: ${filename} — ${(body.length / 1024 / 1024).toFixed(2)} MB`);
 
     res.setHeader('Content-Type', 'application/json; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
@@ -1247,19 +1207,179 @@ router.get('/export', async (req, res) => {
   }
 });
 
+router.get('/list', async (_req, res) => {
+  try {
+    const files = await listBackupFiles();
+    res.json({ backupDir, totalFiles: files.length, files });
+  } catch (error) {
+    console.error('Erro ao listar backups:', error);
+    res.status(500).json({ error: error.message || 'Erro ao listar backups disponíveis.' });
+  }
+});
+
+router.get('/download/:filename', async (req, res) => {
+  try {
+    const filename = safeBackupFilename(req.params.filename);
+    const filePath = path.join(backupDir, filename);
+    const stat = await fs.stat(filePath).catch(() => null);
+    if (!stat || !stat.isFile()) {
+      return res.status(404).json({ error: 'Arquivo de backup não encontrado.' });
+    }
+
+    const type = classifyBackupFile(filename);
+    const contentType = type === 'json'
+      ? 'application/json; charset=utf-8'
+      : type === 'sql'
+        ? 'application/sql; charset=utf-8'
+        : 'application/octet-stream';
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', String(stat.size));
+
+    const stream = nodeFs.createReadStream(filePath);
+    stream.on('error', () => {
+      if (!res.headersSent) res.status(500).json({ error: 'Erro ao ler arquivo de backup.' });
+      else res.end();
+    });
+    stream.pipe(res);
+  } catch (error) {
+    res.status(400).json({ error: error.message || 'Requisição de download inválida.' });
+  }
+});
+
+router.post('/validate', async (req, res) => {
+  try {
+    const filename = safeBackupFilename(req.body?.filename);
+    const filePath = path.join(backupDir, filename);
+    const stat = await fs.stat(filePath).catch(() => null);
+    if (!stat || !stat.isFile()) {
+      return res.status(404).json({ valid: false, filename, error: 'Arquivo não encontrado no diretório de backups.' });
+    }
+
+    const type = classifyBackupFile(filename);
+    const base = {
+      filename,
+      type,
+      sizeBytes: stat.size,
+      sizeFormatted: formatBytes(stat.size),
+      modifiedAt: stat.mtime.toISOString()
+    };
+
+    if (type !== 'json') {
+      return res.json({
+        ...base,
+        valid: stat.size > 0,
+        restorable: false,
+        note: 'Backups em formato dump/SQL não são restauráveis por esta interface. Use o procedimento de linha de comando na VPS.'
+      });
+    }
+
+    const raw = await fs.readFile(filePath, 'utf8');
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return res.json({ ...base, valid: false, restorable: false, error: 'Arquivo JSON malformado.' });
+    }
+
+    const issues = [];
+    const isFull = parsed?.format === 'nexoscrm-full-system-backup';
+    const hasModules = Boolean(parsed?.modules);
+    const hasTables = Boolean(parsed?.database?.tables);
+    if (!isFull && !hasModules && !hasTables) {
+      issues.push('Formato não reconhecido (esperado nexoscrm-full-system-backup, modules ou database.tables).');
+    }
+
+    let tableSummary = null;
+    try {
+      const tables = normalizeBackupTables(parsed);
+      tableSummary = {
+        tableCount: tables.length,
+        totalRows: tables.reduce((acc, t) => acc + (Array.isArray(t.rows) ? t.rows.length : 0), 0),
+        tables: tables.map((t) => ({ tableName: t.tableName, rowCount: Array.isArray(t.rows) ? t.rows.length : 0 }))
+      };
+    } catch (e) {
+      issues.push(e.message);
+    }
+
+    const uploadsCount = Array.isArray(parsed?.uploads?.files) ? parsed.uploads.files.length : 0;
+    const valid = issues.length === 0;
+
+    return res.json({
+      ...base,
+      valid,
+      restorable: valid,
+      format: parsed?.format || null,
+      generatedAt: parsed?.generatedAt || null,
+      generatedBy: parsed?.generatedBy || null,
+      tableSummary,
+      uploadsCount,
+      issues
+    });
+  } catch (error) {
+    console.error('Erro ao validar backup:', error);
+    res.status(400).json({ valid: false, error: error.message || 'Requisição de validação inválida.' });
+  }
+});
+
+router.get('/restore-log', async (req, res) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 200, 1000);
+    const entries = await readRestoreLog(limit);
+    res.json({ totalEntries: entries.length, entries });
+  } catch (error) {
+    console.error('Erro ao ler log de restauração:', error);
+    res.status(500).json({ error: error.message || 'Erro ao ler log de restauração.' });
+  }
+});
+
 router.post('/restore', async (req, res) => {
   try {
     req.setTimeout?.(0);
     res.setTimeout?.(0);
 
     const confirmation = String(req.headers['x-restore-confirmation'] || '').trim();
-    if (confirmation !== 'RESTAURAR_BACKUP_COMPLETO') {
-      return res.status(400).json({ error: 'Confirmação de restauração completa não informada.' });
-    }
+    const body = req.body;
+    const isDiskMode = body && typeof body === 'object' && !Array.isArray(body)
+      && typeof body.filename === 'string' && body.filename.trim() !== ''
+      && !body.format && !body.modules && !body.database;
 
-    const backup = req.body;
-    if (!backup || typeof backup !== 'object') {
-      return res.status(400).json({ error: 'Conteúdo de backup inválido ou não fornecido.' });
+    let backup;
+    let source;
+
+    if (isDiskMode) {
+      if (confirmation !== 'RESTAURAR_NEXOS') {
+        return res.status(400).json({ error: 'Confirmação de restauração não informada. Envie o header x-restore-confirmation: RESTAURAR_NEXOS.' });
+      }
+
+      const filename = safeBackupFilename(body.filename);
+      const filePath = path.join(backupDir, filename);
+      const stat = await fs.stat(filePath).catch(() => null);
+      if (!stat || !stat.isFile()) {
+        return res.status(404).json({ error: 'Arquivo de backup não encontrado no diretório de backups.' });
+      }
+      if (classifyBackupFile(filename) !== 'json') {
+        return res.status(400).json({ error: 'Apenas backups no formato JSON (nexoscrm-full-system-backup) podem ser restaurados por esta interface.' });
+      }
+
+      const raw = await fs.readFile(filePath, 'utf8');
+      try {
+        backup = JSON.parse(raw);
+      } catch {
+        return res.status(400).json({ error: 'Arquivo de backup inválido: JSON malformado.' });
+      }
+      source = `arquivo em disco: ${filename}`;
+    } else {
+      if (confirmation !== 'RESTAURAR_BACKUP_COMPLETO') {
+        return res.status(400).json({ error: 'Confirmação de restauração completa não informada.' });
+      }
+
+      backup = body;
+      if (!backup || typeof backup !== 'object') {
+        return res.status(400).json({ error: 'Conteúdo de backup inválido ou não fornecido.' });
+      }
+      source = 'conteúdo enviado no corpo da requisição';
     }
 
     if (backup?.format !== 'nexoscrm-full-system-backup' && !backup?.modules && !backup?.database?.tables) {
@@ -1268,14 +1388,24 @@ router.post('/restore', async (req, res) => {
       });
     }
 
-    const restoredAt = new Date().toISOString();
-    console.log(`[Backup RESTAURAÇÃO] Iniciando restauração — backup gerado em: ${backup?.generatedAt || 'desconhecido'}`);
+    let safety = null;
+    if (isDiskMode) {
+      await ensureBackupDir();
+      await appendRestoreLog({
+        event: 'restore_start',
+        source,
+        user: {
+          id: req.user?.id || req.user?.userId || null,
+          email: req.user?.email || null,
+          role: req.user?.actualRole || req.user?.role || null
+        }
+      });
 
-    // Exibir o resumo de módulos do backup original (se disponível)
-    if (backup?.modulesSummary?.modules?.length) {
-      console.log(`[Backup RESTAURAÇÃO] Módulos contidos no arquivo de backup:`);
-      for (const m of backup.modulesSummary.modules) {
-        console.log(`[Backup RESTAURAÇÃO]   → ${m.module}: ${m.tableCount} tabelas, ${m.totalRows} registros`);
+      try {
+        safety = await createSafetyBackup();
+        await appendRestoreLog({ event: 'safety_backup', method: safety.method, name: safety.name });
+      } catch (safetyErr) {
+        await appendRestoreLog({ event: 'safety_backup', status: 'failed', error: safetyErr.message });
       }
     }
 
@@ -1285,38 +1415,35 @@ router.post('/restore', async (req, res) => {
     const sessionAccess = await ensureRestoreSessionAnchor(restoreSessionAnchor);
     const uploads = await restoreUploads(backup.uploads);
 
-    // Resumo legível dos módulos restaurados para a resposta
-    const modulesRestoredReport = (database.modulesSummary || []).map(m => ({
-      module: m.module,
-      tableCount: m.tableCount,
-      totalRows: m.totalRows,
-      tables: m.tables.map(t => `${t.tableName}(${t.rows})`)
-    }));
-
-    console.log(`[Backup RESTAURAÇÃO] Concluída: ${database.tableCount} tabelas | ${database.totalRows} registros | uploads: ${uploads.restoredFiles} arquivos`);
+    if (isDiskMode) {
+      await appendRestoreLog({
+        event: 'restore_success',
+        source,
+        tableCount: database.tableCount,
+        totalRows: database.totalRows,
+        restoredFiles: uploads.restoredFiles
+      });
+      res.on('finish', () => { scheduleAppRestart(); });
+    }
 
     res.json({
       message: 'Backup completo restaurado com sucesso',
-      restoredAt,
+      restoredAt: new Date().toISOString(),
       restoredBy: {
         id: req.user?.id || req.user?.userId || null,
         name: req.user?.name || null,
         email: req.user?.email || null,
         role: req.user?.actualRole || req.user?.role || null
       },
-      // Resumo por módulo do que foi restaurado
-      modulesSummary: {
-        totalTables: database.tableCount,
-        totalRows: database.totalRows,
-        modules: modulesRestoredReport,
-        skippedTables: database.skippedTables || []
-      },
+      source,
+      safety,
       database,
       uploads,
       sessionAccess
     });
   } catch (error) {
     console.error('Erro ao restaurar backup completo:', error);
+    await appendRestoreLog({ event: 'restore_error', error: error.message || String(error) });
     res.status(500).json({
       error: error.message || 'Erro ao restaurar backup completo do sistema',
       message: error.message
