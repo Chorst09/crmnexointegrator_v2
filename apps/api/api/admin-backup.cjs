@@ -16,8 +16,10 @@ const migrationsPath = path.join(__dirname, '..', 'prisma', 'migrations');
 const DEFAULT_UPLOAD_CONTENT_LIMIT = 100 * 1024 * 1024;
 
 // Diretório de backups salvos em disco (lista/download/restauração via interface web).
-// Em produção ICP, defina NEXOS_BACKUP_DIR para um caminho persistente (volume montado).
-const backupDir = process.env.NEXOS_BACKUP_DIR || path.join(__dirname, '..', 'backups');
+// Em produção ICP, o volume nexos-icp-uploads está montado em /app/apps/api/uploads.
+// Usamos uma subpasta 'backups' dentro dele para armazenar backups com persistência.
+// Pode ser sobrescrito via NEXOS_BACKUP_DIR.
+const backupDir = process.env.NEXOS_BACKUP_DIR || path.join(__dirname, '..', 'uploads', 'backups');
 const restoreLogFile = process.env.NEXOS_RESTORE_LOG || path.join(backupDir, 'restore.log');
 // Container Docker da aplicação e do banco (ambiente ICP). Usados para snapshot de
 // segurança (pg_dump) e reinício do container após restauração. Quando o socket
