@@ -1,0 +1,225 @@
+name: Deploy to ICP VPS
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  VPS_HOST: 209.50.241.25
+  VPS_USER: root
+  VPS_PORT: 22
+  REMOTE_REPO: /opt/nexos-icp-github
+  CONTAINER_NAME: nexos-icp
+
+jobs:
+  deploy:
+    name: Deploy NEXOS CRM
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ env.VPS_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        run: |
+          ssh -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} "echo 'SSH connection OK'"
+
+      - name: Pull latest code on VPS
+        run: |
+          ssh -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'ENDSSH'
+            set -e
+            cd ${{ env.REMOTE_REPO }}
+            git fetch origin main
+            git reset --hard origin/main
+            echo "✓ Code updated to $(git rev-parse --short HEAD)"
+          ENDSSH
+
+      - name: Build Docker image
+        run: |
+          ssh -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'ENDSSH'
+            set -e
+            cd ${{ env.REMOTE_REPO }}
+            COMMIT=$(git rev-parse HEAD)
+            RELEASE="$(date -u +%Y%m%dT%H%M%SZ)-${COMMIT:0:12}-$RANDOM"
+            IMAGE_TAG="${{ env.CONTAINER_NAME }}:$RELEASE"
+            
+            echo "Building image: $IMAGE_TAG"
+            docker build --target runtime -f Dockerfile.icp -t "$IMAGE_TAG" . > /tmp/build-$RELEASE.log 2>&1 || {
+              echo "Build failed. Last 50 lines:"
+              tail -50 /tmp/build-$RELEASE.log
+              exit 1
+            }
+            
+            echo "IMAGE_TAG=$IMAGE_TAG" >> /tmp/deploy-vars-$RELEASE
+            echo "RELEASE=$RELEASE" >> /tmp/deploy-vars-$RELEASE
+            echo "✓ Image built: $IMAGE_TAG"
+          ENDSSH
+
+      - name: Stop current container
+        run: |
+          ssh -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'ENDSSH'
+            set -e
+            source $(ls -t /tmp/deploy-vars-* | head -1)
+            
+            if docker ps -q -f name=${{ env.CONTAINER_NAME }} > /dev/null 2>&1; then
+              echo "Stopping current container..."
+              docker rename ${{ env.CONTAINER_NAME }} "nexos-icp-previous-$RELEASE" 2>/dev/null || true
+              docker stop "nexos-icp-previous-$RELEASE" 2>/dev/null || true
+              echo "nexos-icp-previous-$RELEASE" > /opt/nexos-icp-config/previous-container
+              echo "✓ Current container stopped"
+            else
+              echo "No running container found"
+            fi
+          ENDSSH
+
+      - name: Start new container
+        run: |
+          ssh -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'ENDSSH'
+            set -e
+            source $(ls -t /tmp/deploy-vars-* | head -1)
+            
+            echo "Starting new container..."
+            docker run -d \
+              --name ${{ env.CONTAINER_NAME }} \
+              --label com.integrator.app=nexos-icp \
+              --restart unless-stopped \
+              --network icontainer-network \
+              --env-file /opt/nexos-icp-config/app.env \
+              -e NODE_ENV=production \
+              -p 127.0.0.1:3015:3000 \
+              --mount type=volume,src=nexos-icp-uploads,dst=/app/apps/api/uploads \
+              --mount type=volume,src=nexos-icp-attachments,dst=/app/apps/attachments/editais \
+              "$IMAGE_TAG"
+            
+            echo "✓ New container started"
+          ENDSSH
+
+      - name: Wait for health check
+        run: |
+          ssh -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'ENDSSH'
+            set -e
+            echo "Waiting for container to be healthy..."
+            
+            for i in {1..60}; do
+              HEALTH=$(docker inspect -f '{{.State.Health.Status}}' ${{ env.CONTAINER_NAME }} 2>/dev/null || echo "starting")
+              echo "[$i/60] Health status: $HEALTH"
+              
+              if [[ "$HEALTH" == "healthy" ]]; then
+                echo "✓ Container is healthy"
+                exit 0
+              fi
+              
+              if [[ "$HEALTH" == "unhealthy" ]]; then
+                echo "✗ Container is unhealthy. Logs:"
+                docker logs ${{ env.CONTAINER_NAME }} --tail 50
+                exit 1
+              fi
+              
+              sleep 2
+            done
+            
+            echo "✗ Health check timeout"
+            docker logs ${{ env.CONTAINER_NAME }} --tail 50
+            exit 1
+          ENDSSH
+
+      - name: Test endpoints
+        run: |
+          ssh -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'ENDSSH'
+            set -e
+            source $(ls -t /tmp/deploy-vars-* | head -1)
+            
+            echo "Testing internal endpoint..."
+            curl -sf http://127.0.0.1:3015/api/health || {
+              echo "✗ Internal health check failed"
+              exit 1
+            }
+            echo "✓ Internal endpoint OK"
+            
+            echo "Testing external endpoint..."
+            curl -sf https://nexos.chorstconsult.com.br/api/health || {
+              echo "⚠ External endpoint not accessible (may be DNS/cache)"
+            }
+            
+            echo "$RELEASE" > /opt/nexos-icp-config/current-release
+            echo "✓ Release $RELEASE deployed"
+          ENDSSH
+
+      - name: Cleanup old containers and images
+        run: |
+          ssh -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'ENDSSH'
+            set -e
+            
+            # Remove previous container if exists
+            if [[ -f /opt/nexos-icp-config/previous-container ]]; then
+              prev=$(cat /opt/nexos-icp-config/previous-container)
+              docker rm "$prev" 2>/dev/null || true
+              echo "✓ Previous container removed"
+            fi
+            
+            # Remove old images (keep last 5)
+            OLD_IMAGES=$(docker images --format "{{.Repository}}:{{.Tag}}" | grep "^${{ env.CONTAINER_NAME }}:" | tail -n +6)
+            if [[ -n "$OLD_IMAGES" ]]; then
+              echo "$OLD_IMAGES" | xargs docker rmi 2>/dev/null || true
+              echo "✓ Old images cleaned up"
+            fi
+            
+            # Cleanup deploy vars
+            find /tmp -name "deploy-vars-*" -mtime +1 -delete 2>/dev/null || true
+            find /tmp -name "build-*.log" -mtime +7 -delete 2>/dev/null || true
+          ENDSSH
+
+      - name: Deploy summary
+        if: always()
+        run: |
+          ssh -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'ENDSSH'
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "NEXOS CRM Deploy Summary"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "Release: $(cat /opt/nexos-icp-config/current-release 2>/dev/null || echo 'unknown')"
+            echo "Commit: $(cd ${{ env.REMOTE_REPO }} && git rev-parse --short HEAD)"
+            echo "Container: $(docker ps -f name=${{ env.CONTAINER_NAME }} --format '{{.Status}}')"
+            echo "URL: https://nexos.chorstconsult.com.br"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          ENDSSH
+
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "⚠ Deploy failed. Attempting rollback..."
+          ssh -p ${{ env.VPS_PORT }} ${{ env.VPS_USER }}@${{ env.VPS_HOST }} << 'ENDSSH'
+            set -e
+            
+            if [[ -f /opt/nexos-icp-config/previous-container ]]; then
+              prev=$(cat /opt/nexos-icp-config/previous-container)
+              
+              echo "Stopping failed container..."
+              docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null || true
+              docker rm ${{ env.CONTAINER_NAME }} 2>/dev/null || true
+              
+              echo "Restoring previous container..."
+              docker rename "$prev" ${{ env.CONTAINER_NAME }} 2>/dev/null || true
+              docker start ${{ env.CONTAINER_NAME }} 2>/dev/null || true
+              
+              echo "✓ Rollback completed"
+            else
+              echo "No previous container available for rollback"
+            fi
+          ENDSSH
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::Deploy to NEXOS CRM failed. Check logs above for details."
