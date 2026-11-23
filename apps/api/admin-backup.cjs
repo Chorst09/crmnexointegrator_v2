@@ -508,7 +508,9 @@ const normalizeRestoreValue = (value, columnType) => {
   return value;
 };
 
-const insertRows = async (tx, tableName, rows, columnTypes = new Map()) => {
+const insertRows = async (_tx, tableName, rows, columnTypes = new Map()) => {
+  // IMPORTANTE: não usa o tx passado — usa prisma direto para evitar que
+  // um erro numa linha aborte toda a transação (erro 25P02)
   let inserted = 0;
 
   for (const row of rows) {
@@ -524,17 +526,19 @@ const insertRows = async (tx, tableName, rows, columnTypes = new Map()) => {
     const columnSql = columns.map(escapeIdentifier).join(', ');
     const values = columns.map((column) => normalizeRestoreValue(row[column], columnTypes.get(column)));
 
-    // Usa INSERT ... ON CONFLICT DO NOTHING para evitar erros de duplicata
-    // e não abortar a transação
     try {
-      await tx.$executeRawUnsafe(
+      await prisma.$executeRawUnsafe(
         `INSERT INTO ${escapeIdentifier(tableName)} (${columnSql}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`,
         ...values
       );
       inserted += 1;
     } catch (insertErr) {
       console.warn(`[Backup Restore] Linha ignorada na tabela ${tableName}:`, insertErr.message);
-      // Não relança — continua para a próxima linha
+      // Força reset da conexão para limpar estado aborted
+      try { await prisma.$queryRawUnsafe('SELECT 1'); } catch (_) {
+        await prisma.$disconnect().catch(() => {});
+        await prisma.$connect().catch(() => {});
+      }
     }
   }
 
@@ -593,7 +597,7 @@ const restoreDatabase = async (backupTables) => {
     }
   }
 
-  // 3. Insere os dados por tabela, cada uma em sua própria transação para isolar falhas
+  // 3. Insere os dados por tabela diretamente (sem transação wrapper)
   let restoredRows = 0;
   const tables = [];
 
@@ -603,17 +607,15 @@ const restoreDatabase = async (backupTables) => {
       tables.push({ tableName, restoredRows: 0 });
       continue;
     }
+    console.log(`[Backup Restore] Restaurando tabela ${tableName} (${rows.length} linhas)...`);
     try {
-      const insertedRows = await prisma.$transaction(
-        async (tx) => insertRows(tx, tableName, rows, columnTypesByTable.get(tableName)),
-        { maxWait: 30000, timeout: Number(process.env.BACKUP_RESTORE_TIMEOUT_MS || 10 * 60 * 1000) }
-      );
+      const insertedRows = await insertRows(null, tableName, rows, columnTypesByTable.get(tableName));
       restoredRows += insertedRows;
       tables.push({ tableName, restoredRows: insertedRows });
+      console.log(`[Backup Restore] ${tableName}: ${insertedRows}/${rows.length} inseridos`);
     } catch (tableErr) {
-      console.error(`[Backup Restore] Erro ao restaurar tabela ${tableName}:`, tableErr.message);
+      console.error(`[Backup Restore] Erro fatal na tabela ${tableName}:`, tableErr.message);
       tables.push({ tableName, restoredRows: 0, error: tableErr.message });
-      // Reset da conexão após erro para evitar 25P02 nas próximas tabelas
       await prisma.$disconnect().catch(() => {});
       await prisma.$connect().catch(() => {});
     }
