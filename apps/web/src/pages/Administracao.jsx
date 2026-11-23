@@ -1,4 +1,5 @@
 import DriveBackup from '../components/DriveBackup';
+import LocalBackupRestore from '../components/LocalBackupRestore';
 import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ModernTable from '../components/ModernTable';
@@ -170,6 +171,7 @@ const SETTINGS_TABS = [
   { id: 'avisos', label: 'Avisos', icon: '🔔' },
   { id: 'seguranca', label: 'Segurança', icon: '🔒' },
   { id: 'backup', label: 'Backup', icon: '💾' },
+  { id: 'restaurar_backup', label: 'Restaurar Backup', icon: '♻️', adminOnly: true },
   { id: 'usuarios_acessos', label: 'Usuários e Acessos', icon: '👥' },
   { id: 'gestao_empresas', label: 'Gestão de Empresas', icon: '🏛️', masterOnly: true, adminRouteOnly: true },
   { id: 'licenciamento', label: 'Administração de Licenças', icon: '🛡️', masterOnly: true, adminRouteOnly: true }
@@ -2962,6 +2964,8 @@ export default function Administracao() {
           )}
         </div>
       )}
+
+      {activeTab === 'restaurar_backup' && <LocalBackupRestore />}
 
       {activeTab === 'usuarios_acessos' && (
         <ModernTable

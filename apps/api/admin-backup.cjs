@@ -1,7 +1,9 @@
 const express = require('express');
 const fs = require('fs/promises');
+const nodeFs = require('fs');
 const path = require('path');
 const crypto = require('crypto');
+const { execFile } = require('child_process');
 const { Prisma } = require('@prisma/client');
 const { prisma } = require('../lib/prisma.cjs');
 const { requireRole } = require('../lib/auth.cjs');
@@ -12,6 +14,19 @@ const uploadsRoot = process.env.UPLOADS_DIR || path.join(__dirname, '..', 'uploa
 const schemaPath = path.join(__dirname, '..', 'prisma', 'schema.prisma');
 const migrationsPath = path.join(__dirname, '..', 'prisma', 'migrations');
 const DEFAULT_UPLOAD_CONTENT_LIMIT = 100 * 1024 * 1024;
+
+// Diretório de backups salvos em disco (lista/download/restauração via interface web).
+// Em produção ICP, defina NEXOS_BACKUP_DIR para um caminho persistente (volume montado).
+const backupDir = process.env.NEXOS_BACKUP_DIR || path.join(__dirname, '..', 'backups');
+const restoreLogFile = process.env.NEXOS_RESTORE_LOG || path.join(backupDir, 'restore.log');
+// Container Docker da aplicação e do banco (ambiente ICP). Usados para snapshot de
+// segurança (pg_dump) e reinício do container após restauração. Quando o socket
+// Docker não está disponível dentro do container, há fallback automático.
+const appContainerName = process.env.NEXOS_CONTAINER_NAME || 'nexos-icp';
+const dbContainerName = process.env.NEXOS_DB_CONTAINER || process.env.DB_HOST || 'postgresql_17';
+const dbUser = process.env.DB_USER || process.env.POSTGRES_USER || 'nexos_icp';
+const dbName = process.env.DB_NAME || process.env.POSTGRES_DB || 'nexos_icp';
+const SAFE_BACKUP_FILENAME_RE = /^[A-Za-z0-9._-]+$/;
 
 const normalizeRole = (user = {}) => String(user.actualRole || user.role || '').trim().toUpperCase();
 const canManageFullBackup = (user = {}) => {
@@ -857,6 +872,202 @@ router.use((req, res, next) => {
   });
 });
 
+// ===== Helpers para restauração via arquivos em disco =====
+
+const formatBytes = (bytes) => {
+  const n = Number(bytes || 0);
+  if (!Number.isFinite(n) || n <= 0) return '0 B';
+  if (n < 1024) return `${n} B`;
+  if (n < 1024 * 1024) return `${(n / 1024).toFixed(2)} KB`;
+  if (n < 1024 * 1024 * 1024) return `${(n / (1024 * 1024)).toFixed(2)} MB`;
+  return `${(n / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+};
+
+const classifyBackupFile = (name) => {
+  const lower = String(name || '').toLowerCase();
+  if (lower.endsWith('.json')) return 'json';
+  if (lower.endsWith('.dump') || lower.endsWith('.backup') || lower.endsWith('.bin')) return 'dump';
+  if (lower.endsWith('.sql') || lower.endsWith('.sql.gz')) return 'sql';
+  return 'other';
+};
+
+// Normaliza e valida o nome do arquivo contra path traversal. Retorna apenas o basename.
+const safeBackupFilename = (filename) => {
+  const name = String(filename || '').trim();
+  if (!name || name === '.' || name === '..') {
+    throw new Error('Nome de arquivo inválido.');
+  }
+  if (name.includes('/') || name.includes('\\') || name.includes('\0') || name.startsWith('.')) {
+    throw new Error('Nome de arquivo inválido.');
+  }
+  if (!SAFE_BACKUP_FILENAME_RE.test(name)) {
+    throw new Error('Nome de arquivo inválido.');
+  }
+  const resolved = path.resolve(backupDir, name);
+  const root = path.resolve(backupDir);
+  if (resolved !== root && !resolved.startsWith(`${root}${path.sep}`)) {
+    throw new Error('Nome de arquivo inválido.');
+  }
+  return name;
+};
+
+const ensureBackupDir = async () => {
+  await fs.mkdir(backupDir, { recursive: true });
+};
+
+const listBackupFiles = async () => {
+  await ensureBackupDir();
+  let entries = [];
+  try {
+    entries = await fs.readdir(backupDir, { withFileTypes: true });
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+
+  const files = [];
+  for (const entry of entries) {
+    if (!entry.isFile()) continue;
+    const type = classifyBackupFile(entry.name);
+    if (type === 'other') continue;
+    try {
+      const stat = await fs.stat(path.join(backupDir, entry.name));
+      files.push({
+        name: entry.name,
+        type,
+        sizeBytes: stat.size,
+        sizeFormatted: formatBytes(stat.size),
+        createdAt: (stat.birthtime || stat.mtime).toISOString(),
+        modifiedAt: stat.mtime.toISOString(),
+        restorable: type === 'json'
+      });
+    } catch (error) {
+      console.warn(`[Backup Restore] Aviso ao stat do arquivo ${entry.name}:`, error.message);
+    }
+  }
+
+  files.sort((a, b) => new Date(b.modifiedAt) - new Date(a.modifiedAt));
+  return files;
+};
+
+// Verifica se o binário `docker` está disponível e consegue falar com o daemon
+// (ex.: socket Docker montado no container). Em ICP o socket normalmente não é
+// exposto ao container da aplicação, então retorna false e usamos os fallbacks.
+const isDockerCallable = () => new Promise((resolve) => {
+  execFile('docker', ['version', '--format', '{{.Server.Version}}'], { timeout: 4000 }, (err) => {
+    resolve(!err);
+  });
+});
+
+// Snapshot de segurança antes de restaurar. Tenta pg_dump via docker exec; se o
+// Docker não estiver disponível, gera um snapshot JSON pelo Prisma (mesmo formato
+// restaurável pelo endpoint /restore). O arquivo gerado aparece em /list.
+const createSafetyBackup = async () => {
+  await ensureBackupDir();
+  const stamp = new Date().toISOString().replace(/[:.]/g, '-');
+
+  if (await isDockerCallable()) {
+    const dumpName = `pre-restore-safety-${stamp}.sql`;
+    const dumpPath = path.join(backupDir, dumpName);
+    try {
+      await new Promise((resolve, reject) => {
+        const out = nodeFs.createWriteStream(dumpPath);
+        const child = execFile(
+          'docker',
+          ['exec', dbContainerName, 'pg_dump', '-U', dbUser, dbName],
+          { timeout: 300000, maxBuffer: 1024 * 1024 * 1024 },
+          (err) => (err ? reject(err) : resolve())
+        );
+        child.stdout.pipe(out);
+        child.on('error', reject);
+        out.on('error', reject);
+        out.on('finish', () => resolve());
+      });
+      return { ok: true, method: 'pg_dump', name: dumpName };
+    } catch (err) {
+      console.warn('[Backup Restore] pg_dump via docker falhou, usando snapshot JSON:', err.message);
+      await fs.unlink(dumpPath).catch(() => {});
+    }
+  }
+
+  const jsonName = `pre-restore-safety-${stamp}.json`;
+  const jsonPath = path.join(backupDir, jsonName);
+  const [database, uploads, system] = await Promise.all([
+    readDatabaseTables(),
+    collectUploads({ includeContents: true }),
+    readSystemMetadata()
+  ]);
+  const safetyBackup = {
+    format: 'nexoscrm-full-system-backup',
+    version: 1,
+    generatedAt: new Date().toISOString(),
+    generatedBy: { reason: 'safety-snapshot-before-restore' },
+    database: {
+      provider: 'postgresql',
+      schema: 'public',
+      tableCount: database.tableNames.length,
+      totalRows: database.totalRows,
+      tables: database.tables
+    },
+    uploads,
+    system,
+    notes: ['Snapshot de segurança gerado automaticamente antes da restauração via interface web.']
+  };
+  await fs.writeFile(jsonPath, JSON.stringify(safetyBackup, jsonReplacer, 2), 'utf8');
+  return { ok: true, method: 'json-snapshot', name: jsonName };
+};
+
+const appendRestoreLog = (entry) => {
+  const line = JSON.stringify({ at: new Date().toISOString(), ...entry });
+  return fs.appendFile(restoreLogFile, `${line}\n`, 'utf8').catch(() => {});
+};
+
+const readRestoreLog = async (limit = 200) => {
+  try {
+    const raw = await fs.readFile(restoreLogFile, 'utf8');
+    const lines = raw.split('\n').filter((line) => line.trim());
+    const selected = lines.slice(-Math.max(1, Number(limit) || 200));
+    const entries = [];
+    for (const line of selected) {
+      try {
+        entries.push(JSON.parse(line));
+      } catch {
+        // ignora linha corrompida
+      }
+    }
+    return entries;
+  } catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+};
+
+// Reinicia o container da aplicação após restaurar. Em ICP (sem socket Docker),
+// encerra o processo Node e o policy `--restart unless-stopped` sobe o container
+// novamente com os dados restaurados. Em dev, não encerra (mantém o servidor).
+const scheduleAppRestart = async () => {
+  if (await isDockerCallable()) {
+    try {
+      await new Promise((resolve, reject) => {
+        execFile('docker', ['restart', appContainerName], { timeout: 60000 }, (err) => (err ? reject(err) : resolve()));
+      });
+      await appendRestoreLog({ event: 'restart', method: 'docker-restart', status: 'requested' });
+      return;
+    } catch (err) {
+      await appendRestoreLog({ event: 'restart', method: 'docker-restart', status: 'failed', error: err.message });
+    }
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    await appendRestoreLog({ event: 'restart', method: 'process-exit', status: 'scheduled' });
+    setTimeout(() => process.exit(0), 1500);
+  } else {
+    await appendRestoreLog({ event: 'restart', method: 'none', status: 'skipped-dev' });
+  }
+};
+
+// ===== Rotas =====
+
 router.get('/summary', async (_req, res) => {
   try {
     const [database, uploads, system] = await Promise.all([
@@ -996,19 +1207,179 @@ router.get('/export', async (req, res) => {
   }
 });
 
+router.get('/list', async (_req, res) => {
+  try {
+    const files = await listBackupFiles();
+    res.json({ backupDir, totalFiles: files.length, files });
+  } catch (error) {
+    console.error('Erro ao listar backups:', error);
+    res.status(500).json({ error: error.message || 'Erro ao listar backups disponíveis.' });
+  }
+});
+
+router.get('/download/:filename', async (req, res) => {
+  try {
+    const filename = safeBackupFilename(req.params.filename);
+    const filePath = path.join(backupDir, filename);
+    const stat = await fs.stat(filePath).catch(() => null);
+    if (!stat || !stat.isFile()) {
+      return res.status(404).json({ error: 'Arquivo de backup não encontrado.' });
+    }
+
+    const type = classifyBackupFile(filename);
+    const contentType = type === 'json'
+      ? 'application/json; charset=utf-8'
+      : type === 'sql'
+        ? 'application/sql; charset=utf-8'
+        : 'application/octet-stream';
+
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.setHeader('Content-Length', String(stat.size));
+
+    const stream = nodeFs.createReadStream(filePath);
+    stream.on('error', () => {
+      if (!res.headersSent) res.status(500).json({ error: 'Erro ao ler arquivo de backup.' });
+      else res.end();
+    });
+    stream.pipe(res);
+  } catch (error) {
+    res.status(400).json({ error: error.message || 'Requisição de download inválida.' });
+  }
+});
+
+router.post('/validate', async (req, res) => {
+  try {
+    const filename = safeBackupFilename(req.body?.filename);
+    const filePath = path.join(backupDir, filename);
+    const stat = await fs.stat(filePath).catch(() => null);
+    if (!stat || !stat.isFile()) {
+      return res.status(404).json({ valid: false, filename, error: 'Arquivo não encontrado no diretório de backups.' });
+    }
+
+    const type = classifyBackupFile(filename);
+    const base = {
+      filename,
+      type,
+      sizeBytes: stat.size,
+      sizeFormatted: formatBytes(stat.size),
+      modifiedAt: stat.mtime.toISOString()
+    };
+
+    if (type !== 'json') {
+      return res.json({
+        ...base,
+        valid: stat.size > 0,
+        restorable: false,
+        note: 'Backups em formato dump/SQL não são restauráveis por esta interface. Use o procedimento de linha de comando na VPS.'
+      });
+    }
+
+    const raw = await fs.readFile(filePath, 'utf8');
+    let parsed;
+    try {
+      parsed = JSON.parse(raw);
+    } catch {
+      return res.json({ ...base, valid: false, restorable: false, error: 'Arquivo JSON malformado.' });
+    }
+
+    const issues = [];
+    const isFull = parsed?.format === 'nexoscrm-full-system-backup';
+    const hasModules = Boolean(parsed?.modules);
+    const hasTables = Boolean(parsed?.database?.tables);
+    if (!isFull && !hasModules && !hasTables) {
+      issues.push('Formato não reconhecido (esperado nexoscrm-full-system-backup, modules ou database.tables).');
+    }
+
+    let tableSummary = null;
+    try {
+      const tables = normalizeBackupTables(parsed);
+      tableSummary = {
+        tableCount: tables.length,
+        totalRows: tables.reduce((acc, t) => acc + (Array.isArray(t.rows) ? t.rows.length : 0), 0),
+        tables: tables.map((t) => ({ tableName: t.tableName, rowCount: Array.isArray(t.rows) ? t.rows.length : 0 }))
+      };
+    } catch (e) {
+      issues.push(e.message);
+    }
+
+    const uploadsCount = Array.isArray(parsed?.uploads?.files) ? parsed.uploads.files.length : 0;
+    const valid = issues.length === 0;
+
+    return res.json({
+      ...base,
+      valid,
+      restorable: valid,
+      format: parsed?.format || null,
+      generatedAt: parsed?.generatedAt || null,
+      generatedBy: parsed?.generatedBy || null,
+      tableSummary,
+      uploadsCount,
+      issues
+    });
+  } catch (error) {
+    console.error('Erro ao validar backup:', error);
+    res.status(400).json({ valid: false, error: error.message || 'Requisição de validação inválida.' });
+  }
+});
+
+router.get('/restore-log', async (req, res) => {
+  try {
+    const limit = Math.min(Number(req.query.limit) || 200, 1000);
+    const entries = await readRestoreLog(limit);
+    res.json({ totalEntries: entries.length, entries });
+  } catch (error) {
+    console.error('Erro ao ler log de restauração:', error);
+    res.status(500).json({ error: error.message || 'Erro ao ler log de restauração.' });
+  }
+});
+
 router.post('/restore', async (req, res) => {
   try {
     req.setTimeout?.(0);
     res.setTimeout?.(0);
 
     const confirmation = String(req.headers['x-restore-confirmation'] || '').trim();
-    if (confirmation !== 'RESTAURAR_BACKUP_COMPLETO') {
-      return res.status(400).json({ error: 'Confirmação de restauração completa não informada.' });
-    }
+    const body = req.body;
+    const isDiskMode = body && typeof body === 'object' && !Array.isArray(body)
+      && typeof body.filename === 'string' && body.filename.trim() !== ''
+      && !body.format && !body.modules && !body.database;
 
-    const backup = req.body;
-    if (!backup || typeof backup !== 'object') {
-      return res.status(400).json({ error: 'Conteúdo de backup inválido ou não fornecido.' });
+    let backup;
+    let source;
+
+    if (isDiskMode) {
+      if (confirmation !== 'RESTAURAR_NEXOS') {
+        return res.status(400).json({ error: 'Confirmação de restauração não informada. Envie o header x-restore-confirmation: RESTAURAR_NEXOS.' });
+      }
+
+      const filename = safeBackupFilename(body.filename);
+      const filePath = path.join(backupDir, filename);
+      const stat = await fs.stat(filePath).catch(() => null);
+      if (!stat || !stat.isFile()) {
+        return res.status(404).json({ error: 'Arquivo de backup não encontrado no diretório de backups.' });
+      }
+      if (classifyBackupFile(filename) !== 'json') {
+        return res.status(400).json({ error: 'Apenas backups no formato JSON (nexoscrm-full-system-backup) podem ser restaurados por esta interface.' });
+      }
+
+      const raw = await fs.readFile(filePath, 'utf8');
+      try {
+        backup = JSON.parse(raw);
+      } catch {
+        return res.status(400).json({ error: 'Arquivo de backup inválido: JSON malformado.' });
+      }
+      source = `arquivo em disco: ${filename}`;
+    } else {
+      if (confirmation !== 'RESTAURAR_BACKUP_COMPLETO') {
+        return res.status(400).json({ error: 'Confirmação de restauração completa não informada.' });
+      }
+
+      backup = body;
+      if (!backup || typeof backup !== 'object') {
+        return res.status(400).json({ error: 'Conteúdo de backup inválido ou não fornecido.' });
+      }
+      source = 'conteúdo enviado no corpo da requisição';
     }
 
     if (backup?.format !== 'nexoscrm-full-system-backup' && !backup?.modules && !backup?.database?.tables) {
@@ -1017,11 +1388,43 @@ router.post('/restore', async (req, res) => {
       });
     }
 
+    let safety = null;
+    if (isDiskMode) {
+      await ensureBackupDir();
+      await appendRestoreLog({
+        event: 'restore_start',
+        source,
+        user: {
+          id: req.user?.id || req.user?.userId || null,
+          email: req.user?.email || null,
+          role: req.user?.actualRole || req.user?.role || null
+        }
+      });
+
+      try {
+        safety = await createSafetyBackup();
+        await appendRestoreLog({ event: 'safety_backup', method: safety.method, name: safety.name });
+      } catch (safetyErr) {
+        await appendRestoreLog({ event: 'safety_backup', status: 'failed', error: safetyErr.message });
+      }
+    }
+
     const restoreSessionAnchor = await readRestoreSessionAnchor(req.user);
     const backupTables = normalizeBackupTables(backup);
     const database = await restoreDatabase(backupTables);
     const sessionAccess = await ensureRestoreSessionAnchor(restoreSessionAnchor);
     const uploads = await restoreUploads(backup.uploads);
+
+    if (isDiskMode) {
+      await appendRestoreLog({
+        event: 'restore_success',
+        source,
+        tableCount: database.tableCount,
+        totalRows: database.totalRows,
+        restoredFiles: uploads.restoredFiles
+      });
+      res.on('finish', () => { scheduleAppRestart(); });
+    }
 
     res.json({
       message: 'Backup completo restaurado com sucesso',
@@ -1032,12 +1435,15 @@ router.post('/restore', async (req, res) => {
         email: req.user?.email || null,
         role: req.user?.actualRole || req.user?.role || null
       },
+      source,
+      safety,
       database,
       uploads,
       sessionAccess
     });
   } catch (error) {
     console.error('Erro ao restaurar backup completo:', error);
+    await appendRestoreLog({ event: 'restore_error', error: error.message || String(error) });
     res.status(500).json({
       error: error.message || 'Erro ao restaurar backup completo do sistema',
       message: error.message
