@@ -533,10 +533,7 @@ const insertRows = async (tx, tableName, rows, columnTypes = new Map()) => {
       inserted += 1;
     } catch (insertErr) {
       console.warn(`[Backup Restore] Linha ignorada com erro na tabela ${tableName}:`, insertErr.message);
-      // Se a falha for chave duplicada, continua restaurando as demais
-      if (!insertErr.message.includes('unique constraint') && !insertErr.message.includes('duplicate key')) {
-        throw new Error(`Erro ao restaurar dados na tabela "${tableName}": ${insertErr.message}`);
-      }
+      // Sempre continua — nunca aborta a restauração por uma linha com erro
     }
   }
 
@@ -575,72 +572,51 @@ const restoreDatabase = async (backupTables) => {
   const orderedTableNames = await orderTablesForInsert(validTableNames);
   const columnTypesByTable = await readColumnTypes(validTableNames);
 
-  return prisma.$transaction(
-    async (tx) => {
-      // 1. Desativa temporariamente a verificação estrita de foreign keys para permitir inserção sem bloqueios cíclicos
-      await tx.$executeRawUnsafe("SET CONSTRAINTS ALL DEFERRED;").catch(() => {});
-      await tx.$executeRawUnsafe("SET session_replication_role = 'replica';").catch(() => {});
+  // session_replication_role precisa ser definido FORA de transação no PostgreSQL
+  // Dentro de uma transação o SET só vale para aquela sessão mas o TRUNCATE pode abortar tudo
+  // Estratégia: desativa FK checks fora da tx, faz tudo em autocommit por tabela, reativa no final
 
-      // 2. Limpa as tabelas existentes
-      const truncateSql = validTableNames.map(escapeIdentifier).join(', ');
-      try {
-        await tx.$executeRawUnsafe(`TRUNCATE TABLE ${truncateSql} RESTART IDENTITY CASCADE`);
-      } catch (truncateErr) {
-        console.warn('[Backup Restore] TRUNCATE CASCADE falhou, limpando tabelas com DELETE:', truncateErr.message);
-        for (const tableName of [...orderedTableNames].reverse()) {
-          await tx.$executeRawUnsafe(`DELETE FROM ${escapeIdentifier(tableName)}`).catch(() => {});
-        }
-      }
+  // 1. Desativa FK checks fora de qualquer transação
+  await prisma.$executeRawUnsafe("SET session_replication_role = 'replica';").catch(() => {});
 
-      // 3. Insere os registros na ordem correta
-      let restoredRows = 0;
-      const tables = [];
-
-      for (const tableName of orderedTableNames) {
-        const rows = tableByName.get(tableName)?.rows || [];
-        const insertedRows = await insertRows(tx, tableName, rows, columnTypesByTable.get(tableName));
-        restoredRows += insertedRows;
-        tables.push({ tableName, restoredRows: insertedRows });
-      }
-
-      // 4. Sincroniza sequences numéricas (autoincrement / nextval)
-      try {
-        await tx.$executeRawUnsafe(`
-          DO $$
-          DECLARE
-            seq RECORD;
-          BEGIN
-            FOR seq IN
-              SELECT sequence_name, table_name, column_name
-              FROM information_schema.columns
-              WHERE column_default LIKE 'nextval%'
-                AND table_schema = 'public'
-            LOOP
-              BEGIN
-                EXECUTE format(
-                  'SELECT setval(%L, COALESCE((SELECT MAX(%I) FROM %I), 1))',
-                  seq.sequence_name, seq.column_name, seq.table_name
-                );
-              EXCEPTION WHEN OTHERS THEN
-                NULL;
-              END;
-            END LOOP;
-          END $$;
-        `);
-      } catch (seqErr) {
-        console.warn('[Backup Restore] Aviso ao sincronizar sequences:', seqErr.message);
-      }
-
-      // 5. Restaura o modo normal de replicação
-      await tx.$executeRawUnsafe("SET session_replication_role = 'origin';").catch(() => {});
-
-      return { tableCount: orderedTableNames.length, totalRows: restoredRows, tables };
-    },
-    {
-      maxWait: 30000,
-      timeout: Number(process.env.BACKUP_RESTORE_TIMEOUT_MS || 10 * 60 * 1000)
+  // 2. Limpa as tabelas fora de transação (sem risco de abortar tx principal)
+  const truncateSql = orderedTableNames.slice().reverse().map(escapeIdentifier).join(', ');
+  try {
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${truncateSql} CASCADE`);
+  } catch (truncateErr) {
+    console.warn('[Backup Restore] TRUNCATE CASCADE falhou, limpando com DELETE:', truncateErr.message);
+    for (const tableName of [...orderedTableNames].reverse()) {
+      await prisma.$executeRawUnsafe(`DELETE FROM ${escapeIdentifier(tableName)}`).catch(() => {});
     }
-  );
+  }
+
+  // 3. Insere os dados por tabela, cada uma em sua própria transação para isolar falhas
+  let restoredRows = 0;
+  const tables = [];
+
+  for (const tableName of orderedTableNames) {
+    const rows = tableByName.get(tableName)?.rows || [];
+    if (rows.length === 0) {
+      tables.push({ tableName, restoredRows: 0 });
+      continue;
+    }
+    try {
+      const insertedRows = await prisma.$transaction(
+        async (tx) => insertRows(tx, tableName, rows, columnTypesByTable.get(tableName)),
+        { maxWait: 30000, timeout: Number(process.env.BACKUP_RESTORE_TIMEOUT_MS || 10 * 60 * 1000) }
+      );
+      restoredRows += insertedRows;
+      tables.push({ tableName, restoredRows: insertedRows });
+    } catch (tableErr) {
+      console.error(`[Backup Restore] Erro ao restaurar tabela ${tableName}:`, tableErr.message);
+      tables.push({ tableName, restoredRows: 0, error: tableErr.message });
+    }
+  }
+
+  // 4. Restaura o modo normal de replicação
+  await prisma.$executeRawUnsafe("SET session_replication_role = 'origin';").catch(() => {});
+
+  return { tableCount: orderedTableNames.length, totalRows: restoredRows, tables };
 };
 
 const readRestoreSessionAnchor = async (requestUser = {}) => {
