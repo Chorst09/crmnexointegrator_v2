@@ -8,7 +8,7 @@ async function resolveCompanyAssignment(prisma, user, body, tenantCompanyId, cre
   }
   const id = restricted ? selfId : body.accountManagerId;
   if (!restricted && !creating && id === undefined) return { data: {} };
-  if (!id) return { data: { accountManagerId: null, accountManagerName: null, accountManagerEmail: null, accountManagerPhone: null, accountManagerPosition: null } };
+  if (!id) return { data: { accountManagerId: null, accountManagerName: null } };
   // Legacy global records have no tenant. Resolve their owner within the
   // acting user's tenant; scoped records always retain their original boundary.
   const ownerTenant = tenantCompanyId || user.tenantCompanyId || null;
@@ -17,7 +17,7 @@ async function resolveCompanyAssignment(prisma, user, body, tenantCompanyId, cre
     select: { id: true, name: true, email: true, phone: true, role: true }
   });
   if (!owner) return { error: 'Responsável inválido para esta empresa.' };
-  return { data: { accountManagerId: owner.id, accountManagerName: owner.name, accountManagerEmail: owner.email || null, accountManagerPhone: owner.phone || null, accountManagerPosition: owner.role || null } };
+  return { data: { accountManagerId: owner.id, accountManagerName: owner.name } };
 }
 
 module.exports = { resolveCompanyAssignment };
