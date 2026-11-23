@@ -486,7 +486,7 @@ export default function PipelineDashboardModel({
   const mapLocations = getOpportunityLocations(mapRecords || []);
   return (
     <div data-market={market} className="pipeline-model nex-executive nex-pipeline">
-      {market==='B2B' && <section className="nex-market-masthead" aria-label="NEXOS Comercial B2B"><div className="nex-market-brand"><img src="/double-logo.svg" alt="Double"/><span>NEXOS <b>CRM</b></span></div><div><strong>Inteligência que conecta negócios.</strong><p>Gestão comercial e crescimento B2B.</p></div></section>}
+
       <dialog ref={intelligenceDialog} className="nex-ai-dialog" aria-labelledby="pipeline-intelligence-title">
         <h2 id="pipeline-intelligence-title">NEXOS Intelligence</h2><p>{title} · resumo dos filtros ativos.</p>
         {metrics.map(metric => <p key={metric.label}>{metric.label}: <strong>{metric.value}</strong></p>)}
