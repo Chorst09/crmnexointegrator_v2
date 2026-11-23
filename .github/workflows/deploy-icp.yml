@@ -20,40 +20,37 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup SSH
-        env:
-          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
+      - name: Setup SSH Agent
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.VPS_SSH_KEY }}
+
+      - name: Add VPS to known hosts
         run: |
           mkdir -p ~/.ssh
-          echo "$VPS_SSH_KEY" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $VPS_HOST >> ~/.ssh/known_hosts
+          ssh-keyscan -H ${{ secrets.VPS_HOST }} >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
       - name: Deploy to VPS
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
         run: |
-          ssh $VPS_USER@$VPS_HOST << 'ENDSSH'
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'ENDSSH'
             set -e
-            
+
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "🚀 NEXOS CRM Deploy Started"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-            
+
             # Pull latest code
-            cd ${{ env.REMOTE_REPO }}
+            cd /opt/nexos-icp-github
             echo "→ Pulling latest code..."
             git fetch origin main
             git reset --hard origin/main
             COMMIT=$(git rev-parse --short HEAD)
             echo "✓ Code updated to $COMMIT"
-            
+
             # Build Docker image
             RELEASE="$(date -u +%Y%m%dT%H%M%SZ)-$COMMIT-$RANDOM"
-            IMAGE_TAG="${{ env.CONTAINER_NAME }}:$RELEASE"
+            IMAGE_TAG="nexos-icp:$RELEASE"
             echo "→ Building Docker image: $IMAGE_TAG"
             docker build --target runtime -f Dockerfile.icp -t "$IMAGE_TAG" . > /tmp/build.log 2>&1 || {
               echo "✗ Build failed:"
@@ -61,20 +58,20 @@ jobs:
               exit 1
             }
             echo "✓ Image built"
-            
+
             # Stop current container
-            if docker ps -q -f name=${{ env.CONTAINER_NAME }} > /dev/null 2>&1; then
+            if docker ps -q -f name=nexos-icp | grep -q .; then
               echo "→ Stopping current container..."
-              docker rename ${{ env.CONTAINER_NAME }} "nexos-icp-backup-$RELEASE" 2>/dev/null || true
+              docker rename nexos-icp "nexos-icp-backup-$RELEASE" 2>/dev/null || true
               docker stop "nexos-icp-backup-$RELEASE" 2>/dev/null || true
               echo "nexos-icp-backup-$RELEASE" > /opt/nexos-icp-config/previous-container
               echo "✓ Current container stopped"
             fi
-            
+
             # Start new container
             echo "→ Starting new container..."
             docker run -d \
-              --name ${{ env.CONTAINER_NAME }} \
+              --name nexos-icp \
               --label com.integrator.app=nexos-icp \
               --restart unless-stopped \
               --network icontainer-network \
@@ -85,67 +82,68 @@ jobs:
               --mount type=volume,src=nexos-icp-attachments,dst=/app/apps/attachments/editais \
               "$IMAGE_TAG" > /dev/null
             echo "✓ Container started"
-            
+
             # Health check
             echo "→ Waiting for health check..."
-            for i in {1..60}; do
-              HEALTH=$(docker inspect -f '{{.State.Health.Status}}' ${{ env.CONTAINER_NAME }} 2>/dev/null || echo "starting")
-              if [[ "$HEALTH" == "healthy" ]]; then
+            for i in $(seq 1 60); do
+              HEALTH=$(docker inspect -f '{{.State.Health.Status}}' nexos-icp 2>/dev/null || echo "starting")
+              if [ "$HEALTH" = "healthy" ]; then
                 echo "✓ Container healthy"
                 break
               fi
-              if [[ "$HEALTH" == "unhealthy" ]]; then
+              if [ "$HEALTH" = "unhealthy" ]; then
                 echo "✗ Container unhealthy"
-                docker logs ${{ env.CONTAINER_NAME }} --tail 50
+                docker logs nexos-icp --tail 50
                 exit 1
               fi
-              [[ $i -eq 60 ]] && { echo "✗ Health check timeout"; docker logs ${{ env.CONTAINER_NAME }} --tail 50; exit 1; }
+              if [ "$i" = "60" ]; then
+                echo "✗ Health check timeout"
+                docker logs nexos-icp --tail 50
+                exit 1
+              fi
               sleep 2
             done
-            
+
             # Test endpoint
             echo "→ Testing endpoint..."
             curl -sf http://127.0.0.1:3015/api/health > /dev/null || {
               echo "✗ Health endpoint failed"
-              docker logs ${{ env.CONTAINER_NAME }} --tail 50
+              docker logs nexos-icp --tail 50
               exit 1
             }
             echo "✓ Endpoint responding"
-            
-            # Cleanup
-            if [[ -f /opt/nexos-icp-config/previous-container ]]; then
+
+            # Cleanup old backup container
+            if [ -f /opt/nexos-icp-config/previous-container ]; then
               prev=$(cat /opt/nexos-icp-config/previous-container)
               docker rm "$prev" 2>/dev/null || true
             fi
-            
+
             # Keep only last 5 images
-            docker images --format "{{.Repository}}:{{.Tag}}" | grep "^${{ env.CONTAINER_NAME }}:" | tail -n +6 | xargs -r docker rmi 2>/dev/null || true
-            
+            docker images --format "{{.Repository}}:{{.Tag}}" | grep "^nexos-icp:" | tail -n +6 | xargs -r docker rmi 2>/dev/null || true
+
             echo "$RELEASE" > /opt/nexos-icp-config/current-release
-            
+
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "✅ Deploy Completed Successfully"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
             echo "Release: $RELEASE"
-            echo "Commit: $COMMIT"
-            echo "URL: https://nexos.chorstconsult.com.br"
+            echo "Commit:  $COMMIT"
+            echo "URL:     https://nexos.chorstconsult.com.br"
             echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
           ENDSSH
 
       - name: Rollback on failure
         if: failure()
-        env:
-          VPS_HOST: ${{ secrets.VPS_HOST }}
-          VPS_USER: ${{ secrets.VPS_USER }}
         run: |
-          echo "⚠️ Deploy failed. Attempting rollback..."
-          ssh $VPS_USER@$VPS_HOST << 'ENDSSH'
-            if [[ -f /opt/nexos-icp-config/previous-container ]]; then
+          echo "⚠️ Deploy failed — attempting rollback..."
+          ssh ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'ENDSSH'
+            if [ -f /opt/nexos-icp-config/previous-container ]; then
               prev=$(cat /opt/nexos-icp-config/previous-container)
-              docker stop ${{ env.CONTAINER_NAME }} 2>/dev/null || true
-              docker rm ${{ env.CONTAINER_NAME }} 2>/dev/null || true
-              docker rename "$prev" ${{ env.CONTAINER_NAME }} 2>/dev/null || true
-              docker start ${{ env.CONTAINER_NAME }} 2>/dev/null || true
+              docker stop nexos-icp 2>/dev/null || true
+              docker rm nexos-icp 2>/dev/null || true
+              docker rename "$prev" nexos-icp 2>/dev/null || true
+              docker start nexos-icp 2>/dev/null || true
               echo "✓ Rollback completed"
             else
               echo "No previous container for rollback"
