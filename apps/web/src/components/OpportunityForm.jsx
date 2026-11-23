@@ -32,7 +32,7 @@ const FASE_OPTIONS = [
 ];
 
 const PROJECT_MONTH_OPTIONS = [12, 24, 36, 48, 60];
-const NEGOTIATION_TYPE_OPTIONS = ['Cliente Novo', 'Cliente da Base', 'Renovações', 'Up Selling'];
+const NEGOTIATION_TYPE_OPTIONS = ['Cliente Novo', 'Cliente da Base', 'Renovações', 'Up Selling', 'Cliente Já Cadastrado'];
 const LEAD_SOURCE_DETAIL_OPTIONS = ['SDR', 'Gerente de Contas', 'Pré-Vendas'];
 const PROJECT_CLASSIFICATION_OPTIONS = ['Produto', 'Serviço'];
 const PROJECT_TOWER_OPTIONS = ['Conectividade', 'Datacenter', 'Equipamentos', 'Infraestrutura', 'Suporte', 'Telefonia'];
@@ -356,7 +356,7 @@ export default function OpportunityForm({
   const setB2g = (field, value) => setB2gForm(prev => ({ ...prev, [field]: value }));
   const negotiationType = normalizeNegotiationType(formData.negotiationType || formData.projectClientType || '');
   const projectClientType = projectClientTypeFromNegotiation(negotiationType);
-  const shouldSelectExistingCompany = projectClientType === 'BASE_CLIENT' || projectClientType === 'RENEWAL';
+  const shouldSelectExistingCompany = projectClientType === 'BASE_CLIENT' || projectClientType === 'RENEWAL' || projectClientType === 'REGISTERED_CLIENT';
   const shouldCreateCompanyFirst = projectClientType === 'NEW_CLIENT' && !selectedOpportunity;
   const handleNegotiationTypeChange = (value) => {
     const normalizedValue = normalizeNegotiationType(value);
@@ -367,14 +367,14 @@ export default function OpportunityForm({
       projectClientType: nextProjectClientType || null,
       companyId: nextProjectClientType === 'NEW_CLIENT' ? '' : prev.companyId
     }));
-    if (nextProjectClientType === 'BASE_CLIENT' || nextProjectClientType === 'RENEWAL') {
+    if (nextProjectClientType === 'BASE_CLIENT' || nextProjectClientType === 'RENEWAL' || nextProjectClientType === 'REGISTERED_CLIENT') {
       onRefreshCompanies?.({ onlyWithContracts: false });
     }
     if (nextProjectClientType === 'NEW_CLIENT') {
       onRefreshCompanies?.({ onlyWithContracts: false });
+      // Abre o cadastro de nova empresa automaticamente ao selecionar "Cliente Novo"
+      if (onCreateCompany) onCreateCompany();
     }
-    // Removido: não navega mais automaticamente para cadastro de empresa ao selecionar "Cliente Novo"
-    // O usuário deve buscar primeiro; só se não encontrar deve cadastrar.
   };
 
   const renderSelectWithOther = ({ label, value, options, onChange, placeholder = 'Selecione...', required = false }) => {

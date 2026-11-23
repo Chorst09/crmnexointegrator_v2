@@ -10,6 +10,7 @@ export const normalizeNegotiationType = (value) => {
   if (normalized === 'base_client' || normalized.includes('cliente da base')) return 'Cliente da Base';
   if (normalized === 'renewal' || normalized.includes('renov')) return 'Renovações';
   if (normalized.includes('up selling') || normalized.includes('upselling') || normalized.includes('up-sell')) return 'Up Selling';
+  if (normalized === 'registered_client' || normalized.includes('cliente ja cadastrado') || normalized.includes('já cadastrado') || normalized.includes('ja cadastrado')) return 'Cliente Já Cadastrado';
   return text;
 };
 
@@ -18,6 +19,7 @@ export const projectClientTypeFromNegotiation = (value) => {
   if (normalized === 'Cliente Novo') return 'NEW_CLIENT';
   if (normalized === 'Renovações') return 'RENEWAL';
   if (normalized === 'Cliente da Base' || normalized === 'Up Selling') return 'BASE_CLIENT';
+  if (normalized === 'Cliente Já Cadastrado') return 'REGISTERED_CLIENT';
   return '';
 };
 
