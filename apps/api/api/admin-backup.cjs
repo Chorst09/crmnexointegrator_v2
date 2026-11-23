@@ -594,52 +594,70 @@ const restoreDatabase = async (backupTables) => {
   const orderedTableNames = await orderTablesForInsert(validTableNames);
   const columnTypesByTable = await readColumnTypes(validTableNames);
 
-  // session_replication_role precisa ser definido FORA de transação no PostgreSQL
-  // Dentro de uma transação o SET só vale para aquela sessão mas o TRUNCATE pode abortar tudo
-  // Estratégia: desativa FK checks fora da tx, faz tudo em autocommit por tabela, reativa no final
+  // Usa uma conexão dedicada (pg nativo) para garantir que session_replication_role
+  // e todos os INSERTs rodem na mesma conexão do pool — evita o problema 25P02
+  const { Client } = require('pg');
+  const dbUrl = process.env.DATABASE_URL || '';
+  const client = new Client({ connectionString: dbUrl });
+  await client.connect();
 
-  // 1. Desativa FK checks fora de qualquer transação
-  // Usa $queryRawUnsafe para garantir que erros não abortam a conexão do pool
-  try { await prisma.$queryRawUnsafe("SELECT set_config('session_replication_role', 'replica', false)"); } catch (_) {}
-
-  // 2. Limpa as tabelas fora de transação, tabela por tabela para isolar falhas
-  for (const tableName of [...orderedTableNames].reverse()) {
-    try {
-      await prisma.$queryRawUnsafe(`DELETE FROM ${escapeIdentifier(tableName)}`);
-    } catch (delErr) {
-      console.warn(`[Backup Restore] DELETE ${tableName} falhou:`, delErr.message);
-      // Força reset da conexão após erro para evitar 25P02
-      await prisma.$disconnect().catch(() => {});
-      await prisma.$connect().catch(() => {});
-    }
-  }
-
-  // 3. Insere os dados por tabela diretamente (sem transação wrapper)
   let restoredRows = 0;
   const tables = [];
 
-  for (const tableName of orderedTableNames) {
-    const rows = tableByName.get(tableName)?.rows || [];
-    if (rows.length === 0) {
-      tables.push({ tableName, restoredRows: 0 });
-      continue;
-    }
-    console.log(`[Backup Restore] Restaurando tabela ${tableName} (${rows.length} linhas)...`);
-    try {
-      const insertedRows = await insertRows(null, tableName, rows, columnTypesByTable.get(tableName));
-      restoredRows += insertedRows;
-      tables.push({ tableName, restoredRows: insertedRows });
-      console.log(`[Backup Restore] ${tableName}: ${insertedRows}/${rows.length} inseridos`);
-    } catch (tableErr) {
-      console.error(`[Backup Restore] Erro fatal na tabela ${tableName}:`, tableErr.message);
-      tables.push({ tableName, restoredRows: 0, error: tableErr.message });
-      await prisma.$disconnect().catch(() => {});
-      await prisma.$connect().catch(() => {});
-    }
-  }
+  try {
+    // 1. Desativa FK checks na sessão dedicada
+    await client.query("SET session_replication_role = 'replica'");
 
-  // 4. Restaura o modo normal de replicação
-  try { await prisma.$queryRawUnsafe("SELECT set_config('session_replication_role', 'origin', false)"); } catch (_) {}
+    // 2. Limpa todas as tabelas em ordem reversa (sem FK constraint)
+    for (const tableName of [...orderedTableNames].reverse()) {
+      try {
+        await client.query(`DELETE FROM ${escapeIdentifier(tableName)}`);
+      } catch (delErr) {
+        console.warn(`[Backup Restore] DELETE ${tableName} falhou:`, delErr.message);
+      }
+    }
+
+    // 3. Insere os dados na ordem correta (respeitando FK)
+    for (const tableName of orderedTableNames) {
+      const rows = tableByName.get(tableName)?.rows || [];
+      if (rows.length === 0) {
+        tables.push({ tableName, restoredRows: 0 });
+        continue;
+      }
+      const colTypes = columnTypesByTable.get(tableName) || new Map();
+      let inserted = 0;
+      console.log(`[Backup Restore] Restaurando ${tableName} (${rows.length} linhas)...`);
+
+      for (const row of rows) {
+        if (!row || typeof row !== 'object' || Array.isArray(row)) continue;
+        const rawCols = Object.keys(row);
+        const cols = colTypes.size > 0 ? rawCols.filter(c => colTypes.has(c)) : rawCols;
+        if (cols.length === 0) continue;
+        const colSql = cols.map(escapeIdentifier).join(', ');
+        const placeholders = cols.map((_, i) => `$${i + 1}`).join(', ');
+        const values = cols.map(c => normalizeRestoreValue(row[c], colTypes.get(c)));
+        try {
+          await client.query(
+            `INSERT INTO ${escapeIdentifier(tableName)} (${colSql}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`,
+            values
+          );
+          inserted++;
+        } catch (rowErr) {
+          console.warn(`[Backup Restore] Linha ignorada em ${tableName}:`, rowErr.message.slice(0, 100));
+        }
+      }
+
+      restoredRows += inserted;
+      tables.push({ tableName, restoredRows: inserted });
+      console.log(`[Backup Restore] ${tableName}: ${inserted}/${rows.length} inseridos`);
+    }
+
+    // 4. Restaura modo normal
+    await client.query("SET session_replication_role = 'origin'");
+
+  } finally {
+    await client.end().catch(() => {});
+  }
 
   return { tableCount: orderedTableNames.length, totalRows: restoredRows, tables };
 };
