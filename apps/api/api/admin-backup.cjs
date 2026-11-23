@@ -596,22 +596,30 @@ const restoreDatabase = async (backupTables) => {
 
   // Usa uma conexão dedicada (pg nativo) para garantir que session_replication_role
   // e todos os INSERTs rodem na mesma conexão do pool — evita o problema 25P02
-  const { Client } = require('pg');
-  const dbUrl = process.env.DATABASE_URL || '';
-  const client = new Client({ connectionString: dbUrl });
-  await client.connect();
+  // pg já é dependência transitiva do Prisma, sempre disponível
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  let pgClient;
+  try {
+    const { Client } = require('pg');
+    const dbUrl = process.env.DATABASE_URL || '';
+    pgClient = new Client({ connectionString: dbUrl });
+    await pgClient.connect();
+  } catch (pgErr) {
+    throw new Error(`Não foi possível conectar ao banco para restauração: ${pgErr.message}`);
+  }
+  await pgClient.connect();
 
   let restoredRows = 0;
   const tables = [];
 
   try {
     // 1. Desativa FK checks na sessão dedicada
-    await client.query("SET session_replication_role = 'replica'");
+    await pgClient.query("SET session_replication_role = 'replica'");
 
     // 2. Limpa todas as tabelas em ordem reversa (sem FK constraint)
     for (const tableName of [...orderedTableNames].reverse()) {
       try {
-        await client.query(`DELETE FROM ${escapeIdentifier(tableName)}`);
+        await pgClient.query(`DELETE FROM ${escapeIdentifier(tableName)}`);
       } catch (delErr) {
         console.warn(`[Backup Restore] DELETE ${tableName} falhou:`, delErr.message);
       }
@@ -637,7 +645,7 @@ const restoreDatabase = async (backupTables) => {
         const placeholders = cols.map((_, i) => `$${i + 1}`).join(', ');
         const values = cols.map(c => normalizeRestoreValue(row[c], colTypes.get(c)));
         try {
-          await client.query(
+          await pgClient.query(
             `INSERT INTO ${escapeIdentifier(tableName)} (${colSql}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`,
             values
           );
@@ -653,10 +661,10 @@ const restoreDatabase = async (backupTables) => {
     }
 
     // 4. Restaura modo normal
-    await client.query("SET session_replication_role = 'origin'");
+    await pgClient.query("SET session_replication_role = 'origin'");
 
   } finally {
-    await client.end().catch(() => {});
+    await pgClient.end().catch(() => {});
   }
 
   return { tableCount: orderedTableNames.length, totalRows: restoredRows, tables };
