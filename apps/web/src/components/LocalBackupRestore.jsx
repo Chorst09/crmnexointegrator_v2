@@ -289,6 +289,9 @@ export default function LocalBackupRestore() {
                             {v.issues && v.issues.length > 0 && (
                               <div className="text-[10px] text-red-600 dark:text-red-400">{v.issues.join('; ')}</div>
                             )}
+                            {v.error && !(v.issues && v.issues.length) && (
+                              <div className="text-[10px] text-red-600 dark:text-red-400">{v.error}</div>
+                            )}
                           </div>
                         ) : (
                           <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">—</span>
