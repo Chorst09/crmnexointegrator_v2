@@ -172,7 +172,7 @@ const buildGeneralDashboard = async (user = {}) => {
     description: true,
     projectType: true,
     projectMonths: true,
-    contractMonths: true,
+
     monthlyValue: true,
     installationFee: true,
     number: true,

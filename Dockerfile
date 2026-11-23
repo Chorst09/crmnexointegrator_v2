@@ -14,8 +14,10 @@ COPY apps/web/package*.json ./apps/web/
 # Instalar dependências do frontend
 RUN npm ci --workspace=apps/web
 
-# Copiar código do frontend
+# Copiar código do frontend E arquivos compartilhados com API
 COPY apps/web ./apps/web
+COPY apps/api/data ./apps/api/data
+COPY apps/api/lib ./apps/api/lib
 
 # Build Vite
 RUN npm run build --workspace=apps/web
@@ -28,17 +30,15 @@ WORKDIR /build
 # Instalar dependências de build necessárias
 RUN apk add --no-cache openssl python3 make g++
 
-# Copiar package.json root e backend
+# Copiar package.json (root e backend)
 COPY package.json package-lock.json* ./
 COPY backend/package*.json ./backend/
-COPY apps/api/package*.json ./apps/api/
 
 # Instalar dependências do backend (production only)
-RUN npm ci --only=production --workspace=backend
+RUN cd backend && npm ci --omit=dev
 
 # Copiar schema Prisma e gerar cliente
 COPY backend/prisma ./backend/prisma
-COPY apps/api/prisma ./apps/api/prisma
 
 RUN cd backend && npx prisma generate
 
@@ -62,14 +62,18 @@ ENV NODE_ENV=production \
 WORKDIR /app
 
 # Instalar apenas runtime essencial
-RUN apk add --no-cache openssl curl dumb-init
+RUN apk add --no-cache openssl curl
 
 # Criar usuário não-root (opcional, para maior segurança)
 # RUN addgroup -g 1000 appuser && adduser -D -u 1000 -G appuser appuser
 
 # Copiar node_modules e código do backend (Stage 2)
-COPY --from=backend-builder /build/backend/node_modules ./node_modules
-COPY --from=backend-builder /build/backend ./backend
+COPY --from=backend-builder /build/backend/node_modules ./backend/node_modules
+COPY --from=backend-builder /build/backend/prisma ./backend/prisma
+
+# Copiar servidor backend compilado (do contexto original)
+COPY backend/server.js ./backend/
+COPY backend/package.json ./backend/
 
 # Copiar aplicação API (apps/api)
 COPY apps/api/api ./apps/api/api
@@ -81,6 +85,9 @@ COPY apps/api/prisma ./apps/api/prisma
 # Copiar frontend build (Stage 1) para ser servido estaticamente
 COPY --from=frontend-builder /build/apps/web/dist ./apps/web/dist
 
+# Copiar scripts úteis
+COPY scripts ./scripts
+
 # Criar diretórios de runtime
 RUN mkdir -p uploads logs && chmod 755 uploads logs
 
@@ -88,11 +95,11 @@ RUN mkdir -p uploads logs && chmod 755 uploads logs
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:3026/health || exit 1
 
-# Usar dumb-init para gerenciar sinais corretamente
-ENTRYPOINT ["/sbin/dumb-init", "--"]
+# Usar Node.js como PID 1 (recebe sinais corretamente)
+ENTRYPOINT ["node"]
 
 # Comando de inicialização
-CMD ["node", "backend/server.js"]
+CMD ["backend/server.js"]
 
 # Expor porta
 EXPOSE 3026

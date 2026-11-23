@@ -312,11 +312,11 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
     const contractsRange = contracts.filter((item) => inRange(item.createdAt || item.updatedAt || item.startDate));
 
     const openB2B = opportunitiesB2BRange.filter((item) => OPEN_STAGES.has(String(item.stage || '').toUpperCase()));
-    const wonB2B = opportunitiesB2B.filter((item) => String(item.stage || '').toUpperCase() === 'WON' && inRange(item.actualCloseDate));
+    const wonB2B = opportunitiesB2BRange.filter((item) => String(item.stage || '').toUpperCase() === 'WON' && inRange(item.actualCloseDate));
     const lostB2B = opportunitiesB2BRange.filter((item) => String(item.stage || '').toUpperCase() === 'LOST');
 
     const openB2GOpps = opportunitiesB2GRange.filter((item) => !['GANHO','PERDIDO','NO_GO'].includes(resolveB2GSummaryStage(item)));
-    const wonB2GOpps = opportunitiesB2G.filter((item) => resolveB2GSummaryStage(item) === 'GANHO' && inRange(item.actualCloseDate));
+    const wonB2GOpps = opportunitiesB2GRange.filter((item) => resolveB2GSummaryStage(item) === 'GANHO' && inRange(item.actualCloseDate));
 
     const activeNoticeStatuses = new Set([
       'MONITORANDO',
@@ -519,7 +519,7 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
     opportunitiesB2BRange.forEach((item) => addOpportunityRevenueToBucket(item, monthlyB2B));
     opportunitiesB2GRange.forEach((item) => addOpportunityRevenueToBucket(item, monthlyB2G));
 
-    [...opportunitiesB2B.map(item=>({...item,__won:String(item.stage).toUpperCase()==='WON',__open:OPEN_STAGES.has(String(item.stage).toUpperCase())})), ...opportunitiesB2G.map(item=>({...item,__won:resolveB2GSummaryStage(item)==='GANHO',__open:!['GANHO','PERDIDO','NO_GO'].includes(resolveB2GSummaryStage(item))}))].forEach(item=>{
+    [...opportunitiesB2BRange.map(item=>({...item,__won:String(item.stage).toUpperCase()==='WON',__open:OPEN_STAGES.has(String(item.stage).toUpperCase())})), ...opportunitiesB2GRange.map(item=>({...item,__won:resolveB2GSummaryStage(item)==='GANHO',__open:!['GANHO','PERDIDO','NO_GO'].includes(resolveB2GSummaryStage(item))}))].forEach(item=>{
       const entry = toDate(item.createdAt || item.updatedAt);
       const close = toDate(item.actualCloseDate);
       const entryIndex = entry ? monthIndex.get(monthKey(entry)) : undefined;
@@ -602,7 +602,7 @@ export function buildGeneralDashboardMetrics(data = {}, timeRange = '30') {
       b2gWonRevenue,
       totalPipeline,
       totalWonValue,
-      undatedWonCount: [...opportunitiesB2B.filter(item=>String(item.stage).toUpperCase()==='WON'),...opportunitiesB2G.filter(item=>resolveB2GSummaryStage(item)==='GANHO')].filter(item=>!toDate(item.actualCloseDate)).length,
+      undatedWonCount: [...opportunitiesB2BRange.filter(item=>String(item.stage).toUpperCase()==='WON'),...opportunitiesB2GRange.filter(item=>resolveB2GSummaryStage(item)==='GANHO')].filter(item=>!toDate(item.actualCloseDate)).length,
       previousMetrics,
       b2bPipelineValue,
       b2bWonValue,

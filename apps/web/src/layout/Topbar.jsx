@@ -109,7 +109,7 @@ export default function Topbar({ onMenuClick }) {
           <Menu className="h-5 w-5" />
         </button>
 
-        {executive ? <ExecutiveHeaderSearch key={market || 'general'} market={market}/> : <><div
+        {executive ? null : <><div
           className="relative hidden h-[5.15rem] min-w-0 flex-1 overflow-hidden rounded-[24px] border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-cover bg-center shadow-[0_24px_54px_-36px_rgba(34,211,238,0.58)] md:block"
           style={{ backgroundImage: "url('/b2g/govflow-header.png')" }}
         >
@@ -132,7 +132,6 @@ export default function Topbar({ onMenuClick }) {
 
         <div className="ml-auto flex shrink-0 items-center gap-3 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-cyan-50">
           {market ? <button type="button" className="nex-market-agenda" aria-label={`Agenda ${market}`} title={`Agenda ${market}`} onClick={()=>navigate(market==='B2G'?'/b2g-atividades':'/atividades')}><Bell size={20}/></button> : <PreSalesReturnNotifications />}
-          {executive && <button className="nex-ai-button" onClick={() => window.dispatchEvent(new Event('nexos-open-intelligence'))}><Sparkles size={19}/>NEXOS AI</button>}
 
           <button
             type="button"
