@@ -515,7 +515,6 @@ const insertRows = async (tx, tableName, rows, columnTypes = new Map()) => {
     if (!row || typeof row !== 'object' || Array.isArray(row)) continue;
 
     const rawColumns = Object.keys(row);
-    // Filtrar apenas colunas que realmente existem na tabela de destino quando columnTypes estiver disponível
     const columns = columnTypes.size > 0 ? rawColumns.filter((column) => columnTypes.has(column)) : rawColumns;
     if (columns.length === 0) continue;
 
@@ -525,15 +524,17 @@ const insertRows = async (tx, tableName, rows, columnTypes = new Map()) => {
     const columnSql = columns.map(escapeIdentifier).join(', ');
     const values = columns.map((column) => normalizeRestoreValue(row[column], columnTypes.get(column)));
 
+    // Usa INSERT ... ON CONFLICT DO NOTHING para evitar erros de duplicata
+    // e não abortar a transação
     try {
       await tx.$executeRawUnsafe(
-        `INSERT INTO ${escapeIdentifier(tableName)} (${columnSql}) VALUES (${placeholders})`,
+        `INSERT INTO ${escapeIdentifier(tableName)} (${columnSql}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`,
         ...values
       );
       inserted += 1;
     } catch (insertErr) {
-      console.warn(`[Backup Restore] Linha ignorada com erro na tabela ${tableName}:`, insertErr.message);
-      // Sempre continua — nunca aborta a restauração por uma linha com erro
+      console.warn(`[Backup Restore] Linha ignorada na tabela ${tableName}:`, insertErr.message);
+      // Não relança — continua para a próxima linha
     }
   }
 
@@ -577,16 +578,18 @@ const restoreDatabase = async (backupTables) => {
   // Estratégia: desativa FK checks fora da tx, faz tudo em autocommit por tabela, reativa no final
 
   // 1. Desativa FK checks fora de qualquer transação
-  await prisma.$executeRawUnsafe("SET session_replication_role = 'replica';").catch(() => {});
+  // Usa $queryRawUnsafe para garantir que erros não abortam a conexão do pool
+  try { await prisma.$queryRawUnsafe("SELECT set_config('session_replication_role', 'replica', false)"); } catch (_) {}
 
-  // 2. Limpa as tabelas fora de transação (sem risco de abortar tx principal)
-  const truncateSql = orderedTableNames.slice().reverse().map(escapeIdentifier).join(', ');
-  try {
-    await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${truncateSql} CASCADE`);
-  } catch (truncateErr) {
-    console.warn('[Backup Restore] TRUNCATE CASCADE falhou, limpando com DELETE:', truncateErr.message);
-    for (const tableName of [...orderedTableNames].reverse()) {
-      await prisma.$executeRawUnsafe(`DELETE FROM ${escapeIdentifier(tableName)}`).catch(() => {});
+  // 2. Limpa as tabelas fora de transação, tabela por tabela para isolar falhas
+  for (const tableName of [...orderedTableNames].reverse()) {
+    try {
+      await prisma.$queryRawUnsafe(`DELETE FROM ${escapeIdentifier(tableName)}`);
+    } catch (delErr) {
+      console.warn(`[Backup Restore] DELETE ${tableName} falhou:`, delErr.message);
+      // Força reset da conexão após erro para evitar 25P02
+      await prisma.$disconnect().catch(() => {});
+      await prisma.$connect().catch(() => {});
     }
   }
 
@@ -610,11 +613,14 @@ const restoreDatabase = async (backupTables) => {
     } catch (tableErr) {
       console.error(`[Backup Restore] Erro ao restaurar tabela ${tableName}:`, tableErr.message);
       tables.push({ tableName, restoredRows: 0, error: tableErr.message });
+      // Reset da conexão após erro para evitar 25P02 nas próximas tabelas
+      await prisma.$disconnect().catch(() => {});
+      await prisma.$connect().catch(() => {});
     }
   }
 
   // 4. Restaura o modo normal de replicação
-  await prisma.$executeRawUnsafe("SET session_replication_role = 'origin';").catch(() => {});
+  try { await prisma.$queryRawUnsafe("SELECT set_config('session_replication_role', 'origin', false)"); } catch (_) {}
 
   return { tableCount: orderedTableNames.length, totalRows: restoredRows, tables };
 };
