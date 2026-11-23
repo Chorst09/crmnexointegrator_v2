@@ -284,7 +284,7 @@ const buildGeneralDashboard = async (user = {}) => {
     query('leadStatsB2B',() => buildLeadStats('B2B', tenantCompanyId, allOwners ? null : userId), { hotLeads: 0, warmLeads: 0, coldLeads: 0, lowPriority: 0, total: 0 }),
     query('leadStatsB2G',() => buildLeadStats('B2G', tenantCompanyId, allOwners ? null : userId), { hotLeads: 0, warmLeads: 0, coldLeads: 0, lowPriority: 0, total: 0 }),
     tenantCompanyId ? 0 : query('workflows',() => (prisma.advancedWorkflow || prisma.workflow).count(), 0),
-    tenantCompanyId ? 0 : query('automationRules',() => prisma.automationRule.count(), 0),
+    tenantCompanyId ? 0 : query('automationRules',() => prisma.automationRule ? prisma.automationRule.count() : Promise.resolve(0), 0),
     query('automationNotifications',() => prisma.notification.count({ where: (tenantCompanyId || !allOwners) ? { recipient: tenantUserRelationWhere } : {} }), 0),
     tenantCompanyId ? 0 : query('integrations',() => prisma.integration.count(), 0),
     tenantCompanyId ? 0 : query('regions',() => prisma.region.count(), 0),
