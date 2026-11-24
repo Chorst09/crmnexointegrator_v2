@@ -2,12 +2,27 @@
 const getApiBaseUrl = () => {
   const explicitApiUrl = String(import.meta.env.VITE_API_URL || '').trim();
 
-  // Em ambiente de navegador, se estiver em domínio real (não localhost), SEMPRE usa a rota relativa '/api'
-  // evitando que variáveis de build locais (ex: localhost:3001) quebrem o login com ERR_CONNECTION_REFUSED.
+  // Em ambiente de navegador, se estiver em localhost/127.0.0.1 ou em produção padrão,
+  // SEMPRE usa rota relativa '/api' a menos que seja especificamente configurado para outra porta local.
   if (typeof window !== 'undefined' && window.location) {
     const currentHost = String(window.location.hostname || '').toLowerCase();
     const isLocalDev = currentHost === 'localhost' || currentHost === '127.0.0.1';
-    if (!isLocalDev) {
+    
+    // Se o usuário está em localhost, nunca permita que chamadas vão para domínios externos HTTPS
+    if (isLocalDev) {
+      if (explicitApiUrl && /^https?:\/\//i.test(explicitApiUrl)) {
+        try {
+          const parsed = new URL(explicitApiUrl);
+          const apiHostname = String(parsed.hostname || '').toLowerCase();
+          if (apiHostname !== 'localhost' && apiHostname !== '127.0.0.1') {
+            return '/api';
+          }
+        } catch {
+          return '/api';
+        }
+      }
+      return explicitApiUrl ? normalizePathBase(explicitApiUrl) : '/api';
+    } else {
       return '/api';
     }
   }

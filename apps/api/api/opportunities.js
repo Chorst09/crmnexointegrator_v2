@@ -387,7 +387,7 @@ export default async function handler(req) {
           }
         },
         owner: {
-          select: { id: true, name: true, email: true, phone: true, role: true, region: { select: { id: true, name: true } } }
+          select: { id: true, name: true, email: true, role: true, region: { select: { id: true, name: true } } }
         },
         products: {
           include: {
@@ -608,7 +608,7 @@ export default async function handler(req) {
         include: {
           company: true,
           owner: {
-            select: { id: true, name: true, email: true, phone: true, role: true, region: { select: { id: true, name: true } } }
+            select: { id: true, name: true, email: true, role: true, region: { select: { id: true, name: true } } }
           },
           products: {
             include: {
@@ -833,7 +833,7 @@ export default async function handler(req) {
         include: {
           company: true,
           owner: {
-            select: { id: true, name: true, email: true, phone: true, role: true, region: { select: { id: true, name: true } } }
+            select: { id: true, name: true, email: true, role: true, region: { select: { id: true, name: true } } }
           },
           products: {
             include: {

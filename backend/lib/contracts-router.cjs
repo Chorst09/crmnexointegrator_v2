@@ -5,18 +5,14 @@ const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 const { contractScope, normalizeContract, LIVE_STATUSES } = require('./contract-service.cjs');
 const { opportunityDocumentWhere, opportunityModuleAllowed } = require('./company-documents-router.cjs');
-const companySelect = { id: true, name: true, document: true, accountManagerId: true, accountManagerName: true };
+const companySelect = { id: true, name: true, document: true, accountManagerName: true };
 const attachmentSelect = { id: true, filename: true, originalName: true, mimeType: true, size: true, createdAt: true };
-const include = { company: { select: companySelect }, opportunity: { select: { id: true, number: true, title: true } }, attachments: { select: attachmentSelect } };
+const include = { company: { select: companySelect }, attachments: { select: attachmentSelect } };
 function createContractsRouter({ prisma, authenticateToken, uploadDir }) {
   const router = express.Router();
   router.use(authenticateToken);
   router.use((req, res, next) => {
-    // Permite acesso se tiver accessContracts ou accessManagement
-    const hasAccess = String(req.user.actualRole || req.user.role).toUpperCase() === 'MASTER' || 
-                      req.user.accessContracts || 
-                      req.user.accessManagement;
-    if (!hasAccess) return res.status(403).json({ error: 'Acesso negado ao módulo de Contratos.' });
+    if (String(req.user.actualRole || req.user.role).toUpperCase() !== 'MASTER' && !req.user.accessManagement) return res.status(403).json({ error: 'Acesso ao módulo Gestão é necessário.' });
     next();
   });
   const visible = (user, id) => prisma.contract.findFirst({ where: { id, ...contractScope(user) }, include });
@@ -44,7 +40,7 @@ function createContractsRouter({ prisma, authenticateToken, uploadDir }) {
     try {
       const where = { ...contractScope(req.user), ...(req.query.status ? { status: req.query.status } : {}), ...(req.query.companyId ? { companyId: req.query.companyId } : {}) };
       const pagination = req.query.page || req.query.limit ? { take: Math.max(1, Math.min(200, parseInt(req.query.limit) || 50)), skip: Math.max(0, (parseInt(req.query.page) || 1) - 1) * Math.max(1, Math.min(200, parseInt(req.query.limit) || 50)) } : {};
-      res.json(await prisma.contract.findMany({ where, include: { company: include.company, opportunity: include.opportunity, _count: { select: { attachments: true } } }, orderBy: { createdAt: 'desc' }, ...pagination }));
+      res.json(await prisma.contract.findMany({ where, include: { company: include.company, _count: { select: { attachments: true } } }, orderBy: { createdAt: 'desc' }, ...pagination }));
     } catch (error) { next(error); }
   });
   router.get('/:id', async (req, res, next) => {
@@ -60,7 +56,7 @@ function createContractsRouter({ prisma, authenticateToken, uploadDir }) {
       if (!body.companyId || !await link(req.user, body.companyId, body.opportunityId)) return res.status(403).json({ error: 'Empresa ou oportunidade indisponível para este usuário.' });
       const result = normalizeContract({ status: 'DRAFT', value: 0, ...body });
       if (result.error) return res.status(400).json({ error: result.error });
-      res.status(201).json(await prisma.contract.create({ data: { ...result.data, companyId: body.companyId, opportunityId: body.opportunityId || null }, include }));
+      res.status(201).json(await prisma.contract.create({ data: { ...result.data, companyId: body.companyId }, include }));
     } catch (error) { next(error); }
   });
   router.put('/:id', async (req, res, next) => {
@@ -74,7 +70,7 @@ function createContractsRouter({ prisma, authenticateToken, uploadDir }) {
       if (!await link(req.user, companyId, opportunityId)) return res.status(403).json({ error: 'Empresa ou oportunidade indisponível para este usuário.' });
       const result = normalizeContract(body, existing);
       if (result.error) return res.status(400).json({ error: result.error });
-      res.json(await prisma.contract.update({ where: { id: existing.id }, data: { ...result.data, companyId, opportunityId }, include }));
+      res.json(await prisma.contract.update({ where: { id: existing.id }, data: { ...result.data, companyId }, include }));
     } catch (error) { next(error); }
   });
   const storage = multer.diskStorage({

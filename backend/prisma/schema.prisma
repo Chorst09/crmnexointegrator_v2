@@ -12,7 +12,6 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
-  phone     String?
   password  String
   role      Role     @default(SELLER)
   tenantCompanyId String?
@@ -26,12 +25,11 @@ model User {
   commissionProject36 Float?
   commissionProject48 Float?
   commissionProject60 Float?
-  accessB2B Boolean @default(true)
-  accessB2G Boolean @default(true)
+  accessB2B Boolean  @default(true)
+  accessB2G Boolean  @default(true)
   accessPreSales Boolean @default(false)
   accessManagement Boolean @default(false)
   accessAutomation Boolean @default(false)
-  accessContracts Boolean @default(false)
   permissionOverrides Json @default("{}")
   isCompanyOwner Boolean @default(false)
   createdAt DateTime @default(now())
@@ -46,27 +44,36 @@ model User {
   teamBonusDistributions TeamBonusDistribution[]
   workflowExecutions  WorkflowExecution[]
   notifications       Notification[]
-  preSalesRequests    PreSalesRequest[]   @relation("PreSalesRequester")
-  preSalesApprovals   PreSalesRequest[]   @relation("PreSalesApprover")
-  preSalesRejections  PreSalesRequest[]   @relation("PreSalesRejecter")
-  preSalesApprovalActions PreSalesApproval[] @relation("PreSalesApprovalApprover")
   customerOnboardings CustomerOnboarding[]
   supportTickets      SupportTicket[]
   ticketResponses     TicketResponse[]
   churnAlerts         ChurnAlert[]
-  kickoffMeetings     KickoffMeeting[]     @relation("KickoffOwner")
-  kickoffParticipants KickoffParticipant[] @relation("KickoffParticipantUser")
-  kickoffChecklists   KickoffChecklistItem[] @relation("KickoffChecklistCompletedBy")
-  kickoffActionItems  KickoffActionItem[]  @relation("KickoffActionAssignee")
-  kickoffHistory      KickoffHistory[]     @relation("KickoffHistoryUser")
-  googleToken         GoogleToken?
-  projectManaged      Project[]            @relation("ProjectManager")
-  projectCreated      Project[]            @relation("ProjectCreator")
-  projectTasks        ProjectTask[]
-  projectTeams        ProjectTeam[]
-  projectTimelogs     ProjectTimelog[]
-  phasesAssigned      ProjectPhase[]       @relation("PhaseAssignee")
-  phasesAccountable   ProjectPhase[]       @relation("PhaseAccountable")
+  preSalesRequests    PreSalesRequest[] @relation("PreSalesRequester")
+  preSalesApproved    PreSalesRequest[] @relation("PreSalesApprover")
+  preSalesRejected    PreSalesRequest[] @relation("PreSalesRejecter")
+  preSalesApprovals   PreSalesApproval[] @relation("PreSalesApprovalApprover")
+  opportunityFollowUps OpportunityFollowUp[] @relation("OpportunityFollowUps")
+  managedProjects    Project[] @relation("ProjectManager")
+  createdProjects    Project[] @relation("ProjectCreator")
+  projectTasks       ProjectTask[]
+  projectTeams       ProjectTeam[]
+  projectTimelogs    ProjectTimelog[]
+  projectRisks       ProjectRisk[]
+  issueReported      ProjectIssue[] @relation("IssueReporter")
+  issueAssigned      ProjectIssue[] @relation("IssueAssignee")
+  crRequested        ProjectChangeRequest[] @relation("CRRequester")
+  crApproved         ProjectChangeRequest[] @relation("CRApprover")
+  acceptancesApproved ProjectAcceptance[] @relation("AcceptanceApprover")
+  phasesAssigned      ProjectPhase[]      @relation("PhaseAssignee")
+  phasesAccountable   ProjectPhase[]      @relation("PhaseAccountable")
+  attentionPoints     OpportunityAttentionPoint[] @relation("AttentionPointAuthor")
+  attentionPointsResolved OpportunityAttentionPoint[] @relation("AttentionPointResolver")
+  learnings           OpportunityLearning[] @relation("LearningAuthor")
+  ownedKickoffMeetings  KickoffMeeting[]     @relation("KickoffMeetingOwner")
+  kickoffParticipations  KickoffParticipant[] @relation("KickoffParticipantUser")
+  kickoffChecklistDone   KickoffChecklistItem[] @relation("KickoffChecklistCompleter")
+  kickoffActionItems     KickoffActionItem[]  @relation("KickoffActionAssignee")
+  kickoffHistoryEntries  KickoffHistory[]     @relation("KickoffHistoryUser")
 
   @@index([tenantCompanyId])
   @@index([role])
@@ -98,18 +105,8 @@ model Company {
   accessAutomation Boolean @default(false)
   tenantCompanyId String?
   tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
-  leadNextAction String?
-  leadNextActionAt DateTime?
-  leadReminderMinutes Int @default(15)
-  leadOrigin String?
-  leadOriginDetail String?
-  prospectionNotes String?  // Histórico de abordagem e contatos realizados
   leadEntryDate DateTime @default(now())
-  accountManagerId String?
-  accountManagerName     String?
-  accountManagerEmail    String?
-  accountManagerPhone    String?
-  accountManagerPosition String?
+  accountManagerName String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
@@ -124,81 +121,11 @@ model Company {
   npssurveys    NPSSurvey[]
   churnAlerts   ChurnAlert[]
   preSalesLeads PreSalesRequest[] @relation("PreSalesLead")
-  kickoffMeetings KickoffMeeting[]
-  projects      Project[]
+  integrationOrders IntegrationOrder[]
+  projects          Project[]
+  kickoffMeetings   KickoffMeeting[]
 
   @@index([tenantCompanyId])
-  @@index([accountManagerId])
-}
-
-model TenantCompany {
-  id          String              @id @default(uuid())
-  name        String
-  legalName   String?
-  cnpj        String?             @unique
-  email       String?
-  phone       String?
-  status      TenantCompanyStatus @default(PROSPECT)
-  notes       String?
-  accessB2B   Boolean             @default(true)
-  accessB2G   Boolean             @default(false)
-  accessPreSales Boolean          @default(false)
-  accessManagement Boolean        @default(false)
-  accessAutomation Boolean        @default(false)
-  rolePolicyOverrides Json        @default("{}")
-  createdAt   DateTime            @default(now())
-  updatedAt   DateTime            @updatedAt
-
-  users       User[]
-  licenses    CompanyLicense[]
-  companies   Company[]
-  products    Product[]
-  opportunities Opportunity[]
-  activities  Activity[]
-
-  @@index([status, createdAt])
-}
-
-model LicensePlan {
-  id            String              @id @default(uuid())
-  code          String              @unique
-  name          String
-  description   String?
-  billingCycle  LicenseBillingCycle
-  price         Float
-  currency      String              @default("BRL")
-  seatsIncluded Int                 @default(1)
-  isActive      Boolean             @default(true)
-  sortOrder     Int                 @default(0)
-  features      Json                @default("{}")
-  createdAt     DateTime            @default(now())
-  updatedAt     DateTime            @updatedAt
-
-  licenses      CompanyLicense[]
-
-  @@index([isActive, sortOrder])
-}
-
-model CompanyLicense {
-  id                  String          @id @default(uuid())
-  tenantCompanyId     String
-  tenantCompany       TenantCompany   @relation(fields: [tenantCompanyId], references: [id], onDelete: Cascade)
-  planId              String
-  plan                LicensePlan     @relation(fields: [planId], references: [id], onDelete: Restrict)
-  status              LicenseStatus   @default(PENDING)
-  seats               Int             @default(1)
-  startDate           DateTime
-  endDate             DateTime
-  priceAtPurchase     Float
-  notes               String?
-  paymentReference    String?         @unique
-  paymentStatus       PaymentStatus   @default(PENDING)
-  paymentConfirmedAt  DateTime?
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
-
-  @@index([tenantCompanyId, status, endDate])
-  @@index([paymentStatus, createdAt])
 }
 
 model Contact {
@@ -212,7 +139,7 @@ model Contact {
   company   Company  @relation(fields: [companyId], references: [id])
   createdAt DateTime @default(now())
 
-  kickoffParticipants KickoffParticipant[] @relation("KickoffParticipantContact")
+  kickoffParticipations KickoffParticipant[] @relation("KickoffParticipantContact")
 }
 
 model Product {
@@ -235,14 +162,13 @@ model Product {
   upSells       UpSellRule[]    @relation("MainProduct")
   suggestedBy   CrossSellRule[] @relation("SuggestedProduct")
   upSellTarget  UpSellRule[]    @relation("TargetProduct")
-  preSalesItems PreSalesItem[] @relation("PreSalesProduct")
+  preSalesItems PreSalesItem[]  @relation("PreSalesProduct")
 
   @@index([tenantCompanyId])
 }
 
 // === FUNIL DE VENDAS ===
 model Opportunity {
-  contracts Contract[]
   id              String   @id @default(uuid())
   number          String?  @unique
   title           String
@@ -260,13 +186,13 @@ model Opportunity {
   leadSourceDetail String?
   importSource    String?
   importSourceRow Int?
-  b2gStage        String?
   projectType     String   @default("SINGLE")
   projectMonths   Int?
   description     String?
   value           Float
   probability     Int      @default(50)
   stage           Stage
+  b2gStage        String?
   source          LeadSource?
   leadEntryDate   DateTime @default(now())
   expectedCloseDate DateTime?
@@ -276,20 +202,6 @@ model Opportunity {
   lossReason      String?
   stageDecisionDetails Json?
   notes           String?
-
-  // Campos de receita recorrente e pontual
-  revenueType     String?  // "MENSAL" ou "PONTUAL"
-  contractPeriodMonths Int? // Período do contrato em meses (para receita mensal)
-  monthlyRecurringValue Float? // Valor mensal recorrente (para receita mensal)
-  totalContractValue Float?   // Valor total do contrato (calculado: monthlyRecurringValue * contractPeriodMonths)
-  totalProductsValue Float?   // Valor total dos produtos (para receita pontual)
-  setupValue      Float?   // Valor do setup/implantação (para receita pontual)
-
-  // Contato do cliente (campos nullable para não quebrar registros legados)
-  contactName     String?
-  contactFullName String?
-  contactEmail    String?
-  contactPhone    String?
   
   // Relacionamentos
   companyId String
@@ -305,10 +217,12 @@ model Opportunity {
   commission  Commission?
   competitors CompetitorComparison[]
   preSalesRequests PreSalesRequest[]
-  kickoffMeetings KickoffMeeting[]
+  integrationOrders IntegrationOrder[]
+  followUps   OpportunityFollowUp[]
   project     Project?
-  
-  companyDocuments CompanyDocument[]
+  attentionPoints OpportunityAttentionPoint[]
+  learnings       OpportunityLearning[]
+  kickoffMeetings KickoffMeeting[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -317,21 +231,78 @@ model Opportunity {
   @@index([tenantCompanyId])
 }
 
+// === PONTOS DE ATENÇÃO ===
+model OpportunityAttentionPoint {
+  id            String            @id @default(uuid())
+  opportunityId String
+  opportunity   Opportunity       @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  authorId      String
+  author        User              @relation("AttentionPointAuthor", fields: [authorId], references: [id])
+  description   String
+  severity      AttentionSeverity @default(MEDIA)
+  status        AttentionStatus   @default(PENDENTE)
+  resolvedAt    DateTime?
+  resolvedById  String?
+  resolvedBy    User?             @relation("AttentionPointResolver", fields: [resolvedById], references: [id])
+  tenantCompanyId String?
+  tenantCompany TenantCompany?    @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([opportunityId])
+  @@index([tenantCompanyId])
+}
+
+// === APRENDIZADOS ===
+model OpportunityLearning {
+  id            String           @id @default(uuid())
+  opportunityId String
+  opportunity   Opportunity      @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  authorId      String
+  author        User             @relation("LearningAuthor", fields: [authorId], references: [id])
+  category      LearningCategory
+  description   String
+  tenantCompanyId String?
+  tenantCompany TenantCompany?   @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([opportunityId])
+  @@index([tenantCompanyId])
+}
+
+model OpportunityFollowUp {
+  id            String   @id @default(uuid())
+  type          String   // CALL, EMAIL, MEETING, NOTE, WHATSAPP, etc
+  content       String
+  attachments   String?  // JSON com URLs de anexos
+  
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User     @relation("OpportunityFollowUps", fields: [userId], references: [id])
+  
+  createdAt DateTime @default(now())
+  
+  @@index([opportunityId])
+  @@index([userId])
+  @@index([createdAt])
+}
+
 model OpportunityProduct {
   id            String      @id @default(uuid())
   quantity      Int         @default(1)
   unitPrice     Float
   discount      Float       @default(0)
-  notes         String?     // descrição/observação livre por item
-
+  
   opportunityId String
-  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
   productId     String
   product       Product     @relation(fields: [productId], references: [id])
-
-  createdAt     DateTime    @default(now())
-
-  @@index([opportunityId])
+  
+  @@unique([opportunityId, productId])
 }
 
 // === GESTÃO DE ATIVIDADES ===
@@ -365,8 +336,10 @@ model Activity {
 model Proposal {
   id          String   @id @default(uuid())
   number      String   @unique
+  type        ProposalType @default(COMMERCIAL)
   title       String
   description String?
+  sectionsData Json    @default("{}") // Conteudo das secoes do template (texto/campos por secao)
   totalValue  Float
   discount    Float    @default(0)
   tax         Float    @default(0)
@@ -389,6 +362,7 @@ model Proposal {
 model ProposalTemplate {
   id          String   @id @default(uuid())
   name        String
+  type        ProposalType @default(COMMERCIAL)
   description String?
   isDefault   Boolean  @default(false)
   isActive    Boolean  @default(true)
@@ -474,15 +448,33 @@ model Integration {
   id          String   @id @default(uuid())
   name        String
   type        IntegrationType
+  provider    IntegrationProvider @default(CUSTOM)
+  partnerTier PartnerTier @default(BRONZE)
   config      Json
   isActive    Boolean  @default(true)
   apiKey      String?
+  clientId    String?  @unique
+  clientSecretHash String?
+  scopes      String[] @default([])
+  rateLimitPerMinute Int?
+  webhookSigningSecret String?
+  metadata    Json?
   webhookUrl  String?
   lastSync    DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   
-  syncLogs    IntegrationLog[]
+  syncLogs          IntegrationLog[]
+  oauthTokens       IntegrationAccessToken[]
+  rateLimitWindows  IntegrationRateLimitWindow[]
+  idempotencyKeys   IntegrationIdempotencyKey[]
+  webhookEndpoints  IntegrationWebhookEndpoint[]
+  webhookDeliveries IntegrationWebhookDelivery[]
+  fieldMappings     IntegrationFieldMapping[]
+  customFields      IntegrationCustomField[]
+  entityMappings    IntegrationEntityMapping[]
+  entityData        IntegrationEntityData[]
+  orders            IntegrationOrder[]
 }
 
 model IntegrationLog {
@@ -494,6 +486,256 @@ model IntegrationLog {
   message       String?
   data          Json?
   createdAt     DateTime @default(now())
+}
+
+model IntegrationAccessToken {
+  id            String      @id @default(uuid())
+  integrationId String
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  tokenHash     String      @unique
+  scopes        String[]    @default([])
+  expiresAt     DateTime
+  revokedAt     DateTime?
+  lastUsedAt    DateTime?
+  createdAt     DateTime    @default(now())
+
+  @@index([integrationId, expiresAt])
+  @@index([tokenHash, expiresAt])
+}
+
+model IntegrationRateLimitWindow {
+  id            String      @id @default(uuid())
+  integrationId String
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  windowStart   DateTime
+  requestCount  Int         @default(0)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+
+  @@unique([integrationId, windowStart])
+  @@index([windowStart])
+}
+
+model IntegrationIdempotencyKey {
+  id            String      @id @default(uuid())
+  integrationId String
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  scope         String
+  key           String
+  requestHash   String
+  statusCode    Int
+  responseBody  Json?
+  createdAt     DateTime    @default(now())
+  expiresAt     DateTime
+
+  @@unique([integrationId, scope, key])
+  @@index([expiresAt])
+}
+
+model IntegrationWebhookEndpoint {
+  id              String                     @id @default(uuid())
+  integrationId   String
+  integration     Integration                @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  eventType       String
+  url             String
+  secret          String?
+  isActive        Boolean                    @default(true)
+  maxRetries      Int                        @default(5)
+  timeoutMs       Int                        @default(10000)
+  lastTriggeredAt DateTime?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+
+  deliveries      IntegrationWebhookDelivery[]
+
+  @@index([integrationId, eventType, isActive])
+}
+
+model IntegrationWebhookDelivery {
+  id              String                     @id @default(uuid())
+  endpointId      String
+  endpoint        IntegrationWebhookEndpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+  integrationId   String
+  integration     Integration                @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  eventType       String
+  payload         Json
+  idempotencyKey  String?
+  status          WebhookDeliveryStatus      @default(PENDING)
+  attempt         Int                        @default(0)
+  maxRetries      Int                        @default(5)
+  httpStatus      Int?
+  errorResponse   String?
+  nextAttemptAt   DateTime?
+  sentAt          DateTime?
+  createdAt       DateTime                   @default(now())
+  updatedAt       DateTime                   @updatedAt
+
+  @@index([status, nextAttemptAt])
+  @@index([integrationId, eventType, createdAt])
+}
+
+model IntegrationFieldMapping {
+  id            String            @id @default(uuid())
+  integrationId String
+  integration   Integration       @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  module        IntegrationModule
+  entityType    IntegrationEntityType
+  sourceField   String
+  targetField   String
+  transformRule Json?
+  defaultValue  String?
+  isCustom      Boolean           @default(false)
+  isRequired    Boolean           @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  @@unique([integrationId, module, entityType, sourceField])
+  @@index([integrationId, module, entityType])
+}
+
+model IntegrationCustomField {
+  id            String              @id @default(uuid())
+  integrationId String
+  integration   Integration         @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  module        IntegrationModule
+  entityType    IntegrationEntityType
+  fieldKey      String
+  label         String
+  dataType      CustomFieldDataType @default(STRING)
+  description   String?
+  totvsFieldCode String?
+  isRequired    Boolean             @default(false)
+  defaultValue  Json?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@unique([integrationId, module, entityType, fieldKey])
+  @@index([integrationId, module, entityType])
+}
+
+model IntegrationEntityMapping {
+  id            String              @id @default(uuid())
+  integrationId String
+  integration   Integration         @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  module        IntegrationModule
+  entityType    IntegrationEntityType
+  internalId    String
+  externalId    String
+  metadata      Json?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@unique([integrationId, module, entityType, externalId])
+  @@index([integrationId, module, entityType, internalId])
+}
+
+model IntegrationEntityData {
+  id            String              @id @default(uuid())
+  integrationId String
+  integration   Integration         @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  module        IntegrationModule
+  entityType    IntegrationEntityType
+  entityId      String
+  data          Json
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@unique([integrationId, module, entityType, entityId])
+  @@index([integrationId, module, entityType])
+}
+
+model IntegrationOrder {
+  id              String      @id @default(uuid())
+  integrationId   String
+  integration     Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  externalOrderId String
+  companyId       String?
+  company         Company?    @relation(fields: [companyId], references: [id], onDelete: SetNull)
+  opportunityId   String?
+  opportunity     Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  status          String      @default("PENDING")
+  currency        String      @default("BRL")
+  totalValue      Float
+  issuedAt        DateTime?
+  payload         Json?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@unique([integrationId, externalOrderId])
+  @@index([companyId, issuedAt])
+}
+
+// === LICENCIAMENTO MULTIEMPRESA ===
+model TenantCompany {
+  id          String              @id @default(uuid())
+  name        String
+  legalName   String?
+  cnpj        String?             @unique
+  email       String?
+  phone       String?
+  status      TenantCompanyStatus @default(PROSPECT)
+  notes       String?
+  accessB2B   Boolean             @default(true)
+  accessB2G   Boolean             @default(false)
+  accessPreSales Boolean          @default(false)
+  accessManagement Boolean        @default(false)
+  accessAutomation Boolean        @default(false)
+  rolePolicyOverrides Json        @default("{}")
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+
+  users       User[]
+  licenses    CompanyLicense[]
+  companies   Company[]
+  products    Product[]
+  opportunities Opportunity[]
+  activities  Activity[]
+  attentionPoints OpportunityAttentionPoint[]
+  learnings   OpportunityLearning[]
+
+  @@index([status, createdAt])
+}
+
+model LicensePlan {
+  id            String              @id @default(uuid())
+  code          String              @unique
+  name          String
+  description   String?
+  billingCycle  LicenseBillingCycle
+  price         Float
+  currency      String              @default("BRL")
+  seatsIncluded Int                 @default(1)
+  isActive      Boolean             @default(true)
+  sortOrder     Int                 @default(0)
+  features      Json                @default("{}")
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  licenses      CompanyLicense[]
+
+  @@index([isActive, sortOrder])
+}
+
+model CompanyLicense {
+  id                  String          @id @default(uuid())
+  tenantCompanyId     String
+  tenantCompany       TenantCompany   @relation(fields: [tenantCompanyId], references: [id], onDelete: Cascade)
+  planId              String
+  plan                LicensePlan     @relation(fields: [planId], references: [id], onDelete: Restrict)
+  status              LicenseStatus   @default(PENDING)
+  seats               Int             @default(1)
+  startDate           DateTime
+  endDate             DateTime
+  priceAtPurchase     Float
+  notes               String?
+  paymentReference    String?         @unique
+  paymentStatus       PaymentStatus   @default(PENDING)
+  paymentConfirmedAt  DateTime?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+
+  @@index([tenantCompanyId, status, endDate])
+  @@index([paymentStatus, createdAt])
 }
 
 // === FUNCIONALIDADES AVANÇADAS ===
@@ -814,8 +1056,132 @@ model ChurnAlert {
   assignedToId String?
   assignedTo   User?       @relation(fields: [assignedToId], references: [id])
   status       AlertStatus @default(ACTIVE)
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+// === ENUMS DO MÓDULO DE PROJETOS ===
+enum ProjectType {
+  B2B
+  B2G
+}
+
+enum ProjectPhaseType {
+  SETUP
+  KICKOFF_INTERNO
+  KICKOFF_EXTERNO
+  EXECUCAO
+  MONITORAMENTO
+  ENCERRAMENTO
+}
+
+enum ProjectStatus {
+  PLANEJADO
+  EM_ANDAMENTO
+  PAUSADO
+  CONCLUIDO
+  CANCELADO
+}
+
+enum ProjectPhaseStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  DELAYED
+  AT_RISK
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+  BLOCKED
+}
+
+enum ProjectRole {
+  PROJECT_MANAGER
+  TECH_LEAD
+  DEVELOPER
+  ANALYST
+  QA
+  ARCHITECT
+  CONSULTANT
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RiskStatus {
+  IDENTIFIED
+  MITIGATING
+  RESOLVED
+  ACCEPTED
+  ESCALATED
+}
+
+enum IssueStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+  ESCALATED
+}
+
+enum AttachmentCategory {
+  CONTRACT
+  DELIVERABLE
+  MINUTES
+  CHANGE_REQUEST
+  ACCEPTANCE
+  OTHER
+}
+
+enum ChangeRequestType {
+  SCOPE
+  SCHEDULE
+  BUDGET
+  QUALITY
+  RESOURCE
+}
+
+enum ChangeRequestStatus {
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  IMPLEMENTED
+}
+
+enum BillingStatus {
+  PENDING
+  INVOICED
+  PAID
+  OVERDUE
+  CANCELLED
+}
+
+enum AcceptanceType {
+  PROVISIONAL
+  FINAL
+}
+
+enum AcceptanceStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CONDITIONALLY_APPROVED
 }
 
 // === CONTRATOS ===
@@ -824,19 +1190,11 @@ model Contract {
   number          String   @unique
   title           String
   description     String?
-  summary         String?  // Resumo dos itens fechados no contrato
   value           Float
-  startDate       DateTime?
-  endDate         DateTime?
+  startDate       DateTime
+  endDate         DateTime
   status          ContractStatus @default(ACTIVE)
   
-  opportunityId String?
-  opportunity Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
-  sourceDocumentId String? @unique
-  sourceOpportunityLabel String?
-  expirationAlert Boolean @default(true)
-  alertDays       Int     @default(30)
-
   // Campos de SLA
   slaResponseTime    Int?     // Tempo de resposta em horas
   slaResolutionTime  Int?     // Tempo de resolução em horas
@@ -881,47 +1239,8 @@ model CompanyDocument {
   companyId    String
   company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
-  opportunityId String?
-  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: Restrict)
-  documentType  String @default("DOCUMENT")
-
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-
-  @@index([companyId, opportunityId])
-}
-
-// === CONFIGURAÇÕES DO SISTEMA ===
-model SystemSetting {
-  id        String   @id @default(uuid())
-  key       String   @unique
-  value     String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-// === AUTOMAÇÕES ===
-model Workflow {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  trigger     WorkflowTrigger
-  active      Boolean  @default(true)
-  conditions  Json
-  actions     Json
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model AutomationRule {
-  id          String   @id @default(uuid())
-  name        String
-  description String?
-  type        AutomationType
-  active      Boolean  @default(true)
-  conditions  Json
-  actions     Json
-  lastRun     DateTime?
 }
 
 // === PRÉ-VENDAS ===
@@ -930,19 +1249,21 @@ model PreSalesRequest {
   numero              String   @unique
   titulo              String
   descricao           String
-  nomeCliente         String?
-  modalidade          String?
+  nomeCliente         String?  // Nome do cliente
+  modalidade          String?  // 'VENDA', 'LOCACAO', 'SERVICO'
   status              PreSalesStatus @default(NOVA)
   prioridade          Priority @default(MEDIUM)
-  tiposPrecificacao   String[]
-  regimeTributario    String?
+  tiposPrecificacao   String[] // ['VENDA', 'LOCACAO', 'SERVICOS']
+  regimeTributario    String?  // 'LUCRO_PRESUMIDO', 'LUCRO_REAL', 'SIMPLES_NACIONAL'
   valorSugerido       Float?
   custoTotal          Float?
   margemLucro         Float?
-  calculoDetalhes     Json?
+  calculoDetalhes     Json?    // Detalhes do cálculo de precificação
   observacoes         String?
   dataAprovacao       DateTime?
   dataRejeicao        DateTime?
+  
+  // Relacionamentos
   solicitanteId       String
   solicitante         User     @relation("PreSalesRequester", fields: [solicitanteId], references: [id])
   leadId              String?
@@ -953,8 +1274,10 @@ model PreSalesRequest {
   aprovadoPor         User?    @relation("PreSalesApprover", fields: [aprovadoPorId], references: [id])
   rejeitadoPorId      String?
   rejeitadoPor        User?    @relation("PreSalesRejecter", fields: [rejeitadoPorId], references: [id])
+  
   items               PreSalesItem[]
   aprovacoes          PreSalesApproval[]
+  
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
@@ -965,12 +1288,13 @@ model PreSalesItem {
   preSalesRequest     PreSalesRequest @relation(fields: [preSalesRequestId], references: [id], onDelete: Cascade)
   productId           String?
   product             Product? @relation("PreSalesProduct", fields: [productId], references: [id])
-  descricao           String?
+  descricao           String?  // Para itens customizados sem produto
   quantidade          Int      @default(1)
   custoUnitario       Float    @default(0)
   precoSugerido       Float    @default(0)
   margemLucro         Float    @default(0)
   observacoes         String?
+  
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
@@ -983,6 +1307,7 @@ model PreSalesApproval {
   aprovador           User     @relation("PreSalesApprovalApprover", fields: [aprovadorId], references: [id])
   status              ApprovalStatus
   observacoes         String?
+  
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
 }
@@ -1063,6 +1388,7 @@ model BidNotice {
   createdByName     String?
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
+
   history           BidNoticeHistory[]
 }
 
@@ -1090,170 +1416,19 @@ model SavedAnalysis {
   summaryPdfDataUri   String?
   createdAt           DateTime @default(now())
   updatedAt           DateTime @updatedAt
+
   @@unique([companyId, analysisId])
   @@index([companyId, createdByUserId])
   @@index([createdAt])
 }
 
-// === GESTÃO DE KICKOFF ===
-model KickoffTemplate {
-  id          String       @id @default(uuid())
-  name        String
-  description String?
-  phase       KickoffPhase
-  isDefault   Boolean      @default(false)
-  isActive    Boolean      @default(true)
-  agenda      Json         @default("[]")
-  checklist   Json         @default("[]")
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-
-  meetings    KickoffMeeting[]
-
-  @@index([phase])
-  @@index([isActive])
-}
-
-model KickoffMeeting {
-  id            String        @id @default(uuid())
-  number        String        @unique
-  title         String
-  description   String?
-  phase         KickoffPhase
-  status        KickoffStatus @default(AGENDADA)
-  platform      KickoffPlatform @default(MEET)
-  meetingLink   String?
-  scheduledDate DateTime
-  startTime     String?
-  endTime       String?
-  meetingNotes  String?
-  actualStartTime DateTime?
-  actualEndTime   DateTime?
-  googleCalendarEventId String?
-  googleCalendarId      String?
-
-  opportunityId String
-  opportunity   Opportunity @relation(fields: [opportunityId], references: [id])
-  companyId     String
-  company       Company     @relation(fields: [companyId], references: [id])
-  ownerId       String
-  owner         User        @relation("KickoffOwner", fields: [ownerId], references: [id])
-  templateId    String?
-  template      KickoffTemplate? @relation(fields: [templateId], references: [id])
-
-  participants  KickoffParticipant[]
-  agendaItems   KickoffAgendaItem[]
-  checklistItems KickoffChecklistItem[]
-  actionItems   KickoffActionItem[]
-  history       KickoffHistory[]
-
+// === CONFIGURAÇÕES DO SISTEMA ===
+model SystemSetting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  @@index([opportunityId])
-  @@index([companyId])
-  @@index([phase, status])
-  @@index([scheduledDate])
-}
-
-model KickoffParticipant {
-  id        String @id @default(uuid())
-  meetingId String
-  meeting   KickoffMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-  userId    String?
-  user      User?  @relation("KickoffParticipantUser", fields: [userId], references: [id], onDelete: SetNull)
-  contactId String?
-  contact   Contact? @relation("KickoffParticipantContact", fields: [contactId], references: [id], onDelete: SetNull)
-  role      KickoffParticipantRole @default(INTERNO)
-  status    KickoffParticipantStatus @default(CONVIDADO)
-  isRequired Boolean @default(true)
-  createdAt DateTime @default(now())
-
-  @@index([meetingId])
-  @@index([userId])
-  @@index([contactId])
-}
-
-model KickoffAgendaItem {
-  id              String @id @default(uuid())
-  meetingId       String
-  meeting         KickoffMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-  title           String
-  description     String?
-  tratativa       String?
-  durationMinutes Int    @default(15)
-  order           Int    @default(0)
-  createdAt       DateTime @default(now())
-
-  @@index([meetingId])
-}
-
-model KickoffChecklistItem {
-  id            String @id @default(uuid())
-  meetingId     String
-  meeting       KickoffMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-  title         String
-  isCompleted   Boolean @default(false)
-  completedAt   DateTime?
-  completedById String?
-  completedBy   User?  @relation("KickoffChecklistCompletedBy", fields: [completedById], references: [id], onDelete: SetNull)
-  order         Int    @default(0)
-  createdAt     DateTime @default(now())
-
-  @@index([meetingId])
-}
-
-model KickoffActionItem {
-  id          String @id @default(uuid())
-  meetingId   String
-  meeting     KickoffMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-  title       String
-  description String?
-  status      KickoffActionStatus @default(PENDENTE)
-  priority    Priority @default(MEDIUM)
-  dueDate     DateTime?
-  assigneeId  String?
-  assignee    User?  @relation("KickoffActionAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
-  taskId      String?
-  completedAt DateTime?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([meetingId])
-  @@index([assigneeId])
-  @@index([status, dueDate])
-}
-
-model KickoffHistory {
-  id          String @id @default(uuid())
-  meetingId   String
-  meeting     KickoffMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
-  eventType   String
-  title       String
-  description String?
-  data        Json?
-  userId      String?
-  user        User?  @relation("KickoffHistoryUser", fields: [userId], references: [id], onDelete: SetNull)
-  createdAt   DateTime @default(now())
-
-  @@index([meetingId])
-  @@index([meetingId, createdAt])
-}
-
-// === GOOGLE CALENDAR INTEGRATION ===
-model GoogleToken {
-  id           String   @id @default(uuid())
-  userId       String   @unique
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accessToken  String
-  refreshToken String
-  scope        String
-  expiryDate   DateTime
-  calendarId   String   @default("primary")
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-
-  @@index([userId])
 }
 
 // === ENUMS ===
@@ -1262,12 +1437,11 @@ enum Role {
   ADMIN
   MANAGER
   DIRECTOR
-  SDR
   SELLER
   USER
+  PRE_SALES
   USER_B2B
   USER_B2G
-  PRE_SALES
 }
 
 enum Stage {
@@ -1312,6 +1486,7 @@ enum ActivityType {
   EMAIL
   TASK
   FOLLOW_UP
+  SOLICITACAO_ORCAMENTO
 }
 
 enum ActivityStatus {
@@ -1337,6 +1512,11 @@ enum ProposalStatus {
   EXPIRED
 }
 
+enum ProposalType {
+  COMMERCIAL
+  TECHNICAL
+}
+
 enum CommissionStatus {
   PENDING
   APPROVED
@@ -1351,6 +1531,107 @@ enum IntegrationType {
   VOIP
   API_EXTERNAL
   WEBHOOK
+}
+
+enum IntegrationProvider {
+  TOTVS
+  SAP
+  SENIOR
+  GENERIC_ERP
+  CUSTOM
+}
+
+enum PartnerTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+}
+
+enum IntegrationModule {
+  B2B
+  B2G
+  PRE_SALES
+}
+
+enum IntegrationEntityType {
+  CUSTOMER
+  PRICE_TABLE
+  PRODUCT
+  ORDER
+  LEAD
+  OPPORTUNITY
+  BID_NOTICE
+  BID_DOCUMENT
+  CONTRACT
+}
+
+enum TenantCompanyStatus {
+  PROSPECT
+  ACTIVE
+  SUSPENDED
+  CANCELED
+}
+
+enum LicenseBillingCycle {
+  MONTHLY
+  QUARTERLY
+  SEMIANNUAL
+  ANNUAL
+}
+
+enum LicenseStatus {
+  PENDING
+  ACTIVE
+  SUSPENDED
+  EXPIRED
+  CANCELED
+}
+
+enum PaymentStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  REFUNDED
+}
+
+enum AttentionSeverity {
+  BAIXA
+  MEDIA
+  ALTA
+  CRITICA
+}
+
+enum AttentionStatus {
+  PENDENTE
+  RESOLVIDO
+}
+
+enum LearningCategory {
+  NEGOCIACAO
+  CONCORRENCIA
+  EDITAL_JURIDICO
+  ESCOPO_TECNICO
+  PERDA_DE_DEAL
+  RELACIONAMENTO
+  PRECIFICACAO
+  OUTRO
+}
+
+enum CustomFieldDataType {
+  STRING
+  NUMBER
+  BOOLEAN
+  DATE
+  JSON
+  OBJECT
+  ARRAY
+}
+
+enum WebhookDeliveryStatus {
+  PENDING
+  SENT
+  FAILED
 }
 
 enum LogStatus {
@@ -1484,25 +1765,6 @@ enum ContractStatus {
   RENEWED
 }
 
-enum WorkflowTrigger {
-  LEAD_CREATED
-  OPPORTUNITY_WON
-  CONTRACT_SIGNED
-  SUPPORT_TICKET
-  NPS_LOW_SCORE
-  CHURN_RISK
-  MANUAL
-}
-
-enum AutomationType {
-  LEAD_DISTRIBUTION
-  FOLLOW_UP
-  TASK_CREATION
-  EMAIL_NOTIFICATION
-  WHATSAPP_NOTIFICATION
-  CHURN_DETECTION
-}
-
 enum PreSalesStatus {
   NOVA
   EM_PRECIFICACAO
@@ -1538,227 +1800,29 @@ enum ClientType {
   B2C
 }
 
-enum TenantCompanyStatus {
-  PROSPECT
-  ACTIVE
-  SUSPENDED
-  CANCELED
+// === CHECKOUT E ASSINATURAS ===
+model PendingSubscription {
+  id                String   @id @default(uuid())
+  planId            String
+  planName          String
+  price             Float
+  companyName       String
+  document          String
+  email             String
+  phone             String
+  responsibleName   String
+  responsibleEmail  String
+  responsiblePhone  String
+  status            String   @default("PENDING") // PENDING, APPROVED, REJECTED, EXPIRED
+  paymentData       Json     @default("{}")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([status])
+  @@index([responsibleEmail])
 }
 
-enum LicenseBillingCycle {
-  MONTHLY
-  QUARTERLY
-  SEMIANNUAL
-  ANNUAL
-}
-
-enum LicenseStatus {
-  PENDING
-  ACTIVE
-  SUSPENDED
-  EXPIRED
-  CANCELED
-}
-
-enum PaymentStatus {
-  PENDING
-  CONFIRMED
-  FAILED
-  REFUNDED
-}
-
-enum KickoffPhase {
-  ENTENDIMENTO_OPORTUNIDADE
-  APRESENTACAO_PROPOSTA
-  FECHAMENTO_PROJETO
-  ALINHAMENTO_INTERNO
-  ALINHAMENTO_EXTERNO
-}
-
-enum KickoffStatus {
-  AGENDADA
-  REALIZADA
-  CANCELADA
-  REAGENDADA
-}
-
-enum KickoffPlatform {
-  MEET
-  TEAMS
-  ZOOM
-  PRESENCIAL
-  TELEFONE
-  OUTRO
-}
-
-enum KickoffParticipantRole {
-  ORGANIZADOR
-  INTERNO
-  EXTERNO
-}
-
-enum KickoffParticipantStatus {
-  CONVIDADO
-  CONFIRMADO
-  RECUSADO
-  PRESENTE
-}
-
-enum KickoffActionStatus {
-  PENDENTE
-  EM_ANDAMENTO
-  CONCLUIDO
-  CANCELADO
-}
-
-// ── Simulador: Propostas comerciais geradas pelas calculadoras ──────────────
-model SimulatorProposal {
-  id                  String   @id @default(uuid())
-  baseId              String
-  version             Int      @default(1)
-  title               String
-  client              String
-  type                String
-  value               Float    @default(0)
-  status              String   @default("Rascunho")
-  forecastTemperature Float?
-  metadata            Json?
-  createdBy           String
-  accountManager      String?
-  distributorId       String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
-
-  @@index([baseId])
-  @@index([createdBy])
-  @@index([type])
-}
-
-// === MÓDULO DE PROJETOS - Enums ===
-enum ProjectType {
-  B2B
-  B2G
-}
-
-enum ProjectPhaseType {
-  SETUP
-  KICKOFF_INTERNO
-  KICKOFF_EXTERNO
-  EXECUCAO
-  MONITORAMENTO
-  ENCERRAMENTO
-}
-
-enum ProjectStatus {
-  PLANEJADO
-  EM_ANDAMENTO
-  PAUSADO
-  CONCLUIDO
-  CANCELADO
-}
-
-enum ProjectPhaseStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  SKIPPED
-}
-
-enum MilestoneStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  DELAYED
-  AT_RISK
-}
-
-enum TaskStatus {
-  TODO
-  IN_PROGRESS
-  REVIEW
-  DONE
-  BLOCKED
-}
-
-enum ProjectRole {
-  PROJECT_MANAGER
-  TECH_LEAD
-  DEVELOPER
-  ANALYST
-  QA
-  ARCHITECT
-  CONSULTANT
-}
-
-enum RiskLevel {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
-
-enum RiskStatus {
-  IDENTIFIED
-  MITIGATING
-  RESOLVED
-  ACCEPTED
-  ESCALATED
-}
-
-enum IssueStatus {
-  OPEN
-  IN_PROGRESS
-  RESOLVED
-  CLOSED
-  ESCALATED
-}
-
-enum AttachmentCategory {
-  CONTRACT
-  DELIVERABLE
-  MINUTES
-  CHANGE_REQUEST
-  ACCEPTANCE
-  OTHER
-}
-
-enum ChangeRequestType {
-  SCOPE
-  SCHEDULE
-  BUDGET
-  QUALITY
-  RESOURCE
-}
-
-enum ChangeRequestStatus {
-  SUBMITTED
-  UNDER_REVIEW
-  APPROVED
-  REJECTED
-  IMPLEMENTED
-}
-
-enum BillingStatus {
-  PENDING
-  INVOICED
-  PAID
-  OVERDUE
-  CANCELLED
-}
-
-enum AcceptanceType {
-  PROVISIONAL
-  FINAL
-}
-
-enum AcceptanceStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  CONDITIONALLY_APPROVED
-}
-
-// === MÓDULO DE PROJETOS - Models ===
+// === MÓDULO DE PROJETOS ===
 model Project {
   id              String   @id @default(uuid())
   number          String   @unique
@@ -1937,23 +2001,23 @@ model ProjectTimelog {
   id              String   @id @default(uuid())
   projectId       String
   project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  taskId          String?
-  task            ProjectTask? @relation(fields: [taskId], references: [id], onDelete: SetNull)
-  teamId          String
-  team            ProjectTeam @relation(fields: [teamId], references: [id])
+  taskId          String
+  task            ProjectTask @relation(fields: [taskId], references: [id])
+  teamId          String?
+  team            ProjectTeam? @relation(fields: [teamId], references: [id])
   userId          String
   user            User     @relation(fields: [userId], references: [id])
+  logDate         DateTime
   hours           Float
-  date            DateTime @default(now())
   description     String?
   billable        Boolean  @default(true)
+
   createdAt       DateTime @default(now())
 
   @@index([projectId])
   @@index([taskId])
-  @@index([teamId])
   @@index([userId])
-  @@index([date])
+  @@index([logDate])
 }
 
 model ProjectRisk {
@@ -1964,10 +2028,13 @@ model ProjectRisk {
   description     String?
   level           RiskLevel @default(MEDIUM)
   status          RiskStatus @default(IDENTIFIED)
-  probability     Int      @default(50)
-  impact          Int      @default(50)
+  impact          String?
   mitigationPlan  String?
-  owner           String?
+  ownerId         String?
+  owner           User?    @relation(fields: [ownerId], references: [id])
+  identifiedDate  DateTime @default(now())
+  resolvedDate    DateTime?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -1981,19 +2048,24 @@ model ProjectIssue {
   projectId       String
   project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   taskId          String?
-  task            ProjectTask? @relation(fields: [taskId], references: [id], onDelete: SetNull)
+  task            ProjectTask? @relation(fields: [taskId], references: [id])
   title           String
   description     String?
   status          IssueStatus @default(OPEN)
   priority        Priority @default(MEDIUM)
-  assignedTo      String?
-  resolution      String?
+  reportedById    String?
+  reportedBy      User?    @relation("IssueReporter", fields: [reportedById], references: [id])
+  assignedToId    String?
+  assignedTo      User?    @relation("IssueAssignee", fields: [assignedToId], references: [id])
+  reportedDate    DateTime @default(now())
+  resolvedDate    DateTime?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   @@index([projectId])
-  @@index([taskId])
   @@index([status])
+  @@index([priority])
 }
 
 model ProjectAttachment {
@@ -2004,36 +2076,36 @@ model ProjectAttachment {
   originalName    String
   mimeType        String
   size            Int
+  path            String
   category        AttachmentCategory @default(OTHER)
-  description     String?
-  uploadedBy      String
+
   createdAt       DateTime @default(now())
 
   @@index([projectId])
-  @@index([category])
 }
 
 model ProjectChangeRequest {
   id              String   @id @default(uuid())
   projectId       String
   project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  number          String
   title           String
   description     String?
   type            ChangeRequestType @default(SCOPE)
   status          ChangeRequestStatus @default(SUBMITTED)
-  impact          String?
-  costImpact      Float    @default(0)
-  scheduleImpact  Int      @default(0)
-  requestedBy     String
-  reviewedBy      String?
-  decisionDate    DateTime?
+  impactCost      Float    @default(0)
+  impactDays      Int      @default(0)
+  requestedById   String?
+  requestedBy     User?    @relation("CRRequester", fields: [requestedById], references: [id])
+  approvedById    String?
+  approvedBy      User?    @relation("CRApprover", fields: [approvedById], references: [id])
+  justification   Json     @default("{}")
+  decidedAt       DateTime?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   @@index([projectId])
   @@index([status])
-  @@index([type])
 }
 
 model ProjectBilling {
@@ -2041,19 +2113,20 @@ model ProjectBilling {
   projectId       String
   project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   milestoneId     String?
-  milestone       ProjectMilestone? @relation(fields: [milestoneId], references: [id], onDelete: SetNull)
-  number          String
-  description     String?
+  milestone       ProjectMilestone? @relation(fields: [milestoneId], references: [id])
+  invoiceNumber   String?
   amount          Float
+  tax             Float    @default(0)
+  totalAmount     Float
   status          BillingStatus @default(PENDING)
   dueDate         DateTime?
-  paidDate        DateTime?
-  invoiceRef      String?
+  paidAt          DateTime?
+  invoiceData     Json     @default("{}")
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
   @@index([projectId])
-  @@index([milestoneId])
   @@index([status])
 }
 
@@ -2063,11 +2136,13 @@ model ProjectAcceptance {
   project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
   type            AcceptanceType @default(PROVISIONAL)
   status          AcceptanceStatus @default(PENDING)
-  description     String?
-  criteria        Json     @default("[]")
-  decisionDate    DateTime?
-  decidedBy       String?
-  conditions      String?
+  documentNumber  String?
+  checklist       Json     @default("[]")
+  approvedById    String?
+  approvedBy      User?    @relation("AcceptanceApprover", fields: [approvedById], references: [id])
+  approvedAt      DateTime?
+  notes           String?
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 
@@ -2080,14 +2155,17 @@ model ProjectB2GConfig {
   id              String   @id @default(uuid())
   projectId       String   @unique
   project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  modality        String?
-  publicationDate DateTime?
-  proposalDeadline DateTime?
-  siteVisitDate   DateTime?
-  technicalProposal Json   @default("{}")
-  economicProposal  Json   @default("{}")
-  biddingMinutes  Json     @default("[]")
-  status          String   @default("PREPARING")
+  empenhoNumber   String?
+  empenhoValue    Float    @default(0)
+  ordemServicoNumber String?
+  editalNumber    String?
+  orgaoCNPJ       String?
+  fiscalContrato  String?
+  gestorContrato  String?
+  medicoes        Json     @default("[]")
+  aditivos        Json     @default("[]")
+  conformidade    Json     @default("{}")
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
 }
@@ -2096,14 +2174,96 @@ model ProjectB2BConfig {
   id              String   @id @default(uuid())
   projectId       String   @unique
   project         Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  contractType    String?
-  paymentTerms    String?
-  slaTerms        Json     @default("{}")
-  deliverables    Json     @default("[]")
-  acceptanceCriteria Json  @default("[]")
-  status          String   @default("NEGOTIATION")
+  slaConfig       Json     @default("{}")
+  slaHistory      Json     @default("[]")
+  billingSchedule Json     @default("[]")
+  timesheetConfig Json     @default("{}")
+  contractMargin  Float    @default(0)
+  realizedMargin  Float    @default(0)
+
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+// === INTEGRAÇÃO PNCP ===
+model LicitacaoPncp {
+  // Campos de identificação PNCP
+  id                          String   @id @default(uuid())
+  numeroControlePncp          String   @unique @map("numero_controle_pncp") // Chave única do PNCP
+  numeroCompra                String?  @map("numero_compra")
+  anoCompra                   Int?     @map("ano_compra")
+  processo                    String?
+  sequencialCompra            Int?     @map("sequencial_compra")
+  
+  // Informações básicas da licitação
+  objetoCompra                String?  @map("objeto_compra")
+  informacaoComplementar      String?  @map("informacao_complementar")
+  valorTotalEstimado          Decimal  @default(0) @map("valor_total_estimado") @db.Decimal(15, 4)
+  valorTotalHomologado        Decimal  @default(0) @map("valor_total_homologado") @db.Decimal(15, 4)
+  srp                         Boolean  @default(false) // Sistema de Registro de Preços
+  
+  // Tipo de instrumento e modalidade
+  tipoInstrumentoConvocatorioId   Int?     @map("tipo_instrumento_convocatorio_id")
+  tipoInstrumentoConvocatorioNome String?  @map("tipo_instrumento_convocatorio_nome")
+  modalidadeId                    Int?     @map("modalidade_id")
+  modalidadeNome                  String?  @map("modalidade_nome")
+  modoDisputaId                   Int?     @map("modo_disputa_id")
+  modoDisputaNome                 String?  @map("modo_disputa_nome")
+  
+  // Situação da licitação
+  situacaoCompraId            Int?     @map("situacao_compra_id")
+  situacaoCompraNome          String?  @map("situacao_compra_nome")
+  
+  // Amparo legal (estrutura JSON)
+  amparoLegal                 Json?    @map("amparo_legal")
+  
+  // Datas importantes
+  dataAberturaProposta        DateTime? @map("data_abertura_proposta")
+  dataEncerramentoProposta    DateTime? @map("data_encerramento_proposta")
+  dataPublicacaoPncp          DateTime? @map("data_publicacao_pncp") @db.Date
+  dataInclusaoPncp            DateTime? @map("data_inclusao_pncp") @db.Date
+  dataAtualizacaoPncp         DateTime? @map("data_atualizacao_pncp") @db.Date
+  
+  // Dados do órgão (estrutura JSON)
+  orgaoEntidade               Json?    @map("orgao_entidade")
+  unidadeOrgao                Json?    @map("unidade_orgao")
+  
+  // Dados do órgão sub-rogado (estrutura JSON)
+  orgaoSubRogado              Json?    @map("orgao_sub_rogado")
+  unidadeSubRogada            Json?    @map("unidade_sub_rogada")
+  
+  // Informações complementares
+  usuarioNome                 String?  @map("usuario_nome")
+  linkSistemaOrigem           String?  @map("link_sistema_origem")
+  justificativaPresencial     String?  @map("justificativa_presencial")
+  
+  // Campos de controle interno
+  origemDados                 String   @default("PNCP_API") @map("origem_dados")
+  statusProcessamento         StatusProcessamentoPncp @default(NOVO) @map("status_processamento")
+  metadataProcessamento       Json?    @map("metadata_processamento")
+  hashVerificacao             String?  @map("hash_verificacao")
+  
+  // Timestamps padrão
+  createdAt                   DateTime @default(now()) @map("created_at")
+  updatedAt                   DateTime @updatedAt @map("updated_at")
+
+  @@index([numeroControlePncp])
+  @@index([dataPublicacaoPncp])
+  @@index([modalidadeId, modalidadeNome])
+  @@index([situacaoCompraId])
+  @@index([dataAberturaProposta, dataEncerramentoProposta])
+  @@index([valorTotalEstimado])
+  @@index([statusProcessamento, createdAt])
+  @@index([anoCompra])
+  @@map("licitacoes_pncp")
+}
+
+// === ENUMS PARA LICITAÇÕES PNCP ===
+enum StatusProcessamentoPncp {
+  NOVO
+  PROCESSADO
+  ERRO
+  REPROCESSAR
 }
 
 // === TABELA DE AUDITORIA CORPORATIVA (AUDIT_LOGS) ===
@@ -2128,34 +2288,195 @@ model AuditLog {
   @@map("audit_logs")
 }
 
-// OAuth credentials never leave the server. userId is checked against the active tenant before use.
-model LeadCalendarConnection {
-  id String @id @default(uuid())
-  userId String
-  provider String
-  credentials String
-  lastError String?
-  lastSyncedAt DateTime?
-  updatedAt DateTime @updatedAt
-  @@unique([userId, provider])
+// === GESTÃO DE KICKOFF ===
+enum KickoffPhase {
+  ENTENDIMENTO_OPORTUNIDADE
+  APRESENTACAO_PROPOSTA
+  FECHAMENTO_PROJETO
+  ALINHAMENTO_INTERNO
+  ALINHAMENTO_EXTERNO
 }
 
-model LeadCalendarOAuthState {
-  hash String @id
-  userId String
-  provider String
-  verifier String
-  expiresAt DateTime
+enum KickoffMeetingStatus {
+  AGENDADA
+  REALIZADA
+  CANCELADA
+  REAGENDADA
 }
 
-model LeadCalendarEvent {
-  id String @id @default(uuid())
-  companyId String
-  userId String
-  provider String
-  eventId String
-  version String
-  reminderVersion String?
+enum KickoffPlatform {
+  MEET
+  TEAMS
+  ZOOM
+  PRESENCIAL
+  TELEFONE
+  OUTRO
+}
+
+enum KickoffParticipantRole {
+  ORGANIZADOR
+  INTERNO
+  EXTERNO
+}
+
+enum KickoffParticipantStatus {
+  CONVIDADO
+  CONFIRMADO
+  RECUSADO
+  PRESENTE
+}
+
+enum KickoffActionItemStatus {
+  PENDENTE
+  EM_ANDAMENTO
+  CONCLUIDO
+  CANCELADO
+}
+
+// Modelo base de pauta/checklist dos templates de kickoff
+model KickoffTemplate {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  phase       KickoffPhase
+  agenda      Json     @default("[]")
+  checklist   Json     @default("[]")
+  isDefault   Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  meetings KickoffMeeting[]
+
+  @@index([phase])
+  @@index([isActive, isDefault])
+}
+
+model KickoffMeeting {
+  id             String   @id @default(uuid())
+  number         String   @unique
+  title          String
+  description    String?
+  phase          KickoffPhase
+  status         KickoffMeetingStatus @default(AGENDADA)
+  platform       KickoffPlatform @default(MEET)
+  meetingLink    String?
+  meetingNotes   String?
+  scheduledDate  DateTime
+  startTime      String?
+  endTime        String?
+  actualStartTime DateTime?
+  actualEndTime  DateTime?
+
+  opportunityId String
+  opportunity   Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  companyId     String
+  company       Company     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  ownerId       String
+  owner         User        @relation("KickoffMeetingOwner", fields: [ownerId], references: [id])
+  templateId    String?
+  template      KickoffTemplate? @relation(fields: [templateId], references: [id], onDelete: SetNull)
+
+  participants   KickoffParticipant[]
+  agendaItems    KickoffAgendaItem[]
+  checklistItems KickoffChecklistItem[]
+  actionItems    KickoffActionItem[]
+  history        KickoffHistory[]
+
+  createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  @@unique([companyId, userId, provider])
+
+  @@index([status])
+  @@index([phase])
+  @@index([opportunityId])
+  @@index([companyId])
+  @@index([ownerId])
+  @@index([scheduledDate])
+  @@index([createdAt])
+}
+
+model KickoffParticipant {
+  id         String   @id @default(uuid())
+  meetingId  String
+  meeting    KickoffMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  userId     String?
+  user       User?    @relation("KickoffParticipantUser", fields: [userId], references: [id], onDelete: Cascade)
+  contactId  String?
+  contact    Contact? @relation("KickoffParticipantContact", fields: [contactId], references: [id], onDelete: Cascade)
+  role       KickoffParticipantRole @default(INTERNO)
+  status     KickoffParticipantStatus @default(CONVIDADO)
+  isRequired Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([meetingId])
+  @@index([userId])
+  @@index([contactId])
+}
+
+model KickoffAgendaItem {
+  id              String   @id @default(uuid())
+  meetingId       String
+  meeting         KickoffMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  title           String
+  description     String?
+  tratativa       String?
+  durationMinutes Int      @default(15)
+  order           Int      @default(1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([meetingId, order])
+}
+
+model KickoffChecklistItem {
+  id            String   @id @default(uuid())
+  meetingId     String
+  meeting       KickoffMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  title         String
+  order         Int      @default(1)
+  isCompleted   Boolean  @default(false)
+  completedAt   DateTime?
+  completedById String?
+  completedBy   User?    @relation("KickoffChecklistCompleter", fields: [completedById], references: [id], onDelete: SetNull)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([meetingId, order])
+}
+
+model KickoffActionItem {
+  id          String   @id @default(uuid())
+  meetingId   String
+  meeting     KickoffMeeting @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  title       String
+  description String?
+  status      KickoffActionItemStatus @default(PENDENTE)
+  priority    Priority @default(MEDIUM)
+  dueDate     DateTime?
+  completedAt DateTime?
+  assigneeId  String?
+  assignee    User?    @relation("KickoffActionAssignee", fields: [assigneeId], references: [id], onDelete: SetNull)
+  taskId      String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([meetingId])
+  @@index([assigneeId, status])
+}
+
+model KickoffHistory {
+  id          String   @id @default(uuid())
+  meetingId   String?
+  meeting     KickoffMeeting? @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  userId      String?
+  user        User?    @relation("KickoffHistoryUser", fields: [userId], references: [id], onDelete: SetNull)
+  eventType   String
+  title       String
+  description String?
+  data        Json?
+  createdAt   DateTime @default(now())
+
+  @@index([meetingId, createdAt])
+  @@index([userId])
 }
