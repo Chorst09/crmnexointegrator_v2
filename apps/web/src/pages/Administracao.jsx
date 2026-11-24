@@ -2725,12 +2725,12 @@ export default function Administracao() {
                   <div className="flex items-center gap-2 text-[rgb(var(--crm-ink-rgb)_/_1)]">
                     <span className="font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)]">🌐 Domínio Produção:</span>
                     <a
-                      href="http://double.chorstconsult.com.br"
+                      href="http://nexos.chorstconsult.com.br"
                       target="_blank"
                       rel="noreferrer"
                       className="text-cyan-700 dark:text-cyan-400 underline font-mono hover:text-cyan-700 dark:hover:text-cyan-300"
                     >
-                      http://double.chorstconsult.com.br
+                      http://nexos.chorstconsult.com.br
                     </a>
                   </div>
                   <div className="flex items-center gap-2 text-[rgb(var(--crm-ink-rgb)_/_1)] font-mono text-[11px]">

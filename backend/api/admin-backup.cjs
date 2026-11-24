@@ -952,7 +952,7 @@ router.get('/routine-status', async (_req, res) => {
       cronExpression: '30 2 * * *',
       database: 'doublecrm',
       databasePort: 5433,
-      domain: 'double.chorstconsult.com.br',
+      domain: 'nexos.chorstconsult.com.br',
       retentionDays: 14,
       backupDir,
       logFile,

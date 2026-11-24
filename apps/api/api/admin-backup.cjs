@@ -1145,7 +1145,7 @@ router.get('/routine-status', async (_req, res) => {
       cronExpression: '0 17 * * 1-5',
       database: 'nexoscrm',
       databasePort: 5433,
-      domain: 'nexosv2.chorstconsult.com.br',
+      domain: 'nexos.chorstconsult.com.br',
       retentionDays: 30,
       backupDir,
       logFile,
