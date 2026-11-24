@@ -281,6 +281,23 @@ app.use((req, res, next) => {
 
 // Expor apenas assets públicos do sistema. Documentos e anexos passam por rotas autenticadas.
 app.use('/uploads/system', express.static(path.join(__dirname, 'uploads/system')));
+// Fallback para imagens e logos ausentes em /uploads/system
+app.use('/uploads/system', (req, res, next) => {
+  if (/\.(png|jpg|jpeg|svg|webp|ico)$/i.test(req.path)) {
+    const candidates = [
+      path.join(__dirname, 'uploads/system', path.basename(req.path)),
+      path.join(__dirname, '../web/dist/double-logo.png'),
+      path.join(__dirname, '../web/public/double-logo.png'),
+      path.join(__dirname, 'public/double-logo.png')
+    ];
+    for (const candidate of candidates) {
+      if (fs.existsSync(candidate)) {
+        return res.sendFile(candidate);
+      }
+    }
+  }
+  next();
+});
 
 // Rotas públicas
 const leadCalendar = require('./lib/lead-calendar.cjs').createLeadCalendar({ prisma: require('./lib/prisma.cjs').prisma, authenticateToken });

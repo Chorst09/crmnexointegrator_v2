@@ -92,7 +92,7 @@ const sanitizeUser = (user) => {
     id: user.id,
     name: user.name,
     email: user.email,
-    phone: user.phone || null,
+    phone: null,
     role,
     region: user.region,
     regionId: user.regionId || user.region?.id || null,
@@ -134,7 +134,6 @@ export default async function handler(req) {
           id: true,
           name: true,
           email: true,
-        phone: true,
           role: true,
           regionId: true,
           region: { select: { id: true, name: true, code: true } },
@@ -185,7 +184,6 @@ export default async function handler(req) {
         id: true,
         name: true,
         email: true,
-        phone: true,
         role: true,
         regionId: true,
         region: {
@@ -283,7 +281,6 @@ export default async function handler(req) {
       data: {
         name: body.name,
         email: normalizedEmail,
-        phone: String(body.phone || '').trim() || null,
         password: hashedPassword,
         role,
         regionId: body.regionId || null,
@@ -310,7 +307,6 @@ export default async function handler(req) {
         id: true,
         name: true,
         email: true,
-        phone: true,
         role: true,
         regionId: true,
         region: {
@@ -354,7 +350,6 @@ export default async function handler(req) {
       select: {
         id: true,
         email: true,
-        phone: true,
         role: true,
         tenantCompanyId: true,
         isCompanyOwner: true
@@ -401,7 +396,6 @@ export default async function handler(req) {
 
     const updateData = {
       name: body.name,
-      phone: body.phone === undefined ? undefined : (String(body.phone || '').trim() || null),
       role: nextRole,
       regionId: body.regionId || null,
       quota: body.quota,
@@ -459,7 +453,6 @@ export default async function handler(req) {
         id: true,
         name: true,
         email: true,
-        phone: true,
         role: true,
         regionId: true,
         region: {

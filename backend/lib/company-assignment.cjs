@@ -14,10 +14,10 @@ async function resolveCompanyAssignment(prisma, user, body, tenantCompanyId, cre
   const ownerTenant = tenantCompanyId || user.tenantCompanyId || null;
   const owner = await prisma.user.findFirst({
     where: { id, tenantCompanyId: ownerTenant },
-    select: { id: true, name: true, email: true, phone: true, role: true }
+    select: { id: true, name: true, email: true, role: true }
   });
   if (!owner) return { error: 'Responsável inválido para esta empresa.' };
-  return { data: { accountManagerId: owner.id, accountManagerName: owner.name, accountManagerEmail: owner.email || null, accountManagerPhone: owner.phone || null, accountManagerPosition: owner.role || null } };
+  return { data: { accountManagerId: owner.id, accountManagerName: owner.name, accountManagerEmail: owner.email || null, accountManagerPhone: null, accountManagerPosition: owner.role || null } };
 }
 
 module.exports = { resolveCompanyAssignment };
