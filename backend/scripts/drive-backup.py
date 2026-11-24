@@ -63,32 +63,38 @@ def digest(p):
             h.update(block)
     return h.hexdigest()
 
-def get_db_name():
-    for candidate in ['doublecrm', 'nexoscrm']:
+def get_db_info():
+    candidates = [
+        ('postgresql_17', 'nexos_icp', 'nexos_icp'),
+        ('nexoscrm-postgres', 'nexoscrm', 'doublecrm'),
+        ('nexoscrm-postgres', 'nexoscrm', 'nexoscrm'),
+        ('postgresql_17', 'postgres', 'postgres')
+    ]
+    for container, user, dbname in candidates:
         try:
-            res = subprocess.run(['docker', 'exec', '-i', CONTAINER, 'psql', '-U', 'nexoscrm', '-d', candidate, '-c', 'SELECT 1;'],
+            res = subprocess.run(['docker', 'exec', '-i', container, 'psql', '-U', user, '-d', dbname, '-c', 'SELECT 1;'],
                                  capture_output=True, timeout=5)
             if res.returncode == 0:
-                return candidate
+                return container, user, dbname
         except Exception:
             pass
-    return 'doublecrm'
-
-def db(*args, **kw):
-    return run(['docker', 'exec', '-i', CONTAINER, *args], **kw)
+    return 'postgresql_17', 'nexos_icp', 'nexos_icp'
 
 def dump_database(target):
+    container, user, dbname = get_db_info()
     for attempt in range(3):
         try:
             with target.open('wb') as out:
-                db('pg_dump', '-U', 'nexoscrm', '-d', get_db_name(), '-Fc', stdout=out)
+                subprocess.run(['docker', 'exec', '-i', container, 'pg_dump', '-U', user, '-d', dbname, '-Fc'],
+                               stdout=out, check=True, timeout=1800)
             with target.open('rb') as src:
-                db('pg_restore', '--list', stdin=src, stdout=subprocess.DEVNULL)
+                subprocess.run(['docker', 'exec', '-i', container, 'pg_restore', '--list'],
+                               stdin=src, stdout=subprocess.DEVNULL, check=True, timeout=120)
             return
         except (subprocess.CalledProcessError, subprocess.TimeoutExpired):
             if attempt == 2:
                 raise
-            time.sleep(20)
+            time.sleep(10)
 
 def backup(upload=True):
     state(running=True, startedAt=dt.datetime.now(dt.timezone.utc).isoformat(), error=None)
@@ -97,19 +103,30 @@ def backup(upload=True):
     with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
         work = Path(tmp)
         dump_database(work / 'database.dump')
-        roots = ['var/www/nexoscrm/.env', 'var/www/nexoscrm/docker-compose.yml',
-                 'var/www/nexoscrm/backend', 'var/www/nexoscrm/apps/api',
-                 'var/www/nexoscrm/frontend/dist', 'var/www/site-double/apache.conf']
+        roots = [
+            'var/lib/docker/volumes/nexos-icp-uploads/_data',
+            'var/lib/docker/volumes/nexos-icp-attachments/_data',
+            'opt/nexos-icp-config',
+            'opt/nexos-icp-github/apps/api',
+            'opt/nexos-icp-github/deploy',
+            'var/www/nexoscrm/.env',
+            'var/www/nexoscrm/docker-compose.yml',
+            'var/www/nexoscrm/backend',
+            'var/www/nexoscrm/apps/api',
+            'var/www/nexoscrm/frontend/dist',
+            'var/www/site-double/apache.conf'
+        ]
         existing = [p for p in roots if Path('/' + p).exists()]
         run(['tar', '--dereference', '-czf', str(work / 'files.tar.gz'), '--exclude=node_modules',
              '--exclude=.git', '--exclude=*.tar.gz', '--exclude=*.dump', '--exclude=*.log',
              '--exclude=*.pre-doublecrm-*', '-C', '/', *existing])
+        container, user, dbname = get_db_info()
         (work / 'manifest.json').write_text(json.dumps({
-            'format': 'nexos-drive-v1', 'database': 'doublecrm',
+            'format': 'nexos-drive-v1', 'database': dbname,
             'createdAt': dt.datetime.now(dt.timezone.utc).isoformat(),
             'sha256': {n: digest(work / n) for n in ['database.dump', 'files.tar.gz']},
             'paths': existing, 'excluded': ['node_modules', '.git', 'old archives'],
-            'restore': '/var/www/nexoscrm/backend/scripts/drive-backup.py restore <name> RESTAURAR_DOUBLECRM'
+            'restore': f'/opt/nexos-icp-github/apps/api/scripts/drive-backup.py restore <name> RESTAURAR_NEXOS'
         }, indent=2))
         target = ROOT / name
         partial = ROOT / (name + '.partial')
@@ -125,7 +142,7 @@ def backup(upload=True):
         rc('mkdir', REMOTE)
         rc('copyto', str(target), REMOTE + '/' + name)
         rc('copyto', str(ROOT / (name + '.sha256')), REMOTE + '/' + name + '.sha256')
-        rc('copyto', str(Path(__file__).resolve()), REMOTE + '/RESTORE-doublecrm.py')
+        rc('copyto', str(Path(__file__).resolve()), REMOTE + '/RESTORE-nexos.py')
         # Verify the remote bytes, not just an upload response.
         with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
             check = Path(tmp) / name

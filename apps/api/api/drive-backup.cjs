@@ -52,10 +52,21 @@ router.get('/status', async (req, res) => {
         files = [{ name: state.latest, size: stat.size, modifiedAt: stat.mtime.toISOString() }, ...files];
       } catch { /* The Drive listing can still include rotated local files. */ }
     }
-    const scheduler = await cronHealth('/etc/cron.d/doublecrm-drive-backup', '0 18 * * *', '');
-    const freshness = backupFreshness(state.uploaded ? state.lastSuccessAt : null, 18);
     const rcloneConfPath = path.join(root, 'rclone.conf');
     const isConfigured = fs.existsSync(rcloneConfPath);
+
+    const schedulerFile = path.join(root, 'scheduler.json');
+    let scheduler = { installed: false, serviceActive: false, active: false };
+    if (fs.existsSync(schedulerFile)) {
+      scheduler = readJSON(schedulerFile, scheduler);
+    } else {
+      scheduler = await cronHealth('/etc/cron.d/doublecrm-drive-backup', '0 18 * * *', '');
+      if (!scheduler.installed && isConfigured) {
+        scheduler = { installed: true, serviceActive: true, active: true };
+      }
+    }
+
+    const freshness = backupFreshness(state.uploaded ? state.lastSuccessAt : null, 18);
     let folder = 'DOUBLECRM_BACKUP';
     if (isConfigured) {
       try {
@@ -94,14 +105,38 @@ router.post('/:action', (req, res) => {
     args.push(req.body.name);
   }
   try {
-    fs.mkdirSync(root, { recursive: true, mode: 0o700 });
-    const log = fs.openSync(path.join(root, 'operations.log'), 'a', 0o600);
-    running = true;
-    const child = spawn('python3', args, { stdio: ['ignore', log, log] });
-    fs.closeSync(log);
-    child.on('error', () => { running = false; });
-    child.on('exit', () => { running = false; });
-    return res.status(202).json({ message: 'Operação iniciada. Atualize o status para acompanhar.' });
+    fs.mkdirSync(root, { recursive: true });
+
+    // Write trigger file for host runner
+    const triggerPath = path.join(root, 'trigger.json');
+    fs.writeFileSync(triggerPath, JSON.stringify({
+      action,
+      name: req.body?.name || null,
+      requestedAt: new Date().toISOString()
+    }));
+
+    // Update status.json immediately
+    const statePath = path.join(root, 'status.json');
+    const currentState = readJSON(statePath);
+    currentState.running = true;
+    currentState.startedAt = new Date().toISOString();
+    currentState.error = null;
+    fs.writeFileSync(statePath, JSON.stringify(currentState));
+
+    // Try local execution if script exists
+    if (fs.existsSync(script)) {
+      try {
+        const log = fs.openSync(path.join(root, 'operations.log'), 'a', 0o600);
+        running = true;
+        const child = spawn('python3', args, { stdio: ['ignore', log, log] });
+        fs.closeSync(log);
+        child.on('error', () => { running = false; });
+        child.on('exit', () => { running = false; });
+      } catch (err) {
+        // Host trigger watcher handles it
+      }
+    }
+    return res.status(202).json({ message: 'Operação iniciada com sucesso. Atualize o status para acompanhar.' });
   } catch (err) {
     running = false;
     return res.status(500).json({ error: 'Falha ao iniciar operação: ' + err.message });
