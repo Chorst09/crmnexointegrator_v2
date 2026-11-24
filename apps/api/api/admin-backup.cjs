@@ -594,38 +594,24 @@ const restoreDatabase = async (backupTables) => {
   const orderedTableNames = await orderTablesForInsert(validTableNames);
   const columnTypesByTable = await readColumnTypes(validTableNames);
 
-  // Usa uma conexão pg dedicada para manter session_replication_role ativo
-  // durante toda a operação. Usa o pg já instalado como dep do Prisma.
-  let pgClient;
-  try {
-    // pg já está disponível via node_modules do Prisma — não precisa estar em package.json
-    const pgPath = require.resolve('pg', { paths: [__dirname, path.join(__dirname, '..', 'node_modules')] });
-    const { Client } = require(pgPath);
-    const dbUrl = process.env.DATABASE_URL || '';
-    pgClient = new Client({ connectionString: dbUrl });
-    await pgClient.connect();
-  } catch (pgErr) {
-    throw new Error(`Não foi possível conectar ao banco para restauração: ${pgErr.message}`);
-  }
-  await pgClient.connect();
-
+  // nexos_icp tem SUPERUSER — SET session_replication_role funciona diretamente via Prisma
   let restoredRows = 0;
   const tables = [];
 
   try {
-    // 1. Desativa FK checks na sessão dedicada
-    await pgClient.query("SET session_replication_role = 'replica'");
+    // 1. Desativa FK checks
+    await prisma.$executeRawUnsafe("SET session_replication_role = 'replica'");
 
-    // 2. Limpa todas as tabelas em ordem reversa (sem FK constraint)
+    // 2. Limpa tabelas em ordem reversa
     for (const tableName of [...orderedTableNames].reverse()) {
       try {
-        await pgClient.query(`DELETE FROM ${escapeIdentifier(tableName)}`);
+        await prisma.$executeRawUnsafe(`DELETE FROM ${escapeIdentifier(tableName)}`);
       } catch (delErr) {
         console.warn(`[Backup Restore] DELETE ${tableName} falhou:`, delErr.message);
       }
     }
 
-    // 3. Insere os dados na ordem correta (respeitando FK)
+    // 3. Insere dados na ordem correta
     for (const tableName of orderedTableNames) {
       const rows = tableByName.get(tableName)?.rows || [];
       if (rows.length === 0) {
@@ -642,16 +628,16 @@ const restoreDatabase = async (backupTables) => {
         const cols = colTypes.size > 0 ? rawCols.filter(c => colTypes.has(c)) : rawCols;
         if (cols.length === 0) continue;
         const colSql = cols.map(escapeIdentifier).join(', ');
-        const placeholders = cols.map((_, i) => `$${i + 1}`).join(', ');
+        const placeholders = cols.map((c, i) => buildRestorePlaceholder(i + 1, colTypes.get(c))).join(', ');
         const values = cols.map(c => normalizeRestoreValue(row[c], colTypes.get(c)));
         try {
-          await pgClient.query(
+          await prisma.$executeRawUnsafe(
             `INSERT INTO ${escapeIdentifier(tableName)} (${colSql}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`,
-            values
+            ...values
           );
           inserted++;
         } catch (rowErr) {
-          console.warn(`[Backup Restore] Linha ignorada em ${tableName}:`, rowErr.message.slice(0, 100));
+          console.warn(`[Backup Restore] Linha ignorada em ${tableName}:`, rowErr.message.slice(0, 120));
         }
       }
 
@@ -660,11 +646,9 @@ const restoreDatabase = async (backupTables) => {
       console.log(`[Backup Restore] ${tableName}: ${inserted}/${rows.length} inseridos`);
     }
 
-    // 4. Restaura modo normal
-    await pgClient.query("SET session_replication_role = 'origin'");
-
   } finally {
-    await pgClient.end().catch(() => {});
+    // 4. Restaura modo normal sempre
+    await prisma.$executeRawUnsafe("SET session_replication_role = 'origin'").catch(() => {});
   }
 
   return { tableCount: orderedTableNames.length, totalRows: restoredRows, tables };
