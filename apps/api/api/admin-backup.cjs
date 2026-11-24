@@ -594,13 +594,13 @@ const restoreDatabase = async (backupTables) => {
   const orderedTableNames = await orderTablesForInsert(validTableNames);
   const columnTypesByTable = await readColumnTypes(validTableNames);
 
-  // Usa uma conexão dedicada (pg nativo) para garantir que session_replication_role
-  // e todos os INSERTs rodem na mesma conexão do pool — evita o problema 25P02
-  // pg já é dependência transitiva do Prisma, sempre disponível
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  // Usa uma conexão pg dedicada para manter session_replication_role ativo
+  // durante toda a operação. Usa o pg já instalado como dep do Prisma.
   let pgClient;
   try {
-    const { Client } = require('pg');
+    // pg já está disponível via node_modules do Prisma — não precisa estar em package.json
+    const pgPath = require.resolve('pg', { paths: [__dirname, path.join(__dirname, '..', 'node_modules')] });
+    const { Client } = require(pgPath);
     const dbUrl = process.env.DATABASE_URL || '';
     pgClient = new Client({ connectionString: dbUrl });
     await pgClient.connect();
