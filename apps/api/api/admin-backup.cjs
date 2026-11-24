@@ -594,34 +594,54 @@ const restoreDatabase = async (backupTables) => {
   const orderedTableNames = await orderTablesForInsert(validTableNames);
   const columnTypesByTable = await readColumnTypes(validTableNames);
 
-  // nexos_icp tem SUPERUSER — SET session_replication_role funciona diretamente via Prisma
+  // Restaura sem depender de session_replication_role.
+  // Insere na ordem correta (FK ok) com ON CONFLICT DO NOTHING.
+  // Cada INSERT é autocommit — falha numa linha não aborta as demais.
   let restoredRows = 0;
   const tables = [];
 
-  try {
-    // 1. Desativa FK checks
-    await prisma.$executeRawUnsafe("SET session_replication_role = 'replica'");
-
-    // 2. Limpa tabelas em ordem reversa
-    for (const tableName of [...orderedTableNames].reverse()) {
+  // Primeira passagem: insere tudo na ordem de dependência
+  const failedTables = new Set();
+  for (const tableName of orderedTableNames) {
+    const rows = tableByName.get(tableName)?.rows || [];
+    if (rows.length === 0) { tables.push({ tableName, restoredRows: 0 }); continue; }
+    const colTypes = columnTypesByTable.get(tableName) || new Map();
+    let inserted = 0;
+    let failed = 0;
+    console.log(`[Backup Restore] Restaurando ${tableName} (${rows.length} linhas)...`);
+    for (const row of rows) {
+      if (!row || typeof row !== 'object' || Array.isArray(row)) continue;
+      const rawCols = Object.keys(row);
+      const cols = colTypes.size > 0 ? rawCols.filter(c => colTypes.has(c)) : rawCols;
+      if (cols.length === 0) continue;
+      const colSql = cols.map(escapeIdentifier).join(', ');
+      const placeholders = cols.map((c, i) => buildRestorePlaceholder(i + 1, colTypes.get(c))).join(', ');
+      const values = cols.map(c => normalizeRestoreValue(row[c], colTypes.get(c)));
       try {
-        await prisma.$executeRawUnsafe(`DELETE FROM ${escapeIdentifier(tableName)}`);
-      } catch (delErr) {
-        console.warn(`[Backup Restore] DELETE ${tableName} falhou:`, delErr.message);
+        await prisma.$executeRawUnsafe(
+          `INSERT INTO ${escapeIdentifier(tableName)} (${colSql}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`,
+          ...values
+        );
+        inserted++;
+      } catch (rowErr) {
+        failed++;
+        if (failed <= 3) console.warn(`[Backup Restore] ${tableName} linha ignorada:`, rowErr.message.slice(0, 100));
       }
     }
+    restoredRows += inserted;
+    tables.push({ tableName, restoredRows: inserted });
+    if (failed > 0) failedTables.add(tableName);
+    console.log(`[Backup Restore] ${tableName}: ${inserted}/${rows.length} ok, ${failed} falhas`);
+  }
 
-    // 3. Insere dados na ordem correta
+  // Segunda passagem: retenta tabelas com falhas (FK pode já estar satisfeita agora)
+  if (failedTables.size > 0) {
+    console.log(`[Backup Restore] Retentando ${failedTables.size} tabela(s) com falhas...`);
     for (const tableName of orderedTableNames) {
+      if (!failedTables.has(tableName)) continue;
       const rows = tableByName.get(tableName)?.rows || [];
-      if (rows.length === 0) {
-        tables.push({ tableName, restoredRows: 0 });
-        continue;
-      }
       const colTypes = columnTypesByTable.get(tableName) || new Map();
       let inserted = 0;
-      console.log(`[Backup Restore] Restaurando ${tableName} (${rows.length} linhas)...`);
-
       for (const row of rows) {
         if (!row || typeof row !== 'object' || Array.isArray(row)) continue;
         const rawCols = Object.keys(row);
@@ -636,19 +656,14 @@ const restoreDatabase = async (backupTables) => {
             ...values
           );
           inserted++;
-        } catch (rowErr) {
-          console.warn(`[Backup Restore] Linha ignorada em ${tableName}:`, rowErr.message.slice(0, 120));
-        }
+        } catch (_) {}
       }
-
-      restoredRows += inserted;
-      tables.push({ tableName, restoredRows: inserted });
-      console.log(`[Backup Restore] ${tableName}: ${inserted}/${rows.length} inseridos`);
+      if (inserted > 0) {
+        const existing = tables.find(t => t.tableName === tableName);
+        if (existing) { existing.restoredRows += inserted; restoredRows += inserted; }
+        console.log(`[Backup Restore] Retentativa ${tableName}: +${inserted}`);
+      }
     }
-
-  } finally {
-    // 4. Restaura modo normal sempre
-    await prisma.$executeRawUnsafe("SET session_replication_role = 'origin'").catch(() => {});
   }
 
   return { tableCount: orderedTableNames.length, totalRows: restoredRows, tables };
