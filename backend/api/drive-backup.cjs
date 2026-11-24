@@ -49,7 +49,7 @@ router.get('/status', async (req, res) => {
   const freshness = backupFreshness(state.uploaded ? state.lastSuccessAt : null, 18);
   res.set('Cache-Control', 'no-store');
   res.json({ ...state, ...freshness, scheduler, files, configured: fs.existsSync(`${root}/rclone.conf`), scheduled: scheduler.installed,
-    account: 'chorstconsult@gmail.com', folder: 'DOUBLECRM_BACKUP',
+    account: 'chorstconsult@gmail.com', folder: fs.existsSync() && fs.readFileSync(, 'utf8').includes('[nexos]') ? 'NEXOS_BACKUP' : 'DOUBLECRM_BACKUP',
     localDir: root, listingCheckedAt: cache.checkedAt || null });
   refreshDrive();
 });
@@ -60,7 +60,7 @@ router.post('/:action', (req, res) => {
   if (running) return res.status(409).json({ error: 'Uma operação já está em execução.' });
   const args = [script, action];
   if (action !== 'run') {
-    if (!/^doublecrm-full-\d{8}-\d{6}\.tar\.gz$/.test(req.body?.name || '')) {
+    if (!/^(nexos|doublecrm)-full-\d{8}-\d{6}\.tar\.gz$/.test(req.body?.name || '')) {
       return res.status(400).json({ error: 'Nome de backup inválido.' });
     }
     args.push(req.body.name);

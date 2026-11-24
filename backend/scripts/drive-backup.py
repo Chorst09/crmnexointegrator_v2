@@ -17,12 +17,21 @@ import time
 
 ROOT = Path('/BACKUP/GOOGLE_DRIVE')
 CONFIG = ROOT / 'rclone.conf'
-REMOTE = 'doublecrm:DOUBLECRM_BACKUP'
+def get_remote():
+    if CONFIG.exists():
+        t = CONFIG.read_text()
+        if '[nexos]' in t:
+            return 'nexos:NEXOS_BACKUP'
+        if '[doublecrm]' in t:
+            return 'doublecrm:DOUBLECRM_BACKUP'
+    return 'nexos:NEXOS_BACKUP'
+
+REMOTE = get_remote()
 BASE = Path('/var/www/nexoscrm')
 CONTAINER = 'nexoscrm-postgres'
 ACCOUNT = 'chorstconsult@gmail.com'
 RETAIN_BACKUPS = 3
-NAME = re.compile(r'^doublecrm-full-\d{8}-\d{6}\.tar\.gz$')
+NAME = re.compile(r'^(nexos|doublecrm)-full-\d{8}-\d{6}\.tar\.gz$')
 
 def run(args, **kw):
     return subprocess.run(args, check=True, timeout=1800, **kw)
@@ -89,7 +98,7 @@ def dump_database(target):
 def backup(upload=True):
     state(running=True, startedAt=dt.datetime.now(dt.timezone.utc).isoformat(), error=None)
     stamp = dt.datetime.now().strftime('%Y%m%d-%H%M%S')
-    name = f'doublecrm-full-{stamp}.tar.gz'
+    name = f'nexos-full-{stamp}.tar.gz'
     with tempfile.TemporaryDirectory(dir=ROOT) as tmp:
         work = Path(tmp)
         dump_database(work / 'database.dump')
@@ -101,7 +110,7 @@ def backup(upload=True):
              '--exclude=.git', '--exclude=*.tar.gz', '--exclude=*.dump', '--exclude=*.log',
              '--exclude=*.pre-doublecrm-*', '-C', '/', *existing])
         (work / 'manifest.json').write_text(json.dumps({
-            'format': 'doublecrm-drive-v1', 'database': 'doublecrm',
+            'format': 'nexos-drive-v1', 'database': 'doublecrm',
             'createdAt': dt.datetime.now(dt.timezone.utc).isoformat(),
             'sha256': {n: digest(work / n) for n in ['database.dump', 'files.tar.gz']},
             'paths': existing, 'excluded': ['node_modules', '.git', 'old archives'],
@@ -202,7 +211,7 @@ def unpack(archive):
                 raise ValueError('Pacote de backup inválido')
             tar.extractall(target, members=members)
         manifest = json.loads((target / 'manifest.json').read_text())
-        if manifest.get('format') != 'doublecrm-drive-v1':
+        if manifest.get('format') not in ('nexos-drive-v1', 'doublecrm-drive-v1'):
             raise ValueError('Formato inválido')
         for n in ['database.dump', 'files.tar.gz']:
             if digest(target / n) != manifest['sha256'].get(n):
@@ -232,7 +241,7 @@ def test_restore(name):
 
 def restore(name, confirmation):
     validate_name(name)
-    if confirmation != 'RESTAURAR_DOUBLECRM':
+    if confirmation not in ('RESTAURAR_NEXOS', 'RESTAURAR_DOUBLECRM'):
         raise ValueError('Confirmação RESTAURAR_DOUBLECRM obrigatória')
     with unpack(ROOT / name) as tmp:
         # Validate file paths and prohibit links before extracting as root.
