@@ -18,13 +18,8 @@ import time
 ROOT = Path('/BACKUP/GOOGLE_DRIVE')
 CONFIG = ROOT / 'rclone.conf'
 def get_remote():
-    if CONFIG.exists():
-        t = CONFIG.read_text()
-        if '[nexos]' in t:
-            return 'nexos:NEXOS_BACKUP'
-        if '[doublecrm]' in t:
-            return 'doublecrm:DOUBLECRM_BACKUP'
-    return 'nexos:NEXOS_BACKUP'
+    remote_name = 'nexos' if (CONFIG.exists() and '[nexos]' in CONFIG.read_text()) else 'doublecrm'
+    return f'{remote_name}:DOUBLECRM_BACKUP'
 
 REMOTE = get_remote()
 BASE = Path('/var/www/nexoscrm')
