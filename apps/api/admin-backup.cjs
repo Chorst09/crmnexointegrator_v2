@@ -594,14 +594,24 @@ const restoreDatabase = async (backupTables) => {
   const orderedTableNames = await orderTablesForInsert(validTableNames);
   const columnTypesByTable = await readColumnTypes(validTableNames);
 
-  // Restaura sem depender de session_replication_role.
-  // Insere na ordem correta (FK ok) com ON CONFLICT DO NOTHING.
-  // Cada INSERT é autocommit — falha numa linha não aborta as demais.
+  // Restaura usando TRUNCATE CASCADE para limpar e INSERT sem conflito.
+  // nexos_icp tem SUPERUSER então TRUNCATE CASCADE funciona.
   let restoredRows = 0;
   const tables = [];
 
-  // Primeira passagem: insere tudo na ordem de dependência
-  const failedTables = new Set();
+  // Limpa todas as tabelas de uma vez com CASCADE (resolve FKs automaticamente)
+  try {
+    const truncateList = orderedTableNames.map(escapeIdentifier).join(', ');
+    await prisma.$executeRawUnsafe(`TRUNCATE TABLE ${truncateList} CASCADE`);
+    console.log(`[Backup Restore] TRUNCATE CASCADE OK para ${orderedTableNames.length} tabelas`);
+  } catch (truncErr) {
+    console.warn('[Backup Restore] TRUNCATE falhou, tentando DELETE por tabela:', truncErr.message);
+    for (const tableName of [...orderedTableNames].reverse()) {
+      await prisma.$executeRawUnsafe(`DELETE FROM ${escapeIdentifier(tableName)}`).catch(() => {});
+    }
+  }
+
+  // Insere os dados na ordem correta de dependência FK
   for (const tableName of orderedTableNames) {
     const rows = tableByName.get(tableName)?.rows || [];
     if (rows.length === 0) { tables.push({ tableName, restoredRows: 0 }); continue; }
@@ -625,45 +635,12 @@ const restoreDatabase = async (backupTables) => {
         inserted++;
       } catch (rowErr) {
         failed++;
-        if (failed <= 3) console.warn(`[Backup Restore] ${tableName} linha ignorada:`, rowErr.message.slice(0, 100));
+        if (failed <= 3) console.warn(`[Backup Restore] ${tableName} linha ignorada:`, rowErr.message.slice(0, 120));
       }
     }
     restoredRows += inserted;
     tables.push({ tableName, restoredRows: inserted });
-    if (failed > 0) failedTables.add(tableName);
     console.log(`[Backup Restore] ${tableName}: ${inserted}/${rows.length} ok, ${failed} falhas`);
-  }
-
-  // Segunda passagem: retenta tabelas com falhas (FK pode já estar satisfeita agora)
-  if (failedTables.size > 0) {
-    console.log(`[Backup Restore] Retentando ${failedTables.size} tabela(s) com falhas...`);
-    for (const tableName of orderedTableNames) {
-      if (!failedTables.has(tableName)) continue;
-      const rows = tableByName.get(tableName)?.rows || [];
-      const colTypes = columnTypesByTable.get(tableName) || new Map();
-      let inserted = 0;
-      for (const row of rows) {
-        if (!row || typeof row !== 'object' || Array.isArray(row)) continue;
-        const rawCols = Object.keys(row);
-        const cols = colTypes.size > 0 ? rawCols.filter(c => colTypes.has(c)) : rawCols;
-        if (cols.length === 0) continue;
-        const colSql = cols.map(escapeIdentifier).join(', ');
-        const placeholders = cols.map((c, i) => buildRestorePlaceholder(i + 1, colTypes.get(c))).join(', ');
-        const values = cols.map(c => normalizeRestoreValue(row[c], colTypes.get(c)));
-        try {
-          await prisma.$executeRawUnsafe(
-            `INSERT INTO ${escapeIdentifier(tableName)} (${colSql}) VALUES (${placeholders}) ON CONFLICT DO NOTHING`,
-            ...values
-          );
-          inserted++;
-        } catch (_) {}
-      }
-      if (inserted > 0) {
-        const existing = tables.find(t => t.tableName === tableName);
-        if (existing) { existing.restoredRows += inserted; restoredRows += inserted; }
-        console.log(`[Backup Restore] Retentativa ${tableName}: +${inserted}`);
-      }
-    }
   }
 
   return { tableCount: orderedTableNames.length, totalRows: restoredRows, tables };
