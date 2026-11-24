@@ -142,7 +142,6 @@ export const validateCustomerOwnership = async (tx, {
       name: true,
       document: true,
       website: true,
-      accountManagerId: true,
       accountManagerName: true,
       opportunities: {
         orderBy: { createdAt: 'desc' },

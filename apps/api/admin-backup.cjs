@@ -1102,6 +1102,8 @@ router.get('/summary', async (_req, res) => {
   }
 });
 
+router.use('/drive', require('./drive-backup.cjs'));
+
 router.get('/routine-status', async (_req, res) => {
   try {
     const backupDir = '/var/backups/crmnexointegrator_v2';

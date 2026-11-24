@@ -184,7 +184,7 @@ export default async function handler(req) {
 
     const assignment = await resolveAssignment(req.user, body, tenantCompanyId, true);
     if (assignment.error) return Response.json({ error: assignment.error }, { status: 403 });
-    if (nextAction.data.leadNextAction && !assignment.data.accountManagerId) return Response.json({ error: 'Selecione o gerente de contas responsável pela próxima ação.' }, { status: 400 });
+    if (nextAction.data.leadNextAction && !assignment.data.accountManagerName) return Response.json({ error: 'Selecione o gerente de contas responsável pela próxima ação.' }, { status: 400 });
     const company = await prisma.company.create({
       data: {
         name: body.name,
@@ -201,11 +201,9 @@ export default async function handler(req) {
         tenantCompanyId,
         status: normalizeCompanyStatus(body.status, 'LEAD'),
         leadScore: Number.isFinite(Number(body.leadScore)) ? Number(body.leadScore) : undefined,
-        leadOrigin: typeof body.leadOrigin === 'string' ? body.leadOrigin.trim() || null : null,
-        leadOriginDetail: typeof body.leadOriginDetail === 'string' ? body.leadOriginDetail.trim() || null : null,
         ...nextAction.data,
         leadEntryDate: parseDateInput(body.leadEntryDate) || new Date(),
-        ...assignment.data,
+        accountManagerName: assignment.data.accountManagerName || null,
         contacts: body.contacts ? {
           create: body.contacts.map(contact => ({
             name: contact.name,
@@ -258,7 +256,7 @@ export default async function handler(req) {
 
     const existingCompany = await prisma.company.findUnique({
       where: { id: companyId },
-      select: { accountManagerId: true, leadNextAction: true, leadNextActionAt: true, leadReminderMinutes: true, accessB2B: true, accessB2G: true, accessPreSales: true, tenantCompanyId: true }
+      select: { accountManagerName: true, leadNextAction: true, leadNextActionAt: true, leadReminderMinutes: true, accessB2B: true, accessB2G: true, accessPreSales: true, tenantCompanyId: true }
     });
     if (!existingCompany) return new Response('Empresa não encontrada', { status: 404 });
     if (!await canViewCompany(prisma, req.user, companyId)) return new Response('Acesso negado', { status: 403 });
@@ -268,7 +266,7 @@ export default async function handler(req) {
     if (nextAction.error) return Response.json({ error: nextAction.error }, { status: 400 });
     const assignment = await resolveAssignment(req.user, body, existingCompany.tenantCompanyId, false);
     if (assignment.error) return Response.json({ error: assignment.error }, { status: 403 });
-    if ((nextAction.data.leadNextAction === undefined ? existingCompany.leadNextAction : nextAction.data.leadNextAction) && !(assignment.data.accountManagerId === undefined ? existingCompany.accountManagerId : assignment.data.accountManagerId)) return Response.json({ error: 'Selecione o gerente de contas responsável pela próxima ação.' }, { status: 400 });
+    if ((nextAction.data.leadNextAction === undefined ? existingCompany.leadNextAction : nextAction.data.leadNextAction) && !(assignment.data.accountManagerName === undefined ? existingCompany.accountManagerName : assignment.data.accountManagerName)) return Response.json({ error: 'Selecione o gerente de contas responsável pela próxima ação.' }, { status: 400 });
     const company = await prisma.company.update({
       where: { id: companyId },
       data: {
@@ -285,8 +283,6 @@ export default async function handler(req) {
         state: body.state,
         status: body.status !== undefined ? normalizeCompanyStatus(body.status) : undefined,
         leadScore: body.leadScore,
-        leadOrigin: body.leadOrigin === undefined ? undefined : (typeof body.leadOrigin === 'string' ? body.leadOrigin.trim() || null : null),
-        leadOriginDetail: body.leadOriginDetail === undefined ? undefined : (typeof body.leadOriginDetail === 'string' ? body.leadOriginDetail.trim() || null : null),
         prospectionNotes: body.prospectionNotes === undefined ? undefined : (typeof body.prospectionNotes === 'string' ? body.prospectionNotes.trim() || null : null),
         ...nextAction.data,
         leadEntryDate: body.leadEntryDate !== undefined ? parseDateInput(body.leadEntryDate) || undefined : undefined,

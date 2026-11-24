@@ -59,6 +59,17 @@ def digest(p):
             h.update(block)
     return h.hexdigest()
 
+def get_db_name():
+    for candidate in ['doublecrm', 'nexoscrm']:
+        try:
+            res = subprocess.run(['docker', 'exec', '-i', CONTAINER, 'psql', '-U', 'nexoscrm', '-d', candidate, '-c', 'SELECT 1;'],
+                                 capture_output=True, timeout=5)
+            if res.returncode == 0:
+                return candidate
+        except Exception:
+            pass
+    return 'doublecrm'
+
 def db(*args, **kw):
     return run(['docker', 'exec', '-i', CONTAINER, *args], **kw)
 
@@ -66,7 +77,7 @@ def dump_database(target):
     for attempt in range(3):
         try:
             with target.open('wb') as out:
-                db('pg_dump', '-U', 'nexoscrm', '-d', 'doublecrm', '-Fc', stdout=out)
+                db('pg_dump', '-U', 'nexoscrm', '-d', get_db_name(), '-Fc', stdout=out)
             with target.open('rb') as src:
                 db('pg_restore', '--list', stdin=src, stdout=subprocess.DEVNULL)
             return
