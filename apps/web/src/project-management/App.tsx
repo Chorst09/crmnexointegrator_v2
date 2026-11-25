@@ -1555,71 +1555,95 @@ export default function App({ onBack }: { onBack?: () => void }) {
               />
             </div>
           ) : (
-          <>
+          <div
+            className="flex-1 flex flex-col overflow-hidden"
+            style={{
+              backgroundImage: "linear-gradient(180deg, rgba(2, 14, 34, 0.45) 0%, rgba(2, 14, 34, 0.88) 38%, rgba(1, 11, 29, 0.96) 100%), url('/images/pm-hero-bg.jpg')",
+              backgroundSize: 'cover',
+              backgroundPosition: 'center top'
+            }}
+          >
             {/* Project Header & Tabs */}
-            <div className="bg-[var(--crm-surface)] border-b border-[var(--crm-border)] flex-shrink-0">
-          <div className="px-4 sm:px-6 pt-3 sm:pt-4 pb-0 flex flex-col gap-3 sm:gap-4">
+            <div className="bg-[#04142b]/70 backdrop-blur-md border-b border-[#38bdf8]/20 flex-shrink-0">
+          <div className="px-4 sm:px-6 pt-3 sm:pt-4 pb-2 flex flex-col gap-3">
             <div className="flex items-center justify-between flex-wrap gap-2">
-              <div className="flex items-center gap-2 text-base sm:text-xl font-bold text-[var(--crm-ink)] min-w-0 flex-1 mr-2">
-                <div className={cn("w-5 h-5 rounded-sm text-[10px] flex items-center justify-center font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] mr-1 flex-shrink-0", activeProject?.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]")}>
+              <div className="flex items-center gap-2 text-base sm:text-xl font-bold text-white min-w-0 flex-1 mr-2">
+                <div className={cn("w-6 h-6 rounded-md text-[11px] flex items-center justify-center font-black text-white mr-1 flex-shrink-0 shadow", activeProject?.color || "bg-[#2563eb]")}>
                   {activeProject?.initial || "P"}
                 </div>
-                <span className="truncate max-w-[200px] sm:max-w-[400px] md:max-w-[700px] lg:max-w-[900px]" title={activeProject?.name || "Projetos"}>
+                <span className="truncate max-w-[220px] sm:max-w-[440px] md:max-w-[760px]" title={activeProject?.name || "Projetos"}>
                   {activeProject?.name || (isLoadingProjects ? "Carregando projetos..." : "Projetos")}
                 </span>
-                <span className="text-[var(--crm-muted)] font-normal flex-shrink-0 hidden sm:inline">/</span>
-                <ListIcon className="w-4 h-4 sm:w-5 sm:h-5 text-[var(--crm-muted)] ml-1 flex-shrink-0 hidden sm:inline" /> <span className="flex-shrink-0 hidden sm:inline">Fases</span>
-                <ChevronDown className="w-4 h-4 text-[var(--crm-muted)] cursor-pointer flex-shrink-0 hidden sm:inline" />
+                <span className="text-slate-400 font-normal flex-shrink-0 hidden sm:inline">/</span>
+                <ListIcon className="w-4 h-4 text-[#38bdf8] ml-1 flex-shrink-0 hidden sm:inline" /> <span className="text-sm text-slate-300 flex-shrink-0 hidden sm:inline">Fases</span>
               </div>
 
-              <div className="flex items-center gap-2 sm:gap-4 text-xs font-medium text-[var(--crm-muted)]">
-                <button onClick={() => setIsAgentsModalOpen(true)} className="hover:text-[var(--crm-ink)] flex items-center gap-1 transition-colors"><Users2 className="w-3.5 h-3.5 text-cyan-700 dark:text-cyan-400" /> <span className="hidden sm:inline">Agentes</span></button>
-                <button onClick={() => setIsBrainModalOpen(true)} className="hover:text-[var(--crm-ink)] flex items-center gap-1 transition-colors"><Sparkles className="w-3.5 h-3.5 text-teal-700 dark:text-teal-400" /> <span className="hidden sm:inline">Brain</span></button>
-                <button onClick={handleOpenShareModal} className="hover:text-[var(--crm-ink)] flex items-center gap-1 transition-colors"><Users className="w-3.5 h-3.5 text-orange-700 dark:text-orange-400" /> <span className="hidden sm:inline">Compartilhar</span></button>
+              <div className="flex items-center gap-2 sm:gap-4 text-xs font-medium text-slate-300">
+                <button onClick={() => setIsAgentsModalOpen(true)} className="hover:text-white flex items-center gap-1 transition-colors"><Users2 className="w-3.5 h-3.5 text-cyan-400" /> <span className="hidden sm:inline">Agentes</span></button>
+                <button onClick={() => setIsBrainModalOpen(true)} className="hover:text-white flex items-center gap-1 transition-colors"><Sparkles className="w-3.5 h-3.5 text-teal-400" /> <span className="hidden sm:inline">Brain</span></button>
+                <button onClick={handleOpenShareModal} className="hover:text-white flex items-center gap-1 transition-colors"><Users className="w-3.5 h-3.5 text-orange-400" /> <span className="hidden sm:inline">Compartilhar</span></button>
               </div>
             </div>
 
-            <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto text-xs sm:text-sm font-medium pb-2 custom-scrollbar">
-              <Tab icon={Briefcase} label="Executivo & Contrato" active={activeView === 'executive'} onClick={() => setActiveView('executive')} />
-              <Tab icon={ClipboardCheck} label="Entregas & Aceite" active={activeView === 'deliverables'} onClick={() => setActiveView('deliverables')} />
-              <Tab icon={DollarSign} label="Financeiro & TRD" active={activeView === 'billing'} onClick={() => setActiveView('billing')} />
-              <Tab icon={ShieldAlert} label="Governança & Riscos" active={activeView === 'governance'} onClick={() => setActiveView('governance')} />
-              <Tab icon={Users} label="Equipe" active={activeView === 'team'} onClick={() => setActiveView('team')} />
-              <Tab icon={BarChart2} label="Painéis" active={activeView === 'dashboard'} onClick={() => setActiveView('dashboard')} />
-              <Tab icon={ListIcon} label="Lista" active={activeView === 'list'} onClick={() => setActiveView('list')} />
-              <Tab icon={LayoutTemplate} label="Quadro" active={activeView === 'board'} onClick={() => setActiveView('board')} />
-              <Tab icon={Calendar} label="Calendário" active={activeView === 'calendar'} onClick={() => setActiveView('calendar')} />
-              <Tab icon={GanttChartSquare} label="Gantt" active={activeView === 'gantt'} onClick={() => setActiveView('gantt')} />
-              <Tab icon={CheckCircle2} label="Matriz RACI" active={activeView === 'raci'} onClick={() => setActiveView('raci')} />
-              <Tab icon={Activity} label="Atividade" active={activeView === 'activity'} onClick={() => setActiveView('activity')} />
-              <Tab icon={ListIcon} label="Carga de trabalho" active={activeView === 'workload'} onClick={() => setActiveView('workload')} />
-              <div className="flex items-center gap-1 text-[var(--crm-muted)] hover:text-[var(--crm-ink)] cursor-pointer pb-2 whitespace-nowrap">
-                <Plus className="w-3.5 h-3.5" /> Visualização
-              </div>
+            <div className="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+              {[
+                { id: 'executive', icon: Briefcase, label: 'Executivo & Contrato' },
+                { id: 'deliverables', icon: ClipboardCheck, label: 'Entregas & Aceite' },
+                { id: 'billing', icon: DollarSign, label: 'Financeiro & TRD' },
+                { id: 'governance', icon: ShieldAlert, label: 'Governança & Riscos' },
+                { id: 'raci', icon: CheckCircle2, label: 'Matriz RACI' },
+                { id: 'list', icon: ListIcon, label: 'Lista' },
+                { id: 'board', icon: LayoutTemplate, label: 'Quadro' },
+                { id: 'gantt', icon: GanttChartSquare, label: 'Gantt' },
+                { id: 'calendar', icon: Calendar, label: 'Calendário' },
+                { id: 'dashboard', icon: BarChart2, label: 'Painéis' },
+                { id: 'team', icon: Users, label: 'Equipe' },
+                { id: 'activity', icon: Activity, label: 'Atividade' },
+                { id: 'workload', icon: ListIcon, label: 'Carga de trabalho' }
+              ].map((t) => {
+                const Icon = t.icon;
+                const isActive = activeView === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setActiveView(t.id as ViewMode)}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 transition-all whitespace-nowrap',
+                      isActive
+                        ? 'border-[#38bdf8]/70 bg-[#0f2f54] text-white shadow-[0_0_14px_rgba(56,189,248,0.22)]'
+                        : 'border-white/10 bg-[#061830]/60 text-slate-300 hover:border-[#38bdf8]/40 hover:text-white'
+                    )}
+                  >
+                    <Icon className={cn('h-3.5 w-3.5', isActive ? 'text-[#38bdf8]' : 'text-slate-400')} />
+                    <span>{t.label}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
 
         {/* Toolbar */}
-        <div className="px-4 sm:px-6 py-2.5 sm:py-3 flex flex-col gap-2.5 sm:gap-3 flex-shrink-0 bg-transparent border-b border-[var(--crm-border)]">
+        <div className="px-4 sm:px-6 py-2.5 sm:py-3 flex flex-col gap-2.5 flex-shrink-0 bg-transparent border-b border-white/10">
           {activeProject && (
             <div className="grid gap-2 sm:gap-3 grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.2fr_1fr_1fr]">
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-2.5 sm:p-3">
-                <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--crm-muted)]">Escopo</p>
-                <p className="mt-0.5 line-clamp-2 text-xs text-[var(--crm-ink)]">{activeProject.scope || 'Escopo ainda não informado.'}</p>
+              <div className="rounded-xl border border-[#38bdf8]/20 bg-[#061830]/75 backdrop-blur-md p-3">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-[#7db3db]">Escopo</p>
+                <p className="mt-0.5 line-clamp-2 text-xs text-slate-100">{activeProject.scope || 'Escopo ainda não informado.'}</p>
               </div>
-              <div className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-2.5 sm:p-3">
-                <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--crm-muted)]">Objetivo</p>
-                <p className="mt-0.5 line-clamp-2 text-xs text-[var(--crm-ink)]">{activeProject.objective || 'Objetivo ainda não informado.'}</p>
+              <div className="rounded-xl border border-[#38bdf8]/20 bg-[#061830]/75 backdrop-blur-md p-3">
+                <p className="text-[10px] font-bold uppercase tracking-wide text-[#7db3db]">Objetivo</p>
+                <p className="mt-0.5 line-clamp-2 text-xs text-slate-100">{activeProject.objective || 'Objetivo ainda não informado.'}</p>
               </div>
               <div className="grid grid-cols-2 gap-2 sm:gap-3 col-span-1 sm:col-span-2 lg:col-span-1">
-                <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(37,99,235,0.16),rgb(var(--crm-surface-rgb)/0.98))] p-2.5 sm:p-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--crm-muted)]">Status</p>
-                  <p className="mt-0.5 text-xs sm:text-sm font-black text-[var(--pm-accent-text)] truncate">{PROJECT_STATUS_LABELS[activeProject.status || 'PLANEJADO']}</p>
+                <div className="rounded-xl border border-[#38bdf8]/25 bg-[#061d3b]/80 backdrop-blur-md p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-[#7db3db]">Status</p>
+                  <p className="mt-0.5 text-xs sm:text-sm font-black text-[#38bdf8] truncate">{PROJECT_STATUS_LABELS[activeProject.status || 'PLANEJADO']}</p>
                 </div>
-                <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(140deg,rgba(34,197,94,0.14),rgb(var(--crm-surface-rgb)/0.98))] p-2.5 sm:p-3">
-                  <p className="text-[10px] font-bold uppercase tracking-wide text-[var(--crm-muted)]">Fases</p>
-                  <p className="mt-0.5 text-xs sm:text-sm font-black text-[#22c55e]">{activeProjectIssues.length}</p>
+                <div className="rounded-xl border border-emerald-400/25 bg-[#062328]/80 backdrop-blur-md p-3">
+                  <p className="text-[10px] font-bold uppercase tracking-wide text-emerald-300">Fases</p>
+                  <p className="mt-0.5 text-xs sm:text-sm font-black text-emerald-400">{activeProjectIssues.length}</p>
                 </div>
               </div>
             </div>
@@ -1680,7 +1704,32 @@ export default function App({ onBack }: { onBack?: () => void }) {
           )}
           {activeView === 'calendar' && <CalendarView issues={activeProjectIssues} onTaskClick={setSelectedTask} />}
           {activeView === 'gantt' && <GanttView issues={activeProjectIssues} />}
-          {activeView === 'raci' && activeProject && <ProjectRACIMatrixView issues={activeProjectRaciIssues} users={activeTeamUsers} onUpdateIssue={handlePersistedIssueChange} />}
+          {activeView === 'raci' && activeProject && (
+            <ProjectRACIMatrixView
+              issues={activeProjectRaciIssues}
+              users={activeTeamUsers}
+              onUpdateIssue={handlePersistedIssueChange}
+              deliverables={((activeProject.metadata as any)?.executive?.entregaveis) || []}
+              onUpdateDeliverableRaci={async (deliverableId, userId, role) => {
+                const exec = (activeProject.metadata as any)?.executive;
+                if (!exec || !Array.isArray(exec.entregaveis)) return;
+                const nextEntregaveis = exec.entregaveis.map((del: any) => {
+                  if (del.id !== deliverableId) return del;
+                  const nextRaci = { ...(del.raci || {}) };
+                  if (role) nextRaci[userId] = role;
+                  else delete nextRaci[userId];
+                  return { ...del, raci: nextRaci };
+                });
+                const nextMetadata = { ...(activeProject.metadata || {}), executive: { ...exec, entregaveis: nextEntregaveis } };
+                setSpaces((prev) => prev.map((s) => (s.id === activeProject.id ? { ...s, metadata: nextMetadata } : s)));
+                await fetch(buildApiUrl(`/projetos/${activeProject.id}`), {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+                  body: JSON.stringify({ metadata: nextMetadata })
+                }).catch(() => {});
+              }}
+            />
+          )}
           {activeView === 'process' && activeProject && <ProcessMappingBoard key={activeProject.id} activeProject={activeProject} onBack={() => setActiveView('dashboard')} />}
           {activeView === 'activity' && <ActivityView project={activeProject} issues={activeProjectIssues} users={activeTeamUsers} onTaskClick={setSelectedTask} />}
           {activeView === 'workload' && <WorkloadView issues={activeProjectIssues} users={activeTeamUsers} />}
@@ -1696,7 +1745,8 @@ export default function App({ onBack }: { onBack?: () => void }) {
           )}
         </div>
 
-          </>
+          </div>
+          </div>
           )
         ) : (
           <div className="flex-1 overflow-hidden relative bg-transparent">

@@ -3,10 +3,19 @@ import { Issue, User } from '../types';
 import { CheckCircle2, User as UserIcon, MessageSquare, Bell, FileDown, ShieldAlert, Check } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 
+export interface RaciDeliverableItem {
+  id: string;
+  escopo: string;
+  situacaoBase?: string;
+  raci?: Record<string, 'R' | 'A' | 'C' | 'I'>;
+}
+
 interface ProjectRACIMatrixViewProps {
   issues: Issue[];
   users: User[];
   onUpdateIssue: (issue: Issue) => void | Promise<void>;
+  deliverables?: RaciDeliverableItem[];
+  onUpdateDeliverableRaci?: (deliverableId: string, userId: string, role: 'R' | 'A' | 'C' | 'I' | null) => void | Promise<void>;
 }
 
 const roleStyles = {
@@ -36,8 +45,15 @@ const roleStyles = {
   }
 };
 
-export default function ProjectRACIMatrixView({ issues, users, onUpdateIssue }: ProjectRACIMatrixViewProps) {
+export default function ProjectRACIMatrixView({
+  issues,
+  users,
+  onUpdateIssue,
+  deliverables = [],
+  onUpdateDeliverableRaci
+}: ProjectRACIMatrixViewProps) {
   const [activeCell, setActiveCell] = useState<{ issueId: string; userId: string } | null>(null);
+  const [activeDeliverableCell, setActiveDeliverableCell] = useState<{ delId: string; userId: string } | null>(null);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
 
   const getRaciRole = (issue: Issue, userId: string): 'R' | 'A' | 'C' | 'I' | null => {
@@ -295,101 +311,143 @@ export default function ProjectRACIMatrixView({ issues, users, onUpdateIssue }: 
         </div>
 
         {/* Matrix Main Grid Table */}
-        <div className="border border-[var(--crm-border)] rounded-xl overflow-hidden bg-[var(--crm-surface)]">
-          {issues.length > 0 && users.length > 0 ? (
+        <div className="border border-[var(--crm-border)] rounded-xl overflow-hidden bg-[var(--crm-surface)]/90 backdrop-blur-md">
+          {(issues.length > 0 || deliverables.length > 0) && users.length > 0 ? (
             <div className="overflow-x-auto custom-scrollbar">
-              <table className="w-full border-collapse text-left text-sm whitespace-nowrap">
-                <thead className="bg-[var(--crm-surface-2)] border-b border-[var(--crm-border)] text-[var(--crm-muted)]">
-                  <tr>
-                    <th className="px-6 py-4 font-black text-xs uppercase tracking-wider min-w-[240px]">Fases do Projeto / Entregáveis</th>
-                    {users.map(user => (
-                      <th key={user.id} className="px-4 py-4 font-black text-xs uppercase tracking-wider text-center min-w-[120px]">
-                        <div className="flex flex-col items-center gap-1.5">
-                          <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] shadow ${user.color || "bg-[rgb(var(--crm-surface-rgb)_/_1)]"}`}>
-                            {user.initials || user.name.substring(0,2).toUpperCase()}
-                          </div>
-                          <span className="text-[var(--crm-ink)] truncate max-w-[110px]" title={user.name}>{user.name.split(' ')[0]}</span>
-                          <span className="text-[9px] text-[var(--crm-muted)] font-semibold truncate max-w-[110px]">{user.role || 'Membro'}</span>
+              <table className="w-full border-collapse text-left">
+                <thead>
+                  <tr className="border-b border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.6)]">
+                    <th className="py-3.5 px-4 text-xs font-bold uppercase tracking-wider text-[var(--crm-muted)] min-w-[280px]">
+                      Entregável / Fase do Projeto
+                    </th>
+                    {users.map((user) => (
+                      <th key={user.id} className="py-3 px-3 text-center min-w-[115px]">
+                        <div className="flex flex-col items-center gap-1">
+                          <span className="w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-black text-white" style={{ backgroundColor: user.color || '#2563eb' }}>
+                            {user.initials}
+                          </span>
+                          <span className="text-[11px] font-bold text-[var(--crm-ink)] truncate max-w-[110px]">{user.name}</span>
                         </div>
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--crm-border)]">
-                  {issues.map((issue) => (
-                    <tr key={issue.id} className="hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.25)] transition-colors">
-                      {/* Issue name column */}
-                      <td className="px-6 py-4.5">
-                        <div className="flex items-center gap-2.5">
-                          <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-transparent border border-[var(--crm-border)] text-[var(--crm-muted)]">
-                            {issue.key || `PRJ-${issue.id.substring(0,3).toUpperCase()}`}
-                          </span>
-                          <div className="min-w-0">
-                            <p className="font-bold text-[var(--crm-ink)] truncate max-w-[320px]" title={issue.title}>{issue.title}</p>
-                            <p className="text-[10px] text-[var(--crm-muted)] truncate max-w-[320px]">{issue.status} · Prioridade {issue.priority}</p>
-                          </div>
-                        </div>
+                <tbody className="divide-y divide-[var(--crm-border)]/50">
+                  {deliverables.length > 0 && (
+                    <tr className="bg-[#0f2744]/50">
+                      <td colSpan={users.length + 1} className="px-4 py-2 text-[11px] font-black uppercase tracking-wider text-[#7db3db]">
+                        Entregáveis do Escopo ({deliverables.length})
                       </td>
-
-                      {/* User columns */}
-                      {users.map(user => {
-                        const role = getRaciRole(issue, user.id);
-                        const isCellOpen = activeCell?.issueId === issue.id && activeCell?.userId === user.id;
-
+                    </tr>
+                  )}
+                  {deliverables.map((del) => (
+                    <tr key={`del-${del.id}`} className="hover:bg-[var(--crm-surface-2)]/30 transition-colors">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-2">
+                          <span className="rounded bg-cyan-500/15 border border-cyan-500/30 px-1.5 py-0.5 text-[10px] font-black text-cyan-400">
+                            {del.id}
+                          </span>
+                          <span className="text-xs font-semibold text-[var(--crm-ink)]">{del.escopo}</span>
+                        </div>
+                        {del.situacaoBase && (
+                          <div className="mt-0.5 text-[10px] text-[var(--crm-muted)]">{del.situacaoBase}</div>
+                        )}
+                      </td>
+                      {users.map((user) => {
+                        const role = del.raci?.[user.id] || null;
+                        const isOpen = activeDeliverableCell?.delId === del.id && activeDeliverableCell?.userId === user.id;
                         return (
-                          <td key={user.id} className="px-4 py-4.5 text-center relative">
-                            <div className="flex justify-center">
-                              {role ? (
-                                <button
-                                  onClick={() => setActiveCell(isCellOpen ? null : { issueId: issue.id, userId: user.id })}
-                                  className={`w-9 h-9 rounded-lg flex items-center justify-center font-bold text-sm border cursor-pointer hover:scale-105 active:scale-95 transition-all ${roleStyles[role].color}`}
-                                  title={`Clique para alterar atribuição de ${user.name}`}
-                                >
-                                  {role}
-                                </button>
-                              ) : (
-                                <button
-                                  onClick={() => setActiveCell(isCellOpen ? null : { issueId: issue.id, userId: user.id })}
-                                  className="w-8 h-8 rounded-lg flex items-center justify-center text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[var(--crm-ink)] bg-transparent hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)] border border-dashed border-[var(--crm-border)] hover:border-[var(--crm-border)] transition-all cursor-pointer font-bold text-base"
-                                  title={`Atribuir papel para ${user.name}`}
-                                >
-                                  +
-                                </button>
-                              )}
-                            </div>
-
-                            {/* Dropdown Selector for RACI */}
-                            {isCellOpen && (
-                              <div className="absolute left-1/2 -translate-x-1/2 mt-2 z-30 w-52 rounded-lg border border-[var(--crm-border)] bg-transparent p-2 shadow-2xl animate-in fade-in zoom-in-95 duration-100">
-                                <div className="mb-1 px-2.5 py-1 text-left border-b border-[var(--crm-border)] pb-1.5">
-                                  <p className="text-[10px] font-bold text-[var(--crm-muted)] uppercase tracking-wide">Papel de {user.name.split(' ')[0]}</p>
-                                </div>
-                                <div className="space-y-0.5">
-                                  {Object.entries(roleStyles).map(([key, style]) => {
-                                    const isCurrent = role === key;
-                                    return (
-                                      <button
-                                        key={key}
-                                        onClick={() => handleSetRole(issue, user.id, key as any)}
-                                        className="w-full flex items-center justify-between rounded px-2.5 py-1.5 text-left text-xs font-semibold text-[var(--crm-ink)] hover:bg-[var(--crm-surface)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors"
-                                      >
-                                        <div className="flex items-center gap-2">
-                                          <span className={`w-5 h-5 rounded flex items-center justify-center font-bold text-[10px] ${style.color}`}>
-                                            {key}
-                                          </span>
-                                          <span className="truncate max-w-[120px]">{style.label.split(' (')[0]}</span>
-                                        </div>
-                                        {isCurrent && <Check className="w-3.5 h-3.5 text-cyan-700 dark:text-cyan-400" />}
-                                      </button>
-                                    );
-                                  })}
+                          <td key={user.id} className="py-2 px-3 text-center relative">
+                            <button
+                              type="button"
+                              onClick={() => setActiveDeliverableCell(isOpen ? null : { delId: del.id, userId: user.id })}
+                              className={`w-8 h-8 rounded-md text-xs font-black border transition-all ${
+                                role
+                                  ? roleStyles[role].color
+                                  : 'border-dashed border-[var(--crm-border)] text-[var(--crm-muted)] hover:border-[#38bdf8]'
+                              }`}
+                            >
+                              {role || '—'}
+                            </button>
+                            {isOpen && onUpdateDeliverableRaci && (
+                              <div className="absolute left-1/2 top-full z-30 mt-1 -translate-x-1/2 flex gap-1 rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-1.5 shadow-xl">
+                                {(['R', 'A', 'C', 'I'] as const).map((r) => (
                                   <button
-                                    onClick={() => handleSetRole(issue, user.id, null)}
-                                    className="w-full rounded px-2.5 py-1.5 text-left text-xs font-semibold text-red-700 dark:text-red-400 hover:bg-red-50/20 dark:hover:bg-red-950/20 transition-colors"
+                                    key={r}
+                                    type="button"
+                                    onClick={() => {
+                                      onUpdateDeliverableRaci(del.id, user.id, r);
+                                      setActiveDeliverableCell(null);
+                                    }}
+                                    className={`w-6 h-6 rounded text-[11px] font-black ${roleStyles[r].color}`}
                                   >
-                                    Limpar Atribuição
+                                    {r}
                                   </button>
-                                </div>
+                                ))}
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    onUpdateDeliverableRaci(del.id, user.id, null);
+                                    setActiveDeliverableCell(null);
+                                  }}
+                                  className="px-1.5 rounded text-[10px] font-bold text-[var(--crm-muted)] hover:text-red-400"
+                                >
+                                  ✕
+                                </button>
+                              </div>
+                            )}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                  {issues.length > 0 && (
+                    <tr className="bg-[#0f2744]/30">
+                      <td colSpan={users.length + 1} className="px-4 py-2 text-[11px] font-black uppercase tracking-wider text-slate-300">
+                        Fases e Ações do Projeto ({issues.length})
+                      </td>
+                    </tr>
+                  )}
+                  {issues.map((issue) => (
+                    <tr key={issue.id} className="hover:bg-[var(--crm-surface-2)]/30 transition-colors">
+                      <td className="py-3 px-4">
+                        <div className="text-xs font-semibold text-[var(--crm-ink)]">{issue.title}</div>
+                      </td>
+                      {users.map((user) => {
+                        const role = getRaciRole(issue, user.id);
+                        const isOpen = activeCell?.issueId === issue.id && activeCell?.userId === user.id;
+                        return (
+                          <td key={user.id} className="py-2 px-3 text-center relative">
+                            <button
+                              type="button"
+                              onClick={() => setActiveCell(isOpen ? null : { issueId: issue.id, userId: user.id })}
+                              className={`w-8 h-8 rounded-md text-xs font-black border transition-all ${
+                                role
+                                  ? roleStyles[role].color
+                                  : 'border-dashed border-[var(--crm-border)] text-[var(--crm-muted)] hover:border-[#38bdf8]'
+                              }`}
+                            >
+                              {role || '—'}
+                            </button>
+                            {isOpen && (
+                              <div className="absolute left-1/2 top-full z-30 mt-1 -translate-x-1/2 flex gap-1 rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-1.5 shadow-xl">
+                                {(['R', 'A', 'C', 'I'] as const).map((r) => (
+                                  <button
+                                    key={r}
+                                    type="button"
+                                    onClick={() => handleSetRole(issue, user.id, r)}
+                                    className={`w-6 h-6 rounded text-[11px] font-black ${roleStyles[r].color}`}
+                                  >
+                                    {r}
+                                  </button>
+                                ))}
+                                <button
+                                  type="button"
+                                  onClick={() => handleSetRole(issue, user.id, null)}
+                                  className="px-1.5 rounded text-[10px] font-bold text-[var(--crm-muted)] hover:text-red-400"
+                                >
+                                  ✕
+                                </button>
                               </div>
                             )}
                           </td>
@@ -401,10 +459,8 @@ export default function ProjectRACIMatrixView({ issues, users, onUpdateIssue }: 
               </table>
             </div>
           ) : (
-            <div className="p-10 text-center space-y-2">
-              <ShieldAlert className="w-10 h-10 text-[var(--crm-muted)] mx-auto" />
-              <p className="font-bold text-[var(--crm-ink)]">Nenhuma fase ou usuário na equipe</p>
-              <p className="text-xs text-[var(--crm-muted)]">Certifique-se de ter fases cadastradas e equipe adicionada neste projeto.</p>
+            <div className="p-8 text-center text-xs text-[var(--crm-muted)]">
+              Adicione entregáveis ou membros na equipe para visualizar a Matriz RACI.
             </div>
           )}
         </div>
