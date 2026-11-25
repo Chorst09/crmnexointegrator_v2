@@ -171,8 +171,7 @@ export function computeEdgePoints(edge: BpmnEdge, nodesById: Record<string, Comp
   return { edge, points: pts, labelPos };
 }
 
-export function exportBpmnDiagramToPdf(diagram: BpmnDiagram, includeGovernance = true) {
-  const pdf = new jsPDF('l', 'mm', 'a4');
+function renderBpmnPage(pdf: jsPDF, diagram: BpmnDiagram, pageLabelOverride?: string) {
   const pageW = 297;
   const pageH = 210;
   const margin = 10;
@@ -266,7 +265,6 @@ export function exportBpmnDiagramToPdf(diagram: BpmnDiagram, includeGovernance =
     const lw = ts(layout.width);
     const hdrW = ts(layout.laneHeaderWidth);
 
-    // Fundo da raia alternado
     if (idx % 2 === 0) {
       pdf.setFillColor(244, 247, 250);
     } else {
@@ -274,17 +272,14 @@ export function exportBpmnDiagramToPdf(diagram: BpmnDiagram, includeGovernance =
     }
     pdf.rect(tx(0), ly, lw, lh, 'F');
 
-    // Cabeçalho da raia
     pdf.setFillColor(226, 235, 243);
     pdf.rect(tx(0), ly, hdrW, lh, 'F');
 
-    // Bordas
     pdf.setDrawColor(184, 199, 217);
     pdf.setLineWidth(0.25);
     pdf.rect(tx(0), ly, lw, lh, 'S');
     pdf.line(tx(layout.laneHeaderWidth), ly, tx(layout.laneHeaderWidth), ly + lh);
 
-    // Nome da raia
     pdf.setTextColor(30, 41, 59);
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(Math.max(6.5, 8.2 * Math.min(1, scale * 3.5)));
@@ -304,7 +299,6 @@ export function exportBpmnDiagramToPdf(diagram: BpmnDiagram, includeGovernance =
       pdf.line(tx(points[i].x), ty(points[i].y), tx(points[i + 1].x), ty(points[i + 1].y));
     }
 
-    // Ponta de seta no último segmento
     const prev = points[points.length - 2];
     const last = points[points.length - 1];
     const angle = Math.atan2(last.y - prev.y, last.x - prev.x);
@@ -419,52 +413,86 @@ export function exportBpmnDiagramToPdf(diagram: BpmnDiagram, includeGovernance =
     pdf.text(diagram.sourceBase, margin, pageH - 12);
   }
   pdf.text(diagram.footerText || 'Uso interno • Modelo padronizado BPMN', margin, pageH - 7);
-  pdf.text(diagram.pageLabel || '01 / 01', pageW - margin, pageH - 7, { align: 'right' });
+  pdf.text(pageLabelOverride || diagram.pageLabel || '01 / 01', pageW - margin, pageH - 7, { align: 'right' });
+}
 
-  // Página opcional de Governança e Indicadores
-  if (includeGovernance) {
-    pdf.addPage('a4', 'l');
-    pdf.setFillColor(255, 255, 255);
-    pdf.rect(0, 0, pageW, pageH, 'F');
-    pdf.setFillColor(15, 39, 68);
-    pdf.rect(0, 0, pageW, 24, 'F');
+function appendGovernancePage(pdf: jsPDF, companyName?: string) {
+  const pageW = 297;
+  const pageH = 210;
+  const margin = 10;
+  const companyLabel = companyName?.trim() ? companyName.trim().toUpperCase() : 'NEXOS CRM';
 
-    pdf.setTextColor(125, 179, 219);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(7.5);
-    pdf.text('NEXOS CRM / ARQUITETURA DE PROCESSOS', margin, 8);
+  pdf.addPage('a4', 'l');
+  pdf.setFillColor(255, 255, 255);
+  pdf.rect(0, 0, pageW, pageH, 'F');
+  pdf.setFillColor(15, 39, 68);
+  pdf.rect(0, 0, pageW, 24, 'F');
 
-    pdf.setTextColor(255, 255, 255);
-    pdf.setFont('helvetica', 'bold');
-    pdf.setFontSize(15);
-    pdf.text(BPMN_GOVERNANCE.title, margin, 17.5);
+  pdf.setTextColor(125, 179, 219);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(7.5);
+  pdf.text(`${companyLabel} / ARQUITETURA DE PROCESSOS`, margin, 8);
 
-    let gy = 36;
-    BPMN_GOVERNANCE.sections.forEach((sec) => {
-      pdf.setTextColor(29, 93, 140);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setFontSize(9.5);
-      pdf.text(sec.title, margin, gy);
-      gy += 5;
+  pdf.setTextColor(255, 255, 255);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(15);
+  pdf.text(BPMN_GOVERNANCE.title, margin, 17.5);
 
-      pdf.setTextColor(30, 41, 59);
-      pdf.setFont('helvetica', 'normal');
-      pdf.setFontSize(8.2);
-      const joined = sec.items.join('; ') + '.';
-      const lines = pdf.splitTextToSize(joined, pageW - margin * 2);
-      pdf.text(lines, margin, gy);
-      gy += lines.length * 4.5 + 6;
-    });
-
+  let gy = 36;
+  BPMN_GOVERNANCE.sections.forEach((sec) => {
     pdf.setTextColor(29, 93, 140);
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(9.5);
-    pdf.text('Fontes', margin, gy);
+    pdf.text(sec.title, margin, gy);
+    gy += 5;
+
     pdf.setTextColor(30, 41, 59);
     pdf.setFont('helvetica', 'normal');
     pdf.setFontSize(8.2);
-    pdf.text(BPMN_GOVERNANCE.sources, margin, gy + 5);
-  }
+    const joined = sec.items.join('; ') + '.';
+    const lines = pdf.splitTextToSize(joined, pageW - margin * 2);
+    pdf.text(lines, margin, gy);
+    gy += lines.length * 4.5 + 6;
+  });
 
+  pdf.setTextColor(29, 93, 140);
+  pdf.setFont('helvetica', 'bold');
+  pdf.setFontSize(9.5);
+  pdf.text('Fontes', margin, gy);
+  pdf.setTextColor(30, 41, 59);
+  pdf.setFont('helvetica', 'normal');
+  pdf.setFontSize(8.2);
+  pdf.text(BPMN_GOVERNANCE.sources, margin, gy + 5);
+}
+
+export function exportBpmnDiagramToPdf(diagram: BpmnDiagram, includeGovernance = true) {
+  const pdf = new jsPDF('l', 'mm', 'a4');
+  renderBpmnPage(pdf, diagram);
+  if (includeGovernance) {
+    appendGovernancePage(pdf, diagram.companyName);
+  }
   pdf.save(`${diagram.code}_${diagram.title.replace(/\s+/g, '_')}.pdf`);
+}
+
+export function exportAllBpmnDiagramsToPdf(
+  processName: string,
+  diagrams: BpmnDiagram[],
+  meta?: { companyName?: string; responsibleName?: string; companyLogo?: string }
+) {
+  if (!diagrams || diagrams.length === 0) return;
+  const pdf = new jsPDF('l', 'mm', 'a4');
+  const total = diagrams.length;
+  diagrams.forEach((d, index) => {
+    if (index > 0) pdf.addPage('a4', 'l');
+    const enriched: BpmnDiagram = {
+      ...d,
+      companyName: d.companyName || meta?.companyName,
+      responsibleName: d.responsibleName || meta?.responsibleName,
+      companyLogo: d.companyLogo || meta?.companyLogo
+    };
+    const pageLabel = `${String(index + 1).padStart(2, '0')} / ${String(total).padStart(2, '0')}`;
+    renderBpmnPage(pdf, enriched, pageLabel);
+  });
+  appendGovernancePage(pdf, meta?.companyName || diagrams[0]?.companyName);
+  pdf.save(`${processName.replace(/\s+/g, '_')}_BPMN_Completo.pdf`);
 }

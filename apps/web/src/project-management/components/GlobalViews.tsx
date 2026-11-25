@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Home, CheckCircle2, FileText, LayoutTemplate, Clock, Calendar,
   Search, Plus, Filter, List, Sparkles, ArrowLeft,
@@ -11,7 +11,7 @@ import 'tldraw/tldraw.css';
 import { jsPDF } from 'jspdf';
 import ArchitectureDiagram from './ArchitectureDiagram';
 import BpmnProcessDiagram from './BpmnProcessDiagram';
-import { exportBpmnDiagramToPdf } from './bpmnPdfExport';
+import { exportBpmnDiagramToPdf, exportAllBpmnDiagramsToPdf } from './bpmnPdfExport';
 import { BPMN_TEMPLATES, cloneBpmnDiagram, createBpmnFromSteps, type BpmnDiagram } from '../data/bpmnTemplates';
 import type { Issue, ProjectTeamMember, Space } from '../types';
 import { buildApiUrl, getAuthHeaders } from '../../config/api';
@@ -1489,75 +1489,123 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
   interface ProcessMapping {
     id: string;
     name: string;
+    companyName?: string;
+    responsibleName?: string;
+    companyLogo?: string;
     steps: ProcessStep[];
     swimlanes: Swimlane[];
     actions: string[];
+    diagrams?: BpmnDiagram[];
     bpmn?: BpmnDiagram;
   }
 
   const projectId = activeProject?.id || 'global';
-  const localStorageKey = `pm-process-mappings-list-${projectId}`;
+  const localStorageKey = `pm-process-mappings-v2-${projectId}`;
+  const legacyStorageKey = `pm-process-mappings-list-${projectId}`;
 
-  const buildDefaultBpmnProcesses = (): ProcessMapping[] =>
-    BPMN_TEMPLATES.map((tpl) => ({
-      id: tpl.id,
-      name: `${tpl.code} | ${tpl.title}`,
-      steps: tpl.nodes
+  const buildArchitectureProcess = (): ProcessMapping => {
+    const first = BPMN_TEMPLATES[0];
+    return {
+      id: 'nexos-arquitetura',
+      name: 'Arquitetura Comercial & Implantação (BPMN 00–07)',
+      companyName: 'NEXOS CRM',
+      responsibleName: 'Gestão de Processos',
+      steps: first.nodes
         .filter((n) => n.type === 'task' || n.type === 'subprocess' || n.type === 'gateway')
         .map((n) => ({
           title: n.label,
-          owner: tpl.lanes.find((l) => l.id === n.laneId)?.label || 'Responsável',
+          owner: first.lanes.find((l) => l.id === n.laneId)?.label || 'Responsável',
           time: n.sla || '1 dia',
-          status: n.status || (n.type === 'gateway' ? 'Decisão' : 'OK'),
+          status: n.status || 'OK',
           color: n.type === 'gateway' ? '#f6b40b' : '#2563eb',
-          items: n.controls && n.controls.length > 0 ? n.controls : [tpl.controlsText]
+          items: [first.controlsText]
         })),
-      swimlanes: tpl.lanes.map((l) => ({
+      swimlanes: first.lanes.map((l) => ({
         area: l.label,
-        entries: tpl.nodes.filter((n) => n.laneId === l.id && n.type !== 'start' && n.type !== 'end').map((n) => n.label),
+        entries: first.nodes.filter((n) => n.laneId === l.id && n.type !== 'start' && n.type !== 'end').map((n) => n.label),
         color: '#2563eb'
       })),
-      actions: [tpl.controlsText],
-      bpmn: cloneBpmnDiagram(tpl)
-    }));
+      actions: [first.controlsText],
+      diagrams: BPMN_TEMPLATES.map((tpl) => cloneBpmnDiagram(tpl))
+    };
+  };
+
+  const normalizeProcess = (proc: ProcessMapping): ProcessMapping => {
+    if (Array.isArray(proc.diagrams) && proc.diagrams.length > 0) return proc;
+    if (proc.bpmn) return { ...proc, diagrams: [proc.bpmn] };
+    return {
+      ...proc,
+      diagrams: [createBpmnFromSteps(proc.name, proc.steps || [], proc.swimlanes || [], proc.actions || [])]
+    };
+  };
 
   const [processes, setProcesses] = useState<ProcessMapping[]>(() => {
-    const defaults = buildDefaultBpmnProcesses();
-    if (typeof window === 'undefined') return defaults;
-    const saved = window.localStorage.getItem(localStorageKey);
-    if (saved) {
+    const defaultArch = buildArchitectureProcess();
+    if (typeof window === 'undefined') return [defaultArch];
+    const savedV2 = window.localStorage.getItem(localStorageKey);
+    if (savedV2) {
       try {
-        const parsed = JSON.parse(saved);
+        const parsed = JSON.parse(savedV2);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          const existingIds = new Set(parsed.map((p: ProcessMapping) => p.id));
-          const missingDefaults = defaults.filter((d) => !existingIds.has(d.id));
-          return [...missingDefaults, ...parsed];
+          return parsed.map(normalizeProcess);
         }
       } catch (e) {
-        console.error('Erro ao ler mappings', e);
+        console.error('Erro ao ler mappings v2', e);
       }
     }
-    return defaults;
+    const savedLegacy = window.localStorage.getItem(legacyStorageKey);
+    if (savedLegacy) {
+      try {
+        const parsed = JSON.parse(savedLegacy);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const customOnes = parsed
+            .filter((p: ProcessMapping) => !BPMN_TEMPLATES.some((t) => t.id === p.id))
+            .map(normalizeProcess);
+          return [defaultArch, ...customOnes];
+        }
+      } catch (e) {
+        console.error('Erro ao migrar mappings', e);
+      }
+    }
+    return [defaultArch];
   });
 
-  const [activeProcessId, setActiveProcessId] = useState<string>(processes[0]?.id || 'bpmn-00');
+  const [activeProcessId, setActiveProcessId] = useState<string>(processes[0]?.id || 'nexos-arquitetura');
+  const [activeDiagramId, setActiveDiagramId] = useState<string>(processes[0]?.diagrams?.[0]?.id || 'bpmn-00');
   const [viewMode, setViewMode] = useState<'bpmn' | 'cards'>('bpmn');
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isExportingPDF, setIsExportingPDF] = useState(false);
   const [showNewProcessModal, setShowNewProcessModal] = useState(false);
+  const [showNewBpmnModal, setShowNewBpmnModal] = useState(false);
   const [newProcessForm, setNewProcessForm] = useState({
-    code: 'BPMN-08',
     name: '',
     companyName: '',
     responsibleName: '',
     companyLogo: '',
+    mode: 'suite' as 'suite' | 'blank'
+  });
+  const [newBpmnForm, setNewBpmnForm] = useState({
+    code: 'BPMN-08',
+    title: '',
     baseTemplateId: 'blank'
   });
 
   const board = processes.find(p => p.id === activeProcessId) || processes[0];
-  const activeBpmn = board.bpmn || createBpmnFromSteps(board.name, board.steps, board.swimlanes, board.actions);
+  const boardDiagrams = useMemo(() => {
+    const list = board.diagrams && board.diagrams.length > 0
+      ? board.diagrams
+      : [createBpmnFromSteps(board.name, board.steps, board.swimlanes, board.actions)];
+    return list.map((d) => ({
+      ...d,
+      companyName: d.companyName ?? board.companyName,
+      responsibleName: d.responsibleName ?? board.responsibleName,
+      companyLogo: d.companyLogo ?? board.companyLogo
+    }));
+  }, [board]);
+
+  const activeBpmn = boardDiagrams.find((d) => d.id === activeDiagramId) || boardDiagrams[0];
 
   const leadTime = board.steps.reduce((sum, step) => sum + (Number.parseInt(step.time, 10) || 0), 0);
   const bottlenecks = board.steps.filter(step => /risco|aten|bloq/i.test(step.status)).length;
@@ -1569,26 +1617,40 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
   };
 
   const updateActiveBpmn = (updatedDiagram: BpmnDiagram) => {
-    const updated = processes.map((p) =>
-      p.id === board.id ? { ...p, bpmn: updatedDiagram } : p
-    );
+    const updated = processes.map((p) => {
+      if (p.id !== board.id) return p;
+      const currentList = p.diagrams && p.diagrams.length > 0 ? p.diagrams : [activeBpmn];
+      return {
+        ...p,
+        companyName: updatedDiagram.companyName ?? p.companyName,
+        responsibleName: updatedDiagram.responsibleName ?? p.responsibleName,
+        companyLogo: updatedDiagram.companyLogo ?? p.companyLogo,
+        diagrams: currentList.map((d) => (d.id === activeBpmn.id ? updatedDiagram : d))
+      };
+    });
     persistProcesses(updated);
   };
 
   const handleSelectLinkedCode = (code: string) => {
-    const target = processes.find(
-      (p) => p.bpmn?.code === code || p.id.toUpperCase() === code.toUpperCase() || p.name.startsWith(code)
+    const targetInBoard = boardDiagrams.find(
+      (d) => d.code.toUpperCase() === code.toUpperCase() || d.id.toUpperCase() === code.toUpperCase()
     );
-    if (target) {
-      setActiveProcessId(target.id);
+    if (targetInBoard) {
+      setActiveDiagramId(targetInBoard.id);
     }
   };
 
   const handleResetTemplate = () => {
-    const tpl = BPMN_TEMPLATES.find((t) => t.id === board.id);
+    const tpl = BPMN_TEMPLATES.find((t) => t.id === activeBpmn.id || t.code === activeBpmn.code);
     if (!tpl) return;
     if (!confirm(`Restaurar o diagrama padrão ${tpl.code}?`)) return;
-    updateActiveBpmn(cloneBpmnDiagram(tpl));
+    updateActiveBpmn({
+      ...cloneBpmnDiagram(tpl),
+      id: activeBpmn.id,
+      companyName: board.companyName,
+      responsibleName: board.responsibleName,
+      companyLogo: board.companyLogo
+    });
   };
 
   const handleSaveProcess = () => {
@@ -1602,12 +1664,11 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
 
   const handleCreateNewProcess = () => {
     setNewProcessForm({
-      code: `BPMN-${String(processes.length).padStart(2, '0')}`,
-      name: `Novo Processo ${processes.length + 1}`,
+      name: `Processo Comercial ${processes.length + 1}`,
       companyName: '',
       responsibleName: '',
       companyLogo: '',
-      baseTemplateId: 'blank'
+      mode: 'suite'
     });
     setShowNewProcessModal(true);
   };
@@ -1631,51 +1692,125 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
   const handleConfirmCreateNewProcess = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedName = newProcessForm.name.trim() || `Processo ${processes.length + 1}`;
-    const trimmedCode = newProcessForm.code.trim() || 'BPMN-CUSTOM';
     const trimmedCompany = newProcessForm.companyName.trim();
     const trimmedResponsible = newProcessForm.responsibleName.trim();
     const newId = `process-${Date.now()}`;
 
-    const baseTemplate = BPMN_TEMPLATES.find((t) => t.id === newProcessForm.baseTemplateId);
     const defaultSteps = [
       { title: 'Entrada e Triagem', owner: trimmedResponsible || 'Responsável', time: '1 dia', status: 'OK', color: '#18c8df', items: ['Passo preliminar', 'Revisar requisitos'] },
       { title: 'Entrega Final', owner: trimmedResponsible || 'Responsável', time: '2 dias', status: 'Novo', color: '#22c55e', items: ['Validação', 'Entrega finalizada'] }
     ];
     const defaultLanes = [{ area: 'Área Responsável', entries: ['Entrada e Triagem', 'Entrega Final'], color: '#18c8df' }];
 
-    const bpmn: BpmnDiagram = baseTemplate
-      ? {
-          ...cloneBpmnDiagram(baseTemplate),
-          id: newId,
-          code: trimmedCode,
-          title: trimmedName,
-          companyName: trimmedCompany || undefined,
-          responsibleName: trimmedResponsible || undefined,
-          companyLogo: newProcessForm.companyLogo || undefined
-        }
-      : {
-          ...createBpmnFromSteps(trimmedName, defaultSteps, defaultLanes, ['O CRM é a fonte oficial. Toda etapa ativa tem responsável, status e próxima ação com prazo.']),
-          id: newId,
-          code: trimmedCode,
-          title: trimmedName,
-          companyName: trimmedCompany || undefined,
-          responsibleName: trimmedResponsible || undefined,
-          companyLogo: newProcessForm.companyLogo || undefined
-        };
+    const diagrams: BpmnDiagram[] =
+      newProcessForm.mode === 'suite'
+        ? BPMN_TEMPLATES.map((tpl) => ({
+            ...cloneBpmnDiagram(tpl),
+            id: `${newId}-${tpl.id}`,
+            companyName: trimmedCompany || undefined,
+            responsibleName: trimmedResponsible || undefined,
+            companyLogo: newProcessForm.companyLogo || undefined
+          }))
+        : [
+            {
+              ...createBpmnFromSteps(trimmedName, defaultSteps, defaultLanes, ['O CRM é a fonte oficial. Toda etapa ativa tem responsável, status e próxima ação com prazo.']),
+              id: `${newId}-bpmn-01`,
+              code: 'BPMN-01',
+              title: trimmedName,
+              companyName: trimmedCompany || undefined,
+              responsibleName: trimmedResponsible || undefined,
+              companyLogo: newProcessForm.companyLogo || undefined
+            }
+          ];
 
     const newProcess: ProcessMapping = {
       id: newId,
-      name: `${trimmedCode} | ${trimmedName}`,
+      name: trimmedCompany ? `${trimmedCompany} — ${trimmedName}` : trimmedName,
+      companyName: trimmedCompany || undefined,
+      responsibleName: trimmedResponsible || undefined,
+      companyLogo: newProcessForm.companyLogo || undefined,
       steps: defaultSteps,
       swimlanes: defaultLanes,
-      actions: [bpmn.controlsText],
-      bpmn
+      actions: [diagrams[0].controlsText],
+      diagrams
     };
     const newList = [...processes, newProcess];
     persistProcesses(newList);
     setActiveProcessId(newId);
+    setActiveDiagramId(diagrams[0].id);
     setViewMode('bpmn');
     setShowNewProcessModal(false);
+  };
+
+  const handleOpenNewBpmnModal = () => {
+    const nextNum = String(boardDiagrams.length).padStart(2, '0');
+    setNewBpmnForm({
+      code: `BPMN-${nextNum}`,
+      title: `Novo Fluxo ${boardDiagrams.length + 1}`,
+      baseTemplateId: 'blank'
+    });
+    setShowNewBpmnModal(true);
+  };
+
+  const handleConfirmAddBpmn = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newBpmnId = `${board.id}-bpmn-${Date.now()}`;
+    const trimmedCode = newBpmnForm.code.trim() || `BPMN-${String(boardDiagrams.length).padStart(2, '0')}`;
+    const trimmedTitle = newBpmnForm.title.trim() || `Fluxo ${boardDiagrams.length + 1}`;
+    const baseTpl = BPMN_TEMPLATES.find((t) => t.id === newBpmnForm.baseTemplateId);
+
+    const created: BpmnDiagram = baseTpl
+      ? {
+          ...cloneBpmnDiagram(baseTpl),
+          id: newBpmnId,
+          code: trimmedCode,
+          title: trimmedTitle,
+          companyName: board.companyName,
+          responsibleName: board.responsibleName,
+          companyLogo: board.companyLogo,
+          pageLabel: `${String(boardDiagrams.length + 1).padStart(2, '0')} / ${String(boardDiagrams.length + 1).padStart(2, '0')}`
+        }
+      : {
+          ...createBpmnFromSteps(
+            trimmedTitle,
+            [
+              { title: 'Recebimento / Início', owner: board.responsibleName || 'Responsável', time: '1 dia', status: 'OK', items: ['Registrar no CRM'] },
+              { title: 'Execução / Validação', owner: board.responsibleName || 'Responsável', time: '2 dias', status: 'OK', items: ['Conferir checklist'] }
+            ],
+            [{ area: 'Equipe Responsável', entries: [] }],
+            ['O CRM é a fonte oficial. Toda etapa ativa tem responsável, status e próxima ação com prazo.']
+          ),
+          id: newBpmnId,
+          code: trimmedCode,
+          title: trimmedTitle,
+          companyName: board.companyName,
+          responsibleName: board.responsibleName,
+          companyLogo: board.companyLogo,
+          pageLabel: `${String(boardDiagrams.length + 1).padStart(2, '0')} / ${String(boardDiagrams.length + 1).padStart(2, '0')}`
+        };
+
+    const updated = processes.map((p) => {
+      if (p.id !== board.id) return p;
+      return { ...p, diagrams: [...boardDiagrams, created] };
+    });
+    persistProcesses(updated);
+    setActiveDiagramId(newBpmnId);
+    setViewMode('bpmn');
+    setShowNewBpmnModal(false);
+  };
+
+  const handleDeleteDiagram = (diagramId: string) => {
+    if (boardDiagrams.length <= 1) {
+      alert('O processo precisa manter pelo menos 1 diagrama BPMN.');
+      return;
+    }
+    if (!confirm('Deseja remover este diagrama BPMN do processo?')) return;
+    const remaining = boardDiagrams.filter((d) => d.id !== diagramId);
+    const updated = processes.map((p) => (p.id === board.id ? { ...p, diagrams: remaining } : p));
+    persistProcesses(updated);
+    if (activeBpmn.id === diagramId) {
+      setActiveDiagramId(remaining[0].id);
+    }
   };
 
   const handleDeleteProcess = (id: string) => {
@@ -2060,10 +2195,15 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
               <select
                 value={activeProcessId}
                 onChange={(e) => {
-                  setActiveProcessId(e.target.value);
+                  const nextId = e.target.value;
+                  setActiveProcessId(nextId);
+                  const nextProc = processes.find((p) => p.id === nextId);
+                  if (nextProc?.diagrams?.[0]?.id) {
+                    setActiveDiagramId(nextProc.diagrams[0].id);
+                  }
                   setIsEditingName(false);
                 }}
-                className="bg-transparent border border-[var(--crm-border)] rounded-md text-sm px-3 py-1.5 font-bold text-[var(--crm-ink)] outline-none max-w-[280px]"
+                className="bg-transparent border border-[var(--crm-border)] rounded-md text-sm px-3 py-1.5 font-bold text-[var(--crm-ink)] outline-none max-w-[300px]"
               >
                 {processes.map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
@@ -2114,30 +2254,64 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
         </div>
       </div>
 
-      {/* Navegação rápida entre os fluxos BPMN-00 a BPMN-07 */}
-      <div className="flex flex-wrap items-center gap-1.5">
-        {processes.map((proc) => {
-          const isActive = proc.id === board.id;
-          const shortCode = proc.bpmn?.code && proc.bpmn.code !== 'BPMN-CUSTOM' ? proc.bpmn.code : proc.name;
-          return (
+      {/* Barra de BPMNs do Processo Ativo (um processo pode ter vários BPMNs) */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.6)] px-4 py-2.5">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <span className="text-[11px] font-bold uppercase tracking-wide text-[var(--crm-muted)] mr-1">
+            BPMNs ({boardDiagrams.length}):
+          </span>
+          {boardDiagrams.map((diag) => {
+            const isActive = diag.id === activeBpmn.id;
+            return (
+              <div key={diag.id} className="inline-flex items-center">
+                <button
+                  type="button"
+                  onClick={() => setActiveDiagramId(diag.id)}
+                  className={`rounded-md border px-2.5 py-1 text-xs font-bold transition-colors ${
+                    isActive
+                      ? 'border-[#1d5d8c] bg-[#0f2744] text-white shadow-sm'
+                      : 'border-[var(--crm-border)] bg-transparent text-[var(--crm-muted)] hover:border-[#1d5d8c]/60 hover:text-[var(--crm-ink)]'
+                  }`}
+                  title={`${diag.code} | ${diag.title}`}
+                >
+                  {diag.code}
+                </button>
+              </div>
+            );
+          })}
+          <button
+            type="button"
+            onClick={handleOpenNewBpmnModal}
+            className="inline-flex items-center gap-1 rounded-md border border-dashed border-[#2563eb]/60 bg-[#2563eb]/10 px-2.5 py-1 text-xs font-bold text-[#38bdf8] hover:bg-[#2563eb]/20"
+          >
+            <Plus className="h-3.5 w-3.5" /> Novo BPMN
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          {boardDiagrams.length > 1 && (
             <button
-              key={proc.id}
               type="button"
-              onClick={() => {
-                setActiveProcessId(proc.id);
-                setIsEditingName(false);
-              }}
-              className={`rounded-md border px-2.5 py-1.5 text-xs font-bold transition-colors ${
-                isActive
-                  ? 'border-[#1d5d8c] bg-[#0f2744] text-white shadow-sm'
-                  : 'border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.6)] text-[var(--crm-muted)] hover:border-[#1d5d8c]/60 hover:text-[var(--crm-ink)]'
-              }`}
-              title={proc.name}
+              onClick={() => handleDeleteDiagram(activeBpmn.id)}
+              className="inline-flex items-center gap-1 rounded-md border border-red-500/30 px-2.5 py-1 text-xs font-bold text-red-400 hover:bg-red-500/10"
+              title="Excluir este BPMN do processo"
             >
-              {shortCode}
+              <Trash2 className="h-3.5 w-3.5" /> Excluir {activeBpmn.code}
             </button>
-          );
-        })}
+          )}
+          {boardDiagrams.length > 1 && (
+            <button
+              type="button"
+              onClick={() => exportAllBpmnDiagramsToPdf(board.name, boardDiagrams, {
+                companyName: board.companyName,
+                responsibleName: board.responsibleName,
+                companyLogo: board.companyLogo
+              })}
+              className="inline-flex items-center gap-1 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-2.5 py-1 text-xs font-bold text-cyan-400 hover:bg-cyan-500/20"
+            >
+              <FileDown className="h-3.5 w-3.5" /> PDF Completo ({boardDiagrams.length})
+            </button>
+          )}
+        </div>
       </div>
 
       {viewMode === 'bpmn' ? (
@@ -2145,7 +2319,7 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
           diagram={activeBpmn}
           onChange={updateActiveBpmn}
           onSelectLinkedCode={handleSelectLinkedCode}
-          onResetToTemplate={BPMN_TEMPLATES.some((t) => t.id === board.id) ? handleResetTemplate : undefined}
+          onResetToTemplate={BPMN_TEMPLATES.some((t) => t.id === activeBpmn.id || t.code === activeBpmn.code) ? handleResetTemplate : undefined}
         />
       ) : (
         <>
@@ -2329,8 +2503,8 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
           >
             <div className="flex items-center justify-between border-b border-[var(--crm-border)] pb-3">
               <div>
-                <h3 className="text-lg font-black">Novo Processo BPMN</h3>
-                <p className="text-xs text-[var(--crm-muted)]">Informe os dados da empresa, responsável e logo para o cabeçalho do diagrama e PDF.</p>
+                <h3 className="text-lg font-black">Novo Processo da Empresa</h3>
+                <p className="text-xs text-[var(--crm-muted)]">Um processo pode conter vários diagramas BPMN. Informe a empresa, responsável e logo.</p>
               </div>
               <button
                 type="button"
@@ -2341,27 +2515,15 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
               </button>
             </div>
 
-            <div className="grid gap-3 sm:grid-cols-3">
-              <div>
-                <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Código BPMN</label>
-                <input
-                  required
-                  value={newProcessForm.code}
-                  onChange={(e) => setNewProcessForm((p) => ({ ...p, code: e.target.value }))}
-                  placeholder="Ex: BPMN-08"
-                  className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm font-bold outline-none focus:border-[#2563eb]"
-                />
-              </div>
-              <div className="sm:col-span-2">
-                <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Nome do Processo *</label>
-                <input
-                  required
-                  value={newProcessForm.name}
-                  onChange={(e) => setNewProcessForm((p) => ({ ...p, name: e.target.value }))}
-                  placeholder="Ex: Fluxo Comercial Personalizado"
-                  className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm font-semibold outline-none focus:border-[#2563eb]"
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Nome do Processo *</label>
+              <input
+                required
+                value={newProcessForm.name}
+                onChange={(e) => setNewProcessForm((p) => ({ ...p, name: e.target.value }))}
+                placeholder="Ex: Operação Comercial & Implantação"
+                className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm font-semibold outline-none focus:border-[#2563eb]"
+              />
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
@@ -2388,18 +2550,14 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Modelo Inicial</label>
+              <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Estrutura inicial de BPMNs</label>
               <select
-                value={newProcessForm.baseTemplateId}
-                onChange={(e) => setNewProcessForm((p) => ({ ...p, baseTemplateId: e.target.value }))}
+                value={newProcessForm.mode}
+                onChange={(e) => setNewProcessForm((p) => ({ ...p, mode: e.target.value as 'suite' | 'blank' }))}
                 className="w-full rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] px-3 py-2 text-sm outline-none focus:border-[#2563eb]"
               >
-                <option value="blank">Em branco (Início → Etapas → Fim)</option>
-                {BPMN_TEMPLATES.map((tpl) => (
-                  <option key={tpl.id} value={tpl.id}>
-                    Copiar estrutura de {tpl.code} | {tpl.title}
-                  </option>
-                ))}
+                <option value="suite">Conjunto Completo (BPMN-00 a BPMN-07 editáveis)</option>
+                <option value="blank">Começar com 1 BPMN em branco (e adicionar depois)</option>
               </select>
             </div>
 
@@ -2447,7 +2605,81 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
                 type="submit"
                 className="rounded-md bg-[#2563eb] px-4 py-2 text-xs font-bold text-white hover:bg-[#1d4ed8]"
               >
-                Criar Processo BPMN
+                Criar Processo
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {showNewBpmnModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <form
+            onSubmit={handleConfirmAddBpmn}
+            className="w-full max-w-md rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] p-6 shadow-2xl space-y-4 text-[var(--crm-ink)]"
+          >
+            <div className="flex items-center justify-between border-b border-[var(--crm-border)] pb-3">
+              <div>
+                <h3 className="text-lg font-black">Adicionar BPMN ao Processo</h3>
+                <p className="text-xs text-[var(--crm-muted)]">{board.name}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowNewBpmnModal(false)}
+                className="rounded p-1 text-[var(--crm-muted)] hover:text-[var(--crm-ink)]"
+              >
+                ✕
+              </button>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div>
+                <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Código</label>
+                <input
+                  required
+                  value={newBpmnForm.code}
+                  onChange={(e) => setNewBpmnForm((p) => ({ ...p, code: e.target.value }))}
+                  className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm font-bold outline-none focus:border-[#2563eb]"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Título do BPMN *</label>
+                <input
+                  required
+                  value={newBpmnForm.title}
+                  onChange={(e) => setNewBpmnForm((p) => ({ ...p, title: e.target.value }))}
+                  placeholder="Ex: Pós-venda e Renovação"
+                  className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm font-semibold outline-none focus:border-[#2563eb]"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Modelo Base</label>
+              <select
+                value={newBpmnForm.baseTemplateId}
+                onChange={(e) => setNewBpmnForm((p) => ({ ...p, baseTemplateId: e.target.value }))}
+                className="w-full rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] px-3 py-2 text-sm outline-none focus:border-[#2563eb]"
+              >
+                <option value="blank">Em branco (Início → Atividades → Fim)</option>
+                {BPMN_TEMPLATES.map((tpl) => (
+                  <option key={tpl.id} value={tpl.id}>
+                    Copiar de {tpl.code} | {tpl.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="flex justify-end gap-2 border-t border-[var(--crm-border)] pt-3">
+              <button
+                type="button"
+                onClick={() => setShowNewBpmnModal(false)}
+                className="rounded-md border border-[var(--crm-border)] px-4 py-2 text-xs font-bold text-[var(--crm-muted)] hover:text-[var(--crm-ink)]"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="rounded-md bg-[#2563eb] px-4 py-2 text-xs font-bold text-white hover:bg-[#1d4ed8]"
+              >
+                Adicionar BPMN
               </button>
             </div>
           </form>

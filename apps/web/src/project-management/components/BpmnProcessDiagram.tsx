@@ -1,7 +1,7 @@
 import React, { useMemo, useRef, useState } from 'react';
 import {
   Plus, Trash2, ZoomIn, ZoomOut, ShieldCheck, ArrowRight, GitBranch,
-  Layers, Link2, ExternalLink, RotateCcw, Building2, Upload, ArrowLeft, X, Copy
+  Layers, Link2, ExternalLink, RotateCcw, Building2, Upload, ArrowLeft, X, Copy, Pencil
 } from 'lucide-react';
 import {
   BPMN_GOVERNANCE,
@@ -52,7 +52,9 @@ export default function BpmnProcessDiagram({
   const [showHeaderEditor, setShowHeaderEditor] = useState(false);
   const [showGovernance, setShowGovernance] = useState(false);
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
+  const [dragPreview, setDragPreview] = useState<{ col: number; laneId: string } | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const nodeLabelInputRef = useRef<HTMLInputElement | null>(null);
 
   const [newEdge, setNewEdge] = useState<{
     from: string;
@@ -210,23 +212,34 @@ export default function BpmnProcessDiagram({
     reader.readAsDataURL(file);
   };
 
-  const handleSvgMouseUp = (event: React.MouseEvent<SVGSVGElement>) => {
-    if (!draggingNodeId || !svgRef.current) return;
+  const getSvgCoords = (event: React.MouseEvent<SVGSVGElement>) => {
+    if (!svgRef.current) return null;
     const rect = svgRef.current.getBoundingClientRect();
     const svgX = (event.clientX - rect.left) / zoom;
     const svgY = (event.clientY - rect.top) / zoom;
-
     const targetCol = Math.max(0, Math.round((svgX - layout.laneHeaderWidth - 42 - 56) / 144));
-    const targetLane = layout.lanes.find((l) => svgY >= l.y && svgY <= l.y + l.height);
+    const targetLane = layout.lanes.find((l) => svgY >= l.y && svgY <= l.y + l.height) || layout.lanes[0];
+    return { col: targetCol, laneId: targetLane.id };
+  };
 
+  const handleSvgMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
+    if (!draggingNodeId) return;
+    const pos = getSvgCoords(event);
+    if (pos) setDragPreview(pos);
+  };
+
+  const handleSvgMouseUp = (event: React.MouseEvent<SVGSVGElement>) => {
+    if (!draggingNodeId) return;
+    const pos = getSvgCoords(event);
     const currentNode = diagram.nodes.find((n) => n.id === draggingNodeId);
-    if (currentNode && (currentNode.col !== targetCol || (targetLane && currentNode.laneId !== targetLane.id))) {
+    if (currentNode && pos && (currentNode.col !== pos.col || currentNode.laneId !== pos.laneId)) {
       updateNode(draggingNodeId, {
-        col: targetCol,
-        ...(targetLane ? { laneId: targetLane.id } : {})
+        col: pos.col,
+        laneId: pos.laneId
       });
     }
     setDraggingNodeId(null);
+    setDragPreview(null);
   };
 
   return (
@@ -295,11 +308,11 @@ export default function BpmnProcessDiagram({
             onClick={() => setShowHeaderEditor((v) => !v)}
             className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-bold transition-colors ${
               showHeaderEditor
-                ? 'border-[#2563eb] bg-[#2563eb]/15 text-[#38bdf8]'
-                : 'border-[var(--crm-border)] text-[var(--crm-ink)] hover:border-[#2563eb]'
+                ? 'border-[#2563eb] bg-[#2563eb] text-white'
+                : 'border-[#2563eb]/50 bg-[#2563eb]/15 text-[#38bdf8] hover:bg-[#2563eb]/25'
             }`}
           >
-            <Building2 className="h-3.5 w-3.5" /> Empresa e Logo
+            <Pencil className="h-3.5 w-3.5" /> Editar BPMN / Descritivo
           </button>
           <button
             type="button"
@@ -344,7 +357,7 @@ export default function BpmnProcessDiagram({
         </div>
       </div>
 
-      {/* Painel de edição de Empresa, Responsável, Logo e Título do BPMN */}
+      {/* Painel completo de edição do BPMN (Código, Título, Descritivo, Empresa, Responsável, Logo, Base e Rodapé) */}
       {showHeaderEditor && (
         <div className="rounded-lg border border-[#2563eb]/40 bg-[rgb(var(--crm-surface-2-rgb)/0.94)] p-4 grid gap-4 md:grid-cols-4">
           <div>
@@ -357,12 +370,21 @@ export default function BpmnProcessDiagram({
             />
           </div>
           <div>
-            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Título do Diagrama</label>
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Título do BPMN</label>
             <input
               value={diagram.title}
               onChange={(e) => onChange({ ...diagram, title: e.target.value })}
               placeholder="Ex: Macroprocesso comercial"
               className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-bold text-[var(--crm-ink)]"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Subtítulo</label>
+            <input
+              value={diagram.subtitle || ''}
+              onChange={(e) => onChange({ ...diagram, subtitle: e.target.value })}
+              placeholder="ARQUITETURA DE PROCESSOS"
+              className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
             />
           </div>
           <div>
@@ -383,24 +405,51 @@ export default function BpmnProcessDiagram({
               className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-semibold text-[var(--crm-ink)]"
             />
           </div>
-          <div className="md:col-span-4 flex flex-wrap items-center gap-3 pt-1">
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[#2563eb]/40 bg-[#2563eb]/10 px-3 py-1.5 text-xs font-bold text-[#38bdf8] hover:bg-[#2563eb]/20">
-              <Upload className="h-3.5 w-3.5" />
-              {diagram.companyLogo ? 'Alterar Logo da Empresa' : 'Inserir Logo da Empresa'}
-              <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={handleLogoUpload} className="hidden" />
-            </label>
-            {diagram.companyLogo && (
-              <div className="flex items-center gap-2">
-                <img src={diagram.companyLogo} alt="Logo" className="h-8 w-8 rounded bg-white object-contain p-0.5 border border-[var(--crm-border)]" />
-                <button
-                  type="button"
-                  onClick={() => onChange({ ...diagram, companyLogo: undefined })}
-                  className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold text-red-400 hover:bg-red-500/10"
-                >
-                  <X className="h-3.5 w-3.5" /> Remover logo
-                </button>
-              </div>
-            )}
+          <div>
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Base / Referência</label>
+            <input
+              value={diagram.sourceBase || ''}
+              onChange={(e) => onChange({ ...diagram, sourceBase: e.target.value })}
+              placeholder="Ex: Base: Manual §§ 1-2"
+              className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Descritivo / Controles e Regras</label>
+            <textarea
+              rows={2}
+              value={diagram.controlsText}
+              onChange={(e) => onChange({ ...diagram, controlsText: e.target.value })}
+              className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+            />
+          </div>
+          <div className="md:col-span-4 flex flex-wrap items-center justify-between gap-3 pt-1">
+            <div className="flex flex-wrap items-center gap-3">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[#2563eb]/40 bg-[#2563eb]/10 px-3 py-1.5 text-xs font-bold text-[#38bdf8] hover:bg-[#2563eb]/20">
+                <Upload className="h-3.5 w-3.5" />
+                {diagram.companyLogo ? 'Alterar Logo da Empresa' : 'Inserir Logo da Empresa'}
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={handleLogoUpload} className="hidden" />
+              </label>
+              {diagram.companyLogo && (
+                <div className="flex items-center gap-2">
+                  <img src={diagram.companyLogo} alt="Logo" className="h-8 w-8 rounded bg-white object-contain p-0.5 border border-[var(--crm-border)]" />
+                  <button
+                    type="button"
+                    onClick={() => onChange({ ...diagram, companyLogo: undefined })}
+                    className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold text-red-400 hover:bg-red-500/10"
+                  >
+                    <X className="h-3.5 w-3.5" /> Remover logo
+                  </button>
+                </div>
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => setShowHeaderEditor(false)}
+              className="rounded-md bg-[#2563eb] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#1d4ed8]"
+            >
+              Concluir edição
+            </button>
           </div>
         </div>
       )}
@@ -534,7 +583,14 @@ export default function BpmnProcessDiagram({
               height={layout.height * zoom}
               viewBox={`0 0 ${layout.width} ${layout.height}`}
               className="select-none"
+              onMouseMove={handleSvgMouseMove}
               onMouseUp={handleSvgMouseUp}
+              onMouseLeave={() => {
+                if (draggingNodeId) {
+                  setDraggingNodeId(null);
+                  setDragPreview(null);
+                }
+              }}
             >
               <defs>
                 <marker
@@ -653,6 +709,29 @@ export default function BpmnProcessDiagram({
                   </g>
                 );
               })}
+
+              {/* Indicador visual de destino ao arrastar */}
+              {draggingNodeId && dragPreview && (() => {
+                const targetLane = layout.lanes.find((l) => l.id === dragPreview.laneId);
+                if (!targetLane) return null;
+                const px = layout.laneHeaderWidth + 42 + dragPreview.col * 144 + 56 - 58;
+                const py = targetLane.y + targetLane.height / 2 - 30;
+                return (
+                  <rect
+                    x={px}
+                    y={py}
+                    width={116}
+                    height={60}
+                    rx={8}
+                    fill="#2563eb"
+                    fillOpacity={0.08}
+                    stroke="#2563eb"
+                    strokeWidth={1.8}
+                    strokeDasharray="5 4"
+                    pointerEvents="none"
+                  />
+                );
+              })()}
 
               {/* Nós BPMN (clicáveis e arrastáveis) */}
               {layout.nodes.map((node) => {
@@ -877,6 +956,7 @@ export default function BpmnProcessDiagram({
               <div className="sm:col-span-2">
                 <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Texto / Rótulo</label>
                 <input
+                  ref={nodeLabelInputRef}
                   value={selectedNode.label}
                   onChange={(e) => updateNode(selectedNode.id, { label: e.target.value })}
                   className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-semibold text-[var(--crm-ink)]"
