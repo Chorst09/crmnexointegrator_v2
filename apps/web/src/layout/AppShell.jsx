@@ -36,11 +36,13 @@ export default function AppShell() {
       />
 
       <main className="relative z-10 flex-1 min-w-0 flex flex-col min-h-0" id="main-content">
-        <Topbar onMenuClick={() => setSidebarOpen(true)} />
+        <div className={pathname === '/dashboard-geral' ? 'lg:hidden' : ''}>
+          <Topbar onMenuClick={() => setSidebarOpen(true)} />
+        </div>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="px-4 sm:px-6 lg:px-8 pb-12 pt-6">
-            <div className="mx-auto w-full max-w-[1400px]">
+          <div className={pathname === '/dashboard-geral' ? 'px-2 sm:px-3 lg:px-4 pb-6 pt-2' : 'px-4 sm:px-6 lg:px-8 pb-12 pt-6'}>
+            <div className={pathname === '/dashboard-geral' ? 'mx-auto w-full max-w-[1600px]' : 'mx-auto w-full max-w-[1400px]'}>
               <div>
                 <Outlet />
               </div>
