@@ -11,9 +11,9 @@
 .nex-overview-card h3 { margin:0; font:700 12px/1.3 'Segoe UI',Arial,sans-serif; color:#e4f4ff; white-space:nowrap; }
 .nex-overview-card header p { margin:3px 0 0; color:#adcae2; font-size:9px; }
 .nex-overview-card header > svg { color:var(--overview-color); }
-.nex-module-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); padding:8px 2px; border-radius:8px; background:linear-gradient(#0b355480,#00122480); position:relative; z-index:1; }
-.nex-module-metrics > div { display:flex; flex-direction:column; gap:4px; align-items:center; min-width:0; }
-.nex-module-metrics strong { font-size:clamp(10px,1vw,15px); font-weight:700; color:#eff7ff; white-space:nowrap; }
+.nex-module-metrics { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:4px; padding:8px 6px; border-radius:8px; background:linear-gradient(#0b355480,#00122480); position:relative; z-index:1; }
+.nex-module-metrics > div { display:flex; flex-direction:column; gap:4px; align-items:center; min-width:0; overflow:hidden; }
+.nex-module-metrics strong { font-size:clamp(9.5px,0.8vw,12px); font-weight:700; color:#eff7ff; white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
 .nex-module-metrics span { color:#a7c2dc; font-size:8px; white-space:nowrap; }
 .nex-overview-b2b { display:flex; align-items:center; gap:3px; height:103px; }
 .nex-overview-b2b > div { flex-shrink:0; width:39%; text-align:center; }
