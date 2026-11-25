@@ -7,7 +7,8 @@ import {
   BarChart2, LayoutTemplate, MoreHorizontal,
   Search, Bell, Settings, Plus, ChevronDown, CheckCircle2,
   List as ListIcon, Calendar, Activity, Upload,
-  Users2, GanttChartSquare, ArrowLeft, X, Target, Briefcase, DollarSign, Menu
+  Users2, GanttChartSquare, ArrowLeft, X, Target, Briefcase, DollarSign, Menu,
+  ClipboardCheck, ShieldAlert
 } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -22,6 +23,7 @@ import ActivityView from './components/ActivityView';
 import WorkloadView from './components/WorkloadView';
 import ProjectRACIMatrixView from './components/ProjectRACIMatrixView';
 import { HomeView, PlannedView, DocsView, WhiteboardsView, ProcessMappingBoard } from './components/GlobalViews';
+import ProjectExecutiveWorkspace from './components/ProjectExecutiveWorkspace';
 import TaskModal from './components/TaskModal';
 import CreateTaskModal from './components/CreateTaskModal';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
@@ -31,7 +33,7 @@ function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-type ViewMode = 'board' | 'list' | 'dashboard' | 'team' | 'calendar' | 'gantt' | 'raci' | 'activity' | 'workload' | 'process';
+type ViewMode = 'board' | 'list' | 'dashboard' | 'team' | 'calendar' | 'gantt' | 'raci' | 'activity' | 'workload' | 'process' | 'executive' | 'deliverables' | 'billing' | 'governance';
 type ProjectStatus = NonNullable<Space['status']>;
 type ProjectPhase = NonNullable<Space['phase']>;
 type ProjectPriority = 'Baixa' | 'Normal' | 'Alta' | 'Urgente';
@@ -318,6 +320,8 @@ function mapProjectToSpace(project: ApiProject, index = 0): Space {
     successCriteria: String(metadata.successCriteria || ''),
     risks: String(metadata.risks || ''),
     notes: String(metadata.notes || ''),
+    description: project.description || '',
+    metadata,
     createdAt: project.createdAt,
     teamMembers
   };
@@ -1576,6 +1580,10 @@ export default function App({ onBack }: { onBack?: () => void }) {
             </div>
 
             <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto text-xs sm:text-sm font-medium pb-2 custom-scrollbar">
+              <Tab icon={Briefcase} label="Executivo & Contrato" active={activeView === 'executive'} onClick={() => setActiveView('executive')} />
+              <Tab icon={ClipboardCheck} label="Entregas & Aceite" active={activeView === 'deliverables'} onClick={() => setActiveView('deliverables')} />
+              <Tab icon={DollarSign} label="Financeiro & TRD" active={activeView === 'billing'} onClick={() => setActiveView('billing')} />
+              <Tab icon={ShieldAlert} label="Governança & Riscos" active={activeView === 'governance'} onClick={() => setActiveView('governance')} />
               <Tab icon={Users} label="Equipe" active={activeView === 'team'} onClick={() => setActiveView('team')} />
               <Tab icon={BarChart2} label="Painéis" active={activeView === 'dashboard'} onClick={() => setActiveView('dashboard')} />
               <Tab icon={ListIcon} label="Lista" active={activeView === 'list'} onClick={() => setActiveView('list')} />
@@ -1676,6 +1684,16 @@ export default function App({ onBack }: { onBack?: () => void }) {
           {activeView === 'process' && activeProject && <ProcessMappingBoard key={activeProject.id} activeProject={activeProject} onBack={() => setActiveView('dashboard')} />}
           {activeView === 'activity' && <ActivityView project={activeProject} issues={activeProjectIssues} users={activeTeamUsers} onTaskClick={setSelectedTask} />}
           {activeView === 'workload' && <WorkloadView issues={activeProjectIssues} users={activeTeamUsers} />}
+          {(activeView === 'executive' || activeView === 'deliverables' || activeView === 'billing' || activeView === 'governance') && activeProject && (
+            <ProjectExecutiveWorkspace
+              project={activeProject}
+              issues={activeProjectIssues}
+              mode={activeView}
+              onProjectMetadataUpdated={(projId, newMeta) => {
+                setSpaces((prev) => prev.map((s) => (s.id === projId ? { ...s, metadata: newMeta } : s)));
+              }}
+            />
+          )}
         </div>
 
           </>

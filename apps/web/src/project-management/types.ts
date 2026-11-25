@@ -27,6 +27,8 @@ export interface Space {
   successCriteria?: string;
   risks?: string;
   notes?: string;
+  description?: string;
+  metadata?: Record<string, any>;
   createdAt?: string;
   teamMembers?: ProjectTeamMember[];
 }
