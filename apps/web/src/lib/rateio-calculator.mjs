@@ -46,8 +46,8 @@ export function summarizeCompositionBilling(results) {
 
 export function validateCompositionSelection({ targetItems = [], sourceItems = [] }) {
   const issues = [];
-  if (targetItems.length !== TARGET_PRODUCT_GOAL) {
-    issues.push(`Selecione exatamente ${TARGET_PRODUCT_GOAL} produtos alvo para compor o preço do projeto.`);
+  if (targetItems.length === 0) {
+    issues.push('Selecione ao menos 1 produto alvo para compor o preço do projeto.');
   }
   if (sourceItems.length === 0) {
     issues.push('Selecione ao menos um produto componente para compor os alvos.');
@@ -89,15 +89,22 @@ export function calcRateio(items, expenses, manualWeights, scope, composition) {
   if (composition) {
     const targetBuckets = composition.targetSkus.map(sku => merged[sku]).filter(Boolean);
     const sourceBuckets = composition.sourceSkus.map(sku => merged[sku]).filter(Boolean);
+    const sourceTargetMap = composition.sourceTargetMap || {};
 
     if (targetBuckets.length > 0) {
-      const sourceCostTotal = D(sourceBuckets.reduce((sum, bucket) => sum + itemTotalCost(bucket.prod), 0), 4);
       const composedExpenseTotal = D(scope.reduce((sum, item) => sum + (merged[item.sku]?.totalRateado || 0), 0), 4);
-      const composedTotal = D(sourceCostTotal + composedExpenseTotal, 4);
-      const targetCostBase = targetBuckets.reduce((sum, bucket) => sum + itemTotalCost(bucket.prod), 0);
-      const baseForTarget = targetCostBase > 0
-        ? (bucket) => itemTotalCost(bucket.prod)
-        : (bucket) => D(bucket.prod.qty, 4);
+      const baseForBuckets = (buckets) => {
+        const costBase = buckets.reduce((sum, bucket) => sum + itemTotalCost(bucket.prod), 0);
+        return costBase > 0
+          ? (bucket) => itemTotalCost(bucket.prod)
+          : (bucket) => D(bucket.prod.qty, 4);
+      };
+
+      targetBuckets.forEach(bucket => {
+        bucket.sourceCostTotal = 0;
+        bucket.composedSourceSkus = [];
+        bucket.compositionRole = 'target';
+      });
 
       scope.forEach(item => {
         if (!composition.targetSkus.includes(item.sku) && merged[item.sku]) {
@@ -108,17 +115,32 @@ export function calcRateio(items, expenses, manualWeights, scope, composition) {
         }
       });
 
-      const totalAllocations = distributeAmount(targetBuckets, composedTotal, baseForTarget);
-      const expenseAllocations = distributeAmount(targetBuckets, composedExpenseTotal, baseForTarget);
-      const sourceAllocations = distributeAmount(targetBuckets, sourceCostTotal, baseForTarget);
+      sourceBuckets.forEach(sourceBucket => {
+        const rawAssigned = sourceTargetMap[sourceBucket.prod.sku];
+        const assignedSkus = Array.isArray(rawAssigned) ? rawAssigned : (rawAssigned ? [rawAssigned] : []);
+        const assignedBuckets = assignedSkus.length > 0
+          ? assignedSkus.map(sku => merged[sku]).filter(bucket => bucket && targetBuckets.includes(bucket))
+          : targetBuckets;
+        const effectiveTargets = assignedBuckets.length > 0 ? assignedBuckets : targetBuckets;
+
+        const sourceItemCost = itemTotalCost(sourceBucket.prod);
+        const allocations = distributeAmount(effectiveTargets, sourceItemCost, baseForBuckets(effectiveTargets));
+        effectiveTargets.forEach((targetBucket, index) => {
+          targetBucket.sourceCostTotal = D(targetBucket.sourceCostTotal + allocations[index], 4);
+          targetBucket.composedSourceSkus.push(sourceBucket.prod.sku);
+        });
+        sourceBucket.composedTargetSkus = effectiveTargets.map(bucket => bucket.prod.sku);
+      });
+
+      const expenseAllocations = distributeAmount(targetBuckets, composedExpenseTotal, baseForBuckets(targetBuckets));
 
       targetBuckets.forEach((bucket, index) => {
-        bucket.totalRateado = totalAllocations[index];
         bucket.expenseRateado = expenseAllocations[index];
-        bucket.sourceCostTotal = sourceAllocations[index];
-        bucket.composedSourceSkus = composition.sourceSkus;
-        bucket.compositionRole = 'target';
-        bucket.billingType = billingTypeForItems([bucket.prod, ...sourceBuckets.map(source => source.prod)]);
+        bucket.totalRateado = D(bucket.sourceCostTotal + expenseAllocations[index], 4);
+        const bucketSources = sourceBuckets
+          .filter(sourceBucket => bucket.composedSourceSkus.includes(sourceBucket.prod.sku))
+          .map(sourceBucket => sourceBucket.prod);
+        bucket.billingType = billingTypeForItems([bucket.prod, ...bucketSources]);
       });
     }
   }

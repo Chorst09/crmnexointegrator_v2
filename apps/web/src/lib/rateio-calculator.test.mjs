@@ -69,6 +69,31 @@ assert.equal(pontualResult.billing.contractTotal, 0);
 assert.ok(pontualResult.billing.oneTimeTotal > 0);
 
 assert.deepEqual(validateCompositionSelection({ targetItems: targets, sourceItems: components }), []);
-assert.ok(validateCompositionSelection({ targetItems: targets.slice(0, 3), sourceItems: components }).some(issue => issue.includes('exatamente 4')));
+assert.deepEqual(validateCompositionSelection({ targetItems: targets.slice(0, 2), sourceItems: components }), []);
+assert.ok(validateCompositionSelection({ targetItems: [], sourceItems: components }).some(issue => issue.includes('ao menos 1 produto alvo')));
+
+// Cenario especifico: 2 produtos alvo com vinculacao 1-para-1 de componentes
+const fwItems = [
+  { sku: 'FW-40F', desc: 'Firewall 40F', ncm: '0000', custo: 5559.18, preco: 5559.18, qty: 1, un: 'UN' },
+  { sku: 'LIC-FW', desc: 'Licenciamento Firewall e SD WAN', ncm: '0000', custo: 2164.80, preco: 2164.80, qty: 1, un: 'UN' },
+  { sku: 'U6-AP', desc: 'UBIQUITI U6+ UNIFI AP AC WIFI6', ncm: '0000', custo: 3640.00, preco: 3640.00, qty: 3, un: 'UN' },
+  { sku: 'MK-RB', desc: 'MIKROTIK ROUTERBOARD RB4011IGS+RM', ncm: '0000', custo: 1562.64, preco: 1562.64, qty: 1, un: 'UN' },
+];
+const mappedResult = calcRateio(fwItems, [], {}, fwItems, {
+  targetSkus: ['FW-40F', 'U6-AP'],
+  sourceSkus: ['LIC-FW', 'MK-RB'],
+  sourceTargetMap: {
+    'LIC-FW': ['FW-40F'],
+    'MK-RB': ['U6-AP'],
+  },
+});
+const fwRow = mappedResult.results.find(r => r.prod.sku === 'FW-40F');
+const u6Row = mappedResult.results.find(r => r.prod.sku === 'U6-AP');
+assert.equal(fwRow.sourceCostTotal, 2164.80);
+assert.equal(fwRow.novoCusto, 7723.98);
+assert.deepEqual(fwRow.composedSourceSkus, ['LIC-FW']);
+assert.equal(u6Row.sourceCostTotal, 1562.64);
+assert.equal(u6Row.novoCusto, 4160.88);
+assert.deepEqual(u6Row.composedSourceSkus, ['MK-RB']);
 
 console.log('rateio-calculator: ok');

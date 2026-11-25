@@ -74,6 +74,7 @@ export default function RatearProdutos() {
   const [scopeMode, setScopeMode] = useState('todos');
   const [targetIndexes, setTargetIndexes] = useState(['0']);
   const [sourceIndexes, setSourceIndexes] = useState(['1', '2']);
+  const [sourceTargetMap, setSourceTargetMap] = useState({});
   const [responsavel, setResponsavel] = useState('Joao Silva');
   const [justificativa, setJustificativa] = useState('Rateio de frete e seguro NF #004521 - Fornecedor: Tech Distribuidora Ltda');
   const [nf, setNf] = useState({
@@ -127,7 +128,11 @@ export default function RatearProdutos() {
     return Array.from(bySku.values());
   }, [items, scopeMode, targetItems, sourceItems]);
   const compositionConfig = scopeMode === 'alvo' && targetItems.length > 0
-    ? { targetSkus: targetItems.map(item => item.sku), sourceSkus: sourceItems.map(item => item.sku) }
+    ? {
+        targetSkus: targetItems.map(item => item.sku),
+        sourceSkus: sourceItems.map(item => item.sku),
+        sourceTargetMap,
+      }
     : undefined;
   const scopeLabel = compositionConfig
     ? `${targetItems.map(item => item.sku).join(', ') || 'Alvo'} composto por ${sourceItems.map(item => item.sku).join(', ') || 'sem fontes'}`
@@ -149,11 +154,13 @@ export default function RatearProdutos() {
   };
 
   const autoSelectComposition = () => {
-    const targetValues = items.slice(0, TARGET_PRODUCT_GOAL).map((_, index) => String(index));
-    const sourceValues = items.slice(TARGET_PRODUCT_GOAL).map((_, index) => String(index + TARGET_PRODUCT_GOAL));
+    const suggestedTargets = Math.min(TARGET_PRODUCT_GOAL, Math.max(1, Math.floor(items.length / 2)));
+    const targetValues = items.slice(0, suggestedTargets).map((_, index) => String(index));
+    const sourceValues = items.slice(suggestedTargets).map((_, index) => String(index + suggestedTargets));
     setScopeMode('alvo');
     setTargetIndexes(targetValues);
     setSourceIndexes(sourceValues);
+    setSourceTargetMap({});
     setMessage({ type: 'ok', text: `${targetValues.length} produto(s) alvo e ${sourceValues.length} componente(s) selecionados automaticamente.` });
   };
 
@@ -164,6 +171,7 @@ export default function RatearProdutos() {
     setScopeMode('todos');
     setTargetIndexes(['0']);
     setSourceIndexes(['1', '2']);
+    setSourceTargetMap({});
     setPreview(null);
     setMessage({ type: 'ok', text: 'Dados demo carregados com 3 itens e 2 despesas acessorias.' });
   };
@@ -177,6 +185,7 @@ export default function RatearProdutos() {
     setScopeMode('todos');
     setTargetIndexes([]);
     setSourceIndexes([]);
+    setSourceTargetMap({});
     setMessage(null);
   };
 
@@ -337,6 +346,7 @@ export default function RatearProdutos() {
     setScopeMode('todos');
     setTargetIndexes([]);
     setSourceIndexes([]);
+    setSourceTargetMap({});
     setNf({ numero: '', emitente: '', cnpj: '', data: '', cfop: '', natureza: '', centroCusto: '' });
     setResponsavel('');
     setJustificativa('');
@@ -378,6 +388,7 @@ export default function RatearProdutos() {
     setScopeMode('todos');
     setTargetIndexes(novosItens[0] ? ['0'] : []);
     setSourceIndexes(novosItens.length > 1 ? novosItens.slice(1).map((_, index) => String(index + 1)) : []);
+    setSourceTargetMap({});
     setRateioName(`${proposal.isBudget ? 'Orçamento' : 'Proposta'} #${proposal.proposalNumber} - ${proposal.clientInfo?.company || proposal.clientInfo?.name}${isLocacao ? ` (locação)` : ''}`);
     setNf(prev => ({
       ...prev,
@@ -719,10 +730,10 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
               <div className="rp-card-head">
                 <h3>Definicao do escopo de rateio</h3>
                 <div className="rp-actions">
-                  <button className="rp-btn" onClick={autoSelectComposition} disabled={items.length < TARGET_PRODUCT_GOAL}>Auto 4 alvos</button>
+                  <button className="rp-btn" onClick={autoSelectComposition} disabled={items.length < 2}>Auto selecionar</button>
                   <div className="rp-segment">
                     <button className={scopeMode === 'todos' ? 'active' : ''} onClick={() => setScopeMode('todos')}>Distribuir entre todos</button>
-                    <button className={scopeMode === 'alvo' ? 'active' : ''} onClick={() => setScopeMode('alvo')}>4 alvos + composicao</button>
+                    <button className={scopeMode === 'alvo' ? 'active' : ''} onClick={() => setScopeMode('alvo')}>Alvos + composicao</button>
                   </div>
                 </div>
               </div>
@@ -732,7 +743,7 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
               ) : (
                 <>
                   <div className="rp-alert warn">
-                    Marque exatamente {TARGET_PRODUCT_GOAL} produtos finais e os itens que compoem o custo deles. O custo dos componentes + despesas acessorias sera distribuido entre os alvos proporcionalmente ao custo total de cada alvo.
+                    Marque os produtos finais (alvos) e os itens que compoem o custo deles. Em cada componente, voce pode vincular a um alvo especifico ou distribuir entre todos os alvos.
                   </div>
                   {compositionIssues.length > 0 && (
                     <div className={`rp-alert ${blockingCompositionIssues.length > 0 ? 'err' : 'warn'}`}>
@@ -742,7 +753,7 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
                   <div className="rp-grid rp-grid-2">
                     <div className="rp-composition-summary">
                       <span>Produtos alvo</span>
-                      <strong>{targetItems.length}/{TARGET_PRODUCT_GOAL}</strong>
+                      <strong>{targetItems.length}</strong>
                       <small>{targetItems.length ? targetItems.map(item => item.sku).join(', ') : 'Nenhum alvo marcado'}</small>
                     </div>
                     <div className="rp-composition-summary">
@@ -757,17 +768,28 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
                       const value = String(index);
                       const checked = targetIndexes.includes(value);
                       const isSource = sourceIndexes.includes(value);
-                      const targetLimitReached = !checked && targetIndexes.length >= TARGET_PRODUCT_GOAL;
                       return (
-                        <label key={item.sku} className={`rp-source-card ${checked ? 'active' : ''} ${isSource || targetLimitReached ? 'disabled' : ''}`}>
+                        <label key={item.sku} className={`rp-source-card ${checked ? 'active' : ''} ${isSource ? 'disabled' : ''}`}>
                           <input
                             type="checkbox"
                             checked={checked}
-                            disabled={isSource || targetLimitReached}
+                            disabled={isSource}
                             onChange={event => {
-                              setTargetIndexes(current => event.target.checked
+                              const isChecking = event.target.checked;
+                              setTargetIndexes(current => isChecking
                                 ? [...current, value]
                                 : current.filter(currentValue => currentValue !== value));
+                              if (!isChecking) {
+                                setSourceTargetMap(current => {
+                                  const next = {};
+                                  Object.entries(current).forEach(([srcSku, mappedTargets]) => {
+                                    const list = Array.isArray(mappedTargets) ? mappedTargets : [mappedTargets];
+                                    const filtered = list.filter(tSku => tSku !== item.sku);
+                                    if (filtered.length > 0) next[srcSku] = filtered;
+                                  });
+                                  return next;
+                                });
+                              }
                             }}
                           />
                           <span className="rp-badge rp-blue">{item.sku}</span>
@@ -783,6 +805,9 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
                       const value = String(index);
                       const isTarget = targetIndexes.includes(value);
                       const checked = sourceIndexes.includes(value);
+                      const assignedValue = Array.isArray(sourceTargetMap[item.sku])
+                        ? (sourceTargetMap[item.sku][0] || '')
+                        : (sourceTargetMap[item.sku] || '');
                       return (
                         <label key={item.sku} className={`rp-source-card ${checked ? 'active' : ''} ${isTarget ? 'disabled' : ''}`}>
                           <input
@@ -798,12 +823,42 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
                           <span className="rp-badge rp-blue">{item.sku}</span>
                           <strong>{item.desc}</strong>
                           <small>{fmt(item.custo)} x {item.qty} = {fmt(item.custo * item.qty)}</small>
+                          {!isTarget && targetItems.length > 0 && (
+                            <select
+                              className="rp-source-target-select"
+                              value={assignedValue}
+                              onClick={event => event.stopPropagation()}
+                              onChange={event => {
+                                event.stopPropagation();
+                                const targetSku = event.target.value;
+                                if (targetSku && !checked) {
+                                  setSourceIndexes(current => current.includes(value) ? current : [...current, value]);
+                                }
+                                setSourceTargetMap(current => {
+                                  const next = { ...current };
+                                  if (!targetSku) {
+                                    delete next[item.sku];
+                                  } else {
+                                    next[item.sku] = [targetSku];
+                                  }
+                                  return next;
+                                });
+                              }}
+                            >
+                              <option value="">Todos os alvos ({targetItems.length})</option>
+                              {targetItems.map(target => (
+                                <option key={target.sku} value={target.sku}>
+                                  Compor: {target.desc}
+                                </option>
+                              ))}
+                            </select>
+                          )}
                         </label>
                       );
                     })}
                   </div>
                   {targetItems.length > 0 && sourceItems.length > 0 && (
-                    <CompositionEstimate targets={targetItems} sources={sourceItems} expenses={expenses} />
+                    <CompositionEstimate items={items} targets={targetItems} sources={sourceItems} expenses={expenses} sourceTargetMap={sourceTargetMap} manualWeights={manualWeights} />
                   )}
                 </>
               )}
@@ -929,13 +984,17 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
   );
 }
 
-function CompositionEstimate({ targets, sources, expenses }) {
+function CompositionEstimate({ items, targets, sources, expenses, sourceTargetMap = {}, manualWeights = {} }) {
   const sourceTotal = D(sources.reduce((sum, item) => sum + D(item.custo * item.qty, 4), 0), 4);
   const expenseTotal = D(expenses.reduce((sum, expense) => sum + D(expense.valor, 4), 0), 4);
-  const compositionTotal = D(sourceTotal + expenseTotal, 4);
-  const targetCostBase = targets.reduce((sum, item) => sum + D(item.custo * item.qty, 4), 0);
-  const targetQtyBase = targets.reduce((sum, item) => sum + item.qty, 0);
-  const totalBase = targetCostBase > 0 ? targetCostBase : targetQtyBase;
+  const bySku = new Map([...targets, ...sources].map(item => [item.sku, item]));
+  const scoped = Array.from(bySku.values());
+  const estimated = calcRateio(items, expenses, manualWeights, scoped, {
+    targetSkus: targets.map(item => item.sku),
+    sourceSkus: sources.map(item => item.sku),
+    sourceTargetMap,
+  });
+  const targetRows = estimated.results.filter(row => row.compositionRole === 'target');
 
   return (
     <div className="rp-composition-box">
@@ -951,22 +1010,12 @@ function CompositionEstimate({ targets, sources, expenses }) {
         <span>Frete/seguro/despesas</span>
         <strong>{fmt(expenseTotal)}</strong>
       </div>
-      {targets.map((target, index) => {
-        const base = targetCostBase > 0 ? D(target.custo * target.qty, 4) : target.qty;
-        const allocated = index === targets.length - 1
-          ? D(compositionTotal - targets.slice(0, index).reduce((sum, item) => {
-            const itemBase = targetCostBase > 0 ? D(item.custo * item.qty, 4) : item.qty;
-            return sum + D((itemBase / totalBase) * compositionTotal, 4);
-          }, 0), 4)
-          : D((base / totalBase) * compositionTotal, 4);
-        const composedUnit = target.qty > 0 ? D(target.custo + (allocated / target.qty), 4) : target.custo;
-        return (
-          <div key={target.sku}>
-            <span>Custo unit. estimado {target.sku}</span>
-            <strong>{fmt(composedUnit)}</strong>
-          </div>
-        );
-      })}
+      {targetRows.map(row => (
+        <div key={row.prod.sku}>
+          <span>Custo unit. estimado {row.prod.sku}</span>
+          <strong>{fmt(row.novoCusto)}</strong>
+        </div>
+      ))}
     </div>
   );
 }
@@ -1097,7 +1146,7 @@ function ResultKpis({ result }) {
   return (
     <div className="rp-kpi-grid">
       <Kpi label="Desp. total rateada" value={fmtRound(result.totalExp)} tone="warn" />
-      {targetResult && <Kpi label="Alvos compostos" value={`${effectiveResults.length}/${TARGET_PRODUCT_GOAL}`} highlight />}
+      {targetResult && <Kpi label="Alvos compostos" value={`${effectiveResults.length}`} highlight />}
       {targetResult && <Kpi label="Custo proprio alvos" value={fmtRound(targetOwnCost)} />}
       {targetResult && <Kpi label="Componentes rateados" value={fmtRound(componentCost)} tone="warn" />}
       <Kpi label="Venda original" value={fmtRound(originalValue)} />
@@ -1251,7 +1300,7 @@ function Integrity({ result, expenses, items, auditLog }) {
   const checks = [
     { ok: result.ok, label: 'Invariante de conservacao', detail: `Rateado ${fmtRound(result.somaCheck)} | Despesas ${fmtRound(result.totalExp)} | Delta ${fmtRound(result.diff)}` },
     ...(composition ? [
-      { ok: composition.targetCount === TARGET_PRODUCT_GOAL, label: 'Quantidade de produtos alvo', detail: `${composition.targetCount}/${TARGET_PRODUCT_GOAL}` },
+      { ok: composition.targetCount >= 1, label: 'Quantidade de produtos alvo', detail: `${composition.targetCount} alvo(s)` },
       { ok: Math.abs(composition.expenseTotal - result.totalExp) < 0.02, label: 'Despesas concentradas nos alvos', detail: `${fmtRound(composition.expenseTotal)} de ${fmtRound(result.totalExp)}` },
       { ok: Math.abs(composition.finalTargetCostTotal - (composition.targetOwnCostTotal + composition.sourceCostTotal + composition.expenseTotal)) < 0.02, label: 'Composicao final dos alvos', detail: `${fmtRound(composition.targetOwnCostTotal)} + ${fmtRound(composition.sourceCostTotal)} + ${fmtRound(composition.expenseTotal)} = ${fmtRound(composition.finalTargetCostTotal)}` },
     ] : []),
