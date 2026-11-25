@@ -53,6 +53,8 @@ export default function BpmnProcessDiagram({
   const [showGovernance, setShowGovernance] = useState(false);
   const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
   const [dragPreview, setDragPreview] = useState<{ col: number; laneId: string } | null>(null);
+  const [inlineEditNodeId, setInlineEditNodeId] = useState<string | null>(null);
+  const [inlineEditValue, setInlineEditValue] = useState('');
   const svgRef = useRef<SVGSVGElement | null>(null);
   const nodeLabelInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -220,6 +222,24 @@ export default function BpmnProcessDiagram({
     const targetCol = Math.max(0, Math.round((svgX - layout.laneHeaderWidth - 42 - 56) / 144));
     const targetLane = layout.lanes.find((l) => svgY >= l.y && svgY <= l.y + l.height) || layout.lanes[0];
     return { col: targetCol, laneId: targetLane.id };
+  };
+
+  const startInlineEdit = (node: BpmnNode) => {
+    setDraggingNodeId(null);
+    setDragPreview(null);
+    setSelectedNodeId(node.id);
+    setSelectedEdgeId(null);
+    setInlineEditNodeId(node.id);
+    setInlineEditValue(node.label);
+  };
+
+  const commitInlineEdit = () => {
+    if (!inlineEditNodeId) return;
+    const trimmed = inlineEditValue.trim();
+    if (trimmed) {
+      updateNode(inlineEditNodeId, { label: trimmed });
+    }
+    setInlineEditNodeId(null);
   };
 
   const handleSvgMouseMove = (event: React.MouseEvent<SVGSVGElement>) => {
@@ -570,13 +590,13 @@ export default function BpmnProcessDiagram({
             </span>
           </div>
           <span className="text-[11px] font-medium text-[#1d5d8c]">
-            Clique ou arraste qualquer elemento / seta para editar
+            Clique para selecionar • Duplo clique no card para editar texto • Arraste para mover
           </span>
         </div>
 
         {/* Canvas SVG com scroll horizontal e drag-and-drop */}
         <div className="overflow-x-auto bg-white p-5">
-          <div style={{ width: layout.width * zoom, height: layout.height * zoom }}>
+          <div className="relative" style={{ width: layout.width * zoom, height: layout.height * zoom }}>
             <svg
               ref={svgRef}
               width={layout.width * zoom}
@@ -743,12 +763,21 @@ export default function BpmnProcessDiagram({
                   e.stopPropagation();
                   setSelectedNodeId(node.id);
                   setSelectedEdgeId(null);
+                  if (e.detail >= 2) {
+                    startInlineEdit(node);
+                    return;
+                  }
                   setDraggingNodeId(node.id);
+                };
+
+                const onNodeDoubleClick = (e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  startInlineEdit(node);
                 };
 
                 if (node.type === 'start' || node.type === 'end') {
                   return (
-                    <g key={node.id} onMouseDown={onNodeMouseDown} className="cursor-grab active:cursor-grabbing">
+                    <g key={node.id} onMouseDown={onNodeMouseDown} onDoubleClick={onNodeDoubleClick} className="cursor-grab active:cursor-grabbing">
                       <circle
                         cx={cx}
                         cy={cy}
@@ -777,7 +806,7 @@ export default function BpmnProcessDiagram({
                 if (node.type === 'gateway') {
                   const pts = `${cx},${node.y} ${node.x + node.w},${cy} ${cx},${node.y + node.h} ${node.x},${cy}`;
                   return (
-                    <g key={node.id} onMouseDown={onNodeMouseDown} className="cursor-grab active:cursor-grabbing">
+                    <g key={node.id} onMouseDown={onNodeMouseDown} onDoubleClick={onNodeDoubleClick} className="cursor-grab active:cursor-grabbing">
                       <polygon
                         points={pts}
                         fill="#fef3c7"
@@ -804,7 +833,7 @@ export default function BpmnProcessDiagram({
                 const lines = wrapText(node.label, 16);
                 const textBaseOffset = node.type === 'subprocess' ? -5 : 0;
                 return (
-                  <g key={node.id} onMouseDown={onNodeMouseDown} className="cursor-grab active:cursor-grabbing">
+                  <g key={node.id} onMouseDown={onNodeMouseDown} onDoubleClick={onNodeDoubleClick} className="cursor-grab active:cursor-grabbing">
                     <rect
                       x={node.x}
                       y={node.y}
@@ -859,6 +888,40 @@ export default function BpmnProcessDiagram({
                 );
               })}
             </svg>
+            {inlineEditNodeId && layout.nodesById[inlineEditNodeId] && (() => {
+              const target = layout.nodesById[inlineEditNodeId];
+              const isExternalLabel = target.type === 'start' || target.type === 'end' || target.type === 'gateway';
+              const boxW = Math.max(130, target.w * zoom + 20);
+              const boxH = isExternalLabel ? 30 : Math.max(46, target.h * zoom);
+              const left = (target.x + target.w / 2) * zoom - boxW / 2;
+              const top = isExternalLabel
+                ? (target.y + target.h + 4) * zoom
+                : target.y * zoom + (target.h * zoom - boxH) / 2;
+              return (
+                <textarea
+                  autoFocus
+                  value={inlineEditValue}
+                  onChange={(e) => setInlineEditValue(e.target.value)}
+                  onBlur={commitInlineEdit}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      commitInlineEdit();
+                    }
+                    if (e.key === 'Escape') {
+                      setInlineEditNodeId(null);
+                    }
+                  }}
+                  style={{
+                    left: Math.max(4, left),
+                    top: Math.max(4, top),
+                    width: boxW,
+                    height: boxH
+                  }}
+                  className="absolute z-20 resize-none rounded-md border-2 border-[#2563eb] bg-white px-2 py-1 text-center text-xs font-semibold text-slate-900 shadow-lg outline-none"
+                />
+              );
+            })()}
           </div>
         </div>
 
