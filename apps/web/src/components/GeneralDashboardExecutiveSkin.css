@@ -57,28 +57,28 @@
 }
 .nex-panel::after { box-shadow: inset 1px 1px 0 #57ddff1a; }
 .nex-kpis { gap: 13px; margin-bottom: 14px; }
-/* Print 3 KPI neon effects per card + single-line currency values */
-.nex-general-dashboard .nex-kpis > .nex-stat-card:nth-child(1) { --kpi-glow: #00d9ff; }
-.nex-general-dashboard .nex-kpis > .nex-stat-card:nth-child(2) { --kpi-glow: #7a68ff; }
-.nex-general-dashboard .nex-kpis > .nex-stat-card:nth-child(2)::after { filter: hue-rotate(48deg) saturate(1.4); }
-.nex-general-dashboard .nex-kpis > .nex-stat-card:nth-child(3) { --kpi-glow: #ffb72b; }
-.nex-general-dashboard .nex-kpis > .nex-stat-card:nth-child(3)::after { filter: hue-rotate(195deg) saturate(1.5) brightness(1.1); }
-.nex-general-dashboard .nex-kpis > .nex-stat-card:nth-child(4) { --kpi-glow: #00e5a3; }
-.nex-general-dashboard .nex-kpis > .nex-stat-card:nth-child(4)::after { filter: hue-rotate(-32deg) saturate(1.3); }
-.nex-general-dashboard .nex-kpis > .nex-stat-card {
+/* Print 3 KPI neon effects per card + single-line currency values (Geral, B2B & B2G) */
+.nex-executive .nex-kpis > .nex-stat-card:nth-child(1) { --kpi-glow: #00d9ff; }
+.nex-executive .nex-kpis > .nex-stat-card:nth-child(2) { --kpi-glow: #7a68ff; }
+.nex-executive .nex-kpis > .nex-stat-card:nth-child(2)::after { filter: hue-rotate(48deg) saturate(1.4); }
+.nex-executive .nex-kpis > .nex-stat-card:nth-child(3) { --kpi-glow: #ffb72b; }
+.nex-executive .nex-kpis > .nex-stat-card:nth-child(3)::after { filter: hue-rotate(195deg) saturate(1.5) brightness(1.1); }
+.nex-executive .nex-kpis > .nex-stat-card:nth-child(4) { --kpi-glow: #00e5a3; }
+.nex-executive .nex-kpis > .nex-stat-card:nth-child(4)::after { filter: hue-rotate(-32deg) saturate(1.3); }
+.nex-executive .nex-kpis > .nex-stat-card {
   min-height: 108px;
   padding: 14px 13px;
   border: 1px solid color-mix(in srgb, var(--kpi-glow, #00d9ff) 72%, transparent) !important;
   background: radial-gradient(ellipse at 92% 100%, color-mix(in srgb, var(--kpi-glow, #00d9ff) 26%, transparent), transparent 62%), radial-gradient(ellipse at 10% 0%, color-mix(in srgb, var(--kpi-glow, #00d9ff) 22%, transparent), transparent 56%), linear-gradient(145deg, #061834f2, #020b1df7) !important;
   box-shadow: inset 0 1px 2px color-mix(in srgb, var(--kpi-glow, #00d9ff) 45%, transparent), 0 0 18px color-mix(in srgb, var(--kpi-glow, #00d9ff) 22%, transparent), 0 6px 14px #000a !important;
 }
-.nex-general-dashboard .nex-kpis .nex-stat-card__value {
+.nex-executive .nex-kpis .nex-stat-card__value {
   font-size: clamp(16px, 1.32vw, 22px) !important;
   white-space: nowrap !important;
   overflow-wrap: normal !important;
   letter-spacing: -0.02em;
 }
-.nex-general-dashboard .nex-kpis > .nex-health {
+.nex-executive .nex-kpis > .nex-health {
   border-color: #9366ffcc !important;
   background: radial-gradient(ellipse at 92% 95%, #7c3aed52, transparent 62%), linear-gradient(135deg, #091d3ee8, #020b1df5) !important;
   box-shadow: inset 0 1px 2px #c4b5fd40, 0 0 20px #8b5cf62e, 0 6px 14px #000a !important;

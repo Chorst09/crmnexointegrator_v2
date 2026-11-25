@@ -1,14 +1,14 @@
 /* Shared dashboard presentation for B2B and B2G. Domain calculations stay in each page. */
 .nex-pipeline.pipeline-model { border:0; border-radius:0; --pipeline-text:#edf5ff; --pipeline-muted:#adc7df; --pipeline-border:#17618a80; color:#edf5ff; }
-.nex-pipeline .nex-welcome { min-height:105px; }
+.nex-pipeline .nex-welcome { min-height:76px; }
 .nex-pipeline-welcome { flex-wrap:wrap; align-items:center; }
-.nex-pipeline .nex-welcome h1 { font-size:26px; }
-.nex-pipeline .nex-welcome p { max-width:560px; font-size:11px; line-height:1.5; }
-.nex-pipeline .nex-welcome-copy { min-width:270px; flex:1; }
-.nex-pipeline .pipeline-model__controls { max-width:58%; flex:1; gap:6px; }
-.nex-pipeline .pipeline-model__controls select,.nex-pipeline .pipeline-model__controls button { background:linear-gradient(#062545ed,#02162deb); color:#cae8ff; border:1px solid #1685b870; border-radius:9px; min-height:31px; font:600 10px/1.3 'Segoe UI',Arial,sans-serif; box-shadow:inset 0 1px 3px #36ceff22; }
+.nex-pipeline .nex-welcome h1 { font-size:24px; }
+.nex-pipeline .nex-welcome p { max-width:480px; font-size:11px; line-height:1.45; }
+.nex-pipeline .nex-welcome-copy { min-width:240px; flex:1; }
+.nex-pipeline .pipeline-model__controls { max-width:72%; flex:0 1 auto; display:flex; align-items:center; flex-wrap:wrap; justify-content:flex-end; gap:6px; }
+.nex-pipeline .pipeline-model__controls select,.nex-pipeline .pipeline-model__controls button:not(.nex-welcome-ai-btn):not(.nex-icon-pill):not(.nex-user-pill) { background:linear-gradient(#062545ed,#02162deb); color:#cae8ff; border:1px solid #1685b870; border-radius:9px; min-height:31px; font:600 10px/1.3 'Segoe UI',Arial,sans-serif; box-shadow:inset 0 1px 3px #36ceff22; }
 .nex-pipeline .pipeline-model__controls select {max-width:155px;padding:5px 19px 5px 8px}
-.nex-pipeline .pipeline-model__controls button {padding:6px 9px;display:inline-flex;gap:5px;align-items:center}
+.nex-pipeline .pipeline-model__controls button:not(.nex-welcome-ai-btn):not(.nex-icon-pill):not(.nex-user-pill) {padding:6px 9px;display:inline-flex;gap:5px;align-items:center}
 .nex-pipeline .nex-health h2 {font-size:11px}
 .nex-pipeline .nex-health small {max-width:118px;line-height:1.4;font-size:8px}
 .nex-pipeline .nex-health > div:last-child > strong {font-size:10px}

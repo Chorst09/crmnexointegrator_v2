@@ -18,7 +18,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ExecutiveMarketCards from './ExecutiveMarketCards';
 import ExecutiveModuleNavigation from './ExecutiveModuleNavigation';
 import useExecutiveModules from './useExecutiveModules';
-import { ArrowRight, CalendarDays, MoreVertical, Coins, Handshake, Trophy, Target, TrendingUp, TriangleAlert } from 'lucide-react';
+import { ArrowRight, Bell, CalendarDays, MoreVertical, Coins, Handshake, Settings, Sparkles, Trophy, Target, TrendingUp, TriangleAlert } from 'lucide-react';
 import { ExecutiveIcon, ExecutiveBrazilMap, getOpportunityLocations } from './ExecutiveVisuals';
 
 import './PipelineDashboardModel.css';
@@ -484,6 +484,16 @@ export default function PipelineDashboardModel({
   }, []);
   const score = clampPercent(health?.value ?? temperature);
   const mapLocations = getOpportunityLocations(mapRecords || []);
+  let currentUser = null;
+  try {
+    const raw = localStorage.getItem('user');
+    currentUser = raw ? JSON.parse(raw) : null;
+  } catch {
+    currentUser = null;
+  }
+  const userName = currentUser?.name || 'Carlos Horst';
+  const userRole = currentUser?.role || 'MASTER';
+  const userInitials = String(userName).split(/\s+/).filter(Boolean).slice(0, 2).map(p => p[0]).join('').toUpperCase() || 'CH';
   return (
     <div data-market={market} className="pipeline-model nex-executive nex-pipeline">
 
@@ -495,7 +505,15 @@ export default function PipelineDashboardModel({
       </dialog>
       <header className="nex-welcome nex-pipeline-welcome" data-section="header">
         <div className="nex-welcome-copy"><TrendingUp size={38}/><div><h1>{title}</h1>{subtitle && <p>{subtitle}</p>}</div></div>
-        <div className="pipeline-model__controls">{controls}</div>
+        <div className="pipeline-model__controls">
+          {controls}
+          <button type="button" className="nex-welcome-ai-btn" onClick={() => intelligenceDialog.current?.showModal()}><Sparkles size={14} /><span>NEXOS IA</span></button>
+          <div className="nex-welcome-user-group">
+            <button type="button" className="nex-icon-pill" title={`Agenda ${market}`} onClick={() => navigate(agendaRoute)}><Bell size={16} />{(alerts?.items?.length || 0) > 0 && <span className="nex-icon-dot" />}</button>
+            <button type="button" className="nex-icon-pill" title="Configurações" onClick={() => navigate('/configuracoes')}><Settings size={16} /></button>
+            <button type="button" className="nex-user-pill" onClick={() => navigate('/configuracoes')}><span className="nex-user-avatar">{userInitials}</span><span><strong>{userName}</strong><small>{userRole}</small></span></button>
+          </div>
+        </div>
       </header>
       <section className="nex-kpis" aria-label="Indicadores principais" data-section="kpis">
         {metrics.slice(0,4).map((metric,index) => <KpiRing key={metric.label} metric={metric} index={index}/>)}
