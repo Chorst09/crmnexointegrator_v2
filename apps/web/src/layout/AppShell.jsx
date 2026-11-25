@@ -7,7 +7,8 @@ import Topbar from './Topbar';
 
 export default function AppShell() {
   const pathname = useLocation().pathname;
-  const executive = NEON_DASHBOARD_ROUTES.has(pathname);
+  const normalizedPath = pathname.replace(/\/+$/, '').toLowerCase() || '/';
+  const executive = NEON_DASHBOARD_ROUTES.has(normalizedPath);
   const market = getDashboardMarket(pathname);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 

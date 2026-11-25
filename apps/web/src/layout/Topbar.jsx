@@ -58,7 +58,8 @@ export default function Topbar({ onMenuClick }) {
   const { theme, resolvedTheme, toggleTheme } = useTheme();
   const location = useLocation();
   const navigate = useNavigate();
-  const executive = NEON_DASHBOARD_ROUTES.has(location.pathname);
+  const normalizedPath = location.pathname.replace(/\/+$/, '').toLowerCase() || '/';
+  const executive = NEON_DASHBOARD_ROUTES.has(normalizedPath);
   const market = getDashboardMarket(location.pathname);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [isTestFlowOpen, setIsTestFlowOpen] = useState(false);
