@@ -1,4 +1,5 @@
 import ExecutiveStatCard from '../components/ExecutiveStatCard';
+import { buildApiUrl, getAuthHeaders } from '../config/api';
 import './RatearProdutos.css';
 import React, { useEffect, useMemo, useState } from 'react';
 import {
@@ -94,6 +95,7 @@ export default function RatearProdutos() {
   const [auditMode, setAuditMode] = useState('');
   const [configSubTab, setConfigSubTab] = useState('geral');
   const [showImportModal, setShowImportModal] = useState(false);
+  const [importModalTab, setImportModalTab] = useState('propostas');
   const [showSavedModal, setShowSavedModal] = useState(false);
   const [viewingRateio, setViewingRateio] = useState(null);
   const [savedRateios, setSavedRateios] = useState(() => {
@@ -357,7 +359,7 @@ export default function RatearProdutos() {
         : undefined;
 
       return {
-        sku: `PROP-${proposal.proposalNumber}-${i + 1}`,
+        sku: `${proposal.isBudget ? 'ORC' : 'PROP'}-${proposal.proposalNumber}-${i + 1}`,
         desc: item.description,
         ncm: '8471.30.19',
         custo: custoUnit,
@@ -376,7 +378,7 @@ export default function RatearProdutos() {
     setScopeMode('todos');
     setTargetIndexes(novosItens[0] ? ['0'] : []);
     setSourceIndexes(novosItens.length > 1 ? novosItens.slice(1).map((_, index) => String(index + 1)) : []);
-    setRateioName(`Proposta #${proposal.proposalNumber} - ${proposal.clientInfo?.company || proposal.clientInfo?.name}${isLocacao ? ` (locação)` : ''}`);
+    setRateioName(`${proposal.isBudget ? 'Orçamento' : 'Proposta'} #${proposal.proposalNumber} - ${proposal.clientInfo?.company || proposal.clientInfo?.name}${isLocacao ? ` (locação)` : ''}`);
     setNf(prev => ({
       ...prev,
       numero: proposal.proposalNumber,
@@ -560,7 +562,8 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
         <div className="rp-actions">
           <span className="rp-badge rp-blue" style={{fontFamily:'monospace',fontSize:'11px'}}>{rateioName}</span>
           <button className="rp-btn" style={{background:'#7c3aed',color:"rgb(var(--crm-ink-rgb) / 1)"}} onClick={novoRateio}><Plus size={15} /> Novo Rateio</button>
-          <button className="rp-btn rp-btn-light" onClick={() => setShowImportModal(true)}><Receipt size={15} /> Importar Proposta</button>
+          <button className="rp-btn rp-btn-light" onClick={() => { setImportModalTab('propostas'); setShowImportModal(true); }}><Receipt size={15} /> Importar Proposta</button>
+          <button className="rp-btn rp-btn-light" onClick={() => { setImportModalTab('orcamentos'); setShowImportModal(true); }}><Receipt size={15} /> Importar Orçamento</button>
           <button className="rp-btn rp-btn-light" onClick={salvarRateio}><Check size={15} /> Salvar</button>
           <button className="rp-btn rp-btn-light" onClick={() => setShowSavedModal(true)}><History size={15} /> Salvos ({savedRateios.length})</button>
           <button className="rp-btn rp-btn-light" onClick={exportJSON}><FileJson size={15} /> JSON</button>
@@ -903,6 +906,7 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
       {/* Modais */}
       {showImportModal && (
         <ImportPropostaModal
+          initialTab={importModalTab}
           onImport={importarProposta}
           onClose={() => setShowImportModal(false)}
         />
@@ -1313,9 +1317,16 @@ function ConfigPanel() {
 }
 
 // ── MODAL IMPORTAR PROPOSTA ──────────────────────────────────────────────────
-function ImportPropostaModal({ onImport, onClose }) {
+function ImportPropostaModal({ initialTab = 'propostas', onImport, onClose }) {
+  const [activeTab, setActiveTab] = React.useState(initialTab);
   const [proposals, setProposals] = React.useState([]);
+  const [budgets, setBudgets] = React.useState([]);
+  const [loadingBudgets, setLoadingBudgets] = React.useState(false);
   const [search, setSearch] = React.useState('');
+
+  React.useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
 
   const mapFromCalculadora = (p) => {
     const allItems = [
@@ -1377,10 +1388,112 @@ function ImportPropostaModal({ onImport, onClose }) {
       setProposals([]);
     }
   }, []);
-  const filtered = proposals.filter(p =>
-    p.proposalNumber?.includes(search) ||
-    p.clientInfo?.name?.toLowerCase().includes(search.toLowerCase()) ||
-    p.clientInfo?.company?.toLowerCase().includes(search.toLowerCase())
+
+  React.useEffect(() => {
+    let active = true;
+    const loadBudgets = async () => {
+      try {
+        setLoadingBudgets(true);
+        const res = await fetch(buildApiUrl('/pre-vendas?limit=500'), { headers: getAuthHeaders() });
+        if (!res.ok) throw new Error('Falha ao carregar orçamentos');
+        const payload = await res.json().catch(() => ([]));
+        const rows = Array.isArray(payload) ? payload : (Array.isArray(payload?.data) ? payload.data : []);
+        const mapped = [];
+        rows.forEach((req) => {
+          let details = {};
+          try {
+            details = typeof req.observacoes === 'string' ? JSON.parse(req.observacoes) : (req.observacoes || {});
+          } catch { details = {}; }
+          const cotacoes = Array.isArray(details?.cotacoes) ? details.cotacoes : [];
+          const clientName = req.company?.name || req.clienteNome || req.titulo || req.solicitante?.name || 'Cliente';
+          const fallbackItems = Array.isArray(req.items) ? req.items : [];
+
+          if (cotacoes.length > 0) {
+            cotacoes.forEach((cotacao, idx) => {
+              const rawItems = (Array.isArray(cotacao.itens) && cotacao.itens.length > 0)
+                ? cotacao.itens
+                : (Array.isArray(cotacao.items) && cotacao.items.length > 0 ? cotacao.items : fallbackItems);
+              const quoteItems = rawItems.map((it) => {
+                const qty = Number(it.quantidade ?? it.qty ?? 1) || 1;
+                const cost = Number(it.custoUnitario ?? it.custo ?? it.valorUnitario ?? it.product?.price ?? 0) || 0;
+                const price = Number(it.precoVenda ?? it.valorVenda ?? it.precoUnitario ?? cost) || 0;
+                return {
+                  description: it.descricao || it.description || it.product?.name || 'Item do orçamento',
+                  price,
+                  baseCost: cost,
+                  quantity: qty,
+                  period: Number(it.period || 0),
+                };
+              }).filter((it) => it.description);
+
+              if (quoteItems.length === 0) return;
+              const totalValue = quoteItems.reduce((sum, it) => sum + (it.price * it.quantity), 0) || Number(cotacao.valorTotal || req.valorEstimado || 0);
+              mapped.push({
+                id: `orc-${req.id}-${idx}`,
+                isBudget: true,
+                proposalNumber: cotacao.numeroOrcamento || req.numero || req.codigo || String(req.id).slice(0, 8),
+                clientInfo: {
+                  name: req.solicitante?.name || '',
+                  company: clientName,
+                  document: req.company?.cnpj || '',
+                },
+                totalValue,
+                quoteItems,
+                operationType: 'venda',
+                desiredMargin: Number(cotacao.margem || 0),
+                createdAt: cotacao.criadoEm || req.createdAt || new Date().toISOString(),
+              });
+            });
+          } else if (fallbackItems.length > 0) {
+            const quoteItems = fallbackItems.map((it) => {
+              const qty = Number(it.quantidade ?? it.qty ?? 1) || 1;
+              const cost = Number(it.custoUnitario ?? it.product?.price ?? 0) || 0;
+              const price = Number(it.precoVenda ?? it.precoUnitario ?? cost) || 0;
+              return {
+                description: it.descricao || it.product?.name || 'Item do orçamento',
+                price,
+                baseCost: cost,
+                quantity: qty,
+                period: 0,
+              };
+            }).filter((it) => it.description);
+
+            if (quoteItems.length > 0) {
+              mapped.push({
+                id: `req-${req.id}`,
+                isBudget: true,
+                proposalNumber: req.numero || req.codigo || String(req.id).slice(0, 8),
+                clientInfo: {
+                  name: req.solicitante?.name || '',
+                  company: clientName,
+                  document: req.company?.cnpj || '',
+                },
+                totalValue: quoteItems.reduce((sum, it) => sum + (it.price * it.quantity), 0) || Number(req.valorEstimado || 0),
+                quoteItems,
+                operationType: 'venda',
+                desiredMargin: 0,
+                createdAt: req.createdAt || new Date().toISOString(),
+              });
+            }
+          }
+        });
+        if (active) setBudgets(mapped);
+      } catch {
+        if (active) setBudgets([]);
+      } finally {
+        if (active) setLoadingBudgets(false);
+      }
+    };
+    loadBudgets();
+    return () => { active = false; };
+  }, []);
+
+  const currentList = activeTab === 'orcamentos' ? budgets : proposals;
+  const q = search.toLowerCase();
+  const filtered = currentList.filter(p =>
+    String(p.proposalNumber || '').toLowerCase().includes(q) ||
+    String(p.clientInfo?.name || '').toLowerCase().includes(q) ||
+    String(p.clientInfo?.company || '').toLowerCase().includes(q)
   );
   const typeLabel = (t) => ({ venda: 'Venda', locacao: 'Locação', servicos: 'Serviços' }[t] || t);
   return (
@@ -1388,19 +1501,47 @@ function ImportPropostaModal({ onImport, onClose }) {
       <div style={{background:"rgb(var(--crm-surface-rgb) / 1)",borderRadius:'12px',width:'100%',maxWidth:'700px',maxHeight:'85vh',display:'flex',flexDirection:'column',boxShadow:'0 20px 60px rgba(0,0,0,0.3)'}}>
         <div style={{background:"linear-gradient(135deg,#1a4f8a,rgb(var(--crm-surface-rgb) / 1))",color:'#fff',padding:'20px 24px',borderRadius:'12px 12px 0 0',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <div>
-            <div style={{fontSize:'16px',fontWeight:800}}>📋 Importar Proposta</div>
-            <div style={{fontSize:'11px',opacity:0.8,marginTop:'2px'}}>Selecione uma proposta da Calculadora para usar como base do rateio</div>
+            <div style={{fontSize:'16px',fontWeight:800}}>📋 Importar Proposta ou Orçamento</div>
+            <div style={{fontSize:'11px',opacity:0.8,marginTop:'2px'}}>Selecione uma proposta da Calculadora ou um orçamento de Pré-Vendas para ratear</div>
           </div>
           <button onClick={onClose} style={{background:"rgb(var(--crm-surface-rgb) / 0.2)",border:'none',color:"rgb(var(--crm-ink-rgb) / 1)",borderRadius:'6px',padding:'6px 10px',cursor:'pointer',fontSize:'16px'}}>✕</button>
+        </div>
+        <div style={{display:'flex',gap:'8px',padding:'12px 24px 0',borderBottom:'1px solid var(--crm-border)'}}>
+          {[
+            { id: 'propostas', label: `Propostas (${proposals.length})` },
+            { id: 'orcamentos', label: `Orçamentos Pré-Vendas (${budgets.length})` },
+          ].map((tabItem) => (
+            <button
+              key={tabItem.id}
+              type="button"
+              onClick={() => setActiveTab(tabItem.id)}
+              style={{
+                padding:'8px 14px',
+                border:'none',
+                borderBottom: activeTab === tabItem.id ? '2px solid #38bdf8' : '2px solid transparent',
+                background:'transparent',
+                color: activeTab === tabItem.id ? '#38bdf8' : 'rgb(var(--crm-muted-rgb) / 1)',
+                fontWeight:700,
+                fontSize:'12px',
+                cursor:'pointer',
+              }}
+            >
+              {tabItem.label}
+            </button>
+          ))}
         </div>
         <div style={{padding:'16px 24px',borderBottom:"1px solid var(--crm-border)"}}>
           <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Buscar por número, cliente ou empresa..."
             style={{width:'100%',border:"1px solid var(--crm-border)",borderRadius:'8px',padding:'10px 14px',fontSize:'13px',boxSizing:'border-box'}} />
         </div>
         <div style={{flex:1,overflowY:'auto',padding:'12px 24px'}}>
-          {filtered.length === 0 ? (
+          {activeTab === 'orcamentos' && loadingBudgets ? (
+            <div style={{textAlign:'center',padding:'32px',color:"rgb(var(--crm-muted-rgb) / 1)"}}>Carregando orçamentos de Pré-Vendas...</div>
+          ) : filtered.length === 0 ? (
             <div style={{textAlign:'center',padding:'32px',color:"rgb(var(--crm-muted-rgb) / 1)"}}>
-              {proposals.length === 0 ? 'Nenhuma proposta salva na Calculadora. Crie e salve uma proposta em Calculadora primeiro.' : 'Nenhuma proposta encontrada.'}
+              {activeTab === 'orcamentos'
+                ? (budgets.length === 0 ? 'Nenhum orçamento com itens encontrado em Pré-Vendas.' : 'Nenhum orçamento encontrado.')
+                : (proposals.length === 0 ? 'Nenhuma proposta salva na Calculadora. Crie e salve uma proposta em Calculadora primeiro.' : 'Nenhuma proposta encontrada.')}
             </div>
           ) : filtered.map(p => (
             <div key={p.id} onClick={() => onImport(p)}
@@ -1416,7 +1557,7 @@ function ImportPropostaModal({ onImport, onClose }) {
                   <div style={{fontWeight:800,color:'#1a4f8a',fontFamily:'monospace'}}>
                     {p.totalValue?.toLocaleString('pt-BR', {style:'currency',currency:'BRL'})}
                   </div>
-                  <div style={{fontSize:'11px',color:"rgb(var(--crm-muted-rgb) / 1)"}}>{typeLabel(p.operationType)} · {p.quoteItems?.length} itens</div>
+                  <div style={{fontSize:'11px',color:"rgb(var(--crm-muted-rgb) / 1)"}}>{p.isBudget ? 'Orçamento' : typeLabel(p.operationType)} · {p.quoteItems?.length} itens</div>
                 </div>
               </div>
               <div style={{fontSize:'11px',color:"rgb(var(--crm-muted-rgb) / 1)",marginTop:'6px'}}>
