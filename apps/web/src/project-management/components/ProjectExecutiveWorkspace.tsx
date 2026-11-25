@@ -116,25 +116,26 @@ export default function ProjectExecutiveWorkspace({
   const totalMarcoRef = data.marcosPagamento.reduce((sum, m) => sum + (Number(m.referenciaEstimada) || 0), 0);
 
   return (
-    <div className="h-full overflow-y-auto p-4 sm:p-6 space-y-5 text-[var(--crm-ink)]">
-      {/* Barra superior comum */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] px-4 py-3">
-        <div>
-          <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--crm-muted)]">
-            <span className="font-bold text-[#38bdf8]">{project.number || 'PROJETO'}</span>
-            <span>•</span>
-            <span>Data-base: <strong className="text-[var(--crm-ink)]">{data.dataBase || '-'}</strong></span>
-            <span>•</span>
-            <span>Próxima revisão: <strong className="text-[var(--crm-ink)]">{data.proximaRevisao || '-'}</strong></span>
-          </div>
-          <h2 className="mt-0.5 text-lg font-black">{project.name}</h2>
+    <div className="h-full overflow-y-auto p-5 sm:p-6 text-[var(--crm-ink)]">
+      <div className="max-w-[1440px] mx-auto space-y-5">
+      {/* Barra superior enxuta (sem duplicar título do projeto) */}
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#38bdf8]/20 bg-[#061830]/75 backdrop-blur-md px-5 py-3">
+        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-300">
+          <span className="rounded-md bg-[#0f2f54] border border-[#38bdf8]/30 px-2.5 py-1 font-black text-[#38bdf8]">
+            {project.number || 'PROJETO'}
+          </span>
+          <span>Data-base: <strong className="text-white">{data.dataBase || '-'}</strong></span>
+          <span className="text-slate-500">•</span>
+          <span>Emissão: <strong className="text-white">{data.emissao || '-'}</strong></span>
+          <span className="text-slate-500">•</span>
+          <span>Próxima revisão: <strong className="text-white">{data.proximaRevisao || '-'}</strong></span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => exportProjectExecutivePdf(project.name, data)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-cyan-500/40 bg-cyan-500/10 px-3 py-1.5 text-xs font-bold text-cyan-400 hover:bg-cyan-500/20"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-400/40 bg-cyan-500/10 px-3.5 py-1.5 text-xs font-bold text-cyan-300 hover:bg-cyan-500/20 transition-colors"
           >
             <FileDown className="h-3.5 w-3.5" /> Exportar PDF Executivo
           </button>
@@ -142,7 +143,7 @@ export default function ProjectExecutiveWorkspace({
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="inline-flex items-center gap-1.5 rounded-md bg-emerald-600 hover:bg-emerald-500 px-3.5 py-1.5 text-xs font-bold text-white disabled:opacity-60"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-4 py-1.5 text-xs font-bold text-white shadow-sm disabled:opacity-60 transition-colors"
           >
             <Save className="h-3.5 w-3.5" />
             {saving ? 'Salvando...' : savedOk ? 'Salvo no banco! ✓' : 'Salvar Alterações'}
@@ -616,6 +617,7 @@ export default function ProjectExecutiveWorkspace({
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
