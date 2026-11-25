@@ -3,7 +3,8 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+  // Use relative path to let the dev server proxy to the correct backend (port 3000)
+  baseURL: import.meta.env.VITE_API_URL || '/',
   timeout: import.meta.env.VITE_API_TIMEOUT || 10000,
   headers: {
     'Content-Type': 'application/json'
