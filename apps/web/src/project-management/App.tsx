@@ -1744,8 +1744,6 @@ export default function App({ onBack }: { onBack?: () => void }) {
             />
           )}
         </div>
-
-          </div>
           </div>
           )
         ) : (
