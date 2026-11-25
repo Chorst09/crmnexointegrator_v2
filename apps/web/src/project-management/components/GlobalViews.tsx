@@ -1823,6 +1823,9 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
     persistProcesses(newList);
     if (activeProcessId === id) {
       setActiveProcessId(newList[0].id);
+      if (newList[0].diagrams?.[0]?.id) {
+        setActiveDiagramId(newList[0].diagrams[0].id);
+      }
     }
   };
 
@@ -2159,79 +2162,12 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
         </div>
       }
     >
-      {/* Active Process Selector and Rename bar */}
-      <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="flex flex-1 items-center gap-3 min-w-0">
-          <span className="text-xs font-bold text-[var(--crm-muted)] whitespace-nowrap">Processo Ativo:</span>
-          {isEditingName ? (
-            <div className="flex items-center gap-2 flex-1 max-w-md">
-              <input
-                autoFocus
-                value={editedName}
-                onChange={(e) => setEditedName(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') handleRenameProcess();
-                  if (e.key === 'Escape') setIsEditingName(false);
-                }}
-                className="flex-1 rounded-md border border-[#2563eb] bg-transparent px-2.5 py-1.5 text-sm font-semibold text-[var(--crm-ink)] outline-none"
-              />
-              <button
-                type="button"
-                onClick={handleRenameProcess}
-                className="rounded-md bg-[#2563eb] text-[rgb(var(--crm-ink-rgb)_/_1)] font-bold px-3 py-1.5 text-xs hover:bg-[#1d4ed8]"
-              >
-                Salvar
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsEditingName(false)}
-                className="rounded-md bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[var(--crm-ink)] px-3 py-1.5 text-xs hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
-              >
-                Cancelar
-              </button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 min-w-0">
-              <select
-                value={activeProcessId}
-                onChange={(e) => {
-                  const nextId = e.target.value;
-                  setActiveProcessId(nextId);
-                  const nextProc = processes.find((p) => p.id === nextId);
-                  if (nextProc?.diagrams?.[0]?.id) {
-                    setActiveDiagramId(nextProc.diagrams[0].id);
-                  }
-                  setIsEditingName(false);
-                }}
-                className="bg-transparent border border-[var(--crm-border)] rounded-md text-sm px-3 py-1.5 font-bold text-[var(--crm-ink)] outline-none max-w-[300px]"
-              >
-                {processes.map(p => (
-                  <option key={p.id} value={p.id}>{p.name}</option>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsEditingName(true);
-                  setEditedName(board.name);
-                }}
-                className="p-2 rounded hover:bg-[var(--crm-surface)] text-[var(--crm-muted)] hover:text-[var(--crm-ink)] transition-colors"
-                title="Editar nome do processo"
-              >
-                <Pencil className="w-3.5 h-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDeleteProcess(activeProcessId)}
-                className="p-2 rounded hover:bg-[#ef4444]/15 text-[var(--crm-muted)] hover:text-red-700 dark:hover:text-red-400 transition-colors"
-                title="Excluir mapeamento de processo"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
+      {/* Seletor exclusivo de Empresa / Processo */}
+      <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <span className="text-[11px] font-black uppercase tracking-wider text-[var(--crm-muted)]">
+            Empresas / Processos ({processes.length}) — selecione para exibir apenas o processo da empresa
+          </span>
           <div className="flex items-center rounded-md border border-[var(--crm-border)] bg-transparent p-0.5">
             <button
               type="button"
@@ -2248,9 +2184,118 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
               Etapas e Controles
             </button>
           </div>
-          <span className="text-xs text-[var(--crm-muted)] leading-tight">
-            Clique em <span className="text-emerald-700 dark:text-emerald-400 font-bold">Salvar Processo</span> para manter suas modificações.
-          </span>
+        </div>
+
+        {/* Cards de seleção rápida por Empresa / Processo */}
+        <div className="flex flex-wrap gap-2">
+          {processes.map((proc) => {
+            const isSelected = proc.id === board.id;
+            const count = proc.diagrams?.length || 1;
+            return (
+              <button
+                key={proc.id}
+                type="button"
+                onClick={() => {
+                  setActiveProcessId(proc.id);
+                  const firstDiag = proc.diagrams?.[0]?.id;
+                  if (firstDiag) setActiveDiagramId(firstDiag);
+                  setIsEditingName(false);
+                }}
+                className={`flex items-center gap-2.5 rounded-lg border px-3 py-2 text-left transition-all ${
+                  isSelected
+                    ? 'border-[#2563eb] bg-[#0f2744] text-white shadow-md'
+                    : 'border-[var(--crm-border)] bg-[var(--crm-surface)]/50 text-[var(--crm-ink)] hover:border-[#2563eb]/60'
+                }`}
+              >
+                {proc.companyLogo ? (
+                  <img src={proc.companyLogo} alt={proc.companyName || proc.name} className="h-7 w-7 rounded bg-white object-contain p-0.5 flex-shrink-0" />
+                ) : (
+                  <span className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded text-xs font-black ${isSelected ? 'bg-[#2563eb] text-white' : 'bg-[#2563eb]/15 text-[#38bdf8]'}`}>
+                    {(proc.companyName || proc.name).slice(0, 2).toUpperCase()}
+                  </span>
+                )}
+                <div className="min-w-0">
+                  <div className="text-xs font-black truncate max-w-[200px]">
+                    {proc.companyName || proc.name}
+                  </div>
+                  <div className={`text-[10px] truncate max-w-[200px] ${isSelected ? 'text-slate-300' : 'text-[var(--crm-muted)]'}`}>
+                    {proc.companyName ? proc.name.replace(`${proc.companyName} — `, '') : 'Processo'} • {count} BPMN{count > 1 ? 's' : ''}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Cartão exclusivo da Empresa / Processo selecionado */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-lg border border-[#1d5d8c]/40 bg-gradient-to-r from-[#0f2744]/85 to-[#0f2744]/50 p-4 text-white">
+          <div className="flex items-center gap-4 min-w-0">
+            {board.companyLogo ? (
+              <div className="h-14 w-14 flex-shrink-0 rounded-lg bg-white p-1.5 shadow flex items-center justify-center">
+                <img src={board.companyLogo} alt={board.companyName || board.name} className="max-h-full max-w-full object-contain" />
+              </div>
+            ) : (
+              <div className="h-14 w-14 flex-shrink-0 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-lg font-black text-[#7db3db]">
+                {(board.companyName || board.name).slice(0, 2).toUpperCase()}
+              </div>
+            )}
+            <div className="min-w-0">
+              <div className="text-[11px] font-bold uppercase tracking-wider text-[#7db3db]">
+                {board.companyName || 'Processo Selecionado'}
+              </div>
+              {isEditingName ? (
+                <div className="mt-1 flex items-center gap-2">
+                  <input
+                    autoFocus
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleRenameProcess();
+                      if (e.key === 'Escape') setIsEditingName(false);
+                    }}
+                    className="rounded border border-[#38bdf8] bg-slate-900/80 px-2.5 py-1 text-sm font-bold text-white outline-none"
+                  />
+                  <button type="button" onClick={handleRenameProcess} className="rounded bg-[#2563eb] px-2.5 py-1 text-xs font-bold text-white">
+                    Salvar
+                  </button>
+                  <button type="button" onClick={() => setIsEditingName(false)} className="rounded bg-white/10 px-2.5 py-1 text-xs text-slate-200">
+                    Cancelar
+                  </button>
+                </div>
+              ) : (
+                <h2 className="text-lg font-black text-white truncate">
+                  {board.companyName ? board.name.replace(`${board.companyName} — `, '') : board.name}
+                </h2>
+              )}
+              <div className="mt-1 flex flex-wrap items-center gap-3 text-xs text-slate-300">
+                {board.responsibleName && (
+                  <span>Responsável: <strong className="text-white">{board.responsibleName}</strong></span>
+                )}
+                <span>•</span>
+                <span><strong>{boardDiagrams.length}</strong> diagrama{boardDiagrams.length > 1 ? 's' : ''} BPMN</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setIsEditingName(true);
+                setEditedName(board.name);
+              }}
+              className="inline-flex items-center gap-1.5 rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-bold text-white hover:bg-white/20"
+            >
+              <Pencil className="w-3.5 h-3.5" /> Renomear
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDeleteProcess(activeProcessId)}
+              className="inline-flex items-center gap-1.5 rounded-md border border-red-400/30 bg-red-500/15 px-3 py-1.5 text-xs font-bold text-red-200 hover:bg-red-500/25"
+            >
+              <Trash2 className="w-3.5 h-3.5" /> Excluir Processo
+            </button>
+          </div>
         </div>
       </div>
 
