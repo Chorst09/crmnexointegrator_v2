@@ -627,6 +627,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
   const [isBrainModalOpen, setIsBrainModalOpen] = useState(false);
   const [showProjectDetailsBar, setShowProjectDetailsBar] = useState(false);
   const [showMoreViewsMenu, setShowMoreViewsMenu] = useState(false);
+  const [isSpacesSidebarCollapsed, setIsSpacesSidebarCollapsed] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   // States for ClickUp Brain Chat integration
@@ -1419,14 +1420,24 @@ export default function App({ onBack }: { onBack?: () => void }) {
       </nav>
       )}
 
-      {/* Second Sidebar (Spaces - Desktop) */}
-      {globalView === 'spaces' && !isDashboardFocus && (
-        <aside className="w-[280px] bg-[var(--crm-surface)] flex-shrink-0 hidden lg:flex flex-col h-full border-r border-[var(--crm-border)] z-20">
-          <div className="p-4 flex items-center justify-between border-b border-[var(--crm-border)] bg-[linear-gradient(90deg,rgba(37,99,235,0.13),transparent)]">
-          <h2 className="font-semibold text-[var(--crm-ink)]">Projetos</h2>
-          <button onClick={() => setIsCreatingSpace(true)} className="bg-[#2563eb] hover:bg-[#1d4ed8] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-semibold px-3 py-2 rounded flex items-center gap-1 transition-colors">
-            <Plus className="w-3 h-3" /> Criar
-          </button>
+      {/* Second Sidebar (Spaces - Desktop, recolhível) */}
+      {globalView === 'spaces' && !isDashboardFocus && !isSpacesSidebarCollapsed && (
+        <aside className="w-[228px] bg-[#04142b]/90 backdrop-blur-md flex-shrink-0 hidden lg:flex flex-col h-full border-r border-[#38bdf8]/15 z-20">
+          <div className="p-3.5 flex items-center justify-between border-b border-white/10 bg-[linear-gradient(90deg,rgba(37,99,235,0.16),transparent)]">
+          <h2 className="font-bold text-sm text-white">Projetos</h2>
+          <div className="flex items-center gap-1.5">
+            <button onClick={() => setIsCreatingSpace(true)} className="bg-[#2563eb] hover:bg-[#1d4ed8] text-white text-xs font-semibold px-2.5 py-1.5 rounded-md flex items-center gap-1 transition-colors">
+              <Plus className="w-3 h-3" /> Criar
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsSpacesSidebarCollapsed(true)}
+              className="rounded-md border border-white/15 bg-white/5 px-1.5 py-1 text-xs font-bold text-slate-300 hover:bg-white/10 hover:text-white"
+              title="Recolher lista de projetos para ganhar espaço"
+            >
+              «
+            </button>
+          </div>
         </div>
 
         <div className="p-3 flex-1 overflow-y-auto">
@@ -1566,10 +1577,20 @@ export default function App({ onBack }: { onBack?: () => void }) {
             }}
           >
             {/* Project Header & Tabs (Compacto e arejado) */}
-            <div className="bg-[#04142b]/75 backdrop-blur-md border-b border-[#38bdf8]/20 flex-shrink-0">
+            <div className="relative z-30 bg-[#04142b]/75 backdrop-blur-md border-b border-[#38bdf8]/20 flex-shrink-0">
               <div className="px-4 sm:px-6 pt-3 pb-2.5 flex flex-col gap-2.5">
                 <div className="flex items-center justify-between flex-wrap gap-2">
                   <div className="flex items-center gap-2.5 text-base sm:text-lg font-bold text-white min-w-0 flex-1 mr-2">
+                    {isSpacesSidebarCollapsed && (
+                      <button
+                        type="button"
+                        onClick={() => setIsSpacesSidebarCollapsed(false)}
+                        className="hidden lg:inline-flex items-center gap-1 rounded-md border border-[#38bdf8]/35 bg-[#0f2f54] px-2 py-1 text-xs font-bold text-[#38bdf8] hover:bg-[#163d6b]"
+                        title="Expandir lista de projetos"
+                      >
+                        » Projetos
+                      </button>
+                    )}
                     <div className={cn("w-6 h-6 rounded-md text-[11px] flex items-center justify-center font-black text-white flex-shrink-0 shadow", activeProject?.color || "bg-[#2563eb]")}>
                       {activeProject?.initial || "P"}
                     </div>
@@ -1654,7 +1675,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
                         <ChevronDown className="h-3.5 w-3.5" />
                       </button>
                       {showMoreViewsMenu && (
-                        <div className="absolute left-0 top-full z-40 mt-1.5 w-48 rounded-xl border border-[#38bdf8]/25 bg-[#061830] p-1.5 shadow-2xl">
+                        <div className="absolute right-0 top-full z-50 mt-1.5 w-48 rounded-xl border border-[#38bdf8]/35 bg-[#061830] p-1.5 shadow-2xl">
                           {[
                             { id: 'calendar', icon: Calendar, label: 'Calendário' },
                             { id: 'dashboard', icon: BarChart2, label: 'Painéis' },
