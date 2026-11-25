@@ -12,6 +12,7 @@ model User {
   id        String   @id @default(uuid())
   name      String
   email     String   @unique
+  phone     String?
   password  String
   role      Role     @default(SELLER)
   tenantCompanyId String?
@@ -105,7 +106,13 @@ model Company {
   accessAutomation Boolean @default(false)
   tenantCompanyId String?
   tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+  leadNextAction String?
+  leadNextActionAt DateTime?
+  leadReminderMinutes Int @default(15)
+  leadOrigin String?
+  leadOriginDetail String?
   leadEntryDate DateTime @default(now())
+  accountManagerId String?
   accountManagerName String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -126,6 +133,7 @@ model Company {
   kickoffMeetings   KickoffMeeting[]
 
   @@index([tenantCompanyId])
+  @@index([accountManagerId])
 }
 
 model Contact {
@@ -169,66 +177,80 @@ model Product {
 
 // === FUNIL DE VENDAS ===
 model Opportunity {
-  id              String   @id @default(uuid())
-  number          String?  @unique
-  title           String
-  projectName     String?
-  projectClientType String?
-  negotiationType String?
+  id                    String      @id @default(uuid())
+  number                String?     @unique
+  title                 String
+  projectName           String?
+  projectClientType     String?
+  negotiationType       String?
   projectClassification String?
-  projectTower    String?
-  projectDetail   String?
-  manufacturer    String?
-  licenseCount    Int?
-  contractMonths  Int?
-  monthlyValue    Float?
-  installationFee Float?
-  leadSourceDetail String?
-  importSource    String?
-  importSourceRow Int?
-  projectType     String   @default("SINGLE")
-  projectMonths   Int?
-  description     String?
-  value           Float
-  probability     Int      @default(50)
-  stage           Stage
-  b2gStage        String?
-  source          LeadSource?
-  leadEntryDate   DateTime @default(now())
-  expectedCloseDate DateTime?
-  actualCloseDate DateTime?
-  customerTurnDate DateTime?
-  exitDate        DateTime?
-  lossReason      String?
-  stageDecisionDetails Json?
-  notes           String?
+  projectTower          String?
+  projectDetail         String?
+  manufacturer          String?
+  licenseCount          Int?
+  contractMonths        Int?
+  monthlyValue          Float?
+  installationFee       Float?
+  leadSourceDetail      String?
+  importSource          String?
+  importSourceRow       Int?
+  projectType           String      @default("SINGLE")
+  projectMonths         Int?
+  description           String?
+  value                 Float
+  probability           Int         @default(50)
+  stage                 Stage
+  b2gStage              String?
+  source                LeadSource?
+  leadEntryDate         DateTime    @default(now())
+  expectedCloseDate     DateTime?
+  actualCloseDate       DateTime?
+  customerTurnDate      DateTime?
+  exitDate              DateTime?
+  lossReason            String?
+  stageDecisionDetails  Json?
+  notes                 String?
+  revenueType           String?
+  contractPeriodMonths  Int?
+  monthlyRecurringValue Float?
+  totalContractValue    Float?
+  totalProductsValue    Float?
+  setupValue            Float?
+  contactName           String?
+  contactFullName       String?
+  contactEmail          String?
+  contactPhone          String?
   
   // Relacionamentos
-  companyId String
-  company   Company @relation(fields: [companyId], references: [id])
-  ownerId   String
-  owner     User    @relation(fields: [ownerId], references: [id])
-  tenantCompanyId String?
-  tenantCompany TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
+  companyId             String?
+  company               Company?    @relation(fields: [companyId], references: [id])
+  ownerId               String?
+  owner                 User?       @relation(fields: [ownerId], references: [id])
+  tenantCompanyId       String?
+  tenantCompany         TenantCompany? @relation(fields: [tenantCompanyId], references: [id], onDelete: SetNull)
   
-  products    OpportunityProduct[]
-  activities  Activity[]
-  proposals   Proposal[]
-  commission  Commission?
-  competitors CompetitorComparison[]
-  preSalesRequests PreSalesRequest[]
-  integrationOrders IntegrationOrder[]
-  followUps   OpportunityFollowUp[]
-  project     Project?
-  attentionPoints OpportunityAttentionPoint[]
-  learnings       OpportunityLearning[]
-  kickoffMeetings KickoffMeeting[]
+  contracts             Contract[]
+  products              OpportunityProduct[]
+  activities            Activity[]
+  proposals             Proposal[]
+  commission            Commission?
+  competitors           CompetitorComparison[]
+  preSalesRequests      PreSalesRequest[]
+  integrationOrders     IntegrationOrder[]
+  followUps             OpportunityFollowUp[]
+  project               Project?
+  attentionPoints       OpportunityAttentionPoint[]
+  learnings             OpportunityLearning[]
+  kickoffMeetings       KickoffMeeting[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  companyDocuments      CompanyDocument[]
+
+  createdAt             DateTime    @default(now())
+  updatedAt             DateTime    @updatedAt
 
   @@index([b2gStage])
   @@index([tenantCompanyId])
+  @@index([importSource, importSourceRow])
 }
 
 // === PONTOS DE ATENÇÃO ===
@@ -1191,10 +1213,17 @@ model Contract {
   title           String
   description     String?
   value           Float
-  startDate       DateTime
-  endDate         DateTime
+  startDate       DateTime?
+  endDate         DateTime?
   status          ContractStatus @default(ACTIVE)
   
+  opportunityId String?
+  opportunity Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  sourceDocumentId String? @unique
+  sourceOpportunityLabel String?
+  expirationAlert Boolean @default(true)
+  alertDays       Int     @default(30)
+
   // Campos de SLA
   slaResponseTime    Int?     // Tempo de resposta em horas
   slaResolutionTime  Int?     // Tempo de resolução em horas
@@ -1239,8 +1268,14 @@ model CompanyDocument {
   companyId    String
   company      Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
 
+  opportunityId String?
+  opportunity   Opportunity? @relation(fields: [opportunityId], references: [id], onDelete: Restrict)
+  documentType  String @default("DOCUMENT")
+
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  @@index([companyId, opportunityId])
 }
 
 // === PRÉ-VENDAS ===
@@ -1431,7 +1466,78 @@ model SystemSetting {
   updatedAt DateTime @updatedAt
 }
 
-// === ENUMS ===
+// === B2G: LICITAÇÕES GERENCIADAS ===
+model GerenciadaLicitacao {
+  id                  String   @id @default(uuid())
+  userId              String?  @map("user_id")
+  tenantCompanyId     String?  @map("tenant_company_id")
+  numeroControlePncp  String?  @map("numero_controle_pncp")
+  numeroCompra        String?  @map("numero_compra")
+  orgao               String?
+  uf                  String?
+  cidade              String?
+  modalidade          String?
+  objetoResumo        String?  @map("objeto_resumo")
+  dataAbertura        DateTime? @map("data_abertura")
+  dataEncerramento    DateTime? @map("data_encerramento")
+  valorEstimado       Decimal?  @map("valor_estimado") @db.Decimal(15, 4)
+  situacao            String?
+  linkSistemaOrigem   String?  @map("link_sistema_origem")
+  statusFase          String?  @map("status_fase") @default("Análise")
+  payloadCompleto     Json?    @map("payload_completo")
+  notas               String?
+  addedAt             DateTime @default(now()) @map("added_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+
+  @@index([userId])
+  @@index([tenantCompanyId])
+  @@index([numeroControlePncp])
+  @@index([statusFase])
+  @@map("gerenciadas_licitacao")
+}
+
+// === B2G: ALERTAS DE LICITAÇÃO ===
+model AlertaLicitacao {
+  id              String   @id @default(uuid())
+  userId          String?  @map("user_id")
+  tenantCompanyId String?  @map("tenant_company_id")
+  termo           String
+  uf              String?
+  modalidade      String?
+  dataAberturaInicio DateTime? @map("data_abertura_inicio")
+  minValor        Float?   @map("min_valor")
+  ativo           Boolean  @default(true)
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([tenantCompanyId])
+  @@index([ativo])
+  @@map("alertas_licitacao")
+}
+
+// === B2G: EDITAIS ANALISADOS ===
+model EditalAnalisado {
+  id                  String   @id @default(uuid())
+  numeroControlePncp  String   @map("numero_controle_pncp")
+  orgao               String?
+  objeto              String?
+  valorEstimado       Decimal?  @map("valor_estimado") @db.Decimal(15, 4)
+  dataAbertura        DateTime? @map("data_abertura")
+  analysisData        Json?     @map("analysis_data")
+  userId              String?   @map("user_id")
+  tenantCompanyId     String?   @map("tenant_company_id")
+  convertidoOportunidade Boolean @default(false) @map("convertido_oportunidade")
+  oportunidadeId      String?   @map("oportunidade_id")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  @@unique([numeroControlePncp, userId])
+  @@index([userId])
+  @@index([tenantCompanyId])
+  @@map("editais_analisados")
+}
+
+// === CONFIGURAÇÕES DO SISTEMA ===
 enum Role {
   MASTER
   ADMIN
@@ -1494,13 +1600,6 @@ enum ActivityStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
-}
-
-enum Priority {
-  LOW
-  MEDIUM
-  HIGH
-  URGENT
 }
 
 enum ProposalStatus {
@@ -1939,6 +2038,13 @@ model ProjectMilestone {
   @@index([status])
 }
 
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
 model ProjectTask {
   id              String   @id @default(uuid())
   projectId       String
@@ -2266,6 +2372,106 @@ enum StatusProcessamentoPncp {
   REPROCESSAR
 }
 
+// === MÓDULO SIMULADOR - LICITAÇÕES PERSISTIDAS ===
+model SimulatorLicitacao {
+  id                    String   @id @default(uuid())
+  codigo                String   @unique // ID único do mock (ex: "1001", "mock-1")
+  
+  // Campos principais espelhando a estrutura do PNCP
+  orgao                 String?
+  orgao_nome            String?  @map("orgao_nome")
+  uf                    String?
+  cidade                String?
+  modalidade            String?
+  modalidade_nome       String?  @map("modalidade_nome")
+  objeto_resumo         String?  @map("objeto_resumo")
+  objeto_compra         String?  @map("objeto_compra")
+  
+  // Datas
+  data_abertura         DateTime? @map("data_abertura")
+  data_encerramento     DateTime? @map("data_encerramento")
+  data_encerramento_proposta DateTime? @map("data_encerramento_proposta")
+  data_hora_abertura_sessao DateTime? @map("data_hora_abertura_sessao")
+  data_publicacao_pncp  DateTime? @map("data_publicacao_pncp")
+  data_atualizacao      DateTime? @map("data_atualizacao")
+  
+  // Valores
+  valor_estimado        Decimal? @default(0) @map("valor_estimado") @db.Decimal(15, 4)
+  valor_total_estimado  Decimal? @default(0) @map("valor_total_estimado") @db.Decimal(15, 4)
+  
+  // Identificação PNCP
+  numero_controle_pncp  String?  @map("numero_controle_pncp")
+  numero_compra         String?  @map("numero_compra")
+  ano_compra            Int?     @map("ano_compra")
+  sequencial_compra     Int?     @map("sequencial_compra")
+  processo              String?
+  
+  // Situação
+  situacao              String?
+  situacao_compra_nome  String?  @map("situacao_compra_nome")
+  
+  // Estruturas JSON
+  orgao_entidade        Json?    @map("orgao_entidade")
+  unidade_orgao         Json?    @map("unidade_orgao")
+  itens                 Json?    @default("[]")
+  requisitos_habilitacao Json?   @map("requisitos_habilitacao")
+  prazos_e_locais       Json?    @map("prazos_e_locais")
+  pontos_de_atencao_risco Json?  @map("pontos_de_atencao_risco")
+  matriz_itens          Json?    @map("matriz_itens")
+  
+  // Fontes e metadados
+  fonte                 String   @default("mock") // mock, pncp, manual
+  fonte_dados           String?  @map("fonte_dados")
+  link_sistema_origem   String?  @map("link_sistema_origem")
+  link_processo_eletronico String? @map("link_processo_eletronico")
+  
+  // Controle de versão e cache
+  version               Int      @default(1)
+  hash_verificacao      String?  @map("hash_verificacao")
+  last_synced_at        DateTime? @map("last_synced_at")
+  
+  // Status
+  is_ativo              Boolean  @default(true) @map("is_ativo")
+  is_mock               Boolean  @default(true) @map("is_mock")
+  
+  // Timestamps
+  created_at            DateTime @default(now()) @map("created_at")
+  updated_at            DateTime @updatedAt @map("updated_at")
+
+  @@index([codigo])
+  @@index([numero_controle_pncp])
+  @@index([fonte])
+  @@index([is_ativo])
+  @@index([ano_compra])
+  @@index([uf, cidade])
+  @@index([modalidade])
+  @@index([data_abertura, data_encerramento])
+  @@map("simulator_licitacao")
+}
+
+// === MÓDULO SIMULADOR - PROPOSTAS ===
+model SimulatorProposal {
+  id                  String   @id @default(uuid())
+  baseId              String
+  version             Int      @default(1)
+  title               String
+  client              String
+  type                String
+  value               Float    @default(0)
+  status              String   @default("Rascunho")
+  forecastTemperature Float?
+  metadata            Json?
+  createdBy           String
+  accountManager      String?
+  distributorId       String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([baseId])
+  @@index([createdBy])
+  @@index([type])
+}
+
 // === TABELA DE AUDITORIA CORPORATIVA (AUDIT_LOGS) ===
 model AuditLog {
   id          String   @id @default(uuid())
@@ -2479,4 +2685,36 @@ model KickoffHistory {
 
   @@index([meetingId, createdAt])
   @@index([userId])
+}
+
+// OAuth credentials never leave the server. userId is checked against the active tenant before use.
+model LeadCalendarConnection {
+  id String @id @default(uuid())
+  userId String
+  provider String
+  credentials String
+  lastError String?
+  lastSyncedAt DateTime?
+  updatedAt DateTime @updatedAt
+  @@unique([userId, provider])
+}
+
+model LeadCalendarOAuthState {
+  hash String @id
+  userId String
+  provider String
+  verifier String
+  expiresAt DateTime
+}
+
+model LeadCalendarEvent {
+  id String @id @default(uuid())
+  companyId String
+  userId String
+  provider String
+  eventId String
+  version String
+  reminderVersion String?
+  updatedAt DateTime @updatedAt
+  @@unique([companyId, userId, provider])
 }

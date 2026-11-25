@@ -5,7 +5,8 @@ function contractScope(user = {}) {
   const master = String(user.actualRole || user.role).toUpperCase() === 'MASTER';
   const types = [user.accessB2B && 'B2B', user.accessB2G && 'B2G'].filter(Boolean);
   return { AND: [
-    { company: { AND: [master ? {} : { tenantCompanyId: user.tenantCompanyId || '__missing_tenant__' }, companyVisibilityWhere(user), master ? {} : { clientType: { in: types } }] } }
+    { company: { AND: [master ? {} : { tenantCompanyId: user.tenantCompanyId || '__missing_tenant__' }, companyVisibilityWhere(user), master ? {} : { clientType: { in: types } }] } },
+    { OR: [{ opportunityId: null }, { opportunity: opportunityDocumentWhere(user) }] }
   ] };
 }
 function dateOnly(value) {
