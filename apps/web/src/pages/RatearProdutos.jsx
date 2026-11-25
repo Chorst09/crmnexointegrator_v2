@@ -2,6 +2,7 @@ import ExecutiveStatCard from '../components/ExecutiveStatCard';
 import { buildApiUrl, getAuthHeaders } from '../config/api';
 import './RatearProdutos.css';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   BarChart3,
   Boxes,
@@ -14,6 +15,7 @@ import {
   Plus,
   Printer,
   Receipt,
+  Save,
   Settings,
   ShieldCheck,
   Trash2,
@@ -65,6 +67,7 @@ const CALCULATOR_PROPOSALS_STORAGE_KEY = 'crm-calculadoras-propostas-v1';
 const CALCULATOR_PROPOSALS_LEGACY_KEY = 'crm-calculadoras-proposals';
 
 export default function RatearProdutos() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState('nf');
   const [source, setSource] = useState('nfe');
   const [items, setItems] = useState([]);
@@ -403,10 +406,16 @@ export default function RatearProdutos() {
 
   // ── SALVAR RATEIO ──
   const salvarRateio = () => {
-    if (!lastResult) return window.alert('Execute um rateio antes de salvar.');
+    let resultToSave = lastResult;
+    if (!resultToSave) {
+      if (!validateRateioInput()) return;
+      resultToSave = calcRateio(items, expenses, manualWeights, scopedItems, compositionConfig);
+      setLastResult(resultToSave);
+    }
+    const nomeFinal = (rateioName || '').trim() || `Rateio ${new Date().toLocaleDateString('pt-BR')}`;
     const novo = {
       id: Date.now(),
-      nome: rateioName,
+      nome: nomeFinal,
       data: new Date().toLocaleString('pt-BR'),
       snapshot: {
         items,
@@ -416,6 +425,7 @@ export default function RatearProdutos() {
         scopeMode,
         targetIndexes,
         sourceIndexes,
+        sourceTargetMap,
         nf,
         responsavel,
         justificativa,
@@ -424,7 +434,7 @@ export default function RatearProdutos() {
           period: items.reduce((max, item) => Math.max(max, Number(item.period) || 0), 0),
         },
       },
-      resultado: lastResult,
+      resultado: resultToSave,
       resumo: {
         totalItens: items.length,
         totalDespesas: expenses.reduce((s, e) => s + e.valor, 0),
@@ -436,7 +446,7 @@ export default function RatearProdutos() {
     const updated = [novo, ...savedRateios];
     setSavedRateios(updated);
     localStorage.setItem('precifica_rateios_v2', JSON.stringify(updated));
-    window.alert(`Rateio "${rateioName}" salvo com sucesso!`);
+    setMessage({ type: 'ok', text: `Rateio "${nomeFinal}" salvo em Rateios Salvos!` });
   };
 
   // ── CARREGAR RATEIO SALVO ──
@@ -448,6 +458,7 @@ export default function RatearProdutos() {
     setScopeMode(r.snapshot.scopeMode || 'todos');
     setTargetIndexes(r.snapshot.targetIndexes || []);
     setSourceIndexes(r.snapshot.sourceIndexes || []);
+    setSourceTargetMap(r.snapshot.sourceTargetMap || {});
     setNf(r.snapshot.nf);
     setResponsavel(r.snapshot.responsavel);
     setJustificativa(r.snapshot.justificativa);
@@ -575,8 +586,8 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
           <button className="rp-btn" style={{background:'#7c3aed',color:"rgb(var(--crm-ink-rgb) / 1)"}} onClick={novoRateio}><Plus size={15} /> Novo Rateio</button>
           <button className="rp-btn rp-btn-light" onClick={() => { setImportModalTab('propostas'); setShowImportModal(true); }}><Receipt size={15} /> Importar Proposta</button>
           <button className="rp-btn rp-btn-light" onClick={() => { setImportModalTab('orcamentos'); setShowImportModal(true); }}><Receipt size={15} /> Importar Orçamento</button>
-          <button className="rp-btn rp-btn-light" onClick={salvarRateio}><Check size={15} /> Salvar</button>
-          <button className="rp-btn rp-btn-light" onClick={() => setShowSavedModal(true)}><History size={15} /> Salvos ({savedRateios.length})</button>
+          <button className="rp-btn rp-btn-light" onClick={salvarRateio}><Save size={15} /> Salvar Rateio</button>
+          <button className="rp-btn rp-btn-light" onClick={() => navigate('/rateios-salvos')}><History size={15} /> Rateios Salvos ({savedRateios.length})</button>
           <button className="rp-btn rp-btn-light" onClick={exportJSON}><FileJson size={15} /> JSON</button>
           <button className="rp-btn rp-btn-light" onClick={exportCSV}><Download size={15} /> CSV</button>
         </div>
@@ -597,6 +608,7 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
       </nav>
 
       <main className="rp-main">
+        {message && <div className={`rp-alert ${message.type}`}>{message.text}</div>}
         {tab === 'nf' && (
           <>
             <Wizard step={1} />
@@ -675,7 +687,6 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
                 </div>
               )}
 
-              {message && <div className={`rp-alert ${message.type}`}>{message.text}</div>}
               <ItemsTable items={items} totals={totals} onRemove={removeItem} />
             </section>
 
@@ -896,6 +907,8 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
             ) : (
               <>
                 <div className="rp-actions rp-result-actions">
+                  <button className="rp-btn rp-primary" onClick={salvarRateio}><Save size={15} /> Salvar Rateio</button>
+                  <button className="rp-btn" onClick={() => navigate('/rateios-salvos')}><History size={15} /> Ir para Rateios Salvos ({savedRateios.length})</button>
                   <button className="rp-btn" onClick={exportJSON}><FileJson size={15} /> JSON</button>
                   <button className="rp-btn" onClick={exportCSV}><Download size={15} /> CSV</button>
                   <button className="rp-btn" onClick={() => window.print()}><Printer size={15} /> Imprimir</button>
