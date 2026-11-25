@@ -84,6 +84,7 @@ export default function Sidebar({
   const access = getUserAccess(user || {});
 
   const [branding, setBranding] = useState({ appName: 'CRM NEXOS', logoUrl: null });
+  const [logoError, setLogoError] = useState(false);
   const [expandedSections, setExpandedSections] = useState({
     geral: true,
     b2g: false,
@@ -482,10 +483,11 @@ export default function Sidebar({
         <div className={["relative flex items-center justify-center overflow-hidden rounded-[22px] border border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[linear-gradient(135deg,rgb(var(--crm-surface-2-rgb)_/_0.88)_0%,rgb(var(--crm-surface-2-rgb)_/_0.92)_54%,rgb(var(--crm-surface-rgb)_/_0.72)_100%)] shadow-[0_22px_48px_-34px_rgba(34,211,238,0.62)]", collapsed ? 'h-[4.6rem] lg:h-14' : 'h-[4.6rem]'].join(' ')}>
           {market ? (
             <div className="nex-sidebar-market-brand"><img src="/double-logo.svg" alt="Double"/><strong>NEXOS <span>{market}</span></strong></div>
-          ) : resolvePublicUrl(branding.logoUrl) ? (
+          ) : resolvePublicUrl(branding.logoUrl) && !logoError ? (
             <img
               src={resolvePublicUrl(branding.logoUrl)}
               alt="Logo"
+              onError={() => setLogoError(true)}
               className={collapsed ? 'relative z-10 max-h-12 max-w-[12rem] object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.45)] lg:max-h-8 lg:max-w-10' : 'relative z-10 max-h-12 max-w-[12rem] object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.45)]'}
             />
           ) : (
