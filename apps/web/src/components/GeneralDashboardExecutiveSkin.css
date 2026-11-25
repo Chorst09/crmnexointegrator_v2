@@ -298,10 +298,10 @@
 .nex-state-summary {font-size:10px;padding:6px;border:1px solid #1c608b;border-radius:7px;color:#eaf4ff}
 .nex-map g[role="button"] {cursor:pointer;outline:none}
 .nex-map g[role="button"]:focus > circle {stroke:white;stroke-width:2}
-.nex-general-dashboard .nex-lists {margin-top:14px}
-.nex-general-dashboard .nex-four {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
-.nex-general-dashboard .nex-lists > .nex-panel {height:204px}
-.nex-general-dashboard .nex-lists .nex-list-body {height:146px}
+.nex-executive .nex-lists {margin-top:14px}
+.nex-executive .nex-four {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.nex-executive .nex-lists > .nex-panel {height:204px}
+.nex-executive .nex-lists .nex-list-body {height:146px}
 
 /* Header live badge & NEXOS IA CTA */
 .nex-live-badge {display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;border:1px solid #1688bc66;background:#01142be0;box-shadow:inset 0 1px 4px #59dfff1c}
@@ -326,5 +326,5 @@
 .nex-intelligence-cta {display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:7px 10px;border-radius:9px;border:1px solid #8fa8ff99;background:linear-gradient(90deg,#4c38e8,#2c7fff);color:#fff;font-size:11.5px;font-weight:700;box-shadow:0 4px 14px #4552ff55}
 .nex-intelligence-cta:hover {filter:brightness(1.08)}
 
-@media(max-width:1200px){.nex-general-dashboard .nex-general-charts{grid-template-columns:repeat(2,minmax(0,1fr))}.nex-general-dashboard .nex-four{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:760px){.nex-general-dashboard .nex-general-charts{grid-template-columns:1fr}.nex-general-dashboard .nex-lists,.nex-general-dashboard .nex-four{grid-template-columns:1fr}.nex-live-badge{display:none}}
+@media(max-width:1200px){.nex-general-dashboard .nex-general-charts{grid-template-columns:repeat(2,minmax(0,1fr))}.nex-executive .nex-four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.nex-general-dashboard .nex-general-charts{grid-template-columns:1fr}.nex-executive .nex-lists,.nex-executive .nex-four{grid-template-columns:1fr}.nex-live-badge{display:none}}
