@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ExecutiveIcon, ExecutiveRevenueChart, ExecutiveConversionChart, ExecutiveFunnel, ExecutiveBrazilMap, getOpportunityLocations } from './ExecutiveVisuals';
-import { ArrowRight, ArrowUpRight, CalendarDays, CheckCircle2, ChevronRight, Clock3, Coins, Handshake, RefreshCcw, Rocket, TrendingUp, TriangleAlert, Trophy, Brain, BriefcaseBusiness, Landmark, Settings, Check } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, CalendarDays, CheckCircle2, ChevronRight, Clock3, Coins, Handshake, RefreshCcw, Rocket, Sparkles, TrendingUp, TriangleAlert, Trophy, Brain, BriefcaseBusiness, Landmark, Settings, Check } from 'lucide-react';
 import { activityMarket, activityRoute, upcomingActivities, opportunityAlerts } from '../utils/dashboardFlow.mjs';
 import ExecutiveModuleCards from './ExecutiveModuleCards';
 import ExecutiveStatCard from './ExecutiveStatCard';
@@ -143,7 +143,7 @@ export default function GeneralDashboardExecutive({
     <dialog ref={teamDialog} className="nex-ai-dialog" aria-labelledby="nex-team-title"><h2 id="nex-team-title">Performance da Equipe</h2><p>Ordenado por pipeline no período. A barra indica a proporção de oportunidades ganhas.</p>{c.teamPerformance.length ? c.teamPerformance.map((item, index) => <div className="nex-team-row" key={item.id || item.name}><span className="nex-avatar">{initial(item.name)}</span><div className="nex-team-name"><strong>{index + 1}. {item.name}</strong><small>{number(item.total)} oportunidades · {number(item.won)} ganhas</small></div><strong>{money(item.pipeline)}</strong></div>) : <p>Sem dados de equipe no período.</p>}<button onClick={() => teamDialog.current.close()}>Fechar</button></dialog>
     <dialog ref={activityDialog} className="nex-ai-dialog" aria-labelledby="nex-activity-title"><h2 id="nex-activity-title">{selectedActivity?.subject || 'Detalhes do compromisso'}</h2>{selectedActivity && <><p>{new Date(selectedActivity.dueDate).toLocaleString('pt-BR')}</p><p style={{whiteSpace:'pre-wrap'}}>{String(selectedActivity.description || '').split('[CRM_ACTIVITY_FLOW]')[0].trim() || 'Sem descrição adicional.'}</p><p>{selectedActivity.company?.name || 'Sem empresa vinculada'}</p>{activityMarket(selectedActivity) && <button onClick={()=>navigate(activityRoute(selectedActivity))}>Abrir na agenda {activityMarket(selectedActivity)}<ArrowRight size={14}/></button>}</>}<button onClick={()=>activityDialog.current.close()}>Fechar</button></dialog>
     <dialog ref={agendaDialog} className="nex-ai-dialog" aria-labelledby="nex-agenda-title"><h2 id="nex-agenda-title">Próximos Compromissos</h2><p>Agendas B2B e B2G, por ordem de vencimento.</p><div style={{maxHeight:'60vh',overflow:'auto'}}>{upcoming.length ? upcoming.map(item=><button key={item.id} className="nex-action-row" onClick={()=>showActivity(item)}><CalendarDays size={18}/><span className="nex-row-copy"><strong>{item.subject || 'Atividade'}</strong><small>{new Date(item.dueDate).toLocaleString('pt-BR')}</small></span><ArrowRight size={14}/></button>) : <p>Nenhum compromisso futuro cadastrado.</p>}</div><button onClick={()=>agendaDialog.current.close()}>Fechar</button></dialog>
-    <section className="nex-welcome" data-section="header"><div className="nex-welcome-copy"><TrendingUp size={40} /><div><span className="nex-eyebrow">DASHBOARD GERAL · VISÃO EXECUTIVA</span><h1>{hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite'}, {String(user?.name || 'usuário').split(' ')[0]}!</h1><p>Acompanhe o desempenho da sua operação em tempo real.</p></div></div><div className="nex-welcome-tools"><label className="nex-select"><CalendarDays size={16} /><select aria-label="Período do dashboard" value={timeRange} onChange={e => setTimeRange(e.target.value)}>{['30', '90', '180', '365'].map(n => <option key={n} value={n}>Últimos {n} dias</option>)}</select></label><button className="nex-refresh" aria-label="Atualizar dashboard" disabled={loading} onClick={onRefresh}><RefreshCcw size={17} className={loading ? 'animate-spin' : ''} /></button></div></section>
+    <section className="nex-welcome" data-section="header"><div className="nex-welcome-copy"><TrendingUp size={40} /><div><span className="nex-eyebrow">DASHBOARD GERAL · VISÃO EXECUTIVA</span><h1>{hour < 12 ? 'Bom dia' : hour < 18 ? 'Boa tarde' : 'Boa noite'}, {String(user?.name || 'usuário').split(' ')[0]}!</h1><p>Acompanhe o desempenho da sua operação em tempo real.</p></div></div><div className="nex-welcome-tools"><label className="nex-select"><CalendarDays size={16} /><select aria-label="Período do dashboard" value={timeRange} onChange={e => setTimeRange(e.target.value)}>{['30', '90', '180', '365'].map(n => <option key={n} value={n}>Últimos {n} dias</option>)}</select></label><div className="nex-live-badge" title="Sincronização em tempo real"><span className="nex-live-dot" /><div><strong>Atualizado agora</strong><small>{updatedAt ? new Date(updatedAt).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Tempo real'}</small></div></div><button type="button" className="nex-welcome-ai-btn" onClick={() => intelligenceDialog.current?.showModal()}><Sparkles size={15} /><span>NEXOS IA</span></button><button className="nex-refresh" aria-label="Atualizar dashboard" disabled={loading} onClick={onRefresh}><RefreshCcw size={17} className={loading ? 'animate-spin' : ''} /></button></div></section>
     {failures.length > 0 && <p className="nex-warning" role="status"><TriangleAlert size={16} />Dados parciais: {failures.map(item => item.label).join(', ')}. Atualize para tentar novamente.</p>}
     <div className="nex-kpis" data-section="kpis">
       <DashboardKPICard title="Receita Contratada" value={money(c.totalWonValue)} icon={Coins} kind="coins" tone="blue" delta={change(c.totalWonValue, c.previousMetrics.revenue)} subtitle="Fechadas no período · sem base anterior" />
@@ -178,7 +178,7 @@ export default function GeneralDashboardExecutive({
               }} /><span>{item.label}<strong>{number(item.count)}</strong></span></button>)}<button className="nex-link" aria-pressed={mapCategory === 'ALL'} onClick={() => {setMapCategory('ALL');setSelectedState(null);}}>Todos os módulos</button>{selectedState && <div className="nex-state-summary" role="status"><strong>{selectedState}</strong>{['B2B','B2G','PRE'].map(key => <div key={key}>{key === 'PRE' ? 'Pré-vendas' : key}: {statePoints.filter(point => point.category === key).length}</div>)}</div>}<small>{geoPoints.length ? `${geoPoints.length} registros localizados${geoPoints.some(point => point.approximate) ? " · inclui localização por UF" : ""}` : 'Sem UF ou coordenadas cadastradas'}</small><button className="nex-link" onClick={() => navigate(mapCategory === 'B2G' ? '/b2g-oportunidades' : mapCategory === 'PRE' ? '/pre-vendas' : '/oportunidades')}>Ver oportunidades <ArrowRight size={13} /></button></div></div></Panel>
     </div>
     <ExecutiveModuleCards computed={c} access={access} adminLike={adminLike}/>
-    <div className="nex-three nex-lists" data-section="lists">
+    <div className="nex-four nex-lists" data-section="lists">
       <Panel title="Performance da Equipe" action="Ver ranking" onAction={() => teamDialog.current?.showModal()}><div className="nex-list-body">{c.teamPerformance.length ? c.teamPerformance.slice(0,3).map((item, i) => {
             const rate = item.total ? item.won / item.total * 100 : 0;
             return <div className="nex-team-row" key={item.id || item.name}><span className="nex-rank">{i === 0 ? <Trophy size={17} /> : i + 1}</span><span className="nex-avatar">{initial(item.name)}</span><div className="nex-team-name"><strong>{item.name}</strong><small>{number(item.total)} oportunidades</small></div><span className="nex-progress"><i style={{
@@ -190,6 +190,25 @@ export default function GeneralDashboardExecutive({
                 hour: '2-digit',
                 minute: '2-digit'
               })}</b></button>) : <p className="nex-empty">Nenhum compromisso futuro cadastrado.</p>}</div></Panel>
+      <section className="nex-panel nex-intelligence-card" aria-label="NEXOS Intelligence">
+        <div className="nex-intelligence-head">
+          <div>
+            <h2><Sparkles size={15} /> NEXOS Intelligence</h2>
+            <p>Insights e recomendações com IA</p>
+          </div>
+          <span className="nex-intelligence-orb" aria-hidden="true"><Brain size={20} /></span>
+        </div>
+        <ul className="nex-intelligence-list">
+          <li><Check size={13} /><span><strong>{money(c.totalPipeline)}</strong> em {number(opportunities.length)} oportunidades ativas no período</span></li>
+          <li><Check size={13} /><span>Conversão B2B em <strong>{pct(c.b2bConversion)}</strong> · Receita: <strong>{money(c.totalWonValue)}</strong></span></li>
+          <li><TriangleAlert size={13} className="warn" /><span><strong>{number(alerts.length)}</strong> alertas operacionais requerem atenção</span></li>
+          <li><Sparkles size={13} className="tip" /><span>{c.overdueActivities.length > 0 ? `Priorizar ${number(c.overdueActivities.length)} atividades atrasadas na agenda` : 'Agenda comercial em dia · acelere propostas abertas'}</span></li>
+        </ul>
+        <button type="button" className="nex-intelligence-cta" onClick={() => intelligenceDialog.current?.showModal()}>
+          <span>Ver recomendações da IA</span>
+          <ArrowRight size={14} />
+        </button>
+      </section>
     </div>
     <footer className="nex-footer"><span>Dados do sistema · visão consolidada</span>{updatedAt && <span>Atualizado {updatedAt.toLocaleString('pt-BR')}</span>}</footer>
   </div>;

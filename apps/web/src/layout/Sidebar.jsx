@@ -1,6 +1,6 @@
 import { getDashboardMarket } from '../utils/dashboardMarket.mjs';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   Archive,
   BadgeDollarSign,
@@ -69,6 +69,7 @@ export default function Sidebar({
   onToggleCollapsed = () => {}
 }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const market = getDashboardMarket(location.pathname);
   const navRef = useRef(null);
   const lastActiveSectionIdRef = useRef(null);
@@ -429,46 +430,43 @@ export default function Sidebar({
           onOpenChange(false);
         }}
         className={({ isActive }) => [
-          'group relative flex w-full overflow-hidden rounded-2xl',
-          collapsed ? 'items-start gap-3 px-3 py-2.5 lg:items-center lg:justify-center lg:gap-0 lg:px-2' : 'items-start gap-3 px-3 py-2.5',
-          'border transition-all duration-300 ease-out',
+          'group relative flex w-full overflow-hidden rounded-xl',
+          collapsed ? 'items-center justify-center gap-0 px-2 py-1.5' : 'items-center gap-2.5 px-2.5 py-1.5',
+          'border transition-all duration-200 ease-out',
           isActive
-            ? "border-cyan-200/45 dark:border-cyan-800/45 bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[linear-gradient(115deg,rgba(35,194,216,0.34)_0%,rgba(29,78,216,0.18)_44%,rgb(var(--crm-surface-2-rgb)_/_0.44)_100%)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_18px_36px_-26px_rgba(34,211,238,0.95)]"
-            : "border-[var(--crm-border)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_0.82)] hover:border-cyan-200/24 dark:hover:border-cyan-800/24 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.82)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+            ? "border-cyan-300/45 dark:border-cyan-400/40 bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[linear-gradient(115deg,rgba(14,165,233,0.34)_0%,rgba(29,78,216,0.22)_55%,rgb(var(--crm-surface-2-rgb)_/_0.5)_100%)] text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-[0_8px_20px_-14px_rgba(34,211,238,0.85)]"
+            : "border-transparent dark:border-transparent bg-transparent text-[rgb(var(--crm-ink-rgb)_/_0.88)] dark:text-[rgb(var(--crm-ink-rgb)_/_0.82)] hover:border-cyan-200/20 dark:hover:border-cyan-500/25 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.55)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
         ].join(' ')}
       >
         {({ isActive }) => (
           <>
             <span
               className={[
-                'absolute inset-y-2 left-0 w-1 rounded-r-full transition-opacity duration-300',
-                isActive ? "bg-cyan-200 dark:bg-cyan-950 opacity-100 shadow-[0_0_18px_rgba(103,232,249,0.8)]" : "opacity-0 group-hover:opacity-70 bg-cyan-100/70 dark:bg-cyan-950/70"
+                'absolute inset-y-1.5 left-0 w-0.5 rounded-r-full transition-opacity duration-200',
+                isActive ? "bg-cyan-300 opacity-100 shadow-[0_0_12px_rgba(103,232,249,0.9)]" : "opacity-0 group-hover:opacity-60 bg-cyan-200/70"
               ].join(' ')}
             />
 
             <span
               className={[
-                'relative flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-2xl border transition-all duration-300',
-                collapsed ? 'mt-0.5 lg:mt-0' : 'mt-0.5',
+                'relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg border transition-all duration-200',
                 isActive
-                  ? `border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-gradient-to-br ${iconAccent} shadow-lg`
-                  : "border-[var(--crm-border)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.14)] bg-[rgb(var(--crm-surface-rgb)_/_0.08)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-inner shadow-white/[0.03] group-hover:border-[var(--crm-border)] group-hover:bg-[rgb(var(--crm-surface-rgb)_/_0.13)] group-hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                  ? `border-cyan-300/40 bg-gradient-to-br ${iconAccent} shadow-sm`
+                  : "border-[var(--crm-border)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.12)] bg-[rgb(var(--crm-surface-rgb)_/_0.06)] text-[rgb(var(--crm-ink-rgb)_/_0.9)] group-hover:bg-[rgb(var(--crm-surface-rgb)_/_0.14)]"
               ].join(' ')}
             >
-              <span className={['absolute inset-0 opacity-0 transition-opacity duration-300', isActive ? 'opacity-100' : 'group-hover:opacity-100', `bg-gradient-to-br ${iconAccent}`].join(' ')} />
-              <span className="absolute inset-px rounded-2xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]" />
+              <span className={['absolute inset-0 opacity-0 transition-opacity duration-200', isActive ? 'opacity-100' : 'group-hover:opacity-90', `bg-gradient-to-br ${iconAccent}`].join(' ')} />
               <Icon
-                strokeWidth={2.35}
+                strokeWidth={2.2}
                 className={[
-                  'relative z-10 h-5 w-5 drop-shadow-[0_2px_6px_rgba(2,6,23,0.35)] transition-transform duration-300',
-                  isActive ? 'scale-110' : 'group-hover:scale-110'
+                  'relative z-10 h-3.5 w-3.5 transition-transform duration-200',
+                  isActive ? 'scale-105' : 'group-hover:scale-105'
                 ].join(' ')}
               />
             </span>
 
             <span className={collapsed ? 'min-w-0 flex-1 lg:hidden' : 'min-w-0 flex-1'}>
-              <span className="block text-sm font-semibold leading-5">{item.label}</span>
-              <span className="mt-0.5 block truncate text-xs leading-4 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_0.85)]">{item.description}</span>
+              <span className="block truncate text-[12.5px] font-medium leading-4">{item.label}</span>
             </span>
           </>
         )}
@@ -535,59 +533,64 @@ export default function Sidebar({
         ref={navRef}
         aria-label="Menu principal"
         onScroll={saveSidebarScroll}
-        className={['flex-1 min-h-0 overflow-y-auto overscroll-contain py-4 [scrollbar-gutter:stable]', collapsed ? 'px-3 lg:px-2' : 'px-3'].join(' ')}
+        className={['flex-1 min-h-0 overflow-y-auto overscroll-contain py-3 [scrollbar-gutter:stable]', collapsed ? 'px-2' : 'px-2.5'].join(' ')}
       >
+        {!collapsed && (
+          <div className="mb-1.5 px-2 text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-200/55">
+            Principal
+          </div>
+        )}
         {filteredMenuSections.map((section) => {
           const SectionIcon = section.icon;
           const sectionAccent = section.accent || "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35";
           const isOpen = !!expandedSections[section.id];
 
           return (
-            <div key={section.id} className="mb-3 motion-safe:animate-fade-in">
+            <div key={section.id} className="mb-1.5 motion-safe:animate-fade-in">
               <button
                 type="button"
                 onClick={(e) => toggleSection(e, section.id)}
                 title={section.title}
                 className={[
-                  'w-full flex items-center rounded-2xl py-2.5',
-                  collapsed ? 'justify-between gap-3 px-3 lg:justify-center lg:gap-0 lg:px-2' : 'justify-between gap-3 px-3',
-                  'text-left text-[11px] font-bold uppercase tracking-[0.14em]',
-                  "border border-[var(--crm-border)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.1)] bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_0.9)]",
-                  "transition-all duration-300 hover:border-cyan-200/22 dark:hover:border-cyan-800/22 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.76)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                  'w-full flex items-center rounded-xl py-1.5',
+                  collapsed ? 'justify-center gap-0 px-2' : 'justify-between gap-2 px-2.5',
+                  'text-left text-[11px] font-semibold tracking-[0.04em]',
+                  "border border-transparent bg-[rgb(var(--crm-surface-2-rgb)_/_0.28)] text-[rgb(var(--crm-ink-rgb)_/_0.9)]",
+                  "transition-all duration-200 hover:border-cyan-300/20 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.68)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                 ].join(' ')}
                 aria-expanded={isOpen}
               >
-                <span className={['flex items-center', collapsed ? 'gap-2 lg:justify-center lg:gap-0' : 'gap-2'].join(' ')}>
+                <span className={['flex items-center min-w-0', collapsed ? 'justify-center gap-0' : 'gap-2'].join(' ')}>
                   <span
                     className={[
-                      'relative flex h-9 w-9 items-center justify-center overflow-hidden rounded-2xl border transition-all duration-300',
+                      'relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg border transition-all duration-200',
                       isOpen
-                        ? `border-[var(--crm-border)] dark:border-[var(--crm-border)] bg-gradient-to-br ${sectionAccent} shadow-lg`
-                        : "border-[var(--crm-border)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.14)] bg-[rgb(var(--crm-surface-rgb)_/_0.07)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] group-hover:border-[var(--crm-border)] group-hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                        ? `border-cyan-300/40 bg-gradient-to-br ${sectionAccent} shadow-sm`
+                        : "border-[var(--crm-border)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.12)] bg-[rgb(var(--crm-surface-rgb)_/_0.07)] text-[rgb(var(--crm-ink-rgb)_/_0.9)]"
                     ].join(' ')}
                   >
-                    <span className={['absolute inset-0 opacity-0 transition-opacity duration-300 group-hover:opacity-100', `bg-gradient-to-br ${sectionAccent}`, isOpen ? 'opacity-100' : ''].join(' ')} />
-                    <SectionIcon strokeWidth={2.35} className="relative z-10 h-[18px] w-[18px] drop-shadow-[0_2px_6px_rgba(2,6,23,0.35)]" />
+                    <span className={['absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100', `bg-gradient-to-br ${sectionAccent}`, isOpen ? 'opacity-100' : ''].join(' ')} />
+                    <SectionIcon strokeWidth={2.2} className="relative z-10 h-3.5 w-3.5" />
                   </span>
-                  <span className={collapsed ? 'lg:hidden' : ''}>{section.title}</span>
+                  <span className={collapsed ? 'lg:hidden truncate' : 'truncate'}>{section.title}</span>
                 </span>
 
                 <ChevronDown
                   className={[
-                    "h-4 w-4 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_0.8)] transition-transform duration-300",
+                    "h-3.5 w-3.5 shrink-0 text-[rgb(var(--crm-ink-rgb)_/_0.65)] transition-transform duration-200",
                     collapsed ? 'lg:hidden' : '',
-                    isOpen ? 'rotate-180' : 'rotate-0'
+                    isOpen ? 'rotate-0' : '-rotate-90'
                   ].join(' ')}
                 />
               </button>
 
               <div
                 className={[
-                  'grid transition-[grid-template-rows,opacity] duration-300 ease-out',
+                  'grid transition-[grid-template-rows,opacity] duration-200 ease-out',
                   isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-75'
                 ].join(' ')}
               >
-                <ul className={['overflow-hidden space-y-1 pt-1', collapsed ? 'px-1 lg:px-0' : 'px-1'].join(' ')}>
+                <ul className={['overflow-hidden space-y-0.5 pt-1', collapsed ? 'px-0' : 'pl-2 pr-0.5'].join(' ')}>
                   {section.items.map((item) => (
                     <li key={item.path}>
                       {renderNavItem(item)}
@@ -598,14 +601,47 @@ export default function Sidebar({
             </div>
           );
         })}
+
+        {!collapsed && (
+          <div className="mt-4 border-t border-cyan-400/15 pt-3">
+            <div className="mb-2 px-2 text-[10px] font-bold uppercase tracking-[0.16em] text-cyan-200/55">
+              Atalhos Rápidos
+            </div>
+            <div className="space-y-1.5 px-1">
+              {[
+                { label: '+ Nova Oportunidade', to: '/oportunidades', icon: Target },
+                { label: '+ Novo Lead', to: '/leads', icon: Radar },
+                { label: '+ Nova Proposta', to: '/propostas', icon: FileSignature },
+                { label: 'Agenda Comercial', to: '/atividades', icon: CalendarCheck2 },
+              ].map((shortcut) => {
+                const SIcon = shortcut.icon;
+                return (
+                  <button
+                    key={shortcut.label}
+                    type="button"
+                    onClick={() => {
+                      saveSidebarScroll();
+                      onOpenChange(false);
+                      navigate(shortcut.to);
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg border border-cyan-400/15 bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] px-2.5 py-1.5 text-left text-[12px] font-medium text-cyan-100/90 transition hover:border-cyan-300/40 hover:bg-cyan-500/15 hover:text-white"
+                  >
+                    <SIcon className="h-3.5 w-3.5 shrink-0 text-cyan-300" />
+                    <span className="truncate">{shortcut.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </nav>
 
-      <div className="relative overflow-hidden border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] px-3 py-3">
+      <div className="relative overflow-hidden border-t border-[var(--crm-border)] dark:border-[var(--crm-border)] px-3 py-2.5">
         <div className="absolute inset-0 bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[linear-gradient(180deg,rgb(var(--crm-surface-2-rgb)_/_0.12)_0%,rgb(var(--crm-surface-rgb)_/_0.28)_100%)]" />
-        <div className="relative rounded-xl border border-cyan-200/[0.055] bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.56)] px-3 py-2 text-center text-[10px] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_0.7)] shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]">
+        <div className="relative rounded-xl border border-cyan-200/[0.055] bg-[rgb(var(--crm-surface-rgb)_/_0.95)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.56)] px-2.5 py-1.5 text-center text-[10px] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_0.7)] shadow-[inset_0_1px_0_rgba(255,255,255,0.025)]">
           <div className={collapsed ? "font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-cyan-50/80 lg:text-[9px]" : "font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-cyan-50/80"}>
             <span className={collapsed ? 'lg:hidden' : ''}>{market ? `NEXOS ${market}` : (branding.appName || 'CRM NEXOS')}</span>
-            <span className={collapsed ? 'hidden lg:inline' : 'hidden'}>NEXOS</span> v2
+            <span className={collapsed ? 'hidden lg:inline' : 'hidden'}>NEXOS</span> v3
           </div>
           <div className={collapsed ? 'opacity-80 lg:hidden' : 'opacity-80'}>© 2026</div>
         </div>
@@ -628,8 +664,8 @@ export default function Sidebar({
 
       <aside
         className={[
-          'fixed inset-y-0 left-0 z-40 w-[312px] max-w-[86vw]',
-          collapsed ? 'lg:w-[88px]' : 'lg:w-[312px]',
+          'fixed inset-y-0 left-0 z-40 w-[254px] max-w-[84vw]',
+          collapsed ? 'lg:w-[76px]' : 'lg:w-[254px]',
           'transform transition-[transform,width] duration-300 will-change-transform',
           open ? 'translate-x-0' : '-translate-x-full',
           'lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:z-20 lg:max-w-none',

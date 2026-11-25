@@ -261,6 +261,32 @@
 .nex-map g[role="button"]:focus > circle {stroke:white;stroke-width:2}
 .nex-general-dashboard .nex-general-charts .nex-chart {height:246px}
 .nex-general-dashboard .nex-lists {margin-top:16px}
-.nex-general-dashboard .nex-lists > .nex-panel {height:190px}
-.nex-general-dashboard .nex-lists .nex-list-body {height:140px}
-@media(max-width:760px){.nex-general-dashboard .nex-general-charts{grid-template-columns:1fr}.nex-general-dashboard .nex-lists{grid-template-columns:1fr}}
+.nex-general-dashboard .nex-four {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:14px}
+.nex-general-dashboard .nex-lists > .nex-panel {height:204px}
+.nex-general-dashboard .nex-lists .nex-list-body {height:146px}
+
+/* Header live badge & NEXOS IA CTA */
+.nex-live-badge {display:flex;align-items:center;gap:8px;padding:6px 12px;border-radius:10px;border:1px solid #1688bc66;background:#01142be0;box-shadow:inset 0 1px 4px #59dfff1c}
+.nex-live-badge strong {display:block;font-size:11px;font-weight:700;color:#e6f6ff;line-height:1.2}
+.nex-live-badge small {display:block;font-size:9.5px;color:#93b8d9;line-height:1.2}
+.nex-live-dot {width:8px;height:8px;border-radius:50%;background:#1ef39b;box-shadow:0 0 10px #1ef39b;flex-shrink:0}
+.nex-welcome-ai-btn {display:inline-flex;align-items:center;gap:7px;padding:9px 14px;border-radius:10px;border:1px solid #9e7bffcc;background:linear-gradient(135deg,#5a35e8,#3b78ff);color:#fff;font-size:12px;font-weight:700;box-shadow:0 0 18px #6d52ff66,inset 0 1px 1px #ffffff55;white-space:nowrap;transition:transform .15s ease,box-shadow .15s ease}
+.nex-welcome-ai-btn:hover {transform:translateY(-1px);box-shadow:0 0 24px #7b64ff99}
+
+/* 4th bottom card: NEXOS Intelligence */
+.nex-panel.nex-intelligence-card {display:flex;flex-direction:column;justify-content:space-between;padding:12px 14px;border-color:#7d6bffaa;background:radial-gradient(ellipse at 92% 18%,#6c3cff4d,transparent 58%),linear-gradient(145deg,#131647f2,#06112bf5);box-shadow:inset 0 1px 2px #b6a6ff3d,0 0 22px #6b4dff2a}
+.nex-intelligence-head {display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.nex-intelligence-head h2 {display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:#eef4ff}
+.nex-intelligence-head h2 svg {color:#b89cff}
+.nex-intelligence-head p {margin:2px 0 0;font-size:10px;color:#b2c4ea}
+.nex-intelligence-orb {display:grid;place-items:center;width:36px;height:36px;border-radius:50%;border:1px solid #96b8ff77;background:radial-gradient(circle at 30% 30%,#6ae2ff66,#4e2cff99);color:#e4f4ff;box-shadow:0 0 16px #599bff66;flex-shrink:0}
+.nex-intelligence-list {list-style:none;margin:6px 0;padding:0;display:flex;flex-direction:column;gap:5px}
+.nex-intelligence-list li {display:flex;align-items:flex-start;gap:6px;font-size:10.5px;line-height:1.3;color:#d8e8ff}
+.nex-intelligence-list li svg {flex-shrink:0;margin-top:2px;color:#25f09c}
+.nex-intelligence-list li svg.warn {color:#ffb830}
+.nex-intelligence-list li svg.tip {color:#8dd7ff}
+.nex-intelligence-cta {display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:7px 10px;border-radius:9px;border:1px solid #8fa8ff99;background:linear-gradient(90deg,#4c38e8,#2c7fff);color:#fff;font-size:11.5px;font-weight:700;box-shadow:0 4px 14px #4552ff55}
+.nex-intelligence-cta:hover {filter:brightness(1.08)}
+
+@media(max-width:1200px){.nex-general-dashboard .nex-four{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.nex-general-dashboard .nex-general-charts{grid-template-columns:1fr}.nex-general-dashboard .nex-lists,.nex-general-dashboard .nex-four{grid-template-columns:1fr}.nex-live-badge{display:none}}
