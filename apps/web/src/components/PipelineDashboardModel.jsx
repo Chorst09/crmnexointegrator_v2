@@ -527,34 +527,15 @@ export default function PipelineDashboardModel({
         <article className="nex-panel"><PanelHeader title={funnelTitle} subtitle={funnelSubtitle}/><div className="nex-pipeline-funnel">{funnel}</div></article>
         {mapRecords ? <article id="nex-pipeline-map" className="nex-panel"><PanelHeader title="Mapa de Oportunidades" subtitle={`Distribuição da carteira ${market} filtrada`}/><div className="nex-pipeline-geography"><ExecutiveBrazilMap locations={mapLocations} category={market}/><div><strong>{compactNumber(mapRecords.length)}</strong><span>oportunidades</span><strong>{compactNumber(mapLocations.length)}</strong><span>com localização</span><small>{mapLocations.some(item => item.approximate) ? 'Inclui localização aproximada por UF' : mapLocations.length ? 'Coordenadas cadastradas' : 'Cadastre UF ou coordenadas para exibir pontos.'}</small></div></div></article> : <article className="nex-panel"><PanelHeader title={performanceChart?.title || 'Performance'} subtitle={performanceChart?.subtitle}/><div className="nex-pipeline-chart"><HorizontalPerformance chart={performanceChart}/></div></article>}
       </section>
-      <section className="nex-four nex-lists nex-pipeline-executive-lists" data-section="lists" aria-label="Equipe, alertas, agenda e inteligência">
+      <section className="nex-three nex-lists nex-pipeline-executive-lists" data-section="lists" aria-label="Equipe, alertas e agenda">
         <article className="nex-panel"><div className="nex-panel-heading"><h2>Performance da Equipe</h2><button className="nex-link" onClick={()=>rankingDialog.current?.showModal()}>Ver ranking<ArrowRight size={13}/></button></div><div className="nex-list-body">{ranking.length ? ranking.map((item,index)=>{const rate=item.total ? item.won/item.total*100 : 0;return <div className="nex-team-row" key={item.id || item.name}><span className="nex-rank">{index === 0 ? <Trophy size={15}/> : index+1}</span><span className="nex-avatar">{String(item.name || '?').split(' ').slice(0,2).map(part=>part[0]).join('')}</span><div className="nex-team-name"><strong>{item.name}</strong><small>{compactNumber(item.total)} oportunidades</small></div><span className="nex-progress"><i style={{width:`${clampPercent(rate)}%`}}/></span><strong title="Oportunidades ganhas / total">{rate.toLocaleString('pt-BR',{maximumFractionDigits:1})}%</strong></div>;}) : <EmptyChart label="Sem dados de equipe nos filtros selecionados"/>}</div></article>
         <article className="nex-panel"><div className="nex-panel-heading"><h2>Alertas e Ações {(alerts?.items?.length || 0)>0 && <span className="nex-count">{alerts.items.length}</span>}</h2><button className="nex-link" onClick={()=>navigate(agendaRoute)}>Ver agenda<ArrowRight size={13}/></button></div><div className="nex-list-body">{(alerts?.items || []).map(item=><button type="button" key={item.id} onClick={()=>navigate(item.route || agendaRoute)} className={`pipeline-model__alert is-${item.tone || 'blue'}`}><span className={`nex-status-icon nex-alert-${item.tone || 'blue'}`}><TriangleAlert size={17}/></span><div><strong>{item.title}</strong><p>{item.detail}</p></div></button>)}{!alerts?.items?.length && <EmptyChart label="Nenhum alerta nos filtros atuais"/>}</div></article>
         <article className="nex-panel"><div className="nex-panel-heading"><h2>Próximos Compromissos</h2><button className="nex-link" onClick={()=>navigate(agendaRoute)}>Ver agenda<ArrowRight size={13}/></button></div><div className="nex-list-body">{modules.loading ? <EmptyChart label="Carregando agenda..."/> : upcoming.length ? upcoming.slice(0,3).map((item,index)=><button key={item.id || index} className="nex-action-row" onClick={()=>navigate(activityRoute(item))}><span className="nex-status-icon"><CalendarDays size={19}/></span><span className="nex-row-copy"><strong>{item.subject || 'Atividade'}</strong><small>{new Date(item.dueDate).toLocaleDateString('pt-BR')}</small></span><b>{new Date(item.dueDate).toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</b></button>) : <EmptyChart label={modules.error ? 'Agenda indisponível no momento' : 'Nenhum compromisso futuro cadastrado'}/>}</div></article>
-        <section className="nex-panel nex-intelligence-card" aria-label="NEXOS Intelligence">
-          <div className="nex-intelligence-head">
-            <div>
-              <h2><Sparkles size={15} /> NEXOS Intelligence</h2>
-              <p>Insights e recomendações {market}</p>
-            </div>
-            <span className="nex-intelligence-orb" aria-hidden="true"><Brain size={20} /></span>
-          </div>
-          <ul className="nex-intelligence-list">
-            {metrics[0] && <li><Check size={13} /><span>{metrics[0].label}: <strong>{metrics[0].value}</strong></span></li>}
-            {metrics[1] && <li><Check size={13} /><span>{metrics[1].label}: <strong>{metrics[1].value}</strong></span></li>}
-            <li><TriangleAlert size={13} className="warn" /><span><strong>{alerts?.items?.length || 0}</strong> alertas prioritários no painel {market}</span></li>
-            <li><Sparkles size={13} className="tip" /><span>Probabilidade média de <strong>{Math.round(score)}%</strong> nos filtros atuais</span></li>
-          </ul>
-          <button type="button" className="nex-intelligence-cta" onClick={() => intelligenceDialog.current?.showModal()}>
-            <span>Ver recomendações da IA</span>
-            <ArrowRight size={14} />
-          </button>
-        </section>
       </section>
       <dialog ref={rankingDialog} className="nex-ai-dialog" aria-labelledby="pipeline-ranking-title"><h2 id="pipeline-ranking-title">Performance da Equipe · {market}</h2><p>Carteira atual com os filtros ativos. Conversão = oportunidades ganhas / total.</p><div style={{maxHeight:'60vh',overflow:'auto'}}>{ranking.map((item,index)=><p key={item.id || item.name}>{index+1}. {item.name} · {item.total} oportunidades · {item.won} ganhas · {new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(item.pipeline || 0)} em aberto</p>)}</div><button onClick={()=>rankingDialog.current.close()}>Fechar</button></dialog>
       <div className="nex-pipeline-module-caption"><h2>Visão da Operação {market}</h2><span>Carteira atual · indicadores exclusivos {market}</span></div>
       {modules.loading ? <div className="nex-panel nex-modules-loading" role="status">Carregando os módulos...</div> : <>{modules.error && <p className="nex-warning" role="status">{modules.error}</p>}<ExecutiveMarketCards computed={modules.computed} data={modules.data} market={market}/></>}
-      <ExecutiveModuleNavigation market={market} access={modules.access} adminLike={modules.adminLike} onIntelligence={()=>intelligenceDialog.current?.showModal()}/>
+      <ExecutiveModuleNavigation market={market} access={modules.access} adminLike={modules.adminLike} onIntelligence={()=>intelligenceDialog.current?.showModal()} insights={{metrics,alertsCount:alerts?.items?.length || 0,score}}/>
       <details className="nex-pipeline-details"><summary>Análises detalhadas da carteira {market}</summary>
       <div data-section="signals"><ExecutiveSignals metrics={metrics} trendChart={trendChart} performanceChart={performanceChart} temperature={temperature} signals={executiveSignals}/></div>
       <section className="nex-pipeline-analysis" data-section="analysis">
