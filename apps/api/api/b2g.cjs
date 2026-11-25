@@ -1797,7 +1797,7 @@ router.get('/oportunidades/alertas/abertura', requireRole(['USER', 'ADMIN', 'MAS
 
     const tenantCompanyId = req.user?.tenantCompanyId || null;
 
-    // Construir where dinamicamente — clientType pode não existir no schema
+    // Construir where dinamicamente — clientType pode estar em Opportunity ou Company
     const whereClause = {
       ...(tenantCompanyId ? { tenantCompanyId } : {}),
       OR: [
@@ -1807,10 +1807,10 @@ router.get('/oportunidades/alertas/abertura', requireRole(['USER', 'ADMIN', 'MAS
     };
     if (prismaModelHasField('Opportunity', 'clientType')) {
       whereClause.clientType = 'B2G';
-      // Remove OR fallback se clientType existe — filtra direto
       delete whereClause.OR;
-      whereClause.clientType = 'B2G';
       whereClause.stage = 'PROPOSAL';
+    } else if (prismaModelHasField('Company', 'clientType')) {
+      whereClause.company = { clientType: 'B2G' };
     }
 
     const opportunities = await prisma.opportunity.findMany({
@@ -1835,6 +1835,17 @@ router.get('/oportunidades/alertas/abertura', requireRole(['USER', 'ADMIN', 'MAS
     };
 
     const alerts = opportunities
+      .filter((opp) => {
+        const oppType = String(opp.clientType || '').toUpperCase();
+        const companyType = String(opp.company?.clientType || '').toUpperCase();
+        if (oppType === 'B2B' || companyType === 'B2B') return false;
+        return Boolean(
+          oppType === 'B2G' ||
+          opp.b2gStage ||
+          isB2GCompanyRecord(opp.company) ||
+          String(opp.number || '').toUpperCase().startsWith('B2G')
+        );
+      })
       .map((opp) => {
         const b2gData = parseB2GData(opp.description);
         const rawDate = b2gData.openingDate || b2gData.dataAbertura || b2gData.dataSessao || opp.expectedCloseDate;
