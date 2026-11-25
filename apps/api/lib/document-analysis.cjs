@@ -534,7 +534,7 @@ async function analyzeFiles(files, context = {}, scope = '') {
   }
 
   const scopeHash = crypto.createHash('sha256').update(String(scope)).digest('hex').slice(0, 24);
-  const directory = path.resolve(__dirname, '../../../backend/private/edital-analysis', scopeHash);
+  const directory = path.resolve(__dirname, '../uploads/edital-analysis', scopeHash);
   await fs.mkdir(directory, { recursive: true, mode: 0o700 });
   ficha.documentos_arquivados = [];
   for (const doc of documents) {
