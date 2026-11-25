@@ -42,8 +42,8 @@ export default function AppShell() {
         </div>
 
         <div className="flex-1 overflow-y-auto">
-          <div className={executive ? 'px-2 sm:px-3 lg:px-4 pb-6 pt-2' : 'px-4 sm:px-6 lg:px-8 pb-12 pt-6'}>
-            <div className={executive ? 'mx-auto w-full max-w-[1600px]' : 'mx-auto w-full max-w-[1400px]'}>
+          <div className={executive ? 'px-2 sm:px-3 lg:px-4 pb-6 pt-2' : 'px-4 sm:px-6 lg:px-6 pb-8 pt-3'}>
+            <div className={executive ? 'mx-auto w-full max-w-[1600px]' : 'mx-auto w-full max-w-[1520px]'}>
               <div>
                 <Outlet />
               </div>
