@@ -42,6 +42,9 @@ export interface BpmnDiagram {
   code: string;
   title: string;
   subtitle?: string;
+  companyName?: string;
+  responsibleName?: string;
+  companyLogo?: string;
   pageLabel: string;
   lanes: BpmnLane[];
   nodes: BpmnNode[];

@@ -1546,6 +1546,15 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
   const [editedName, setEditedName] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isExportingPDF, setIsExportingPDF] = useState(false);
+  const [showNewProcessModal, setShowNewProcessModal] = useState(false);
+  const [newProcessForm, setNewProcessForm] = useState({
+    code: 'BPMN-08',
+    name: '',
+    companyName: '',
+    responsibleName: '',
+    companyLogo: '',
+    baseTemplateId: 'blank'
+  });
 
   const board = processes.find(p => p.id === activeProcessId) || processes[0];
   const activeBpmn = board.bpmn || createBpmnFromSteps(board.name, board.steps, board.swimlanes, board.actions);
@@ -1592,24 +1601,81 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
   };
 
   const handleCreateNewProcess = () => {
+    setNewProcessForm({
+      code: `BPMN-${String(processes.length).padStart(2, '0')}`,
+      name: `Novo Processo ${processes.length + 1}`,
+      companyName: '',
+      responsibleName: '',
+      companyLogo: '',
+      baseTemplateId: 'blank'
+    });
+    setShowNewProcessModal(true);
+  };
+
+  const handleNewLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Selecione uma imagem de logo de até 2 MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        setNewProcessForm((prev) => ({ ...prev, companyLogo: reader.result as string }));
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleConfirmCreateNewProcess = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedName = newProcessForm.name.trim() || `Processo ${processes.length + 1}`;
+    const trimmedCode = newProcessForm.code.trim() || 'BPMN-CUSTOM';
+    const trimmedCompany = newProcessForm.companyName.trim();
+    const trimmedResponsible = newProcessForm.responsibleName.trim();
     const newId = `process-${Date.now()}`;
+
+    const baseTemplate = BPMN_TEMPLATES.find((t) => t.id === newProcessForm.baseTemplateId);
     const defaultSteps = [
-      { title: 'Entrada e Triagem', owner: 'Responsável', time: '1 dia', status: 'OK', color: '#18c8df', items: ['Passo preliminar', 'Revisar requisitos'] },
-      { title: 'Entrega Final', owner: 'Responsável', time: '2 dias', status: 'Novo', color: '#22c55e', items: ['Validação', 'Entrega finalizada'] }
+      { title: 'Entrada e Triagem', owner: trimmedResponsible || 'Responsável', time: '1 dia', status: 'OK', color: '#18c8df', items: ['Passo preliminar', 'Revisar requisitos'] },
+      { title: 'Entrega Final', owner: trimmedResponsible || 'Responsável', time: '2 dias', status: 'Novo', color: '#22c55e', items: ['Validação', 'Entrega finalizada'] }
     ];
-    const defaultLanes = [{ area: 'Área Padrão', entries: ['Entrada e Triagem', 'Entrega Final'], color: '#18c8df' }];
-    const newName = `Mapeamento de Processo ${processes.length + 1}`;
+    const defaultLanes = [{ area: 'Área Responsável', entries: ['Entrada e Triagem', 'Entrega Final'], color: '#18c8df' }];
+
+    const bpmn: BpmnDiagram = baseTemplate
+      ? {
+          ...cloneBpmnDiagram(baseTemplate),
+          id: newId,
+          code: trimmedCode,
+          title: trimmedName,
+          companyName: trimmedCompany || undefined,
+          responsibleName: trimmedResponsible || undefined,
+          companyLogo: newProcessForm.companyLogo || undefined
+        }
+      : {
+          ...createBpmnFromSteps(trimmedName, defaultSteps, defaultLanes, ['O CRM é a fonte oficial. Toda etapa ativa tem responsável, status e próxima ação com prazo.']),
+          id: newId,
+          code: trimmedCode,
+          title: trimmedName,
+          companyName: trimmedCompany || undefined,
+          responsibleName: trimmedResponsible || undefined,
+          companyLogo: newProcessForm.companyLogo || undefined
+        };
+
     const newProcess: ProcessMapping = {
       id: newId,
-      name: newName,
+      name: `${trimmedCode} | ${trimmedName}`,
       steps: defaultSteps,
       swimlanes: defaultLanes,
-      actions: ['Revisão periódica do fluxo'],
-      bpmn: createBpmnFromSteps(newName, defaultSteps, defaultLanes, ['Revisão periódica do fluxo'])
+      actions: [bpmn.controlsText],
+      bpmn
     };
     const newList = [...processes, newProcess];
     persistProcesses(newList);
     setActiveProcessId(newId);
+    setViewMode('bpmn');
+    setShowNewProcessModal(false);
   };
 
   const handleDeleteProcess = (id: string) => {
@@ -2253,6 +2319,139 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
         </div>
       </section>
         </>
+      )}
+
+      {showNewProcessModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <form
+            onSubmit={handleConfirmCreateNewProcess}
+            className="w-full max-w-lg rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] p-6 shadow-2xl space-y-4 text-[var(--crm-ink)]"
+          >
+            <div className="flex items-center justify-between border-b border-[var(--crm-border)] pb-3">
+              <div>
+                <h3 className="text-lg font-black">Novo Processo BPMN</h3>
+                <p className="text-xs text-[var(--crm-muted)]">Informe os dados da empresa, responsável e logo para o cabeçalho do diagrama e PDF.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowNewProcessModal(false)}
+                className="rounded p-1 text-[var(--crm-muted)] hover:text-[var(--crm-ink)]"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div>
+                <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Código BPMN</label>
+                <input
+                  required
+                  value={newProcessForm.code}
+                  onChange={(e) => setNewProcessForm((p) => ({ ...p, code: e.target.value }))}
+                  placeholder="Ex: BPMN-08"
+                  className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm font-bold outline-none focus:border-[#2563eb]"
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Nome do Processo *</label>
+                <input
+                  required
+                  value={newProcessForm.name}
+                  onChange={(e) => setNewProcessForm((p) => ({ ...p, name: e.target.value }))}
+                  placeholder="Ex: Fluxo Comercial Personalizado"
+                  className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm font-semibold outline-none focus:border-[#2563eb]"
+                />
+              </div>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Nome da Empresa *</label>
+                <input
+                  required
+                  value={newProcessForm.companyName}
+                  onChange={(e) => setNewProcessForm((p) => ({ ...p, companyName: e.target.value }))}
+                  placeholder="Ex: Empresa Cliente Ltda"
+                  className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[#2563eb]"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Nome do Responsável *</label>
+                <input
+                  required
+                  value={newProcessForm.responsibleName}
+                  onChange={(e) => setNewProcessForm((p) => ({ ...p, responsibleName: e.target.value }))}
+                  placeholder="Ex: Carlos Horst"
+                  className="w-full rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm outline-none focus:border-[#2563eb]"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1">Modelo Inicial</label>
+              <select
+                value={newProcessForm.baseTemplateId}
+                onChange={(e) => setNewProcessForm((p) => ({ ...p, baseTemplateId: e.target.value }))}
+                className="w-full rounded-md border border-[var(--crm-border)] bg-[var(--crm-surface)] px-3 py-2 text-sm outline-none focus:border-[#2563eb]"
+              >
+                <option value="blank">Em branco (Início → Etapas → Fim)</option>
+                {BPMN_TEMPLATES.map((tpl) => (
+                  <option key={tpl.id} value={tpl.id}>
+                    Copiar estrutura de {tpl.code} | {tpl.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-[var(--crm-muted)] mb-1.5">Logo da Empresa (PNG/JPG/SVG)</label>
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[#2563eb]/40 bg-[#2563eb]/10 px-3 py-2 text-xs font-bold text-[#38bdf8] hover:bg-[#2563eb]/20">
+                  <Upload className="h-4 w-4" />
+                  {newProcessForm.companyLogo ? 'Trocar Logo' : 'Selecionar Logo'}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                    onChange={handleNewLogoUpload}
+                    className="hidden"
+                  />
+                </label>
+                {newProcessForm.companyLogo && (
+                  <div className="flex items-center gap-2">
+                    <img
+                      src={newProcessForm.companyLogo}
+                      alt="Preview Logo"
+                      className="h-10 w-10 rounded border border-[var(--crm-border)] bg-white object-contain p-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setNewProcessForm((p) => ({ ...p, companyLogo: '' }))}
+                      className="text-xs font-semibold text-red-400 hover:underline"
+                    >
+                      Remover
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 border-t border-[var(--crm-border)] pt-3">
+              <button
+                type="button"
+                onClick={() => setShowNewProcessModal(false)}
+                className="rounded-md border border-[var(--crm-border)] px-4 py-2 text-xs font-bold text-[var(--crm-muted)] hover:text-[var(--crm-ink)]"
+              >
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                className="rounded-md bg-[#2563eb] px-4 py-2 text-xs font-bold text-white hover:bg-[#1d4ed8]"
+              >
+                Criar Processo BPMN
+              </button>
+            </div>
+          </form>
+        </div>
       )}
     </BoardShell>
   );

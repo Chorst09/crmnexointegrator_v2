@@ -1,7 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   Plus, Trash2, ZoomIn, ZoomOut, ShieldCheck, ArrowRight, GitBranch,
-  Layers, Link2, ExternalLink, RotateCcw
+  Layers, Link2, ExternalLink, RotateCcw, Building2, Upload, ArrowLeft, X, Copy
 } from 'lucide-react';
 import {
   BPMN_GOVERNANCE,
@@ -47,8 +47,13 @@ export default function BpmnProcessDiagram({
 }: BpmnProcessDiagramProps) {
   const [zoom, setZoom] = useState(1);
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [selectedEdgeId, setSelectedEdgeId] = useState<string | null>(null);
   const [showEdgeForm, setShowEdgeForm] = useState(false);
+  const [showHeaderEditor, setShowHeaderEditor] = useState(false);
   const [showGovernance, setShowGovernance] = useState(false);
+  const [draggingNodeId, setDraggingNodeId] = useState<string | null>(null);
+  const svgRef = useRef<SVGSVGElement | null>(null);
+
   const [newEdge, setNewEdge] = useState<{
     from: string;
     to: string;
@@ -67,12 +72,29 @@ export default function BpmnProcessDiagram({
 
   const layout = useMemo(() => computeBpmnLayout(diagram), [diagram]);
   const selectedNode = diagram.nodes.find((n) => n.id === selectedNodeId) || null;
+  const selectedEdge = diagram.edges.find((e) => e.id === selectedEdgeId) || null;
 
   const updateNode = (id: string, patch: Partial<BpmnNode>) => {
     onChange({
       ...diagram,
       nodes: diagram.nodes.map((n) => (n.id === id ? { ...n, ...patch } : n))
     });
+  };
+
+  const duplicateNode = (node: BpmnNode) => {
+    const id = `n-${Date.now()}`;
+    const copy: BpmnNode = {
+      ...node,
+      id,
+      label: `${node.label} (cópia)`,
+      col: node.col + 1
+    };
+    onChange({
+      ...diagram,
+      nodes: [...diagram.nodes, copy]
+    });
+    setSelectedNodeId(id);
+    setSelectedEdgeId(null);
   };
 
   const removeNode = (id: string) => {
@@ -85,10 +107,18 @@ export default function BpmnProcessDiagram({
   };
 
   const addNode = (type: BpmnNodeType) => {
-    const maxCol = diagram.nodes.reduce((m, n) => Math.max(m, n.col), 0);
+    const maxCol = diagram.nodes.reduce((m, n) => Math.max(m, n.col), -1);
     const id = `n-${Date.now()}`;
     const defaultLabel =
-      type === 'gateway' ? 'Decisão?' : type === 'subprocess' ? 'Novo subprocesso' : type === 'start' ? 'Início' : type === 'end' ? 'Fim' : 'Nova atividade';
+      type === 'gateway'
+        ? 'Decisão?'
+        : type === 'subprocess'
+          ? 'Novo subprocesso'
+          : type === 'start'
+            ? 'Início'
+            : type === 'end'
+              ? 'Fim'
+              : 'Nova atividade';
     const created: BpmnNode = {
       id,
       type,
@@ -102,6 +132,7 @@ export default function BpmnProcessDiagram({
       nodes: [...diagram.nodes, created]
     });
     setSelectedNodeId(id);
+    setSelectedEdgeId(null);
   };
 
   const addLane = () => {
@@ -148,56 +179,128 @@ export default function BpmnProcessDiagram({
     setNewEdge((prev) => ({ ...prev, label: '' }));
   };
 
+  const updateEdge = (id: string, patch: Partial<BpmnEdge>) => {
+    onChange({
+      ...diagram,
+      edges: diagram.edges.map((e) => (e.id === id ? { ...e, ...patch } : e))
+    });
+  };
+
   const removeEdge = (id: string) => {
     onChange({
       ...diagram,
       edges: diagram.edges.filter((e) => e.id !== id)
     });
+    if (selectedEdgeId === id) setSelectedEdgeId(null);
+  };
+
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (file.size > 2 * 1024 * 1024) {
+      alert('Selecione uma imagem de logo de até 2 MB.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === 'string') {
+        onChange({ ...diagram, companyLogo: reader.result });
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSvgMouseUp = (event: React.MouseEvent<SVGSVGElement>) => {
+    if (!draggingNodeId || !svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    const svgX = (event.clientX - rect.left) / zoom;
+    const svgY = (event.clientY - rect.top) / zoom;
+
+    const targetCol = Math.max(0, Math.round((svgX - layout.laneHeaderWidth - 42 - 56) / 144));
+    const targetLane = layout.lanes.find((l) => svgY >= l.y && svgY <= l.y + l.height);
+
+    const currentNode = diagram.nodes.find((n) => n.id === draggingNodeId);
+    if (currentNode && (currentNode.col !== targetCol || (targetLane && currentNode.laneId !== targetLane.id))) {
+      updateNode(draggingNodeId, {
+        col: targetCol,
+        ...(targetLane ? { laneId: targetLane.id } : {})
+      });
+    }
+    setDraggingNodeId(null);
   };
 
   return (
     <div className="space-y-4">
-      {/* Barra de ferramentas do diagrama BPMN */}
+      {/* Barra de ferramentas de edição do diagrama BPMN */}
       <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] px-4 py-2.5">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => addNode('start')}
+            className="flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20"
+          >
+            <Plus className="h-3.5 w-3.5" /> Início
+          </button>
           <button
             type="button"
             onClick={() => addNode('task')}
-            className="flex items-center gap-1.5 rounded-md border border-[#1d5d8c]/40 bg-[#1d5d8c]/10 px-2.5 py-1.5 text-xs font-bold text-[#38bdf8] hover:bg-[#1d5d8c]/20"
+            className="flex items-center gap-1 rounded-md border border-[#1d5d8c]/40 bg-[#1d5d8c]/10 px-2.5 py-1.5 text-xs font-bold text-[#38bdf8] hover:bg-[#1d5d8c]/20"
           >
             <Plus className="h-3.5 w-3.5" /> Atividade
           </button>
           <button
             type="button"
             onClick={() => addNode('subprocess')}
-            className="flex items-center gap-1.5 rounded-md border border-[#1d5d8c]/40 bg-[#1d5d8c]/10 px-2.5 py-1.5 text-xs font-bold text-[#38bdf8] hover:bg-[#1d5d8c]/20"
+            className="flex items-center gap-1 rounded-md border border-[#1d5d8c]/40 bg-[#1d5d8c]/10 px-2.5 py-1.5 text-xs font-bold text-[#38bdf8] hover:bg-[#1d5d8c]/20"
           >
             <Plus className="h-3.5 w-3.5" /> Subprocesso (+)
           </button>
           <button
             type="button"
             onClick={() => addNode('gateway')}
-            className="flex items-center gap-1.5 rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1.5 text-xs font-bold text-amber-400 hover:bg-amber-500/20"
+            className="flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1.5 text-xs font-bold text-amber-400 hover:bg-amber-500/20"
           >
             <Plus className="h-3.5 w-3.5" /> Decisão (X)
           </button>
           <button
             type="button"
+            onClick={() => addNode('end')}
+            className="flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1.5 text-xs font-bold text-emerald-400 hover:bg-emerald-500/20"
+          >
+            <Plus className="h-3.5 w-3.5" /> Fim
+          </button>
+          <button
+            type="button"
             onClick={() => setShowEdgeForm((v) => !v)}
-            className="flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-bold text-[var(--crm-ink)] hover:border-[#2563eb]"
+            className={`flex items-center gap-1 rounded-md border px-2.5 py-1.5 text-xs font-bold transition-colors ${
+              showEdgeForm
+                ? 'border-[#2563eb] bg-[#2563eb]/20 text-white'
+                : 'border-[var(--crm-border)] text-[var(--crm-ink)] hover:border-[#2563eb]'
+            }`}
           >
             <Link2 className="h-3.5 w-3.5" /> Conectar nós
           </button>
           <button
             type="button"
             onClick={addLane}
-            className="flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-bold text-[var(--crm-ink)] hover:border-[#2563eb]"
+            className="flex items-center gap-1 rounded-md border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-bold text-[var(--crm-ink)] hover:border-[#2563eb]"
           >
             <Layers className="h-3.5 w-3.5" /> + Raia
           </button>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowHeaderEditor((v) => !v)}
+            className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-bold transition-colors ${
+              showHeaderEditor
+                ? 'border-[#2563eb] bg-[#2563eb]/15 text-[#38bdf8]'
+                : 'border-[var(--crm-border)] text-[var(--crm-ink)] hover:border-[#2563eb]'
+            }`}
+          >
+            <Building2 className="h-3.5 w-3.5" /> Empresa e Logo
+          </button>
           <button
             type="button"
             onClick={() => setShowGovernance((v) => !v)}
@@ -207,7 +310,7 @@ export default function BpmnProcessDiagram({
                 : 'border-[var(--crm-border)] text-[var(--crm-muted)] hover:text-[var(--crm-ink)]'
             }`}
           >
-            <ShieldCheck className="h-3.5 w-3.5" /> Governança e Regras
+            <ShieldCheck className="h-3.5 w-3.5" /> Governança
           </button>
           {onResetToTemplate && (
             <button
@@ -240,6 +343,67 @@ export default function BpmnProcessDiagram({
           </div>
         </div>
       </div>
+
+      {/* Painel de edição de Empresa, Responsável, Logo e Título do BPMN */}
+      {showHeaderEditor && (
+        <div className="rounded-lg border border-[#2563eb]/40 bg-[rgb(var(--crm-surface-2-rgb)/0.94)] p-4 grid gap-4 md:grid-cols-4">
+          <div>
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Código BPMN</label>
+            <input
+              value={diagram.code}
+              onChange={(e) => onChange({ ...diagram, code: e.target.value })}
+              placeholder="Ex: BPMN-00"
+              className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-bold text-[var(--crm-ink)]"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Título do Diagrama</label>
+            <input
+              value={diagram.title}
+              onChange={(e) => onChange({ ...diagram, title: e.target.value })}
+              placeholder="Ex: Macroprocesso comercial"
+              className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-bold text-[var(--crm-ink)]"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Nome da Empresa</label>
+            <input
+              value={diagram.companyName || ''}
+              onChange={(e) => onChange({ ...diagram, companyName: e.target.value })}
+              placeholder="Ex: Empresa Cliente Ltda"
+              className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-semibold text-[var(--crm-ink)]"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Nome do Responsável</label>
+            <input
+              value={diagram.responsibleName || ''}
+              onChange={(e) => onChange({ ...diagram, responsibleName: e.target.value })}
+              placeholder="Ex: Carlos Horst"
+              className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-semibold text-[var(--crm-ink)]"
+            />
+          </div>
+          <div className="md:col-span-4 flex flex-wrap items-center gap-3 pt-1">
+            <label className="inline-flex cursor-pointer items-center gap-2 rounded-md border border-[#2563eb]/40 bg-[#2563eb]/10 px-3 py-1.5 text-xs font-bold text-[#38bdf8] hover:bg-[#2563eb]/20">
+              <Upload className="h-3.5 w-3.5" />
+              {diagram.companyLogo ? 'Alterar Logo da Empresa' : 'Inserir Logo da Empresa'}
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={handleLogoUpload} className="hidden" />
+            </label>
+            {diagram.companyLogo && (
+              <div className="flex items-center gap-2">
+                <img src={diagram.companyLogo} alt="Logo" className="h-8 w-8 rounded bg-white object-contain p-0.5 border border-[var(--crm-border)]" />
+                <button
+                  type="button"
+                  onClick={() => onChange({ ...diagram, companyLogo: undefined })}
+                  className="inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-semibold text-red-400 hover:bg-red-500/10"
+                >
+                  <X className="h-3.5 w-3.5" /> Remover logo
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Formulário rápido para adicionar conexão */}
       {showEdgeForm && (
@@ -281,7 +445,7 @@ export default function BpmnProcessDiagram({
             <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Rota</label>
             <select
               value={newEdge.route}
-              onChange={(e) => setNewEdge((p) => ({ ...p, route: e.target.value as any }))}
+              onChange={(e) => setNewEdge((p) => ({ ...p, route: e.target.value as NonNullable<BpmnEdge['route']> }))}
               className="rounded border border-[var(--crm-border)] bg-[var(--crm-surface)] px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
             >
               <option value="auto">Automática</option>
@@ -304,52 +468,73 @@ export default function BpmnProcessDiagram({
       {/* Folha BPMN no padrão exato do PDF anexo */}
       <div className="overflow-hidden rounded-xl border border-slate-300 bg-white text-slate-900 shadow-lg">
         {/* Faixa institucional azul-marinho */}
-        <div className="bg-[#0f2744] px-6 py-4 flex items-center justify-between">
-          <div>
-            <p className="text-[11px] font-bold tracking-wider text-[#7db3db] uppercase">
-              NEXOS CRM / {diagram.subtitle || 'ARQUITETURA DE PROCESSOS'}
-            </p>
-            <h2 className="mt-0.5 text-xl font-black text-white">
-              {diagram.code} <span className="mx-1.5 text-[#7db3db] font-normal">|</span> {diagram.title}
-            </h2>
+        <div className="bg-[#0f2744] px-6 py-4 flex flex-wrap items-center justify-between gap-4">
+          <div className="flex items-center gap-4 min-w-0">
+            {diagram.companyLogo && (
+              <div className="h-12 w-12 flex-shrink-0 rounded-lg bg-white p-1 shadow flex items-center justify-center">
+                <img src={diagram.companyLogo} alt={diagram.companyName || 'Logo'} className="max-h-full max-w-full object-contain" />
+              </div>
+            )}
+            <div className="min-w-0">
+              <p className="text-[11px] font-bold tracking-wider text-[#7db3db] uppercase truncate">
+                {(diagram.companyName?.trim() || 'NEXOS CRM').toUpperCase()} / {diagram.subtitle || 'ARQUITETURA DE PROCESSOS'}
+              </p>
+              <h2 className="mt-0.5 text-xl font-black text-white truncate">
+                {diagram.code} <span className="mx-1.5 text-[#7db3db] font-normal">|</span> {diagram.title}
+              </h2>
+            </div>
           </div>
-          <span className="rounded-md bg-white/10 px-3 py-1 text-xs font-bold text-slate-200">
-            {diagram.pageLabel}
+          <div className="flex items-center gap-3">
+            {diagram.responsibleName?.trim() && (
+              <span className="rounded-md bg-white/10 px-3 py-1 text-xs font-semibold text-slate-100">
+                Responsável: <strong>{diagram.responsibleName}</strong>
+              </span>
+            )}
+            <span className="rounded-md bg-white/10 px-3 py-1 text-xs font-bold text-slate-200">
+              {diagram.pageLabel}
+            </span>
+          </div>
+        </div>
+
+        {/* Legenda BPMN + dica de edição */}
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 bg-slate-50/70 px-6 py-2.5 text-xs text-slate-600">
+          <div className="flex flex-wrap items-center gap-5">
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-3.5 w-3.5 rounded-full border-2 border-[#1f7a4c] bg-white" />
+              Início/fim
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-block h-3.5 w-5 rounded-[3px] border-[1.5px] border-[#1d5d8c] bg-white" />
+              Atividade
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-flex h-3.5 w-3.5 items-center justify-center font-black text-[#b47610]">X</span>
+              Decisão exclusiva
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <span className="inline-flex h-3.5 w-3.5 items-center justify-center font-black text-[#1d5d8c]">+</span>
+              Processo detalhado
+            </span>
+            <span className="inline-flex items-center gap-1.5">
+              <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
+              Fluxo de sequência
+            </span>
+          </div>
+          <span className="text-[11px] font-medium text-[#1d5d8c]">
+            Clique ou arraste qualquer elemento / seta para editar
           </span>
         </div>
 
-        {/* Legenda BPMN */}
-        <div className="flex flex-wrap items-center gap-5 border-b border-slate-200 bg-slate-50/70 px-6 py-2.5 text-xs text-slate-600">
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-3.5 w-3.5 rounded-full border-2 border-[#1f7a4c] bg-white" />
-            Início/fim
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-block h-3.5 w-5 rounded-[3px] border-[1.5px] border-[#1d5d8c] bg-white" />
-            Atividade
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-flex h-3.5 w-3.5 items-center justify-center font-black text-[#b47610]">X</span>
-            Decisão exclusiva
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <span className="inline-flex h-3.5 w-3.5 items-center justify-center font-black text-[#1d5d8c]">+</span>
-            Processo detalhado
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
-            Fluxo de sequência
-          </span>
-        </div>
-
-        {/* Canvas SVG com scroll horizontal */}
+        {/* Canvas SVG com scroll horizontal e drag-and-drop */}
         <div className="overflow-x-auto bg-white p-5">
           <div style={{ width: layout.width * zoom, height: layout.height * zoom }}>
             <svg
+              ref={svgRef}
               width={layout.width * zoom}
               height={layout.height * zoom}
               viewBox={`0 0 ${layout.width} ${layout.height}`}
               className="select-none"
+              onMouseUp={handleSvgMouseUp}
             >
               <defs>
                 <marker
@@ -362,6 +547,17 @@ export default function BpmnProcessDiagram({
                   orient="auto-start-reverse"
                 >
                   <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#52657a" />
+                </marker>
+                <marker
+                  id={`bpmn-arrow-selected-${diagram.id}`}
+                  viewBox="0 0 10 10"
+                  refX="8.5"
+                  refY="5"
+                  markerWidth="6.5"
+                  markerHeight="6.5"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#2563eb" />
                 </marker>
               </defs>
 
@@ -403,22 +599,32 @@ export default function BpmnProcessDiagram({
                 </g>
               ))}
 
-              {/* Conectores (Edges) */}
+              {/* Conectores (Edges) clicáveis */}
               {diagram.edges.map((edge) => {
                 const computed = computeEdgePoints(edge, layout.nodesById);
                 if (!computed) return null;
+                const isEdgeSelected = selectedEdgeId === edge.id;
                 const d = computed.points
                   .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
                   .join(' ');
                 return (
-                  <g key={edge.id} className="group">
+                  <g
+                    key={edge.id}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedEdgeId(edge.id);
+                      setSelectedNodeId(null);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <path d={d} fill="none" stroke="transparent" strokeWidth={12} />
                     <path
                       d={d}
                       fill="none"
-                      stroke="#52657a"
-                      strokeWidth={1.35}
+                      stroke={isEdgeSelected ? '#2563eb' : '#52657a'}
+                      strokeWidth={isEdgeSelected ? 2.2 : 1.35}
                       strokeLinejoin="round"
-                      markerEnd={`url(#bpmn-arrow-${diagram.id})`}
+                      markerEnd={`url(#${isEdgeSelected ? `bpmn-arrow-selected-${diagram.id}` : `bpmn-arrow-${diagram.id}`})`}
                     />
                     {edge.label && (
                       <g>
@@ -429,16 +635,16 @@ export default function BpmnProcessDiagram({
                           height={16}
                           rx={3}
                           fill="#ffffff"
-                          fillOpacity={0.92}
+                          fillOpacity={0.94}
                         />
                         <text
                           x={computed.labelPos.x}
                           y={computed.labelPos.y}
                           textAnchor="middle"
                           dominantBaseline="central"
-                          fill="#475569"
+                          fill={isEdgeSelected ? '#2563eb' : '#475569'}
                           fontSize="10.5"
-                          fontWeight="500"
+                          fontWeight={isEdgeSelected ? '700' : '500'}
                         >
                           {edge.label}
                         </text>
@@ -448,19 +654,22 @@ export default function BpmnProcessDiagram({
                 );
               })}
 
-              {/* Nós BPMN */}
+              {/* Nós BPMN (clicáveis e arrastáveis) */}
               {layout.nodes.map((node) => {
                 const cx = node.x + node.w / 2;
                 const cy = node.y + node.h / 2;
                 const isSelected = selectedNodeId === node.id;
 
+                const onNodeMouseDown = (e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  setSelectedNodeId(node.id);
+                  setSelectedEdgeId(null);
+                  setDraggingNodeId(node.id);
+                };
+
                 if (node.type === 'start' || node.type === 'end') {
                   return (
-                    <g
-                      key={node.id}
-                      onClick={() => setSelectedNodeId(node.id)}
-                      className="cursor-pointer"
-                    >
+                    <g key={node.id} onMouseDown={onNodeMouseDown} className="cursor-grab active:cursor-grabbing">
                       <circle
                         cx={cx}
                         cy={cy}
@@ -489,16 +698,12 @@ export default function BpmnProcessDiagram({
                 if (node.type === 'gateway') {
                   const pts = `${cx},${node.y} ${node.x + node.w},${cy} ${cx},${node.y + node.h} ${node.x},${cy}`;
                   return (
-                    <g
-                      key={node.id}
-                      onClick={() => setSelectedNodeId(node.id)}
-                      className="cursor-pointer"
-                    >
+                    <g key={node.id} onMouseDown={onNodeMouseDown} className="cursor-grab active:cursor-grabbing">
                       <polygon
                         points={pts}
                         fill="#fef3c7"
                         stroke={isSelected ? '#2563eb' : '#d99b26'}
-                        strokeWidth={1.8}
+                        strokeWidth={isSelected ? 2.4 : 1.8}
                       />
                       {wrapText(node.label, 16).map((line, i) => (
                         <text
@@ -520,11 +725,7 @@ export default function BpmnProcessDiagram({
                 const lines = wrapText(node.label, 16);
                 const textBaseOffset = node.type === 'subprocess' ? -5 : 0;
                 return (
-                  <g
-                    key={node.id}
-                    onClick={() => setSelectedNodeId(node.id)}
-                    className="cursor-pointer"
-                  >
+                  <g key={node.id} onMouseDown={onNodeMouseDown} className="cursor-grab active:cursor-grabbing">
                     <rect
                       x={node.x}
                       y={node.y}
@@ -602,16 +803,20 @@ export default function BpmnProcessDiagram({
         </div>
       </div>
 
-      {/* Painel Inspector do nó selecionado + edição de raias/setas */}
+      {/* Painel Inspector do nó ou seta selecionada + edição de raias */}
       <div className="grid gap-4 lg:grid-cols-2">
         <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4">
           <div className="flex items-center justify-between mb-3">
             <h3 className="text-sm font-black text-[var(--crm-ink)] flex items-center gap-2">
               <GitBranch className="h-4 w-4 text-[#2563eb]" />
-              {selectedNode ? `Editar elemento: ${selectedNode.label}` : 'Clique em qualquer elemento do diagrama para editar'}
+              {selectedNode
+                ? `Editar elemento: ${selectedNode.label}`
+                : selectedEdge
+                  ? 'Editar seta / fluxo de sequência'
+                  : 'Clique em um elemento ou seta no diagrama para editar'}
             </h3>
             {selectedNode && (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 {selectedNode.linkedCode && onSelectLinkedCode && (
                   <button
                     type="button"
@@ -623,6 +828,30 @@ export default function BpmnProcessDiagram({
                 )}
                 <button
                   type="button"
+                  onClick={() => updateNode(selectedNode.id, { col: Math.max(0, selectedNode.col - 1) })}
+                  className="rounded border border-[var(--crm-border)] p-1.5 text-[var(--crm-ink)] hover:border-[#2563eb]"
+                  title="Mover 1 coluna para esquerda"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => updateNode(selectedNode.id, { col: selectedNode.col + 1 })}
+                  className="rounded border border-[var(--crm-border)] p-1.5 text-[var(--crm-ink)] hover:border-[#2563eb]"
+                  title="Mover 1 coluna para direita"
+                >
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => duplicateNode(selectedNode)}
+                  className="rounded border border-[var(--crm-border)] p-1.5 text-[var(--crm-ink)] hover:border-[#2563eb]"
+                  title="Duplicar elemento"
+                >
+                  <Copy className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
                   onClick={() => removeNode(selectedNode.id)}
                   className="rounded p-1.5 text-red-400 hover:bg-red-500/15"
                   title="Remover elemento"
@@ -630,6 +859,16 @@ export default function BpmnProcessDiagram({
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
+            )}
+            {selectedEdge && (
+              <button
+                type="button"
+                onClick={() => removeEdge(selectedEdge.id)}
+                className="rounded p-1.5 text-red-400 hover:bg-red-500/15"
+                title="Remover seta"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
             )}
           </div>
 
@@ -670,7 +909,7 @@ export default function BpmnProcessDiagram({
                 </select>
               </div>
               <div>
-                <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Coluna horizontal (0..20)</label>
+                <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Coluna horizontal (0..25)</label>
                 <input
                   type="number"
                   min={0}
@@ -693,9 +932,61 @@ export default function BpmnProcessDiagram({
                 </select>
               </div>
             </div>
+          ) : selectedEdge ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div>
+                <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Rótulo da seta</label>
+                <input
+                  value={selectedEdge.label || ''}
+                  onChange={(e) => updateEdge(selectedEdge.id, { label: e.target.value || undefined })}
+                  placeholder="Ex: Sim / Não / Revisão"
+                  className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-semibold text-[var(--crm-ink)]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Estilo da rota</label>
+                <select
+                  value={selectedEdge.route || 'auto'}
+                  onChange={(e) => updateEdge(selectedEdge.id, { route: e.target.value as BpmnEdge['route'] })}
+                  className="w-full rounded border border-[var(--crm-border)] bg-[var(--crm-surface)] px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+                >
+                  <option value="auto">Automática</option>
+                  <option value="step-h-v">Horizontal → Vertical</option>
+                  <option value="step-v-h">Vertical → Horizontal</option>
+                  <option value="top-loop">Retorno por cima</option>
+                  <option value="bottom-loop">Desvio por baixo</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Saída (Origem)</label>
+                <select
+                  value={selectedEdge.fromSide || 'right'}
+                  onChange={(e) => updateEdge(selectedEdge.id, { fromSide: e.target.value as BpmnAnchorSide })}
+                  className="w-full rounded border border-[var(--crm-border)] bg-[var(--crm-surface)] px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+                >
+                  <option value="right">Direita</option>
+                  <option value="bottom">Base</option>
+                  <option value="top">Topo</option>
+                  <option value="left">Esquerda</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Entrada (Destino)</label>
+                <select
+                  value={selectedEdge.toSide || 'left'}
+                  onChange={(e) => updateEdge(selectedEdge.id, { toSide: e.target.value as BpmnAnchorSide })}
+                  className="w-full rounded border border-[var(--crm-border)] bg-[var(--crm-surface)] px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+                >
+                  <option value="left">Esquerda</option>
+                  <option value="top">Topo</option>
+                  <option value="bottom">Base</option>
+                  <option value="right">Direita</option>
+                </select>
+              </div>
+            </div>
           ) : (
             <p className="text-xs text-[var(--crm-muted)]">
-              Selecione uma atividade, decisão (losango) ou evento de início/fim no diagrama acima para ajustar seu texto, raia, posição ou abrir o subprocesso vinculado.
+              Selecione qualquer atividade, decisão, evento ou seta no diagrama acima para editar texto, raia, posição, rota ou abrir o subprocesso vinculado. Você também pode arrastar elementos no canvas.
             </p>
           )}
         </div>
@@ -727,16 +1018,25 @@ export default function BpmnProcessDiagram({
           {diagram.edges.length > 0 && (
             <div className="pt-2 border-t border-[var(--crm-border)]">
               <p className="text-[11px] font-bold text-[var(--crm-muted)] mb-1.5">
-                Conexões ativas ({diagram.edges.length})
+                Conexões ativas ({diagram.edges.length}) — clique para editar
               </p>
               <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
                 {diagram.edges.map((edge) => {
                   const fromLbl = diagram.nodes.find((n) => n.id === edge.from)?.label || edge.from;
                   const toLbl = diagram.nodes.find((n) => n.id === edge.to)?.label || edge.to;
+                  const active = selectedEdgeId === edge.id;
                   return (
                     <span
                       key={edge.id}
-                      className="inline-flex items-center gap-1 rounded border border-[var(--crm-border)] px-2 py-0.5 text-[10px] text-[var(--crm-ink)]"
+                      onClick={() => {
+                        setSelectedEdgeId(edge.id);
+                        setSelectedNodeId(null);
+                      }}
+                      className={`inline-flex cursor-pointer items-center gap-1 rounded border px-2 py-0.5 text-[10px] ${
+                        active
+                          ? 'border-[#2563eb] bg-[#2563eb]/15 text-[#38bdf8]'
+                          : 'border-[var(--crm-border)] text-[var(--crm-ink)] hover:border-[#2563eb]/60'
+                      }`}
                     >
                       <span className="truncate max-w-[90px]">{fromLbl}</span>
                       <span>→</span>
@@ -744,7 +1044,10 @@ export default function BpmnProcessDiagram({
                       {edge.label && <strong className="text-amber-400">({edge.label})</strong>}
                       <button
                         type="button"
-                        onClick={() => removeEdge(edge.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeEdge(edge.id);
+                        }}
                         className="ml-0.5 text-[var(--crm-muted)] hover:text-red-400"
                         title="Remover seta"
                       >
@@ -764,7 +1067,7 @@ export default function BpmnProcessDiagram({
         <div className="rounded-xl border border-slate-300 bg-white text-slate-900 overflow-hidden shadow">
           <div className="bg-[#0f2744] px-6 py-4">
             <p className="text-[11px] font-bold tracking-wider text-[#7db3db] uppercase">
-              NEXOS CRM / ARQUITETURA DE PROCESSOS
+              {(diagram.companyName?.trim() || 'NEXOS CRM').toUpperCase()} / ARQUITETURA DE PROCESSOS
             </p>
             <h3 className="text-lg font-black text-white">{BPMN_GOVERNANCE.title}</h3>
           </div>

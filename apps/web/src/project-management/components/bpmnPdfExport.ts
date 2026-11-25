@@ -185,15 +185,36 @@ export function exportBpmnDiagramToPdf(diagram: BpmnDiagram, includeGovernance =
   pdf.setFillColor(15, 39, 68);
   pdf.rect(0, 0, pageW, 24, 'F');
 
+  let titleStartX = margin;
+  if (diagram.companyLogo && diagram.companyLogo.startsWith('data:image/')) {
+    try {
+      const fmt = diagram.companyLogo.includes('image/png') ? 'PNG' : 'JPEG';
+      pdf.setFillColor(255, 255, 255);
+      pdf.roundedRect(margin, 3.5, 17, 17, 1.5, 1.5, 'F');
+      pdf.addImage(diagram.companyLogo, fmt, margin + 1, 4.5, 15, 15, undefined, 'FAST');
+      titleStartX = margin + 21;
+    } catch {
+      // ignora logo inválido no PDF
+    }
+  }
+
+  const companyLabel = diagram.companyName?.trim() ? diagram.companyName.trim().toUpperCase() : 'NEXOS CRM';
   pdf.setTextColor(125, 179, 219);
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(7.5);
-  pdf.text(`NEXOS CRM / ${diagram.subtitle || 'ARQUITETURA DE PROCESSOS'}`, margin, 8);
+  pdf.text(`${companyLabel} / ${diagram.subtitle || 'ARQUITETURA DE PROCESSOS'}`, titleStartX, 8);
 
   pdf.setTextColor(255, 255, 255);
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(15);
-  pdf.text(`${diagram.code}  |  ${diagram.title}`, margin, 17.5);
+  pdf.text(`${diagram.code}  |  ${diagram.title}`, titleStartX, 17.5);
+
+  if (diagram.responsibleName?.trim()) {
+    pdf.setTextColor(203, 213, 225);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(8);
+    pdf.text(`Responsável: ${diagram.responsibleName.trim()}`, pageW - margin, 17.5, { align: 'right' });
+  }
 
   // Legenda BPMN
   const legendY = 30.5;
