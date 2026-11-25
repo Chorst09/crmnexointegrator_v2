@@ -10,6 +10,9 @@ import { Tldraw } from 'tldraw';
 import 'tldraw/tldraw.css';
 import { jsPDF } from 'jspdf';
 import ArchitectureDiagram from './ArchitectureDiagram';
+import BpmnProcessDiagram from './BpmnProcessDiagram';
+import { exportBpmnDiagramToPdf } from './bpmnPdfExport';
+import { BPMN_TEMPLATES, cloneBpmnDiagram, createBpmnFromSteps, type BpmnDiagram } from '../data/bpmnTemplates';
 import type { Issue, ProjectTeamMember, Space } from '../types';
 import { buildApiUrl, getAuthHeaders } from '../../config/api';
 
@@ -1489,42 +1492,63 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
     steps: ProcessStep[];
     swimlanes: Swimlane[];
     actions: string[];
+    bpmn?: BpmnDiagram;
   }
 
   const projectId = activeProject?.id || 'global';
   const localStorageKey = `pm-process-mappings-list-${projectId}`;
 
+  const buildDefaultBpmnProcesses = (): ProcessMapping[] =>
+    BPMN_TEMPLATES.map((tpl) => ({
+      id: tpl.id,
+      name: `${tpl.code} | ${tpl.title}`,
+      steps: tpl.nodes
+        .filter((n) => n.type === 'task' || n.type === 'subprocess' || n.type === 'gateway')
+        .map((n) => ({
+          title: n.label,
+          owner: tpl.lanes.find((l) => l.id === n.laneId)?.label || 'Responsável',
+          time: n.sla || '1 dia',
+          status: n.status || (n.type === 'gateway' ? 'Decisão' : 'OK'),
+          color: n.type === 'gateway' ? '#f6b40b' : '#2563eb',
+          items: n.controls && n.controls.length > 0 ? n.controls : [tpl.controlsText]
+        })),
+      swimlanes: tpl.lanes.map((l) => ({
+        area: l.label,
+        entries: tpl.nodes.filter((n) => n.laneId === l.id && n.type !== 'start' && n.type !== 'end').map((n) => n.label),
+        color: '#2563eb'
+      })),
+      actions: [tpl.controlsText],
+      bpmn: cloneBpmnDiagram(tpl)
+    }));
+
   const [processes, setProcesses] = useState<ProcessMapping[]>(() => {
-    if (typeof window === 'undefined') return [{ id: 'default', name: 'Processo de Implantação Padrão', ...cloneBoard(PROCESS_DEFAULT_BOARD) }];
+    const defaults = buildDefaultBpmnProcesses();
+    if (typeof window === 'undefined') return defaults;
     const saved = window.localStorage.getItem(localStorageKey);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(parsed.map((p: ProcessMapping) => p.id));
+          const missingDefaults = defaults.filter((d) => !existingIds.has(d.id));
+          return [...missingDefaults, ...parsed];
+        }
       } catch (e) {
         console.error('Erro ao ler mappings', e);
       }
     }
-    // Fallback: migrate from single board if exists
-    const single = window.localStorage.getItem(`pm-process-map-board-${projectId}`);
-    if (single) {
-      try {
-        const parsedSingle = JSON.parse(single);
-        if (parsedSingle && parsedSingle.steps) {
-          return [{ id: 'default', name: 'Processo de Implantação Padrão', ...parsedSingle }];
-        }
-      } catch(e) {}
-    }
-    return [{ id: 'default', name: 'Processo de Implantação Padrão', ...cloneBoard(PROCESS_DEFAULT_BOARD) }];
+    return defaults;
   });
 
-  const [activeProcessId, setActiveProcessId] = useState<string>(processes[0]?.id || 'default');
+  const [activeProcessId, setActiveProcessId] = useState<string>(processes[0]?.id || 'bpmn-00');
+  const [viewMode, setViewMode] = useState<'bpmn' | 'cards'>('bpmn');
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved'>('idle');
   const [isExportingPDF, setIsExportingPDF] = useState(false);
 
   const board = processes.find(p => p.id === activeProcessId) || processes[0];
+  const activeBpmn = board.bpmn || createBpmnFromSteps(board.name, board.steps, board.swimlanes, board.actions);
 
   const leadTime = board.steps.reduce((sum, step) => sum + (Number.parseInt(step.time, 10) || 0), 0);
   const bottlenecks = board.steps.filter(step => /risco|aten|bloq/i.test(step.status)).length;
@@ -1533,6 +1557,29 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
   const persistProcesses = (list: ProcessMapping[]) => {
     setProcesses(list);
     window.localStorage.setItem(localStorageKey, JSON.stringify(list));
+  };
+
+  const updateActiveBpmn = (updatedDiagram: BpmnDiagram) => {
+    const updated = processes.map((p) =>
+      p.id === board.id ? { ...p, bpmn: updatedDiagram } : p
+    );
+    persistProcesses(updated);
+  };
+
+  const handleSelectLinkedCode = (code: string) => {
+    const target = processes.find(
+      (p) => p.bpmn?.code === code || p.id.toUpperCase() === code.toUpperCase() || p.name.startsWith(code)
+    );
+    if (target) {
+      setActiveProcessId(target.id);
+    }
+  };
+
+  const handleResetTemplate = () => {
+    const tpl = BPMN_TEMPLATES.find((t) => t.id === board.id);
+    if (!tpl) return;
+    if (!confirm(`Restaurar o diagrama padrão ${tpl.code}?`)) return;
+    updateActiveBpmn(cloneBpmnDiagram(tpl));
   };
 
   const handleSaveProcess = () => {
@@ -1546,17 +1593,19 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
 
   const handleCreateNewProcess = () => {
     const newId = `process-${Date.now()}`;
+    const defaultSteps = [
+      { title: 'Entrada e Triagem', owner: 'Responsável', time: '1 dia', status: 'OK', color: '#18c8df', items: ['Passo preliminar', 'Revisar requisitos'] },
+      { title: 'Entrega Final', owner: 'Responsável', time: '2 dias', status: 'Novo', color: '#22c55e', items: ['Validação', 'Entrega finalizada'] }
+    ];
+    const defaultLanes = [{ area: 'Área Padrão', entries: ['Entrada e Triagem', 'Entrega Final'], color: '#18c8df' }];
+    const newName = `Mapeamento de Processo ${processes.length + 1}`;
     const newProcess: ProcessMapping = {
       id: newId,
-      name: `Mapeamento de Processo ${processes.length + 1}`,
-      steps: [
-        { title: 'Entrada e Triagem', owner: 'Responsável', time: '1 dia', status: 'OK', color: '#18c8df', items: ['Passo preliminar', 'Revisar requisitos'] },
-        { title: 'Entrega Final', owner: 'Responsável', time: '2 dias', status: 'Novo', color: '#22c55e', items: ['Validação', 'Entrega finalizada'] }
-      ],
-      swimlanes: [
-        { area: 'Área Padrão', entries: ['Ação Padrão'], color: '#18c8df' }
-      ],
-      actions: ['Revisão periódica do fluxo']
+      name: newName,
+      steps: defaultSteps,
+      swimlanes: defaultLanes,
+      actions: ['Revisão periódica do fluxo'],
+      bpmn: createBpmnFromSteps(newName, defaultSteps, defaultLanes, ['Revisão periódica do fluxo'])
     };
     const newList = [...processes, newProcess];
     persistProcesses(newList);
@@ -1632,6 +1681,10 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
   const handleExportPDF = () => {
     setIsExportingPDF(true);
     try {
+      if (viewMode === 'bpmn') {
+        exportBpmnDiagramToPdf(activeBpmn, true);
+        return;
+      }
       const pdf = new jsPDF('p', 'mm', 'a4');
       const margin = 15;
       
@@ -1972,10 +2025,64 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
             </div>
           )}
         </div>
-        <div className="text-xs text-[var(--crm-muted)] leading-tight">
-          Sempre clique em <span className="text-emerald-700 dark:text-emerald-400 font-bold">Salvar Processo</span> para manter suas modificações persistentes.
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center rounded-md border border-[var(--crm-border)] bg-transparent p-0.5">
+            <button
+              type="button"
+              onClick={() => setViewMode('bpmn')}
+              className={`rounded px-2.5 py-1 text-xs font-bold transition-colors ${viewMode === 'bpmn' ? 'bg-[#0f2744] text-white' : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)]'}`}
+            >
+              Diagrama BPMN
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode('cards')}
+              className={`rounded px-2.5 py-1 text-xs font-bold transition-colors ${viewMode === 'cards' ? 'bg-[#2563eb] text-white' : 'text-[var(--crm-muted)] hover:text-[var(--crm-ink)]'}`}
+            >
+              Etapas e Controles
+            </button>
+          </div>
+          <span className="text-xs text-[var(--crm-muted)] leading-tight">
+            Clique em <span className="text-emerald-700 dark:text-emerald-400 font-bold">Salvar Processo</span> para manter suas modificações.
+          </span>
         </div>
       </div>
+
+      {/* Navegação rápida entre os fluxos BPMN-00 a BPMN-07 */}
+      <div className="flex flex-wrap items-center gap-1.5">
+        {processes.map((proc) => {
+          const isActive = proc.id === board.id;
+          const shortCode = proc.bpmn?.code && proc.bpmn.code !== 'BPMN-CUSTOM' ? proc.bpmn.code : proc.name;
+          return (
+            <button
+              key={proc.id}
+              type="button"
+              onClick={() => {
+                setActiveProcessId(proc.id);
+                setIsEditingName(false);
+              }}
+              className={`rounded-md border px-2.5 py-1.5 text-xs font-bold transition-colors ${
+                isActive
+                  ? 'border-[#1d5d8c] bg-[#0f2744] text-white shadow-sm'
+                  : 'border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.6)] text-[var(--crm-muted)] hover:border-[#1d5d8c]/60 hover:text-[var(--crm-ink)]'
+              }`}
+              title={proc.name}
+            >
+              {shortCode}
+            </button>
+          );
+        })}
+      </div>
+
+      {viewMode === 'bpmn' ? (
+        <BpmnProcessDiagram
+          diagram={activeBpmn}
+          onChange={updateActiveBpmn}
+          onSelectLinkedCode={handleSelectLinkedCode}
+          onResetToTemplate={BPMN_TEMPLATES.some((t) => t.id === board.id) ? handleResetTemplate : undefined}
+        />
+      ) : (
+        <>
 
       <section className="grid gap-4 md:grid-cols-4">
         {[
@@ -2145,6 +2252,8 @@ export function ProcessMappingBoard({ activeProject = null, onBack }: { activePr
           </div>
         </div>
       </section>
+        </>
+      )}
     </BoardShell>
   );
 }

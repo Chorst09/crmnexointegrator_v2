@@ -1,0 +1,790 @@
+import React, { useMemo, useState } from 'react';
+import {
+  Plus, Trash2, ZoomIn, ZoomOut, ShieldCheck, ArrowRight, GitBranch,
+  Layers, Link2, ExternalLink, RotateCcw
+} from 'lucide-react';
+import {
+  BPMN_GOVERNANCE,
+  type BpmnDiagram,
+  type BpmnEdge,
+  type BpmnNode,
+  type BpmnNodeType,
+  type BpmnAnchorSide
+} from '../data/bpmnTemplates';
+import { computeBpmnLayout, computeEdgePoints } from './bpmnPdfExport';
+
+interface BpmnProcessDiagramProps {
+  diagram: BpmnDiagram;
+  onChange: (updated: BpmnDiagram) => void;
+  onSelectLinkedCode?: (code: string) => void;
+  onResetToTemplate?: () => void;
+}
+
+function wrapText(text: string, maxChars: number): string[] {
+  const words = String(text || '').split(/\s+/).filter(Boolean);
+  if (words.length === 0) return [''];
+  const lines: string[] = [];
+  let current = '';
+  for (const word of words) {
+    if (!current) {
+      current = word;
+    } else if ((current + ' ' + word).length <= maxChars) {
+      current += ' ' + word;
+    } else {
+      lines.push(current);
+      current = word;
+    }
+  }
+  if (current) lines.push(current);
+  return lines.slice(0, 4);
+}
+
+export default function BpmnProcessDiagram({
+  diagram,
+  onChange,
+  onSelectLinkedCode,
+  onResetToTemplate
+}: BpmnProcessDiagramProps) {
+  const [zoom, setZoom] = useState(1);
+  const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [showEdgeForm, setShowEdgeForm] = useState(false);
+  const [showGovernance, setShowGovernance] = useState(false);
+  const [newEdge, setNewEdge] = useState<{
+    from: string;
+    to: string;
+    label: string;
+    fromSide: BpmnAnchorSide;
+    toSide: BpmnAnchorSide;
+    route: NonNullable<BpmnEdge['route']>;
+  }>({
+    from: diagram.nodes[0]?.id || '',
+    to: diagram.nodes[1]?.id || '',
+    label: '',
+    fromSide: 'right',
+    toSide: 'left',
+    route: 'auto'
+  });
+
+  const layout = useMemo(() => computeBpmnLayout(diagram), [diagram]);
+  const selectedNode = diagram.nodes.find((n) => n.id === selectedNodeId) || null;
+
+  const updateNode = (id: string, patch: Partial<BpmnNode>) => {
+    onChange({
+      ...diagram,
+      nodes: diagram.nodes.map((n) => (n.id === id ? { ...n, ...patch } : n))
+    });
+  };
+
+  const removeNode = (id: string) => {
+    onChange({
+      ...diagram,
+      nodes: diagram.nodes.filter((n) => n.id !== id),
+      edges: diagram.edges.filter((e) => e.from !== id && e.to !== id)
+    });
+    if (selectedNodeId === id) setSelectedNodeId(null);
+  };
+
+  const addNode = (type: BpmnNodeType) => {
+    const maxCol = diagram.nodes.reduce((m, n) => Math.max(m, n.col), 0);
+    const id = `n-${Date.now()}`;
+    const defaultLabel =
+      type === 'gateway' ? 'Decisão?' : type === 'subprocess' ? 'Novo subprocesso' : type === 'start' ? 'Início' : type === 'end' ? 'Fim' : 'Nova atividade';
+    const created: BpmnNode = {
+      id,
+      type,
+      label: defaultLabel,
+      laneId: diagram.lanes[0]?.id || 'lane-0',
+      col: maxCol + 1,
+      rowOffset: 0
+    };
+    onChange({
+      ...diagram,
+      nodes: [...diagram.nodes, created]
+    });
+    setSelectedNodeId(id);
+  };
+
+  const addLane = () => {
+    const id = `lane-${Date.now()}`;
+    onChange({
+      ...diagram,
+      lanes: [...diagram.lanes, { id, label: `Nova Raia ${diagram.lanes.length + 1}`, height: 125 }]
+    });
+  };
+
+  const updateLaneLabel = (id: string, label: string) => {
+    onChange({
+      ...diagram,
+      lanes: diagram.lanes.map((l) => (l.id === id ? { ...l, label } : l))
+    });
+  };
+
+  const removeLane = (id: string) => {
+    if (diagram.lanes.length <= 1) return;
+    const fallbackLaneId = diagram.lanes.find((l) => l.id !== id)?.id || diagram.lanes[0].id;
+    onChange({
+      ...diagram,
+      lanes: diagram.lanes.filter((l) => l.id !== id),
+      nodes: diagram.nodes.map((n) => (n.laneId === id ? { ...n, laneId: fallbackLaneId } : n))
+    });
+  };
+
+  const handleAddEdge = () => {
+    if (!newEdge.from || !newEdge.to || newEdge.from === newEdge.to) return;
+    const created: BpmnEdge = {
+      id: `e-${Date.now()}`,
+      from: newEdge.from,
+      to: newEdge.to,
+      label: newEdge.label.trim() || undefined,
+      fromSide: newEdge.fromSide,
+      toSide: newEdge.toSide,
+      route: newEdge.route
+    };
+    onChange({
+      ...diagram,
+      edges: [...diagram.edges, created]
+    });
+    setShowEdgeForm(false);
+    setNewEdge((prev) => ({ ...prev, label: '' }));
+  };
+
+  const removeEdge = (id: string) => {
+    onChange({
+      ...diagram,
+      edges: diagram.edges.filter((e) => e.id !== id)
+    });
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Barra de ferramentas do diagrama BPMN */}
+      <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] px-4 py-2.5">
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => addNode('task')}
+            className="flex items-center gap-1.5 rounded-md border border-[#1d5d8c]/40 bg-[#1d5d8c]/10 px-2.5 py-1.5 text-xs font-bold text-[#38bdf8] hover:bg-[#1d5d8c]/20"
+          >
+            <Plus className="h-3.5 w-3.5" /> Atividade
+          </button>
+          <button
+            type="button"
+            onClick={() => addNode('subprocess')}
+            className="flex items-center gap-1.5 rounded-md border border-[#1d5d8c]/40 bg-[#1d5d8c]/10 px-2.5 py-1.5 text-xs font-bold text-[#38bdf8] hover:bg-[#1d5d8c]/20"
+          >
+            <Plus className="h-3.5 w-3.5" /> Subprocesso (+)
+          </button>
+          <button
+            type="button"
+            onClick={() => addNode('gateway')}
+            className="flex items-center gap-1.5 rounded-md border border-amber-500/40 bg-amber-500/10 px-2.5 py-1.5 text-xs font-bold text-amber-400 hover:bg-amber-500/20"
+          >
+            <Plus className="h-3.5 w-3.5" /> Decisão (X)
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowEdgeForm((v) => !v)}
+            className="flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-bold text-[var(--crm-ink)] hover:border-[#2563eb]"
+          >
+            <Link2 className="h-3.5 w-3.5" /> Conectar nós
+          </button>
+          <button
+            type="button"
+            onClick={addLane}
+            className="flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-bold text-[var(--crm-ink)] hover:border-[#2563eb]"
+          >
+            <Layers className="h-3.5 w-3.5" /> + Raia
+          </button>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowGovernance((v) => !v)}
+            className={`flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs font-bold transition-colors ${
+              showGovernance
+                ? 'border-emerald-500/50 bg-emerald-500/15 text-emerald-400'
+                : 'border-[var(--crm-border)] text-[var(--crm-muted)] hover:text-[var(--crm-ink)]'
+            }`}
+          >
+            <ShieldCheck className="h-3.5 w-3.5" /> Governança e Regras
+          </button>
+          {onResetToTemplate && (
+            <button
+              type="button"
+              onClick={onResetToTemplate}
+              className="flex items-center gap-1.5 rounded-md border border-[var(--crm-border)] px-2.5 py-1.5 text-xs font-bold text-[var(--crm-muted)] hover:text-[var(--crm-ink)]"
+              title="Restaurar modelo padrão do manual"
+            >
+              <RotateCcw className="h-3.5 w-3.5" /> Restaurar padrão
+            </button>
+          )}
+          <div className="flex items-center rounded-md border border-[var(--crm-border)] bg-transparent">
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.max(0.65, Number((z - 0.1).toFixed(2))))}
+              className="p-1.5 text-[var(--crm-muted)] hover:text-[var(--crm-ink)]"
+              title="Diminuir zoom"
+            >
+              <ZoomOut className="h-3.5 w-3.5" />
+            </button>
+            <span className="px-2 text-xs font-bold text-[var(--crm-ink)]">{Math.round(zoom * 100)}%</span>
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.min(1.4, Number((z + 0.1).toFixed(2))))}
+              className="p-1.5 text-[var(--crm-muted)] hover:text-[var(--crm-ink)]"
+              title="Aumentar zoom"
+            >
+              <ZoomIn className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Formulário rápido para adicionar conexão */}
+      {showEdgeForm && (
+        <div className="rounded-lg border border-[#2563eb]/40 bg-[rgb(var(--crm-surface-2-rgb)/0.92)] p-3 flex flex-wrap items-end gap-3">
+          <div>
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Origem</label>
+            <select
+              value={newEdge.from}
+              onChange={(e) => setNewEdge((p) => ({ ...p, from: e.target.value }))}
+              className="rounded border border-[var(--crm-border)] bg-[var(--crm-surface)] px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+            >
+              {diagram.nodes.map((n) => (
+                <option key={n.id} value={n.id}>{n.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Destino</label>
+            <select
+              value={newEdge.to}
+              onChange={(e) => setNewEdge((p) => ({ ...p, to: e.target.value }))}
+              className="rounded border border-[var(--crm-border)] bg-[var(--crm-surface)] px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+            >
+              {diagram.nodes.map((n) => (
+                <option key={n.id} value={n.id}>{n.label}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Rótulo (opcional)</label>
+            <input
+              value={newEdge.label}
+              onChange={(e) => setNewEdge((p) => ({ ...p, label: e.target.value }))}
+              placeholder="Ex: Sim / Não"
+              className="w-32 rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+            />
+          </div>
+          <div>
+            <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Rota</label>
+            <select
+              value={newEdge.route}
+              onChange={(e) => setNewEdge((p) => ({ ...p, route: e.target.value as any }))}
+              className="rounded border border-[var(--crm-border)] bg-[var(--crm-surface)] px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+            >
+              <option value="auto">Automática</option>
+              <option value="step-h-v">Horizontal → Vertical</option>
+              <option value="step-v-h">Vertical → Horizontal</option>
+              <option value="top-loop">Retorno por cima</option>
+              <option value="bottom-loop">Desvio por baixo</option>
+            </select>
+          </div>
+          <button
+            type="button"
+            onClick={handleAddEdge}
+            className="rounded-md bg-[#2563eb] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#1d4ed8]"
+          >
+            Adicionar seta
+          </button>
+        </div>
+      )}
+
+      {/* Folha BPMN no padrão exato do PDF anexo */}
+      <div className="overflow-hidden rounded-xl border border-slate-300 bg-white text-slate-900 shadow-lg">
+        {/* Faixa institucional azul-marinho */}
+        <div className="bg-[#0f2744] px-6 py-4 flex items-center justify-between">
+          <div>
+            <p className="text-[11px] font-bold tracking-wider text-[#7db3db] uppercase">
+              NEXOS CRM / {diagram.subtitle || 'ARQUITETURA DE PROCESSOS'}
+            </p>
+            <h2 className="mt-0.5 text-xl font-black text-white">
+              {diagram.code} <span className="mx-1.5 text-[#7db3db] font-normal">|</span> {diagram.title}
+            </h2>
+          </div>
+          <span className="rounded-md bg-white/10 px-3 py-1 text-xs font-bold text-slate-200">
+            {diagram.pageLabel}
+          </span>
+        </div>
+
+        {/* Legenda BPMN */}
+        <div className="flex flex-wrap items-center gap-5 border-b border-slate-200 bg-slate-50/70 px-6 py-2.5 text-xs text-slate-600">
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-3.5 w-3.5 rounded-full border-2 border-[#1f7a4c] bg-white" />
+            Início/fim
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-block h-3.5 w-5 rounded-[3px] border-[1.5px] border-[#1d5d8c] bg-white" />
+            Atividade
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex h-3.5 w-3.5 items-center justify-center font-black text-[#b47610]">X</span>
+            Decisão exclusiva
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <span className="inline-flex h-3.5 w-3.5 items-center justify-center font-black text-[#1d5d8c]">+</span>
+            Processo detalhado
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <ArrowRight className="h-3.5 w-3.5 text-slate-500" />
+            Fluxo de sequência
+          </span>
+        </div>
+
+        {/* Canvas SVG com scroll horizontal */}
+        <div className="overflow-x-auto bg-white p-5">
+          <div style={{ width: layout.width * zoom, height: layout.height * zoom }}>
+            <svg
+              width={layout.width * zoom}
+              height={layout.height * zoom}
+              viewBox={`0 0 ${layout.width} ${layout.height}`}
+              className="select-none"
+            >
+              <defs>
+                <marker
+                  id={`bpmn-arrow-${diagram.id}`}
+                  viewBox="0 0 10 10"
+                  refX="8.5"
+                  refY="5"
+                  markerWidth="6.5"
+                  markerHeight="6.5"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M 0 1.5 L 9 5 L 0 8.5 z" fill="#52657a" />
+                </marker>
+              </defs>
+
+              {/* Raias (Swimlanes) */}
+              {layout.lanes.map((lane, idx) => (
+                <g key={lane.id}>
+                  <rect
+                    x={0}
+                    y={lane.y}
+                    width={layout.width}
+                    height={lane.height}
+                    fill={idx % 2 === 0 ? '#f4f7fa' : '#ffffff'}
+                    stroke="#b8c7d9"
+                    strokeWidth={1}
+                  />
+                  <rect
+                    x={0}
+                    y={lane.y}
+                    width={layout.laneHeaderWidth}
+                    height={lane.height}
+                    fill="#e2ebf3"
+                    stroke="#b8c7d9"
+                    strokeWidth={1}
+                  />
+                  {wrapText(lane.label, 18).map((line, lineIdx, arr) => (
+                    <text
+                      key={lineIdx}
+                      x={layout.laneHeaderWidth / 2}
+                      y={lane.y + lane.height / 2 + (lineIdx - (arr.length - 1) / 2) * 15}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fill="#1e293b"
+                      fontSize="12"
+                      fontWeight="600"
+                    >
+                      {line}
+                    </text>
+                  ))}
+                </g>
+              ))}
+
+              {/* Conectores (Edges) */}
+              {diagram.edges.map((edge) => {
+                const computed = computeEdgePoints(edge, layout.nodesById);
+                if (!computed) return null;
+                const d = computed.points
+                  .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)} ${p.y.toFixed(1)}`)
+                  .join(' ');
+                return (
+                  <g key={edge.id} className="group">
+                    <path
+                      d={d}
+                      fill="none"
+                      stroke="#52657a"
+                      strokeWidth={1.35}
+                      strokeLinejoin="round"
+                      markerEnd={`url(#bpmn-arrow-${diagram.id})`}
+                    />
+                    {edge.label && (
+                      <g>
+                        <rect
+                          x={computed.labelPos.x - Math.max(18, edge.label.length * 3.6 + 6)}
+                          y={computed.labelPos.y - 9}
+                          width={Math.max(36, edge.label.length * 7.2 + 12)}
+                          height={16}
+                          rx={3}
+                          fill="#ffffff"
+                          fillOpacity={0.92}
+                        />
+                        <text
+                          x={computed.labelPos.x}
+                          y={computed.labelPos.y}
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          fill="#475569"
+                          fontSize="10.5"
+                          fontWeight="500"
+                        >
+                          {edge.label}
+                        </text>
+                      </g>
+                    )}
+                  </g>
+                );
+              })}
+
+              {/* Nós BPMN */}
+              {layout.nodes.map((node) => {
+                const cx = node.x + node.w / 2;
+                const cy = node.y + node.h / 2;
+                const isSelected = selectedNodeId === node.id;
+
+                if (node.type === 'start' || node.type === 'end') {
+                  return (
+                    <g
+                      key={node.id}
+                      onClick={() => setSelectedNodeId(node.id)}
+                      className="cursor-pointer"
+                    >
+                      <circle
+                        cx={cx}
+                        cy={cy}
+                        r={node.w / 2}
+                        fill="#ffffff"
+                        stroke={isSelected ? '#2563eb' : '#1f7a4c'}
+                        strokeWidth={node.type === 'end' ? 3.5 : 2}
+                      />
+                      {wrapText(node.label, 18).map((line, i) => (
+                        <text
+                          key={i}
+                          x={cx}
+                          y={node.y + node.h + 14 + i * 12}
+                          textAnchor="middle"
+                          fill="#1e293b"
+                          fontSize="10.5"
+                          fontWeight="500"
+                        >
+                          {line}
+                        </text>
+                      ))}
+                    </g>
+                  );
+                }
+
+                if (node.type === 'gateway') {
+                  const pts = `${cx},${node.y} ${node.x + node.w},${cy} ${cx},${node.y + node.h} ${node.x},${cy}`;
+                  return (
+                    <g
+                      key={node.id}
+                      onClick={() => setSelectedNodeId(node.id)}
+                      className="cursor-pointer"
+                    >
+                      <polygon
+                        points={pts}
+                        fill="#fef3c7"
+                        stroke={isSelected ? '#2563eb' : '#d99b26'}
+                        strokeWidth={1.8}
+                      />
+                      {wrapText(node.label, 16).map((line, i) => (
+                        <text
+                          key={i}
+                          x={cx}
+                          y={node.y + node.h + 14 + i * 12}
+                          textAnchor="middle"
+                          fill="#1e293b"
+                          fontSize="10.5"
+                          fontWeight="500"
+                        >
+                          {line}
+                        </text>
+                      ))}
+                    </g>
+                  );
+                }
+
+                const lines = wrapText(node.label, 16);
+                const textBaseOffset = node.type === 'subprocess' ? -5 : 0;
+                return (
+                  <g
+                    key={node.id}
+                    onClick={() => setSelectedNodeId(node.id)}
+                    className="cursor-pointer"
+                  >
+                    <rect
+                      x={node.x}
+                      y={node.y}
+                      width={node.w}
+                      height={node.h}
+                      rx={7}
+                      ry={7}
+                      fill="#ffffff"
+                      stroke={isSelected ? '#2563eb' : '#1d5d8c'}
+                      strokeWidth={isSelected ? 2.4 : 1.7}
+                    />
+                    {lines.map((line, idx) => (
+                      <text
+                        key={idx}
+                        x={cx}
+                        y={cy + textBaseOffset + (idx - (lines.length - 1) / 2) * 13}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fill="#0f172a"
+                        fontSize="11"
+                        fontWeight="500"
+                      >
+                        {line}
+                      </text>
+                    ))}
+                    {node.type === 'subprocess' && (
+                      <g>
+                        <rect
+                          x={cx - 7}
+                          y={node.y + node.h - 15}
+                          width={14}
+                          height={12}
+                          rx={2}
+                          fill="#f0f7ff"
+                          stroke="#1d5d8c"
+                          strokeWidth={1}
+                        />
+                        <text
+                          x={cx}
+                          y={node.y + node.h - 8.5}
+                          textAnchor="middle"
+                          dominantBaseline="central"
+                          fill="#1d5d8c"
+                          fontSize="11"
+                          fontWeight="800"
+                        >
+                          +
+                        </text>
+                      </g>
+                    )}
+                  </g>
+                );
+              })}
+            </svg>
+          </div>
+        </div>
+
+        {/* Bloco CONTROLES E REGRAS + Rodapé igual ao PDF */}
+        <div className="border-t border-slate-200 bg-slate-50/70 px-6 py-4 space-y-2">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="text-xs font-black tracking-wide text-[#1d5d8c] uppercase">
+              {diagram.controlsTitle || 'CONTROLES E REGRAS'}
+            </h3>
+          </div>
+          <textarea
+            value={diagram.controlsText}
+            onChange={(e) => onChange({ ...diagram, controlsText: e.target.value })}
+            rows={2}
+            className="w-full resize-none rounded border border-transparent bg-transparent text-xs leading-relaxed text-slate-700 outline-none focus:border-slate-300 focus:bg-white focus:p-1.5"
+          />
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-2 text-[11px] text-slate-500 border-t border-slate-200/80">
+            <span>{diagram.sourceBase || 'Base: Arquitetura de Processos CRM'}</span>
+            <span>{diagram.footerText || 'Uso interno • Modelo padronizado BPMN'}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Painel Inspector do nó selecionado + edição de raias/setas */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-black text-[var(--crm-ink)] flex items-center gap-2">
+              <GitBranch className="h-4 w-4 text-[#2563eb]" />
+              {selectedNode ? `Editar elemento: ${selectedNode.label}` : 'Clique em qualquer elemento do diagrama para editar'}
+            </h3>
+            {selectedNode && (
+              <div className="flex items-center gap-2">
+                {selectedNode.linkedCode && onSelectLinkedCode && (
+                  <button
+                    type="button"
+                    onClick={() => onSelectLinkedCode(selectedNode.linkedCode!)}
+                    className="flex items-center gap-1 rounded bg-[#2563eb]/15 px-2.5 py-1 text-xs font-bold text-[#38bdf8] hover:bg-[#2563eb]/25"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5" /> Abrir {selectedNode.linkedCode}
+                  </button>
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeNode(selectedNode.id)}
+                  className="rounded p-1.5 text-red-400 hover:bg-red-500/15"
+                  title="Remover elemento"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
+            )}
+          </div>
+
+          {selectedNode ? (
+            <div className="grid gap-3 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Texto / Rótulo</label>
+                <input
+                  value={selectedNode.label}
+                  onChange={(e) => updateNode(selectedNode.id, { label: e.target.value })}
+                  className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs font-semibold text-[var(--crm-ink)]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Tipo BPMN</label>
+                <select
+                  value={selectedNode.type}
+                  onChange={(e) => updateNode(selectedNode.id, { type: e.target.value as BpmnNodeType })}
+                  className="w-full rounded border border-[var(--crm-border)] bg-[var(--crm-surface)] px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+                >
+                  <option value="start">Início (círculo)</option>
+                  <option value="task">Atividade (retângulo)</option>
+                  <option value="subprocess">Processo detalhado (+)</option>
+                  <option value="gateway">Decisão exclusiva (X)</option>
+                  <option value="end">Fim (círculo duplo)</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Raia (Área)</label>
+                <select
+                  value={selectedNode.laneId}
+                  onChange={(e) => updateNode(selectedNode.id, { laneId: e.target.value })}
+                  className="w-full rounded border border-[var(--crm-border)] bg-[var(--crm-surface)] px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+                >
+                  {diagram.lanes.map((l) => (
+                    <option key={l.id} value={l.id}>{l.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Coluna horizontal (0..20)</label>
+                <input
+                  type="number"
+                  min={0}
+                  max={25}
+                  value={selectedNode.col}
+                  onChange={(e) => updateNode(selectedNode.id, { col: Math.max(0, Number(e.target.value) || 0) })}
+                  className="w-full rounded border border-[var(--crm-border)] bg-transparent px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-bold text-[var(--crm-muted)] mb-1">Posição vertical na raia</label>
+                <select
+                  value={String(selectedNode.rowOffset || 0)}
+                  onChange={(e) => updateNode(selectedNode.id, { rowOffset: Number(e.target.value) })}
+                  className="w-full rounded border border-[var(--crm-border)] bg-[var(--crm-surface)] px-2.5 py-1.5 text-xs text-[var(--crm-ink)]"
+                >
+                  <option value="-0.6">Topo da raia</option>
+                  <option value="0">Centro da raia</option>
+                  <option value="0.6">Base da raia</option>
+                </select>
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-[var(--crm-muted)]">
+              Selecione uma atividade, decisão (losango) ou evento de início/fim no diagrama acima para ajustar seu texto, raia, posição ou abrir o subprocesso vinculado.
+            </p>
+          )}
+        </div>
+
+        {/* Gerenciamento rápido de Raias e Fluxos */}
+        <div className="rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.88)] p-4 space-y-3">
+          <h3 className="text-sm font-black text-[var(--crm-ink)]">Raias e Fluxos de Sequência</h3>
+          <div className="space-y-1.5 max-h-32 overflow-y-auto pr-1">
+            {diagram.lanes.map((lane) => (
+              <div key={lane.id} className="flex items-center gap-2">
+                <input
+                  value={lane.label}
+                  onChange={(e) => updateLaneLabel(lane.id, e.target.value)}
+                  className="flex-1 rounded border border-[var(--crm-border)] bg-transparent px-2 py-1 text-xs font-semibold text-[var(--crm-ink)]"
+                />
+                {diagram.lanes.length > 1 && (
+                  <button
+                    type="button"
+                    onClick={() => removeLane(lane.id)}
+                    className="p-1 text-[var(--crm-muted)] hover:text-red-400"
+                    title="Remover raia"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          {diagram.edges.length > 0 && (
+            <div className="pt-2 border-t border-[var(--crm-border)]">
+              <p className="text-[11px] font-bold text-[var(--crm-muted)] mb-1.5">
+                Conexões ativas ({diagram.edges.length})
+              </p>
+              <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto">
+                {diagram.edges.map((edge) => {
+                  const fromLbl = diagram.nodes.find((n) => n.id === edge.from)?.label || edge.from;
+                  const toLbl = diagram.nodes.find((n) => n.id === edge.to)?.label || edge.to;
+                  return (
+                    <span
+                      key={edge.id}
+                      className="inline-flex items-center gap-1 rounded border border-[var(--crm-border)] px-2 py-0.5 text-[10px] text-[var(--crm-ink)]"
+                    >
+                      <span className="truncate max-w-[90px]">{fromLbl}</span>
+                      <span>→</span>
+                      <span className="truncate max-w-[90px]">{toLbl}</span>
+                      {edge.label && <strong className="text-amber-400">({edge.label})</strong>}
+                      <button
+                        type="button"
+                        onClick={() => removeEdge(edge.id)}
+                        className="ml-0.5 text-[var(--crm-muted)] hover:text-red-400"
+                        title="Remover seta"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Seção Governança, automações e validação (Página 9 do PDF) */}
+      {showGovernance && (
+        <div className="rounded-xl border border-slate-300 bg-white text-slate-900 overflow-hidden shadow">
+          <div className="bg-[#0f2744] px-6 py-4">
+            <p className="text-[11px] font-bold tracking-wider text-[#7db3db] uppercase">
+              NEXOS CRM / ARQUITETURA DE PROCESSOS
+            </p>
+            <h3 className="text-lg font-black text-white">{BPMN_GOVERNANCE.title}</h3>
+          </div>
+          <div className="p-6 grid gap-5 md:grid-cols-2">
+            {BPMN_GOVERNANCE.sections.map((sec) => (
+              <div key={sec.title} className="rounded-lg border border-slate-200 bg-slate-50/70 p-4">
+                <h4 className="text-xs font-black uppercase tracking-wide text-[#1d5d8c] mb-2">{sec.title}</h4>
+                <ul className="space-y-1.5 text-xs text-slate-700 list-disc pl-4">
+                  {sec.items.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-slate-200 px-6 py-3 text-[11px] text-slate-500">
+            <strong>Fontes:</strong> {BPMN_GOVERNANCE.sources}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
