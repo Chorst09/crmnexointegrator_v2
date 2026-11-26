@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Calendar, Edit, Eye, FileText, Plus, Search, Settings, Trash2 } from 'lucide-react';
 import PageHeader from '../components/PageHeader';
 import CommercialProposalPresentationView from '@/components/commercial-proposal/CommercialProposalPresentationView';
+import { DoubleProposal2026Editor } from '../components/DoubleProposal2026Editor';
 import { buildApiUrl } from '../config/api';
 import {
   COMMERCIAL_PROPOSALS_STORAGE_KEY,
@@ -33,6 +34,7 @@ export default function Propostas() {
   const [editorProposalId, setEditorProposalId] = useState(null);
   const [editorMode, setEditorMode] = useState('latest');
   const [editorSession, setEditorSession] = useState(0);
+  const [useLegacyPptx, setUseLegacyPptx] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const refreshSavedProposals = useCallback(() => {
@@ -42,6 +44,7 @@ export default function Propostas() {
   const openNewProposal = useCallback(() => {
     setEditorProposalId(null);
     setEditorMode('blank');
+    setUseLegacyPptx(false);
     setEditorSession(session => session + 1);
     setMode('editor');
   }, []);
@@ -49,8 +52,50 @@ export default function Propostas() {
   const openSavedProposal = useCallback((proposalId) => {
     setEditorProposalId(proposalId);
     setEditorMode('latest');
+    setUseLegacyPptx(false);
     setEditorSession(session => session + 1);
     setMode('editor');
+  }, []);
+
+  const saveDouble2026Proposal = useCallback((doubleData, existingId) => {
+    const current = readSavedProposals();
+    const existing = existingId ? current.find(p => p.id === existingId) : null;
+    const id = existing?.id || (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}`);
+    const year = new Date().getFullYear();
+    const prefix = `PROP-${year}-`;
+    const maxSeq = current
+      .map(getCommercialProposalNumber)
+      .filter(n => n.startsWith(prefix))
+      .map(n => Number(n.slice(prefix.length)))
+      .filter(Number.isFinite);
+    const proposalNumber = getCommercialProposalNumber(existing) || `${prefix}${String(Math.max(0, ...maxSeq) + 1).padStart(4, '0')}`;
+    const now = new Date().toISOString();
+
+    const entry = {
+      ...(existing || {}),
+      id,
+      title: doubleData.clienteNome || 'Proposta Double TI',
+      proposalNumber,
+      clientType: existing?.clientType || 'B2B',
+      savedAt: now,
+      draft: {
+        ...(existing?.draft || {}),
+        savedAt: now,
+        proposalNumber,
+        cover: {
+          clientName: doubleData.clienteNome,
+          date: new Date().toLocaleDateString('pt-BR'),
+          product: doubleData.solucaoTitulo
+        },
+        slides: existing?.draft?.slides || {},
+        double2026: doubleData
+      }
+    };
+    const next = [entry, ...current.filter(p => p.id !== id)];
+    window.localStorage.setItem(STORAGE_LIST_KEY, JSON.stringify(next));
+    setSavedProposals(next);
+    setEditorProposalId(id);
+    return id;
   }, []);
 
   const getAuthHeaders = useCallback(() => {
@@ -291,16 +336,25 @@ export default function Propostas() {
         </>
       ) : (
         <div className="rounded-2xl bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-6 py-8 text-[rgb(var(--crm-ink-rgb)_/_1)]">
-          <CommercialProposalPresentationView
-            key={editorSession}
-            initialProposalId={editorProposalId}
-            initialMode={editorMode}
-            onSaved={refreshSavedProposals}
-            onNewProposal={() => {
-              setEditorProposalId(null);
-              setEditorMode('blank');
-            }}
-          />
+          {useLegacyPptx ? (
+            <CommercialProposalPresentationView
+              key={editorSession}
+              initialProposalId={editorProposalId}
+              initialMode={editorMode}
+              onSaved={refreshSavedProposals}
+              onNewProposal={() => {
+                setEditorProposalId(null);
+                setEditorMode('blank');
+              }}
+            />
+          ) : (
+            <DoubleProposal2026Editor
+              key={`double-${editorSession}-${editorProposalId || 'new'}`}
+              initialEntry={editorProposalId ? savedProposals.find(p => p.id === editorProposalId) : undefined}
+              onSave={saveDouble2026Proposal}
+              onSwitchLegacy={() => setUseLegacyPptx(true)}
+            />
+          )}
         </div>
       )}
     </div>
