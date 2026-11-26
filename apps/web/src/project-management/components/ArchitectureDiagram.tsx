@@ -1063,10 +1063,10 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                     setActiveDiagramName(e.target.value);
                     setHasUnsavedChanges(true);
                   }}
-                  className="w-52 truncate rounded bg-transparent px-1 py-0.5 text-sm font-bold text-slate-100 outline-none focus:bg-slate-900 focus:ring-1 focus:ring-cyan-500/50"
+                  className="w-44 min-w-0 truncate rounded bg-transparent px-1.5 py-0.5 text-sm font-bold text-slate-100 outline-none focus:bg-slate-900 focus:ring-1 focus:ring-cyan-500/50"
                 />
                 <span
-                  className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                  className={`shrink-0 whitespace-nowrap rounded-full px-2 py-0.5 text-[10px] font-bold ${
                     hasUnsavedChanges
                       ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
                       : 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
@@ -1439,6 +1439,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
               connectionLineStyle={{ stroke: '#22d3ee', strokeWidth: 2.5 }}
               colorMode="dark"
               fitView
+              fitViewOptions={{ padding: 0.22 }}
               className="bg-transparent"
             >
               {gridVariant !== 'none' && (
@@ -1475,7 +1476,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
 
               {/* Floating Canvas Dock */}
               {diagramMode === 'edit' && (
-                <Panel position="top-center" className="flex flex-wrap items-center gap-1 rounded-xl border border-slate-800/90 bg-slate-900/90 px-2 py-1.5 shadow-2xl backdrop-blur-xl">
+                <Panel position="bottom-center" className="flex items-center gap-1 whitespace-nowrap rounded-xl border border-slate-800/90 bg-slate-900/95 px-2.5 py-1.5 shadow-2xl backdrop-blur-xl">
                   <button
                     type="button"
                     onClick={() => setPenEnabled(false)}
@@ -1631,7 +1632,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
           {/* Toast */}
           {toast && (
             <div
-              className={`pointer-events-none absolute bottom-5 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-xl border px-4 py-2 text-xs font-bold shadow-2xl backdrop-blur-md ${
+              className={`pointer-events-none absolute top-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-2 rounded-xl border px-4 py-2 text-xs font-bold shadow-2xl backdrop-blur-md ${
                 toast.tone === 'err'
                   ? 'border-rose-500/40 bg-rose-950/90 text-rose-200'
                   : toast.tone === 'warn'

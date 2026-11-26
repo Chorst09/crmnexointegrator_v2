@@ -316,8 +316,23 @@ export const ArchNode = ({ id, data, selected }: any) => {
     return lower.replace(/[^a-z0-9]/g, '');
   };
 
-  const normalized = getNormalizedName(data.imageName || data.label);
-  const customImage = data.uploadedImage || (normalized ? `https://cdn.simpleicons.org/${normalized}/${accent.hex.replace('#', '')}` : null);
+  const NON_BRAND_ICONS = new Set([
+    'fiber',
+    'radio',
+    'switch',
+    'wifi',
+    'router',
+    'internet',
+    'pop',
+    'server',
+    'cloud',
+    'componentederede',
+    'novodiagrama',
+  ]);
+
+  const normalized = getNormalizedName(data.imageName || '');
+  const shouldUseSimpleIcon = Boolean(normalized) && !NON_BRAND_ICONS.has(normalized);
+  const customImage = data.uploadedImage || (shouldUseSimpleIcon ? `https://cdn.simpleicons.org/${normalized}/${accent.hex.replace('#', '')}` : null);
   const isPhysical = data.variant === 'physical';
   const usesDeviceShape = isPhysical && data.physicalType && !data.uploadedImage;
 
