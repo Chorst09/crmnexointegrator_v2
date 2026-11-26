@@ -481,7 +481,7 @@ async function buscarDOU({ objeto, termos = '', uf = '', cidade = '', dataInicio
             'Accept-Language': 'pt-BR,pt;q=0.9',
             'User-Agent': 'Mozilla/5.0 (compatible; NexosCRM/2.0)'
           }
-        }, { timeoutMs: 18000, retries: 1 });
+        }, { timeoutMs: 7000, retries: 0 });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
         const html = await res.text();

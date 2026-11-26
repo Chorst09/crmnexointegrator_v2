@@ -627,6 +627,7 @@ router.get(['/documento-gerado/:cnpj/:ano/:seq/:tipo', '/documento-gerado/:cnpj/
 // ── Cache de arquivos em memória ──────────────────────────────────────────────
 const arquivosCache = new Map();
 const ARQUIVOS_CACHE_TTL = 15 * 60 * 1000;
+let pncpArquivosCircuitOpenUntil = 0;
 
 // ── Helper compartilhado para obter lista de arquivos reais e canais oficiais do certame ──
 const getArquivosForEdital = async (cnpj, ano, seq) => {
@@ -647,41 +648,45 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
 
   let filesList = [];
   let pncpError = null;
+  const pncpCircuitOpen = now < pncpArquivosCircuitOpenUntil;
 
   // 1. Tenta consultar anexos diretos no repositório de arquivos do PNCP com prioridade
-  try {
-    const pUrl = `https://pncp.gov.br/api/pncp/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos`;
-    const response = await fetch(pUrl, {
-      headers: { Accept: 'application/json', 'User-Agent': nextUA() },
-      signal: AbortSignal.timeout(10000)
-    });
-    if (response.status !== 204 && response.ok) {
-      const pData = await response.json();
-      if (!Array.isArray(pData)) throw new Error('PNCP retornou uma lista de anexos inválida.');
-      if (pData.length > 0) {
-        pData.filter(arq => arq.statusAtivo !== false).forEach(arq => {
-          const originalUrl = arq.url || arq.uri;
-          const docSeq = Number(arq.sequencialDocumento || originalUrl?.match(/\/arquivos\/(\d+)(?:[?#]|$)/)?.[1]) || null;
-          const fileUrl = originalUrl || (docSeq ? `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}` : null);
-          if (!fileUrl || !/^https?:\/\//i.test(fileUrl)) return;
-          filesList.push({
-            sequencialDocumento: docSeq,
-            titulo: arq.titulo || `Anexo_Oficial_${docSeq || filesList.length + 1}`,
-            tipoDocumentoNome: arq.tipoDocumentoNome || arq.tipoDocumentoDescricao || 'Anexo PNCP',
-            url: fileUrl,
-            uri: fileUrl,
-            tamanhoArquivo: arq.tamanhoArquivo || null,
-            dataPublicacaoPncp: arq.dataPublicacaoPncp,
-            origem: 'PNCP_OFICIAL'
+  if (!pncpCircuitOpen) {
+    try {
+      const pUrl = `https://pncp.gov.br/api/pncp/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos`;
+      const response = await fetch(pUrl, {
+        headers: { Accept: 'application/json', 'User-Agent': nextUA() },
+        signal: AbortSignal.timeout(4500)
+      });
+      if (response.status !== 204 && response.ok) {
+        const pData = await response.json();
+        if (!Array.isArray(pData)) throw new Error('PNCP retornou uma lista de anexos inválida.');
+        if (pData.length > 0) {
+          pData.filter(arq => arq.statusAtivo !== false).forEach(arq => {
+            const originalUrl = arq.url || arq.uri;
+            const docSeq = Number(arq.sequencialDocumento || originalUrl?.match(/\/arquivos\/(\d+)(?:[?#]|$)/)?.[1]) || null;
+            const fileUrl = originalUrl || (docSeq ? `https://pncp.gov.br/pncp-api/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}/arquivos/${docSeq}` : null);
+            if (!fileUrl || !/^https?:\/\//i.test(fileUrl)) return;
+            filesList.push({
+              sequencialDocumento: docSeq,
+              titulo: arq.titulo || `Anexo_Oficial_${docSeq || filesList.length + 1}`,
+              tipoDocumentoNome: arq.tipoDocumentoNome || arq.tipoDocumentoDescricao || 'Anexo PNCP',
+              url: fileUrl,
+              uri: fileUrl,
+              tamanhoArquivo: arq.tamanhoArquivo || null,
+              dataPublicacaoPncp: arq.dataPublicacaoPncp,
+              origem: 'PNCP_OFICIAL'
+            });
           });
-        });
+        }
+      } else if (response.status !== 204 && response.status !== 404) {
+        throw new Error(`PNCP HTTP ${response.status} ao consultar anexos.`);
       }
-    } else if (response.status !== 204 && response.status !== 404) {
-      throw new Error(`PNCP HTTP ${response.status} ao consultar anexos.`);
+    } catch (err) {
+      pncpError = err;
+      pncpArquivosCircuitOpenUntil = Date.now() + 3 * 60 * 1000;
+      console.warn(`[getArquivosForEdital] Consulta PNCP arquivos (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, err.message);
     }
-  } catch (err) {
-    pncpError = err;
-    console.warn(`[getArquivosForEdital] Consulta PNCP arquivos (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, err.message);
   }
 
   // Se encontrou arquivos oficiais no PNCP, armazena no cache e retorna imediatamente!
@@ -692,17 +697,19 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
 
   // 2. Se o PNCP não tem arquivos diretos anexados, consulta os metadados da contratação (linkSistemaOrigem)
   let compraInfo = null;
-  try {
-    const cUrl = `https://pncp.gov.br/api/pncp/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}`;
-    const cRes = await fetch(cUrl, {
-      headers: { Accept: 'application/json', 'User-Agent': nextUA() },
-      signal: AbortSignal.timeout(5000)
-    });
-    if (cRes.ok) {
-      compraInfo = await cRes.json();
+  if (!pncpCircuitOpen && !pncpError) {
+    try {
+      const cUrl = `https://pncp.gov.br/api/pncp/v1/orgaos/${cleanCnpj}/compras/${cleanAno}/${cleanSeq}`;
+      const cRes = await fetch(cUrl, {
+        headers: { Accept: 'application/json', 'User-Agent': nextUA() },
+        signal: AbortSignal.timeout(3500)
+      });
+      if (cRes.ok) {
+        compraInfo = await cRes.json();
+      }
+    } catch (e) {
+      console.warn(`[getArquivosForEdital] Aviso ao consultar compraInfo (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, e.message);
     }
-  } catch (e) {
-    console.warn(`[getArquivosForEdital] Aviso ao consultar compraInfo (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, e.message);
   }
 
   // 3. Extração de arquivos reais do Portal de Compras Públicas se for o sistema de origem
@@ -759,7 +766,10 @@ const getArquivosForEdital = async (cnpj, ano, seq) => {
     return filesList;
   }
 
-  if (pncpError) throw Object.assign(new Error('Não foi possível consultar os anexos no PNCP.'), { status: 502, cause: pncpError });
+  if (pncpError) {
+    console.warn(`[getArquivosForEdital] PNCP indisponível (${cleanCnpj}/${cleanAno}/${cleanSeq}):`, pncpError.message);
+    return [];
+  }
   return [];
 };
 
