@@ -151,12 +151,12 @@ const DEFAULT_CALCULATOR_SETTINGS = {
     {
       id: 'REFORMA_TRANSICAO_2026',
       nome: 'Reforma Tributária - Transição 2026',
-      pis: 0,
-      cofins: 0,
+      pis: 0.65,
+      cofins: 3,
       csll: 9,
       irpj: 15,
-      icms: 0,
-      iss: 0,
+      icms: 18,
+      iss: 5,
       cbs: 0.9,
       ibs: 0.1,
       is: 0,
@@ -713,6 +713,15 @@ const getReformaRates = (regimeRates = {}) => {
 
 const getDirectTaxRateForOperation = (regime, operationType) => {
   if (regime?.type === 'reforma') {
+    const legacyDirect = operationType === 'servicos'
+      ? toNumber(regime.rates.pis, 0) + toNumber(regime.rates.cofins, 0) + toNumber(regime.rates.iss, 0)
+      : operationType === 'venda'
+      ? toNumber(regime.rates.pis, 0) + toNumber(regime.rates.cofins, 0) + toNumber(regime.rates.icms, 0)
+      : toNumber(regime.rates.pis, 0) + toNumber(regime.rates.cofins, 0);
+    if (legacyDirect > 0) {
+      // Transicao 2026: CBS (0,9%) + IBS (0,1%) sao compensaveis com PIS/COFINS
+      return legacyDirect / 100;
+    }
     return getReformaRates(regime.rates).total / 100;
   }
   if (regime?.type === 'simples') {
@@ -1132,7 +1141,7 @@ const calculateOperation = ({
         csllValor = lucroOperacional > 0 ? (csll / 100) * lucroOperacional : 0;
         lucroLiquido = lucroOperacional - irpjValor - csllValor;
       } else if (regime.type === 'reforma') {
-        const cargaReforma = reformaRates.total / 100;
+        const cargaReforma = getDirectTaxRateForOperation(regime, 'venda');
         impostosDiretos = cargaReforma * finalPrice;
         receitaLiquida = finalPrice - impostosDiretos;
         comissaoValor = receitaLiquida * comissaoRate;
@@ -5013,15 +5022,25 @@ export default function Calculadoras({
                         </button>
                       </div>
 
-                      <label className="inline-flex items-center gap-2 text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                        <input
-                          type="checkbox"
-                          checked={Boolean(regime.usaReforma)}
-                          onChange={(event) => atualizarRegimeDraft(regime.id, 'usaReforma', event.target.checked)}
-                          className="w-4 h-4 rounded border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-blue-500 focus:ring-blue-500"
-                        />
-                        Aplicar Reforma (IBS/CBS/IS)
-                      </label>
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <label className="inline-flex items-center gap-2 text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(regime.usaReforma)}
+                            onChange={(event) => atualizarRegimeDraft(regime.id, 'usaReforma', event.target.checked)}
+                            className="w-4 h-4 rounded border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-blue-500 focus:ring-blue-500"
+                          />
+                          Aplicar Reforma (IBS/CBS/IS)
+                        </label>
+                        <span className="text-[11px] font-medium px-2.5 py-1 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                          {regime.id === 'SIMPLES_NACIONAL'
+                            ? `Venda: ${toNumber(regime.anexoI, 0)}% · Serviço: ${toNumber(regime.anexoIII, 0)}%`
+                            : regime.usaReforma && (toNumber(regime.pis, 0) + toNumber(regime.cofins, 0) + toNumber(regime.icms, 0)) === 0
+                            ? `IVA Total: ${(toNumber(regime.cbs, 0) + toNumber(regime.ibs, 0) + toNumber(regime.is, 0)).toFixed(2)}%`
+                            : `Venda: ${(toNumber(regime.pis, 0) + toNumber(regime.cofins, 0) + toNumber(regime.icms, 0)).toFixed(2)}% · Serviço: ${(toNumber(regime.pis, 0) + toNumber(regime.cofins, 0) + toNumber(regime.iss, 0)).toFixed(2)}%`
+                          }
+                        </span>
+                      </div>
 
                       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                         {[
