@@ -96,7 +96,20 @@ const physicalComponentImages: Record<string, string> = {
 };
 
 type DrawingPoint = { x: number; y: number };
-type DrawingStroke = { id: string; color: string; width: number; points: DrawingPoint[] };
+type DrawingStroke = { id: string; color: string; width: number; opacity?: number; points: DrawingPoint[] };
+
+const PEN_COLOR_PRESETS = [
+  { label: 'Laranja', hex: '#f97316' },
+  { label: 'Ciano', hex: '#22d3ee' },
+  { label: 'Azul', hex: '#3b82f6' },
+  { label: 'Esmeralda', hex: '#34d399' },
+  { label: 'Amarelo', hex: '#facc15' },
+  { label: 'Violeta', hex: '#a855f7' },
+  { label: 'Rosa', hex: '#ec4899' },
+  { label: 'Vermelho', hex: '#f43f5e' },
+  { label: 'Branco', hex: '#f8fafc' },
+  { label: 'Cinza', hex: '#94a3b8' },
+];
 
 type SavedDiagramEntry = {
   id: string;
@@ -163,7 +176,17 @@ const cloneDiagram = (diagram: { nodes: any[]; edges: any[] }) => ({
 const buildStrokePath = (points: DrawingPoint[]) => {
   if (points.length === 0) return '';
   if (points.length === 1) return `M ${points[0].x} ${points[0].y} L ${points[0].x + 0.01} ${points[0].y + 0.01}`;
-  return points.map((point, index) => `${index === 0 ? 'M' : 'L'} ${point.x} ${point.y}`).join(' ');
+  if (points.length === 2) return `M ${points[0].x} ${points[0].y} L ${points[1].x} ${points[1].y}`;
+
+  let path = `M ${points[0].x} ${points[0].y}`;
+  for (let i = 1; i < points.length - 1; i += 1) {
+    const midX = (points[i].x + points[i + 1].x) / 2;
+    const midY = (points[i].y + points[i + 1].y) / 2;
+    path += ` Q ${points[i].x} ${points[i].y} ${midX} ${midY}`;
+  }
+  const last = points[points.length - 1];
+  path += ` L ${last.x} ${last.y}`;
+  return path;
 };
 
 const defaultEdgeOptions = {
@@ -201,6 +224,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
 
   // Pen state
   const [penEnabled, setPenEnabled] = useState(false);
+  const [penMode, setPenMode] = useState<'pen' | 'highlighter'>('pen');
   const [penColor, setPenColor] = useState('#f97316');
   const [penWidth, setPenWidth] = useState(4);
 
@@ -349,22 +373,42 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
     event.currentTarget.setPointerCapture(event.pointerId);
     const point = getFlowPointFromPointer(event);
     const strokeId = `stroke-${Date.now()}`;
+    const isHighlighter = penMode === 'highlighter';
     isDrawingRef.current = true;
     activeStrokeIdRef.current = strokeId;
     setHasUnsavedChanges(true);
-    setDrawings((current) => [...current, { id: strokeId, color: penColor, width: penWidth, points: [point] }]);
+    setDrawings((current) => [
+      ...current,
+      {
+        id: strokeId,
+        color: penColor,
+        width: isHighlighter ? Math.max(14, penWidth * 3) : penWidth,
+        opacity: isHighlighter ? 0.36 : 0.96,
+        points: [point],
+      },
+    ]);
   };
 
   const continueDrawing = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!isDrawingRef.current || !activeStrokeIdRef.current) return;
     event.preventDefault();
-    const point = getFlowPointFromPointer(event);
+    const native = event.nativeEvent as PointerEvent;
+    const rawEvents = typeof native.getCoalescedEvents === 'function' && native.getCoalescedEvents().length > 0
+      ? native.getCoalescedEvents()
+      : [native];
+    const incomingPoints = rawEvents.map((ev) => screenToFlowPosition({ x: ev.clientX, y: ev.clientY }));
+
     setDrawings((current) =>
       current.map((stroke) => {
         if (stroke.id !== activeStrokeIdRef.current) return stroke;
-        const lastPoint = stroke.points[stroke.points.length - 1];
-        if (lastPoint && Math.hypot(point.x - lastPoint.x, point.y - lastPoint.y) < 2) return stroke;
-        return { ...stroke, points: [...stroke.points, point] };
+        const nextPoints = [...stroke.points];
+        incomingPoints.forEach((pt) => {
+          const lastPoint = nextPoints[nextPoints.length - 1];
+          if (!lastPoint || Math.hypot(pt.x - lastPoint.x, pt.y - lastPoint.y) >= 3) {
+            nextPoints.push(pt);
+          }
+        });
+        return nextPoints.length === stroke.points.length ? stroke : { ...stroke, points: nextPoints };
       })
     );
   };
@@ -1468,7 +1512,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                       strokeWidth={stroke.width}
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      opacity={0.92}
+                      opacity={stroke.opacity ?? 0.96}
                     />
                   ))}
                 </svg>
@@ -1476,7 +1520,88 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
 
               {/* Floating Canvas Dock */}
               {diagramMode === 'edit' && (
-                <Panel position="bottom-center" className="flex items-center gap-1 whitespace-nowrap rounded-xl border border-slate-800/90 bg-slate-900/95 px-2.5 py-1.5 shadow-2xl backdrop-blur-xl">
+                <Panel position="bottom-center" className="flex flex-col items-center gap-1.5">
+                  {penEnabled && (
+                    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800/90 bg-slate-900/95 px-3 py-1.5 shadow-2xl backdrop-blur-xl">
+                      <div className="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-950/70 p-0.5">
+                        <button
+                          type="button"
+                          onClick={() => setPenMode('pen')}
+                          className={`rounded-md px-2 py-0.5 text-[11px] font-semibold transition-colors ${
+                            penMode === 'pen' ? 'bg-amber-500/20 text-amber-200' : 'text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          Caneta
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setPenMode('highlighter')}
+                          className={`rounded-md px-2 py-0.5 text-[11px] font-semibold transition-colors ${
+                            penMode === 'highlighter' ? 'bg-cyan-500/20 text-cyan-200' : 'text-slate-400 hover:text-slate-200'
+                          }`}
+                        >
+                          Marca-texto
+                        </button>
+                      </div>
+
+                      <div className="flex items-center gap-1">
+                        {PEN_COLOR_PRESETS.map((preset) => (
+                          <button
+                            key={preset.hex}
+                            type="button"
+                            onClick={() => setPenColor(preset.hex)}
+                            className={`h-5 w-5 rounded-full border-2 transition-transform ${
+                              penColor.toLowerCase() === preset.hex.toLowerCase()
+                                ? 'scale-115 border-white shadow-[0_0_8px_rgba(255,255,255,0.5)]'
+                                : 'border-transparent opacity-80 hover:opacity-100'
+                            }`}
+                            style={{ backgroundColor: preset.hex }}
+                            title={preset.label}
+                          />
+                        ))}
+                        <input
+                          type="color"
+                          value={penColor}
+                          onChange={(e) => setPenColor(e.target.value)}
+                          className="ml-1 h-6 w-6 cursor-pointer rounded-md border border-slate-700 bg-transparent"
+                          title="Cor personalizada"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-1.5 border-l border-slate-800 pl-2">
+                        <span className="text-[10px] font-semibold text-slate-400">{penWidth}px</span>
+                        <input
+                          type="range"
+                          min="2"
+                          max="12"
+                          value={penWidth}
+                          onChange={(e) => setPenWidth(Number(e.target.value))}
+                          className="w-16 accent-amber-400"
+                          title="Espessura do traço"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setDrawings((d) => d.slice(0, -1))}
+                          disabled={drawings.length === 0}
+                          className="rounded p-1 text-slate-300 hover:bg-slate-800 disabled:opacity-30"
+                          title="Desfazer último traço"
+                        >
+                          <Undo2 className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setDrawings([])}
+                          disabled={drawings.length === 0}
+                          className="rounded p-1 text-rose-300 hover:bg-rose-500/20 disabled:opacity-30"
+                          title="Limpar todos os traços"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex items-center gap-1 whitespace-nowrap rounded-xl border border-slate-800/90 bg-slate-900/95 px-2.5 py-1.5 shadow-2xl backdrop-blur-xl">
                   <button
                     type="button"
                     onClick={() => setPenEnabled(false)}
@@ -1489,7 +1614,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                   </button>
                   <button
                     type="button"
-                    onClick={() => setPenEnabled(true)}
+                    onClick={() => setPenEnabled((p) => !p)}
                     className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
                       penEnabled ? 'bg-amber-500/20 text-amber-200' : 'text-slate-400 hover:text-slate-200'
                     }`}
@@ -1497,43 +1622,6 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                   >
                     <PenLine className="h-3.5 w-3.5" /> Caneta
                   </button>
-
-                  {penEnabled && (
-                    <div className="flex items-center gap-1.5 border-l border-slate-800 pl-2">
-                      <input
-                        type="color"
-                        value={penColor}
-                        onChange={(e) => setPenColor(e.target.value)}
-                        className="h-6 w-6 cursor-pointer rounded border border-slate-700 bg-transparent"
-                      />
-                      <input
-                        type="range"
-                        min="2"
-                        max="12"
-                        value={penWidth}
-                        onChange={(e) => setPenWidth(Number(e.target.value))}
-                        className="w-14 accent-amber-400"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setDrawings((d) => d.slice(0, -1))}
-                        disabled={drawings.length === 0}
-                        className="rounded p-1 text-slate-300 hover:bg-slate-800 disabled:opacity-30"
-                        title="Desfazer traço"
-                      >
-                        <Undo2 className="h-3.5 w-3.5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setDrawings([])}
-                        disabled={drawings.length === 0}
-                        className="rounded p-1 text-rose-300 hover:bg-rose-500/20 disabled:opacity-30"
-                        title="Limpar traços"
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </button>
-                    </div>
-                  )}
 
                   <div className="mx-1 h-4 w-px bg-slate-800" />
 
@@ -1613,6 +1701,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                   >
                     <Maximize2 className="h-3.5 w-3.5" />
                   </button>
+                  </div>
                 </Panel>
               )}
             </ReactFlow>
@@ -1620,7 +1709,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
 
           {diagramMode === 'edit' && penEnabled && (
             <div
-              className="absolute inset-0 z-20 cursor-crosshair"
+              className="absolute inset-0 z-20 cursor-crosshair touch-none select-none"
               onPointerDown={startDrawing}
               onPointerMove={continueDrawing}
               onPointerUp={stopDrawing}
