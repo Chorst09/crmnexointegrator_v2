@@ -25,6 +25,10 @@ import DashboardKPICard from '../components/DashboardKPICard';
 import ModernTable from '../components/ModernTable';
 import GradientCard from '../components/GradientCard';
 import Modal from '../components/Modal';
+import {
+  buildDoubleProposal2026Html,
+  buildInitialData as buildDouble2026InitialData,
+} from '../components/DoubleProposal2026Editor';
 
 const isBlank = (v) => v === null || v === undefined || String(v).trim() === '';
 const safeArray = (v) => (Array.isArray(v) ? v : []);
@@ -1638,9 +1642,37 @@ const TemplatesPropostas = () => {
         title={previewTemplate ? `Preview: ${previewTemplate.name}` : 'Preview'}
       >
         {previewTemplate && (
-          <div className="bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] p-6 rounded-2xl">
-            <ProposalTemplatePreview template={previewTemplate} />
-          </div>
+          previewTemplate.name === DOUBLE_2026_PROPOSAL_TEMPLATE.name ||
+          String(previewTemplate.coverLogo || '').includes('/proposal-templates/double-2026/') ? (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-xs text-[var(--crm-muted)]">
+                  Visualização exata do modelo padrão utilizado no módulo B2B — Propostas (7 páginas A4).
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowPreview(false);
+                    window.location.href = '/propostas';
+                  }}
+                  className="px-3.5 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-semibold"
+                >
+                  Abrir / Editar no Módulo Propostas
+                </button>
+              </div>
+              <div className="w-full h-[76vh] rounded-xl overflow-hidden border border-[var(--crm-border)] bg-slate-800">
+                <iframe
+                  title={`Preview ${previewTemplate.name}`}
+                  srcDoc={buildDoubleProposal2026Html(buildDouble2026InitialData())}
+                  className="w-full h-full border-0"
+                />
+              </div>
+            </div>
+          ) : (
+            <div className="bg-black/5 dark:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] p-6 rounded-2xl">
+              <ProposalTemplatePreview template={previewTemplate} />
+            </div>
+          )
         )}
       </Modal>
 

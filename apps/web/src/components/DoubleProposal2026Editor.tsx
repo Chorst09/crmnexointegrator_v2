@@ -59,7 +59,7 @@ const formatDataExtenso = (date = new Date()) =>
     year: 'numeric',
   });
 
-const buildInitialData = (entry?: any): DoubleProposal2026Data => {
+export const buildInitialData = (entry?: any): DoubleProposal2026Data => {
   const saved = entry?.draft?.double2026;
   if (saved) return saved;
 
@@ -216,15 +216,17 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
     setTimeout(() => setSavedNotice(false), 3000);
   };
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+export const buildDoubleProposal2026Html = (
+  data: DoubleProposal2026Data,
+  origin = typeof window !== 'undefined' ? window.location.origin : ''
+): string => {
+  const totalGeral = data.itens.reduce((acc, it) => acc + Number(it.valorTotal || 0), 0);
+  const internalHeader = `<div class="page-header"><img src="${origin}/proposal-templates/double-2026/image5.png" alt="Double TI + Telecom" /></div>`;
+  const internalFooter = `<div class="page-footer"><img src="${origin}/proposal-templates/double-2026/image6.png" alt="Contato Double TI + Telecom" /></div>`;
 
-  const htmlDocument = useMemo(() => {
-    const internalHeader = `<div class="page-header"><img src="${origin}/proposal-templates/double-2026/image5.png" alt="Double TI + Telecom" /></div>`;
-    const internalFooter = `<div class="page-footer"><img src="${origin}/proposal-templates/double-2026/image6.png" alt="Contato Double TI + Telecom" /></div>`;
-
-    const itensRows = data.itens
-      .map(
-        (it, idx) => `
+  const itensRows = data.itens
+    .map(
+      (it, idx) => `
       <tr>
         <td style="text-align:center;">${idx + 1}</td>
         <td><strong>${escHtml(it.item)}</strong>${
@@ -236,10 +238,10 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
         <td style="text-align:right;">${formatBRL(it.valorUnitario)}</td>
         <td style="text-align:right;font-weight:700;">${formatBRL(it.valorTotal)}</td>
       </tr>`
-      )
-      .join('');
+    )
+    .join('');
 
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
@@ -576,7 +578,13 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
   </div>
 </body>
 </html>`;
-  }, [data, origin, totalGeral]);
+};
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const htmlDocument = useMemo(
+    () => buildDoubleProposal2026Html(data, origin),
+    [data, origin]
+  );
 
   const handlePrint = () => {
     if (iframeRef.current?.contentWindow) {
