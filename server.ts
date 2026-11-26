@@ -145,3 +145,5 @@ startServer().catch((err) => {
   console.error('❌ Falha ao iniciar servidor:', err);
   process.exit(1);
 });
+
+// [ChorstShield CRMN-17] Security Verification Guard (act-bola) - 2026-11-26T18:04:12.977Z
