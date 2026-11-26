@@ -419,7 +419,7 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
     </div>
   </div>
 
-  <!-- PÁGINA 2: INFORMAÇÕES DO DOCUMENTO E SUMÁRIO -->
+  <!-- PÁGINA 2: INFORMAÇÕES DO DOCUMENTO -->
   <div class="page">
     ${internalHeader}
     <div class="page-body">
@@ -429,25 +429,32 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
       <p>Conforme solicitação, segue proposta para fornecimento de <strong>${escHtml(data.solucaoTitulo)}</strong>.</p>
       <p>A Double TI + Telecom agradece a confiança e a oportunidade de participação no presente projeto, reafirmando nosso compromisso com a busca incessante das melhores soluções para nossos clientes baseada nos mais altos padrões de qualidade, inovação e transparência.</p>
       <p>Colocamo-nos à sua disposição para quaisquer informações e/ou esclarecimentos adicionais.</p>
-      <p style="margin-top:16px;">
+      <p style="margin-top:22px;">
         Atenciosamente,<br/>
         <strong>${escHtml(data.gerenteNome)}</strong><br/>
         ${escHtml(data.gerenteCargo)}<br/>
         Office: ${escHtml(data.gerenteTelefone)}
       </p>
+    </div>
+    ${internalFooter}
+  </div>
 
-      <h1 class="chapter" style="margin-top:24px;">Sumário</h1>
-      <div class="toc-row toc-main"><span>Capítulo 1 - Apresentação</span><span>3</span></div>
-      <div class="toc-row toc-sub"><span>1.1 - Double TI + Telecom: A próxima tecnologia ao seu alcance</span><span>3</span></div>
-      <div class="toc-row toc-main"><span>Capítulo 2 - Objeto</span><span>4</span></div>
-      <div class="toc-row toc-sub"><span>2.1 - Objeto da proposta</span><span>4</span></div>
-      <div class="toc-row toc-sub"><span>2.2 - Especificações do produto</span><span>4</span></div>
-      <div class="toc-row toc-main"><span>Capítulo 3 - Valor</span><span>4</span></div>
-      <div class="toc-row toc-sub"><span>3.1 - Valor do produto</span><span>4</span></div>
-      <div class="toc-row toc-sub"><span>3.2 - Condições Gerais de Fornecimento</span><span>5</span></div>
-      <div class="toc-row toc-sub"><span>3.3 - Premissas</span><span>5</span></div>
-      <div class="toc-row toc-sub"><span>3.4 - Faturamento e Pagamento</span><span>5</span></div>
-      <div class="toc-row toc-sub"><span>3.5 - Conclusão</span><span>6</span></div>
+  <!-- PÁGINA 3: ÍNDICE -->
+  <div class="page">
+    ${internalHeader}
+    <div class="page-body">
+      <h1 class="chapter">Índice</h1>
+      <div class="toc-row toc-main"><span>Capítulo 1 - Apresentação</span><span>4</span></div>
+      <div class="toc-row toc-sub"><span>1.1 - Double TI + Telecom: A próxima tecnologia ao seu alcance</span><span>4</span></div>
+      <div class="toc-row toc-main"><span>Capítulo 2 - Objeto</span><span>5</span></div>
+      <div class="toc-row toc-sub"><span>2.1 - Objeto da proposta</span><span>5</span></div>
+      <div class="toc-row toc-sub"><span>2.2 - Especificações do produto</span><span>5</span></div>
+      <div class="toc-row toc-main"><span>Capítulo 3 - Valor</span><span>5</span></div>
+      <div class="toc-row toc-sub"><span>3.1 - Valor do produto</span><span>5</span></div>
+      <div class="toc-row toc-sub"><span>3.2 - Condições Gerais de Fornecimento</span><span>6</span></div>
+      <div class="toc-row toc-sub"><span>3.3 - Premissas</span><span>6</span></div>
+      <div class="toc-row toc-sub"><span>3.4 - Faturamento e Pagamento</span><span>6</span></div>
+      <div class="toc-row toc-sub"><span>3.5 - Conclusão</span><span>7</span></div>
     </div>
     ${internalFooter}
   </div>
