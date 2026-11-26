@@ -1448,9 +1448,9 @@ router.post([
         const ufMatch = cidadeUf.match(/^(.+?)\s*[/\-]\s*([A-Z]{2})$/);
         const data = { name: agencyName, segment: 'B2G GOVERNO', status: 'PROSPECT', tenantCompanyId: tenantId || null };
         if (ficha.orgao_cnpj) data.document = ficha.orgao_cnpj;
-        if (orgaoResp.email && orgaoResp.email !== 'Não informado') data.email = String(orgaoResp.email).split(/[\n,;]/)[0].trim();
-        if (orgaoResp.telefone && orgaoResp.telefone !== 'Não informado') data.phone = String(orgaoResp.telefone).split(/[\n,;]/)[0].trim();
-        if (orgaoResp.endereco && orgaoResp.endereco !== 'Não informado') data.address = String(orgaoResp.endereco).trim();
+        if (prismaModelHasField('Company', 'email') && orgaoResp.email && orgaoResp.email !== 'Não informado') data.email = String(orgaoResp.email).split(/[\n,;]/)[0].trim();
+        if (prismaModelHasField('Company', 'phone') && orgaoResp.telefone && orgaoResp.telefone !== 'Não informado') data.phone = String(orgaoResp.telefone).split(/[\n,;]/)[0].trim();
+        if (prismaModelHasField('Company', 'address') && orgaoResp.endereco && orgaoResp.endereco !== 'Não informado') data.address = String(orgaoResp.endereco).trim();
         if (ufMatch) {
           if (prismaModelHasField('Company', 'city')) data.city = ufMatch[1].trim();
           if (prismaModelHasField('Company', 'state')) data.state = ufMatch[2].trim();
