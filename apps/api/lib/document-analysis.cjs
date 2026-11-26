@@ -44,10 +44,11 @@ function analyzeText(documents, context = {}) {
   };
 
   // 1. ÓRGÃO LICITANTE & CNPJ
+  const isTemplatePlaceholder = s => /\[.*(?:ESTADO|ENTIDADE|ÓRGÃO|XXXX).*\]|XXXX/iu.test(String(s || ''));
   const labeledAgency = text.match(/^(?:[óo]rg[aã]o(?:\s+(?:comprador|licitante|demandante|requisitante))?|contratante|entidade|unidade\s+gestora)\s*[:\-]\s*([^\n]{5,180})/imu)?.[1]?.trim();
-  const headerAgency = lines.slice(0, 60).find(line => /^(?:prefeitura(?: municipal)?|munic[ií]pio de|governo do estado|estado d[oa]|tribunal|secretaria(?: municipal| estadual| de estado)?|servi[cç]o social|c[aâ]mara municipal|universidade|instituto federal|instituto nacional|funda[cç][aã]o|autarquia|cons[oó]rcio|pol[ií]cia|hospital|comando d[oa]|minist[eé]rio|defensoria)\b/iu.test(line) && line.length < 180);
+  const headerAgency = lines.slice(0, 60).find(line => !isTemplatePlaceholder(line) && /^(?:prefeitura(?: municipal)?|munic[ií]pio de|governo do estado|estado d[oa]|tribunal|secretaria(?: municipal| estadual| de estado)?|servi[cç]o social|c[aâ]mara municipal|universidade|instituto federal|instituto nacional|funda[cç][aã]o|autarquia|cons[oó]rcio|pol[ií]cia|hospital|comando d[oa]|minist[eé]rio|defensoria)\b/iu.test(line) && line.length < 180);
   const invalidLabel = /^(?:CNPJ|CPF|endere[cç]o|raz[aã]o social|nome|n[aã]o identificado)\b/iu;
-  let agency = (labeledAgency && !invalidLabel.test(labeledAgency) ? labeledAgency : null) || headerAgency || context.orgao || UNKNOWN;
+  let agency = (labeledAgency && !invalidLabel.test(labeledAgency) && !isTemplatePlaceholder(labeledAgency) ? labeledAgency : null) || headerAgency || context.orgao || UNKNOWN;
   const headerIndex = lines.indexOf(agency);
   if (/^(?:servi[cç]o social aut[oô]nomo|prefeitura municipal|secretaria municipal|secretaria de estado)$/iu.test(agency) && headerIndex >= 0) {
     const continuation = lines[headerIndex + 1] || '';
@@ -194,10 +195,21 @@ function analyzeText(documents, context = {}) {
   const vistoriaObrigatoria = visitLines.length ? (visitLines.some(l => /n[aã]o.*obrigat[oó]ria|facultativa|dispensada|opcional/iu.test(l)) ? false : visitLines.some(l => /obrigat[oó]ria/iu.test(l)) ? true : null) : null;
   const vistoriaPermiteSubstitutiva = visitLines.length ? (visitLines.some(l => /declara[cç][aã]o.*(?:substitut|conhecimento|responsabilidade)|substitu[ií]da.*declara[cç][aã]o/iu.test(l)) ? true : null) : null;
 
+  // Fallback determinístico ConLicitação (caso Gemini não esteja disponível)
+  const emailMatches = [...new Set((text.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g) || []).filter(e => !/exemplo|teste/i.test(e)))];
+  const phoneMatches = [...new Set(text.match(/\(\d{2}\)\s*\d{4,5}[-\s]?\d{4}/g) || [])];
+  const uasgMatch = text.match(/\bUASG\s*(?:n[º°o.]?)?\s*[:\-]?\s*(\d{5,6})\b/iu)?.[1] || null;
+  const pregaoNum = text.match(/preg[aã]o\s+eletr[oô]nico\s*(?:n[º°o.]?)?\s*([\d./-]+)/iu)?.[1] || null;
+  const validadeProp = snippets(lines, /validade\s+(?:da|das)\s+proposta/iu, 2)[0] || UNKNOWN;
+  const pagamentoTxt = snippets(lines, /pagamento\s+(?:ser[aá]|em\s+at[eé]|ap[oó]s)|prazo\s+de\s+pagamento|nota\s+fiscal.*(?:dias|atesto)/iu, 4).join(' ') || UNKNOWN;
+  const reajusteTxt = snippets(lines, /reajuste|repactua[cç][aã]o|ipca|igpm|inpc/iu, 2)[0] || UNKNOWN;
+  const subcontratacaoTxt = snippets(lines, /subcontrata[cç][aã]o/iu, 2)[0] || UNKNOWN;
+  const anexosDet = snippets(lines, /^anexo\s+[IVX0-9]+/iu, 12);
+
   return normalizeFicha({
     id_licitacao: context.id_licitacao || `DOC-${crypto.randomUUID()}`,
     documentType: isDraft ? 'minuta_tr' : 'edital_tr', pricesWithheld,
-    processo_administrativo: text.match(/PROCESSO\s*N[°ºo.]?\s*:\s*([\d./-]+)/iu)?.[1] || null,
+    processo_administrativo: text.match(/PROCESSO\s*N[°ºo.]?\s*:\s*([\d./-]+)/iu)?.[1] || pregaoNum || null,
     orgao_comprador: agency, orgao_cnpj: agencyCnpj, modalidade_contratacao: modality,
     resumo_executivo: object, valor_estimado_total: total,
     criterio_julgamento: capture('criterio_julgamento', /crit[eé]rio\s+de\s+julgamento|julgamento\s*:/iu, 0),
@@ -207,6 +219,48 @@ function analyzeText(documents, context = {}) {
     data_fim_esclarecimento: capture('data_fim_esclarecimento', /(?:prazo|data|limite).*esclarecimentos?|esclarecimentos?.*(?:at[eé]|dias|prazo)/iu),
     data_fim_impugnacao: capture('data_fim_impugnacao', /(?:prazo|data|limite).*impugna[cç][aã]o|impugna[cç][aã]o.*(?:at[eé]|dias|prazo)/iu),
     portal_compras: portal,
+    conlicitacao: {
+      identificacao: {
+        numero_licitacao: pregaoNum || context.id_licitacao || UNKNOWN,
+        modalidade: modality,
+        uasg: uasgMatch || UNKNOWN,
+        portal_realizacao: portal,
+        contratacao: modality,
+        regulamentacao_pregoeiro: tags.join(', ') || UNKNOWN,
+        objeto: object
+      },
+      sessao_publica: {
+        data: openingDate || fullOpeningDate,
+        horario: openingTime || UNKNOWN,
+        modo_disputa: capture('modo_disputa', /modo\s+de\s+disputa/iu, 0),
+        intervalo_minimo: snippets(lines, /intervalo\s+m[ií]nimo/iu, 1)[0] || UNKNOWN
+      },
+      orgao_responsavel: {
+        orgao: agency,
+        cidade_uf: '',
+        cnpj: agencyCnpj,
+        endereco: snippets(lines, /rua\s+|avenida\s+|av\.\s+|rodovia\s+|br\s+\d+/iu, 1)[0] || UNKNOWN,
+        email: emailMatches.join('\n') || UNKNOWN,
+        telefone: phoneMatches.join(', ') || UNKNOWN
+      },
+      criterios_proposta_julgamento: {
+        validade_proposta: validadeProp,
+        exigencias_proposta_comercial: UNKNOWN,
+        criterios_desempate: snippets(lines, /desempate|art\.\s*60|lc\s*123/iu, 2).join(' ') || UNKNOWN,
+        programa_integridade: 'Não mencionado'
+      },
+      anexos_declaracoes: anexosDet,
+      condicoes_pagamento: pagamentoTxt,
+      analise_critica: {
+        conflito_objeto_minuta: UNKNOWN,
+        conflito_prazo_vigencia_arp: UNKNOWN,
+        conflito_prazos_entrega: UNKNOWN,
+        permite_subcontratacao: subcontratacaoTxt,
+        previsao_reajuste_repactuacao: reajusteTxt,
+        permite_renovacao_contrato: snippets(lines, /prorrogad|renova[cç][aã]o|art\.\s*107|art\.\s*111/iu, 2)[0] || UNKNOWN,
+        estabelece_condicoes_pagamento: pagamentoTxt !== UNKNOWN ? 'Sim' : UNKNOWN
+      }
+    },
     requisitos_habilitacao: {
       habilitacao_juridica: snippets(lines, /registro comercial|ato constitutivo|contrato social|estatuto social|decreto de autoriza[cç][aã]o/iu, 6),
       atestados_capacidade_tecnica: snippets(lines, /atestado|capacidade t[eé]cnica|aptid[aã]o t[eé]cnica|comprova[cç][aã]o de experi[êe]ncia|parcelas de maior relev[aâ]ncia/iu, 8),
@@ -463,6 +517,7 @@ ${textSample}
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 0.1,
+          maxOutputTokens: 16384,
           responseMimeType: 'application/json'
         }
       }),
@@ -502,19 +557,19 @@ async function analyzeFiles(files, context = {}, scope = '') {
     if (aiData && typeof aiData === 'object') {
       const isInformado = (v) => v && typeof v === 'string' && !/^(?:null|n[aã]o\s+informad[oa]|n\/a|-)$/iu.test(v.trim());
       
-      if (isInformado(aiData.orgao_licitante) && ficha.orgao_comprador === UNKNOWN) {
+      if (isInformado(aiData.orgao_licitante)) {
         ficha.orgao_comprador = aiData.orgao_licitante.trim();
       }
-      if (isInformado(aiData.numero_edital) && !ficha.processo_administrativo) {
+      if (isInformado(aiData.numero_edital)) {
         ficha.processo_administrativo = aiData.numero_edital.trim();
       }
-      if (isInformado(aiData.modalidade_e_lei) && ficha.modalidade_contratacao === UNKNOWN) {
+      if (isInformado(aiData.modalidade_e_lei)) {
         ficha.modalidade_contratacao = aiData.modalidade_e_lei.trim();
       }
-      if (isInformado(aiData.objeto_resumo) && ficha.resumo_executivo === UNKNOWN) {
+      if (isInformado(aiData.objeto_resumo)) {
         ficha.resumo_executivo = aiData.objeto_resumo.trim();
       }
-      if (isInformado(aiData.criterio_julgamento) && ficha.criterio_julgamento === UNKNOWN) {
+      if (isInformado(aiData.criterio_julgamento)) {
         ficha.criterio_julgamento = aiData.criterio_julgamento.trim();
       }
       if (aiData.valor_estimado_total) {
@@ -527,14 +582,14 @@ async function analyzeFiles(files, context = {}, scope = '') {
           }
         }
       }
-      // Prazos e datas da IA
-      if (isInformado(aiData.datas_prazos?.data_abertura_sessao) && ficha.data_abertura === UNKNOWN) {
+      // Prazos e datas da IA (prioridade sobre regex ruidoso)
+      if (isInformado(aiData.datas_prazos?.data_abertura_sessao)) {
         ficha.data_abertura = aiData.datas_prazos.data_abertura_sessao.trim();
       }
-      if (isInformado(aiData.datas_prazos?.data_entrega_propostas) && ficha.data_limite_proposta === UNKNOWN) {
+      if (isInformado(aiData.datas_prazos?.data_entrega_propostas)) {
         ficha.data_limite_proposta = aiData.datas_prazos.data_entrega_propostas.trim();
       }
-      if (isInformado(aiData.datas_prazos?.data_limite_esclarecimentos) && ficha.data_fim_esclarecimento === UNKNOWN) {
+      if (isInformado(aiData.datas_prazos?.data_limite_esclarecimentos)) {
         ficha.data_fim_esclarecimento = aiData.datas_prazos.data_limite_esclarecimentos.trim();
       }
       // Habilitação e exigências
@@ -550,7 +605,7 @@ async function analyzeFiles(files, context = {}, scope = '') {
         ].slice(0, 6);
       }
       // Execução e locais
-      if (isInformado(aiData.execucao_e_contrato?.prazo_entrega_ou_execucao) && ficha.prazos_e_locais.prazo_inicio_entrega === UNKNOWN) {
+      if (isInformado(aiData.execucao_e_contrato?.prazo_entrega_ou_execucao)) {
         ficha.prazos_e_locais.prazo_inicio_entrega = aiData.execucao_e_contrato.prazo_entrega_ou_execucao.trim();
       }
       if (isInformado(aiData.execucao_e_contrato?.local_entrega)) {
@@ -558,10 +613,10 @@ async function analyzeFiles(files, context = {}, scope = '') {
           ...new Set([aiData.execucao_e_contrato.local_entrega.trim(), ...ficha.prazos_e_locais.locais_prestacao_entrega])
         ].slice(0, 5);
       }
-      if (isInformado(aiData.execucao_e_contrato?.prazo_vigencia_contrato) && ficha.prazos_e_locais.vigencia_contrato === UNKNOWN) {
+      if (isInformado(aiData.execucao_e_contrato?.prazo_vigencia_contrato)) {
         ficha.prazos_e_locais.vigencia_contrato = aiData.execucao_e_contrato.prazo_vigencia_contrato.trim();
       }
-      if (isInformado(aiData.execucao_e_contrato?.garantia_contratual) && ficha.pontos_de_atencao_risco.garantia_contratual === UNKNOWN) {
+      if (isInformado(aiData.execucao_e_contrato?.garantia_contratual)) {
         ficha.pontos_de_atencao_risco.garantia_contratual = aiData.execucao_e_contrato.garantia_contratual.trim();
       }
       if (Array.isArray(aiData.alertas_criticos) && aiData.alertas_criticos.length > 0) {

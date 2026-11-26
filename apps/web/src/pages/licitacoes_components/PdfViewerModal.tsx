@@ -1,30 +1,17 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  Download, 
-  Printer, 
-  X, 
-  FileText, 
-  CheckCircle2, 
-  ZoomIn, 
-  ZoomOut, 
-  RotateCcw, 
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import {
+  Download,
+  Printer,
+  X,
+  FileText,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
   ExternalLink,
-  Calendar,
-  DollarSign,
-  Clock,
-  ShieldAlert,
-  AlertTriangle,
-  Building2,
-  FileCheck,
-  Scale,
-  Package,
-  Layers,
-  Sun,
-  Moon
 } from 'lucide-react';
 import { FichaTecnicaEditalTR } from './types';
-import { formatarMoeda } from './utils/pdfGenerator';
-import { useTheme } from './context/ThemeContext';
+import { buildFichaHtmlDocument } from './utils/pdfGenerator';
 
 interface PdfViewerModalProps {
   isOpen: boolean;
@@ -41,13 +28,15 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
   pdfBlobUrl,
   ficha,
   onDownload,
-  documentTitle
+  documentTitle,
 }) => {
-  const { resolvedTheme } = useTheme();
   const [zoom, setZoom] = useState<number>(100);
-  const [docTheme, setDocTheme] = useState<'system' | 'paper' | 'dark'>('system');
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
 
-  const isDarkDoc = docTheme === 'dark' || (docTheme === 'system' && resolvedTheme === 'dark');
+  const htmlDoc = useMemo(() => {
+    if (!ficha) return '';
+    return buildFichaHtmlDocument(ficha);
+  }, [ficha]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -66,179 +55,99 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
   if (!isOpen || !ficha) return null;
 
   const handlePrint = () => {
-    window.print();
-  };
-
-  const handleZoomIn = () => {
-    setZoom((prev) => Math.min(prev + 15, 145));
-  };
-
-  const handleZoomOut = () => {
-    setZoom((prev) => Math.max(prev - 15, 70));
-  };
-
-  const handleResetZoom = () => {
-    setZoom(100);
+    if (iframeRef.current?.contentWindow) {
+      iframeRef.current.contentWindow.focus();
+      iframeRef.current.contentWindow.print();
+    } else {
+      window.print();
+    }
   };
 
   const handleOpenExternal = () => {
     if (pdfBlobUrl) {
       window.open(pdfBlobUrl, '_blank');
     } else {
-      onDownload();
+      const blob = new Blob([htmlDoc], { type: 'text/html;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      window.open(url, '_blank');
     }
   };
 
-  const totalGeralItens = (ficha.matriz_itens || []).reduce(
-    (acc, it) => acc + (it.valor_estimado_total || (it.valor_estimado_unitario || 0) * (it.quantitativo || 1)),
-    0
-  );
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[rgb(var(--crm-surface-2-rgb)_/_0.85)] backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-200">
-      <style>{`
-        @media print {
-          body * {
-            visibility: hidden !important;
-          }
-          #printable-pdf-document, #printable-pdf-document * {
-            visibility: visible !important;
-          }
-          #printable-pdf-document {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            color: #0f172a !important;
-          }
-          .a4-page {
-            box-shadow: none !important;
-            border: none !important;
-            margin: 0 !important;
-            margin-bottom: 0 !important;
-            page-break-after: always !important;
-            break-after: page !important;
-            width: 100% !important;
-            min-height: 100vh !important;
-            background: white !important;
-            color: #0f172a !important;
-          }
-          .a4-page * {
-            background-color: transparent !important;
-            color: #0f172a !important;
-            border-color: #cbd5e1 !important;
-          }
-          .faixa-oficial, .faixa-oficial * {
-            background: #1e3a8a !important;
-            color: #ffffff !important;
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          .faixa-oficial span, .faixa-oficial p {
-            color: #bfdbfe !important;
-          }
-        }
-      `}</style>
-
-      <div 
+  const modalContent = (
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-2 sm:p-4 animate-in fade-in duration-200"
+      onClick={onClose}
+    >
+      <div
         className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-2xl w-full max-w-6xl h-[94vh] flex flex-col overflow-hidden border border-[var(--crm-border)]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Barra Superior de Ferramentas */}
         <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--crm-border)] flex-shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-blue-600/30 border border-blue-500/40 flex items-center justify-center text-blue-700 dark:text-blue-400 flex-shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300 flex-shrink-0">
               <FileText className="w-5 h-5" />
             </div>
             <div className="min-w-0">
               <h2 className="text-sm font-semibold truncate leading-tight text-[rgb(var(--crm-ink-rgb)_/_1)]">
                 {documentTitle}
               </h2>
-              <div className="flex items-center gap-2 mt-0.5">
-                <span className="text-[11px] text-emerald-700 dark:text-emerald-400 flex items-center gap-1 font-medium">
-                  <CheckCircle2 className="w-3 h-3" /> Ficha Técnica Oficial (Lei 14.133/2021)
-                </span>
-                <span className="text-[rgb(var(--crm-muted-rgb)_/_1)] text-[10px] hidden sm:inline">•</span>
-                <span className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] font-mono hidden sm:inline">Visualização Direta A4</span>
-              </div>
+              <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">
+                Padrão ConLicitação • Visualização A4 Estruturada
+              </p>
             </div>
           </div>
 
-          {/* Controles: Zoom, Modo Escuro/Papel, Imprimir, Salvar PDF, Abrir e Fechar */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* Controle de Modo de Visualização (Escuro / Papel) */}
-            <button
-              onClick={() => setDocTheme(isDarkDoc ? 'paper' : 'dark')}
-              className="px-2.5 py-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 border border-[var(--crm-border)] cursor-pointer"
-              title={isDarkDoc ? "Mudar para visualização em folha branca (Modo Papel)" : "Mudar para leitura em modo escuro"}
-            >
-              {isDarkDoc ? (
-                <>
-                  <Sun className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
-                  <span className="hidden sm:inline">Modo Papel</span>
-                </>
-              ) : (
-                <>
-                  <Moon className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />
-                  <span className="hidden sm:inline">Modo Escuro</span>
-                </>
-              )}
-            </button>
-
-            {/* Controle de Zoom */}
-            <div className="flex items-center bg-[rgb(var(--crm-surface-rgb)_/_0.9)] rounded-lg p-0.5 border border-[var(--crm-border)]">
+          <div className="flex items-center gap-2 flex-wrap">
+            <div className="flex items-center bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg px-1.5 py-1 gap-1">
               <button
-                onClick={handleZoomOut}
-                className="p-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded transition-colors disabled:opacity-40 cursor-pointer"
+                onClick={() => setZoom((z) => Math.max(z - 10, 70))}
+                className="p-1 text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded disabled:opacity-40"
                 title="Diminuir zoom"
                 disabled={zoom <= 70}
               >
                 <ZoomOut className="w-3.5 h-3.5" />
               </button>
+              <span className="text-xs font-mono px-1.5">{zoom}%</span>
               <button
-                onClick={handleResetZoom}
-                className="px-2 py-1 text-[11px] font-mono text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded transition-colors cursor-pointer"
-                title="Redefinir zoom para 100%"
-              >
-                {zoom}%
-              </button>
-              <button
-                onClick={handleZoomIn}
-                className="p-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] rounded transition-colors disabled:opacity-40 cursor-pointer"
+                onClick={() => setZoom((z) => Math.min(z + 10, 140))}
+                className="p-1 text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded disabled:opacity-40"
                 title="Aumentar zoom"
-                disabled={zoom >= 145}
+                disabled={zoom >= 140}
               >
                 <ZoomIn className="w-3.5 h-3.5" />
+              </button>
+              <button
+                onClick={() => setZoom(100)}
+                className="p-1 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded"
+                title="Resetar zoom"
+              >
+                <RotateCcw className="w-3 h-3" />
               </button>
             </div>
 
             <button
               onClick={handlePrint}
-              className="px-3 py-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 border border-[var(--crm-border)] cursor-pointer"
-              title="Imprimir documento formatado"
+              className="px-3 py-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:brightness-110 text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 border border-[var(--crm-border)]"
+              title="Imprimir documento A4"
             >
-              <Printer className="w-4 h-4 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
+              <Printer className="w-4 h-4" />
               <span className="hidden sm:inline">Imprimir</span>
             </button>
 
-            {pdfBlobUrl && (
-              <button
-                onClick={handleOpenExternal}
-                className="px-3 py-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-medium rounded-lg transition-colors hidden md:flex items-center gap-1.5 border border-[var(--crm-border)] cursor-pointer"
-                title="Abrir arquivo em nova aba"
-              >
-                <ExternalLink className="w-4 h-4 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
-                <span>Nova Aba</span>
-              </button>
-            )}
+            <button
+              onClick={handleOpenExternal}
+              className="px-3 py-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] hover:brightness-110 text-[rgb(var(--crm-ink-rgb)_/_1)] text-xs font-medium rounded-lg transition-colors hidden md:flex items-center gap-1.5 border border-[var(--crm-border)]"
+              title="Abrir relatório em nova aba"
+            >
+              <ExternalLink className="w-4 h-4" />
+              <span>Nova Aba</span>
+            </button>
 
             <button
               onClick={onDownload}
-              className="px-3.5 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
-              title="Baixar arquivo PDF no seu computador"
+              className="px-3.5 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
+              title="Baixar relatório estruturado"
             >
               <Download className="w-4 h-4" />
               <span>Salvar PDF</span>
@@ -246,7 +155,7 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
 
             <button
               onClick={onClose}
-              className="p-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors ml-1 cursor-pointer"
+              className="p-1.5 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] rounded-lg hover:bg-[rgb(var(--crm-surface-rgb)_/_1)] transition-colors ml-1"
               title="Fechar visualizador (ESC)"
             >
               <X className="w-5 h-5" />
@@ -254,556 +163,30 @@ export const PdfViewerModal: React.FC<PdfViewerModalProps> = ({
           </div>
         </div>
 
-        {/* Área do Documento - Renderização A4 direta e contínua */}
-        <div className="flex-1 bg-[rgb(var(--crm-surface-rgb)_/_0.9)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] overflow-y-auto overflow-x-auto p-4 sm:p-8 flex flex-col items-center transition-colors">
-          <div 
-            id="printable-pdf-document"
-            style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center', transition: 'transform 0.15s ease' }}
-            className="flex flex-col items-center gap-8 w-full max-w-[210mm]"
+        {/* Área do Documento A4 */}
+        <div className="flex-1 bg-slate-900/90 overflow-auto p-4 sm:p-6 flex justify-center">
+          <div
+            style={{
+              width: `${Math.round((960 * zoom) / 100)}px`,
+              minWidth: '320px',
+              maxWidth: '100%',
+              height: '100%',
+            }}
+            className="bg-white rounded-lg shadow-2xl overflow-hidden border border-slate-300"
           >
-            {/* ========================================================
-                PÁGINA 1: IDENTIFICAÇÃO, DATAS CRÍTICAS, RESUMO E HABILITAÇÃO
-                ======================================================== */}
-            <div className={`a4-page w-full min-h-[297mm] shadow-2xl rounded-sm p-8 sm:p-12 flex flex-col justify-between border relative transition-colors ${
-              isDarkDoc 
-                ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)] shadow-slate-950/50"
-                : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
-            }`}>
-              <div>
-                {/* Faixa Oficial Timbrada */}
-                <div className="faixa-oficial bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 text-white p-4 rounded-md mb-6 shadow-sm">
-                  <div className="flex items-center justify-between text-[10px] tracking-widest uppercase font-semibold text-blue-700 dark:text-blue-200 border-b border-blue-200 dark:border-blue-800 pb-1.5 mb-2">
-                    <span>República Federativa do Brasil</span>
-                    <span>Lei Federal nº 14.133/2021</span>
-                  </div>
-                  <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase">
-                    Ficha Técnica Executiva & Auditoria de Edital / TR
-                  </h1>
-                  <p className="text-xs text-blue-700 dark:text-blue-200 mt-0.5">
-                    Relatório oficial de inteligência pré-certame para licitantes e analistas
-                  </p>
-                </div>
-
-                {/* Identificação do Órgão e Processo */}
-                <div className={`border-b pb-4 mb-5 ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <span className={`text-[10px] uppercase font-bold tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Órgão Licitante</span>
-                      <h2 className={`text-lg font-bold leading-snug ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        {ficha.orgao_comprador}
-                      </h2>
-                    </div>
-                    <div className="text-right flex-shrink-0">
-                      <span className={`text-[10px] uppercase font-bold tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>ID / PNCP</span>
-                      <div className={`text-xs font-mono font-bold px-2.5 py-1 rounded border inline-block mt-0.5 ${
-                        isDarkDoc 
-                          ? "text-blue-700 dark:text-blue-300 bg-blue-50/60 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800"
-                          : "text-blue-700 dark:text-blue-300 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800"
-                      }`}>
-                        {ficha.id_licitacao}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-3 text-xs">
-                    <div>
-                      <span className={isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}>Modalidade:</span>{' '}
-                      <strong className={isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}>{ficha.modalidade_contratacao}</strong>
-                    </div>
-                    <div>
-                      <span className={isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}>Critério:</span>{' '}
-                      <strong className={isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}>{ficha.criterio_julgamento}</strong>
-                    </div>
-                    <div>
-                      <span className={isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}>Modo de Disputa:</span>{' '}
-                      <strong className={isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}>{ficha.modo_disputa || 'Aberto'}</strong>
-                    </div>
-                  </div>
-                </div>
-
-                {/* QUADRO DESTACADO: CRONOGRAMA CRÍTICO & PRAZOS */}
-                <div className={`border-2 rounded-lg p-4 mb-6 shadow-xs ${
-                  isDarkDoc 
-                    ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] border-blue-200/70 dark:border-blue-800/70"
-                    : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-blue-200 dark:border-blue-800"
-                }`}>
-                  <div className={`flex items-center gap-2 pb-2.5 mb-3 border-b ${
-                    isDarkDoc 
-                      ? "border-blue-200/60 dark:border-blue-900/60 text-blue-700 dark:text-blue-300"
-                      : "border-blue-100 dark:border-blue-800 text-blue-900 dark:text-blue-300"
-                  }`}>
-                    <Calendar className={`w-4 h-4 ${isDarkDoc ? "text-blue-700 dark:text-blue-400" : "text-blue-700 dark:text-blue-300"}`} />
-                    <h3 className="text-xs font-bold uppercase tracking-wider">
-                      Cronograma Crítico & Prazos da Licitação
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
-                    {/* Abertura */}
-                    <div className={`p-2.5 rounded border ${
-                      isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
-                    }`}>
-                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Abertura da Sessão</div>
-                      <div className={`text-sm font-extrabold mt-0.5 ${isDarkDoc ? "text-blue-700 dark:text-blue-400" : "text-blue-900 dark:text-blue-300"}`}>
-                        {ficha.data_abertura || 'Consulte o Edital'}
-                      </div>
-                      <div className={`text-[10px] mt-1 flex items-center gap-1 ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
-                        <Clock className="w-3 h-3 text-blue-500" /> Disputa de lances
-                      </div>
-                    </div>
-
-                    {/* Limite Propostas */}
-                    <div className={`p-2.5 rounded border ${
-                      isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-rose-200/70 dark:border-rose-900/70" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-rose-200 dark:border-rose-800"
-                    }`}>
-                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? "text-rose-700 dark:text-rose-400" : "text-rose-700 dark:text-rose-300"}`}>Limite de Propostas</div>
-                      <div className={`text-sm font-extrabold mt-0.5 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        {ficha.data_limite_proposta || 'Até abertura da sessão'}
-                      </div>
-                      <div className={`text-[10px] mt-1 flex items-center gap-1 font-medium ${isDarkDoc ? "text-rose-700 dark:text-rose-400" : 'text-rose-600'}`}>
-                        <AlertTriangle className="w-3 h-3 text-rose-500" /> Prazo fatal no sistema
-                      </div>
-                    </div>
-
-                    {/* Impugnação / Esclarecimento */}
-                    <div className={`p-2.5 rounded border ${
-                      isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
-                    }`}>
-                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Impugnação / Dúvidas</div>
-                      <div className={`text-xs font-semibold mt-0.5 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        {ficha.data_fim_esclarecimento || 'Até 3 dias úteis antes'}
-                      </div>
-                      <div className={`text-[10px] mt-1 flex items-center gap-1 ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
-                        <ShieldAlert className="w-3 h-3 text-amber-500" /> Art. 164 da Lei 14.133
-                      </div>
-                    </div>
-
-                    {/* Valor Estimado Total */}
-                    <div className={`p-2.5 rounded border ${
-                      isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-emerald-200/70 dark:border-emerald-900/70" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-emerald-200 dark:border-emerald-800"
-                    }`}>
-                      <div className={`text-[10px] font-bold uppercase ${isDarkDoc ? "text-emerald-700 dark:text-emerald-400" : "text-emerald-800 dark:text-emerald-300"}`}>Valor Global Estimado</div>
-                      <div className={`text-sm font-extrabold mt-0.5 ${isDarkDoc ? "text-emerald-700 dark:text-emerald-400" : "text-emerald-700 dark:text-emerald-300"}`}>
-                        {formatarMoeda(ficha.valor_estimado_total)}
-                      </div>
-                      <div className={`text-[10px] mt-1 flex items-center gap-1 ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
-                        <DollarSign className="w-3 h-3 text-emerald-500" /> Portal: {ficha.portal_compras?.split('/')[0] || 'PNCP'}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 1. RESUMO EXECUTIVO */}
-                <div className="mb-6">
-                  <div className={`flex items-center gap-2 mb-2 pb-1 border-b ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
-                    <span className={`w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center ${
-                      isDarkDoc ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300"
-                    }`}>1</span>
-                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>Resumo Executivo do Certame</h3>
-                  </div>
-                  <div className={`text-xs leading-relaxed whitespace-pre-line text-justify p-3.5 rounded border ${
-                    isDarkDoc 
-                      ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
-                      : "bg-[rgb(var(--crm-surface-rgb)_/_0.5)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
-                  }`}>
-                    {ficha.resumo_executivo}
-                  </div>
-                </div>
-
-                {/* 2. REQUISITOS DE HABILITAÇÃO */}
-                <div>
-                  <div className={`flex items-center gap-2 mb-2 pb-1 border-b ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
-                    <span className={`w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center ${
-                      isDarkDoc ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300"
-                    }`}>2</span>
-                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>Requisitos de Habilitação & Qualificação</h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                    {/* Atestados Técnicos */}
-                    <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
-                      <div className={`font-bold mb-1.5 flex items-center gap-1.5 text-[11px] uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        <FileCheck className="w-3.5 h-3.5 text-blue-500" />
-                        Capacidade Técnica Operacional
-                      </div>
-                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        {(ficha.requisitos_habilitacao?.atestados_capacidade_tecnica || []).map((item, idx) => (
-                          <li key={idx} className="leading-snug">{item}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Exigências Contábeis */}
-                    <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
-                      <div className={`font-bold mb-1.5 flex items-center gap-1.5 text-[11px] uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        <Scale className="w-3.5 h-3.5 text-indigo-700 dark:text-indigo-400" />
-                        Qualificação Econômico-Financeira
-                      </div>
-                      <div className="space-y-1 text-[11px]">
-                        {(ficha.requisitos_habilitacao?.exigencias_contabeis || []).map((ind, idx) => (
-                          <div key={idx} className={`flex justify-between py-0.5 border-b last:border-0 ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
-                            <span className={`font-medium ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ind.nome_indice}:</span>
-                            <span className={`font-bold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ind.regra}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Certidões e Registros */}
-                    <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
-                      <div className={`font-bold mb-1.5 text-[11px] uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        Regularidade Fiscal, Social e Trabalhista
-                      </div>
-                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        {(ficha.requisitos_habilitacao?.certidoes_e_registros_especificos || []).map((cert, idx) => (
-                          <li key={idx} className="leading-snug">{cert}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Equipe Chave */}
-                    <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
-                      <div className={`font-bold mb-1.5 text-[11px] uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        Equipe Técnica e Registros em Conselhos
-                      </div>
-                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        {(ficha.requisitos_habilitacao?.qualificacao_equipe_chave || []).map((eq, idx) => (
-                          <li key={idx} className="leading-snug">{eq}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rodapé da Página 1 */}
-              <div className={`mt-8 pt-3 border-t flex items-center justify-between text-[10px] ${
-                isDarkDoc ? "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]" : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
-              }`}>
-                <span>Processo nº {ficha.id_licitacao} • Emissão Eletrônica Conforme Lei nº 14.133/2021</span>
-                <span>Página 1 de 3</span>
-              </div>
-            </div>
-
-            {/* ========================================================
-                PÁGINA 2: PRAZOS, LOCAIS E MATRIZ DE RISCOS
-                ======================================================== */}
-            <div className={`a4-page w-full min-h-[297mm] shadow-2xl rounded-sm p-8 sm:p-12 flex flex-col justify-between border relative transition-colors ${
-              isDarkDoc 
-                ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)] shadow-slate-950/50"
-                : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
-            }`}>
-              <div>
-                {/* Cabeçalho Resumido */}
-                <div className={`flex items-center justify-between pb-3 mb-6 border-b text-[10px] ${
-                  isDarkDoc ? "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]" : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
-                }`}>
-                  <span className={`font-semibold uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                    Ficha Técnica Executiva • {(ficha.orgao_comprador || '').slice(0, 50)}
-                  </span>
-                  <span className="font-mono">ID: {ficha.id_licitacao}</span>
-                </div>
-
-                {/* 3. PRAZOS, LOCAIS E EXECUÇÃO */}
-                <div className="mb-6">
-                  <div className={`flex items-center gap-2 mb-3 pb-1 border-b ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
-                    <span className={`w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center ${
-                      isDarkDoc ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300"
-                    }`}>3</span>
-                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                      Prazos, Locais e Condições de Fornecimento
-                    </h3>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                    <div className={`p-3 rounded border space-y-2 ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
-                      <div>
-                        <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Prazo de Início e Entrega</span>
-                        <span className={`font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ficha.prazos_e_locais?.prazo_inicio_entrega || 'Até 15 dias úteis'}</span>
-                      </div>
-                      <div>
-                        <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Vigência Contratual</span>
-                        <span className={`font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ficha.prazos_e_locais?.vigencia_contrato || '12 meses'}</span>
-                      </div>
-                      {ficha.prazos_e_locais?.regime_execucao && (
-                        <div>
-                          <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Regime de Execução</span>
-                          <span className={`font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ficha.prazos_e_locais.regime_execucao}</span>
-                        </div>
-                      )}
-                    </div>
-
-                    <div className={`p-3 rounded border space-y-2 ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
-                      <div>
-                        <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Locais de Entrega / Prestação</span>
-                        <ul className={`list-disc list-inside text-[11px] mt-0.5 space-y-0.5 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                          {(ficha.prazos_e_locais?.locais_prestacao_entrega || []).map((loc, idx) => (
-                            <li key={idx}>{loc}</li>
-                          ))}
-                        </ul>
-                      </div>
-                      {ficha.prazos_e_locais?.prazo_recebimento_provisorio_definitivo && (
-                        <div>
-                          <span className={`text-[10px] font-bold uppercase block ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Recebimento Provisório e Definitivo</span>
-                          <span className={`text-[11px] ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{ficha.prazos_e_locais.prazo_recebimento_provisorio_definitivo}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* 4. MATRIZ DE RISCOS & PONTOS DE ATENÇÃO */}
-                <div>
-                  <div className={`flex items-center gap-2 mb-3 pb-1 border-b ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
-                    <span className={`w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center ${
-                      isDarkDoc ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300"
-                    }`}>4</span>
-                    <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                      Matriz de Riscos & Pontos Críticos de Atenção
-                    </h3>
-                  </div>
-
-                  <div className="space-y-3 text-xs">
-                    {/* Vistoria Técnica e Amostras */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                      <div className={`p-3 rounded border ${
-                        isDarkDoc ? "bg-amber-50/30 dark:bg-amber-950/30 border-amber-200/70 dark:border-amber-800/70" : "bg-amber-50/60 dark:bg-amber-950/60 border-amber-200 dark:border-amber-800"
-                      }`}>
-                        <div className={`font-bold flex items-center gap-1.5 text-[11px] uppercase mb-1 ${
-                          isDarkDoc ? "text-amber-700 dark:text-amber-300" : "text-amber-900 dark:text-amber-300"
-                        }`}>
-                          <ShieldAlert className="w-3.5 h-3.5 text-amber-500" />
-                          Regras de Vistoria Técnica
-                        </div>
-                        <div className={`text-[11px] space-y-1 ${isDarkDoc ? "text-amber-700 dark:text-amber-200" : "text-amber-950 dark:text-amber-300"}`}>
-                          <div>
-                            <strong>Obrigatoriedade:</strong>{' '}
-                            {ficha.pontos_de_atencao_risco?.regras_vistoria?.obrigatoria ? 'Sim (Exigência Formal)' : 'Facultativa / Não Exigida'}
-                          </div>
-                          <div>
-                            <strong>Permite Declaração Substitutiva:</strong>{' '}
-                            {ficha.pontos_de_atencao_risco?.regras_vistoria?.permite_declaracao_substitutiva ? 'Sim (Declaração de Pleno Conhecimento)' : 'Não'}
-                          </div>
-                          {ficha.pontos_de_atencao_risco?.regras_vistoria?.detalhes_e_prazo && (
-                            <div className={`text-[10px] mt-1 italic ${isDarkDoc ? "text-amber-700/80 dark:text-amber-300/80" : "text-amber-900 dark:text-amber-300"}`}>
-                              {ficha.pontos_de_atencao_risco.regras_vistoria.detalhes_e_prazo}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
-                        <div className={`font-bold flex items-center gap-1.5 text-[11px] uppercase mb-1 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                          <Package className="w-3.5 h-3.5 text-blue-500" />
-                          Amostras e Garantia Contratual
-                        </div>
-                        <div className={`text-[11px] space-y-1 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                          <div>
-                            <strong>Exigência de Amostra/PoC:</strong>{' '}
-                            {ficha.pontos_de_atencao_risco?.exigencia_amostra_poc || 'Não exigida na fase de propostas'}
-                          </div>
-                          <div>
-                            <strong>Garantia Contratual (arts. 96-102):</strong>{' '}
-                            {ficha.pontos_de_atencao_risco?.garantia_contratual || 'Conforme percentual previsto na minuta do contrato'}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Penalidades e Multas */}
-                    <div className={`p-3 rounded border ${
-                      isDarkDoc ? "bg-rose-50/30 dark:bg-rose-950/30 border-rose-850/70" : "bg-rose-50/50 dark:bg-rose-950/50 border-rose-200 dark:border-rose-800"
-                    }`}>
-                      <div className={`font-bold flex items-center gap-1.5 text-[11px] uppercase mb-1.5 ${
-                        isDarkDoc ? "text-rose-700 dark:text-rose-300" : "text-rose-900 dark:text-rose-300"
-                      }`}>
-                        <AlertTriangle className="w-3.5 h-3.5 text-rose-500" />
-                        Cláusulas Punitivas e Penalidades Aplicáveis
-                      </div>
-                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${
-                        isDarkDoc ? "text-rose-700 dark:text-rose-200" : "text-rose-950 dark:text-rose-300"
-                      }`}>
-                        {(ficha.pontos_de_atencao_risco?.clausulas_punitivas_multas || []).map((multa, idx) => (
-                          <li key={idx} className="leading-snug">{multa}</li>
-                        ))}
-                      </ul>
-                    </div>
-
-                    {/* Pontos de Atenção Gerais */}
-                    <div className={`p-3 rounded border ${isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"}`}>
-                      <div className={`font-bold text-[11px] uppercase mb-1.5 ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        Recomendações e Orientações Técnicas ao Licitante
-                      </div>
-                      <ul className={`list-disc list-inside space-y-1 text-[11px] ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        {(ficha.pontos_de_atencao_risco?.pontos_de_atencao_gerais || []).map((pt, idx) => (
-                          <li key={idx} className="leading-snug">{pt}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rodapé da Página 2 */}
-              <div className={`mt-8 pt-3 border-t flex items-center justify-between text-[10px] ${
-                isDarkDoc ? "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]" : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
-              }`}>
-                <span>Processo nº {ficha.id_licitacao} • Emissão Eletrônica Conforme Lei nº 14.133/2021</span>
-                <span>Página 2 de 3</span>
-              </div>
-            </div>
-
-            {/* ========================================================
-                PÁGINA 3: MATRIZ DE ITENS E ESPECIFICAÇÕES DO TR
-                ======================================================== */}
-            <div className={`a4-page w-full min-h-[297mm] shadow-2xl rounded-sm p-8 sm:p-12 flex flex-col justify-between border relative transition-colors ${
-              isDarkDoc 
-                ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)] shadow-slate-950/50"
-                : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
-            }`}>
-              <div>
-                {/* Cabeçalho Resumido */}
-                <div className={`flex items-center justify-between pb-3 mb-6 border-b text-[10px] ${
-                  isDarkDoc ? "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]" : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
-                }`}>
-                  <span className={`font-semibold uppercase ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                    Ficha Técnica Executiva • {ficha.orgao_comprador.slice(0, 50)}
-                  </span>
-                  <span className="font-mono">ID: {ficha.id_licitacao}</span>
-                </div>
-
-                {/* 5. MATRIZ DE ITENS */}
-                <div className="mb-6">
-                  <div className={`flex items-center justify-between mb-3 pb-1 border-b ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
-                    <div className="flex items-center gap-2">
-                      <span className={`w-5 h-5 rounded-full text-xs font-bold flex items-center justify-center ${
-                        isDarkDoc ? "bg-blue-50 dark:bg-blue-900 text-blue-700 dark:text-blue-200" : "bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-blue-300"
-                      }`}>5</span>
-                      <h3 className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        Matriz de Itens do Termo de Referência (TR)
-                      </h3>
-                    </div>
-                    <span className={`text-[11px] font-medium ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
-                      Total: {ficha.matriz_itens?.length || 0} itens mapeados
-                    </span>
-                  </div>
-
-                  <div className={`border rounded-lg overflow-hidden ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
-                    <table className="w-full text-left text-xs border-collapse">
-                      <thead>
-                        <tr className={`font-bold border-b text-[10px] uppercase ${
-                          isDarkDoc 
-                            ? "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
-                            : "bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border-[var(--crm-border)]"
-                        }`}>
-                          <th className="py-2.5 px-3 w-12 text-center">Item</th>
-                          <th className="py-2.5 px-3">Especificação Sucinta & Descrição Técnica</th>
-                          <th className="py-2.5 px-3 w-20 text-center">Unidade</th>
-                          <th className="py-2.5 px-3 w-20 text-right">Qtd</th>
-                          <th className="py-2.5 px-3 w-28 text-right">Valor Unit.</th>
-                          <th className="py-2.5 px-3 w-28 text-right">Valor Total</th>
-                        </tr>
-                      </thead>
-                      <tbody className={`divide-y text-[11px] ${isDarkDoc ? "divide-[var(--crm-border)]" : "divide-[var(--crm-border)]"}`}>
-                        {ficha.matriz_itens && ficha.matriz_itens.length > 0 ? (
-                          ficha.matriz_itens.map((item, idx) => {
-                            const valTot = item.valor_estimado_total || (item.valor_estimado_unitario || 0) * (item.quantitativo || 1);
-                            const rowBg = isDarkDoc
-                              ? (idx % 2 === 0 ? "bg-[rgb(var(--crm-surface-2-rgb)_/_1)]" : "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)]")
-                              : (idx % 2 === 0 ? "bg-[rgb(var(--crm-surface-rgb)_/_1)]" : "bg-[rgb(var(--crm-surface-rgb)_/_0.5)]");
-                            return (
-                              <tr key={idx} className={rowBg}>
-                                <td className={`py-2 px-3 text-center font-bold ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
-                                  {item.item_numero || idx + 1}
-                                </td>
-                                <td className="py-2 px-3">
-                                  <div className={`font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>{item.especificacao_sucinta}</div>
-                                  {item.codigo_catalogo && (
-                                    <div className={`text-[10px] font-mono ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
-                                      Cód. CatMat/CatSer: {item.codigo_catalogo}
-                                    </div>
-                                  )}
-                                </td>
-                                <td className={`py-2 px-3 text-center font-medium ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
-                                  {item.unidade}
-                                </td>
-                                <td className={`py-2 px-3 text-right font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                                  {item.quantitativo.toLocaleString('pt-BR')}
-                                </td>
-                                <td className={`py-2 px-3 text-right ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                                  {formatarMoeda(item.valor_estimado_unitario)}
-                                </td>
-                                <td className={`py-2 px-3 text-right font-bold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                                  {formatarMoeda(valTot)}
-                                </td>
-                              </tr>
-                            );
-                          })
-                        ) : (
-                          <tr>
-                            <td colSpan={6} className={`py-4 px-3 text-center italic ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
-                              Itens especificados no documento principal conforme detalhamento do Termo de Referência.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                      <tfoot>
-                        <tr className={`font-bold border-t-2 text-xs ${
-                          isDarkDoc 
-                            ? "bg-blue-50/60 dark:bg-blue-950/60 border-blue-200 dark:border-blue-900 text-blue-700 dark:text-blue-300"
-                            : "bg-blue-50/80 dark:bg-blue-950/80 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-300"
-                        }`}>
-                          <td colSpan={4} className="py-2.5 px-3 text-right uppercase">
-                            Valor Total Global da Matriz:
-                          </td>
-                          <td colSpan={2} className="py-2.5 px-3 text-right text-sm font-extrabold">
-                            {formatarMoeda(ficha.valor_estimado_total || totalGeralItens)}
-                          </td>
-                        </tr>
-                      </tfoot>
-                    </table>
-                  </div>
-                </div>
-
-                {/* 6. TERMO DE RESPONSABILIDADE E CARIMBO TÉCNICO */}
-                <div className={`border rounded-lg p-4 mt-6 ${
-                  isDarkDoc ? "bg-[rgb(var(--crm-surface-2-rgb)_/_0.4)] border-[var(--crm-border)]" : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)]"
-                }`}>
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <div className={`text-xs font-bold uppercase tracking-wider ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        Autenticação & Registro de Auditoria Documental
-                      </div>
-                      <p className={`text-[11px] mt-1 leading-relaxed ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>
-                        Este documento foi estruturado automaticamente pelo Pipeline de IA Documental para Análise de Editais e Termos de Referência, sob a égide da Lei Federal nº 14.133/2021. As informações devem ser confrontadas com a publicação oficial no Portal Nacional de Contratações Públicas (PNCP) ou diário oficial correspondente.
-                      </p>
-                    </div>
-
-                    <div className={`text-right flex-shrink-0 border-l pl-4 ${isDarkDoc ? "border-[var(--crm-border)]" : "border-[var(--crm-border)]"}`}>
-                      <div className={`text-[10px] uppercase font-bold ${isDarkDoc ? "text-[rgb(var(--crm-muted-rgb)_/_1)]" : "text-[rgb(var(--crm-muted-rgb)_/_1)]"}`}>Data de Processamento</div>
-                      <div className={`text-xs font-semibold ${isDarkDoc ? "text-[rgb(var(--crm-ink-rgb)_/_1)]" : "text-[rgb(var(--crm-ink-rgb)_/_1)]"}`}>
-                        {ficha.data_processamento ? new Date(ficha.data_processamento).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR')}
-                      </div>
-                      <div className="text-[10px] text-emerald-500 font-medium mt-1 flex items-center justify-end gap-1">
-                        <CheckCircle2 className="w-3 h-3" /> Pydantic v2 Validado
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Rodapé da Página 3 */}
-              <div className={`mt-8 pt-3 border-t flex items-center justify-between text-[10px] ${
-                isDarkDoc ? "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]" : "border-[var(--crm-border)] text-[rgb(var(--crm-muted-rgb)_/_1)]"
-              }`}>
-                <span>Processo nº {ficha.id_licitacao} • Emissão Eletrônica Conforme Lei nº 14.133/2021</span>
-                <span>Página 3 de 3</span>
-              </div>
-            </div>
+            <iframe
+              ref={iframeRef}
+              title={documentTitle}
+              srcDoc={htmlDoc}
+              className="w-full h-full border-0 bg-white"
+            />
           </div>
         </div>
       </div>
     </div>
   );
-};
 
+  return typeof document !== 'undefined'
+    ? createPortal(modalContent, document.body)
+    : modalContent;
+};
