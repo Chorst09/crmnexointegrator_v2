@@ -23,11 +23,11 @@ services:
     volumes:
       - n8n_data:/home/node/.n8n
     networks:
-      - nexos-n8n-net
+      - icontainer-network
 
 volumes:
   n8n_data:
 
 networks:
-  nexos-n8n-net:
-    driver: bridge
+  icontainer-network:
+    external: true
