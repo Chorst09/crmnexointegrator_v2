@@ -97,35 +97,64 @@ const generateOpportunityNumber = async (clientType = 'B2G', db = prisma) => {
 const buildFichaB2GDescription = (ficha) => {
   const risco = ficha.pontos_de_atencao_risco || {};
   const vistoria = risco.regras_vistoria || {};
+  const cl = (ficha.conlicitacao && typeof ficha.conlicitacao === 'object') ? ficha.conlicitacao : {};
+  const ident = cl.identificacao || {};
+  const orgaoResp = cl.orgao_responsavel || {};
+  const detalhes = cl.detalhes_licitacao || {};
+  const criterios = cl.criterios_proposta_julgamento || {};
+  const critica = cl.analise_critica || {};
+  const garantiaContrato = cl.seguro_garantia?.garantia_contrato?.descricao || risco.garantia_contratual || '';
+  const penalidadesList = Array.isArray(cl.penalidades_multas) && cl.penalidades_multas.length > 0
+    ? cl.penalidades_multas
+    : (risco.clausulas_punitivas_multas || []);
+
+  const legalNotesParts = [
+    ficha.consideracoes_licitante ? `Considerações do Licitante:\n${ficha.consideracoes_licitante}` : '',
+    cl.condicoes_pagamento ? `Condições de Pagamento:\n${cl.condicoes_pagamento}` : '',
+    critica.conflito_prazo_vigencia_arp && critica.conflito_prazo_vigencia_arp !== 'Não informado'
+      ? `Conflito Vigência/ARP: ${critica.conflito_prazo_vigencia_arp}` : '',
+    critica.conflito_objeto_minuta && critica.conflito_objeto_minuta !== 'Não informado'
+      ? `Conflito Objeto/Minuta: ${critica.conflito_objeto_minuta}` : '',
+    critica.permite_subcontratacao ? `Subcontratação: ${critica.permite_subcontratacao}` : '',
+    critica.permite_renovacao_contrato ? `Renovação: ${critica.permite_renovacao_contrato}` : '',
+    detalhes.amostra || risco.exigencia_amostra_poc || risco.exigencia_amostra,
+    garantiaContrato,
+    vistoria.detalhes_e_prazo
+  ].filter(Boolean);
+
   return {
     source: 'EDITAL_ANALISADO',
     sourceFichaId: ficha.id || null,
-    processNumber: ficha.id_licitacao,
-    agency: ficha.orgao_comprador,
-    projectName: `Licitação ${ficha.id_licitacao}`,
+    processNumber: ident.numero_licitacao || ficha.processo_administrativo || ficha.id_licitacao,
+    uasgId: ident.uasg && ident.uasg !== 'Não informado' ? ident.uasg : '',
+    agency: orgaoResp.orgao || ficha.orgao_comprador,
+    location: orgaoResp.cidade_uf || '',
+    projectName: `Licitação ${ident.numero_licitacao || ficha.id_licitacao}`,
     customerRelationship: 'NEW_CLIENT',
-    modality: ficha.modalidade_contratacao || 'Não identificado',
-    type: ficha.modalidade_contratacao || 'Não identificado',
-    objectSummary: ficha.resumo_executivo || `Licitação ${ficha.id_licitacao}`,
-    objectDetailed: ficha.resumo_executivo || '',
+    sourcePortal: ficha.portal_compras || ident.portal_realizacao || '',
+    modality: ident.contratacao || ficha.modalidade_contratacao || 'Não identificado',
+    type: ident.modalidade || ficha.modo_disputa || ficha.modalidade_contratacao || 'Eletrônico',
+    objectSummary: ident.objeto || ficha.resumo_executivo || `Licitação ${ficha.id_licitacao}`,
+    objectDetailed: cl.resumo_itens?.descricao_geral || ficha.resumo_executivo || '',
     estimatedValue: ficha.valor_estimado_total ?? null,
     contractType: 'Contrato',
-    contractTermMonths: Number(String(ficha.prazos_e_locais?.vigencia_contrato || '').match(/\d+/)?.[0] || 0),
-    openingDate: ficha.data_abertura || null,
-    proposalDeadline: ficha.data_limite_proposta || null,
-    challengeDeadline: ficha.data_fim_esclarecimento || null,
+    contractTermMonths: Number(String(cl.prazos_importantes?.vigencia_contrato_ata || ficha.prazos_e_locais?.vigencia_contrato || '').match(/\d+/)?.[0] || 0),
+    readjustmentClause: /sim|previst|ipca|igpm|inpc|anual|reajuste/i.test(String(critica.previsao_reajuste_repactuacao || '')),
+    guaranteePercentage: garantiaContrato,
+    openingDate: cl.sessao_publica?.data || ficha.data_abertura || null,
+    proposalDeadline: cl.prazos_importantes?.limite_envio_propostas || ficha.data_limite_proposta || null,
+    challengeDeadline: cl.prazos_importantes?.limite_impugnacao || ficha.data_fim_esclarecimento || null,
+    estimatedValidity: criterios.validade_proposta && criterios.validade_proposta !== 'Não informado' ? criterios.validade_proposta : '',
     currentPhase: 'Análise',
     winProbability: 50,
     decision: 'PENDING',
+    certificatesRequired: Array.isArray(cl.documentos_habilitacao) ? cl.documentos_habilitacao.slice(0, 15) : [],
     samplesRequired: hasSampleRequirement(ficha),
     technicalVisitMandatory: Boolean(vistoria.obrigatoria),
-    judgmentType: ficha.criterio_julgamento || 'Menor Preço',
+    judgmentType: detalhes.criterio_julgamento || ficha.criterio_julgamento || 'Menor Preço',
     riskLevel: (risco.exigencia_amostra_poc || risco.exigencia_amostra || vistoria.obrigatoria) ? 'medio' : 'baixo',
-    legalNotes: [
-      risco.exigencia_amostra_poc || risco.exigencia_amostra,
-      risco.garantia_contratual,
-      vistoria.detalhes_e_prazo
-    ].filter(Boolean).join('\n')
+    penalties: penalidadesList.join('\n'),
+    legalNotes: legalNotesParts.join('\n\n')
   };
 };
 
@@ -1414,8 +1443,18 @@ router.post([
       const scope = tenantId ? (master ? { OR: [{ tenantCompanyId: tenantId }, { tenantCompanyId: null }] } : { tenantCompanyId: tenantId }) : {};
       let company = await db.company.findFirst({ where: { AND: [{ OR: identifiers }, scope] } });
       if (!company) {
+        const orgaoResp = ficha.conlicitacao?.orgao_responsavel || {};
+        const cidadeUf = String(orgaoResp.cidade_uf || '').trim();
+        const ufMatch = cidadeUf.match(/^(.+?)\s*[/\-]\s*([A-Z]{2})$/);
         const data = { name: agencyName, segment: 'B2G GOVERNO', status: 'PROSPECT', tenantCompanyId: tenantId || null };
         if (ficha.orgao_cnpj) data.document = ficha.orgao_cnpj;
+        if (orgaoResp.email && orgaoResp.email !== 'Não informado') data.email = String(orgaoResp.email).split(/[\n,;]/)[0].trim();
+        if (orgaoResp.telefone && orgaoResp.telefone !== 'Não informado') data.phone = String(orgaoResp.telefone).split(/[\n,;]/)[0].trim();
+        if (orgaoResp.endereco && orgaoResp.endereco !== 'Não informado') data.address = String(orgaoResp.endereco).trim();
+        if (ufMatch) {
+          if (prismaModelHasField('Company', 'city')) data.city = ufMatch[1].trim();
+          if (prismaModelHasField('Company', 'state')) data.state = ufMatch[2].trim();
+        }
         if (prismaModelHasField('Company', 'clientType')) data.clientType = 'B2G';
         company = await db.company.create({ data });
       }
@@ -1423,7 +1462,12 @@ router.post([
       const data = { number: await generateOpportunityNumber('B2G', db), title,
         description: JSON.stringify(buildFichaB2GDescription(ficha)), value: Number(ficha.valor_estimado_total || 0),
         probability: 50, stage: 'DIAGNOSIS', source: 'MANUAL', expectedCloseDate: null,
-        notes: `Convertida a partir de Editais Analisados.\nProcesso: ${ficha.id_licitacao}\nItens mapeados: ${ficha.matriz_itens?.length || 0}`,
+        notes: [
+          'Convertida a partir de Editais Analisados (padrão ConLicitação).',
+          `Processo: ${ficha.conlicitacao?.identificacao?.numero_licitacao || ficha.id_licitacao}`,
+          `Itens mapeados: ${ficha.matriz_itens?.length || 0}`,
+          ficha.consideracoes_licitante ? `\nConsiderações do Licitante:\n${ficha.consideracoes_licitante}` : ''
+        ].filter(Boolean).join('\n'),
         companyId: company.id, ownerId: userId, tenantCompanyId: tenantId || null };
       if (prismaModelHasField('Opportunity', 'projectName')) data.projectName = title;
       if (prismaModelHasField('Opportunity', 'projectClientType')) data.projectClientType = 'NEW_CLIENT';
@@ -1470,6 +1514,72 @@ router.post(['/analise-tr/processar-arquivo', '/processar-arquivo'], ...requireA
   } catch (error) {
     console.error('[analise-tr] Falha na extração:', error.message);
     return res.status(422).json({ error: error.message || 'Não foi possível extrair os documentos. Nenhuma ficha foi gerada.' });
+  }
+});
+
+/**
+ * POST /api/analise-tr/pergunte-edital
+ * Responde dúvidas específicas sobre o edital usando Gemini + texto arquivado/ficha
+ */
+router.post(['/analise-tr/pergunte-edital', '/pergunte-edital'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    const question = String(req.body?.question || '').trim();
+    if (!question) return res.status(400).json({ error: 'Informe a pergunta.' });
+
+    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
+    if (!apiKey) return res.status(503).json({ error: 'Chave Gemini não configurada no servidor.' });
+
+    let ficha = req.body?.ficha || null;
+    if (!ficha && req.body?.fichaId) {
+      const userId = getUserId(req);
+      const tenantId = getTenant(req);
+      const rows = await prisma.$queryRawUnsafe(
+        `SELECT * FROM editais_analisados WHERE (id::text = $1::text OR "numeroControlePNCP" = $1) AND ("userId"::text = $2::text OR "tenantCompanyId" = $3) LIMIT 1`,
+        String(req.body.fichaId), userId, tenantId || ''
+      );
+      if (rows[0]) ficha = formatFichaResponse(rows[0]);
+    }
+
+    let docText = '';
+    const archived = Array.isArray(ficha?.documentos_arquivados) ? ficha.documentos_arquivados : [];
+    const { extractDocument } = require('../lib/document-analysis.cjs');
+    const fs = require('fs').promises;
+    for (const item of archived.slice(0, 3)) {
+      if (!item?.path) continue;
+      try {
+        const buf = await fs.readFile(item.path);
+        const ext = (item.name || item.path || '').toLowerCase().endsWith('.docx') ? '.docx' : '.pdf';
+        const extracted = await extractDocument({ name: item.name || `doc${ext}`, contentBase64: buf.toString('base64') });
+        if (extracted?.text) docText += `\n\n--- ${item.name || 'DOCUMENTO'} ---\n${extracted.text}`;
+      } catch {}
+    }
+
+    const contextText = docText.trim()
+      ? docText.slice(0, 350000)
+      : JSON.stringify(ficha || {}, null, 2).slice(0, 80000);
+
+    const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-2.5-flash';
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+    const prompt = `Você é um consultor especialista em licitações públicas brasileiras (Lei 14.133/2021). Responda de forma objetiva, precisa e citando itens/cláusulas quando disponíveis com base exclusivamente no conteúdo abaixo.\n\nCONTEÚDO DO EDITAL/FICHA:\n${contextText}\n\nPERGUNTA DO LICITANTE:\n${question}`;
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.2 }
+      })
+    });
+    if (!response.ok) {
+      const errText = await response.text();
+      return res.status(502).json({ error: `Falha na consulta IA (${response.status})`, detail: errText.slice(0, 200) });
+    }
+    const data = await response.json();
+    const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text || 'Não foi possível gerar resposta.';
+    return res.json({ success: true, answer });
+  } catch (err) {
+    console.error('[pergunte-edital] erro:', err);
+    return res.status(500).json({ error: 'Erro ao consultar o edital com IA', detail: err.message });
   }
 });
 

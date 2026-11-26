@@ -1,5 +1,6 @@
 import { normalizeFicha } from './ficha-normalizer.mjs';
 import { salvarFicha } from './ficha-persistence.mjs';
+import { ConLicitacaoResumoEdital } from './ConLicitacaoResumoEdital';
 import { getPncpIdentifiers, getInitialArquivos, getArquivoDownloadEndpoint, getDownloadFilename, normalizeArquivo } from './pncp-documents';
 import React, { useState, useEffect, useRef } from 'react';
 import { 
@@ -1177,279 +1178,25 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                   </div>
                 </div>
 
-                {/* 1. Resumo Executivo (até 3 parágrafos) */}
-                <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="p-1.5 bg-indigo-100 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-400 rounded-lg">
-                      <Sparkles className="w-4 h-4" />
-                    </div>
-                    <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
-                      Resumo Executivo (Síntese da Contratação)
-                    </h3>
-                  </div>
-                  <div className="text-[rgb(var(--crm-ink-rgb)_/_1)] text-sm leading-relaxed space-y-3 whitespace-pre-line bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-4 rounded-xl border border-[var(--crm-border)] dark:border-[var(--crm-border)]">
-                    {fichaTecnica.resumo_executivo}
-                  </div>
-                </div>
-
-                {/* Grid Duplo: Requisitos de Habilitação & Prazos/Locais */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* 2. Requisitos de Habilitação (Lei 14.133/2021) */}
-                  <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm flex flex-col">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="p-1.5 bg-blue-100 dark:bg-blue-950/60 text-blue-700 dark:text-blue-400 rounded-lg">
-                        <CheckCircle2 className="w-4 h-4" />
-                      </div>
-                      <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
-                        Documentações Necessárias & Requisitos de Habilitação
-                      </h3>
-                    </div>
-
-                    <div className="space-y-4 flex-1">
-                      {/* Habilitação Jurídica */}
-                      <div>
-                        <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1.5 flex items-center gap-1">
-                          <FileText className="w-3.5 h-3.5 text-blue-500" />
-                          Habilitação Jurídica (Art. 66)
-                        </span>
-                        {(fichaTecnica.requisitos_habilitacao?.habilitacao_juridica && fichaTecnica.requisitos_habilitacao.habilitacao_juridica.length > 0) ? (
-                          <ul className="space-y-1.5 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                            {fichaTecnica.requisitos_habilitacao.habilitacao_juridica.map((jur, i) => (
-                              <li key={i} className="flex items-start gap-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2 rounded-lg border border-[var(--crm-border)]">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 flex-shrink-0" />
-                                <span>{jur}</span>
-                              </li>
-                            ))}
-                          </ul>
-                        ) : (
-                          <div className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] bg-[rgb(var(--crm-surface-rgb)_/_1)] p-2 rounded-lg border border-[var(--crm-border)]">
-                            Ato constitutivo, estatuto ou contrato social em vigor e devidamente registrado, acompanhado de alterações ou consolidação.
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Qualificação Técnica */}
-                      <div>
-                        <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1.5 flex items-center gap-1">
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                          Atestados de Capacidade Técnica (Art. 67)
-                        </span>
-                        <ul className="space-y-1.5 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                          {(fichaTecnica.requisitos_habilitacao?.atestados_capacidade_tecnica || []).map((att, i) => (
-                            <li key={i} className="flex items-start gap-2 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2.5 rounded-lg border border-[var(--crm-border)]">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 flex-shrink-0" />
-                              <span>{att}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      {/* Regularidade Fiscal, Social e Trabalhista */}
-                      <div>
-                        <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1.5 flex items-center gap-1">
-                          <Scale className="w-3.5 h-3.5 text-indigo-500" />
-                          Regularidade Fiscal, Social e Trabalhista (Art. 68)
-                        </span>
-                        <div className="flex flex-wrap gap-1.5">
-                          {(fichaTecnica.requisitos_habilitacao?.certidoes_e_registros_especificos || []).length > 0 ? (
-                            fichaTecnica.requisitos_habilitacao.certidoes_e_registros_especificos.map((cert, i) => (
-                              <span key={i} className="text-[11px] bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] px-2.5 py-1 rounded-md border border-[var(--crm-border)] flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                                {cert}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                              CND Federal/PGFN, CND Estadual, CND Municipal, FGTS/CRF e CNDT Trabalhista.
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Qualificação Econômico-Financeira */}
-                      <div>
-                        <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1.5 flex items-center gap-1">
-                          <DollarSign className="w-3.5 h-3.5 text-amber-500" />
-                          Qualificação Econômico-Financeira (Art. 69)
-                        </span>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                          {(fichaTecnica.requisitos_habilitacao?.exigencias_contabeis || []).map((ind, i) => (
-                            <div key={i} className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2.5 rounded-lg border border-[var(--crm-border)] text-xs">
-                              <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] block">{ind.nome_indice}</span>
-                              <span className="text-emerald-700 dark:text-emerald-400 font-mono mt-0.5 block">{ind.regra}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* 3. Prazos, Execução e Locais */}
-                  <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm flex flex-col">
-                    <div className="flex items-center gap-2 mb-4">
-                      <div className="p-1.5 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 rounded-lg">
-                        <Clock className="w-4 h-4" />
-                      </div>
-                      <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
-                        Prazos de Execução, Vigência e Locais
-                      </h3>
-                    </div>
-
-                    <div className="space-y-4 flex-1">
-                      <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-3 rounded-lg border border-[var(--crm-border)]">
-                        <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] block mb-1">Prazo para Início / Entrega</span>
-                        <span className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                          {fichaTecnica.prazos_e_locais?.prazo_inicio_entrega || 'Não identificado'}
-                        </span>
-                      </div>
-
-                      <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-3 rounded-lg border border-[var(--crm-border)]">
-                        <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] block mb-1">Vigência Contratual</span>
-                        <span className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                          {fichaTecnica.prazos_e_locais?.vigencia_contrato || 'Não identificado'}
-                        </span>
-                      </div>
-
-                      <div className="bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-3 rounded-lg border border-[var(--crm-border)]">
-                        <span className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] block mb-1">Regime de Execução</span>
-                        <span className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                          {fichaTecnica.prazos_e_locais?.regime_execucao || 'Não identificado'}
-                        </span>
-                      </div>
-
-                      <div>
-                        <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-1.5">
-                          Locais de Prestação / Entrega
-                        </span>
-                        <div className="space-y-1 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                          {(fichaTecnica.prazos_e_locais?.locais_prestacao_entrega || []).map((loc, i) => (
-                            <div key={i} className="flex items-center gap-1.5 bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] p-2 rounded border border-[var(--crm-border)]">
-                              <MapPin className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
-                              <span>{loc}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 4. Pontos de Atenção e Matriz de Riscos */}
-                <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm">
-                  <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
-                    <div className="flex items-center gap-2">
-                      <div className="p-1.5 bg-rose-100 dark:bg-rose-950/60 text-rose-700 dark:text-rose-400 rounded-lg">
-                        <ShieldAlert className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] uppercase tracking-wider">
-                          Pontos de Atenção & Matriz de Riscos (Auditoria Preventiva)
-                        </h3>
-                        <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                          Verificação de cláusulas restritivas, exigências prévias e penalidades contratuais
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                    {/* Amostras / PoC */}
-                    <div className="p-4 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block">
-                            Amostra / PoC
-                          </span>
-                          {fichaTecnica.pontos_de_atencao_risco?.exigencia_amostra_poc && !/n[aã]o (?:ser[aá] |[eé] |haver[aá] )?(?:exigid|solicitad)|dispensad|n[aã]o identificado/iu.test(fichaTecnica.pontos_de_atencao_risco.exigencia_amostra_poc) ? (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">
-                              Exigida
-                            </span>
-                          ) : (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">
-                              Dispensada / Não identificada
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
-                          {fichaTecnica.pontos_de_atencao_risco?.exigencia_amostra_poc || "Não exigida amostra ou prova de conceito."}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Vistoria Técnica */}
-                    <div className="p-4 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-center justify-between mb-2 flex-wrap gap-1">
-                          <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block">
-                            Vistoria Técnica
-                          </span>
-                          <div className="flex items-center gap-1">
-                            {fichaTecnica.pontos_de_atencao_risco?.regras_vistoria?.obrigatoria === true ? (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-rose-100 text-rose-800 dark:bg-rose-950/60 dark:text-rose-300">
-                                Obrigatória
-                              </span>
-                            ) : (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-100 text-blue-800 dark:bg-blue-950/60 dark:text-blue-300">
-                                Facultativa / Dispensada
-                              </span>
-                            )}
-                            {fichaTecnica.pontos_de_atencao_risco?.regras_vistoria?.permite_declaracao_substitutiva === true && (
-                              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300" title="Aceita termo formal em substituição à visita física">
-                                ✓ Aceita Declaração
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
-                          {fichaTecnica.pontos_de_atencao_risco?.regras_vistoria?.detalhes_e_prazo || "Vistoria facultativa ou não exigida."}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* Garantia Contratual */}
-                    <div className="p-4 rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_0.6)] flex flex-col justify-between">
-                      <div>
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block">
-                            Garantia Contratual
-                          </span>
-                          {fichaTecnica.pontos_de_atencao_risco?.garantia_contratual && !/n[aã]o\s+identificad|n[aã]o\s+haver[aá]|dispensad/iu.test(fichaTecnica.pontos_de_atencao_risco.garantia_contratual) ? (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800 dark:bg-indigo-950/60 dark:text-indigo-300">
-                              Exigida
-                            </span>
-                          ) : (
-                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                              Não informada
-                            </span>
-                          )}
-                        </div>
-                        <p className="text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] leading-relaxed">
-                          {fichaTecnica.pontos_de_atencao_risco?.garantia_contratual || "Garantia contratual de execução não informada no edital."}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <span className="text-xs font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] uppercase block mb-2">
-                      Cláusulas Punitivas, Multas e Sanções Administrativas
-                    </span>
-                    <div className="space-y-1.5">
-                      {(fichaTecnica.pontos_de_atencao_risco?.clausulas_punitivas_multas || []).length > 0 ? (
-                        fichaTecnica.pontos_de_atencao_risco.clausulas_punitivas_multas.map((pun, i) => (
-                          <div key={i} className="text-xs text-rose-900 dark:text-rose-300 bg-rose-50/70 dark:bg-rose-950/40 border border-rose-100 dark:border-rose-900/60 p-2.5 rounded-lg flex items-start gap-2">
-                            <AlertTriangle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400 mt-0.5 flex-shrink-0" />
-                            <span>{pun}</span>
-                          </div>
-                        ))
-                      ) : (
-                        <div className="text-xs text-rose-800 dark:text-rose-300 bg-rose-50/60 dark:bg-rose-950/30 p-2.5 rounded-lg border border-rose-100 dark:border-rose-900/40">
-                          Penalidades padrão nos termos do Art. 156 da Lei Federal nº 14.133/2021 (advertência, multa de mora, impedimento de licitar e declaração de inidoneidade).
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
+                {/* Resumo Estruturado ConLicitação (17 seções + Pergunte ao Edital + Considerações) */}
+                <ConLicitacaoResumoEdital
+                  ficha={fichaTecnica}
+                  getAuthHeaders={getAuthHeaders}
+                  onChangeConsideracoes={(texto) =>
+                    setFichaTecnica((prev) =>
+                      prev ? { ...prev, consideracoes_licitante: texto } : null
+                    )
+                  }
+                  onSaveConsideracoes={async (texto) => {
+                    if (!fichaTecnica) return;
+                    const updated = { ...fichaTecnica, consideracoes_licitante: texto };
+                    setFichaTecnica(updated);
+                    if (await persistirFichaServidor(updated)) {
+                      mostrarFeedback('Considerações do licitante salvas na ficha!');
+                    }
+                  }}
+                  savingConsideracoes={salvandoFicha}
+                />
 
                 {/* 5. Matriz de Itens do TR */}
                 <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-6 rounded-xl border border-[var(--crm-border)] shadow-sm">

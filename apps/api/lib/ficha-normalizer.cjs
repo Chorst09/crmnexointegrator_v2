@@ -63,6 +63,8 @@ function normalizeFicha(raw = {}) {
     },
     matriz_itens: list(f.matriz_itens),
     tags_classificacao: list(f.tags_classificacao),
+    conlicitacao: f.conlicitacao && typeof f.conlicitacao === 'object' ? f.conlicitacao : null,
+    consideracoes_licitante: typeof source.consideracoes_licitante === 'string' ? source.consideracoes_licitante : '',
     documentos_origem: source.documentos_origem || {},
     analysisStatus: invalid ? 'requires_reanalysis' : (source.analysisStatus || 'extracted'),
     analysisWarnings: invalid ? ['Ficha gerada pelo analisador antigo com valores fictícios. É necessário reanalisar os originais.'] : list(source.analysisWarnings),

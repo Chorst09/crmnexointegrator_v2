@@ -164,6 +164,10 @@ export interface FichaTecnicaEditalTR {
   pontos_de_atencao_risco: PontosDeAtencaoRisco;
   matriz_itens: MatrizItemAnalise[];
   tags_classificacao?: string[];
+  conlicitacao?: any;
+  consideracoes_licitante?: string;
+  documentos_origem?: { edital?: string; termo_referencia?: string };
+  documentos_arquivados?: Array<{ name?: string; sha256?: string; characters?: number; path?: string }>;
   convertido_oportunidade?: boolean;
   oportunidade_id?: string;
 }

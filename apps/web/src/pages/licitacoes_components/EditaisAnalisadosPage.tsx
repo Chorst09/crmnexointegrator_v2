@@ -1,4 +1,6 @@
 import { normalizeFicha as normalizeDocumentFicha, hasSampleRequirement } from './ficha-normalizer.mjs';
+import { salvarFicha } from './ficha-persistence.mjs';
+import { ConLicitacaoResumoEdital } from './ConLicitacaoResumoEdital';
 import React, { useState, useEffect } from 'react';
 import { 
   FileCheck, 
@@ -50,7 +52,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
   const [filterRisco, setFilterRisco] = useState<'todos' | 'amostra' | 'vistoria' | 'milhao' | 'pregao'>('todos');
   const [sortBy, setSortBy] = useState<'recente' | 'maior_valor' | 'menor_valor' | 'orgao'>('recente');
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
-  const [activeTabByCard, setActiveTabByCard] = useState<Record<string, 'resumo' | 'itens' | 'habilitacao' | 'riscos'>>({});
+  const [activeTabByCard, setActiveTabByCard] = useState<Record<string, 'conlicitacao' | 'resumo' | 'itens' | 'habilitacao' | 'riscos'>>({});
 
   // PDF Preview Modal State
   const [pdfModalOpen, setPdfModalOpen] = useState(false);
@@ -516,7 +518,7 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
           <div className="space-y-5">
             {fichasFiltradas.map((ficha) => {
               const isExpanded = !!expandedCards[ficha.id_licitacao];
-              const activeTab = activeTabByCard[ficha.id_licitacao] || 'itens';
+              const activeTab = activeTabByCard[ficha.id_licitacao] || 'conlicitacao';
               const temAmostra = hasSampleRequirement(ficha);
               const vistoriaObrigatoria = ficha.pontos_de_atencao_risco?.regras_vistoria?.obrigatoria;
               const isDeletingThis = deleteConfirmId === ficha.id_licitacao;
@@ -639,6 +641,16 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                       {/* Sub-Tabs de navegação interna */}
                       <div className="flex items-center gap-2 border-b border-[var(--crm-border)] pb-3 mb-4 flex-wrap">
                         <button
+                          onClick={() => setActiveTabByCard(prev => ({ ...prev, [ficha.id_licitacao]: 'conlicitacao' }))}
+                          className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
+                            activeTab === 'conlicitacao' || !activeTabByCard[ficha.id_licitacao]
+                              ? 'bg-cyan-600 text-white shadow-xs'
+                              : "bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] text-[rgb(var(--crm-muted-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)]"
+                          }`}
+                        >
+                          <Sparkles className="w-3.5 h-3.5" /> Resumo ConLicitação
+                        </button>
+                        <button
                           onClick={() => setActiveTabByCard(prev => ({ ...prev, [ficha.id_licitacao]: 'itens' }))}
                           className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-colors flex items-center gap-1.5 ${
                             activeTab === 'itens'
@@ -679,6 +691,30 @@ export const EditaisAnalisadosPage: React.FC<EditaisAnalisadosPageProps> = ({
                           <FileSearch className="w-3.5 h-3.5" /> Resumo Executivo Integral
                         </button>
                       </div>
+
+                      {/* Tab Content: Resumo ConLicitação */}
+                      {(activeTab === 'conlicitacao' || !activeTabByCard[ficha.id_licitacao]) && (
+                        <ConLicitacaoResumoEdital
+                          ficha={ficha}
+                          getAuthHeaders={getAuthHeaders}
+                          onSaveConsideracoes={async (texto) => {
+                            try {
+                              const updated = { ...ficha, consideracoes_licitante: texto };
+                              await salvarFicha(updated, { headers: getAuthHeaders() });
+                              setFichas((prev) =>
+                                prev.map((item) =>
+                                  item.id_licitacao === ficha.id_licitacao ? updated : item
+                                )
+                              );
+                              showNotification('Considerações do licitante salvas!');
+                            } catch (err) {
+                              showNotification(
+                                err instanceof Error ? err.message : 'Erro ao salvar considerações.'
+                              );
+                            }
+                          }}
+                        />
+                      )}
 
                       {/* Tab Content: Matriz de Itens */}
                       {activeTab === 'itens' && (

@@ -309,38 +309,125 @@ async function analyzeWithGemini(documents, context = {}) {
   const fullText = documents.map(d => clean(d.text)).join('\n\n');
   const textSample = fullText.slice(0, 450000);
 
-  const prompt = `Você é um especialista em Licitações Públicas Brasileiras (Leis 14.133/2021 e 8.666/1993) e análise de contratos administrativos. 
+  const prompt = `Você é um especialista sênior em Licitações Públicas Brasileiras (Leis 14.133/2021, 8.666/1993 e LC 123/2006) e análise jurídica/comercial de editais (padrão ConLicitação).
 
-Sua tarefa é analisar o texto extraído de um Edital de Licitação ou Termo de Referência (TR) e extrair rigorosamente as informações mais críticas, incluindo a listagem completa de itens/produtos solicitados.
+Sua tarefa é analisar o texto completo extraído de um Edital de Licitação e/ou Termo de Referência (TR) e extrair rigorosamente TODAS as informações estruturadas abaixo, incluindo a listagem completa de itens/lotes solicitados.
 
 REGRAS DE EXTRAÇÃO:
-1. Seja extremamente preciso. Baseie-se APENAS no texto fornecido.
-2. Se uma informação não estiver presente, retorne o valor nulo (null) ou "Não informado".
-3. Na seção "lista_de_itens", extraia todos os itens, produtos ou serviços solicitados. Se houver divisão por Lotes e Itens, deixe isso claro na descrição.
-4. O resultado final DEVE ser EXCLUSIVAMENTE um objeto JSON válido, sem formatações markdown externas como \`\`\`json, e com as seguintes chaves:
+1. Seja extremamente preciso. Baseie-se APENAS no texto fornecido. Não invente dados.
+2. Se uma informação não estiver presente no texto, retorne null ou "Não informado".
+3. Na seção "lista_de_itens", extraia todos os itens, lotes, produtos ou serviços solicitados. Se houver divisão por Lotes e Itens, deixe claro.
+4. Na seção "analise_critica", verifique ativamente eventuais conflitos entre Edital, Termo de Referência e Minuta de Contrato (ex: divergência de prazo de vigência entre TR e Minuta, divergência de prazo de entrega, subcontratação, reajuste, renovação, pagamento).
+5. O resultado final DEVE ser EXCLUSIVAMENTE um objeto JSON válido, sem markdown externo, com as chaves abaixo:
 
 ESTRUTURA DO JSON ESPERADO:
 {
-  "orgao_licitante": "Nome completo do órgão público",
-  "numero_edital": "Número do edital e ano",
-  "modalidade_e_lei": "Modalidade e lei regente",
-  "objeto_resumo": "Um resumo claro e direto do que está sendo comprado ou contratado",
-  "criterio_julgamento": "Critério de julgamento (ex: Menor Preço Global, Menor Preço por Item)",
+  "orgao_licitante": "Nome completo do órgão público contratante",
+  "numero_edital": "Número da licitação/pregão e ano (ex: PE/27/2027 ou Pregão Eletrônico nº 259/2026)",
+  "modalidade_e_lei": "Modalidade e modo de disputa (ex: Pregão Eletrônico – Aberto e Fechado)",
+  "objeto_resumo": "Resumo claro e completo do objeto da licitação",
+  "criterio_julgamento": "Critério de julgamento (ex: Menor preço, Menor preço por lote)",
   "valor_estimado_total": "Valor total estimado ou máximo aceitável. Se sigiloso, informar 'Sigiloso'",
-  
+
+  "conlicitacao": {
+    "identificacao": {
+      "numero_licitacao": "Ex: PE/27/2027 ou 259/2026",
+      "modalidade": "Ex: Pregão Eletrônico – Aberto e Fechado",
+      "uasg": "Código UASG se houver",
+      "portal_realizacao": "Portal e URL de realização (ex: Compras.gov.br - https://www.gov.br/compras/pt-br)",
+      "contratacao": "Tipo de contratação (ex: Pregão Eletrônico)",
+      "regulamentacao_pregoeiro": "Nome do pregoeiro/autoridade ou regulamentação",
+      "objeto": "Texto completo do objeto"
+    },
+    "sessao_publica": {
+      "data": "Data da sessão (DD/MM/AAAA)",
+      "horario": "Horário da sessão (HH:MM)",
+      "modo_disputa": "Ex: Aberto e Fechado",
+      "intervalo_minimo": "Intervalo mínimo entre lances (ex: R$ 0,01 ou %)"
+    },
+    "orgao_responsavel": {
+      "orgao": "Nome do órgão responsável",
+      "cidade_uf": "Cidade/UF (ex: Curitiba/PR)",
+      "cnpj": "CNPJ do órgão se houver",
+      "endereco": "Endereço completo do órgão/setor de licitações",
+      "email": "E-mail(s) de contato",
+      "telefone": "Telefone(s) de contato"
+    },
+    "detalhes_licitacao": {
+      "valor_estimado": "Valor formatado (ex: R$ 2.091.131,69 ou Sigiloso)",
+      "criterio_julgamento": "Ex: Menor preço",
+      "prazo_entrega": "Resumo completo do prazo de entrega/instalação/treinamento",
+      "preferencia_me_epp": "Ex: Parcial, Exclusiva, Não se aplica",
+      "restricoes_regionalidade": "Restrições geográficas ou 'Não informado'",
+      "prova_de_conceito": "Exigência de PoC ou 'Não mencionado'",
+      "margem_preferencia": "Detalhes sobre margem/tratamento favorecido ME/EPP (LC 123/2006)",
+      "visita_tecnica": "Ex: Facultativa, Obrigatória, Não exige",
+      "amostra": "Ex: Não Exige, Exige (detalhes)"
+    },
+    "seguro_garantia": {
+      "garantia_proposta": { "exige": false, "titulo": "Não exige Garantia de Proposta", "descricao": "Explicação baseada no edital" },
+      "garantia_contrato": { "exige": false, "titulo": "Não exige Garantia de Contrato", "descricao": "Explicação com referência ao item do edital" },
+      "garantia_adicional": { "exige": false, "titulo": "Não exige Garantia Adicional", "descricao": "Explicação nos termos dos arts. 59/60 Lei 14.133/2021" },
+      "garantia_retomada": { "exige": false, "titulo": "Não exige Garantia de Retomada", "descricao": "Explicação sobre cláusula de retomada" }
+    },
+    "entrega_execucao": {
+      "data_prazo": "Prazo detalhado de entrega, instalação e execução",
+      "local_entrega_execucao": "Endereço completo e local de entrega/execução"
+    },
+    "prazos_importantes": {
+      "tipo_fornecimento": "Ex: Fornecimento integral em remessa única, parcelado, continuado",
+      "manifestacao_recurso": "Prazo e forma para manifestação de recurso",
+      "documentacao_complementar": "Prazo para envio de proposta ajustada e documentos complementares",
+      "recursos_contrarrazoes": "Prazo para razões recursais e contrarrazões",
+      "documento_original": "Prazo para envio de documento original ou 'Não informado'",
+      "esclarecimentos": "Prazo limite e forma para pedidos de esclarecimento",
+      "prazo_contratual_arp": "Prazo de execução contratual ou ARP",
+      "limite_impugnacao": "Prazo limite para impugnação ao edital",
+      "limite_envio_propostas": "Data e hora limite para envio de propostas",
+      "vigencia_contrato_ata": "Prazo de vigência do contrato ou ata de registro de preços"
+    },
+    "criterios_proposta_julgamento": {
+      "validade_proposta": "Prazo mínimo de validade da proposta",
+      "exigencias_proposta_comercial": "Requisitos obrigatórios da proposta comercial",
+      "criterios_desempate": "Critérios legais de desempate (Art. 60 Lei 14.133, LC 123)",
+      "programa_integridade": "Exigência de programa de integridade ou 'Não mencionado'"
+    },
+    "resumo_itens": {
+      "total_itens_lotes": "Quantidade total de itens ou lotes",
+      "categorias_principais": "Principais categorias/lotes do objeto",
+      "descricao_geral": "Síntese geral dos itens/lotes e serviços incluídos",
+      "observacoes": "Observações importantes (unidade compradora, fonte, prevalência do edital em caso de divergência)"
+    },
+    "documentos_habilitacao": ["Lista objetiva de todos os documentos de habilitação jurídica, fiscal, trabalhista e econômico-financeira exigidos"],
+    "atestado_capacidade_tecnica": "Exigências de atestado de capacidade técnica ou 'Não informado'",
+    "anexos_declaracoes": ["Lista de todos os anexos do edital e declarações obrigatórias"],
+    "outras_informacoes_relevantes": ["Regras sobre consórcio, subcontratação, garantia dos bens, lei regente, etc."],
+    "condicoes_pagamento": "Texto completo com prazo de pagamento, exigências de atesto/regularidade, retenções e juros por atraso",
+    "penalidades_multas": ["Lista detalhada das multas moratórias, compensatórias, sanções e impedimentos previstos"],
+    "analise_critica": {
+      "conflito_objeto_minuta": "Conflito identificado ou 'Não informado'",
+      "conflito_prazo_vigencia_arp": "Divergência entre TR e Minuta ou 'Não informado'",
+      "conflito_prazos_entrega": "Conflito de prazos de entrega ou 'Não informado'",
+      "permite_subcontratacao": "Ex: Vedada, Permitida (detalhes)",
+      "previsao_reajuste_repactuacao": "Índice, data-base e regras de reajuste/repactuação",
+      "permite_renovacao_contrato": "Se permite prorrogação/renovação e base legal",
+      "estabelece_condicoes_pagamento": "Sim / Não"
+    }
+  },
+
   "lista_de_itens": [
     {
       "numero_item_ou_lote": "Número do Lote ou do Item",
       "descricao_produto": "Descrição clara do produto ou serviço exigido",
       "quantidade": "Quantidade total solicitada (apenas números, se possível)",
-      "unidade_medida": "Unidade de medida (ex: UN, KG, SC, MESES)",
+      "unidade_medida": "Unidade de medida (ex: UN, KG, SC, MESES, LOTE)",
       "valor_unitario_estimado": "Valor unitário estimado ou máximo aceitável",
       "valor_total_item": "Valor total estimado para este item específico"
     }
   ],
 
   "datas_prazos": {
-    "data_limite_esclarecimentos": "Data/hora limite para impugnações",
+    "data_limite_esclarecimentos": "Data/hora limite para esclarecimentos/impugnações",
     "data_entrega_propostas": "Data/hora limite para envio das propostas",
     "data_abertura_sessao": "Data/hora da abertura da sessão pública"
   },
@@ -356,7 +443,7 @@ ESTRUTURA DO JSON ESPERADO:
     "garantia_contratual": "Há exigência de garantia contratual? (Sim/Não e a porcentagem)"
   },
   "alertas_criticos": [
-    "Liste até 3 armadilhas do edital (ex: vistoria obrigatória, amostras, penalidades)"
+    "Liste até 5 armadilhas ou pontos críticos do edital"
   ]
 }
 
@@ -518,6 +605,40 @@ async function analyzeFiles(files, context = {}, scope = '') {
               quantitativo: detItem.quantitativo || aiMatch.quantitativo
             };
           });
+        }
+      }
+
+      // Preserva e mescla dados completos no padrão ConLicitação
+      if (aiData.conlicitacao && typeof aiData.conlicitacao === 'object') {
+        ficha.conlicitacao = aiData.conlicitacao;
+        const cl = aiData.conlicitacao;
+        if (isInformado(cl.identificacao?.portal_realizacao) && ficha.portal_compras === UNKNOWN) {
+          ficha.portal_compras = cl.identificacao.portal_realizacao.trim();
+        }
+        if (isInformado(cl.sessao_publica?.modo_disputa) && ficha.modo_disputa === UNKNOWN) {
+          ficha.modo_disputa = cl.sessao_publica.modo_disputa.trim();
+        }
+        if (isInformado(cl.orgao_responsavel?.cnpj) && !ficha.orgao_cnpj) {
+          ficha.orgao_cnpj = cl.orgao_responsavel.cnpj.trim();
+        }
+        if (isInformado(cl.prazos_importantes?.limite_impugnacao) && ficha.data_fim_impugnacao === UNKNOWN) {
+          ficha.data_fim_impugnacao = cl.prazos_importantes.limite_impugnacao.trim();
+        }
+        if (Array.isArray(cl.penalidades_multas) && cl.penalidades_multas.length > 0) {
+          const penalidades = cl.penalidades_multas.filter(isInformado).map(s => s.trim());
+          if (penalidades.length > 0) {
+            ficha.pontos_de_atencao_risco.clausulas_punitivas_multas = penalidades;
+          }
+        }
+        if (isInformado(cl.detalhes_licitacao?.amostra) && (!ficha.pontos_de_atencao_risco.exigencia_amostra_poc || /não identificada/i.test(ficha.pontos_de_atencao_risco.exigencia_amostra_poc))) {
+          ficha.pontos_de_atencao_risco.exigencia_amostra_poc = cl.detalhes_licitacao.amostra.trim();
+        }
+        if (isInformado(cl.detalhes_licitacao?.visita_tecnica) && (!ficha.pontos_de_atencao_risco.regras_vistoria?.detalhes_e_prazo || /não informada/i.test(ficha.pontos_de_atencao_risco.regras_vistoria.detalhes_e_prazo))) {
+          ficha.pontos_de_atencao_risco.regras_vistoria = {
+            ...ficha.pontos_de_atencao_risco.regras_vistoria,
+            obrigatoria: /obrigat[oó]ria/i.test(cl.detalhes_licitacao.visita_tecnica) ? true : /facultativa|n[aã]o exige/i.test(cl.detalhes_licitacao.visita_tecnica) ? false : null,
+            detalhes_e_prazo: cl.detalhes_licitacao.visita_tecnica.trim()
+          };
         }
       }
 
