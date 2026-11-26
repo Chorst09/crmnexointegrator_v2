@@ -132,90 +132,6 @@ const escHtml = (s: unknown) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
-export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> = ({
-  initialEntry,
-  onSave,
-  onBack,
-  onSwitchLegacy,
-}) => {
-  const [data, setData] = useState<DoubleProposal2026Data>(() =>
-    buildInitialData(initialEntry)
-  );
-  const [proposalId, setProposalId] = useState<string | undefined>(initialEntry?.id);
-  const [viewMode, setViewMode] = useState<'split' | 'preview' | 'edit'>('split');
-  const [previewZoom, setPreviewZoom] = useState<number>(85);
-  const [savedNotice, setSavedNotice] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement | null>(null);
-
-  useEffect(() => {
-    const prev = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.body.style.overflow = prev;
-    };
-  }, []);
-
-  const totalGeral = useMemo(
-    () => data.itens.reduce((acc, it) => acc + Number(it.valorTotal || 0), 0),
-    [data.itens]
-  );
-
-  const updateField = <K extends keyof DoubleProposal2026Data>(
-    key: K,
-    value: DoubleProposal2026Data[K]
-  ) => {
-    setData((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const updateItem = (
-    id: string,
-    field: keyof DoubleProposalItem,
-    value: string | number
-  ) => {
-    setData((prev) => ({
-      ...prev,
-      itens: prev.itens.map((it) => {
-        if (it.id !== id) return it;
-        const next = { ...it, [field]: value };
-        if (field === 'qtd' || field === 'valorUnitario') {
-          next.valorTotal = Number(next.qtd || 0) * Number(next.valorUnitario || 0);
-        }
-        return next;
-      }),
-    }));
-  };
-
-  const addItem = () => {
-    setData((prev) => ({
-      ...prev,
-      itens: [
-        ...prev.itens,
-        {
-          id: `item-${Date.now()}`,
-          item: 'Novo Item / Serviço',
-          descricao: '',
-          qtd: 1,
-          valorUnitario: 0,
-          valorTotal: 0,
-        },
-      ],
-    }));
-  };
-
-  const removeItem = (id: string) => {
-    setData((prev) => ({
-      ...prev,
-      itens: prev.itens.filter((it) => it.id !== id),
-    }));
-  };
-
-  const handleSave = () => {
-    const id = onSave(data, proposalId);
-    setProposalId(id);
-    setSavedNotice(true);
-    setTimeout(() => setSavedNotice(false), 3000);
-  };
-
 export const buildDoubleProposal2026Html = (
   data: DoubleProposal2026Data,
   origin = typeof window !== 'undefined' ? window.location.origin : ''
@@ -579,6 +495,91 @@ export const buildDoubleProposal2026Html = (
 </body>
 </html>`;
 };
+
+export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> = ({
+  initialEntry,
+  onSave,
+  onBack,
+  onSwitchLegacy,
+}) => {
+  const [data, setData] = useState<DoubleProposal2026Data>(() =>
+    buildInitialData(initialEntry)
+  );
+  const [proposalId, setProposalId] = useState<string | undefined>(initialEntry?.id);
+  const [viewMode, setViewMode] = useState<'split' | 'preview' | 'edit'>('split');
+  const [previewZoom, setPreviewZoom] = useState<number>(85);
+  const [savedNotice, setSavedNotice] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
+  const totalGeral = useMemo(
+    () => data.itens.reduce((acc, it) => acc + Number(it.valorTotal || 0), 0),
+    [data.itens]
+  );
+
+  const updateField = <K extends keyof DoubleProposal2026Data>(
+    key: K,
+    value: DoubleProposal2026Data[K]
+  ) => {
+    setData((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const updateItem = (
+    id: string,
+    field: keyof DoubleProposalItem,
+    value: string | number
+  ) => {
+    setData((prev) => ({
+      ...prev,
+      itens: prev.itens.map((it) => {
+        if (it.id !== id) return it;
+        const next = { ...it, [field]: value };
+        if (field === 'qtd' || field === 'valorUnitario') {
+          next.valorTotal = Number(next.qtd || 0) * Number(next.valorUnitario || 0);
+        }
+        return next;
+      }),
+    }));
+  };
+
+  const addItem = () => {
+    setData((prev) => ({
+      ...prev,
+      itens: [
+        ...prev.itens,
+        {
+          id: `item-${Date.now()}`,
+          item: 'Novo Item / Serviço',
+          descricao: '',
+          qtd: 1,
+          valorUnitario: 0,
+          valorTotal: 0,
+        },
+      ],
+    }));
+  };
+
+  const removeItem = (id: string) => {
+    setData((prev) => ({
+      ...prev,
+      itens: prev.itens.filter((it) => it.id !== id),
+    }));
+  };
+
+  const handleSave = () => {
+    const id = onSave(data, proposalId);
+    setProposalId(id);
+    setSavedNotice(true);
+    setTimeout(() => setSavedNotice(false), 3000);
+  };
+
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const htmlDocument = useMemo(
