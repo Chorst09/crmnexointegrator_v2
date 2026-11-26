@@ -65,26 +65,61 @@ export function LicitacaoDetalhesModal({
 
     if (identifiers) {
       const { cnpj, ano, seq } = identifiers;
+      const fetchDirectPncpArquivos = async () => {
+        const directRes = await fetch(
+          `https://pncp.gov.br/api/pncp/v1/orgaos/${cnpj}/compras/${ano}/${seq}/arquivos`,
+          { headers: { Accept: 'application/json' }, signal: controller.signal }
+        );
+        if (directRes.status === 204 || directRes.status === 404) return [];
+        if (!directRes.ok) throw new Error(`PNCP direto HTTP ${directRes.status}`);
+        const pData = await directRes.json();
+        if (!Array.isArray(pData)) return [];
+        return pData
+          .filter((arq: any) => arq.statusAtivo !== false)
+          .map((arq: any, idx: number) => {
+            const docSeq = Number(arq.sequencialDocumento || String(arq.url || arq.uri || '').match(/\/arquivos\/(\d+)(?:[?#]|$)/)?.[1]) || idx + 1;
+            const fileUrl = arq.url || arq.uri || `https://pncp.gov.br/pncp-api/v1/orgaos/${cnpj}/compras/${ano}/${seq}/arquivos/${docSeq}`;
+            return normalizeArquivo({
+              sequencialDocumento: docSeq,
+              titulo: arq.titulo || `Anexo_Oficial_${docSeq}`,
+              tipoDocumentoNome: arq.tipoDocumentoNome || arq.tipoDocumentoDescricao || 'Anexo PNCP',
+              url: fileUrl,
+              uri: fileUrl,
+              tamanhoArquivo: arq.tamanhoArquivo || null,
+              dataPublicacaoPncp: arq.dataPublicacaoPncp,
+              origem: 'PNCP_OFICIAL',
+            });
+          })
+          .filter((doc): doc is EditalArquivo => Boolean(doc));
+      };
+
       fetch(`/api/b2g-licitacoes/arquivos/${cnpj}/${ano}/${seq}`, {
         headers: getAuthHeaders(), signal: controller.signal
       })
         .then(async response => {
-          if (!response.ok) throw new Error(`HTTP ${response.status}`);
+          if (!response.ok) return [];
           const data = await response.json();
-          if (!Array.isArray(data)) throw new Error('Resposta de anexos inválida');
+          if (!Array.isArray(data)) return [];
           return data.map(normalizeArquivo).filter((doc): doc is EditalArquivo => Boolean(doc));
         })
-        .then(docs => {
+        .then(async docs => {
+          const finalDocs = docs.length > 0 ? docs : await fetchDirectPncpArquivos().catch(() => []);
           if (!active) return;
-          const merged = new Map([...docs, ...initial].map(doc => [doc.url, doc]));
-          // Metadados oficiais têm prioridade sobre os documentos da busca.
-          docs.forEach(doc => merged.set(doc.url, doc));
+          const merged = new Map([...finalDocs, ...initial].map(doc => [doc.url, doc]));
+          finalDocs.forEach(doc => merged.set(doc.url, doc));
           setArquivos([...merged.values()]);
         })
-        .catch(error => {
+        .catch(async error => {
           if (!active || controller.signal.aborted) return;
-          console.warn('Erro ao consultar anexos do edital:', error);
-          setDocumentsError('Não foi possível consultar os anexos no PNCP. Tente novamente.');
+          try {
+            const directDocs = await fetchDirectPncpArquivos();
+            if (!active) return;
+            const merged = new Map([...directDocs, ...initial].map(doc => [doc.url, doc]));
+            setArquivos([...merged.values()]);
+          } catch {
+            console.warn('Erro ao consultar anexos do edital:', error);
+            setDocumentsError('Não foi possível consultar os anexos no PNCP. Tente novamente.');
+          }
         })
         .finally(() => { if (active) setSearchingPncp(false); });
     }
@@ -186,9 +221,12 @@ export function LicitacaoDetalhesModal({
     setDownloadingUrl(arq.url);
     setDownloadError(null);
     try {
-      const response = await fetch(getArquivoDownloadEndpoint(licitacao, arq), {
+      let response = await fetch(getArquivoDownloadEndpoint(licitacao, arq), {
         headers: getAuthHeaders(), signal: controller.signal
       });
+      if (!response.ok && /^https?:\/\//i.test(arq.url)) {
+        response = await fetch(arq.url, { signal: controller.signal });
+      }
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
       const contentType = response.headers.get('content-type') || '';
       if (/text\/html|application\/json/i.test(contentType)) throw new Error('O servidor não retornou um arquivo');
@@ -205,6 +243,10 @@ export function LicitacaoDetalhesModal({
       setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
     } catch (error) {
       if (controller.signal.aborted) return;
+      if (/^https?:\/\//i.test(arq.url)) {
+        window.open(arq.url, '_blank', 'noopener,noreferrer');
+        return;
+      }
       console.error('Erro no download do anexo:', error);
       setDownloadError(`Não foi possível baixar “${arq.titulo}”. Tente novamente ou use Abrir para acessar o arquivo original.`);
     } finally {
