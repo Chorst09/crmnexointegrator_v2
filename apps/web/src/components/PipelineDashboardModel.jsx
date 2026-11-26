@@ -483,7 +483,8 @@ export default function PipelineDashboardModel({
     return () => window.removeEventListener('nexos-open-intelligence', open);
   }, []);
   const score = clampPercent(health?.value ?? temperature);
-  const mapLocations = getOpportunityLocations(mapRecords || []);
+  const mapCompanies = [...(modules.data?.companiesB2B || []), ...(modules.data?.companiesB2G || [])];
+  const mapLocations = getOpportunityLocations(mapRecords || [], mapCompanies);
   let currentUser = null;
   try {
     const raw = localStorage.getItem('user');

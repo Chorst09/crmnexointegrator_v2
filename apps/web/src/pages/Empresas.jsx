@@ -20,6 +20,12 @@ const normalizeClientType = (value, fallback = 'B2B') => {
 
 const sectorLabel = (clientType) => (normalizeClientType(clientType) === 'B2G' ? 'Governo' : 'Privado');
 
+const BRAZIL_UFS = [
+  'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO',
+  'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI',
+  'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO',
+];
+
 const initialFormData = (clientType = 'B2B') => ({
   name: '',
   document: '',
@@ -829,6 +835,31 @@ export default function Empresas({ clientType = 'B2B' }) {
                 onChange={(e) => setFormData({ ...formData, website: e.target.value })}
                 className="crm-input"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[var(--crm-ink)] mb-2">Cidade</label>
+              <input
+                type="text"
+                placeholder="Ex: Curitiba"
+                value={formData.city}
+                onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                className="crm-input"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[var(--crm-ink)] mb-2">Estado (UF)</label>
+              <select
+                value={formData.state}
+                onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                className="crm-input"
+              >
+                <option value="">Selecionar UF</option>
+                {BRAZIL_UFS.map((uf) => (
+                  <option key={uf} value={uf}>{uf}</option>
+                ))}
+              </select>
             </div>
           </div>
 
