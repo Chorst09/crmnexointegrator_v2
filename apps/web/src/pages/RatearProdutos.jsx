@@ -8,6 +8,7 @@ import {
   Boxes,
   Calculator,
   Check,
+  ChevronDown,
   Download,
   FileJson,
   GitCompare,
@@ -106,6 +107,9 @@ export default function RatearProdutos() {
     try { return JSON.parse(localStorage.getItem('precifica_rateios_v2') || '[]'); } catch { return []; }
   });
   const [rateioName, setRateioName] = useState('Novo Rateio');
+  const [billingMode, setBillingMode] = useState('auto');
+  const [contractMonths, setContractMonths] = useState(12);
+  const [openMenu, setOpenMenu] = useState(null);
 
   const totals = useMemo(() => {
     const totalCost = items.reduce((sum, item) => sum + D(item.custo * item.qty, 4), 0);
@@ -135,6 +139,8 @@ export default function RatearProdutos() {
         targetSkus: targetItems.map(item => item.sku),
         sourceSkus: sourceItems.map(item => item.sku),
         sourceTargetMap,
+        billingMode: billingMode === 'auto' ? undefined : billingMode,
+        periodMonths: billingMode === 'mensal' ? Number(contractMonths) || 12 : undefined,
       }
     : undefined;
   const scopeLabel = compositionConfig
@@ -392,6 +398,8 @@ export default function RatearProdutos() {
     setTargetIndexes(novosItens[0] ? ['0'] : []);
     setSourceIndexes(novosItens.length > 1 ? novosItens.slice(1).map((_, index) => String(index + 1)) : []);
     setSourceTargetMap({});
+    setBillingMode(isLocacao ? 'mensal' : 'pontual');
+    if (isLocacao && proposalPeriod > 0) setContractMonths(proposalPeriod);
     setRateioName(`${proposal.isBudget ? 'Orçamento' : 'Proposta'} #${proposal.proposalNumber} - ${proposal.clientInfo?.company || proposal.clientInfo?.name}${isLocacao ? ` (locação)` : ''}`);
     setNf(prev => ({
       ...prev,
@@ -426,6 +434,8 @@ export default function RatearProdutos() {
         targetIndexes,
         sourceIndexes,
         sourceTargetMap,
+        billingMode,
+        contractMonths,
         nf,
         responsavel,
         justificativa,
@@ -459,6 +469,8 @@ export default function RatearProdutos() {
     setTargetIndexes(r.snapshot.targetIndexes || []);
     setSourceIndexes(r.snapshot.sourceIndexes || []);
     setSourceTargetMap(r.snapshot.sourceTargetMap || {});
+    setBillingMode(r.snapshot.billingMode || 'auto');
+    setContractMonths(r.snapshot.contractMonths || 12);
     setNf(r.snapshot.nf);
     setResponsavel(r.snapshot.responsavel);
     setJustificativa(r.snapshot.justificativa);
@@ -577,31 +589,87 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
     <div className="rp-app">
 
       <header className="rp-header">
-        <div>
-          <div className="rp-brand"><Calculator size={22} /> Sistema de Rateio & Precificacao <span>Enterprise v2.0</span></div>
-          <div className="rp-sub">NF-e, despesas acessorias, simulacao de cenarios e auditoria de margem.</div>
+        <div className="rp-header-left">
+          <div className="rp-brand"><Calculator size={20} /> Rateio &amp; Precificação <span>NEXOS v3</span></div>
+          <div className="rp-header-meta">
+            <input
+              type="text"
+              className="rp-title-input"
+              value={rateioName}
+              onChange={(e) => setRateioName(e.target.value)}
+              placeholder="Nome do rateio"
+              aria-label="Nome do rateio"
+            />
+            <span className="rp-badge rp-blue">
+              {billingMode === 'mensal' ? `Mensal · ${contractMonths}m` : billingMode === 'pontual' ? 'Pontual' : 'Auto'}
+            </span>
+          </div>
         </div>
         <div className="rp-actions">
-          <span className="rp-badge rp-blue" style={{fontFamily:'monospace',fontSize:'11px'}}>{rateioName}</span>
-          <button className="rp-btn" style={{background:'#7c3aed',color:"rgb(var(--crm-ink-rgb) / 1)"}} onClick={novoRateio}><Plus size={15} /> Novo Rateio</button>
-          <button className="rp-btn rp-btn-light" onClick={() => { setImportModalTab('propostas'); setShowImportModal(true); }}><Receipt size={15} /> Importar Proposta</button>
-          <button className="rp-btn rp-btn-light" onClick={() => { setImportModalTab('orcamentos'); setShowImportModal(true); }}><Receipt size={15} /> Importar Orçamento</button>
-          <button className="rp-btn rp-btn-light" onClick={salvarRateio}><Save size={15} /> Salvar Rateio</button>
-          <button className="rp-btn rp-btn-light" onClick={() => navigate('/rateios-salvos')}><History size={15} /> Rateios Salvos ({savedRateios.length})</button>
-          <button className="rp-btn rp-btn-light" onClick={exportJSON}><FileJson size={15} /> JSON</button>
-          <button className="rp-btn rp-btn-light" onClick={exportCSV}><Download size={15} /> CSV</button>
+          <button className="rp-btn rp-primary" onClick={novoRateio}><Plus size={15} /> Novo Rateio</button>
+
+          <div className="rp-menu-dropdown">
+            <button
+              type="button"
+              className="rp-btn rp-btn-light"
+              onClick={() => setOpenMenu(m => (m === 'import' ? null : 'import'))}
+            >
+              <Receipt size={15} /> Importar <ChevronDown size={13} />
+            </button>
+            {openMenu === 'import' && (
+              <div className="rp-dropdown-panel">
+                <button type="button" onClick={() => { setOpenMenu(null); setImportModalTab('propostas'); setShowImportModal(true); }}>
+                  <Receipt size={14} /> Proposta (Calculadora)
+                </button>
+                <button type="button" onClick={() => { setOpenMenu(null); setImportModalTab('orcamentos'); setShowImportModal(true); }}>
+                  <Receipt size={14} /> Orçamento (Pré-Vendas)
+                </button>
+                <button type="button" onClick={() => { setOpenMenu(null); loadDemo(); }}>
+                  <Boxes size={14} /> Carregar Dados Demo
+                </button>
+              </div>
+            )}
+          </div>
+
+          <button className="rp-btn rp-btn-save" onClick={salvarRateio}><Save size={15} /> Salvar Rateio</button>
+          <button className="rp-btn rp-btn-light" onClick={() => navigate('/rateios-salvos')}>
+            <History size={15} /> Rateios Salvos ({savedRateios.length})
+          </button>
+
+          <div className="rp-menu-dropdown">
+            <button
+              type="button"
+              className="rp-btn rp-btn-light"
+              onClick={() => setOpenMenu(m => (m === 'export' ? null : 'export'))}
+            >
+              <Download size={15} /> Exportar <ChevronDown size={13} />
+            </button>
+            {openMenu === 'export' && (
+              <div className="rp-dropdown-panel rp-dropdown-right">
+                <button type="button" onClick={() => { setOpenMenu(null); exportJSON(); }}>
+                  <FileJson size={14} /> Exportar JSON
+                </button>
+                <button type="button" onClick={() => { setOpenMenu(null); exportCSV(); }}>
+                  <Download size={14} /> Exportar CSV
+                </button>
+                <button type="button" onClick={() => { setOpenMenu(null); window.print(); }}>
+                  <Printer size={14} /> Imprimir / PDF
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 
       <nav className="rp-nav">
         {[
-          ['nf', 'NF-e / Itens', Boxes],
-          ['rateio', 'Rateio', Calculator],
-          ['cenarios', 'Cenarios', GitCompare],
+          ['nf', `NF-e / Itens (${items.length})`, Boxes],
+          ['rateio', 'Rateio & Composição', Calculator],
+          ['cenarios', 'Cenários', GitCompare],
           ['resultado', 'Resultado', BarChart3],
-          ['config', 'Config', Settings],
+          ['config', 'Configurações', Settings],
         ].map(([id, label, Icon]) => (
-          <button key={id} className={`rp-tab ${tab === id ? 'active' : ''}`} onClick={() => setTab(id)}>
+          <button key={id} className={`rp-tab ${tab === id ? 'active' : ''}`} onClick={() => { setOpenMenu(null); setTab(id); }}>
             {React.createElement(Icon, { size: 15 })} {label}
           </button>
         ))}
@@ -741,6 +809,24 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
               <div className="rp-card-head">
                 <h3>Definicao do escopo de rateio</h3>
                 <div className="rp-actions">
+                  <div className="rp-segment" title="Tipo de cobranca dos produtos alvo">
+                    <button className={billingMode === 'auto' ? 'active' : ''} onClick={() => setBillingMode('auto')}>Auto</button>
+                    <button className={billingMode === 'pontual' ? 'active' : ''} onClick={() => setBillingMode('pontual')}>Pontual</button>
+                    <button className={billingMode === 'mensal' ? 'active' : ''} onClick={() => setBillingMode('mensal')}>Mensal (Locação)</button>
+                  </div>
+                  {billingMode === 'mensal' && (
+                    <label className="rp-inline-months">
+                      <span>Prazo:</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="120"
+                        value={contractMonths}
+                        onChange={(e) => setContractMonths(Math.max(1, Number(e.target.value) || 1))}
+                      />
+                      <span>meses</span>
+                    </label>
+                  )}
                   <button className="rp-btn" onClick={autoSelectComposition} disabled={items.length < 2}>Auto selecionar</button>
                   <div className="rp-segment">
                     <button className={scopeMode === 'todos' ? 'active' : ''} onClick={() => setScopeMode('todos')}>Distribuir entre todos</button>
@@ -869,7 +955,16 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
                     })}
                   </div>
                   {targetItems.length > 0 && sourceItems.length > 0 && (
-                    <CompositionEstimate items={items} targets={targetItems} sources={sourceItems} expenses={expenses} sourceTargetMap={sourceTargetMap} manualWeights={manualWeights} />
+                    <CompositionEstimate
+                      items={items}
+                      targets={targetItems}
+                      sources={sourceItems}
+                      expenses={expenses}
+                      sourceTargetMap={sourceTargetMap}
+                      manualWeights={manualWeights}
+                      billingMode={billingMode}
+                      contractMonths={contractMonths}
+                    />
                   )}
                 </>
               )}
@@ -997,7 +1092,7 @@ td{padding:8px 10px;border-bottom:1px solid #e2e8f0;}
   );
 }
 
-function CompositionEstimate({ items, targets, sources, expenses, sourceTargetMap = {}, manualWeights = {} }) {
+function CompositionEstimate({ items, targets, sources, expenses, sourceTargetMap = {}, manualWeights = {}, billingMode = 'auto', contractMonths = 12 }) {
   const sourceTotal = D(sources.reduce((sum, item) => sum + D(item.custo * item.qty, 4), 0), 4);
   const expenseTotal = D(expenses.reduce((sum, expense) => sum + D(expense.valor, 4), 0), 4);
   const bySku = new Map([...targets, ...sources].map(item => [item.sku, item]));
@@ -1006,27 +1101,34 @@ function CompositionEstimate({ items, targets, sources, expenses, sourceTargetMa
     targetSkus: targets.map(item => item.sku),
     sourceSkus: sources.map(item => item.sku),
     sourceTargetMap,
+    billingMode: billingMode === 'auto' ? undefined : billingMode,
+    periodMonths: billingMode === 'mensal' ? Number(contractMonths) || 12 : undefined,
   });
   const targetRows = estimated.results.filter(row => row.compositionRole === 'target');
+  const isMensal = estimated.billing?.billingType === 'mensal';
 
   return (
     <div className="rp-composition-box">
       <div>
-        <span>Produtos alvo</span>
+        <span>Produtos alvo ({targets.length})</span>
         <strong>{targets.map(item => item.sku).join(', ')}</strong>
       </div>
       <div>
-        <span>Custo componentes</span>
+        <span>Custo componentes ({sources.length})</span>
         <strong>{fmt(sourceTotal)}</strong>
       </div>
       <div>
-        <span>Frete/seguro/despesas</span>
+        <span>Despesas acessórias</span>
         <strong>{fmt(expenseTotal)}</strong>
+      </div>
+      <div>
+        <span>Modalidade</span>
+        <strong>{isMensal ? `Mensal (/mês)${estimated.billing?.periodMonths ? ` · ${estimated.billing.periodMonths}m` : ''}` : 'Pontual'}</strong>
       </div>
       {targetRows.map(row => (
         <div key={row.prod.sku}>
-          <span>Custo unit. estimado {row.prod.sku}</span>
-          <strong>{fmt(row.novoCusto)}</strong>
+          <span>{row.prod.desc} ({row.composedSourceSkus?.length || 0} comp.)</span>
+          <strong>{fmt(row.novoCusto)}{isMensal ? '/mês' : ''}</strong>
         </div>
       ))}
     </div>

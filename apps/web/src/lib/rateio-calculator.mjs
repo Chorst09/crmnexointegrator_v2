@@ -28,11 +28,14 @@ const distributeAmount = (buckets, amount, baseFor) => {
   });
 };
 
-export function summarizeCompositionBilling(results) {
+export function summarizeCompositionBilling(results, options = {}) {
   const targets = results.filter(item => item.compositionRole === 'target');
   const visible = targets.length > 0 ? targets : results;
-  const billingType = billingTypeForItems(visible.map(item => item.prod));
-  const periodMonths = Math.max(...visible.map(item => Number(item.prod.period) || 0), 0);
+  const billingType = options.billingMode === 'mensal' || options.billingMode === 'pontual'
+    ? options.billingMode
+    : billingTypeForItems(visible.map(item => item.prod));
+  const itemPeriod = Math.max(...visible.map(item => Number(item.prod.period) || 0), 0);
+  const periodMonths = Number(options.periodMonths) > 0 ? Number(options.periodMonths) : itemPeriod;
   const monthlyTotal = visible.reduce((sum, item) => sum + D(item.novoCusto * item.prod.qty, 4), 0);
 
   return {
@@ -140,7 +143,9 @@ export function calcRateio(items, expenses, manualWeights, scope, composition) {
         const bucketSources = sourceBuckets
           .filter(sourceBucket => bucket.composedSourceSkus.includes(sourceBucket.prod.sku))
           .map(sourceBucket => sourceBucket.prod);
-        bucket.billingType = billingTypeForItems([bucket.prod, ...bucketSources]);
+        bucket.billingType = composition.billingMode === 'mensal' || composition.billingMode === 'pontual'
+          ? composition.billingMode
+          : billingTypeForItems([bucket.prod, ...bucketSources]);
       });
     }
   }
@@ -185,7 +190,10 @@ export function calcRateio(items, expenses, manualWeights, scope, composition) {
   const avgMgAnt = effectiveTotalVenda > 0 ? D(effectiveResults.reduce((sum, item) => sum + item.mgAnt * item.totV, 0) / effectiveTotalVenda, 4) : 0;
   const avgMgNova = effectiveTotalVenda > 0 ? D(effectiveResults.reduce((sum, item) => sum + item.mgNova * item.totV, 0) / effectiveTotalVenda, 4) : 0;
   const diff = D(totalExp - somaCheck, 4);
-  const billing = summarizeCompositionBilling(effectiveResults);
+  const billing = summarizeCompositionBilling(effectiveResults, {
+    billingMode: composition?.billingMode,
+    periodMonths: composition?.periodMonths,
+  });
 
   return {
     results,

@@ -96,4 +96,52 @@ assert.equal(u6Row.sourceCostTotal, 1562.64);
 assert.equal(u6Row.novoCusto, 4160.88);
 assert.deepEqual(u6Row.composedSourceSkus, ['MK-RB']);
 
+// Cenario 4 alvos com quantidades diferentes de componentes (4, 2, 3, 1) + locacao mensal
+const fourTargets = [
+  { sku: 'A1', desc: 'Alvo 1', ncm: '0000', custo: 1000, preco: 1000, qty: 2, un: '/mês' },
+  { sku: 'A2', desc: 'Alvo 2', ncm: '0000', custo: 500, preco: 500, qty: 1, un: '/mês' },
+  { sku: 'A3', desc: 'Alvo 3', ncm: '0000', custo: 800, preco: 800, qty: 4, un: '/mês' },
+  { sku: 'A4', desc: 'Alvo 4', ncm: '0000', custo: 300, preco: 300, qty: 1, un: '/mês' },
+];
+const tenComponents = [
+  { sku: 'C1', desc: 'Comp 1', ncm: '0000', custo: 100, preco: 100, qty: 1, un: 'UN' },
+  { sku: 'C2', desc: 'Comp 2', ncm: '0000', custo: 200, preco: 200, qty: 1, un: 'UN' },
+  { sku: 'C3', desc: 'Comp 3', ncm: '0000', custo: 150, preco: 150, qty: 2, un: 'UN' },
+  { sku: 'C4', desc: 'Comp 4', ncm: '0000', custo: 50, preco: 50, qty: 1, un: 'UN' },
+  { sku: 'C5', desc: 'Comp 5', ncm: '0000', custo: 300, preco: 300, qty: 1, un: 'UN' },
+  { sku: 'C6', desc: 'Comp 6', ncm: '0000', custo: 100, preco: 100, qty: 2, un: 'UN' },
+  { sku: 'C7', desc: 'Comp 7', ncm: '0000', custo: 400, preco: 400, qty: 1, un: 'UN' },
+  { sku: 'C8', desc: 'Comp 8', ncm: '0000', custo: 200, preco: 200, qty: 1, un: 'UN' },
+  { sku: 'C9', desc: 'Comp 9', ncm: '0000', custo: 200, preco: 200, qty: 1, un: 'UN' },
+  { sku: 'C10', desc: 'Comp 10', ncm: '0000', custo: 250, preco: 250, qty: 1, un: 'UN' },
+];
+const fourResult = calcRateio([...fourTargets, ...tenComponents], [], {}, [...fourTargets, ...tenComponents], {
+  targetSkus: ['A1', 'A2', 'A3', 'A4'],
+  sourceSkus: tenComponents.map(c => c.sku),
+  billingMode: 'mensal',
+  periodMonths: 24,
+  sourceTargetMap: {
+    C1: ['A1'], C2: ['A1'], C3: ['A1'], C4: ['A1'], // 4 componentes -> 100+200+300+50 = 650
+    C5: ['A2'], C6: ['A2'],                         // 2 componentes -> 300+200 = 500
+    C7: ['A3'], C8: ['A3'], C9: ['A3'],             // 3 componentes -> 400+200+200 = 800
+    C10: ['A4'],                                    // 1 componente  -> 250
+  },
+});
+const a1 = fourResult.results.find(r => r.prod.sku === 'A1');
+const a2 = fourResult.results.find(r => r.prod.sku === 'A2');
+const a3 = fourResult.results.find(r => r.prod.sku === 'A3');
+const a4 = fourResult.results.find(r => r.prod.sku === 'A4');
+assert.equal(a1.sourceCostTotal, 650);
+assert.equal(a1.novoCusto, 1325); // 1000 + (650 / 2)
+assert.equal(a2.sourceCostTotal, 500);
+assert.equal(a2.novoCusto, 1000); // 500 + 500
+assert.equal(a3.sourceCostTotal, 800);
+assert.equal(a3.novoCusto, 1000); // 800 + (800 / 4)
+assert.equal(a4.sourceCostTotal, 250);
+assert.equal(a4.novoCusto, 550);  // 300 + 250
+assert.equal(fourResult.billing.billingType, 'mensal');
+assert.equal(fourResult.billing.periodMonths, 24);
+assert.equal(fourResult.billing.recurringTotal, 1325 * 2 + 1000 + 1000 * 4 + 550);
+assert.equal(fourResult.billing.contractTotal, fourResult.billing.recurringTotal * 24);
+
 console.log('rateio-calculator: ok');
