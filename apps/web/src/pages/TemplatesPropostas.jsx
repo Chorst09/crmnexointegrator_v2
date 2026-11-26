@@ -29,6 +29,73 @@ import Modal from '../components/Modal';
 const isBlank = (v) => v === null || v === undefined || String(v).trim() === '';
 const safeArray = (v) => (Array.isArray(v) ? v : []);
 
+const DOUBLE_2026_PROPOSAL_TEMPLATE = {
+  type: 'COMMERCIAL',
+  name: 'Proposta Comercial Double TI 2026',
+  description: 'Modelo oficial Double TI + Telecom 2026 (Capa Datacenter, Informações do Documento, Índice, Apresentação 3 Pilares, Objeto, Valor, Condições Gerais, Premissas, Faturamento e Conclusão).',
+  isDefault: true,
+  isActive: true,
+  coverEnabled: true,
+  coverTitle: 'Proposta Comercial',
+  coverSubtitle: 'Solução',
+  coverLogo: '/proposal-templates/double-2026/image1.png',
+  coverBackground: 'url("/proposal-templates/double-2026/image2.jpg") center/cover no-repeat',
+  headerEnabled: true,
+  headerLogo: '/proposal-templates/double-2026/image5.png',
+  headerText: 'DOUBLE T.I & TELECOM LTDA',
+  headerHeight: 80,
+  footerEnabled: true,
+  footerText: 'CNPJ: 53.745.191/0001-87 • RUA: FRANCISCO NEGRÃO, 175 • CEP.: 80.620-390 • CURITIBA - PR',
+  footerLogo: '/proposal-templates/double-2026/image6.png',
+  footerHeight: 70,
+  indexEnabled: true,
+  indexTitle: 'Índice',
+  sections: [
+    {
+      id: 'informacoes_documento',
+      title: 'Informações do Documento',
+      enabled: true,
+      order: 1,
+      body: 'Carta de apresentação formal ao cliente com dados do Gerente de Contas (Carlos Horst • Contas Corporativas • +55 41 99142 9522).'
+    },
+    {
+      id: 'indice',
+      title: 'Índice',
+      enabled: true,
+      order: 2,
+      body: 'Sumário completo com Capítulos 1 (Apresentação), 2 (Objeto) e 3 (Valor, Condições Gerais, Premissas, Faturamento e Conclusão).'
+    },
+    {
+      id: 'apresentacao',
+      title: 'Capítulo 1 - Apresentação',
+      enabled: true,
+      order: 3,
+      body: 'Double TI + Telecom: A próxima tecnologia ao seu alcance. Com 28 anos de história no mercado de TI e Telecom, atuação baseada em Humanização, Engenharia e Qualidade.'
+    },
+    {
+      id: 'objeto',
+      title: 'Capítulo 2 - Objeto',
+      enabled: true,
+      order: 4,
+      body: '2.1 - Objeto da proposta | 2.2 - Especificações e Descritivo do Produto.'
+    },
+    {
+      id: 'valor',
+      title: 'Capítulo 3 - Valor',
+      enabled: true,
+      order: 5,
+      body: '3.1 - Valor do produto | 3.2 - Condições Gerais de Fornecimento | 3.3 - Premissas | 3.4 - Faturamento e Pagamento (Entrada / 30 / 60 DDL) | 3.5 - Conclusão.'
+    }
+  ],
+  primaryColor: '#4A6482',
+  secondaryColor: '#7AB3CC',
+  fontFamily: 'Inter',
+  fontSize: 12,
+  pageMargins: { top: 40, right: 40, bottom: 40, left: 40 },
+  pageSize: 'A4',
+  pageOrientation: 'portrait'
+};
+
 const SIMULADORES_PROPOSAL_TEMPLATE = {
   type: 'COMMERCIAL',
   name: 'Modelo Simuladores B2B',
@@ -835,7 +902,23 @@ const TemplatesPropostas = () => {
         headers: getAuthHeaders()
       });
       const data = await response.json();
-      setTemplates(Array.isArray(data) ? data.map(normalizeTemplate) : []);
+      let list = Array.isArray(data) ? data.map(normalizeTemplate) : [];
+      if (!list.some(t => t.name === DOUBLE_2026_PROPOSAL_TEMPLATE.name)) {
+        try {
+          const createRes = await fetch(API_ENDPOINTS.proposalTemplates, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(DOUBLE_2026_PROPOSAL_TEMPLATE)
+          });
+          if (createRes.ok) {
+            const created = await createRes.json();
+            list = [normalizeTemplate(created), ...list];
+          }
+        } catch (seedErr) {
+          console.warn('Aviso ao registrar template Double 2026:', seedErr);
+        }
+      }
+      setTemplates(list);
     } catch (error) {
       console.error('Erro ao carregar templates:', error);
     } finally {
