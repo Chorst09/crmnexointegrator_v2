@@ -352,6 +352,10 @@ export default function Propostas() {
               key={`double-${editorSession}-${editorProposalId || 'new'}`}
               initialEntry={editorProposalId ? savedProposals.find(p => p.id === editorProposalId) : undefined}
               onSave={saveDouble2026Proposal}
+              onBack={() => {
+                refreshSavedProposals();
+                setMode('list');
+              }}
               onSwitchLegacy={() => setUseLegacyPptx(true)}
             />
           )}

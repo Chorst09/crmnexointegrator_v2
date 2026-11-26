@@ -1,5 +1,7 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
+  ArrowLeft,
   CheckCircle2,
   Download,
   Edit3,
@@ -8,6 +10,8 @@ import {
   Printer,
   Save,
   Trash2,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 
 export interface DoubleProposalItem {
@@ -41,6 +45,7 @@ export interface DoubleProposal2026Data {
 interface DoubleProposal2026EditorProps {
   initialEntry?: any;
   onSave: (data: DoubleProposal2026Data, proposalId?: string) => string;
+  onBack?: () => void;
   onSwitchLegacy?: () => void;
 }
 
@@ -130,6 +135,7 @@ const escHtml = (s: unknown) =>
 export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> = ({
   initialEntry,
   onSave,
+  onBack,
   onSwitchLegacy,
 }) => {
   const [data, setData] = useState<DoubleProposal2026Data>(() =>
@@ -137,8 +143,17 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
   );
   const [proposalId, setProposalId] = useState<string | undefined>(initialEntry?.id);
   const [viewMode, setViewMode] = useState<'split' | 'preview' | 'edit'>('split');
+  const [previewZoom, setPreviewZoom] = useState<number>(85);
   const [savedNotice, setSavedNotice] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
+
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
 
   const totalGeral = useMemo(
     () => data.itens.reduce((acc, it) => acc + Number(it.valorTotal || 0), 0),
@@ -578,11 +593,20 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
     document.body.removeChild(link);
   };
 
-  return (
-    <div className="space-y-4">
-      {/* Barra de Ações */}
-      <div className="flex flex-wrap items-center justify-between gap-3 bg-[rgb(var(--crm-surface-rgb)_/_0.8)] border border-[var(--crm-border)] rounded-xl p-3.5">
+  const editorContent = (
+    <div className="fixed inset-0 z-[9990] flex flex-col bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
+      {/* Barra de Ações Full-Page */}
+      <div className="flex flex-wrap items-center justify-between gap-3 bg-[rgb(var(--crm-surface-rgb)_/_0.95)] border-b border-[var(--crm-border)] px-5 py-3 flex-shrink-0">
         <div className="flex items-center gap-2 flex-wrap">
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)] hover:brightness-110 flex items-center gap-1.5 mr-2"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" /> Voltar para Propostas
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setViewMode('split')}
@@ -603,7 +627,7 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
                 : 'bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] border border-[var(--crm-border)]'
             }`}
           >
-            <Edit3 className="w-3.5 h-3.5" /> Editar
+            <Edit3 className="w-3.5 h-3.5" /> Expandir Formulário
           </button>
           <button
             type="button"
@@ -616,6 +640,27 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
           >
             <Eye className="w-3.5 h-3.5" /> Visualizar A4
           </button>
+          {viewMode !== 'edit' && (
+            <div className="flex items-center gap-1 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg px-1.5 py-1 ml-1">
+              <button
+                type="button"
+                onClick={() => setPreviewZoom((z) => Math.max(55, z - 10))}
+                className="p-0.5 hover:text-cyan-400"
+                title="Diminuir zoom"
+              >
+                <ZoomOut className="w-3.5 h-3.5" />
+              </button>
+              <span className="text-[11px] font-mono px-1">{previewZoom}%</span>
+              <button
+                type="button"
+                onClick={() => setPreviewZoom((z) => Math.min(125, z + 10))}
+                className="p-0.5 hover:text-cyan-400"
+                title="Aumentar zoom"
+              >
+                <ZoomIn className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
           {onSwitchLegacy && (
             <button
               type="button"
@@ -657,20 +702,20 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
         </div>
       </div>
 
-      {/* Área principal */}
+      {/* Área principal Full-Height */}
       <div
-        className={`grid gap-5 ${
+        className={`flex-1 min-h-0 p-4 sm:p-5 grid gap-5 ${
           viewMode === 'split' ? 'grid-cols-1 xl:grid-cols-12' : 'grid-cols-1'
         }`}
       >
-        {/* Formulário */}
+        {/* Formulário Ampliado */}
         {viewMode !== 'preview' && (
           <div
             className={`${
-              viewMode === 'split' ? 'xl:col-span-5' : ''
-            } space-y-4 bg-[rgb(var(--crm-surface-rgb)_/_0.75)] border border-[var(--crm-border)] rounded-xl p-5 max-h-[82vh] overflow-y-auto`}
+              viewMode === 'split' ? 'xl:col-span-6' : 'max-w-5xl w-full mx-auto'
+            } space-y-5 bg-[rgb(var(--crm-surface-rgb)_/_0.85)] border border-[var(--crm-border)] rounded-2xl p-6 h-full overflow-y-auto shadow-xl`}
           >
-            <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-400">
+            <h3 className="text-base font-bold uppercase tracking-wider text-cyan-400 border-b border-[var(--crm-border)] pb-3">
               Dados da Proposta (Modelo Double 2026)
             </h3>
 
@@ -878,18 +923,31 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
         {viewMode !== 'edit' && (
           <div
             className={`${
-              viewMode === 'split' ? 'xl:col-span-7' : ''
-            } rounded-xl border border-[var(--crm-border)] bg-slate-800 overflow-hidden h-[82vh]`}
+              viewMode === 'split' ? 'xl:col-span-6' : 'max-w-5xl w-full mx-auto'
+            } rounded-2xl border border-[var(--crm-border)] bg-slate-800 overflow-auto h-full flex justify-center p-3`}
           >
-            <iframe
-              ref={iframeRef}
-              title="Preview Proposta Double 2026"
-              srcDoc={htmlDocument}
-              className="w-full h-full border-0"
-            />
+            <div
+              style={{
+                width: `${previewZoom}%`,
+                minWidth: '320px',
+                height: '100%',
+              }}
+              className="bg-white rounded-lg overflow-hidden shadow-2xl"
+            >
+              <iframe
+                ref={iframeRef}
+                title="Preview Proposta Double 2026"
+                srcDoc={htmlDocument}
+                className="w-full h-full border-0"
+              />
+            </div>
           </div>
         )}
       </div>
     </div>
   );
+
+  return typeof document !== 'undefined'
+    ? createPortal(editorContent, document.body)
+    : editorContent;
 };
