@@ -23,6 +23,7 @@ const authRoutes = require('./api/auth');
 const contractsRoutes = require('./api/contracts');
 const postSalesRoutes = require('./api/postSales');
 const workflowsRoutes = require('./api/workflows');
+const n8nRoutes = require('./api/n8n.cjs');
 const proposalsRoutes = require('./api/proposals');
 const productsRoutes = require('./api/products');
 
@@ -101,6 +102,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/contracts', contractsRoutes);
 app.use('/api/post-sales', postSalesRoutes);
 app.use('/api/workflows', workflowsRoutes);
+app.use('/api/n8n', n8nRoutes);
 app.use('/api/proposals', proposalsRoutes);
 app.use('/api/proposal-templates', require('./api/proposal-templates'));
 app.use('/api/products', productsRoutes);

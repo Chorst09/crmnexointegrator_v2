@@ -37,6 +37,7 @@ import DashboardKPICard from '../components/DashboardKPICard';
 import ModernTable from '../components/ModernTable';
 import GradientCard from '../components/GradientCard';
 import Modal from '../components/Modal';
+import N8nWorkflowsPanel from '../components/N8nWorkflowsPanel';
 
 const triggerOptions = [
   { value: 'LEAD_CREATED', label: 'Novo lead criado', module: 'CRM', icon: Users },
@@ -93,6 +94,7 @@ const Automacoes = () => {
   const [activeTab, setActiveTab] = useState('workflows');
   const [syncError, setSyncError] = useState('');
   const [workflows, setWorkflows] = useState([]);
+  const [n8nWorkflowCount, setN8nWorkflowCount] = useState(0);
   const [automationRules, setAutomationRules] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -866,6 +868,7 @@ const Automacoes = () => {
           <nav className="-mb-px flex space-x-8 px-6">
             {[
               { id: 'workflows', label: 'Workflows', icon: Workflow, count: workflows.length, color: 'blue' },
+              { id: 'n8n', label: 'Motor n8n', icon: Webhook, count: n8nWorkflowCount, color: 'blue' },
               { id: 'rules', label: 'Regras de Automação', icon: Settings, count: automationRules.length, color: 'green' },
               { id: 'notifications', label: 'Notificações', icon: Bell, count: notifications.length, color: 'yellow' }
             ].map((tab) => {
@@ -900,6 +903,11 @@ const Automacoes = () => {
         </div>
 
         <div className="p-6">
+          {/* Tab Motor n8n */}
+          {activeTab === 'n8n' && (
+            <N8nWorkflowsPanel onCountChange={setN8nWorkflowCount} />
+          )}
+
           {/* Tab Workflows */}
           {activeTab === 'workflows' && (
             <div className="space-y-6">

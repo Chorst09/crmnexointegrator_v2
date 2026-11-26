@@ -27,10 +27,26 @@ import {
 import PageHeader from '../components/PageHeader';
 import DashboardKPICard from '../components/DashboardKPICard';
 import Modal from '../components/Modal';
-import { API_ENDPOINTS, getAuthHeaders } from '../config/api';
+import { API_ENDPOINTS, buildApiUrl, getAuthHeaders } from '../config/api';
 
 // ─── CRM Platforms ────────────────────────────────────────────────────────────
 const CRM_PLATFORMS = [
+  {
+    id: 'n8n',
+    name: 'n8n Automação & Workflows',
+    description: 'Conecte sua instância n8n para orquestrar fluxos, webhooks e automações bidirecionais com o CRM.',
+    logo: '⚡',
+    color: 'from-rose-500/20 to-orange-500/10 border-rose-500/30',
+    badgeColor: "bg-rose-500/20 text-rose-700 dark:text-rose-300",
+    docsUrl: 'https://docs.n8n.io/api/',
+    features: ['Workflows Visuais', 'Webhooks CRM ↔ n8n', 'Ativar/Pausar Fluxos', 'Log de Execuções'],
+    fields: [
+      { key: 'apiBaseUrl', label: 'URL da Instância n8n', type: 'url', placeholder: 'https://n8n.chorstconsult.com.br' },
+      { key: 'apiKey', label: 'API Key (n8n)', type: 'password', placeholder: 'n8n_api_XXXXXXXX' },
+      { key: 'webhookBaseUrl', label: 'Webhook Base URL (opcional)', type: 'url', placeholder: 'https://n8n.chorstconsult.com.br/webhook' },
+      { key: 'webhookSecret', label: 'Secret Inbound (opcional)', type: 'password', placeholder: 'Token para x-nexos-webhook-secret' },
+    ]
+  },
   {
     id: 'zoho',
     name: 'Zoho CRM',
@@ -355,6 +371,18 @@ export default function Integracoes() {
   };
 
   const handleTestCrmConfig = async (platformId, config) => {
+    if (platformId === 'n8n') {
+      const testRes = await fetch(buildApiUrl('/n8n/test'), {
+        method: 'POST',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ apiBaseUrl: config.apiBaseUrl, apiKey: config.apiKey })
+      });
+      const testData = await testRes.json().catch(() => ({}));
+      if (!testRes.ok) {
+        throw new Error(testData?.error || 'Falha ao conectar na instância n8n.');
+      }
+    }
+
     const res = await fetch(`${API_ENDPOINTS.integrations}/crm-configs/${encodeURIComponent(platformId)}/test`, {
       method: 'POST',
       headers: getAuthHeaders(),

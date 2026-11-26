@@ -27,6 +27,7 @@ const authRoutes = require('./api/auth.cjs');
 const contractsRoutes = require('./api/contracts.cjs');
 const postSalesRoutes = require('./api/postSales.cjs');
 const workflowsRoutes = require('./api/workflows.cjs');
+const n8nRoutes = require('./api/n8n.cjs');
 const proposalsRoutes = require('./api/proposals.cjs');
 const productsRoutes = require('./api/products.cjs');
 const preVendasRoutes = require('./api/pre-vendas.cjs');
@@ -322,7 +323,8 @@ app.use('/api', (req, res, next) => {
     req.path.startsWith('/pncp-arquivos') ||
     req.path.startsWith('/proposta-comercial-double.pptx') ||
     req.path.startsWith('/analise-tr') ||
-    req.path.startsWith('/simulator/proposals')
+    req.path.startsWith('/simulator/proposals') ||
+    req.path === '/n8n/webhook-inbound'
   ) {
     const authHeader = req.headers['authorization'];
     if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -338,6 +340,7 @@ app.use('/api', enforceRolePolicies);
 app.use('/api/contracts', contractsRoutes);
 app.use('/api/post-sales', postSalesRoutes);
 app.use('/api/workflows', workflowsRoutes);
+app.use('/api/n8n', n8nRoutes);
 app.use('/api/proposals', proposalsRoutes);
 const proposalTemplatesRoutes = require('./api/proposal-templates.cjs');
 app.use('/api/proposal-templates', (req, res, next) => {

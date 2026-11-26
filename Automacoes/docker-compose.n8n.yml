@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: nexos-n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      - N8N_HOST=${N8N_HOST:-n8n.chorstconsult.com.br}
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=${N8N_PROTOCOL:-https}
+      - NODE_ENV=production
+      - WEBHOOK_URL=${N8N_WEBHOOK_URL:-https://n8n.chorstconsult.com.br/}
+      - GENERIC_TIMEZONE=America/Sao_Paulo
+      - TZ=America/Sao_Paulo
+      - N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS=true
+      - N8N_DIAGNOSTICS_ENABLED=false
+      - N8N_PERSONALIZATION_ENABLED=false
+      # Opcional: habilite apenas se quiser embutir o editor via iframe no mesmo dominio
+      - N8N_CORS_ALLOWED_ORIGINS=${CORS_ORIGIN:-https://nexos.chorstconsult.com.br}
+    volumes:
+      - n8n_data:/home/node/.n8n
+    networks:
+      - nexos-n8n-net
+
+volumes:
+  n8n_data:
+
+networks:
+  nexos-n8n-net:
+    driver: bridge
