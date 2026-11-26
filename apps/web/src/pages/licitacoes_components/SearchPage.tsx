@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, Filter, AlertCircle, Calendar, DollarSign, MapPin, Building2, ExternalLink, X, FileText, Download, Briefcase, CheckCircle2, Clock, AlertTriangle, ShieldCheck, ArrowUpDown, RefreshCw, Layers, Settings } from 'lucide-react';
+import { Search, Filter, AlertCircle, Calendar, DollarSign, MapPin, Building2, ExternalLink, X, FileText, Download, Briefcase, CheckCircle2, Clock, AlertTriangle, ShieldCheck, ArrowUpDown, RefreshCw, Layers, Settings, LayoutGrid, List } from 'lucide-react';
 import { Licitacao } from './types';
 import { isITNotice, matchesProductQuery, getInterestMatches, normalizeITText } from '../../../../api/lib/itNoticeFilter.mjs';
 import { useITProductPreferences } from './itProductPreferences';
@@ -70,6 +70,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   
   const [selectedLicitacao, setSelectedLicitacao] = useState<Licitacao | null>(null);
   const [managedIds, setManagedIds] = useState<Set<string>>(new Set());
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const [addingId, setAddingId] = useState<string | null>(null);
   const [toastMessage, setToastMessage] = useState<{ text: string; type: 'success' | 'info' | 'error' } | null>(null);
 
@@ -374,23 +375,27 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
   };
 
   return (
-    <div className="flex flex-col h-full bg-[rgb(var(--crm-surface-2-rgb)_/_1)] transition-colors duration-200">
-      <header className="px-4 sm:px-6 lg:px-8 pt-4 sm:pt-6 pb-3 sm:pb-4 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-b border-[var(--crm-border)]">
-        <div className="flex flex-wrap items-center gap-3">
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[rgb(var(--crm-ink-rgb)_/_1)] tracking-tight">Buscar Editais</h1>
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50/80 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
-            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-            Multi-Fontes Integradas
-          </span>
+    <div className="flex flex-col h-full bg-transparent transition-colors duration-200 font-sans">
+      <header className="nex-b2g-hero px-4 sm:px-6 lg:px-8 pt-4 sm:pt-5 pb-4">
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div className="flex flex-wrap items-center gap-3">
+              <h1 className="font-sans text-2xl sm:text-[28px] font-extrabold text-white tracking-tight">Buscar Editais</h1>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/15 text-cyan-200 border border-cyan-400/35 shadow-[0_0_16px_rgba(34,211,238,0.18)]">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                Multi-Fontes Integradas · GovFlow B2G
+              </span>
+            </div>
+            <p className="text-xs sm:text-sm text-slate-300 mt-1.5 max-w-4xl leading-relaxed">
+              Busca unificada nas fontes oficiais de PNCP, Compras.gov.br, SIASG, DOU, atas SRP, contratações 14.133 e portais de transparência.
+            </p>
+          </div>
         </div>
-        <p className="text-xs sm:text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mt-2 max-w-5xl leading-relaxed">
-          Busca nas fontes ativas de PNCP, Compras.gov.br, SIASG, DOU, atas, contratações diretas e portais de transparência.
-        </p>
       </header>
 
-      <div className="p-3 sm:p-6 lg:p-8 flex-1 overflow-y-auto custom-scrollbar">
+      <div className="p-3 sm:p-5 lg:p-6 flex-1 overflow-y-auto custom-scrollbar">
         {/* FONTES ATIVAS — resumo + link para configurações */}
-        <div className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.9)] border border-[var(--crm-border)] rounded-2xl px-4 py-3 mb-6 shadow-lg flex items-center justify-between gap-4 flex-wrap">
+        <div className="nex-b2g-glass-card rounded-2xl px-4 py-3 mb-5 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-1.5">
               <Layers className="w-4 h-4 text-cyan-700 dark:text-cyan-400" />
@@ -551,7 +556,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
           {periodWarning && <p role="status" className="text-sm text-amber-700 dark:text-amber-300">{periodWarning}</p>}
 
           {statusFontes.length > 0 && !loading && (
-        <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-4 space-y-3">
+        <div className="nex-b2g-glass-card rounded-2xl p-4 space-y-3">
           <h3 className="text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Fontes consultadas ({statusFontes.length})</h3>
           <div className="flex flex-wrap gap-2">
             {statusFontes.map((status) => (
@@ -583,7 +588,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
       )}
 
       {/* Painel da Regra de Validade Temporal (Filtro por Data de Abertura) */}
-          <div className="bg-[rgb(var(--crm-surface-rgb)_/_0.8)] dark:bg-[rgb(var(--crm-surface-2-rgb)_/_0.8)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div className="nex-b2g-glass-card rounded-2xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-3">
             <div className="flex items-center gap-2.5">
               <div className={cn(
                 "p-1.5 rounded-lg",
@@ -714,13 +719,37 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                 )}
               </div>
 
-              <div className="flex items-center gap-2 self-end sm:self-auto">
+              <div className="flex items-center gap-2 self-end sm:self-auto flex-wrap">
+                <div className="inline-flex items-center rounded-lg border border-cyan-500/25 bg-slate-900/80 p-0.5 mr-1">
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('list')}
+                    className={cn(
+                      "inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition-colors",
+                      viewMode === 'list' ? "bg-cyan-500/20 text-cyan-200" : "text-slate-400 hover:text-white"
+                    )}
+                    title="Visualização em lista"
+                  >
+                    <List className="w-3.5 h-3.5" /> Lista
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('grid')}
+                    className={cn(
+                      "inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-semibold transition-colors",
+                      viewMode === 'grid' ? "bg-cyan-500/20 text-cyan-200" : "text-slate-400 hover:text-white"
+                    )}
+                    title="Visualização em grade (2 colunas)"
+                  >
+                    <LayoutGrid className="w-3.5 h-3.5" /> Grade
+                  </button>
+                </div>
                 <ArrowUpDown className="w-3.5 h-3.5 text-[rgb(var(--crm-muted-rgb)_/_1)]" />
                 <span className="text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Ordenar por:</span>
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value as any)}
-                  className="text-xs font-semibold bg-[rgb(var(--crm-surface-rgb)_/_1)] dark:bg-[rgb(var(--crm-surface-rgb)_/_1)] border border-[var(--crm-border)] dark:border-[var(--crm-border)] rounded-lg px-2.5 py-1.5 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] focus:ring-1 focus:ring-blue-600 outline-none cursor-pointer"
+                  className="text-xs font-semibold bg-slate-900/85 border border-cyan-500/25 rounded-lg px-2.5 py-1.5 text-slate-100 focus:ring-1 focus:ring-cyan-400 outline-none cursor-pointer"
                 >
                   <option value="recente">Mais Recentes</option>
                   <option value="abertura_proxima">Abertura Mais Próxima</option>
@@ -730,7 +759,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
               </div>
             </div>
 
-            <div className="grid gap-4">
+            <div className={cn("grid gap-4", viewMode === 'grid' ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1")}>
               {sortedLicitacoes.map((lic, i) => {
                 const interestMatches = productPreferences.enabled ? getInterestMatches(lic, productPreferences.products) : [];
                 const aberturaStatus = getAberturaStatus(lic);
@@ -738,7 +767,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                 const isCardManaged = Boolean(licId && managedIds.has(licId));
                 const isCardAdding = addingId === licId;
                 return (
-                  <div key={lic.numeroControlePNCP || lic.id || `lic-${i}`} className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-xl border border-[var(--crm-border)] p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow group">
+                  <div key={lic.numeroControlePNCP || lic.id || `lic-${i}`} className="nex-edital-card rounded-2xl p-4 sm:p-5 group flex flex-col justify-between">
                   <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -782,9 +811,9 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                         <p className="mt-2 text-xs text-cyan-700 dark:text-cyan-300">Produtos de interesse: {interestMatches.slice(0, 4).join(', ')}</p>
                       )}
                     </div>
-                    <div className="text-left sm:text-right flex-shrink-0 sm:ml-4">
-                      <p className="text-xs sm:text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">Valor Estimado</p>
-                      <p className="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400">
+                    <div className="nex-edital-value-box rounded-xl px-3.5 py-2 text-left sm:text-right flex-shrink-0 sm:ml-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-300/80 mb-0.5">Valor Estimado</p>
+                      <p className="text-lg sm:text-xl font-extrabold tabular-nums text-emerald-300">
                         {formatNoticeValue(lic)}
                       </p>
                     </div>
