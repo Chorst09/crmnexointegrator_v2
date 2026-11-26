@@ -6,15 +6,10 @@ const router = express.Router();
 const normalizeBaseUrl = (url) => String(url || '').trim().replace(/\/+$/, '');
 
 async function getN8nConfig() {
-  const integration = await prisma.integration.findFirst({
-    where: {
-      type: 'API_EXTERNAL',
-      config: {
-        path: ['platformId'],
-        equals: 'n8n',
-      },
-    },
-  });
+  const rows = await prisma.$queryRawUnsafe(
+    `SELECT id, name, config, "isActive" FROM "Integration" WHERE type::text = 'API_EXTERNAL' AND config->>'platformId' = 'n8n' LIMIT 1`
+  );
+  const integration = Array.isArray(rows) ? rows[0] : null;
 
   const creds = integration?.config?.credentials || {};
   const apiBaseUrl = normalizeBaseUrl(creds.apiBaseUrl || process.env.N8N_API_URL || '');
