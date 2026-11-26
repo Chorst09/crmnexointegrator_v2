@@ -263,6 +263,10 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
   const reactFlowWrapperRef = useRef<HTMLDivElement>(null);
   const isDrawingRef = useRef(false);
   const activeStrokeIdRef = useRef<string | null>(null);
+  const activePointsRef = useRef<DrawingPoint[]>([]);
+  const activeScreenPointRef = useRef<{ x: number; y: number } | null>(null);
+  const activeStrokeMetaRef = useRef<{ color: string; width: number; opacity: number } | null>(null);
+  const activePathRef = useRef<SVGPathElement | null>(null);
 
   const { getNodes, screenToFlowPosition, fitView } = useReactFlow();
 
@@ -369,56 +373,76 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
 
   const startDrawing = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!penEnabled || diagramMode !== 'edit') return;
+    if (event.button !== 0 && event.pointerType === 'mouse') return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
     const point = getFlowPointFromPointer(event);
-    const strokeId = `stroke-${Date.now()}`;
     const isHighlighter = penMode === 'highlighter';
+    const width = isHighlighter ? Math.max(14, penWidth * 3) : penWidth;
+    const opacity = isHighlighter ? 0.36 : 0.96;
+
     isDrawingRef.current = true;
-    activeStrokeIdRef.current = strokeId;
-    setHasUnsavedChanges(true);
-    setDrawings((current) => [
-      ...current,
-      {
-        id: strokeId,
-        color: penColor,
-        width: isHighlighter ? Math.max(14, penWidth * 3) : penWidth,
-        opacity: isHighlighter ? 0.36 : 0.96,
-        points: [point],
-      },
-    ]);
+    activeStrokeIdRef.current = `stroke-${Date.now()}`;
+    activePointsRef.current = [point];
+    activeScreenPointRef.current = { x: event.clientX, y: event.clientY };
+    activeStrokeMetaRef.current = { color: penColor, width, opacity };
+
+    if (activePathRef.current) {
+      activePathRef.current.setAttribute('stroke', penColor);
+      activePathRef.current.setAttribute('stroke-width', String(width));
+      activePathRef.current.setAttribute('opacity', String(opacity));
+      activePathRef.current.setAttribute('d', buildStrokePath([point]));
+    }
   };
 
   const continueDrawing = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!isDrawingRef.current || !activeStrokeIdRef.current) return;
     event.preventDefault();
-    const native = event.nativeEvent as PointerEvent;
-    const rawEvents = typeof native.getCoalescedEvents === 'function' && native.getCoalescedEvents().length > 0
-      ? native.getCoalescedEvents()
-      : [native];
-    const incomingPoints = rawEvents.map((ev) => screenToFlowPosition({ x: ev.clientX, y: ev.clientY }));
+    const lastScreen = activeScreenPointRef.current;
+    if (lastScreen && Math.hypot(event.clientX - lastScreen.x, event.clientY - lastScreen.y) < 2.5) {
+      return;
+    }
+    activeScreenPointRef.current = { x: event.clientX, y: event.clientY };
+    const point = getFlowPointFromPointer(event);
+    activePointsRef.current.push(point);
 
-    setDrawings((current) =>
-      current.map((stroke) => {
-        if (stroke.id !== activeStrokeIdRef.current) return stroke;
-        const nextPoints = [...stroke.points];
-        incomingPoints.forEach((pt) => {
-          const lastPoint = nextPoints[nextPoints.length - 1];
-          if (!lastPoint || Math.hypot(pt.x - lastPoint.x, pt.y - lastPoint.y) >= 3) {
-            nextPoints.push(pt);
-          }
-        });
-        return nextPoints.length === stroke.points.length ? stroke : { ...stroke, points: nextPoints };
-      })
-    );
+    if (activePathRef.current) {
+      activePathRef.current.setAttribute('d', buildStrokePath(activePointsRef.current));
+    }
   };
 
   const stopDrawing = (event?: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDrawingRef.current) return;
     if (event && event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId);
     }
+    const strokeId = activeStrokeIdRef.current;
+    const points = [...activePointsRef.current];
+    const meta = activeStrokeMetaRef.current;
+
     isDrawingRef.current = false;
     activeStrokeIdRef.current = null;
+    activePointsRef.current = [];
+    activeScreenPointRef.current = null;
+    activeStrokeMetaRef.current = null;
+
+    if (activePathRef.current) {
+      activePathRef.current.setAttribute('d', '');
+    }
+
+    if (strokeId && meta && points.length > 0) {
+      setHasUnsavedChanges(true);
+      setDrawings((current) => [
+        ...current,
+        {
+          id: strokeId,
+          color: meta.color,
+          width: meta.width,
+          opacity: meta.opacity,
+          points,
+        },
+      ]);
+    }
   };
 
   const onConnect = useCallback(
@@ -1082,7 +1106,7 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
   return (
     <div className="crm-workspace-backdrop absolute inset-0 z-50 flex h-full w-full flex-col overflow-hidden bg-slate-950 text-slate-100">
       {/* Top Studio Header */}
-      <header className="relative z-30 flex h-14 shrink-0 items-center justify-between gap-3 border-b border-slate-800/90 bg-slate-950/95 px-4 backdrop-blur-md">
+      <header className="relative z-[70] flex h-14 shrink-0 items-center justify-between gap-3 border-b border-slate-800/90 bg-slate-950/95 px-4 backdrop-blur-md">
         <div className="flex min-w-0 items-center gap-3">
           <button
             type="button"
@@ -1515,195 +1539,18 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
                       opacity={stroke.opacity ?? 0.96}
                     />
                   ))}
+                  <path
+                    ref={activePathRef}
+                    d=""
+                    fill="none"
+                    stroke={penColor}
+                    strokeWidth={penWidth}
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    opacity={0.96}
+                  />
                 </svg>
               </ViewportPortal>
-
-              {/* Floating Canvas Dock */}
-              {diagramMode === 'edit' && (
-                <Panel position="bottom-center" className="flex flex-col items-center gap-1.5">
-                  {penEnabled && (
-                    <div className="flex flex-wrap items-center gap-2 rounded-xl border border-slate-800/90 bg-slate-900/95 px-3 py-1.5 shadow-2xl backdrop-blur-xl">
-                      <div className="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-950/70 p-0.5">
-                        <button
-                          type="button"
-                          onClick={() => setPenMode('pen')}
-                          className={`rounded-md px-2 py-0.5 text-[11px] font-semibold transition-colors ${
-                            penMode === 'pen' ? 'bg-amber-500/20 text-amber-200' : 'text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          Caneta
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setPenMode('highlighter')}
-                          className={`rounded-md px-2 py-0.5 text-[11px] font-semibold transition-colors ${
-                            penMode === 'highlighter' ? 'bg-cyan-500/20 text-cyan-200' : 'text-slate-400 hover:text-slate-200'
-                          }`}
-                        >
-                          Marca-texto
-                        </button>
-                      </div>
-
-                      <div className="flex items-center gap-1">
-                        {PEN_COLOR_PRESETS.map((preset) => (
-                          <button
-                            key={preset.hex}
-                            type="button"
-                            onClick={() => setPenColor(preset.hex)}
-                            className={`h-5 w-5 rounded-full border-2 transition-transform ${
-                              penColor.toLowerCase() === preset.hex.toLowerCase()
-                                ? 'scale-115 border-white shadow-[0_0_8px_rgba(255,255,255,0.5)]'
-                                : 'border-transparent opacity-80 hover:opacity-100'
-                            }`}
-                            style={{ backgroundColor: preset.hex }}
-                            title={preset.label}
-                          />
-                        ))}
-                        <input
-                          type="color"
-                          value={penColor}
-                          onChange={(e) => setPenColor(e.target.value)}
-                          className="ml-1 h-6 w-6 cursor-pointer rounded-md border border-slate-700 bg-transparent"
-                          title="Cor personalizada"
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-1.5 border-l border-slate-800 pl-2">
-                        <span className="text-[10px] font-semibold text-slate-400">{penWidth}px</span>
-                        <input
-                          type="range"
-                          min="2"
-                          max="12"
-                          value={penWidth}
-                          onChange={(e) => setPenWidth(Number(e.target.value))}
-                          className="w-16 accent-amber-400"
-                          title="Espessura do traço"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setDrawings((d) => d.slice(0, -1))}
-                          disabled={drawings.length === 0}
-                          className="rounded p-1 text-slate-300 hover:bg-slate-800 disabled:opacity-30"
-                          title="Desfazer último traço"
-                        >
-                          <Undo2 className="h-3.5 w-3.5" />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setDrawings([])}
-                          disabled={drawings.length === 0}
-                          className="rounded p-1 text-rose-300 hover:bg-rose-500/20 disabled:opacity-30"
-                          title="Limpar todos os traços"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-1 whitespace-nowrap rounded-xl border border-slate-800/90 bg-slate-900/95 px-2.5 py-1.5 shadow-2xl backdrop-blur-xl">
-                  <button
-                    type="button"
-                    onClick={() => setPenEnabled(false)}
-                    className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
-                      !penEnabled ? 'bg-cyan-500/20 text-cyan-200' : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                    title="Selecionar e mover (V)"
-                  >
-                    <MousePointer2 className="h-3.5 w-3.5" /> Selecionar
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setPenEnabled((p) => !p)}
-                    className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
-                      penEnabled ? 'bg-amber-500/20 text-amber-200' : 'text-slate-400 hover:text-slate-200'
-                    }`}
-                    title="Caneta livre (P)"
-                  >
-                    <PenLine className="h-3.5 w-3.5" /> Caneta
-                  </button>
-
-                  <div className="mx-1 h-4 w-px bg-slate-800" />
-
-                  <button
-                    type="button"
-                    onClick={addZoneNode}
-                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-cyan-300"
-                    title="Adicionar Zona / Sub-rede"
-                  >
-                    <SquareDashedBottom className="h-3.5 w-3.5 text-cyan-400" /> + Zona
-                  </button>
-                  <button
-                    type="button"
-                    onClick={addNoteNode}
-                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-amber-300"
-                    title="Adicionar Nota Técnica"
-                  >
-                    <StickyNote className="h-3.5 w-3.5 text-amber-400" /> + Nota
-                  </button>
-
-                  <div className="mx-1 h-4 w-px bg-slate-800" />
-
-                  <button
-                    type="button"
-                    onClick={handleUndo}
-                    disabled={history.length === 0}
-                    className="rounded-lg p-1.5 text-slate-300 hover:bg-slate-800 disabled:opacity-30"
-                    title="Desfazer (Cmd+Z)"
-                  >
-                    <Undo2 className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleRedo}
-                    disabled={future.length === 0}
-                    className="rounded-lg p-1.5 text-slate-300 hover:bg-slate-800 disabled:opacity-30"
-                    title="Refazer (Cmd+Shift+Z)"
-                  >
-                    <Redo2 className="h-3.5 w-3.5" />
-                  </button>
-
-                  <div className="mx-1 h-4 w-px bg-slate-800" />
-
-                  <button
-                    type="button"
-                    onClick={() => setSnapToGrid((s) => !s)}
-                    className={`rounded-lg p-1.5 transition-colors ${
-                      snapToGrid ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:bg-slate-800'
-                    }`}
-                    title="Alinhar à grade (Snap to Grid)"
-                  >
-                    <Magnet className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setGridVariant((v) => (v === 'dots' ? 'lines' : v === 'lines' ? 'none' : 'dots'))
-                    }
-                    className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-                    title={`Grade: ${gridVariant}`}
-                  >
-                    <Grid3X3 className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={autoOrganizeNodes}
-                    className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-cyan-300"
-                    title="Auto-organizar em grade"
-                  >
-                    <LayoutGrid className="h-3.5 w-3.5" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => fitView({ padding: 0.18, duration: 300 })}
-                    className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
-                    title="Ajustar à tela"
-                  >
-                    <Maximize2 className="h-3.5 w-3.5" />
-                  </button>
-                  </div>
-                </Panel>
-              )}
             </ReactFlow>
           </DiagramActionsContext.Provider>
 
@@ -1716,6 +1563,193 @@ function ArchitectureDiagramContent({ onBack, activeProject }: { onBack: () => v
               onPointerCancel={stopDrawing}
               onPointerLeave={stopDrawing}
             />
+          )}
+
+          {/* Floating Canvas Dock (z-30: sempre acima do overlay da caneta z-20) */}
+          {diagramMode === 'edit' && (
+            <div className="pointer-events-none absolute bottom-4 left-1/2 z-30 flex -translate-x-1/2 flex-col items-center gap-1.5">
+              {penEnabled && (
+                <div className="pointer-events-auto flex flex-wrap items-center gap-2 rounded-xl border border-slate-800/90 bg-slate-900/95 px-3 py-1.5 shadow-2xl backdrop-blur-xl">
+                  <div className="flex items-center gap-1 rounded-lg border border-slate-800 bg-slate-950/70 p-0.5">
+                    <button
+                      type="button"
+                      onClick={() => setPenMode('pen')}
+                      className={`rounded-md px-2 py-0.5 text-[11px] font-semibold transition-colors ${
+                        penMode === 'pen' ? 'bg-amber-500/20 text-amber-200' : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Caneta
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPenMode('highlighter')}
+                      className={`rounded-md px-2 py-0.5 text-[11px] font-semibold transition-colors ${
+                        penMode === 'highlighter' ? 'bg-cyan-500/20 text-cyan-200' : 'text-slate-400 hover:text-slate-200'
+                      }`}
+                    >
+                      Marca-texto
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-1">
+                    {PEN_COLOR_PRESETS.map((preset) => (
+                      <button
+                        key={preset.hex}
+                        type="button"
+                        onClick={() => setPenColor(preset.hex)}
+                        className={`h-5 w-5 rounded-full border-2 transition-transform ${
+                          penColor.toLowerCase() === preset.hex.toLowerCase()
+                            ? 'scale-115 border-white shadow-[0_0_8px_rgba(255,255,255,0.5)]'
+                            : 'border-transparent opacity-80 hover:opacity-100'
+                        }`}
+                        style={{ backgroundColor: preset.hex }}
+                        title={preset.label}
+                      />
+                    ))}
+                    <input
+                      type="color"
+                      value={penColor}
+                      onChange={(e) => setPenColor(e.target.value)}
+                      className="ml-1 h-6 w-6 cursor-pointer rounded-md border border-slate-700 bg-transparent"
+                      title="Cor personalizada"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-1.5 border-l border-slate-800 pl-2">
+                    <span className="text-[10px] font-semibold text-slate-400">{penWidth}px</span>
+                    <input
+                      type="range"
+                      min="2"
+                      max="12"
+                      value={penWidth}
+                      onChange={(e) => setPenWidth(Number(e.target.value))}
+                      className="w-16 accent-amber-400"
+                      title="Espessura do traço"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setDrawings((d) => d.slice(0, -1))}
+                      disabled={drawings.length === 0}
+                      className="rounded p-1 text-slate-300 hover:bg-slate-800 disabled:opacity-30"
+                      title="Desfazer último traço"
+                    >
+                      <Undo2 className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDrawings([])}
+                      disabled={drawings.length === 0}
+                      className="rounded p-1 text-rose-300 hover:bg-rose-500/20 disabled:opacity-30"
+                      title="Limpar todos os traços"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              <div className="pointer-events-auto flex items-center gap-1 whitespace-nowrap rounded-xl border border-slate-800/90 bg-slate-900/95 px-2.5 py-1.5 shadow-2xl backdrop-blur-xl">
+                <button
+                  type="button"
+                  onClick={() => setPenEnabled(false)}
+                  className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
+                    !penEnabled ? 'bg-cyan-500/20 text-cyan-200' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                  title="Selecionar e mover (V)"
+                >
+                  <MousePointer2 className="h-3.5 w-3.5" /> Selecionar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPenEnabled((p) => !p)}
+                  className={`inline-flex items-center gap-1 rounded-lg px-2.5 py-1 text-xs font-semibold transition-colors ${
+                    penEnabled ? 'bg-amber-500/20 text-amber-200' : 'text-slate-400 hover:text-slate-200'
+                  }`}
+                  title="Caneta livre (P)"
+                >
+                  <PenLine className="h-3.5 w-3.5" /> Caneta
+                </button>
+
+                <div className="mx-1 h-4 w-px bg-slate-800" />
+
+                <button
+                  type="button"
+                  onClick={addZoneNode}
+                  className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-cyan-300"
+                  title="Adicionar Zona / Sub-rede"
+                >
+                  <SquareDashedBottom className="h-3.5 w-3.5 text-cyan-400" /> + Zona
+                </button>
+                <button
+                  type="button"
+                  onClick={addNoteNode}
+                  className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-semibold text-slate-300 hover:bg-slate-800 hover:text-amber-300"
+                  title="Adicionar Nota Técnica"
+                >
+                  <StickyNote className="h-3.5 w-3.5 text-amber-400" /> + Nota
+                </button>
+
+                <div className="mx-1 h-4 w-px bg-slate-800" />
+
+                <button
+                  type="button"
+                  onClick={handleUndo}
+                  disabled={history.length === 0}
+                  className="rounded-lg p-1.5 text-slate-300 hover:bg-slate-800 disabled:opacity-30"
+                  title="Desfazer (Cmd+Z)"
+                >
+                  <Undo2 className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRedo}
+                  disabled={future.length === 0}
+                  className="rounded-lg p-1.5 text-slate-300 hover:bg-slate-800 disabled:opacity-30"
+                  title="Refazer (Cmd+Shift+Z)"
+                >
+                  <Redo2 className="h-3.5 w-3.5" />
+                </button>
+
+                <div className="mx-1 h-4 w-px bg-slate-800" />
+
+                <button
+                  type="button"
+                  onClick={() => setSnapToGrid((s) => !s)}
+                  className={`rounded-lg p-1.5 transition-colors ${
+                    snapToGrid ? 'bg-cyan-500/20 text-cyan-300' : 'text-slate-400 hover:bg-slate-800'
+                  }`}
+                  title="Alinhar à grade (Snap to Grid)"
+                >
+                  <Magnet className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setGridVariant((v) => (v === 'dots' ? 'lines' : v === 'lines' ? 'none' : 'dots'))
+                  }
+                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                  title={`Grade: ${gridVariant}`}
+                >
+                  <Grid3X3 className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={autoOrganizeNodes}
+                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-cyan-300"
+                  title="Auto-organizar em grade"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => fitView({ padding: 0.18, duration: 300 })}
+                  className="rounded-lg p-1.5 text-slate-400 hover:bg-slate-800 hover:text-slate-200"
+                  title="Ajustar à tela"
+                >
+                  <Maximize2 className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            </div>
           )}
 
           {/* Toast */}
