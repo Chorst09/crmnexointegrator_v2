@@ -249,17 +249,18 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 0;
+      padding: 20px 14px;
       font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Arial, sans-serif;
       color: #1e293b;
-      background: #e2e8f0;
+      background: #1e293b;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
     .page {
       width: 210mm;
+      max-width: 100%;
       min-height: 297mm;
-      margin: 0 auto 12px auto;
+      margin: 0 auto 22px auto;
       background: #ffffff;
       position: relative;
       display: flex;
@@ -268,11 +269,13 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
       page-break-after: always;
       break-after: page;
       overflow: hidden;
+      border-radius: 4px;
+      box-shadow: 0 18px 42px rgba(2, 6, 23, 0.45);
     }
-    .page:last-child { page-break-after: auto; break-after: auto; }
+    .page:last-child { page-break-after: auto; break-after: auto; margin-bottom: 0; }
     @media print {
-      body { background: #fff; }
-      .page { margin: 0; box-shadow: none; }
+      body { background: #fff; padding: 0; }
+      .page { width: 210mm; max-width: none; margin: 0; border-radius: 0; box-shadow: none; }
     }
     .page-header img, .page-footer img {
       width: 100%;
@@ -923,22 +926,21 @@ export const DoubleProposal2026Editor: React.FC<DoubleProposal2026EditorProps> =
         {viewMode !== 'edit' && (
           <div
             className={`${
-              viewMode === 'split' ? 'xl:col-span-6' : 'max-w-5xl w-full mx-auto'
-            } rounded-2xl border border-[var(--crm-border)] bg-slate-800 overflow-auto h-full flex justify-center p-3`}
+              viewMode === 'split' ? 'xl:col-span-6' : 'w-full'
+            } rounded-2xl border border-[var(--crm-border)] bg-slate-800 overflow-hidden h-full flex justify-center`}
           >
             <div
               style={{
-                width: `${previewZoom}%`,
-                minWidth: '320px',
+                width: viewMode === 'preview' ? `${Math.min(100, previewZoom + 15)}%` : '100%',
                 height: '100%',
               }}
-              className="bg-white rounded-lg overflow-hidden shadow-2xl"
+              className="overflow-hidden"
             >
               <iframe
                 ref={iframeRef}
                 title="Preview Proposta Double 2026"
                 srcDoc={htmlDocument}
-                className="w-full h-full border-0"
+                className="w-full h-full border-0 bg-slate-800"
               />
             </div>
           </div>
