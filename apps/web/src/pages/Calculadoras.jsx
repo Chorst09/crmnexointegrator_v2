@@ -4933,9 +4933,9 @@ export default function Calculadoras({
         size="large"
         backgroundColor="dark"
       >
-        <div className="space-y-4">
-          <div className="grid grid-cols-1 lg:grid-cols-[260px_1fr] gap-4 min-h-[560px]">
-            <aside className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] border border-[var(--crm-border)] rounded-xl p-3 space-y-2">
+        <div className="space-y-4 font-sans">
+          <div className="grid grid-cols-1 lg:grid-cols-[220px_1fr] gap-4 min-h-[540px]">
+            <aside className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] border border-[var(--crm-border)] rounded-xl p-2.5 space-y-1.5">
               {[
                 { id: 'regimes', label: 'Regimes Tributários' },
                 { id: 'custos', label: 'Custos e Despesas' },
@@ -4947,10 +4947,10 @@ export default function Calculadoras({
                   key={item.id}
                   type="button"
                   onClick={() => setSettingsTab(item.id)}
-                  className={`w-full text-left px-4 py-3 rounded-lg border transition-colors ${
+                  className={`w-full text-left px-3.5 py-2.5 rounded-lg border text-sm font-medium transition-colors ${
                     settingsTab === item.id
-                      ? "bg-blue-500/20 border-blue-400/60 text-blue-700 dark:text-blue-100"
-                      : "bg-transparent border-transparent text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                      ? "bg-blue-500/20 border-blue-400/60 text-blue-700 dark:text-blue-100 font-semibold"
+                      : "bg-transparent border-transparent text-[rgb(var(--crm-ink-rgb)_/_0.85)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
                   }`}
                 >
                   {item.label}
@@ -4958,62 +4958,62 @@ export default function Calculadoras({
               ))}
             </aside>
 
-            <section className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] border border-[var(--crm-border)] rounded-xl p-4 overflow-y-auto">
+            <section className="bg-[rgb(var(--crm-surface-2-rgb)_/_0.95)] border border-[var(--crm-border)] rounded-xl p-5 overflow-y-auto max-h-[68vh]">
               {settingsTab === 'regimes' && (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between gap-3">
+                  <div className="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-[var(--crm-border)]">
                     <div>
-                      <h4 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Gerenciar Regimes</h4>
-                      <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                      <h4 className="font-sans text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Gerenciar Regimes Tributários</h4>
+                      <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">
                         Campos de impostos e bases por regime tributário. Reforma tributária: use regimes com IBS/CBS/IS.
                       </p>
-                      <p className="text-xs text-cyan-700/90 dark:text-cyan-200/90 mt-1">
-                        Referência oficial de transição: 2026 com CBS 0,9% e IBS 0,1%. Alíquotas cheias devem ser parametrizadas.
+                      <p className="text-[11px] text-cyan-700/90 dark:text-cyan-300/90 mt-1">
+                        Transição 2026: CBS 0,9% e IBS 0,1%. Alíquotas cheias devem ser parametrizadas.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={adicionarRegimeDraft}
-                      className="px-4 py-2 rounded-lg border border-blue-400/40 bg-blue-500/15 text-blue-700 dark:text-blue-100 hover:bg-blue-500/25 transition-colors inline-flex items-center gap-2"
+                      className="px-3.5 py-2 rounded-lg border border-blue-400/40 bg-blue-500/15 text-xs font-semibold text-blue-700 dark:text-blue-100 hover:bg-blue-500/25 transition-colors inline-flex items-center gap-1.5"
                     >
-                      <Plus className="w-4 h-4" />
+                      <Plus className="w-3.5 h-3.5" />
                       Adicionar Regime
                     </button>
                   </div>
 
                   {draftSettings.regimesTributarios.map((regime) => (
-                    <div key={regime.id} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.6)] p-4 space-y-4">
-                      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_auto] gap-3 items-center">
+                    <div key={regime.id} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.45)] p-4 space-y-3.5">
+                      <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_auto] gap-2.5 items-center">
                         <input
                           type="text"
                           value={regime.nome}
                           onChange={(event) => atualizarRegimeDraft(regime.id, 'nome', event.target.value)}
-                          className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                          className="w-full h-9 px-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-sm font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-sky-400"
                           placeholder="Nome do regime"
                         />
                         <button
                           type="button"
                           onClick={() => ativarRegimeDraft(regime.id)}
-                          className={`px-4 py-3 rounded-lg border inline-flex items-center justify-center gap-2 ${
+                          className={`h-9 px-3.5 rounded-lg border text-xs font-semibold inline-flex items-center justify-center gap-1.5 ${
                             regime.ativo
-                              ? 'bg-blue-500/70 border-blue-400 text-white'
-                              : "bg-[rgb(var(--crm-surface-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
+                              ? 'bg-blue-500/75 border-blue-400 text-white'
+                              : "bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:border-sky-400/60"
                           }`}
                         >
-                          {regime.ativo ? <Check className="w-4 h-4" /> : null}
+                          {regime.ativo ? <Check className="w-3.5 h-3.5" /> : null}
                           {regime.ativo ? 'Ativo' : 'Ativar'}
                         </button>
                         <button
                           type="button"
                           onClick={() => removerRegimeDraft(regime.id)}
                           disabled={draftSettings.regimesTributarios.length <= 1}
-                          className="px-4 py-3 rounded-lg border border-red-500/50 text-red-700 dark:text-red-300 hover:bg-red-500/15 disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center"
+                          className="h-9 px-3 rounded-lg border border-red-500/40 text-red-600 dark:text-red-300 hover:bg-red-500/15 disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
 
-                      <label className="inline-flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                      <label className="inline-flex items-center gap-2 text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_1)]">
                         <input
                           type="checkbox"
                           checked={Boolean(regime.usaReforma)}
@@ -5023,7 +5023,7 @@ export default function Calculadoras({
                         Aplicar Reforma (IBS/CBS/IS)
                       </label>
 
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                         {[
                           { key: 'pis', label: 'PIS (%)' },
                           { key: 'cofins', label: 'COFINS (%)' },
@@ -5041,13 +5041,13 @@ export default function Calculadoras({
                           { key: 'anexoIII', label: 'Anexo III (%)' }
                         ].map((field) => (
                           <div key={field.key}>
-                            <label className="block text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">{field.label}</label>
+                            <label className="block text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">{field.label}</label>
                             <input
                               type="number"
                               step="0.01"
                               value={regime[field.key] ?? 0}
                               onChange={(event) => atualizarRegimeDraft(regime.id, field.key, parseFloat(event.target.value) || 0)}
-                              className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                              className="w-full h-9 px-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-sm font-medium tabular-nums text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-sky-400"
                             />
                           </div>
                         ))}
@@ -5059,9 +5059,11 @@ export default function Calculadoras({
 
               {settingsTab === 'custos' && (
                 <div className="space-y-4">
-                  <h4 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Custos e Despesas</h4>
-                  <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)]">Configurações globais copiadas das calculadoras de referência.</p>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="pb-3 border-b border-[var(--crm-border)]">
+                    <h4 className="font-sans text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Custos e Despesas</h4>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Parâmetros comerciais, financeiros e operacionais padrão das calculadoras.</p>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3.5">
                     {[
                       { key: 'comissaoVenda', label: 'Comissão Venda (%)' },
                       { key: 'comissaoLocacao', label: 'Comissão Locação (%)' },
@@ -5076,14 +5078,14 @@ export default function Calculadoras({
                       { key: 'despesasFixasMensais', label: 'Despesas Fixas Mensais (R$)' },
                       { key: 'despesasVariaveisPercentual', label: 'Despesas Variáveis (%)' }
                     ].map((field) => (
-                      <div key={field.key}>
-                        <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">{field.label}</label>
+                      <div key={field.key} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-3">
+                        <label className="block text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">{field.label}</label>
                         <input
                           type="number"
                           step="0.01"
                           value={draftSettings.custosDespesas[field.key] ?? 0}
                           onChange={(event) => atualizarDraftCampo('custosDespesas', field.key, parseFloat(event.target.value) || 0)}
-                          className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                          className="w-full h-9 px-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-sm font-semibold tabular-nums text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-sky-400"
                         />
                       </div>
                     ))}
@@ -5092,74 +5094,81 @@ export default function Calculadoras({
               )}
 
               {settingsTab === 'mao' && (
-                <div className="space-y-6">
-                  <h4 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Mão de Obra</h4>
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-                    <div className="rounded-xl border border-[var(--crm-border)] p-4 space-y-3">
-                      <h5 className="font-semibold text-blue-700 dark:text-blue-300">Encargos Sociais (CLT)</h5>
+                <div className="space-y-4">
+                  <div className="pb-3 border-b border-[var(--crm-border)]">
+                    <h4 className="font-sans text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Mão de Obra (CLT)</h4>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Encargos sociais, benefícios e cálculo automático do custo/hora.</p>
+                  </div>
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+                    <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-4 space-y-2.5">
+                      <h5 className="font-sans text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400 mb-2">Encargos Sociais (CLT)</h5>
                       {Object.entries(draftSettings.maoDeObra.encargos).map(([key, value]) => (
-                        <div key={key} className="grid grid-cols-[1fr_120px] gap-3 items-center">
-                          <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{key}</span>
+                        <div key={key} className="grid grid-cols-[1fr_110px] gap-3 items-center">
+                          <span className="text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_0.9)]">{key}</span>
                           <input
                             type="number"
                             step="0.01"
                             value={value}
                             onChange={(event) => atualizarMaoObraGrupoDraft('encargos', key, parseFloat(event.target.value) || 0)}
-                            className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                            className="w-full h-9 px-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-sm font-medium tabular-nums text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-sky-400"
                           />
                         </div>
                       ))}
-                      <div className="pt-2 border-t border-[var(--crm-border)] text-right text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                        Total Encargos: <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatPercent(totalEncargosDraft)}</span>
+                      <div className="pt-2.5 border-t border-[var(--crm-border)] flex justify-between items-center text-xs">
+                        <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Total Encargos</span>
+                        <span className="font-bold text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatPercent(totalEncargosDraft)}</span>
                       </div>
                     </div>
 
-                    <div className="space-y-6">
-                      <div className="rounded-xl border border-[var(--crm-border)] p-4 space-y-3">
-                        <h5 className="font-semibold text-blue-700 dark:text-blue-300">Benefícios (CLT)</h5>
+                    <div className="space-y-4">
+                      <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-4 space-y-2.5">
+                        <h5 className="font-sans text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400 mb-2">Benefícios (CLT)</h5>
                         {Object.entries(draftSettings.maoDeObra.beneficios).map(([key, value]) => (
-                          <div key={key} className="grid grid-cols-[1fr_140px] gap-3 items-center">
-                            <span className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{key}</span>
+                          <div key={key} className="grid grid-cols-[1fr_120px] gap-3 items-center">
+                            <span className="text-xs font-medium text-[rgb(var(--crm-ink-rgb)_/_0.9)]">{key}</span>
                             <input
                               type="number"
                               step="0.01"
                               value={value}
                               onChange={(event) => atualizarMaoObraGrupoDraft('beneficios', key, parseFloat(event.target.value) || 0)}
-                              className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                              className="w-full h-9 px-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-sm font-medium tabular-nums text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-sky-400"
                             />
                           </div>
                         ))}
-                        <div className="pt-2 border-t border-[var(--crm-border)] text-right text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                          Total Benefícios: <span className="font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(totalBeneficiosDraft)}</span>
+                        <div className="pt-2.5 border-t border-[var(--crm-border)] flex justify-between items-center text-xs">
+                          <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Total Benefícios</span>
+                          <span className="font-bold text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">{formatCurrency(totalBeneficiosDraft)}</span>
                         </div>
                       </div>
 
-                      <div className="rounded-xl border border-[var(--crm-border)] p-4 space-y-3">
-                        <h5 className="font-semibold text-blue-700 dark:text-blue-300">Parâmetros Gerais</h5>
-                        {[
-                          { key: 'salarioBase', label: 'Salário Base Padrão' },
-                          { key: 'diasUteis', label: 'Dias Úteis no Mês' },
-                          { key: 'horasDia', label: 'Horas/Dia' }
-                        ].map((field) => (
-                          <div key={field.key}>
-                            <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">{field.label}</label>
-                            <input
-                              type="number"
-                              step="0.01"
-                              value={draftSettings.maoDeObra.geral[field.key] ?? 0}
-                              onChange={(event) => atualizarMaoObraGeralDraft(field.key, parseFloat(event.target.value) || 0)}
-                              className="w-full px-3 py-2 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
-                            />
+                      <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-4 space-y-3">
+                        <h5 className="font-sans text-xs font-bold uppercase tracking-wider text-sky-600 dark:text-sky-400">Parâmetros Gerais</h5>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                          {[
+                            { key: 'salarioBase', label: 'Salário Base' },
+                            { key: 'diasUteis', label: 'Dias Úteis/Mês' },
+                            { key: 'horasDia', label: 'Horas/Dia' }
+                          ].map((field) => (
+                            <div key={field.key}>
+                              <label className="block text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1">{field.label}</label>
+                              <input
+                                type="number"
+                                step="0.01"
+                                value={draftSettings.maoDeObra.geral[field.key] ?? 0}
+                                onChange={(event) => atualizarMaoObraGeralDraft(field.key, parseFloat(event.target.value) || 0)}
+                                className="w-full h-9 px-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-sm font-medium tabular-nums text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-sky-400"
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        <div className="pt-2.5 border-t border-[var(--crm-border)] space-y-1.5 text-xs">
+                          <div className="flex justify-between items-center text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                            <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Custo/Hora (CLT)</span>
+                            <span className="font-bold text-sm">{formatCurrency(custoHoraDraft)}</span>
                           </div>
-                        ))}
-                        <div className="pt-3 border-t border-[var(--crm-border)] space-y-1 text-sm">
-                          <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                            <span>Custo/Hora (CLT)</span>
-                            <span className="text-[rgb(var(--crm-ink-rgb)_/_1)] font-semibold">{formatCurrency(custoHoraDraft)}</span>
-                          </div>
-                          <div className="flex justify-between text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                            <span>Valor/Venda (Hora)</span>
-                            <span className="text-cyan-700 dark:text-cyan-300 font-semibold">{formatCurrency(valorVendaHoraDraft)}</span>
+                          <div className="flex justify-between items-center text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                            <span className="text-[rgb(var(--crm-muted-rgb)_/_1)]">Valor/Venda (Hora)</span>
+                            <span className="text-cyan-700 dark:text-cyan-300 font-bold text-sm">{formatCurrency(valorVendaHoraDraft)}</span>
                           </div>
                         </div>
                       </div>
@@ -5169,23 +5178,30 @@ export default function Calculadoras({
               )}
 
               {settingsTab === 'icms' && (
-                <div className="space-y-6">
-                  <h4 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                    Alíquotas ICMS Interestadual (Origem: {draftSettings.icmsInterestadual.origemUf || 'PR'})
-                  </h4>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div className="space-y-4">
+                  <div className="pb-3 border-b border-[var(--crm-border)] flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h4 className="font-sans text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                        Alíquotas ICMS Interestadual (Origem: {draftSettings.icmsInterestadual.origemUf || 'PR'})
+                      </h4>
+                      <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">
+                        Configure a alíquota de ICMS aplicada por UF de destino.
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
                     {ICMS_UF_ORDER.map((uf) => (
-                      <div key={uf} className="space-y-2">
-                        <label className="block text-lg font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{uf}</label>
+                      <div key={uf} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)_/_0.4)] p-2.5 space-y-1.5">
+                        <label className="block text-xs font-bold tracking-wider text-[rgb(var(--crm-ink-rgb)_/_1)]">{uf}</label>
                         <div className="relative">
                           <input
                             type="number"
                             step="0.01"
                             value={draftSettings.icmsInterestadual.aliquotasPorUf?.[uf] ?? 0}
                             onChange={(event) => atualizarIcmsUfDraft(uf, parseFloat(event.target.value) || 0)}
-                            className="w-full pl-4 pr-12 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-xl text-[rgb(var(--crm-ink-rgb)_/_1)] text-2xl"
+                            className="w-full h-9 pl-2.5 pr-7 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-sm font-semibold tabular-nums text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-sky-400"
                           />
-                          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-blue-700 dark:text-blue-400 text-2xl font-semibold">%</span>
+                          <span className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-sky-600 dark:text-sky-400 text-xs font-bold">%</span>
                         </div>
                       </div>
                     ))}
@@ -5195,8 +5211,11 @@ export default function Calculadoras({
 
               {settingsTab === 'empresa' && (
                 <div className="space-y-4 max-w-3xl">
-                  <h4 className="text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Dados da Empresa</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="pb-3 border-b border-[var(--crm-border)]">
+                    <h4 className="font-sans text-base font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Dados da Empresa</h4>
+                    <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">Informações exibidas no cabeçalho das propostas e simulações.</p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                     {[
                       { key: 'razaoSocial', label: 'Razão Social', colSpan: true },
                       { key: 'cnpj', label: 'CNPJ' },
@@ -5207,12 +5226,12 @@ export default function Calculadoras({
                       { key: 'email', label: 'Email', colSpan: true }
                     ].map((field) => (
                       <div key={field.key} className={field.colSpan ? 'md:col-span-2' : ''}>
-                        <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-2">{field.label}</label>
+                        <label className="block text-xs font-medium text-[rgb(var(--crm-muted-rgb)_/_1)] mb-1.5">{field.label}</label>
                         <input
                           type="text"
                           value={draftSettings.dadosEmpresa[field.key] || ''}
                           onChange={(event) => atualizarDraftCampo('dadosEmpresa', field.key, event.target.value)}
-                          className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                          className="w-full h-9 px-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] outline-none focus:border-sky-400"
                         />
                       </div>
                     ))}
@@ -5222,21 +5241,21 @@ export default function Calculadoras({
             </section>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-[var(--crm-border)]">
+          <div className="flex justify-end gap-2.5 pt-3 border-t border-[var(--crm-border)]">
             <button
               type="button"
               onClick={() => {
                 setShowSettingsModal(false);
                 setDraftSettings(deepClone(calculatorSettings));
               }}
-              className="px-6 py-3 rounded-lg border border-[var(--crm-border)] text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
+              className="px-4 py-2 rounded-lg border border-[var(--crm-border)] text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_1)]"
             >
               Cancelar
             </button>
             <button
               type="button"
               onClick={salvarConfiguracoes}
-              className="px-6 py-3 rounded-lg border border-blue-400/60 bg-blue-500/80 text-white hover:bg-blue-500"
+              className="px-4 py-2 rounded-lg border border-blue-400/60 bg-blue-500/80 text-sm font-semibold text-white hover:bg-blue-500"
             >
               Salvar Alterações
             </button>
