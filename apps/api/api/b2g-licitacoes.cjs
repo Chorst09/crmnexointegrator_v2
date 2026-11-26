@@ -1046,7 +1046,7 @@ router.get('/gerenciadas', async (req, res) => {
 // POST /gerenciadas
 router.post('/gerenciadas', async (req, res) => {
   try {
-    const userId   = getUserId(req);
+    const userId   = String(getUserId(req) || req.user?.id || req.user?.userId || 'system');
     const tenantId = getTenant(req);
     const lic      = req.body;
 
@@ -1054,9 +1054,31 @@ router.post('/gerenciadas', async (req, res) => {
       return res.status(400).json({ error: 'Payload inválido' });
     }
 
+    const safeDate = (raw) => {
+      if (!raw) return null;
+      const str = String(raw).trim();
+      if (!str || /definir|n\/a/i.test(str)) return null;
+      const brMatch = str.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}:\d{2}))?/);
+      const normalized = brMatch
+        ? `${brMatch[3]}-${brMatch[2]}-${brMatch[1]}${brMatch[4] ? `T${brMatch[4]}:00` : 'T00:00:00'}`
+        : str;
+      const d = new Date(normalized);
+      return Number.isNaN(d.getTime()) ? null : d;
+    };
+
+    const safeAmount = (raw) => {
+      if (typeof raw === 'number') return Number.isFinite(raw) ? raw : 0;
+      const str = String(raw ?? '').trim();
+      if (!str) return 0;
+      const cleaned = str.includes(',')
+        ? str.replace(/[^\d,-]/g, '').replace(',', '.')
+        : str.replace(/[^\d.-]/g, '');
+      const parsed = parseFloat(cleaned);
+      return Number.isFinite(parsed) ? parsed : 0;
+    };
+
     const numControle = String(
       lic.numeroControlePNCP || lic.numero_controle_pncp ||
-      // formato retornado pelo /search (id já é o numero de controle PNCP quando tem o padrão CNPJ-seq/ano)
       (lic.id && /^\d{14,}-\d+-\d+\/\d{4}$/.test(String(lic.id)) ? lic.id : '') ||
       lic.id || ''
     ).trim() || null;
@@ -1076,14 +1098,12 @@ router.post('/gerenciadas', async (req, res) => {
     const cidade   = String(lic.cidade || lic.municipio || lic.unidadeOrgao?.municipioNome || '').slice(0, 300);
     const modal    = String(lic.modalidade || lic.modalidadeNome || '').slice(0, 200);
     const objeto   = String(lic.titulo || lic.objeto_resumo || lic.objetoCompra || '').slice(0, 2000);
-    const valor    = parseFloat(lic.valor || lic.valor_estimado || lic.valorTotalEstimado || 0);
+    const valor    = safeAmount(lic.valor ?? lic.valor_estimado ?? lic.valorTotalEstimado ?? 0);
     const situacao = String(lic.situacao || lic.status || lic.situacaoCompraNome || '').slice(0, 200);
     const link     = String(lic.link || lic.linkSistemaOrigem || lic.linkProcessoEletronico || '').slice(0, 1000);
 
-    const dtAbertura = lic.data_abertura || lic.dataAbertura
-      ? new Date(lic.data_abertura || lic.dataAbertura) : null;
-    const dtEnc = lic.data_encerramento || lic.dataEncerramento || lic.dataEncerramentoProposta
-      ? new Date(lic.data_encerramento || lic.dataEncerramento || lic.dataEncerramentoProposta) : null;
+    const dtAbertura = safeDate(lic.data_abertura || lic.dataAbertura || lic.dataHoraAberturaSessaoPublica);
+    const dtEnc = safeDate(lic.data_encerramento || lic.dataEncerramento || lic.dataEncerramentoProposta);
 
     const crypto = require('crypto');
     const rowId = crypto.randomUUID();
@@ -1093,7 +1113,7 @@ router.post('/gerenciadas', async (req, res) => {
           orgao, uf, cidade, modalidade, objeto_resumo,
           data_abertura, data_encerramento, valor_estimado, situacao,
           link_sistema_origem, status_fase, payload_completo)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::timestamp, $12::timestamp, $13, $14, $15, $16, $17::jsonb)
+       VALUES ($1::uuid, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11::timestamp, $12::timestamp, $13, $14, $15, $16, $17::jsonb)
        RETURNING *`,
       rowId,
       userId, tenantId || null,

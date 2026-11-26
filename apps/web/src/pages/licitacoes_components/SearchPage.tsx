@@ -376,26 +376,34 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
   return (
     <div className="flex flex-col h-full bg-transparent transition-colors duration-200 font-sans">
-      <header className="nex-b2g-hero px-4 sm:px-6 lg:px-8 pt-4 sm:pt-5 pb-4">
-        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3">
-          <div>
-            <div className="flex flex-wrap items-center gap-3">
-              <h1 className="font-sans text-2xl sm:text-[28px] font-extrabold text-white tracking-tight">Buscar Editais</h1>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/15 text-cyan-200 border border-cyan-400/35 shadow-[0_0_16px_rgba(34,211,238,0.18)]">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                Multi-Fontes Integradas · GovFlow B2G
-              </span>
+      <div className="p-3 sm:p-5 lg:p-6 flex-1 overflow-y-auto custom-scrollbar space-y-5">
+        <header className="nex-b2g-hero px-5 py-4 sm:px-6 sm:py-5">
+          <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="flex flex-wrap items-center gap-3">
+                <h1 className="font-sans text-xl sm:text-2xl font-extrabold text-white tracking-tight">Buscar Editais</h1>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-cyan-500/15 text-cyan-200 border border-cyan-400/40 shadow-[0_0_16px_rgba(34,211,238,0.22)]">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                  Multi-Fontes Integradas · GovFlow B2G
+                </span>
+              </div>
+              <p className="text-xs sm:text-sm text-slate-300 mt-1.5 max-w-3xl leading-relaxed">
+                Busca unificada nas fontes oficiais de PNCP, Compras.gov.br, SIASG, DOU, atas SRP, contratações 14.133 e portais de transparência.
+              </p>
             </div>
-            <p className="text-xs sm:text-sm text-slate-300 mt-1.5 max-w-4xl leading-relaxed">
-              Busca unificada nas fontes oficiais de PNCP, Compras.gov.br, SIASG, DOU, atas SRP, contratações 14.133 e portais de transparência.
-            </p>
+            <button
+              type="button"
+              onClick={onNavigateToPipeline}
+              className="inline-flex items-center gap-2 rounded-xl border border-cyan-400/35 bg-slate-950/60 px-3.5 py-2 text-xs font-semibold text-cyan-200 hover:border-cyan-300 hover:bg-cyan-500/15 transition-all cursor-pointer"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              Fontes ({fontesAtivas.size}/{SOURCES_CATALOG.length})
+            </button>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <div className="p-3 sm:p-5 lg:p-6 flex-1 overflow-y-auto custom-scrollbar">
         {/* FONTES ATIVAS — resumo + link para configurações */}
-        <div className="nex-b2g-glass-card rounded-2xl px-4 py-3 mb-5 flex items-center justify-between gap-4 flex-wrap">
+        <div className="nex-b2g-glass-card rounded-2xl px-4 py-3 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-3 flex-wrap">
             <div className="flex items-center gap-1.5">
               <Layers className="w-4 h-4 text-cyan-700 dark:text-cyan-400" />
@@ -446,7 +454,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
                 type="text"
                 placeholder="Digite o produto de TI: notebook, firewall, Microsoft 365…"
                 aria-label="Produto de TI"
-                className="block w-full pl-10 pr-3 py-3 border border-[var(--crm-border)] rounded-lg focus:ring-2 focus:ring-cyan-500 focus:border-transparent bg-[rgb(var(--crm-surface-2-rgb)_/_1)] shadow-sm text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)] dark:placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
+                className="nex-b2g-input block w-full pl-10 pr-3 py-3 rounded-xl shadow-sm outline-none"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); fetchLicitacoes(searchTerm); } }}
@@ -458,7 +466,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
               placeholder="Cidade (ex: Curitiba)..."
               aria-label="Cidade"
               list="b2g-city-options"
-              className="border border-[var(--crm-border)] rounded-lg px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none w-full md:w-48 placeholder-[rgb(var(--crm-muted-rgb)_/_1)] dark:placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
+              className="nex-b2g-input rounded-xl px-4 py-3 shadow-sm outline-none w-full md:w-48"
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); fetchLicitacoes(); } }}
@@ -469,7 +477,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
 
             <select
               aria-label="Estado"
-              className="border border-[var(--crm-border)] rounded-lg px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sm focus:ring-2 focus:ring-cyan-500 outline-none w-full md:w-48"
+              className="nex-b2g-input rounded-xl px-4 py-3 shadow-sm outline-none w-full md:w-48"
               value={selectedUf}
               onChange={(e) => {
                 const uf = e.target.value;
@@ -532,7 +540,7 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
             <button
               onClick={() => fetchLicitacoes(searchTerm)}
               disabled={loading}
-              className="px-4 py-2 bg-gradient-to-r from-teal-600 to-cyan-600 hover:from-teal-500 hover:to-cyan-500 text-white text-xs sm:text-sm font-semibold rounded-lg transition-all shadow-sm shadow-[#00171d] disabled:opacity-50 cursor-pointer"
+              className="px-5 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs sm:text-sm font-bold rounded-xl transition-all shadow-[0_0_20px_rgba(6,182,212,0.3)] disabled:opacity-50 cursor-pointer"
             >
               Buscar editais
             </button>
@@ -697,9 +705,43 @@ export function SearchPage({ onNavigateToGerenciadas, onNavigateToPipeline }: { 
             )}
           </div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 mt-2">
+            {/* KPIs Executivos da Busca */}
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="nex-b2g-kpi">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-cyan-300/80">Editais Encontrados</span>
+                <div className="mt-1 text-xl font-extrabold text-white tabular-nums">{sortedLicitacoes.length}</div>
+              </div>
+              <div className="nex-b2g-kpi">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-emerald-300/80">Volume Estimado</span>
+                <div className="mt-1 text-xl font-extrabold text-emerald-300 tabular-nums">
+                  {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 }).format(
+                    sortedLicitacoes.reduce((acc, lic) => acc + (Number((lic as any).valor ?? lic.valor_estimado ?? lic.valorTotalEstimado ?? 0) || 0), 0)
+                  )}
+                </div>
+              </div>
+              <div className="nex-b2g-kpi">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-amber-300/80">Encerram em Breve</span>
+                <div className="mt-1 text-xl font-extrabold text-amber-300 tabular-nums">
+                  {sortedLicitacoes.filter(lic => {
+                    const st = getAberturaStatus(lic).type;
+                    return st === 'imminent' || st === 'soon';
+                  }).length}
+                </div>
+              </div>
+              <div className="nex-b2g-kpi">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-violet-300/80">Já Gerenciadas</span>
+                <div className="mt-1 text-xl font-extrabold text-violet-300 tabular-nums">
+                  {sortedLicitacoes.filter(lic => {
+                    const id = getLicId(lic);
+                    return Boolean(id && managedIds.has(id));
+                  }).length}
+                </div>
+              </div>
+            </div>
+
             {/* Barra de Status e Ordenação dos Resultados */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] px-5 py-3.5 rounded-xl border border-[var(--crm-border)] shadow-sm">
+            <div className="nex-b2g-glass-card flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-3.5 rounded-2xl">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
