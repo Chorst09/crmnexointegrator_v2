@@ -14,6 +14,7 @@ const getAuthHeaders = () => {
 export function AlertsPage() {
   const [alertas, setAlertas] = useState<Alerta[]>([]);
   const [loading, setLoading] = useState(false);
+  const [feedback, setFeedback] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
   // Form state
   const [termo, setTermo] = useState('');
@@ -41,25 +42,32 @@ export function AlertsPage() {
 
   const handleCreateAlerta = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!termo) return;
+    if (!termo.trim()) return;
     
     setLoading(true);
+    setFeedback(null);
     try {
-      await fetch('/api/b2g-licitacoes/alertas', {
+      const res = await fetch('/api/b2g-licitacoes/alertas', {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify({
-          termo,
+          termo: termo.trim(),
           uf,
           min_valor: parseFloat(minValor) || 0
         })
       });
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData?.error || errData?.detail || `Erro HTTP ${res.status}`);
+      }
       setTermo('');
       setUf('');
       setMinValor('');
+      setFeedback({ type: 'ok', text: 'Alerta salvo com sucesso!' });
       await fetchAlertas();
-    } catch (e) {
-      console.error(e);
+    } catch (err) {
+      console.error(err);
+      setFeedback({ type: 'err', text: err instanceof Error ? err.message : 'Erro ao salvar alerta.' });
     } finally {
       setLoading(false);
     }
@@ -120,10 +128,9 @@ export function AlertsPage() {
                   onChange={(e) => setUf(e.target.value)}
                 >
                   <option value="">Qualquer Estado</option>
-                  <option value="PR">Paraná (PR)</option>
-                  <option value="SP">São Paulo (SP)</option>
-                  <option value="DF">Distrito Federal (DF)</option>
-                  <option value="SC">Santa Catarina (SC)</option>
+                  {['AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT','PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'].map((sigla) => (
+                    <option key={sigla} value={sigla}>{sigla}</option>
+                  ))}
                 </select>
               </div>
 
@@ -147,6 +154,16 @@ export function AlertsPage() {
               <Plus className="w-4 h-4 mr-2" />
               Salvar Alerta
             </button>
+
+            {feedback && (
+              <div className={`mt-4 rounded-lg px-4 py-2.5 text-xs font-semibold border ${
+                feedback.type === 'ok'
+                  ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-300'
+                  : 'bg-rose-500/15 border-rose-500/40 text-rose-300'
+              }`}>
+                {feedback.text}
+              </div>
+            )}
           </form>
         </div>
 

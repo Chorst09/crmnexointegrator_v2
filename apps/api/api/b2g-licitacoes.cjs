@@ -964,14 +964,16 @@ router.get('/alertas', async (req, res) => {
     const tenantId = getTenant(req);
 
     const alertas = await prisma.$queryRawUnsafe(
-      `SELECT * FROM alertas_licitacao
+      `SELECT id, user_id AS "userId", tenant_company_id AS "tenantCompanyId",
+              termo, uf, modalidade, data_abertura_inicio, min_valor, ativo, created_at
+       FROM alertas_licitacao
        WHERE ativo = true
          AND (
-           "userId" = $2
-           OR ("tenantCompanyId" IS NOT NULL AND "tenantCompanyId" = $1)
+           user_id::text = $2::text
+           OR ($1::text IS NOT NULL AND $1::text <> '' AND tenant_company_id::text = $1::text)
          )
        ORDER BY created_at DESC`,
-      tenantId, userId
+      tenantId || null, userId ? String(userId) : ''
     );
     res.json(alertas);
   } catch (err) {
@@ -992,10 +994,11 @@ router.post('/alertas', async (req, res) => {
     const crypto = require('crypto');
     const alertaId = crypto.randomUUID();
     const [alerta] = await prisma.$queryRawUnsafe(
-      `INSERT INTO alertas_licitacao (id, "userId", "tenantCompanyId", termo, uf, min_valor)
+      `INSERT INTO alertas_licitacao (id, user_id, tenant_company_id, termo, uf, min_valor)
        VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING *`,
-      alertaId, userId, tenantId || null, termo.trim(),
+       RETURNING id, user_id AS "userId", tenant_company_id AS "tenantCompanyId",
+                 termo, uf, modalidade, data_abertura_inicio, min_valor, ativo, created_at`,
+      alertaId, userId ? String(userId) : null, tenantId ? String(tenantId) : null, termo.trim(),
       uf || null, parseFloat(min_valor) || 0
     );
     res.status(201).json(alerta);
@@ -1014,8 +1017,8 @@ router.delete('/alertas/:id', async (req, res) => {
     await prisma.$executeRawUnsafe(
       `UPDATE alertas_licitacao SET ativo = false
        WHERE id::text = $1::text
-         AND ("userId" = $2 OR "tenantCompanyId" = $3)`,
-      req.params.id, userId, tenantId || ''
+         AND (user_id::text = $2::text OR ($3::text <> '' AND tenant_company_id::text = $3::text))`,
+      req.params.id, userId ? String(userId) : '', tenantId ? String(tenantId) : ''
     );
     res.status(204).send();
   } catch (err) {
@@ -1275,10 +1278,10 @@ router.get('/analytics', async (req, res) => {
       `SELECT COUNT(*) AS total_alertas FROM alertas_licitacao
        WHERE ativo = true
          AND (
-           "userId" = $2 OR ("tenantCompanyId" IS NOT NULL AND "tenantCompanyId" = $1)
-           OR ($1::text IS NULL AND "userId" = $2)
+           user_id::text = $2::text OR (tenant_company_id IS NOT NULL AND tenant_company_id::text = $1::text)
+           OR ($1::text IS NULL AND user_id::text = $2::text)
          )`,
-      tenantId, userId
+      tenantId || null, userId ? String(userId) : ''
     );
 
     res.json({
