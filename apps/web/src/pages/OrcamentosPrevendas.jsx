@@ -143,6 +143,7 @@ const formFromRequest = (request, currentUser = {}) => {
     cotacaoId: firstCotacao?.id || '',
     titulo: request?.titulo || '',
     descricao: request?.descricao || '',
+    tipoCliente: String(request?.lead?.clientType || request?.opportunity?.clientType || inferCompanyClientType(nomeCliente, request?.opportunity) || 'B2B').toUpperCase() === 'B2G' ? 'B2G' : 'B2B',
     nomeCliente,
     cnpjDocumento: proposalDetails.cnpjDocumento || '',
     contatoCliente: proposalDetails.contatoCliente || nomeCliente,
@@ -174,6 +175,7 @@ const buildEmptyForm = (currentUser = {}, existingRequests = []) => ({
   cotacaoId: '',
   titulo: '',
   descricao: '',
+  tipoCliente: 'B2B',
   nomeCliente: '',
   cnpjDocumento: '',
   contatoCliente: '',
@@ -371,23 +373,23 @@ function SearchableCreatableField({
   placeholder = '',
   emptyMessage = 'Nenhum cadastro encontrado.',
   createPrefix = 'Cadastrar',
-  disabled = false
+  disabled = false,
+  maxOptions = 8
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [creating, setCreating] = useState(false);
   const term = normalizeSearchText(value);
 
-  const filteredOptions = useMemo(() => (
-    options
-      .filter((option) => {
-        if (!term) return true;
-        const labelText = getOptionLabel(option);
-        const subtitleText = getOptionSubtitle?.(option) || '';
-        const idText = option?.id || option?.number || option?.numero || option?.numeroOportunidade || '';
-        return normalizeSearchText([labelText, subtitleText, idText].join(' ')).includes(term);
-      })
-      .slice(0, 8)
-  ), [options, term, getOptionLabel, getOptionSubtitle]);
+  const filteredOptions = useMemo(() => {
+    const matched = options.filter((option) => {
+      if (!term) return true;
+      const labelText = getOptionLabel(option);
+      const subtitleText = getOptionSubtitle?.(option) || '';
+      const idText = option?.id || option?.number || option?.numero || option?.numeroOportunidade || '';
+      return normalizeSearchText([labelText, subtitleText, idText].join(' ')).includes(term);
+    });
+    return Number.isFinite(maxOptions) ? matched.slice(0, maxOptions) : matched;
+  }, [options, term, getOptionLabel, getOptionSubtitle, maxOptions]);
 
   const hasExactMatch = useMemo(() => (
     Boolean(term) && options.some((option) => (
@@ -671,7 +673,7 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
       body: JSON.stringify({
         name,
         document: form.cnpjDocumento.trim() || undefined,
-        clientType: inferCompanyClientType(name, selectedOpportunity),
+        clientType: form.tipoCliente === 'B2G' ? 'B2G' : 'B2B',
         status: 'PROSPECT',
         autoDistribute: false,
         contacts: contactPayload
@@ -931,16 +933,50 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
             </div>
           </div>
 
-          {/* Nome do Cliente e Modalidade */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
+          {/* Tipo do cliente, Cliente e Modalidade */}
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+            <div className="md:col-span-3">
+              <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Tipo do cliente</label>
+              <select
+                value={form.tipoCliente || 'B2B'}
+                onChange={(e) => {
+                  const nextType = e.target.value;
+                  setForm((p) => ({
+                    ...p,
+                    tipoCliente: nextType,
+                    nomeCliente: '',
+                    clientId: '',
+                    cnpjDocumento: '',
+                    contatoCliente: '',
+                    emailCliente: ''
+                  }));
+                }}
+                className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.5)] px-3.5 py-2.5 text-[rgb(var(--crm-ink-rgb)_/_1)] focus:outline-none focus:ring-2 focus:ring-sky-500/50"
+              >
+                <option value="B2B">Corporativo</option>
+                <option value="B2G">Governo</option>
+              </select>
+            </div>
+            <div className="md:col-span-6">
               <SearchableCreatableField
-                label="Cliente / Órgão"
+                label={`Cliente (${form.tipoCliente === 'B2G' ? 'Governo' : 'Corporativo'})`}
                 value={form.nomeCliente}
-                options={companies}
-                placeholder="Buscar cliente ou órgão cadastrado"
-                emptyMessage="Nenhum cliente ou órgão encontrado."
-                createPrefix="Cadastrar cliente/órgão"
+                options={companies.filter((c) => {
+                  const ct = String(c?.clientType || 'B2B').toUpperCase();
+                  return form.tipoCliente === 'B2G' ? ct === 'B2G' : ct !== 'B2G';
+                })}
+                maxOptions={Infinity}
+                placeholder={
+                  form.tipoCliente === 'B2G'
+                    ? 'Buscar órgão / cliente Governo cadastrado...'
+                    : 'Buscar cliente Corporativo cadastrado...'
+                }
+                emptyMessage={
+                  form.tipoCliente === 'B2G'
+                    ? 'Nenhum cliente Governo encontrado.'
+                    : 'Nenhum cliente Corporativo encontrado.'
+                }
+                createPrefix={form.tipoCliente === 'B2G' ? 'Cadastrar órgão (Governo)' : 'Cadastrar cliente (Corporativo)'}
                 getOptionLabel={formatCompanyLabel}
                 getOptionSubtitle={formatCompanySubtitle}
                 onInputChange={(value) => setForm((p) => ({ ...p, nomeCliente: value, clientId: '' }))}
@@ -949,7 +985,7 @@ function NovoOrcamentoModal({ isOpen, onClose, onCreated, editingRequest = null,
                 onError={setFeedback}
               />
             </div>
-            <div>
+            <div className="md:col-span-3">
               <label className="block text-sm font-medium text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1.5">Modalidade</label>
               <select
                 value={form.modalidade}
