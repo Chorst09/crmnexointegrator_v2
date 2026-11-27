@@ -292,7 +292,7 @@ export const AnaliseTRPage: React.FC = () => {
               type="password"
               value={geminiKeyInput}
               onChange={(e) => setGeminiKeyInput(e.target.value)}
-              placeholder="Cole sua GEMINI_API_KEY (AIza...) para ativar busca na internet e auditoria TR × Datasheet"
+              placeholder="Cole sua GEMINI_API_KEY (AIza... ou AQ....) para ativar busca na internet e auditoria TR × Datasheet"
               className="flex-1 min-w-[240px] rounded-lg border border-[var(--crm-border)] bg-black/30 px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400"
             />
             <button

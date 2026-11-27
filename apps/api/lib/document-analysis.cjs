@@ -365,7 +365,7 @@ async function analyzeWithGemini(documents, context = {}) {
   const apiKey = getConfiguredGeminiKey();
   if (!apiKey) return null;
 
-  const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-2.5-flash';
+  const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-3.8-flash';
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
   // Amostra do texto mantendo estrutura completa do edital e TR (até 450.000 caracteres, dentro de 1M tokens)
@@ -794,7 +794,7 @@ async function analyzeTechnicalTRWithEquipment({ trFiles = [], datasheetFiles = 
     };
   }
 
-  const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-2.5-flash';
+  const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-3.8-flash';
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
   const prompt = `Você é um Engenheiro Sênior de Pré-Vendas, Arquitetura de TI/Telecom/Audiovisual e Especialista Técnico em Licitações Públicas Brasileiras (Lei 14.133/2021).
