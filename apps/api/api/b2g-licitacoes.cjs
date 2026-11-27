@@ -22,7 +22,7 @@
 const express = require('express');
 const crypto = require('crypto');
 const { inspectFile } = require('../lib/editalFileCache.cjs');
-const { analyzeFiles } = require('../lib/document-analysis.cjs');
+const { analyzeFiles, analyzeTechnicalTRWithEquipment } = require('../lib/document-analysis.cjs');
 const { normalizeFicha, isSyntheticFicha, hasSampleRequirement } = require('../lib/ficha-normalizer.cjs');
 const router  = express.Router();
 const { prisma } = require('../lib/prisma.cjs');
@@ -1580,6 +1580,27 @@ router.post(['/analise-tr/pergunte-edital', '/pergunte-edital'], ...requireAuthe
   } catch (err) {
     console.error('[pergunte-edital] erro:', err);
     return res.status(500).json({ error: 'Erro ao consultar o edital com IA', detail: err.message });
+  }
+});
+
+/**
+ * POST /api/analise-tr/analisar-equipamentos
+ * Análise técnica completa do TR + Datasheets + Busca de modelos 100% aderentes na internet
+ */
+router.post(['/analise-tr/analisar-equipamentos', '/analisar-equipamentos'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    req.setTimeout?.(180000);
+    res.setTimeout?.(180000);
+    const result = await analyzeTechnicalTRWithEquipment({
+      trFiles: req.body?.trFiles,
+      datasheetFiles: req.body?.datasheetFiles,
+      searchWeb: req.body?.searchWeb !== false,
+      customNotes: req.body?.customNotes || ''
+    });
+    return res.json({ success: true, analise: result });
+  } catch (error) {
+    console.error('[analise-tr/analisar-equipamentos] erro:', error.message);
+    return res.status(422).json({ error: error.message || 'Falha ao analisar o Termo de Referência.' });
   }
 });
 

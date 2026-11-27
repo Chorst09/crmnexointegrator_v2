@@ -721,4 +721,159 @@ async function analyzeFiles(files, context = {}, scope = '') {
   return ficha;
 }
 
-module.exports = { analyzeText, analyzeFiles, extractDocument };
+/**
+ * Análise técnica completa de Termo de Referência (TR) com:
+ * 1) Comparação item-a-item contra Datasheet(s) anexado(s) e/ou
+ * 2) Busca na internet (Google Search Grounding via Gemini) de modelos reais que atendam 100% do TR.
+ */
+async function analyzeTechnicalTRWithEquipment({ trFiles = [], datasheetFiles = [], searchWeb = true, customNotes = '' } = {}) {
+  if (!Array.isArray(trFiles) || trFiles.length === 0) {
+    throw new Error('Anexe ao menos 1 arquivo de Termo de Referência (TR) em PDF ou DOCX.');
+  }
+  const trDocs = [];
+  for (const f of trFiles.slice(0, 5)) trDocs.push(await extractDocument(f));
+  const dsDocs = [];
+  for (const f of (Array.isArray(datasheetFiles) ? datasheetFiles : []).slice(0, 5)) dsDocs.push(await extractDocument(f));
+
+  const trText = trDocs.map(d => `=== TR: ${d.name} ===\n${clean(d.text)}`).join('\n\n').slice(0, 320000);
+  const dsText = dsDocs.map(d => `=== DATASHEET: ${d.name} ===\n${clean(d.text)}`).join('\n\n').slice(0, 140000);
+  const hasDatasheet = dsDocs.length > 0;
+  const shouldSearchWeb = Boolean(searchWeb || !hasDatasheet);
+
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('GEMINI_API_KEY não configurada no servidor para análise técnica de TR.');
+  }
+
+  const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-2.5-flash';
+  const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+
+  const prompt = `Você é um Engenheiro Sênior de Pré-Vendas, Arquitetura de TI/Telecom/Audiovisual e Especialista Técnico em Licitações Públicas Brasileiras (Lei 14.133/2021).
+
+Sua missão é realizar uma ANÁLISE TÉCNICA COMPLETA do Termo de Referência (TR) abaixo:
+${hasDatasheet ? '- Há DATASHEET(S) DE EQUIPAMENTO(S) anexado(s): faça a auditoria técnica rigorosa comparando CADA requisito técnico obrigatório do TR contra as especificações reais do(s) datasheet(s), apontando conformidades, ressalvas ou reprovações.' : '- NÃO há datasheet anexado.'}
+${shouldSearchWeb ? '- BUSCA DE MERCADO / INTERNET ATIVA: pesquise e sugira modelos reais de equipamentos atualmente disponíveis no mercado (com fabricante, modelo exato e part number) que ATENDAM 100% de todas as especificações técnicas mínimas exigidas no TR.' : ''}
+${customNotes ? `\nOBSERVAÇÕES / PREFERÊNCIAS DO ANALISTA:\n${customNotes}\n` : ''}
+
+REGRAS CRÍTICAS:
+1. Não invente especificações. Seja rigoroso com métricas mínimas (throughput, portas, CPU/RAM, IOPS, brilho/lúmens, potência, certificações ANATEL/INMETRO/ISO, garantia on-site, acessórios, cabos, licenças).
+2. Na "matriz_comparativa", liste TODOS os requisitos técnicos relevantes do TR (mínimo 12 requisitos se houver).
+3. Em "modelos_recomendados", sugira de 2 a 4 modelos reais que atendam 100% do TR (ou avalie o modelo do datasheet + alternativas 100% aderentes caso o datasheet tenha alguma lacuna).
+4. O retorno DEVE ser EXCLUSIVAMENTE um JSON válido (sem blocos markdown \`\`\`json) seguindo exatamente esta estrutura:
+
+{
+  "resumo_tr": {
+    "titulo_objeto": "Título claro do objeto do TR",
+    "orgao": "Órgão contratante se identificado",
+    "categoria_tecnologica": "Ex: Redes & Segurança / Datacenter / Audiovisual / Notebooks / Telecom",
+    "total_itens": 1,
+    "resumo_executivo": "Síntese técnica objetiva do escopo, quantidades, instalação e requisitos críticos",
+    "normas_certificacoes_exigidas": ["ANATEL", "Garantia on-site", "..."],
+    "garantia_sla_exigidos": "Resumo da garantia e SLA exigidos no TR"
+  },
+  "aderencia_geral": {
+    "percentual_atendimento": 100,
+    "veredicto": "ATENDE 100% | ATENDE PARCIALMENTE | INCOMPATÍVEL | BUSCA DE MERCADO",
+    "justificativa_veredicto": "Explicação técnica objetiva do resultado geral"
+  },
+  "modelos_recomendados": [
+    {
+      "item_ou_lote": "Item 1 / Lote 1 (ou Geral)",
+      "fabricante": "Ex: Fortinet / Dell / Cisco / Epson / Shure",
+      "modelo": "Nome comercial completo do equipamento",
+      "part_number": "Part number / SKU exato quando aplicável",
+      "aderencia_percentual": 100,
+      "atende_100_porcento": true,
+      "justificativa_tecnica": "Por que este modelo atende integralmente aos requisitos do TR",
+      "acessorios_licencas_necessarios": ["Fonte redundante", "Licença 36 meses", "Transceivers SFP+"],
+      "pontos_atencao": ["Confirmar prazo de entrega ou homologação"],
+      "fonte_url": "URL oficial do fabricante/datasheet se encontrada"
+    }
+  ],
+  "matriz_comparativa": [
+    {
+      "item_tr": "Item 1",
+      "categoria": "Processamento / Interfaces / Garantia / Normas / Desempenho",
+      "requisito_tr": "Descrição objetiva da exigência mínima do TR",
+      "especificacao_encontrada": "Valor encontrado no Datasheet ou no modelo recomendado",
+      "status": "ATENDE_100 | ATENDE_RESSALVA | NAO_ATENDE | NAO_INFORMADO",
+      "evidencia_pagina_ou_fonte": "Seção/página do TR/Datasheet ou fonte web",
+      "observacao": "Detalhe técnico ou comprovação necessária"
+    }
+  ],
+  "alertas_desclassificacao": [
+    "Lista de exigências armadilha no TR que podem desclassificar a proposta se ignoradas"
+  ]
+}
+
+TEXTO DO TERMO DE REFERÊNCIA (TR):
+"""
+${trText}
+"""
+${hasDatasheet ? `\nTEXTO DO(S) DATASHEET(S) ANEXADO(S):\n"""\n${dsText}\n"""` : ''}`;
+
+  const callGemini = async (withSearchTool) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 120000);
+    try {
+      const bodyPayload = {
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.15,
+          maxOutputTokens: 16384,
+          ...(withSearchTool ? {} : { responseMimeType: 'application/json' })
+        },
+        ...(withSearchTool ? { tools: [{ google_search: {} }] } : {})
+      };
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bodyPayload),
+        signal: controller.signal
+      });
+      if (!response.ok) {
+        const errText = await response.text();
+        return { ok: false, status: response.status, errText };
+      }
+      const data = await response.json();
+      const candidate = data?.candidates?.[0];
+      const rawText = candidate?.content?.parts?.map(p => p.text || '').join('') || '';
+      const chunks = candidate?.groundingMetadata?.groundingChunks || [];
+      const fontes = chunks
+        .map(c => c?.web)
+        .filter(w => w?.uri)
+        .map(w => ({ title: w.title || w.uri, url: w.uri }));
+      return { ok: true, rawText, fontes };
+    } finally {
+      clearTimeout(timer);
+    }
+  };
+
+  let res = shouldSearchWeb ? await callGemini(true) : await callGemini(false);
+  if (!res.ok && shouldSearchWeb) {
+    // Fallback sem tool google_search se a chave/projeto não suportar grounding
+    res = await callGemini(false);
+  }
+  if (!res.ok) {
+    throw new Error(`Falha na análise técnica IA (${res.status}): ${String(res.errText || '').slice(0, 180)}`);
+  }
+
+  const cleanedJson = res.rawText.trim().replace(/^```(?:json)?/i, '').replace(/```$/i, '').trim();
+  const firstBrace = cleanedJson.indexOf('{');
+  const lastBrace = cleanedJson.lastIndexOf('}');
+  const jsonSlice = firstBrace >= 0 && lastBrace > firstBrace ? cleanedJson.slice(firstBrace, lastBrace + 1) : cleanedJson;
+  const parsed = JSON.parse(jsonSlice);
+
+  return {
+    ...parsed,
+    fontes_consultadas: res.fontes || [],
+    arquivos_analisados: {
+      tr: trDocs.map(d => ({ name: d.name, characters: d.text.length })),
+      datasheets: dsDocs.map(d => ({ name: d.name, characters: d.text.length }))
+    },
+    modo_busca_internet: shouldSearchWeb,
+    analisado_em: new Date().toISOString()
+  };
+}
+
+module.exports = { analyzeText, analyzeFiles, extractDocument, analyzeTechnicalTRWithEquipment };

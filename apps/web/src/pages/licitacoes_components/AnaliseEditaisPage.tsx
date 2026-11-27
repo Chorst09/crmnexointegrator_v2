@@ -557,7 +557,7 @@ export const AnaliseEditaisPage: React.FC<AnaliseEditaisPageProps> = ({
                 Suporta PDF & Word (.docx/.doc)
               </span>
             </div>
-            <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">Análise de Editais & Termos de Referência (TR)</h1>
+            <h1 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] mt-1">Análise de Editais</h1>
             <p className="text-sm text-[rgb(var(--crm-muted-rgb)_/_1)] mt-0.5">
               Selecione ou faça upload de documentos em <strong>PDF</strong> ou <strong>Word (.docx/.doc)</strong> para extrair a Ficha Técnica Executiva, Matriz de Itens do TR e Riscos.
             </p>

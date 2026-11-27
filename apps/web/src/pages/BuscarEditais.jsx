@@ -22,6 +22,7 @@ import { AlertsPage } from './licitacoes_components/AlertsPage';
 import { AnalyticsDashboard } from './licitacoes_components/AnalyticsDashboard';
 import { GerenciadasPage } from './licitacoes_components/GerenciadasPage';
 import { AnaliseEditaisPage } from './licitacoes_components/AnaliseEditaisPage';
+import { AnaliseTRPage } from './licitacoes_components/AnaliseTRPage';
 import { EditaisAnalisadosPage } from './licitacoes_components/EditaisAnalisadosPage';
 import { PipelineMonitor } from './licitacoes_components/PipelineMonitor';
 import { ThemeProvider } from './licitacoes_components/context/ThemeContext';
@@ -51,9 +52,15 @@ export default function BuscarEditais() {
     },
     { 
       id: 'analise', 
-      name: 'Análise de Editais/TR', 
-      subtitle: 'Extração automatizada e inteligência',
+      name: 'Análise de Editais', 
+      subtitle: 'Extração ConLicitação e inteligência',
       icon: FileText 
+    },
+    { 
+      id: 'analise_tr', 
+      name: 'Análise de TR', 
+      subtitle: 'TR × Datasheet e busca de modelos',
+      icon: Sparkles 
     },
     { 
       id: 'analisados', 
@@ -247,6 +254,7 @@ export default function BuscarEditais() {
                 onClearInitialFicha={() => setFichaParaBancada(null)}
               />
             )}
+            {currentView === 'analise_tr' && <AnaliseTRPage />}
             {currentView === 'analisados' && (
               <EditaisAnalisadosPage 
                 onOpenInWorkbench={(ficha) => {
