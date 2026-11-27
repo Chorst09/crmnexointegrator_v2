@@ -56,6 +56,8 @@ export default function BpmnProcessDiagram({
   const [dragPreview, setDragPreview] = useState<{ col: number; laneId: string } | null>(null);
   const [inlineEditNodeId, setInlineEditNodeId] = useState<string | null>(null);
   const [inlineEditValue, setInlineEditValue] = useState('');
+  const [inlineEditLaneId, setInlineEditLaneId] = useState<string | null>(null);
+  const [inlineEditLaneValue, setInlineEditLaneValue] = useState('');
   const [panMode, setPanMode] = useState(false);
   const [panning, setPanning] = useState<{ startX: number; scrollLeft: number } | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -772,29 +774,54 @@ export default function BpmnProcessDiagram({
                     stroke="#b8c7d9"
                     strokeWidth={1}
                   />
-                  <rect
-                    x={0}
-                    y={lane.y}
-                    width={layout.laneHeaderWidth}
-                    height={lane.height}
-                    fill="#e2ebf3"
-                    stroke="#b8c7d9"
-                    strokeWidth={1}
-                  />
-                  {wrapText(lane.label, 18).map((line, lineIdx, arr) => (
+                  <g
+                    className="cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setInlineEditLaneId(lane.id);
+                      setInlineEditLaneValue(lane.label || '');
+                    }}
+                    onDoubleClick={(e) => {
+                      e.stopPropagation();
+                      setInlineEditLaneId(lane.id);
+                      setInlineEditLaneValue(lane.label || '');
+                    }}
+                  >
+                    <title>Clique para editar o nome da Área Responsável</title>
+                    <rect
+                      x={0}
+                      y={lane.y}
+                      width={layout.laneHeaderWidth}
+                      height={lane.height}
+                      fill="#e2ebf3"
+                      stroke="#b8c7d9"
+                      strokeWidth={1}
+                    />
+                    {wrapText(lane.label, 18).map((line, lineIdx, arr) => (
+                      <text
+                        key={lineIdx}
+                        x={layout.laneHeaderWidth / 2}
+                        y={lane.y + lane.height / 2 + (lineIdx - (arr.length - 1) / 2) * 15}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fill="#1e293b"
+                        fontSize="12"
+                        fontWeight="600"
+                      >
+                        {line}
+                      </text>
+                    ))}
                     <text
-                      key={lineIdx}
                       x={layout.laneHeaderWidth / 2}
-                      y={lane.y + lane.height / 2 + (lineIdx - (arr.length - 1) / 2) * 15}
+                      y={lane.y + lane.height - 12}
                       textAnchor="middle"
-                      dominantBaseline="central"
-                      fill="#1e293b"
-                      fontSize="12"
-                      fontWeight="600"
+                      fill="#64748b"
+                      fontSize="9"
+                      fontWeight="500"
                     >
-                      {line}
+                      Clique p/ editar
                     </text>
-                  ))}
+                  </g>
                 </g>
               ))}
 
@@ -1037,6 +1064,45 @@ export default function BpmnProcessDiagram({
                   }}
                   style={{
                     left: Math.max(4, left),
+                    top: Math.max(4, top),
+                    width: boxW,
+                    height: boxH
+                  }}
+                  className="absolute z-20 resize-none rounded-md border-2 border-[#2563eb] bg-white px-2 py-1 text-center text-xs font-semibold text-slate-900 shadow-lg outline-none"
+                />
+              );
+            })()}
+            {inlineEditLaneId && (() => {
+              const targetLane = layout.lanes.find((l) => l.id === inlineEditLaneId);
+              if (!targetLane) return null;
+              const boxW = Math.max(120, layout.laneHeaderWidth * zoom - 12);
+              const boxH = Math.min(72, Math.max(44, targetLane.height * zoom - 16));
+              const left = 6;
+              const top = targetLane.y * zoom + (targetLane.height * zoom - boxH) / 2;
+              const commitLaneEdit = () => {
+                const next = inlineEditLaneValue.trim();
+                if (next) {
+                  updateLaneLabel(inlineEditLaneId, next);
+                }
+                setInlineEditLaneId(null);
+              };
+              return (
+                <textarea
+                  autoFocus
+                  value={inlineEditLaneValue}
+                  onChange={(e) => setInlineEditLaneValue(e.target.value)}
+                  onBlur={commitLaneEdit}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      commitLaneEdit();
+                    }
+                    if (e.key === 'Escape') {
+                      setInlineEditLaneId(null);
+                    }
+                  }}
+                  style={{
+                    left,
                     top: Math.max(4, top),
                     width: boxW,
                     height: boxH
