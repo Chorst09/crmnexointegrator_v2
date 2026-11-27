@@ -190,15 +190,59 @@ export default function Dashboard({
             </div>
           </div>
 
-          <div className="mt-5 grid gap-3 lg:grid-cols-[1.2fr_1fr_.8fr]">
-            <InfoPanel title="Escopo" value={selectedProject.scope || 'Escopo ainda nao informado.'} accent="orange" />
-            <InfoPanel title="Objetivo" value={selectedProject.objective || 'Objetivo ainda nao informado.'} accent="green" />
-            <div className="rounded-lg border border-[var(--crm-border)] bg-[linear-gradient(135deg,rgba(37,99,235,0.16),rgba(246,180,11,0.08),rgb(var(--crm-surface-rgb)/0.96))] p-4">
-              <p className="text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">Projeto ativo</p>
-              <p className="mt-2 truncate text-lg font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">{selectedProject.name}</p>
-              <p className="mt-1 text-xs font-bold text-[var(--pm-accent-text)]">{selectedProject.status || 'PLANEJADO'}</p>
+          <div className="mt-5 grid gap-3 lg:grid-cols-[1.1fr_1fr_.9fr]">
+            <InfoPanel title="Escopo" value={selectedProject.scope || 'Visão consolidada de todo o portfólio de projetos, fases, riscos e prazos.'} accent="orange" />
+            <InfoPanel title="Objetivo" value={selectedProject.objective || 'Monitorar entregas, gargalos e taxa de conclusão em tempo real.'} accent="green" />
+            <div className="rounded-xl border border-cyan-500/30 bg-[linear-gradient(135deg,rgba(6,182,212,0.16),rgba(37,99,235,0.14),rgb(var(--crm-surface-rgb)/0.96))] p-4">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-black uppercase tracking-wide text-cyan-300">
+                  {scopeMode === 'all' ? 'Portfólio Consolidado' : 'Projeto Ativo'}
+                </p>
+                <span className="text-xs font-mono font-black text-emerald-300">{completionRate}%</span>
+              </div>
+              <p className="mt-1.5 truncate text-base font-black text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                {scopeMode === 'all' ? `${projects.length} Projeto(s) • ${filteredIssues.length} Fases` : selectedProject.name}
+              </p>
+              <div className="mt-2.5 h-2 w-full rounded-full bg-white/10 overflow-hidden">
+                <div className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-emerald-400 transition-all" style={{ width: `${completionRate}%` }} />
+              </div>
             </div>
           </div>
+
+          {/* Saúde por Projeto (Portfólio) */}
+          {projects.length > 0 && (
+            <div className="mt-4 pt-4 border-t border-[var(--crm-border)] grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {projects.slice(0, 4).map((proj) => {
+                const pIssues = issues.filter((i) => i.projectId === proj.id);
+                const pDone = pIssues.filter((i) => i.status === 'CONCLUÍDO').length;
+                const pRisk = pIssues.filter((i) => ['EM RISCO', 'ATUALIZAÇÃO NECESSÁRIA'].includes(i.status)).length;
+                const pPct = pIssues.length ? Math.round((pDone / pIssues.length) * 100) : 0;
+                return (
+                  <button
+                    key={proj.id}
+                    type="button"
+                    onClick={() => {
+                      setScopeMode('selected');
+                      onProjectChange?.(proj.id);
+                    }}
+                    className="text-left rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.7)] hover:border-cyan-500/50 p-3 transition-all"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs font-black text-[var(--crm-ink)] truncate">{proj.name}</span>
+                      <span className="text-[11px] font-mono font-bold text-emerald-400">{pPct}%</span>
+                    </div>
+                    <div className="mt-2 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                      <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400" style={{ width: `${pPct}%` }} />
+                    </div>
+                    <div className="mt-1.5 flex items-center justify-between text-[10px] text-[var(--crm-muted)]">
+                      <span>{pIssues.length} fases</span>
+                      {pRisk > 0 ? <span className="text-amber-400 font-bold">{pRisk} em risco</span> : <span className="text-emerald-400">No prazo</span>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </header>
 
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

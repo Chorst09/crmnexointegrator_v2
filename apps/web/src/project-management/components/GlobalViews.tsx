@@ -526,18 +526,26 @@ export function HomeView({
                 <button
                   type="button"
                   onClick={onCreateProject}
-                  className="flex items-center gap-2 rounded-md bg-[#2563eb] px-5 py-2.5 text-sm font-black text-[rgb(var(--crm-ink-rgb)_/_1)] transition-colors hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-blue-600 to-cyan-600 px-5 py-2.5 text-sm font-black text-white shadow-lg shadow-cyan-500/20 transition-all hover:brightness-110"
                 >
                   <Plus className="h-4 w-4" />
                   Novo projeto
                 </button>
                 <button
                   type="button"
+                  onClick={onOpenWhiteboards}
+                  className="flex items-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/15 px-5 py-2.5 text-sm font-bold text-cyan-200 transition-colors hover:bg-cyan-500/25"
+                >
+                  <LayoutTemplate className="h-4 w-4 text-cyan-400" />
+                  Quadros ({createdBoards.length})
+                </button>
+                <button
+                  type="button"
                   onClick={onOpenDashboard}
-                  className="flex items-center gap-2 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.8)] px-5 py-2.5 text-sm font-bold text-[var(--crm-ink)] transition-colors hover:border-[#2563eb] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                  className="flex items-center gap-2 rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.8)] px-5 py-2.5 text-sm font-bold text-[var(--crm-ink)] transition-colors hover:border-[#22c55e]"
                 >
                   <BarChart2 className="h-4 w-4 text-[#22c55e]" />
-                  Ver painel
+                  Painéis
                 </button>
               </div>
             </div>
