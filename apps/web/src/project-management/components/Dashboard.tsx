@@ -68,10 +68,12 @@ export default function Dashboard({
   onCreateProject
 }: DashboardProps) {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('TODOS');
+  const [scopeMode, setScopeMode] = useState<'all' | 'selected'>('all');
 
   const selectedProject = useMemo(() => {
+    if (scopeMode === 'all') return fallbackProject;
     return projects.find(project => project.id === activeProjectId) || projects[0] || fallbackProject;
-  }, [activeProjectId, projects]);
+  }, [activeProjectId, projects, scopeMode]);
 
   const projectIssues = useMemo(() => {
     if (!selectedProject || selectedProject.id === 'all') return issues;
@@ -151,10 +153,19 @@ export default function Dashboard({
                   Projeto
                 </span>
                 <select
-                  value={selectedProject.id}
-                  onChange={(event) => onProjectChange?.(event.target.value)}
-                  className="h-11 rounded-md border border-[var(--crm-border)] bg-transparent px-3 text-sm font-semibold text-[var(--crm-ink)] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20"
+                  value={scopeMode === 'all' ? 'all' : selectedProject.id}
+                  onChange={(event) => {
+                    const v = event.target.value;
+                    if (v === 'all') {
+                      setScopeMode('all');
+                    } else {
+                      setScopeMode('selected');
+                      onProjectChange?.(v);
+                    }
+                  }}
+                  className="h-11 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.95)] px-3 text-sm font-semibold text-[var(--crm-ink)] outline-none transition focus:border-[#2563eb] focus:ring-2 focus:ring-[#2563eb]/20"
                 >
+                  <option value="all">Todos os projetos ({projects.length} — Portfólio Consolidado)</option>
                   {projects.map(project => (
                     <option key={project.id} value={project.id}>{project.name}</option>
                   ))}
@@ -169,7 +180,7 @@ export default function Dashboard({
                 <select
                   value={statusFilter}
                   onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
-                  className="h-11 rounded-md border border-[var(--crm-border)] bg-transparent px-3 text-sm font-semibold text-[var(--crm-ink)] outline-none transition focus:border-[#22c55e] focus:ring-2 focus:ring-[#22c55e]/20"
+                  className="h-11 rounded-md border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.95)] px-3 text-sm font-semibold text-[var(--crm-ink)] outline-none transition focus:border-[#22c55e] focus:ring-2 focus:ring-[#22c55e]/20"
                 >
                   {STATUS_OPTIONS.map(status => (
                     <option key={status} value={status}>{status}</option>

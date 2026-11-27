@@ -400,6 +400,7 @@ export function HomeView({
   getPhaseCount,
   onCreateProject,
   onOpenDashboard,
+  onOpenWhiteboards,
   onEditProject,
   onDeleteProject
 }: {
@@ -408,9 +409,52 @@ export function HomeView({
   getPhaseCount?: (projectId: string) => number;
   onCreateProject?: () => void;
   onOpenDashboard?: () => void;
+  onOpenWhiteboards?: () => void;
   onEditProject?: (projectId: string) => void;
   onDeleteProject?: (projectId: string) => void;
 }) {
+  const createdBoards = useMemo(() => {
+    const list: Array<{ id: string; title: string; kind: string; subtitle: string; countLabel: string; color: string }> = [];
+    try {
+      const rawProc = window.localStorage.getItem('pm-process-mapping-v1');
+      if (rawProc) {
+        const parsed = JSON.parse(rawProc);
+        const processes = Array.isArray(parsed?.processes) ? parsed.processes : [];
+        processes.forEach((proc: any) => {
+          list.push({
+            id: proc.id || proc.name,
+            title: proc.name || 'Mapeamento de Processos',
+            kind: 'BPMN',
+            subtitle: proc.responsibleName ? `Responsável: ${proc.responsibleName}` : 'Arquitetura de Processos',
+            countLabel: `${Array.isArray(proc.diagrams) ? proc.diagrams.length : 1} diagrama(s)`,
+            color: '#18c8df'
+          });
+        });
+      }
+    } catch {}
+    try {
+      const rawBrain = window.localStorage.getItem('pm-product-brainstorm-v2') || window.localStorage.getItem('pm-product-brainstorm-board');
+      if (rawBrain) {
+        const parsed = JSON.parse(rawBrain);
+        const ideasCount = Array.isArray(parsed?.ideas) ? parsed.ideas.length : 0;
+        list.push({
+          id: 'brainstorm-v2',
+          title: parsed?.productName || 'Brainstorming de Produto',
+          kind: 'Quadro Inteligente',
+          subtitle: 'Discovery • RICE • Matriz 2×2 • Roadmap',
+          countLabel: `${ideasCount} ideia(s)`,
+          color: '#22c55e'
+        });
+      }
+    } catch {}
+    if (list.length === 0) {
+      list.push(
+        { id: 'default-bpmn', title: 'Mapeamento de Processos', kind: 'BPMN', subtitle: 'Macroprocesso comercial e entrega', countLabel: '8 diagramas', color: '#18c8df' },
+        { id: 'default-brain', title: 'Brainstorming de Produto', kind: 'Quadro Inteligente', subtitle: 'Canvas, RICE, Matriz e Roadmap', countLabel: '5 ideias', color: '#22c55e' }
+      );
+    }
+    return list;
+  }, []);
   const openProjectPdfPreview = (project: Space) => {
     const projectIssues = issues
       .filter((issue) => issue.projectId === project.id)
@@ -499,15 +543,16 @@ export function HomeView({
             </div>
 
             <div className="grid content-center gap-3">
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
                   [String(projects.length), 'Projetos', '#22c55e'],
                   [String(projects.reduce((total, project) => total + (getPhaseCount?.(project.id) || 0), 0)), 'Fases', '#f6b40b'],
-                  [String(projects.filter(project => project.status === 'EM_ANDAMENTO').length), 'Em andamento', '#18c8df']
+                  [String(projects.filter(project => project.status === 'EM_ANDAMENTO').length), 'Em andamento', '#18c8df'],
+                  [String(createdBoards.length), 'Quadros', '#8b5cf6']
                 ].map(([value, label, color]) => (
-                  <div key={label} className="nex-stat-surface rounded-lg border border-[var(--crm-border)] bg-transparent p-4 backdrop-blur">
+                  <div key={label} className="nex-stat-surface rounded-lg border border-[var(--crm-border)] bg-transparent p-3.5 backdrop-blur">
                     <p className="text-2xl font-black text-[rgb(var(--crm-ink-rgb)_/_1)]" style={{ color }} data-stat-value>{value}</p>
-                    <p className="mt-1 text-[11px] font-semibold uppercase text-[var(--crm-muted)]">{label}</p>
+                    <p className="mt-1 text-[10px] font-semibold uppercase text-[var(--crm-muted)]">{label}</p>
                   </div>
                 ))}
               </div>
@@ -565,15 +610,15 @@ export function HomeView({
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[920px] text-left text-sm">
+              <table className="w-full text-left text-sm">
                 <thead className="border-b border-[var(--crm-border)] text-[11px] font-black uppercase tracking-wide text-[var(--crm-muted)]">
                   <tr>
-                    <th className="px-5 py-3">Projeto</th>
-                    <th className="px-5 py-3">Cliente</th>
-                    <th className="px-5 py-3">Status</th>
-                    <th className="px-5 py-3">Fases</th>
-                    <th className="px-5 py-3">Gestor</th>
-                    <th className="px-5 py-3 text-right">Ações</th>
+                    <th className="px-4 py-3">Projeto</th>
+                    <th className="px-4 py-3">Cliente</th>
+                    <th className="px-4 py-3">Status</th>
+                    <th className="px-4 py-3">Fases</th>
+                    <th className="px-4 py-3">Gestor</th>
+                    <th className="px-4 py-3 text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--crm-border)]">
@@ -636,6 +681,60 @@ export function HomeView({
           )}
         </section>
 
+        {/* Todos os Quadros Criados */}
+        <section className="rounded-xl border border-[var(--crm-border)] bg-[var(--crm-surface)] p-5 shadow-lg">
+          <div className="flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-[var(--crm-border)]">
+            <div>
+              <h2 className="text-lg font-black text-[var(--crm-ink)] flex items-center gap-2">
+                <LayoutTemplate className="h-5 w-5 text-[#18c8df]" />
+                Quadros Criados (Processos, Brainstorming & Arquitetura)
+              </h2>
+              <p className="mt-1 text-xs text-[var(--crm-muted)]">
+                {createdBoards.length} quadro{createdBoards.length !== 1 ? 's' : ''} ativo{createdBoards.length !== 1 ? 's' : ''} no workspace.
+              </p>
+            </div>
+            {onOpenWhiteboards && (
+              <button
+                type="button"
+                onClick={onOpenWhiteboards}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/40 bg-cyan-500/15 px-3.5 py-2 text-xs font-bold text-cyan-300 hover:bg-cyan-500/25 transition-colors"
+              >
+                <LayoutTemplate className="h-4 w-4" />
+                Abrir Central de Quadros
+              </button>
+            )}
+          </div>
+
+          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {createdBoards.map((board) => (
+              <div
+                key={board.id}
+                onClick={() => onOpenWhiteboards?.()}
+                className="group rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.7)] p-4 transition-all hover:border-cyan-500/50 hover:shadow-lg cursor-pointer flex flex-col justify-between gap-3"
+              >
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2">
+                    <span
+                      className="rounded-full px-2.5 py-0.5 text-[10px] font-black uppercase"
+                      style={{ backgroundColor: `${board.color}20`, color: board.color }}
+                    >
+                      {board.kind}
+                    </span>
+                    <span className="text-[11px] font-semibold text-[var(--crm-muted)]">{board.countLabel}</span>
+                  </div>
+                  <h3 className="text-sm font-black text-[var(--crm-ink)] group-hover:text-cyan-300 transition-colors">
+                    {board.title}
+                  </h3>
+                  <p className="mt-1 text-xs text-[var(--crm-muted)]">{board.subtitle}</p>
+                </div>
+                <div className="flex items-center justify-end text-xs font-bold text-cyan-400">
+                  Abrir quadro <ArrowUpRight className="ml-1 h-3.5 w-3.5" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         <section className="grid gap-4 lg:grid-cols-[1fr_1fr_1fr]">
           {[
             { icon: Target, title: 'Escopo claro', text: 'Cada projeto começa com objetivo, escopo, entregáveis, critérios de sucesso e responsáveis.', color: 'text-[#2563eb]' },
@@ -681,14 +780,30 @@ export function PlannedView({
   onCreateProject?: () => void;
   onOpenProject?: (projectId: string) => void;
 }) {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'TODOS' | 'PLANEJADO' | 'EM_ANDAMENTO'>('TODOS');
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const todayTime = today.getTime();
   const nextWeekTime = todayTime + 7 * 24 * 60 * 60 * 1000;
-  const plannedProjects = projects
-    .filter((project) => project.status === 'PLANEJADO')
-    .sort((a, b) => plannedTime(a.startDate || a.createdAt) - plannedTime(b.startDate || b.createdAt));
-  const plannedIssues = issues.filter((issue) => ['PENDENTE', 'PLANEJAMENTO'].includes(issue.status));
+
+  const filteredProjects = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    return projects
+      .filter((p) => {
+        if (statusFilter !== 'TODOS' && p.status !== statusFilter) return false;
+        if (!q) return true;
+        return (
+          (p.name || '').toLowerCase().includes(q) ||
+          (p.client || '').toLowerCase().includes(q) ||
+          (p.manager || '').toLowerCase().includes(q)
+        );
+      })
+      .sort((a, b) => plannedTime(a.startDate || a.createdAt) - plannedTime(b.startDate || b.createdAt));
+  }, [projects, searchTerm, statusFilter]);
+
+  const plannedProjectsCount = projects.filter((p) => p.status === 'PLANEJADO').length;
+  const plannedIssues = issues.filter((issue) => ['PENDENTE', 'PLANEJAMENTO', 'EM PROGRESSO'].includes(issue.status));
   const todayIssues = plannedIssues.filter((issue) => plannedTime(issue.dueDate) === todayTime);
   const overdueIssues = plannedIssues.filter((issue) => plannedTime(issue.dueDate) < todayTime);
   const nextIssues = plannedIssues
@@ -700,128 +815,198 @@ export function PlannedView({
     .slice(0, 6);
 
   return (
-    <div className="h-full bg-transparent overflow-y-auto p-8 text-[var(--crm-ink)]">
-      <div className="max-w-7xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="text-2xl font-bold text-[var(--crm-ink)] flex items-center gap-3">
-            <Calendar className="w-6 h-6 text-[#22c55e]" />
-            Planejado
-          </h1>
-          <div className="flex items-center gap-3">
-            <button className="flex items-center gap-2 text-sm text-[var(--crm-muted)] hover:text-[var(--crm-ink)] bg-[var(--crm-surface)] border border-[var(--crm-border)] px-3 py-1.5 rounded-md transition-colors">
-              <Calendar className="w-4 h-4" /> Hoje
-            </button>
+    <div className="h-full bg-transparent overflow-y-auto p-6 sm:p-8 text-[var(--crm-ink)]">
+      <div className="max-w-7xl mx-auto space-y-6">
+        {/* Cabeçalho Modernizado */}
+        <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.9)] p-6 shadow-xl">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-0.5 text-[11px] font-bold text-emerald-300 mb-2">
+                <Calendar className="w-3.5 h-3.5" /> Cronograma & Entregas
+              </span>
+              <h1 className="text-2xl font-black text-[var(--crm-ink)]">Planejado</h1>
+              <p className="text-xs sm:text-sm text-[var(--crm-muted)] mt-1">
+                Acompanhe projetos programados, prazos críticos de hoje, atrasos e próximas entregas de 7 dias.
+              </p>
+            </div>
             <button
               type="button"
               onClick={onCreateProject}
-              className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] bg-[#2563eb] hover:bg-[#1d4ed8] hover:text-[rgb(var(--crm-ink-rgb)_/_1)] px-3 py-1.5 rounded-md transition-colors font-medium"
+              className="inline-flex items-center gap-2 text-xs sm:text-sm text-white bg-[#2563eb] hover:bg-[#1d4ed8] px-4 py-2.5 rounded-lg transition-colors font-bold shadow-sm"
             >
               <Plus className="w-4 h-4" /> Novo Projeto
             </button>
+          </div>
+
+          {/* 4 KPIs */}
+          <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { label: 'Projetos Planejados', value: String(plannedProjectsCount), sub: `${projects.length} no portfólio`, color: '#22c55e', icon: CheckCircle2 },
+              { label: 'Fases Ativas', value: String(plannedIssues.length), sub: 'Pendentes ou em curso', color: '#18c8df', icon: Layers3 },
+              { label: 'Para Hoje', value: String(todayIssues.length), sub: 'Vencimento hoje', color: '#f6b40b', icon: Clock },
+              { label: 'Em Atraso', value: String(overdueIssues.length), sub: `${nextIssues.length} nos próx. 7 dias`, color: '#f43f5e', icon: AlertTriangle },
+            ].map((kpi) => {
+              const Icon = kpi.icon;
+              return (
+                <div key={kpi.label} className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.75)] p-4 flex items-center justify-between">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase text-[var(--crm-muted)]">{kpi.label}</p>
+                    <p className="mt-1 text-2xl font-black text-[var(--crm-ink)]">{kpi.value}</p>
+                    <p className="text-[11px] text-[var(--crm-muted)]">{kpi.sub}</p>
+                  </div>
+                  <div className="h-10 w-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: `${kpi.color}18`, color: kpi.color }}>
+                    <Icon className="h-5 w-5" />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Barra de Filtro */}
+          <div className="mt-5 pt-4 border-t border-[var(--crm-border)] flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              {(['TODOS', 'PLANEJADO', 'EM_ANDAMENTO'] as const).map((st) => (
+                <button
+                  key={st}
+                  type="button"
+                  onClick={() => setStatusFilter(st)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-colors ${
+                    statusFilter === st
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-[rgb(var(--crm-surface-rgb)/0.8)] text-[var(--crm-muted)] border border-[var(--crm-border)] hover:text-white'
+                  }`}
+                >
+                  {st === 'TODOS' ? 'Todos' : st === 'PLANEJADO' ? 'Planejados' : 'Em Andamento'}
+                </button>
+              ))}
+            </div>
+            <div className="relative w-full sm:w-72">
+              <Search className="w-3.5 h-3.5 text-[var(--crm-muted)] absolute left-3 top-1/2 -translate-y-1/2" />
+              <input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Buscar projeto, cliente ou gestor..."
+                className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.8)] pl-8 pr-3 py-1.5 text-xs text-[var(--crm-ink)] outline-none focus:border-emerald-400"
+              />
+            </div>
           </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 flex flex-col gap-4">
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <h2 className="text-sm font-semibold text-[var(--crm-muted)] uppercase tracking-wider">Projetos planejados</h2>
-                <p className="mt-1 text-xs text-[var(--crm-muted)]">{plannedProjects.length} projeto{plannedProjects.length !== 1 ? 's' : ''} aguardando inicio.</p>
-              </div>
-              <span className="rounded-full border border-[#22c55e]/30 bg-[#22c55e]/10 px-3 py-1 text-xs font-black text-[#22c55e]">
-                PLANEJADO
-              </span>
-            </div>
-
-            {plannedProjects.length === 0 ? (
-              <div className="bg-[var(--crm-surface)] border border-[var(--crm-border)] rounded-md p-8 flex flex-col items-center justify-center min-h-[250px] text-center">
+            {filteredProjects.length === 0 ? (
+              <div className="bg-[var(--crm-surface)] border border-[var(--crm-border)] rounded-2xl p-10 flex flex-col items-center justify-center min-h-[250px] text-center">
                 <div className="w-16 h-16 bg-[#22c55e]/10 rounded-full flex items-center justify-center mb-4">
                   <CheckCircle2 className="w-8 h-8 text-[#22c55e]" />
                 </div>
-                <h2 className="text-lg font-semibold text-[var(--crm-ink)] mb-2">Nenhum projeto planejado</h2>
-                <p className="text-[var(--crm-muted)] max-w-sm">Crie um projeto novo ou converta uma oportunidade ganha para iniciar o planejamento.</p>
+                <h2 className="text-lg font-semibold text-[var(--crm-ink)] mb-2">Nenhum projeto encontrado</h2>
+                <p className="text-[var(--crm-muted)] max-w-sm">Crie um projeto novo ou ajuste os filtros acima.</p>
               </div>
             ) : (
               <div className="grid gap-4">
-                {plannedProjects.map((project) => (
-                  <article key={project.id} className="rounded-lg border border-[var(--crm-border)] bg-[var(--crm-surface)] p-5">
-                    <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-                      <div className="min-w-0">
-                        <div className="mb-2 flex flex-wrap items-center gap-2">
-                          {project.number && (
-                            <span className="rounded-full border border-[#18c8df]/35 bg-[#18c8df]/10 px-2.5 py-1 text-[11px] font-black text-[#18c8df]">
-                              {project.number}
+                {filteredProjects.map((project) => {
+                  const pIssues = issues.filter((i) => i.projectId === project.id);
+                  const pDone = pIssues.filter((i) => i.status === 'CONCLUÍDO').length;
+                  const pct = pIssues.length ? Math.round((pDone / pIssues.length) * 100) : 0;
+                  return (
+                    <article key={project.id} className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.85)] p-5 hover:border-emerald-500/40 transition-all shadow-md">
+                      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-2 flex flex-wrap items-center gap-2">
+                            {project.number && (
+                              <span className="rounded-full border border-[#18c8df]/35 bg-[#18c8df]/10 px-2.5 py-0.5 text-[11px] font-black text-[#18c8df]">
+                                {project.number}
+                              </span>
+                            )}
+                            <span className="rounded-full border border-[#2563eb]/35 bg-[#2563eb]/10 px-2.5 py-0.5 text-[11px] font-black text-[var(--pm-accent-text)]">
+                              {project.status || 'PLANEJADO'}
                             </span>
-                          )}
-                          <span className="rounded-full border border-[#2563eb]/35 bg-[#2563eb]/10 px-2.5 py-1 text-[11px] font-black text-[var(--pm-accent-text)]">
-                            {project.type || 'Projeto'}
-                          </span>
+                            <span className="text-[11px] font-semibold text-[var(--crm-muted)]">
+                              {pIssues.length} fases ({pct}% concluído)
+                            </span>
+                          </div>
+                          <h3 className="truncate text-lg font-black text-[var(--crm-ink)]">{project.name}</h3>
+                          <p className="mt-0.5 text-xs font-semibold text-[var(--crm-muted)]">{project.client || 'Cliente não informado'}</p>
+                          <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-[var(--crm-ink)]/85">{project.scope || project.objective || 'Escopo ainda não informado.'}</p>
                         </div>
-                        <h3 className="truncate text-lg font-black text-[var(--crm-ink)]">{project.name}</h3>
-                        <p className="mt-1 text-sm text-[var(--crm-muted)]">{project.client || 'Cliente nao informado'}</p>
-                        <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-[var(--crm-ink)]">{project.scope || project.objective || 'Escopo ainda nao informado.'}</p>
+                        <button
+                          type="button"
+                          onClick={() => onOpenProject?.(project.id)}
+                          className="flex shrink-0 items-center justify-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/15 px-3.5 py-2 text-xs font-bold text-cyan-300 transition-colors hover:bg-cyan-500/25"
+                        >
+                          Abrir Projeto <ArrowUpRight className="h-4 w-4" />
+                        </button>
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => onOpenProject?.(project.id)}
-                        className="flex shrink-0 items-center justify-center gap-2 rounded-md border border-[var(--crm-border)] bg-transparent px-3 py-2 text-sm font-bold text-[var(--crm-ink)] transition-colors hover:border-[#2563eb] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
-                      >
-                        Abrir <ArrowUpRight className="h-4 w-4 text-[#2563eb]" />
-                      </button>
-                    </div>
-                    <div className="mt-5 grid gap-3 text-xs md:grid-cols-3">
-                      <div className="rounded-md border border-[var(--crm-border)] bg-transparent p-3">
-                        <p className="font-bold uppercase text-[var(--crm-muted)]">Inicio previsto</p>
-                        <p className="mt-1 font-black text-[var(--crm-ink)]">{plannedDateLabel(project.startDate)}</p>
+                      <div className="mt-4 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                        <div className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500" style={{ width: `${pct}%` }} />
                       </div>
-                      <div className="rounded-md border border-[var(--crm-border)] bg-transparent p-3">
-                        <p className="font-bold uppercase text-[var(--crm-muted)]">Fim previsto</p>
-                        <p className="mt-1 font-black text-[var(--crm-ink)]">{plannedDateLabel(project.endDate)}</p>
+                      <div className="mt-4 grid gap-3 text-xs md:grid-cols-3">
+                        <div className="rounded-lg border border-[var(--crm-border)] bg-black/20 p-3">
+                          <p className="font-bold uppercase text-[10px] text-[var(--crm-muted)]">Início previsto</p>
+                          <p className="mt-1 font-black text-[var(--crm-ink)]">{plannedDateLabel(project.startDate)}</p>
+                        </div>
+                        <div className="rounded-lg border border-[var(--crm-border)] bg-black/20 p-3">
+                          <p className="font-bold uppercase text-[10px] text-[var(--crm-muted)]">Fim previsto</p>
+                          <p className="mt-1 font-black text-[var(--crm-ink)]">{plannedDateLabel(project.endDate)}</p>
+                        </div>
+                        <div className="rounded-lg border border-[var(--crm-border)] bg-black/20 p-3">
+                          <p className="font-bold uppercase text-[10px] text-[var(--crm-muted)]">Gestor</p>
+                          <p className="mt-1 truncate font-black text-[var(--crm-ink)]">{project.manager || 'Não definido'}</p>
+                        </div>
                       </div>
-                      <div className="rounded-md border border-[var(--crm-border)] bg-transparent p-3">
-                        <p className="font-bold uppercase text-[var(--crm-muted)]">Gestor</p>
-                        <p className="mt-1 truncate font-black text-[var(--crm-ink)]">{project.manager || 'Nao definido'}</p>
-                      </div>
-                    </div>
-                  </article>
-                ))}
+                    </article>
+                  );
+                })}
               </div>
             )}
           </div>
 
           <div className="flex flex-col gap-4">
-            <h2 className="text-sm font-semibold text-[var(--crm-muted)] uppercase tracking-wider">Para Hoje</h2>
-            <div className="bg-[var(--crm-surface)] border border-[var(--crm-border)] rounded-md p-4 flex flex-col gap-3">
+            <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.85)] p-4 space-y-3">
+              <h2 className="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-2">
+                <Clock className="w-4 h-4" /> Para Hoje ({todayIssues.length})
+              </h2>
               {todayIssues.length === 0 ? (
-                <p className="text-sm text-[var(--crm-muted)]">Nenhuma fase planejada para hoje.</p>
+                <p className="text-xs text-[var(--crm-muted)]">Nenhuma fase planejada para hoje.</p>
               ) : todayIssues.map((issue) => (
-                <div key={issue.id} className="flex gap-3 rounded-md border border-[var(--crm-border)] bg-transparent p-3">
+                <div key={issue.id} className="flex gap-3 rounded-lg border border-[var(--crm-border)] bg-black/20 p-3">
                   <Clock className="mt-0.5 h-4 w-4 shrink-0 text-[#22c55e]" />
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-bold text-[var(--crm-ink)]">{issue.title}</p>
-                    <p className="text-xs text-[var(--crm-muted)]">{issue.assignee?.name || 'Sem responsavel'}</p>
+                    <p className="truncate text-xs font-bold text-[var(--crm-ink)]">{issue.title}</p>
+                    <p className="text-[11px] text-[var(--crm-muted)]">{issue.assignee?.name || 'Sem responsável'}</p>
                   </div>
                 </div>
               ))}
             </div>
 
-            <h2 className="text-sm font-semibold text-[var(--crm-muted)] uppercase tracking-wider">Atrasadas</h2>
-            <div className="bg-[var(--crm-surface)] border border-[var(--crm-border)] rounded-md p-6 text-center text-[var(--crm-muted)] text-sm">
-              {overdueIssues.length === 0 ? 'Nenhuma tarefa em atraso.' : `${overdueIssues.length} tarefa${overdueIssues.length !== 1 ? 's' : ''} em atraso.`}
+            <div className="rounded-2xl border border-rose-500/30 bg-rose-950/20 p-4 space-y-2">
+              <h2 className="text-xs font-black text-rose-300 uppercase tracking-wider flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4" /> Atrasadas ({overdueIssues.length})
+              </h2>
+              {overdueIssues.length === 0 ? (
+                <p className="text-xs text-rose-200/70">Nenhuma tarefa em atraso.</p>
+              ) : overdueIssues.slice(0, 5).map((issue) => (
+                <div key={issue.id} className="rounded-lg border border-rose-500/25 bg-black/25 p-2.5 text-xs">
+                  <p className="font-bold text-rose-100 truncate">{issue.title}</p>
+                  <p className="text-[10px] text-rose-300/80">Venceu em {plannedDateLabel(issue.dueDate)}</p>
+                </div>
+              ))}
             </div>
 
-            <h2 className="text-sm font-semibold text-[var(--crm-muted)] uppercase tracking-wider mt-4">Próximos 7 dias</h2>
-            <div className="bg-[var(--crm-surface)] border border-[var(--crm-border)] rounded-md p-4 flex flex-col gap-3">
+            <div className="rounded-2xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)/0.85)] p-4 space-y-3">
+              <h2 className="text-xs font-black text-cyan-300 uppercase tracking-wider flex items-center gap-2">
+                <Calendar className="w-4 h-4" /> Próximos 7 dias ({nextIssues.length})
+              </h2>
               {nextIssues.length === 0 ? (
-                <p className="text-sm text-[var(--crm-muted)]">Nenhuma fase prevista nos próximos dias.</p>
+                <p className="text-xs text-[var(--crm-muted)]">Nenhuma fase prevista nos próximos dias.</p>
               ) : nextIssues.map((issue) => (
-                <div key={issue.id} className="flex gap-3 p-2 rounded-lg border border-transparent transition-colors hover:border-[var(--crm-border)] hover:bg-transparent">
-                  <div className="w-8 h-8 rounded bg-[#2563eb]/10 text-[#2563eb] flex items-center justify-center shrink-0">
+                <div key={issue.id} className="flex gap-3 p-2.5 rounded-lg border border-[var(--crm-border)] bg-black/20">
+                  <div className="w-8 h-8 rounded bg-[#2563eb]/15 text-[#38bdf8] flex items-center justify-center shrink-0">
                     <Clock className="w-4 h-4" />
                   </div>
                   <div className="overflow-hidden">
-                    <p className="text-sm font-medium text-[var(--crm-ink)] truncate">{issue.title}</p>
-                    <p className="text-xs text-[var(--crm-muted)]">{plannedDateLabel(issue.dueDate)}</p>
+                    <p className="text-xs font-bold text-[var(--crm-ink)] truncate">{issue.title}</p>
+                    <p className="text-[11px] text-[var(--crm-muted)]">{plannedDateLabel(issue.dueDate)}</p>
                   </div>
                 </div>
               ))}

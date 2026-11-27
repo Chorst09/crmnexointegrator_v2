@@ -1837,6 +1837,7 @@ export default function App({ onBack }: { onBack?: () => void }) {
                   setGlobalView('spaces');
                   setActiveView('dashboard');
                 }}
+                onOpenWhiteboards={() => setGlobalView('whiteboards')}
                 onEditProject={editProject}
                 onDeleteProject={deleteProject}
               />
