@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   AlertTriangle,
   CheckCircle2,
@@ -8,6 +8,7 @@ import {
   FileCheck2,
   FileText,
   Globe,
+  KeyRound,
   Layers,
   Loader2,
   Search,
@@ -110,6 +111,47 @@ export const AnaliseTRPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<AnaliseTRResult | null>(null);
   const [statusFilter, setStatusFilter] = useState<string>('TODOS');
+  const [iaConfigured, setIaConfigured] = useState<boolean>(true);
+  const [showKeyConfig, setShowKeyConfig] = useState<boolean>(false);
+  const [geminiKeyInput, setGeminiKeyInput] = useState<string>('');
+  const [savingKey, setSavingKey] = useState<boolean>(false);
+  const [keyMsg, setKeyMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetch(buildApiUrl('/analise-tr/ia-status'), { headers: getAuthHeaders() })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d && typeof d.configured === 'boolean') {
+          setIaConfigured(d.configured);
+          if (!d.configured) setShowKeyConfig(true);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSaveGeminiKey = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!geminiKeyInput.trim()) return;
+    setSavingKey(true);
+    setKeyMsg(null);
+    try {
+      const res = await fetch(buildApiUrl('/analise-tr/configurar-ia'), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
+        body: JSON.stringify({ geminiApiKey: geminiKeyInput.trim() }),
+      });
+      const d = await res.json();
+      if (!res.ok) throw new Error(d?.error || 'Erro ao salvar chave');
+      setIaConfigured(true);
+      setShowKeyConfig(false);
+      setGeminiKeyInput('');
+      setKeyMsg('Chave Gemini API ativada com sucesso!');
+    } catch (err) {
+      setKeyMsg(err instanceof Error ? err.message : 'Erro ao salvar chave.');
+    } finally {
+      setSavingKey(false);
+    }
+  };
 
   const filteredMatrix = useMemo(() => {
     const list = result?.matriz_comparativa || [];
@@ -215,16 +257,54 @@ export const AnaliseTRPage: React.FC = () => {
               Anexe o Termo de Referência (TR) e o Datasheet do equipamento para auditoria técnica 100%, ou anexe somente o TR para buscar na internet modelos que atendam integralmente.
             </p>
           </div>
-          {result && (
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={handleExportReport}
-              className="inline-flex items-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/15 hover:bg-cyan-500/25 px-4 py-2 text-xs font-bold text-cyan-200 transition-colors"
+              onClick={() => setShowKeyConfig((v) => !v)}
+              className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold transition-colors ${
+                iaConfigured
+                  ? 'border-emerald-500/40 bg-emerald-500/10 text-emerald-300'
+                  : 'border-amber-500/50 bg-amber-500/20 text-amber-200 animate-pulse'
+              }`}
             >
-              <Download className="w-4 h-4" /> Exportar Parecer Técnico
+              <KeyRound className="w-3.5 h-3.5" />
+              {iaConfigured ? 'IA Gemini Ativa' : 'Configurar Chave Gemini'}
             </button>
-          )}
+            {result && (
+              <button
+                type="button"
+                onClick={handleExportReport}
+                className="inline-flex items-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/15 hover:bg-cyan-500/25 px-4 py-2 text-xs font-bold text-cyan-200 transition-colors"
+              >
+                <Download className="w-4 h-4" /> Exportar Parecer Técnico
+              </button>
+            )}
+          </div>
         </div>
+
+        {(showKeyConfig || keyMsg) && (
+          <form
+            onSubmit={handleSaveGeminiKey}
+            className="mt-4 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 flex flex-wrap items-center gap-3"
+          >
+            <KeyRound className="w-4 h-4 text-amber-300 flex-shrink-0" />
+            <input
+              type="password"
+              value={geminiKeyInput}
+              onChange={(e) => setGeminiKeyInput(e.target.value)}
+              placeholder="Cole sua GEMINI_API_KEY (AIza...) para ativar busca na internet e auditoria TR × Datasheet"
+              className="flex-1 min-w-[240px] rounded-lg border border-[var(--crm-border)] bg-black/30 px-3 py-1.5 text-xs text-white outline-none focus:border-cyan-400"
+            />
+            <button
+              type="submit"
+              disabled={savingKey || !geminiKeyInput.trim()}
+              className="rounded-lg bg-amber-500 hover:bg-amber-400 px-3.5 py-1.5 text-xs font-black text-slate-950 disabled:opacity-60"
+            >
+              {savingKey ? 'Salvando...' : 'Ativar IA'}
+            </button>
+            {keyMsg && <span className="text-xs font-semibold text-emerald-300">{keyMsg}</span>}
+          </form>
+        )}
 
         {/* Upload Duplo: TR + Datasheet */}
         <div className="mt-6 grid gap-4 md:grid-cols-2">

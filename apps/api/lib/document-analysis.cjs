@@ -9,6 +9,15 @@ const { normalizeFicha } = require('./ficha-normalizer.cjs');
 const { extractCatalogTable, deduplicateItems } = require('./edital-table.cjs');
 const UNKNOWN = 'Não identificado';
 
+let _runtimeGeminiKey = '';
+const setRuntimeGeminiKey = (key) => { _runtimeGeminiKey = String(key || '').trim(); };
+const getConfiguredGeminiKey = () =>
+  process.env.GEMINI_API_KEY ||
+  process.env.GOOGLE_API_KEY ||
+  process.env.GOOGLE_GENAI_API_KEY ||
+  _runtimeGeminiKey ||
+  '';
+
 const clean = text => String(text || '').replace(/\u0000/g, '').replace(/\r/g, '\n').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
 
 const money = s => {
@@ -353,7 +362,7 @@ async function extractDocument(file) {
 }
 
 async function analyzeWithGemini(documents, context = {}) {
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
+  const apiKey = getConfiguredGeminiKey();
   if (!apiKey) return null;
 
   const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-2.5-flash';
@@ -740,9 +749,49 @@ async function analyzeTechnicalTRWithEquipment({ trFiles = [], datasheetFiles = 
   const hasDatasheet = dsDocs.length > 0;
   const shouldSearchWeb = Boolean(searchWeb || !hasDatasheet);
 
-  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
+  const apiKey = getConfiguredGeminiKey();
   if (!apiKey) {
-    throw new Error('GEMINI_API_KEY não configurada no servidor para análise técnica de TR.');
+    // Fallback determinístico completo quando nenhuma chave Gemini está configurada
+    const det = analyzeText(trDocs, {});
+    const trLines = clean(trDocs.map(d => d.text).join('\n')).split('\n').map(l => l.trim()).filter(l => l.length > 25);
+    const reqLines = trLines.filter(l => /mínim|exig|deverá|processador|memória|armazenamento|porta|interface|garantia|certifica|anatel|inmetro|potência|lúmens|resoluç|throughput|velocidade/iu.test(l)).slice(0, 18);
+    return {
+      resumo_tr: {
+        titulo_objeto: det.resumo_executivo !== UNKNOWN ? det.resumo_executivo.slice(0, 200) : (trDocs[0]?.name || 'Termo de Referência'),
+        orgao: det.orgao_comprador,
+        categoria_tecnologica: 'Análise Determinística (sem IA)',
+        total_itens: det.matriz_itens?.length || 1,
+        resumo_executivo: det.resumo_executivo,
+        normas_certificacoes_exigidas: det.tags_classificacao || [],
+        garantia_sla_exigidos: det.pontos_de_atencao_risco?.garantia_contratual || 'Consulte o TR'
+      },
+      aderencia_geral: {
+        percentual_atendimento: 0,
+        veredicto: 'IA NÃO CONFIGURADA',
+        justificativa_veredicto: 'Configure a GEMINI_API_KEY no painel acima (botão Configurar Chave Gemini) para habilitar a busca de modelos na internet e a auditoria técnica TR × Datasheet.'
+      },
+      modelos_recomendados: [],
+      matriz_comparativa: reqLines.map((req, idx) => ({
+        item_tr: `Req ${idx + 1}`,
+        categoria: 'Especificação Técnica',
+        requisito_tr: req.slice(0, 240),
+        especificacao_encontrada: hasDatasheet ? 'Requer análise IA (configure GEMINI_API_KEY)' : 'Aguardando busca IA',
+        status: 'NAO_INFORMADO',
+        evidencia_pagina_ou_fonte: trDocs[0]?.name || 'TR',
+        observacao: 'Configure a chave Gemini API para comparação automática.'
+      })),
+      alertas_desclassificacao: [
+        'GEMINI_API_KEY não configurada no servidor. Configure a chave para liberar sugestões de modelos 100% aderentes e busca na internet.'
+      ],
+      fontes_consultadas: [],
+      arquivos_analisados: {
+        tr: trDocs.map(d => ({ name: d.name, characters: d.text.length })),
+        datasheets: dsDocs.map(d => ({ name: d.name, characters: d.text.length }))
+      },
+      modo_busca_internet: false,
+      ia_nao_configurada: true,
+      analisado_em: new Date().toISOString()
+    };
   }
 
   const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-2.5-flash';
@@ -876,4 +925,4 @@ ${hasDatasheet ? `\nTEXTO DO(S) DATASHEET(S) ANEXADO(S):\n"""\n${dsText}\n"""` :
   };
 }
 
-module.exports = { analyzeText, analyzeFiles, extractDocument, analyzeTechnicalTRWithEquipment };
+module.exports = { analyzeText, analyzeFiles, extractDocument, analyzeTechnicalTRWithEquipment, setRuntimeGeminiKey, getConfiguredGeminiKey };

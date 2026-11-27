@@ -22,7 +22,20 @@
 const express = require('express');
 const crypto = require('crypto');
 const { inspectFile } = require('../lib/editalFileCache.cjs');
-const { analyzeFiles, analyzeTechnicalTRWithEquipment } = require('../lib/document-analysis.cjs');
+const { analyzeFiles, analyzeTechnicalTRWithEquipment, setRuntimeGeminiKey, getConfiguredGeminiKey } = require('../lib/document-analysis.cjs');
+
+// Carrega chave Gemini salva no banco (se houver) ao iniciar o módulo
+(async () => {
+  try {
+    await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS app_ai_settings (id TEXT PRIMARY KEY, gemini_api_key TEXT, updated_at TIMESTAMP DEFAULT NOW())`);
+    const rows = await prisma.$queryRawUnsafe(`SELECT gemini_api_key FROM app_ai_settings WHERE id = 'default' LIMIT 1`);
+    if (rows?.[0]?.gemini_api_key) {
+      setRuntimeGeminiKey(rows[0].gemini_api_key);
+    }
+  } catch (e) {
+    console.warn('[ai-settings] Aviso ao carregar chave Gemini do banco:', e.message);
+  }
+})();
 const { normalizeFicha, isSyntheticFicha, hasSampleRequirement } = require('../lib/ficha-normalizer.cjs');
 const router  = express.Router();
 const { prisma } = require('../lib/prisma.cjs');
@@ -1526,7 +1539,7 @@ router.post(['/analise-tr/pergunte-edital', '/pergunte-edital'], ...requireAuthe
     const question = String(req.body?.question || '').trim();
     if (!question) return res.status(400).json({ error: 'Informe a pergunta.' });
 
-    const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
+    const apiKey = getConfiguredGeminiKey();
     if (!apiKey) return res.status(503).json({ error: 'Chave Gemini não configurada no servidor.' });
 
     let ficha = req.body?.ficha || null;
@@ -1601,6 +1614,35 @@ router.post(['/analise-tr/analisar-equipamentos', '/analisar-equipamentos'], ...
   } catch (error) {
     console.error('[analise-tr/analisar-equipamentos] erro:', error.message);
     return res.status(422).json({ error: error.message || 'Falha ao analisar o Termo de Referência.' });
+  }
+});
+
+router.get(['/analise-tr/ia-status', '/ia-status'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (_req, res) => {
+  const envKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
+  const activeKey = getConfiguredGeminiKey();
+  return res.json({
+    configured: Boolean(activeKey),
+    source: envKey ? 'env' : activeKey ? 'db' : 'none'
+  });
+});
+
+router.post(['/analise-tr/configurar-ia', '/configurar-ia'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    const key = String(req.body?.geminiApiKey || '').trim();
+    if (!key || key.length < 15) {
+      return res.status(400).json({ error: 'Informe uma chave Gemini API válida.' });
+    }
+    await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS app_ai_settings (id TEXT PRIMARY KEY, gemini_api_key TEXT, updated_at TIMESTAMP DEFAULT NOW())`);
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO app_ai_settings (id, gemini_api_key, updated_at) VALUES ('default', $1, NOW())
+       ON CONFLICT (id) DO UPDATE SET gemini_api_key = EXCLUDED.gemini_api_key, updated_at = NOW()`,
+      key
+    );
+    setRuntimeGeminiKey(key);
+    return res.json({ success: true, message: 'Chave Gemini API salva e ativada com sucesso!' });
+  } catch (err) {
+    console.error('[analise-tr/configurar-ia] erro:', err);
+    return res.status(500).json({ error: 'Erro ao salvar chave Gemini API', detail: err.message });
   }
 });
 
