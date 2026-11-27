@@ -133,124 +133,124 @@ export default function Sidebar({
   const menuSections = useMemo(() => ([
     {
       id: 'geral',
-      title: 'VISÃO GERAL',
+      title: 'Visão Geral',
       icon: Gauge,
-      accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35",
+      accent: 'from-cyan-400 via-sky-500 to-blue-600 text-white shadow-[0_0_14px_rgba(34,211,238,0.45)]',
       items: [
-        { path: '/dashboard-geral', label: 'Dashboard Geral', icon: ChartNoAxesCombined, accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35", description: 'Visão consolidada de todos os módulos' },
+        { path: '/dashboard-geral', label: 'Dashboard Geral', icon: ChartNoAxesCombined, accent: 'from-cyan-400 via-sky-500 to-blue-600 text-white shadow-[0_0_12px_rgba(34,211,238,0.4)]', description: 'Visão consolidada de todos os módulos' },
       ]
     },
     {
       id: 'vendas',
-      title: 'B2B PRIVADO',
+      title: 'B2B Privado',
       icon: Radar,
-      accent: "from-orange-300/95 via-amber-400/90 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30",
+      accent: 'from-amber-400 via-orange-500 to-rose-500 text-white shadow-[0_0_14px_rgba(251,146,60,0.42)]',
       items: [
-        { path: '/dashboard', label: 'Dashboard B2B', icon: Gauge, accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35", description: 'Visao geral do negocio' },
-        { path: '/empresas', label: 'Empresas', icon: Building2, accent: "from-sky-300/95 via-cyan-400/85 to-teal-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/30", description: 'Clientes e prospects' },
-        { path: '/leads', label: 'Lead', icon: ContactRound, accent: "from-lime-300/95 via-emerald-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Gestao de leads' },
-        { path: '/oportunidades', label: 'Oportunidades', icon: Radar, accent: "from-orange-300/95 via-amber-400/90 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Funil e negociacoes' },
-        { path: '/atividades', label: 'Atividades', icon: CalendarCheck2, accent: "from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Tarefas e agenda' },
-        { path: '/b2b-kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: "from-rose-300/95 via-orange-400/90 to-amber-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Reuniões estratégicas do projeto' },
-        { path: '/simuladores', label: 'Simuladores', icon: Calculator, accent: "from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-fuchsia-500/25", description: 'Dashboard, Precificação e Propostas' },
-        { path: '/propostas', label: 'Propostas', icon: FileSignature, accent: "from-amber-200/95 via-orange-400/90 to-rose-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Cotas e propostas' },
-        { path: '/templates-propostas', label: 'Templates', icon: Palette, accent: "from-fuchsia-300/95 via-rose-400/85 to-orange-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-rose-500/25", description: 'Templates de proposta' },
+        { path: '/dashboard', label: 'Dashboard B2B', icon: Gauge, accent: 'from-cyan-400 via-sky-500 to-blue-600 text-white', description: 'Visão geral do negócio B2B' },
+        { path: '/empresas', label: 'Empresas', icon: Building2, accent: 'from-sky-400 via-cyan-500 to-teal-500 text-white', description: 'Clientes e prospects' },
+        { path: '/leads', label: 'Leads', icon: ContactRound, accent: 'from-emerald-400 via-teal-500 to-cyan-500 text-white', description: 'Gestão de leads' },
+        { path: '/oportunidades', label: 'Oportunidades', icon: Radar, accent: 'from-amber-400 via-orange-500 to-rose-500 text-white', description: 'Funil e negociações' },
+        { path: '/atividades', label: 'Atividades', icon: CalendarCheck2, accent: 'from-emerald-400 via-teal-500 to-cyan-600 text-white', description: 'Tarefas e agenda' },
+        { path: '/b2b-kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: 'from-rose-400 via-orange-500 to-amber-500 text-white', description: 'Reuniões estratégicas do projeto' },
+        { path: '/simuladores', label: 'Simuladores', icon: Calculator, accent: 'from-violet-400 via-fuchsia-500 to-cyan-500 text-white', description: 'Dashboard, Precificação e Propostas' },
+        { path: '/propostas', label: 'Propostas', icon: FileSignature, accent: 'from-amber-400 via-orange-500 to-rose-500 text-white', description: 'Cotações e propostas' },
+        { path: '/templates-propostas', label: 'Templates', icon: Palette, accent: 'from-fuchsia-400 via-rose-500 to-orange-400 text-white', description: 'Templates de proposta' },
       ]
     },
     {
       id: 'b2g',
-      title: 'B2G GOVERNO',
+      title: 'B2G Governo',
       icon: Landmark,
-      accent: "from-amber-200/95 via-yellow-400/90 to-sky-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-amber-500/30",
+      accent: 'from-emerald-400 via-teal-500 to-cyan-600 text-white shadow-[0_0_14px_rgba(16,185,129,0.42)]',
       items: [
-        { path: '/b2g-dashboard', label: 'Dashboard', icon: ChartNoAxesCombined, accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35", description: 'Visão estratégica B2G' },
-        { path: '/b2g-orgaos', label: 'Órgãos', icon: Landmark, accent: "from-amber-200/95 via-yellow-400/90 to-sky-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-amber-500/30", description: 'Cadastro de órgãos governamentais' },
-        { path: '/b2g-buscar-editais', label: 'Buscar Editais', icon: Search, accent: "from-sky-300/95 via-cyan-400/85 to-emerald-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/30", description: 'Licitações Core Platform - Busca avançada e inteligência PNCP' },
-        { path: '/b2g-leads', label: 'Leads', icon: UsersRound, accent: "from-lime-300/95 via-emerald-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Órgãos e contas no radar' },
-        { path: '/b2g-oportunidades', label: 'Oportunidades', icon: Gavel, accent: "from-orange-300/95 via-amber-400/90 to-yellow-300/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Pipeline de licitações' },
-        { path: '/b2g-kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: "from-rose-300/95 via-orange-400/90 to-amber-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Reuniões estratégicas do projeto' },
-        { path: '/b2g-atas', label: 'Atas de Registro de Preços', icon: Archive, accent: "from-yellow-200/95 via-amber-400/90 to-orange-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-amber-500/30", description: 'Controle de atas RP' },
-        { path: '/b2g-atividades', label: 'Atividades', icon: Workflow, accent: "from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Agenda operacional B2G' },
-        { path: '/b2g-documentacao', label: 'Documentação', icon: BookOpenCheck, accent: "from-blue-200/95 via-cyan-400/85 to-teal-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/30", description: 'Checklist documental' },
-        { path: '/b2g-relatorios', label: 'Relatórios Estratégicos', icon: LineChart, accent: "from-cyan-300/95 via-blue-400/85 to-indigo-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Indicadores e decisões' },
-        { path: '/b2g-historico', label: 'Histórico', icon: History, accent: "from-[rgb(var(--crm-surface-rgb)_/_0.95)] via-sky-300/85 to-cyan-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sky-500/25", description: 'Linha do tempo do edital' }
+        { path: '/b2g-dashboard', label: 'Dashboard B2G', icon: ChartNoAxesCombined, accent: 'from-cyan-400 via-sky-500 to-blue-600 text-white', description: 'Visão estratégica B2G' },
+        { path: '/b2g-orgaos', label: 'Órgãos', icon: Landmark, accent: 'from-amber-400 via-yellow-500 to-orange-500 text-white', description: 'Cadastro de órgãos governamentais' },
+        { path: '/b2g-buscar-editais', label: 'Buscar Editais', icon: Search, accent: 'from-sky-400 via-cyan-500 to-emerald-500 text-white', description: 'Licitações Core Platform - Busca avançada e inteligência PNCP' },
+        { path: '/b2g-leads', label: 'Leads', icon: UsersRound, accent: 'from-emerald-400 via-teal-500 to-cyan-500 text-white', description: 'Órgãos e contas no radar' },
+        { path: '/b2g-oportunidades', label: 'Oportunidades', icon: Gavel, accent: 'from-orange-400 via-amber-500 to-yellow-500 text-white', description: 'Pipeline de licitações' },
+        { path: '/b2g-kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: 'from-rose-400 via-orange-500 to-amber-500 text-white', description: 'Reuniões estratégicas do projeto' },
+        { path: '/b2g-atas', label: 'Atas de Registro', icon: Archive, accent: 'from-amber-400 via-orange-500 to-rose-500 text-white', description: 'Controle de atas RP' },
+        { path: '/b2g-atividades', label: 'Atividades', icon: Workflow, accent: 'from-emerald-400 via-teal-500 to-cyan-600 text-white', description: 'Agenda operacional B2G' },
+        { path: '/b2g-documentacao', label: 'Documentação', icon: BookOpenCheck, accent: 'from-blue-400 via-cyan-500 to-teal-500 text-white', description: 'Checklist documental' },
+        { path: '/b2g-relatorios', label: 'Relatórios', icon: LineChart, accent: 'from-cyan-400 via-blue-500 to-indigo-600 text-white', description: 'Indicadores e decisões' },
+        { path: '/b2g-historico', label: 'Histórico', icon: History, accent: 'from-sky-400 via-cyan-500 to-blue-600 text-white', description: 'Linha do tempo do edital' }
       ]
     },
     {
       id: 'prevendas',
-      title: 'Pre-Vendas',
+      title: 'Pré-Vendas',
       icon: Rocket,
-      accent: "from-rose-300/95 via-orange-400/90 to-amber-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30",
+      accent: 'from-violet-400 via-purple-500 to-indigo-600 text-white shadow-[0_0_14px_rgba(139,92,246,0.42)]',
       items: [
-        { path: '/pre-vendas', label: 'Dashboard', icon: LayoutDashboard, accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35", description: 'Visao geral pre-vendas' },
-        { path: '/solicitacoes', label: 'Solicitacoes', icon: ClipboardCheck, accent: "from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Solicitacoes recebidas' },
-        { path: '/orcamentos', label: 'Orçamentos', icon: BadgeDollarSign, accent: "from-yellow-200/95 via-amber-400/90 to-orange-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-amber-500/30", description: 'Cotações registradas no fluxo' },
-        { path: '/prevendas-distribuidores', label: 'Distribuidores', icon: Network, accent: "from-sky-300/95 via-cyan-400/85 to-teal-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/30", description: 'Base de distribuidores homologados' },
-        { path: '/prevendas-fornecedores', label: 'Fornecedores', icon: Package, accent: "from-indigo-300/95 via-blue-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Base de fornecedores homologados' },
-        { path: '/prevendas-registro-oportunidades', label: 'Registro de Oportunidades', icon: Radar, accent: "from-orange-300/95 via-amber-400/90 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Registro técnico para Pré-Vendas' },
-        { path: '/calculadoras', label: 'Calculadoras', icon: Calculator, accent: "from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-fuchsia-500/25", description: 'Venda, locacao e servicos' },
-        { path: '/ratear-produtos', label: 'Ratear Produtos', icon: GitBranch, accent: "from-lime-300/95 via-emerald-400/85 to-sky-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Rateio de despesas por produto' },
-        { path: '/rateios-salvos', label: 'Rateios Salvos', icon: History, accent: "from-[rgb(var(--crm-surface-rgb)_/_0.95)] via-sky-300/85 to-cyan-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sky-500/25", description: 'Historico de rateios executados' },
-        { path: '/gestao-pocs', label: 'Gestão de POCs', icon: Beaker, accent: "from-rose-300/95 via-fuchsia-400/85 to-violet-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-fuchsia-500/25", description: 'Planejamento e validação de provas de conceito' }
+        { path: '/pre-vendas', label: 'Dashboard', icon: LayoutDashboard, accent: 'from-cyan-400 via-sky-500 to-blue-600 text-white', description: 'Visão geral pré-vendas' },
+        { path: '/solicitacoes', label: 'Solicitações', icon: ClipboardCheck, accent: 'from-emerald-400 via-teal-500 to-cyan-500 text-white', description: 'Solicitações recebidas' },
+        { path: '/orcamentos', label: 'Orçamentos', icon: BadgeDollarSign, accent: 'from-amber-400 via-orange-500 to-rose-500 text-white', description: 'Cotações registradas no fluxo' },
+        { path: '/prevendas-distribuidores', label: 'Distribuidores', icon: Network, accent: 'from-sky-400 via-cyan-500 to-teal-500 text-white', description: 'Base de distribuidores homologados' },
+        { path: '/prevendas-fornecedores', label: 'Fornecedores', icon: Package, accent: 'from-indigo-400 via-violet-500 to-purple-600 text-white', description: 'Base de fornecedores homologados' },
+        { path: '/prevendas-registro-oportunidades', label: 'Registro de ROs', icon: Radar, accent: 'from-orange-400 via-amber-500 to-cyan-500 text-white', description: 'Registro técnico para Pré-Vendas' },
+        { path: '/calculadoras', label: 'Calculadoras', icon: Calculator, accent: 'from-violet-400 via-fuchsia-500 to-cyan-500 text-white', description: 'Venda, locação e serviços' },
+        { path: '/ratear-produtos', label: 'Ratear Produtos', icon: GitBranch, accent: 'from-emerald-400 via-teal-500 to-sky-500 text-white', description: 'Rateio de despesas por produto' },
+        { path: '/rateios-salvos', label: 'Rateios Salvos', icon: History, accent: 'from-sky-400 via-cyan-500 to-blue-600 text-white', description: 'Histórico de rateios executados' },
+        { path: '/gestao-pocs', label: 'Gestão de POCs', icon: Beaker, accent: 'from-rose-400 via-fuchsia-500 to-violet-500 text-white', description: 'Planejamento e validação de provas de conceito' }
       ]
     },
     {
       id: 'gestao',
-      title: 'Gestao',
+      title: 'Gestão',
       icon: FolderKanban,
-      accent: "from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30",
+      accent: 'from-sky-400 via-blue-500 to-indigo-600 text-white shadow-[0_0_14px_rgba(59,130,246,0.42)]',
       items: [
-        { path: '/contratos', label: 'Contratos', icon: ShieldCheck, accent: "from-blue-300/95 via-indigo-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Vencimentos, renovações e arquivos' },
-        { path: '/produtos', label: 'Produtos', icon: Package, accent: "from-indigo-300/95 via-blue-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Catalogo e itens' },
-        { path: '/vendedores', label: 'Vendedores', icon: UsersRound, accent: "from-lime-300/95 via-emerald-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Equipe e cadastro' },
-        { path: '/analise-financeira', label: 'Análise Financeira', icon: BarChart3, accent: "from-cyan-300/95 via-sky-400/85 to-blue-500/90 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/35", description: 'Dashboard financeiro e análise' },
-        { path: '/comissoes', label: 'Comissoes', icon: Coins, accent: "from-yellow-200/95 via-amber-400/90 to-orange-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-amber-500/30", description: 'Pagamentos e regras' },
-        { path: '/metas-performance', label: 'Metas & Performance', icon: Trophy, accent: "from-orange-300/95 via-amber-400/90 to-yellow-300/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Metas e indicadores' },
-        { path: '/kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: "from-rose-300/95 via-orange-400/90 to-amber-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-orange-500/30", description: 'Reuniões estratégicas do projeto' },
-        { path: '/projetos', label: 'Gestão de Projetos', icon: FolderKanban, accent: "from-teal-300/95 via-emerald-400/85 to-green-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Gestão de projetos e entregas' },
-        { path: '/pos-venda', label: 'Pos-Venda', icon: Handshake, accent: "from-emerald-300/95 via-teal-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-emerald-500/30", description: 'Relacionamento e suporte' },
-        { path: '/relatorios', label: 'Relatorios', icon: ChartNoAxesCombined, accent: "from-cyan-300/95 via-blue-400/85 to-indigo-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Analises e metricas' }
+        { path: '/contratos', label: 'Contratos', icon: ShieldCheck, accent: 'from-blue-400 via-indigo-500 to-cyan-500 text-white', description: 'Vencimentos, renovações e arquivos' },
+        { path: '/produtos', label: 'Produtos', icon: Package, accent: 'from-indigo-400 via-blue-500 to-cyan-500 text-white', description: 'Catálogo e itens' },
+        { path: '/vendedores', label: 'Vendedores', icon: UsersRound, accent: 'from-emerald-400 via-teal-500 to-cyan-500 text-white', description: 'Equipe e cadastro' },
+        { path: '/analise-financeira', label: 'Análise Financeira', icon: BarChart3, accent: 'from-cyan-400 via-sky-500 to-blue-600 text-white', description: 'Dashboard financeiro e análise' },
+        { path: '/comissoes', label: 'Comissões', icon: Coins, accent: 'from-amber-400 via-orange-500 to-rose-500 text-white', description: 'Pagamentos e regras' },
+        { path: '/metas-performance', label: 'Metas & Performance', icon: Trophy, accent: 'from-orange-400 via-amber-500 to-yellow-500 text-white', description: 'Metas e indicadores' },
+        { path: '/kickoff', label: 'Gestão de Kickoff', icon: Rocket, accent: 'from-rose-400 via-orange-500 to-amber-500 text-white', description: 'Reuniões estratégicas do projeto' },
+        { path: '/projetos', label: 'Gestão de Projetos', icon: FolderKanban, accent: 'from-teal-400 via-emerald-500 to-green-500 text-white', description: 'Gestão de projetos e entregas' },
+        { path: '/pos-venda', label: 'Pós-Venda', icon: Handshake, accent: 'from-emerald-400 via-teal-500 to-cyan-500 text-white', description: 'Relacionamento e suporte' },
+        { path: '/relatorios', label: 'Relatórios', icon: ChartNoAxesCombined, accent: 'from-cyan-400 via-blue-500 to-indigo-600 text-white', description: 'Análises e métricas' }
       ]
     },
     {
       id: 'automacao',
-      title: 'Automação / Integrações',
+      title: 'Automações',
       icon: PlugZap,
-      accent: "from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-fuchsia-500/25",
+      accent: 'from-fuchsia-400 via-purple-500 to-cyan-500 text-white shadow-[0_0_14px_rgba(217,70,239,0.42)]',
       items: [
-        { path: '/automacoes', label: 'Workflows', icon: Workflow, accent: "from-violet-300/95 via-fuchsia-400/80 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-fuchsia-500/25", description: 'Regras e automacoes' },
-        { path: '/integracoes', label: 'Integracoes', icon: PlugZap, accent: "from-sky-300/95 via-cyan-400/85 to-emerald-300/90 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-cyan-500/30", description: 'APIs e conectores' }
+        { path: '/automacoes', label: 'Workflows', icon: Workflow, accent: 'from-violet-400 via-fuchsia-500 to-cyan-500 text-white', description: 'Regras e automações' },
+        { path: '/integracoes', label: 'Integrações', icon: PlugZap, accent: 'from-sky-400 via-cyan-500 to-emerald-500 text-white', description: 'APIs e conectores' }
       ]
     },
     {
       id: 'administracao',
-      title: 'Administracao',
+      title: 'Administração',
       icon: ShieldCheck,
-      accent: "from-blue-300/95 via-indigo-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30",
+      accent: 'from-amber-400 via-yellow-500 to-orange-500 text-white shadow-[0_0_14px_rgba(245,158,11,0.42)]',
       items: [
         {
           path: '/administracao',
-          label: 'Administracao',
+          label: 'Administração',
           icon: ShieldCheck,
-          accent: "from-blue-300/95 via-indigo-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30",
-          description: 'Gestao global de empresas, planos e licenciamento (MASTER)'
+          accent: 'from-amber-400 via-yellow-500 to-orange-500 text-white',
+          description: 'Gestão global de empresas, planos e licenciamento (MASTER)'
         }
       ]
     },
     {
       id: 'configuracao',
-      title: 'Configuracoes',
+      title: 'Configurações',
       icon: SlidersHorizontal,
-      accent: "from-[rgb(var(--crm-surface-rgb)_/_0.95)] via-sky-300/85 to-cyan-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sky-500/25",
+      accent: 'from-teal-400 via-cyan-500 to-sky-600 text-white shadow-[0_0_14px_rgba(20,184,166,0.42)]',
       items: [
         {
           path: '/configuracoes',
-          label: 'Configuracoes',
+          label: 'Configurações',
           icon: SlidersHorizontal,
-          accent: "from-[rgb(var(--crm-surface-rgb)_/_0.95)] via-sky-300/85 to-cyan-400/80 text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-sky-500/25",
+          accent: 'from-teal-400 via-cyan-500 to-sky-600 text-white',
           description: 'Gerencie suas preferências e configurações da empresa'
         },
-        { path: '/funcionalidades-avancadas', label: 'Avancado', icon: Settings2, accent: "from-violet-300/95 via-blue-400/85 to-cyan-400/85 text-[rgb(var(--crm-ink-rgb)_/_1)] dark:text-[rgb(var(--crm-ink-rgb)_/_1)] shadow-blue-500/30", description: 'Configuracoes avancadas' }
+        { path: '/funcionalidades-avancadas', label: 'Avançado', icon: Settings2, accent: 'from-violet-400 via-blue-500 to-cyan-500 text-white', description: 'Configurações avançadas' }
       ]
     }
   ]), []);
@@ -452,16 +452,15 @@ export default function Sidebar({
               className={[
                 'relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg border transition-all duration-200',
                 isActive
-                  ? `border-cyan-300/40 bg-gradient-to-br ${iconAccent} shadow-sm`
-                  : "border-[var(--crm-border)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.12)] bg-[rgb(var(--crm-surface-rgb)_/_0.06)] text-[rgb(var(--crm-ink-rgb)_/_0.9)] group-hover:bg-[rgb(var(--crm-surface-rgb)_/_0.14)]"
+                  ? `border-white/35 bg-gradient-to-br ${iconAccent} shadow-md`
+                  : `border-white/15 bg-gradient-to-br ${iconAccent} opacity-80 group-hover:opacity-100`
               ].join(' ')}
             >
-              <span className={['absolute inset-0 opacity-0 transition-opacity duration-200', isActive ? 'opacity-100' : 'group-hover:opacity-90', `bg-gradient-to-br ${iconAccent}`].join(' ')} />
               <Icon
                 strokeWidth={2.2}
                 className={[
                   'relative z-10 h-3.5 w-3.5 transition-transform duration-200',
-                  isActive ? 'scale-105' : 'group-hover:scale-105'
+                  isActive ? 'scale-110' : 'group-hover:scale-105'
                 ].join(' ')}
               />
             </span>
@@ -554,25 +553,24 @@ export default function Sidebar({
                 onClick={(e) => toggleSection(e, section.id)}
                 title={section.title}
                 className={[
-                  'w-full flex items-center rounded-xl py-1.5',
+                  'group w-full flex items-center rounded-xl py-2',
                   collapsed ? 'justify-center gap-0 px-2' : 'justify-between gap-2 px-2.5',
-                  'text-left text-[11px] font-semibold tracking-[0.04em]',
-                  "border border-transparent bg-[rgb(var(--crm-surface-2-rgb)_/_0.28)] text-[rgb(var(--crm-ink-rgb)_/_0.9)]",
-                  "transition-all duration-200 hover:border-cyan-300/20 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.68)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                  'text-left text-[13px] font-semibold tracking-normal',
+                  "border border-transparent bg-[rgb(var(--crm-surface-2-rgb)_/_0.32)] text-[rgb(var(--crm-ink-rgb)_/_0.92)]",
+                  "transition-all duration-200 hover:border-cyan-300/25 hover:bg-[rgb(var(--crm-surface-2-rgb)_/_0.72)] hover:text-white"
                 ].join(' ')}
                 aria-expanded={isOpen}
               >
-                <span className={['flex items-center min-w-0', collapsed ? 'justify-center gap-0' : 'gap-2'].join(' ')}>
+                <span className={['flex items-center min-w-0', collapsed ? 'justify-center gap-0' : 'gap-2.5'].join(' ')}>
                   <span
                     className={[
-                      'relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-lg border transition-all duration-200',
+                      'relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-xl border transition-all duration-200',
                       isOpen
-                        ? `border-cyan-300/40 bg-gradient-to-br ${sectionAccent} shadow-sm`
-                        : "border-[var(--crm-border)] dark:border-[rgb(var(--crm-ink-rgb)_/_0.12)] bg-[rgb(var(--crm-surface-rgb)_/_0.07)] text-[rgb(var(--crm-ink-rgb)_/_0.9)]"
+                        ? `border-white/35 bg-gradient-to-br ${sectionAccent} shadow-md`
+                        : `border-white/15 bg-gradient-to-br ${sectionAccent} opacity-85 group-hover:opacity-100 group-hover:scale-105`
                     ].join(' ')}
                   >
-                    <span className={['absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100', `bg-gradient-to-br ${sectionAccent}`, isOpen ? 'opacity-100' : ''].join(' ')} />
-                    <SectionIcon strokeWidth={2.2} className="relative z-10 h-3.5 w-3.5" />
+                    <SectionIcon strokeWidth={2.2} className="relative z-10 h-4 w-4" />
                   </span>
                   <span className={collapsed ? 'lg:hidden truncate' : 'truncate'}>{section.title}</span>
                 </span>
