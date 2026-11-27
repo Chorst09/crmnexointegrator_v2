@@ -308,6 +308,7 @@ const buildProposalForm = (proposalNumber, managerDefaults = {}) => ({
   opportunityId: '',
   opportunityNumber: '',
   opportunityTitle: '',
+  clientType: 'B2B',
   clientCompany: '',
   clientContact: '',
   clientPhone: '',
@@ -1304,6 +1305,8 @@ export default function Calculadoras({
   const [distributorCosts, setDistributorCosts] = useState([]); // Lista de custos adicionados
   const [preSalesDistributors, setPreSalesDistributors] = useState([]);
   const [preSalesSuppliers, setPreSalesSuppliers] = useState([]);
+  const [registeredCompanies, setRegisteredCompanies] = useState([]);
+  const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
   const [currentBudget, setCurrentBudget] = useState({
     distribuidorId: '',
     distribuidor: '',
@@ -1421,7 +1424,18 @@ export default function Calculadoras({
         console.error('Erro ao carregar distribuidores/fornecedores de pré-vendas:', error);
       }
     };
+    const loadRegisteredCompanies = async () => {
+      try {
+        const response = await fetch(buildApiUrl('/companies'), { headers: getAuthHeaders() });
+        if (!response.ok) return;
+        const data = await response.json();
+        setRegisteredCompanies(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error('Erro ao carregar clientes cadastrados:', error);
+      }
+    };
     loadPreSalesDistributors();
+    loadRegisteredCompanies();
   }, []);
 
   useEffect(() => {
@@ -2141,17 +2155,59 @@ export default function Calculadoras({
       custosDistribuidores[0]?.fornecedorId || primaryPartner.fornecedorId,
       custosDistribuidores[0]?.fornecedor || primaryPartner.fornecedor
     );
-    const clientName = proposalDetails.clienteOrgao || solicitacao.nomeCliente || solicitacao.lead?.name || '';
+    const rawClientName = proposalDetails.clienteOrgao || solicitacao.nomeCliente || solicitacao.lead?.name || '';
+    const normClientName = normalizeLookupText(rawClientName);
+    const normDoc = String(proposalDetails.cnpjDocumento || '').replace(/\D/g, '');
+    const matchedCompany = registeredCompanies.find((comp) => (
+      (solicitacao?.opportunity?.companyId && comp.id === solicitacao.opportunity.companyId) ||
+      (solicitacao?.lead?.companyId && comp.id === solicitacao.lead.companyId) ||
+      (solicitacao?.leadId && comp.id === solicitacao.leadId) ||
+      (normDoc && String(comp.document || '').replace(/\D/g, '') === normDoc) ||
+      (normClientName && normalizeLookupText(comp.name) === normClientName)
+    )) || null;
+    const primaryContact = Array.isArray(matchedCompany?.contacts)
+      ? (matchedCompany.contacts.find((c) => c.isPrimary) || matchedCompany.contacts[0])
+      : null;
+    const clientName = matchedCompany?.name || rawClientName;
+    const resolvedClientType = String(
+      matchedCompany?.clientType ||
+      solicitacao?.opportunity?.clientType ||
+      solicitacao?.lead?.clientType ||
+      'B2B'
+    ).toUpperCase() === 'B2G' ? 'B2G' : 'B2B';
+    const resolvedContact =
+      (proposalDetails.contatoCliente && proposalDetails.contatoCliente !== rawClientName ? proposalDetails.contatoCliente : '') ||
+      primaryContact?.name ||
+      solicitacao?.lead?.contactName ||
+      proposalDetails.contatoCliente ||
+      clientName;
+    const resolvedEmail =
+      proposalDetails.emailCliente ||
+      primaryContact?.email ||
+      solicitacao?.lead?.email ||
+      '';
+    const resolvedPhone =
+      proposalDetails.telefoneCliente ||
+      primaryContact?.phone ||
+      solicitacao?.lead?.phone ||
+      '';
+    const resolvedDocument =
+      proposalDetails.cnpjDocumento ||
+      matchedCompany?.document ||
+      solicitacao?.lead?.document ||
+      '';
+
     setProposalForm({
       ...buildProposalForm(proposalNumber, managerDefaults),
       number: proposalNumber,
       opportunityId: solicitacao?.opportunityId || solicitacao?.opportunity?.id || '',
       opportunityTitle: solicitacao?.opportunity?.title || '',
+      clientType: resolvedClientType,
       clientCompany: clientName,
-      clientContact: proposalDetails.contatoCliente || clientName,
-      clientPhone: proposalDetails.telefoneCliente || '',
-      clientEmail: proposalDetails.emailCliente || '',
-      clientDocument: proposalDetails.cnpjDocumento || '',
+      clientContact: resolvedContact,
+      clientPhone: resolvedPhone,
+      clientEmail: resolvedEmail,
+      clientDocument: resolvedDocument,
       managerName: proposalDetails.gerenteConta || solicitacao?.solicitante?.name || managerDefaults.managerName || '',
       managerEmail: proposalDetails.emailGerente || solicitacao?.solicitante?.email || managerDefaults.managerEmail || '',
       managerPhone: proposalDetails.telefoneGerente || managerDefaults.managerPhone || '',
@@ -4356,19 +4412,111 @@ export default function Calculadoras({
                   </div>
                 </div>
 
-                {/* Cliente / Órgão e CNPJ lado a lado */}
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Cliente / Órgão</label>
+                {/* Tipo do cliente, Cliente e CNPJ */}
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-4">
+                  <div className="xl:col-span-3">
+                    <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">Tipo do cliente</label>
+                    <select
+                      value={proposalForm.clientType || 'B2B'}
+                      onChange={(event) => {
+                        const nextType = event.target.value;
+                        setProposalForm((prev) => ({
+                          ...prev,
+                          clientType: nextType,
+                          clientCompany: '',
+                          clientDocument: '',
+                          clientContact: '',
+                          clientEmail: '',
+                          clientPhone: ''
+                        }));
+                      }}
+                      className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)]"
+                    >
+                      <option value="B2B">Corporativo</option>
+                      <option value="B2G">Governo</option>
+                    </select>
+                  </div>
+
+                  <div
+                    className="xl:col-span-5 relative"
+                    onBlur={() => setTimeout(() => setClientDropdownOpen(false), 140)}
+                  >
+                    <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">
+                      Cliente ({proposalForm.clientType === 'B2G' ? 'Governo' : 'Corporativo'})
+                    </label>
                     <input
                       type="text"
-                      placeholder="Nome do cliente ou órgão"
+                      placeholder={
+                        proposalForm.clientType === 'B2G'
+                          ? 'Buscar órgão / cliente Governo cadastrado...'
+                          : 'Buscar cliente Corporativo cadastrado...'
+                      }
                       value={proposalForm.clientCompany}
-                      onChange={(event) => setProposalForm((prev) => ({ ...prev, clientCompany: event.target.value }))}
+                      onFocus={() => setClientDropdownOpen(true)}
+                      onChange={(event) => {
+                        setProposalForm((prev) => ({ ...prev, clientCompany: event.target.value }));
+                        setClientDropdownOpen(true);
+                      }}
                       className="w-full px-4 py-3 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] border border-[var(--crm-border)] rounded-lg text-[rgb(var(--crm-ink-rgb)_/_1)] placeholder-[rgb(var(--crm-muted-rgb)_/_1)]"
                     />
+                    {clientDropdownOpen && (() => {
+                      const targetType = proposalForm.clientType === 'B2G' ? 'B2G' : 'B2B';
+                      const searchNorm = normalizeLookupText(proposalForm.clientCompany);
+                      const matchingClients = registeredCompanies.filter((comp) => {
+                        const ct = String(comp?.clientType || 'B2B').toUpperCase();
+                        const typeMatches = targetType === 'B2G' ? ct === 'B2G' : ct !== 'B2G';
+                        if (!typeMatches) return false;
+                        if (!searchNorm) return true;
+                        const haystack = normalizeLookupText(
+                          [comp.name, comp.document, comp.city, comp.state].filter(Boolean).join(' ')
+                        );
+                        return haystack.includes(searchNorm);
+                      });
+                      return (
+                        <div className="absolute left-0 right-0 z-40 mt-1 max-h-64 overflow-y-auto rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_0.98)] shadow-2xl backdrop-blur-md">
+                          <div className="px-3 py-1.5 text-[11px] font-semibold text-[rgb(var(--crm-muted-rgb)_/_1)] border-b border-[var(--crm-border)]">
+                            {matchingClients.length} cliente(s) {targetType === 'B2G' ? 'Governo' : 'Corporativo'}
+                          </div>
+                          {matchingClients.length === 0 ? (
+                            <div className="px-3 py-3 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                              Nenhum cliente encontrado para este tipo.
+                            </div>
+                          ) : (
+                            matchingClients.map((comp) => {
+                              const primary = Array.isArray(comp.contacts)
+                                ? (comp.contacts.find((c) => c.isPrimary) || comp.contacts[0])
+                                : null;
+                              const sub = [comp.document, comp.city, comp.state].filter(Boolean).join(' • ');
+                              return (
+                                <button
+                                  key={comp.id}
+                                  type="button"
+                                  onMouseDown={(e) => e.preventDefault()}
+                                  onClick={() => {
+                                    setProposalForm((prev) => ({
+                                      ...prev,
+                                      clientCompany: comp.name || '',
+                                      clientDocument: comp.document || prev.clientDocument || '',
+                                      clientContact: primary?.name || comp.name || prev.clientContact || '',
+                                      clientEmail: primary?.email || prev.clientEmail || '',
+                                      clientPhone: primary?.phone || prev.clientPhone || ''
+                                    }));
+                                    setClientDropdownOpen(false);
+                                  }}
+                                  className="w-full px-3 py-2 text-left hover:bg-cyan-500/15 border-b border-[var(--crm-border)]/40 last:border-b-0 transition-colors"
+                                >
+                                  <div className="text-xs font-bold text-[rgb(var(--crm-ink-rgb)_/_1)] truncate">{comp.name}</div>
+                                  {sub && <div className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)] truncate">{sub}</div>}
+                                </button>
+                              );
+                            })
+                          )}
+                        </div>
+                      );
+                    })()}
                   </div>
-                  <div>
+
+                  <div className="xl:col-span-4">
                     <label className="block text-sm text-[rgb(var(--crm-ink-rgb)_/_1)] mb-1">CNPJ / Documento</label>
                     <input
                       type="text"
