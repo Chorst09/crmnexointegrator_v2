@@ -24,23 +24,30 @@ const crypto = require('crypto');
 const { inspectFile } = require('../lib/editalFileCache.cjs');
 const { analyzeFiles, analyzeTechnicalTRWithEquipment, setRuntimeGeminiKey, getConfiguredGeminiKey } = require('../lib/document-analysis.cjs');
 
-// Carrega chave Gemini salva no banco (se houver) ao iniciar o módulo
-(async () => {
-  try {
-    await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS app_ai_settings (id TEXT PRIMARY KEY, gemini_api_key TEXT, updated_at TIMESTAMP DEFAULT NOW())`);
-    const rows = await prisma.$queryRawUnsafe(`SELECT gemini_api_key FROM app_ai_settings WHERE id = 'default' LIMIT 1`);
-    if (rows?.[0]?.gemini_api_key) {
-      setRuntimeGeminiKey(rows[0].gemini_api_key);
-    }
-  } catch (e) {
-    console.warn('[ai-settings] Aviso ao carregar chave Gemini do banco:', e.message);
-  }
-})();
 const { normalizeFicha, isSyntheticFicha, hasSampleRequirement } = require('../lib/ficha-normalizer.cjs');
 const router  = express.Router();
 const { prisma } = require('../lib/prisma.cjs');
 const { authenticateToken, requireRole } = require('../lib/auth.cjs');
 const { REPOSITORY_LICITACOES } = require('./editaisRepository.cjs');
+
+async function ensureGeminiKeyLoaded() {
+  const current = getConfiguredGeminiKey();
+  if (current) return current;
+  try {
+    await prisma.$executeRawUnsafe(`CREATE TABLE IF NOT EXISTS app_ai_settings (id TEXT PRIMARY KEY, gemini_api_key TEXT, updated_at TIMESTAMP DEFAULT NOW())`);
+    const rows = await prisma.$queryRawUnsafe(`SELECT gemini_api_key FROM app_ai_settings WHERE id = 'default' LIMIT 1`);
+    if (rows?.[0]?.gemini_api_key) {
+      setRuntimeGeminiKey(rows[0].gemini_api_key);
+      return rows[0].gemini_api_key;
+    }
+  } catch (e) {
+    console.warn('[ai-settings] Aviso ao carregar chave Gemini do banco:', e.message);
+  }
+  return '';
+}
+
+// Carrega chave Gemini salva no banco (se houver) ao iniciar o módulo
+ensureGeminiKeyLoaded();
 
 const USER_ALLOWED_ROLES = ['ADMIN', 'DIRECTOR', 'MANAGER', 'SELLER', 'PRE_SALES', 'USER', 'COMMERCIAL', 'MASTER'];
 
@@ -1539,7 +1546,7 @@ router.post(['/analise-tr/pergunte-edital', '/pergunte-edital'], ...requireAuthe
     const question = String(req.body?.question || '').trim();
     if (!question) return res.status(400).json({ error: 'Informe a pergunta.' });
 
-    const apiKey = getConfiguredGeminiKey();
+    const apiKey = await ensureGeminiKeyLoaded();
     if (!apiKey) return res.status(503).json({ error: 'Chave Gemini não configurada no servidor.' });
 
     let ficha = req.body?.ficha || null;
@@ -1604,6 +1611,7 @@ router.post(['/analise-tr/analisar-equipamentos', '/analisar-equipamentos'], ...
   try {
     req.setTimeout?.(180000);
     res.setTimeout?.(180000);
+    await ensureGeminiKeyLoaded();
     const result = await analyzeTechnicalTRWithEquipment({
       trFiles: req.body?.trFiles,
       datasheetFiles: req.body?.datasheetFiles,
@@ -1619,7 +1627,7 @@ router.post(['/analise-tr/analisar-equipamentos', '/analisar-equipamentos'], ...
 
 router.get(['/analise-tr/ia-status', '/ia-status'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (_req, res) => {
   const envKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.GOOGLE_GENAI_API_KEY;
-  const activeKey = getConfiguredGeminiKey();
+  const activeKey = await ensureGeminiKeyLoaded();
   return res.json({
     configured: Boolean(activeKey),
     source: envKey ? 'env' : activeKey ? 'db' : 'none'
