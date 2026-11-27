@@ -1873,194 +1873,168 @@ export default function PrevendasCadastros({ forcedTab = null }) {
     const brands = Array.isArray(item.marcas) && item.marcas.length > 0 ? item.marcas : item.categorias;
     const sellers = Array.isArray(item.vendedoresResponsaveis) ? item.vendedoresResponsaveis : [];
 
+    const execPanelClass =
+      'relative overflow-hidden rounded-2xl border border-[#237baf]/60 bg-[radial-gradient(ellipse_at_8%_0%,rgba(0,66,116,0.24),transparent_64%),linear-gradient(140deg,rgba(2,18,43,0.95),rgba(0,9,27,0.94))] p-4 sm:p-5 shadow-[inset_0_1px_1px_rgba(160,234,255,0.16),0_8px_20px_rgba(0,7,19,0.55)]';
+    const execFieldClass =
+      'rounded-xl border border-[#1d6494]/45 bg-[#020d21]/85 px-3.5 py-2.5 shadow-[inset_0_1px_0_rgba(160,234,255,0.08)]';
+
     return (
-      <div className="relative space-y-8 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
+      <div className="relative space-y-5 text-slate-100">
         <button
           type="button"
           onClick={closeDistributorView}
-          className="absolute -right-4 -top-4 rounded-lg p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+          className="absolute -right-2 -top-2 rounded-lg p-1.5 text-slate-400 hover:bg-slate-800/70 hover:text-white"
           aria-label="Fechar modal"
         >
-          <X className="h-6 w-6" />
+          <X className="h-5 w-5" />
         </button>
 
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-3">
-            <Eye className="h-8 w-8 text-sky-700 dark:text-sky-400" />
-            <h2 className="text-3xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Visualizar Distribuidor: {item.nome || '-'}</h2>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between pr-8">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-400/50 bg-cyan-500/15 text-cyan-300 shadow-[0_0_14px_rgba(0,217,255,0.25)]">
+              <Eye className="h-4 w-4" />
+            </div>
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-white leading-tight">
+                Visualizar Distribuidor: {item.nome || '-'}
+              </h2>
+              <p className="text-xs text-cyan-200/75">Ficha executiva de parceiro e canais comerciais</p>
+            </div>
           </div>
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-flex items-center justify-center gap-3 rounded-lg border border-[var(--crm-border)] px-5 py-3 text-lg text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#1e73a8]/70 bg-[#01142b]/90 px-3.5 py-2 text-xs font-semibold text-cyan-100 hover:border-cyan-400 shadow-[0_0_12px_rgba(0,191,255,0.12)]"
           >
-            <FileDown className="h-5 w-5" /> Imprimir PDF
+            <FileDown className="h-4 w-4 text-cyan-400" /> Imprimir PDF
           </button>
         </div>
 
-        <section className="crm-gradient-hero rounded-2xl px-8 py-10">
-          <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center">
-              {renderPartnerLogo(item, 'h-24 w-36')}
+        <section className="relative overflow-hidden rounded-2xl border border-[#00d9ff]/55 bg-[radial-gradient(ellipse_at_92%_100%,rgba(0,217,255,0.22),transparent_62%),radial-gradient(ellipse_at_10%_0%,rgba(0,140,255,0.20),transparent_56%),linear-gradient(145deg,rgba(6,24,52,0.96),rgba(2,11,29,0.98))] px-5 py-5 shadow-[inset_0_1px_2px_rgba(0,217,255,0.3),0_0_22px_rgba(0,217,255,0.16)]">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-4">
+              {renderPartnerLogo(item, 'h-16 w-24')}
               <div className="min-w-0">
-                <h3 className="break-words text-5xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.nome || '-'}</h3>
-                <p className="mt-4 text-3xl text-cyan-700 dark:text-cyan-50">Distribuidor</p>
+                <h3 className="break-words text-xl sm:text-2xl font-bold text-white leading-tight">{item.nome || '-'}</h3>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-cyan-300">Distribuidor Homologado</p>
               </div>
             </div>
-            <span className="w-fit rounded-full border border-emerald-200/25 dark:border-emerald-800/25 bg-emerald-400/24 px-8 py-4 text-3xl font-semibold text-white shadow-[0_18px_44px_-24px_rgba(16,185,129,0.75)] backdrop-blur-md">
+            <span className="w-fit rounded-full border border-emerald-400/50 bg-emerald-500/20 px-3.5 py-1 text-xs font-bold text-emerald-200 shadow-[0_0_14px_rgba(16,185,129,0.3)]">
               {statusLabel}
             </span>
           </div>
         </section>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Card Informações de Contato - Estilo B2G Dashboard */}
-          <section className="crm-gradient-section group rounded-2xl p-6">
-            {/* Gradiente decorativo de fundo */}
-            <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-cyan-400/20 to-teal-400/10 blur-3xl"></div>
-            
-            <div className="relative">
-              <div className="mb-6 flex items-center gap-4">
-                {/* Ícone circular com gradiente */}
-                <div className="relative flex h-16 w-16 items-center justify-center">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400 to-teal-500 opacity-20 blur-md"></div>
-                  <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                    <User className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Informações de Contato</h3>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <section className={execPanelClass}>
+            <div className="mb-4 flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-400/45 bg-cyan-500/15 text-cyan-300">
+                <User className="h-4 w-4" />
               </div>
-              
-              <div className="space-y-5">
-                <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Contato Principal</p>
-                  <p className="mt-1 text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{contactName}</p>
-                </div>
-                <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                    <Mail className="h-4 w-4" /> Email
-                  </p>
-                  <p className="mt-1 break-all text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.email || '-'}</p>
-                </div>
-                <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                    <Phone className="h-4 w-4" /> Telefone
-                  </p>
-                  <p className="mt-1 text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.telefone || '-'}</p>
-                </div>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-200">Informações de Contato</h3>
+            </div>
+            <div className="space-y-2.5">
+              <div className={execFieldClass}>
+                <p className="text-[11px] font-medium text-slate-400">Contato Principal</p>
+                <p className="mt-0.5 text-sm font-bold text-white">{contactName}</p>
+              </div>
+              <div className={execFieldClass}>
+                <p className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+                  <Mail className="h-3.5 w-3.5 text-cyan-400" /> E-mail
+                </p>
+                <p className="mt-0.5 break-all text-xs sm:text-sm font-semibold text-slate-100">{item.email || '-'}</p>
+              </div>
+              <div className={execFieldClass}>
+                <p className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+                  <Phone className="h-3.5 w-3.5 text-emerald-400" /> Telefone
+                </p>
+                <p className="mt-0.5 text-xs sm:text-sm font-semibold text-slate-100">{item.telefone || '-'}</p>
               </div>
             </div>
           </section>
 
-          {/* Card Produtos/Serviços - Estilo B2G Dashboard */}
-          <section className="crm-gradient-section group rounded-2xl p-6">
-            {/* Gradiente decorativo de fundo */}
-            <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-teal-400/20 to-emerald-400/10 blur-3xl"></div>
-            
-            <div className="relative">
-              <div className="mb-6 flex items-center gap-4">
-                {/* Ícone circular com gradiente */}
-                <div className="relative flex h-16 w-16 items-center justify-center">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 opacity-20 blur-md"></div>
-                  <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                    <Package className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Produtos/Serviços</h3>
+          <section className={execPanelClass}>
+            <div className="mb-4 flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-400/45 bg-emerald-500/15 text-emerald-300">
+                <Package className="h-4 w-4" />
               </div>
-              
-              <div className="space-y-5">
-                <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="mb-3 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Marcas</p>
-                  {renderPillList(brands, 'Sem marcas informadas.')}
-                </div>
-                <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="mb-3 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Produtos Principais</p>
-                  {renderPillList(item.produtosPrincipais, 'Sem produtos principais informados.')}
-                </div>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-200">Produtos / Serviços</h3>
+            </div>
+            <div className="space-y-2.5">
+              <div className={execFieldClass}>
+                <p className="mb-1.5 text-[11px] font-medium text-slate-400">Marcas</p>
+                {renderPillList(brands, 'Sem marcas informadas.')}
+              </div>
+              <div className={execFieldClass}>
+                <p className="mb-1.5 text-[11px] font-medium text-slate-400">Produtos Principais</p>
+                {renderPillList(item.produtosPrincipais, 'Sem produtos principais informados.')}
               </div>
             </div>
           </section>
         </div>
 
-        <section className="crm-gradient-section rounded-2xl p-6">
-          {/* Gradiente decorativo */}
-          <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-cyan-400/15 to-teal-400/10 blur-3xl"></div>
-          
-          <div className="relative">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="relative flex h-16 w-16 items-center justify-center">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-400 to-teal-500 opacity-20 blur-md"></div>
-                <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                  <Globe2 className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Informações do Portal</h3>
+        <section className={execPanelClass}>
+          <div className="mb-4 flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-400/45 bg-cyan-500/15 text-cyan-300">
+              <Globe2 className="h-4 w-4" />
             </div>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-200">Informações do Portal</h3>
+          </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
             {renderPortalCard({
               title: 'Portal Principal',
               url: item.portalUrl,
               login: item.portalLogin,
               icon: Link2,
-              accentClass: "text-cyan-700 dark:text-cyan-50"
+              accentClass: 'text-cyan-300',
             })}
             {renderPortalCard({
               title: 'E-commerce',
               url: item.ecommerceUrl,
               login: item.ecommerceLogin,
               icon: ShoppingCart,
-              accentClass: "text-teal-700 dark:text-teal-50"
+              accentClass: 'text-teal-300',
             })}
-          </div>
           </div>
         </section>
 
-        <section className="crm-gradient-section group rounded-2xl p-6">
-          <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-teal-400/15 to-emerald-400/10 blur-3xl"></div>
-          
-          <div className="relative">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="relative flex h-16 w-16 items-center justify-center">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-400 to-emerald-500 opacity-20 blur-md"></div>
-                <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                  <Users className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Vendedores Responsáveis</h3>
+        <section className={execPanelClass}>
+          <div className="mb-4 flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-400/45 bg-violet-500/15 text-violet-300">
+              <Users className="h-4 w-4" />
             </div>
-
+            <h3 className="text-sm font-bold uppercase tracking-wider text-violet-200">Vendedores Responsáveis</h3>
+          </div>
           {sellers.length === 0 ? (
-            <p className="text-lg text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum vendedor adicionado.</p>
+            <p className="text-xs text-slate-400">Nenhum vendedor adicionado.</p>
           ) : (
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
               {sellers.map((seller, index) => {
                 const sellerTag = seller.marca || seller.area || seller.produto || seller.tipo || '';
                 return (
-                  <div key={`${seller.nome || 'seller'}-${index}`} className="crm-gradient-field rounded-xl border-l-4 border-cyan-300/45 p-7">
+                  <div key={`${seller.nome || 'seller'}-${index}`} className={`${execFieldClass} border-l-2 border-l-cyan-400`}>
                     {sellerTag && (
-                      <span className="mb-5 inline-flex rounded-full border border-cyan-200/20 dark:border-cyan-800/20 bg-cyan-300/18 px-5 py-2 text-lg font-semibold text-cyan-700 dark:text-cyan-50 backdrop-blur-md">
+                      <span className="mb-2 inline-flex rounded-full border border-cyan-400/35 bg-cyan-500/15 px-2.5 py-0.5 text-[10px] font-bold text-cyan-200">
                         {sellerTag}
                       </span>
                     )}
-                    <h4 className="text-3xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{seller.nome || '-'}</h4>
-                    <p className="mt-5 flex items-center gap-3 text-lg text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                      <Phone className="h-5 w-5 text-emerald-500" /> {seller.telefone || '-'}
+                    <h4 className="text-sm font-bold text-white">{seller.nome || '-'}</h4>
+                    <p className="mt-1.5 flex items-center gap-2 text-xs text-slate-200">
+                      <Phone className="h-3.5 w-3.5 text-emerald-400" /> {seller.telefone || '-'}
                     </p>
-                    <p className="mt-5 flex items-center gap-3 break-all text-lg text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                      <Mail className="h-5 w-5 shrink-0 text-violet-500" /> {seller.email || '-'}
+                    <p className="mt-1 flex items-center gap-2 break-all text-xs text-slate-200">
+                      <Mail className="h-3.5 w-3.5 shrink-0 text-violet-400" /> {seller.email || '-'}
                     </p>
                   </div>
                 );
               })}
             </div>
           )}
-          </div>
         </section>
 
-        <section className="crm-gradient-section rounded-2xl p-7">
-          <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Observações</h3>
-          <p className="mt-5 whitespace-pre-wrap text-lg text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.observacoes || 'Sem observações.'}</p>
+        <section className={execPanelClass}>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-200">Observações</h3>
+          <p className="mt-2 whitespace-pre-wrap text-xs sm:text-sm text-slate-300">{item.observacoes || 'Sem observações.'}</p>
         </section>
       </div>
     );
@@ -2075,214 +2049,185 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       ? item.produtosServicos
       : item.categorias;
 
+    const execPanelClass =
+      'relative overflow-hidden rounded-2xl border border-[#237baf]/60 bg-[radial-gradient(ellipse_at_8%_0%,rgba(0,66,116,0.24),transparent_64%),linear-gradient(140deg,rgba(2,18,43,0.95),rgba(0,9,27,0.94))] p-4 sm:p-5 shadow-[inset_0_1px_1px_rgba(160,234,255,0.16),0_8px_20px_rgba(0,7,19,0.55)]';
+    const execFieldClass =
+      'rounded-xl border border-[#1d6494]/45 bg-[#020d21]/85 px-3.5 py-2.5 shadow-[inset_0_1px_0_rgba(160,234,255,0.08)]';
+
     return (
-      <div className="relative space-y-8 bg-[rgb(var(--crm-surface-2-rgb)_/_1)] text-[rgb(var(--crm-ink-rgb)_/_1)]">
+      <div className="relative space-y-5 text-slate-100">
         <button
           type="button"
           onClick={closeSupplierView}
-          className="absolute -right-4 -top-4 rounded-lg p-2 text-[rgb(var(--crm-muted-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.05)] hover:text-[rgb(var(--crm-ink-rgb)_/_1)]"
+          className="absolute -right-2 -top-2 rounded-lg p-1.5 text-slate-400 hover:bg-slate-800/70 hover:text-white"
           aria-label="Fechar modal"
         >
-          <X className="h-6 w-6" />
+          <X className="h-5 w-5" />
         </button>
 
-        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center gap-3">
-            <Eye className="h-8 w-8 text-sky-700 dark:text-sky-400" />
-            <h2 className="text-3xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">Visualizar Fornecedor: {item.nome || '-'}</h2>
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between pr-8">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-violet-400/50 bg-violet-500/15 text-violet-300 shadow-[0_0_14px_rgba(122,104,255,0.25)]">
+              <Eye className="h-4 w-4" />
+            </div>
+            <div>
+              <h2 className="text-lg sm:text-xl font-bold text-white leading-tight">
+                Visualizar Fornecedor: {item.nome || '-'}
+              </h2>
+              <p className="text-xs text-violet-200/75">Ficha executiva de fabricante/fornecedor homologado</p>
+            </div>
           </div>
           <button
             type="button"
             onClick={() => window.print()}
-            className="inline-flex items-center justify-center gap-3 rounded-lg border border-[var(--crm-border)] px-5 py-3 text-lg text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.7)]"
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-[#1e73a8]/70 bg-[#01142b]/90 px-3.5 py-2 text-xs font-semibold text-cyan-100 hover:border-cyan-400 shadow-[0_0_12px_rgba(0,191,255,0.12)]"
           >
-            <FileDown className="h-5 w-5" /> Imprimir PDF
+            <FileDown className="h-4 w-4 text-cyan-400" /> Imprimir PDF
           </button>
         </div>
 
-        <section className="crm-gradient-hero rounded-2xl px-8 py-10">
-          <div className="flex flex-col gap-8 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex min-w-0 flex-col gap-5 sm:flex-row sm:items-center">
-              {renderPartnerLogo(item, 'h-24 w-36')}
+        <section className="relative overflow-hidden rounded-2xl border border-[#7a68ff]/55 bg-[radial-gradient(ellipse_at_92%_100%,rgba(122,104,255,0.22),transparent_62%),radial-gradient(ellipse_at_10%_0%,rgba(0,217,255,0.18),transparent_56%),linear-gradient(145deg,rgba(6,24,52,0.96),rgba(2,11,29,0.98))] px-5 py-5 shadow-[inset_0_1px_2px_rgba(122,104,255,0.3),0_0_22px_rgba(122,104,255,0.16)]">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex min-w-0 items-center gap-4">
+              {renderPartnerLogo(item, 'h-16 w-24')}
               <div className="min-w-0">
-                <h3 className="break-words text-5xl font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.nome || '-'}</h3>
-                <p className="mt-4 text-3xl text-cyan-700 dark:text-cyan-100">Fornecedor</p>
+                <h3 className="break-words text-xl sm:text-2xl font-bold text-white leading-tight">{item.nome || '-'}</h3>
+                <p className="mt-1 text-xs font-semibold uppercase tracking-wider text-violet-300">Fornecedor / Fabricante</p>
               </div>
             </div>
-            <span className="w-fit rounded-full border border-emerald-200/25 dark:border-emerald-800/25 bg-emerald-400/24 px-8 py-4 text-3xl font-semibold text-white shadow-[0_18px_44px_-24px_rgba(16,185,129,0.75)] backdrop-blur-md">
+            <span className="w-fit rounded-full border border-emerald-400/50 bg-emerald-500/20 px-3.5 py-1 text-xs font-bold text-emerald-200 shadow-[0_0_14px_rgba(16,185,129,0.3)]">
               {statusLabel}
             </span>
           </div>
         </section>
 
-        <section className="crm-gradient-section rounded-2xl p-6">
-          <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-cyan-500/15 to-teal-500/10 blur-3xl"></div>
-          
-          <div className="relative">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="relative flex h-16 w-16 items-center justify-center">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500 to-teal-600 opacity-20 blur-md"></div>
-                <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                  <Globe2 className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Informações de Portal</h3>
+        <section className={execPanelClass}>
+          <div className="mb-4 flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-400/45 bg-cyan-500/15 text-cyan-300">
+              <Globe2 className="h-4 w-4" />
             </div>
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              {renderPortalCard({
-                title: 'Portal / Partner',
-                url: item.portalPartnerUrl,
-                login: item.portalPartnerLogin,
-                icon: Link2,
-                accentClass: "text-blue-800 dark:text-blue-300"
-              })}
-              {renderPortalCard({
-                title: 'Portal de Treinamentos',
-                url: item.treinamentoUrl,
-                login: item.treinamentoLogin,
-                icon: Globe2,
-                accentClass: "text-cyan-800 dark:text-cyan-300"
-              })}
-            </div>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-200">Informações de Portal</h3>
+          </div>
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {renderPortalCard({
+              title: 'Portal / Partner',
+              url: item.portalPartnerUrl,
+              login: item.portalPartnerLogin,
+              icon: Link2,
+              accentClass: 'text-cyan-300',
+            })}
+            {renderPortalCard({
+              title: 'Portal de Treinamentos',
+              url: item.treinamentoUrl,
+              login: item.treinamentoLogin,
+              icon: Globe2,
+              accentClass: 'text-violet-300',
+            })}
           </div>
         </section>
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          {/* Card Contato Principal - Estilo B2G Dashboard */}
-          <section className="crm-gradient-section group rounded-2xl p-6">
-            <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-cyan-500/20 to-teal-500/10 blur-3xl"></div>
-            
-            <div className="relative">
-              <div className="mb-6 flex items-center gap-4">
-                <div className="relative flex h-16 w-16 items-center justify-center">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500 to-teal-600 opacity-20 blur-md"></div>
-                  <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                    <User className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Contato Principal</h3>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <section className={execPanelClass}>
+            <div className="mb-4 flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-400/45 bg-cyan-500/15 text-cyan-300">
+                <User className="h-4 w-4" />
               </div>
-              
-              <div className="space-y-5">
-                <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Nome</p>
-                  <p className="mt-1 text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.contatoPrincipal || item.contato || '-'}</p>
-                </div>
-                <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                    <Mail className="h-4 w-4" /> Email
-                  </p>
-                  <p className="mt-1 break-all text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.emailContatoPrincipal || item.email || '-'}</p>
-                </div>
-                <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                    <Phone className="h-4 w-4" /> Telefone
-                  </p>
-                  <p className="mt-1 text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.telefoneContatoPrincipal || item.telefone || '-'}</p>
-                </div>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-200">Contato Principal</h3>
+            </div>
+            <div className="space-y-2.5">
+              <div className={execFieldClass}>
+                <p className="text-[11px] font-medium text-slate-400">Nome</p>
+                <p className="mt-0.5 text-sm font-bold text-white">{item.contatoPrincipal || item.contato || '-'}</p>
+              </div>
+              <div className={execFieldClass}>
+                <p className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+                  <Mail className="h-3.5 w-3.5 text-cyan-400" /> E-mail
+                </p>
+                <p className="mt-0.5 break-all text-xs sm:text-sm font-semibold text-slate-100">{item.emailContatoPrincipal || item.email || '-'}</p>
+              </div>
+              <div className={execFieldClass}>
+                <p className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+                  <Phone className="h-3.5 w-3.5 text-emerald-400" /> Telefone
+                </p>
+                <p className="mt-0.5 text-xs sm:text-sm font-semibold text-slate-100">{item.telefoneContatoPrincipal || item.telefone || '-'}</p>
               </div>
             </div>
           </section>
 
-          {/* Card Contato Cotações - Estilo B2G Dashboard */}
-          <section className="crm-gradient-section group rounded-2xl p-6">
-            <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-teal-500/20 to-emerald-500/10 blur-3xl"></div>
-            
-            <div className="relative">
-              <div className="mb-6 flex items-center gap-4">
-                <div className="relative flex h-16 w-16 items-center justify-center">
-                  <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 opacity-20 blur-md"></div>
-                  <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                    <Users className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
-                  </div>
-                </div>
-                <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Contato Cotações</h3>
+          <section className={execPanelClass}>
+            <div className="mb-4 flex items-center gap-2.5">
+              <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-400/45 bg-emerald-500/15 text-emerald-300">
+                <Users className="h-4 w-4" />
               </div>
-              
-              <div className="space-y-5">
-                <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">Nome</p>
-                  <p className="mt-1 text-xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.contatoCotacoes || '-'}</p>
-                </div>
-                <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                    <Mail className="h-4 w-4" /> Email
-                  </p>
-                  <p className="mt-1 break-all text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.emailContatoCotacoes || '-'}</p>
-                </div>
-                <div className="crm-gradient-field rounded-lg p-4">
-                  <p className="flex items-center gap-2 text-sm font-medium text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                    <Phone className="h-4 w-4" /> Telefone
-                  </p>
-                  <p className="mt-1 text-lg font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.telefoneContatoCotacoes || '-'}</p>
-                </div>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-200">Contato Cotações</h3>
+            </div>
+            <div className="space-y-2.5">
+              <div className={execFieldClass}>
+                <p className="text-[11px] font-medium text-slate-400">Nome</p>
+                <p className="mt-0.5 text-sm font-bold text-white">{item.contatoCotacoes || '-'}</p>
+              </div>
+              <div className={execFieldClass}>
+                <p className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+                  <Mail className="h-3.5 w-3.5 text-cyan-400" /> E-mail
+                </p>
+                <p className="mt-0.5 break-all text-xs sm:text-sm font-semibold text-slate-100">{item.emailContatoCotacoes || '-'}</p>
+              </div>
+              <div className={execFieldClass}>
+                <p className="flex items-center gap-1.5 text-[11px] font-medium text-slate-400">
+                  <Phone className="h-3.5 w-3.5 text-emerald-400" /> Telefone
+                </p>
+                <p className="mt-0.5 text-xs sm:text-sm font-semibold text-slate-100">{item.telefoneContatoCotacoes || '-'}</p>
               </div>
             </div>
           </section>
         </div>
 
-        <section className="crm-gradient-section rounded-2xl p-6">
-          <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-cyan-500/15 to-teal-500/10 blur-3xl"></div>
-          
-          <div className="relative">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="relative flex h-16 w-16 items-center justify-center">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-cyan-500 to-teal-600 opacity-20 blur-md"></div>
-                <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                  <Package className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Produtos/Serviços Oferecidos</h3>
+        <section className={execPanelClass}>
+          <div className="mb-3 flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-cyan-400/45 bg-cyan-500/15 text-cyan-300">
+              <Package className="h-4 w-4" />
             </div>
-            <div className="crm-gradient-field rounded-lg p-4">
-              {renderPillList(products, 'Sem produtos/serviços informados.', 'from-orange-500/45 via-cyan-400/35 to-emerald-400/30')}
-            </div>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-200">Produtos / Serviços Oferecidos</h3>
+          </div>
+          <div className={execFieldClass}>
+            {renderPillList(products, 'Sem produtos/serviços informados.', 'from-cyan-500/35 via-blue-500/30 to-violet-500/30')}
           </div>
         </section>
 
-        <section className="crm-gradient-section rounded-2xl p-6">
-          <div className="absolute -right-20 -top-20 h-48 w-48 rounded-full bg-gradient-to-br from-teal-500/15 to-emerald-500/10 blur-3xl"></div>
-          
-          <div className="relative">
-            <div className="mb-6 flex items-center gap-4">
-              <div className="relative flex h-16 w-16 items-center justify-center">
-                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 opacity-20 blur-md"></div>
-                <div className="crm-gradient-icon relative flex h-14 w-14 items-center justify-center rounded-full">
-                  <ClipboardList className="h-7 w-7 text-[rgb(var(--crm-ink-rgb)_/_1)]" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Documentos e Procedimentos</h3>
+        <section className={execPanelClass}>
+          <div className="mb-3 flex items-center gap-2.5">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl border border-emerald-400/45 bg-emerald-500/15 text-emerald-300">
+              <ClipboardList className="h-4 w-4" />
             </div>
-
-          <div className="space-y-6">
-            <div>
-              <p className="mb-2 text-lg text-[rgb(var(--crm-muted-rgb)_/_1)]">Template RO</p>
+            <h3 className="text-sm font-bold uppercase tracking-wider text-emerald-200">Documentos e Procedimentos</h3>
+          </div>
+          <div className="space-y-3">
+            <div className={execFieldClass}>
+              <p className="mb-1 text-[11px] font-medium text-slate-400">Template RO</p>
               {item.templateRoUrl ? (
                 <a
                   href={item.templateRoUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-2 break-all text-xl font-bold text-sky-700 dark:text-sky-300 hover:text-sky-700 dark:hover:text-sky-200"
+                  className="inline-flex items-center gap-1.5 break-all text-xs sm:text-sm font-bold text-cyan-300 hover:text-cyan-200"
                 >
                   {item.templateRoUrl}
-                  <ExternalLink className="h-4 w-4 shrink-0" />
+                  <ExternalLink className="h-3.5 w-3.5 shrink-0" />
                 </a>
               ) : (
-                <p className="text-xl text-[rgb(var(--crm-muted-rgb)_/_1)]">Template RO não informado.</p>
+                <p className="text-xs text-slate-400">Template RO não informado.</p>
               )}
             </div>
-
-            <div>
-              <p className="mb-2 text-lg text-[rgb(var(--crm-muted-rgb)_/_1)]">Procedimento para RO</p>
-              <p className="whitespace-pre-wrap text-xl text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.procedimentoRo || 'Procedimento não informado.'}</p>
+            <div className={execFieldClass}>
+              <p className="mb-1 text-[11px] font-medium text-slate-400">Procedimento para RO</p>
+              <p className="whitespace-pre-wrap text-xs sm:text-sm text-slate-200">{item.procedimentoRo || 'Procedimento não informado.'}</p>
             </div>
-          </div>
           </div>
         </section>
 
-        <section className="crm-gradient-section rounded-2xl p-7">
-          <h3 className="text-2xl font-bold text-[rgb(var(--crm-ink-rgb)_/_1)]">Observações</h3>
-          <p className="mt-5 whitespace-pre-wrap text-lg text-[rgb(var(--crm-muted-rgb)_/_1)]">{item.observacoes || 'Sem observações.'}</p>
+        <section className={execPanelClass}>
+          <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-200">Observações</h3>
+          <p className="mt-2 whitespace-pre-wrap text-xs sm:text-sm text-slate-300">{item.observacoes || 'Sem observações.'}</p>
         </section>
       </div>
     );
@@ -2290,46 +2235,74 @@ export default function PrevendasCadastros({ forcedTab = null }) {
 
   const renderPartnerCards = (type) => {
     if (activeRows.length === 0) {
-      return <div className="py-12 text-center text-[rgb(var(--crm-muted-rgb)_/_1)]">Nenhum cadastro encontrado.</div>;
+      return (
+        <div className="rounded-2xl border border-[#237baf]/50 bg-[#020b1d]/80 py-12 text-center text-sm text-slate-300">
+          Nenhum cadastro encontrado.
+        </div>
+      );
     }
 
+    const isDist = type === TAB_KEYS.DISTRIBUIDORES;
+    const glowBorder = isDist
+      ? 'border-[#00d9ff]/45 hover:border-[#00d9ff]/85 bg-[radial-gradient(ellipse_at_92%_100%,rgba(0,217,255,0.14),transparent_62%),radial-gradient(ellipse_at_10%_0%,rgba(0,140,255,0.14),transparent_56%),linear-gradient(145deg,rgba(6,24,52,0.95),rgba(2,11,29,0.97))] shadow-[inset_0_1px_1px_rgba(160,234,255,0.18),0_8px_20px_rgba(0,7,19,0.55),0_0_14px_rgba(0,217,255,0.08)] hover:shadow-[inset_0_1px_2px_rgba(160,234,255,0.28),0_10px_26px_rgba(0,7,19,0.7),0_0_20px_rgba(0,217,255,0.20)]'
+      : 'border-[#7a68ff]/45 hover:border-[#7a68ff]/85 bg-[radial-gradient(ellipse_at_92%_100%,rgba(122,104,255,0.16),transparent_62%),radial-gradient(ellipse_at_10%_0%,rgba(0,217,255,0.12),transparent_56%),linear-gradient(145deg,rgba(6,24,52,0.95),rgba(2,11,29,0.97))] shadow-[inset_0_1px_1px_rgba(196,181,253,0.18),0_8px_20px_rgba(0,7,19,0.55),0_0_14px_rgba(122,104,255,0.10)] hover:shadow-[inset_0_1px_2px_rgba(196,181,253,0.28),0_10px_26px_rgba(0,7,19,0.7),0_0_20px_rgba(122,104,255,0.22)]';
+
     return (
-      <div className="space-y-3">
-        {activeRows.map((item) => (
-          <div key={item.id} className="crm-gradient-glass rounded-xl p-4">
-            <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
-              <div className="flex min-w-0 flex-1 gap-3">
-                {renderPartnerLogo(item)}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        {activeRows.map((item) => {
+          const tags = Array.isArray(item.marcas) && item.marcas.length > 0
+            ? item.marcas
+            : Array.isArray(item.produtosServicos) && item.produtosServicos.length > 0
+              ? item.produtosServicos
+              : item.categorias || [];
+
+          return (
+            <div
+              key={item.id}
+              className={`relative overflow-hidden rounded-2xl border p-4 sm:p-5 flex flex-col justify-between gap-3.5 transition-all duration-200 ${glowBorder}`}
+            >
+              <div className="flex items-start gap-3.5 min-w-0">
+                {renderPartnerLogo(item, 'h-14 w-20')}
                 <div className="min-w-0 flex-1">
-                  <div className="mb-1 flex flex-wrap items-center gap-2">
-                    <span className="text-base font-semibold text-[rgb(var(--crm-ink-rgb)_/_1)]">{item.nome}</span>
-                    <span className={`rounded-full border px-2 py-0.5 text-[11px] ${badgeClassForStatus(item.status)}`}>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h3 className="text-base font-bold text-white truncate">{item.nome}</h3>
+                    <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${badgeClassForStatus(item.status)}`}>
                       {item.status || 'ATIVO'}
                     </span>
                   </div>
 
-                  <p className="text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                  <p className="mt-0.5 text-xs text-slate-300 truncate">
                     {item.razaoSocial || 'Razão social não informada'}
                     {item.cnpj ? ` • CNPJ ${item.cnpj}` : ''}
                   </p>
 
-                  <p className="mt-1 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
-                    Contato: {item.contato || '-'} • {item.email || '-'} • {item.telefone || '-'}
-                  </p>
+                  <div className="mt-2.5 grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-slate-300">
+                    <div className="truncate">
+                      <span className="text-slate-400">Contato:</span> {item.accountManager || item.contatoPrincipal || item.contato || '-'}
+                    </div>
+                    <div className="truncate">
+                      <span className="text-slate-400">Tel:</span> {item.telefone || item.telefoneContatoPrincipal || '-'}
+                    </div>
+                    <div className="truncate">
+                      <span className="text-slate-400">E-mail:</span> {item.email || item.emailContatoPrincipal || '-'}
+                    </div>
+                    <div className="truncate">
+                      <span className="text-slate-400">Local:</span> {item.cidade || '-'} / {item.estado || '-'}
+                    </div>
+                  </div>
 
-                  <p className="mt-1 text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">
-                    {item.cidade || '-'} / {item.estado || '-'}
-                    {item.site ? ` • ${item.site}` : ''}
-                  </p>
-
-                  {Array.isArray(item.categorias) && item.categorias.length > 0 && (
-                    <div className="mt-2 flex flex-wrap gap-1.5">
-                      {item.categorias.map((categoria) => (
+                  {Array.isArray(tags) && tags.length > 0 && (
+                    <div className="mt-2.5 flex flex-wrap gap-1.5">
+                      {tags.slice(0, 6).map((tag) => (
                         <span
-                          key={`${item.id}-${categoria}`}
-                          className="rounded-full border border-cyan-300/25 bg-cyan-300/12 px-2 py-0.5 text-[11px] text-cyan-700 dark:text-cyan-100"
+                          key={`${item.id}-${tag}`}
+                          className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
+                            isDist
+                              ? 'border-cyan-400/35 bg-cyan-500/15 text-cyan-200'
+                              : 'border-violet-400/35 bg-violet-500/15 text-violet-200'
+                          }`}
                         >
-                          {categoria}
+                          {tag}
                         </span>
                       ))}
                     </div>
@@ -2337,12 +2310,12 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-end gap-2 pt-3 border-t border-[#1d6494]/40">
                 {type === TAB_KEYS.DISTRIBUIDORES && (
                   <button
                     type="button"
                     onClick={() => setViewingDistributor(item)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-sky-500/50 px-3 py-2 text-xs text-sky-700 dark:text-sky-100 hover:bg-sky-500/20"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-400/50 bg-cyan-500/15 hover:bg-cyan-500/25 px-3 py-1.5 text-xs font-bold text-cyan-200 transition-colors"
                   >
                     <Eye className="h-3.5 w-3.5" /> Visualizar
                   </button>
@@ -2351,7 +2324,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                   <button
                     type="button"
                     onClick={() => setViewingSupplier(item)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-sky-500/50 px-3 py-2 text-xs text-sky-700 dark:text-sky-100 hover:bg-sky-500/20"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-violet-400/50 bg-violet-500/15 hover:bg-violet-500/25 px-3 py-1.5 text-xs font-bold text-violet-200 transition-colors"
                   >
                     <Eye className="h-3.5 w-3.5" /> Visualizar
                   </button>
@@ -2359,22 +2332,22 @@ export default function PrevendasCadastros({ forcedTab = null }) {
                 <button
                   type="button"
                   onClick={() => openEditModal(type, item)}
-                  className="rounded-lg border border-[var(--crm-border)] px-3 py-2 text-xs text-[rgb(var(--crm-ink-rgb)_/_1)] hover:bg-[rgb(var(--crm-surface-rgb)_/_0.4)]"
+                  className="rounded-lg border border-[#237baf]/60 bg-[#01142b]/80 hover:border-cyan-400 px-3 py-1.5 text-xs font-semibold text-slate-200 transition-colors"
                 >
                   Editar
                 </button>
                 <button
                   type="button"
                   onClick={() => deleteItem(type, item)}
-                  className="inline-flex items-center gap-1 rounded-lg border border-rose-500/50 px-3 py-2 text-xs text-rose-700 dark:text-rose-100 hover:bg-rose-500/20"
+                  className="inline-flex items-center gap-1 rounded-lg border border-rose-500/45 bg-rose-500/10 hover:bg-rose-500/20 px-2.5 py-1.5 text-xs font-semibold text-rose-300 transition-colors"
                   disabled={saving}
                 >
                   <Trash2 className="h-3.5 w-3.5" /> Excluir
                 </button>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   };
@@ -2600,7 +2573,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         ))}
       </div>
 
-      <div className="crm-card rounded-xl p-4">
+      <div className="rounded-2xl border border-[#237baf]/60 bg-[radial-gradient(ellipse_at_8%_0%,rgba(0,66,116,0.24),transparent_64%),linear-gradient(140deg,rgba(2,18,43,0.95),rgba(0,9,27,0.93))] p-4 sm:p-5 shadow-[inset_0_1px_1px_rgba(160,234,255,0.16),0_8px_22px_rgba(0,7,19,0.55)]">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-wrap gap-2">
             {showTabSelector ? (
@@ -2807,7 +2780,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
         </div>
       </div>
 
-      <div className="crm-card rounded-xl p-4">
+      <div className="rounded-2xl border border-[#237baf]/60 bg-[radial-gradient(ellipse_at_8%_0%,rgba(0,66,116,0.24),transparent_64%),linear-gradient(140deg,rgba(2,18,43,0.95),rgba(0,9,27,0.93))] p-4 sm:p-5 shadow-[inset_0_1px_1px_rgba(160,234,255,0.16),0_8px_22px_rgba(0,7,19,0.55)]">
         {loading
           ? (
             <div className="py-12 text-center">
@@ -3385,7 +3358,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
       </Modal>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-        <div className="crm-card rounded-xl p-4">
+        <div className="rounded-2xl border border-[#237baf]/60 bg-[radial-gradient(ellipse_at_8%_0%,rgba(0,66,116,0.24),transparent_64%),linear-gradient(140deg,rgba(2,18,43,0.95),rgba(0,9,27,0.93))] p-4 sm:p-5 shadow-[inset_0_1px_1px_rgba(160,234,255,0.16),0_8px_22px_rgba(0,7,19,0.55)]">
           <div className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
             <CalendarDays className="h-4 w-4" /> Última atualização
           </div>
@@ -3395,7 +3368,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Dados centralizados para equipe de Pré-Vendas.</p>
         </div>
 
-        <div className="crm-card rounded-xl p-4">
+        <div className="rounded-2xl border border-[#237baf]/60 bg-[radial-gradient(ellipse_at_8%_0%,rgba(0,66,116,0.24),transparent_64%),linear-gradient(140deg,rgba(2,18,43,0.95),rgba(0,9,27,0.93))] p-4 sm:p-5 shadow-[inset_0_1px_1px_rgba(160,234,255,0.16),0_8px_22px_rgba(0,7,19,0.55)]">
           <div className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
             <DollarSign className="h-4 w-4" /> Valor potencial registrado
           </div>
@@ -3405,7 +3378,7 @@ export default function PrevendasCadastros({ forcedTab = null }) {
           <p className="text-xs text-[rgb(var(--crm-muted-rgb)_/_1)]">Somatório de oportunidades no registro de Pré-Vendas.</p>
         </div>
 
-        <div className="crm-card rounded-xl p-4">
+        <div className="rounded-2xl border border-[#237baf]/60 bg-[radial-gradient(ellipse_at_8%_0%,rgba(0,66,116,0.24),transparent_64%),linear-gradient(140deg,rgba(2,18,43,0.95),rgba(0,9,27,0.93))] p-4 sm:p-5 shadow-[inset_0_1px_1px_rgba(160,234,255,0.16),0_8px_22px_rgba(0,7,19,0.55)]">
           <div className="flex items-center gap-2 text-sm text-[rgb(var(--crm-ink-rgb)_/_1)]">
             <Target className="h-4 w-4" /> Oportunidades no pipeline
           </div>
