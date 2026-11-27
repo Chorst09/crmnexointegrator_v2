@@ -18,6 +18,12 @@ const getConfiguredGeminiKey = () =>
   _runtimeGeminiKey ||
   '';
 
+const getGeminiCandidateModels = () => {
+  const preferred = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL;
+  const defaults = ['gemini-3.6-flash', 'gemini-3.5-flash', 'gemini-3.8-flash', 'gemini-3.7-flash', 'gemini-flash-latest'];
+  return [...new Set([preferred, ...defaults].filter(Boolean))];
+};
+
 const clean = text => String(text || '').replace(/\u0000/g, '').replace(/\r/g, '\n').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
 
 const money = s => {
@@ -365,7 +371,7 @@ async function analyzeWithGemini(documents, context = {}) {
   const apiKey = getConfiguredGeminiKey();
   if (!apiKey) return null;
 
-  const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-3.8-flash';
+  const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-3.6-flash';
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
   // Amostra do texto mantendo estrutura completa do edital e TR (até 450.000 caracteres, dentro de 1M tokens)
@@ -794,7 +800,7 @@ async function analyzeTechnicalTRWithEquipment({ trFiles = [], datasheetFiles = 
     };
   }
 
-  const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-3.8-flash';
+  const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-3.6-flash';
   const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
 
   const prompt = `Você é um Engenheiro Sênior de Pré-Vendas, Arquitetura de TI/Telecom/Audiovisual e Especialista Técnico em Licitações Públicas Brasileiras (Lei 14.133/2021).
@@ -862,40 +868,51 @@ ${trText}
 ${hasDatasheet ? `\nTEXTO DO(S) DATASHEET(S) ANEXADO(S):\n"""\n${dsText}\n"""` : ''}`;
 
   const callGemini = async (withSearchTool) => {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 120000);
-    try {
-      const bodyPayload = {
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.15,
-          maxOutputTokens: 16384,
-          ...(withSearchTool ? {} : { responseMimeType: 'application/json' })
-        },
-        ...(withSearchTool ? { tools: [{ google_search: {} }] } : {})
-      };
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyPayload),
-        signal: controller.signal
-      });
-      if (!response.ok) {
-        const errText = await response.text();
-        return { ok: false, status: response.status, errText };
+    const models = getGeminiCandidateModels();
+    let lastError = { ok: false, status: 503, errText: 'Nenhum modelo disponível' };
+    for (const mdl of models) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(mdl)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 120000);
+      try {
+        const bodyPayload = {
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.15,
+            maxOutputTokens: 16384,
+            ...(withSearchTool ? {} : { responseMimeType: 'application/json' })
+          },
+          ...(withSearchTool ? { tools: [{ google_search: {} }] } : {})
+        };
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyPayload),
+          signal: controller.signal
+        });
+        if (!response.ok) {
+          const errText = await response.text();
+          lastError = { ok: false, status: response.status, errText };
+          if ([404, 429, 503].includes(response.status)) {
+            console.warn(`[TR IA] Modelo ${mdl} retornou ${response.status}; tentando próximo fallback...`);
+            continue;
+          }
+          return lastError;
+        }
+        const data = await response.json();
+        const candidate = data?.candidates?.[0];
+        const rawText = candidate?.content?.parts?.map(p => p.text || '').join('') || '';
+        const chunks = candidate?.groundingMetadata?.groundingChunks || [];
+        const fontes = chunks
+          .map(c => c?.web)
+          .filter(w => w?.uri)
+          .map(w => ({ title: w.title || w.uri, url: w.uri }));
+        return { ok: true, rawText, fontes };
+      } finally {
+        clearTimeout(timer);
       }
-      const data = await response.json();
-      const candidate = data?.candidates?.[0];
-      const rawText = candidate?.content?.parts?.map(p => p.text || '').join('') || '';
-      const chunks = candidate?.groundingMetadata?.groundingChunks || [];
-      const fontes = chunks
-        .map(c => c?.web)
-        .filter(w => w?.uri)
-        .map(w => ({ title: w.title || w.uri, url: w.uri }));
-      return { ok: true, rawText, fontes };
-    } finally {
-      clearTimeout(timer);
     }
+    return lastError;
   };
 
   let res = shouldSearchWeb ? await callGemini(true) : await callGemini(false);

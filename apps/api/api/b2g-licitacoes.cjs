@@ -1571,7 +1571,7 @@ router.post(['/analise-tr/pergunte-edital', '/pergunte-edital'], ...requireAuthe
       ? docText.slice(0, 350000)
       : JSON.stringify(ficha || {}, null, 2).slice(0, 80000);
 
-    const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-3.8-flash';
+    const model = process.env.GEMINI_MODEL || process.env.GOOGLE_MODEL || 'gemini-3.6-flash';
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
     const prompt = `Você é um consultor especialista em licitações públicas brasileiras (Lei 14.133/2021). Responda de forma objetiva, precisa e citando itens/cláusulas quando disponíveis com base exclusivamente no conteúdo abaixo.\n\nCONTEÚDO DO EDITAL/FICHA:\n${contextText}\n\nPERGUNTA DO LICITANTE:\n${question}`;
 
