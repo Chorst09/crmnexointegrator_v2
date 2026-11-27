@@ -1646,6 +1646,233 @@ router.post(['/analise-tr/configurar-ia', '/configurar-ia'], ...requireAuthentic
   }
 });
 
+let analisesTrTableReady = false;
+async function ensureAnalisesTrTable() {
+  if (analisesTrTableReady) return;
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS analises_tr_salvas (
+      id TEXT PRIMARY KEY,
+      "userId" TEXT,
+      "tenantCompanyId" TEXT,
+      titulo_objeto TEXT NOT NULL,
+      orgao TEXT,
+      categoria_tecnologica TEXT,
+      percentual_atendimento INTEGER DEFAULT 0,
+      veredicto TEXT,
+      modo_busca_internet BOOLEAN DEFAULT TRUE,
+      arquivos_tr JSONB DEFAULT '[]'::jsonb,
+      arquivos_datasheet JSONB DEFAULT '[]'::jsonb,
+      observacoes TEXT,
+      analise_json JSONB NOT NULL,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  analisesTrTableReady = true;
+}
+
+function formatAnaliseTrRow(row) {
+  if (!row) return null;
+  const parseJson = (val, fallback) => {
+    if (val === null || val === undefined) return fallback;
+    if (typeof val === 'string') {
+      try { return JSON.parse(val); } catch { return fallback; }
+    }
+    return val;
+  };
+  return {
+    id: row.id,
+    userId: row.userId || null,
+    tenantCompanyId: row.tenantCompanyId || null,
+    titulo_objeto: row.titulo_objeto,
+    orgao: row.orgao || '',
+    categoria_tecnologica: row.categoria_tecnologica || '',
+    percentual_atendimento: Number(row.percentual_atendimento ?? 0),
+    veredicto: row.veredicto || '',
+    modo_busca_internet: Boolean(row.modo_busca_internet),
+    arquivos_tr: parseJson(row.arquivos_tr, []),
+    arquivos_datasheet: parseJson(row.arquivos_datasheet, []),
+    observacoes: row.observacoes || '',
+    analise_json: parseJson(row.analise_json, {}),
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+}
+
+/**
+ * POST /api/analise-tr/salvar-analise
+ * Salva ou atualiza uma análise técnica de TR (Análise de TR × Equipamentos)
+ */
+router.post(['/analise-tr/salvar-analise', '/salvar-analise'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    await ensureAnalisesTrTable();
+    const userId = getUserId(req);
+    const tenantId = getTenant(req);
+    const body = req.body || {};
+    const analise = body.analise;
+
+    if (!analise || typeof analise !== 'object' || (!analise.resumo_tr && !analise.matriz_comparativa)) {
+      return res.status(400).json({ error: 'Payload inválido: envie o objeto "analise" completo.' });
+    }
+
+    const tituloObjeto = String(analise.resumo_tr?.titulo_objeto || 'Análise Técnica de Termo de Referência').slice(0, 500);
+    const orgao = String(analise.resumo_tr?.orgao || '').slice(0, 300);
+    const categoria = String(analise.resumo_tr?.categoria_tecnologica || 'TI / Infraestrutura').slice(0, 200);
+    const percentual = Math.max(0, Math.min(100, Math.round(Number(analise.aderencia_geral?.percentual_atendimento ?? 0))));
+    const veredicto = String(analise.aderencia_geral?.veredicto || '').slice(0, 200);
+    const modoBusca = Boolean(body.searchWeb ?? analise.modo_busca_internet ?? true);
+    const arquivosTr = Array.isArray(body.trFileNames) ? body.trFileNames.map(String) : [];
+    const arquivosDs = Array.isArray(body.datasheetFileNames) ? body.datasheetFileNames.map(String) : [];
+    const observacoes = String(body.customNotes || '').slice(0, 2000);
+    const requestedId = body.id ? String(body.id).trim() : null;
+
+    let savedId = requestedId;
+    if (requestedId) {
+      const existing = await prisma.$queryRawUnsafe(
+        `SELECT id FROM analises_tr_salvas WHERE id = $1 AND ("userId"::text = $2::text OR "tenantCompanyId" = $3) LIMIT 1`,
+        requestedId, userId || '', tenantId || ''
+      );
+      if (Array.isArray(existing) && existing.length > 0) {
+        await prisma.$executeRawUnsafe(
+          `UPDATE analises_tr_salvas
+           SET titulo_objeto = $1,
+               orgao = $2,
+               categoria_tecnologica = $3,
+               percentual_atendimento = $4,
+               veredicto = $5,
+               modo_busca_internet = $6,
+               arquivos_tr = $7::jsonb,
+               arquivos_datasheet = $8::jsonb,
+               observacoes = $9,
+               analise_json = $10::jsonb,
+               updated_at = NOW()
+           WHERE id = $11`,
+          tituloObjeto,
+          orgao,
+          categoria,
+          percentual,
+          veredicto,
+          modoBusca,
+          JSON.stringify(arquivosTr),
+          JSON.stringify(arquivosDs),
+          observacoes,
+          JSON.stringify(analise),
+          requestedId
+        );
+      } else {
+        savedId = null;
+      }
+    }
+
+    if (!savedId) {
+      savedId = crypto.randomUUID();
+      await prisma.$executeRawUnsafe(
+        `INSERT INTO analises_tr_salvas (
+          id, "userId", "tenantCompanyId", titulo_objeto, orgao, categoria_tecnologica,
+          percentual_atendimento, veredicto, modo_busca_internet, arquivos_tr, arquivos_datasheet,
+          observacoes, analise_json, created_at, updated_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10::jsonb, $11::jsonb, $12, $13::jsonb, NOW(), NOW())`,
+        savedId,
+        userId ? String(userId) : null,
+        tenantId ? String(tenantId) : null,
+        tituloObjeto,
+        orgao,
+        categoria,
+        percentual,
+        veredicto,
+        modoBusca,
+        JSON.stringify(arquivosTr),
+        JSON.stringify(arquivosDs),
+        observacoes,
+        JSON.stringify(analise)
+      );
+    }
+
+    const rows = await prisma.$queryRawUnsafe(`SELECT * FROM analises_tr_salvas WHERE id = $1 LIMIT 1`, savedId);
+    return res.json({ success: true, item: formatAnaliseTrRow(rows?.[0]) });
+  } catch (err) {
+    console.error('[analise-tr/salvar-analise] erro:', err);
+    return res.status(500).json({ error: 'Erro ao salvar análise de TR', details: err.message });
+  }
+});
+
+/**
+ * GET /api/analise-tr/analises-salvas
+ * Lista todas as análises de TR salvas do usuário/tenant
+ */
+router.get(['/analise-tr/analises-salvas', '/analises-salvas'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    await ensureAnalisesTrTable();
+    const userId = getUserId(req);
+    const tenantId = getTenant(req);
+    const rows = await prisma.$queryRawUnsafe(
+      `SELECT * FROM analises_tr_salvas
+       WHERE ("userId"::text = $1::text OR ($2 <> '' AND "tenantCompanyId" = $2))
+       ORDER BY updated_at DESC, created_at DESC`,
+      userId ? String(userId) : '',
+      tenantId ? String(tenantId) : ''
+    );
+    const items = (Array.isArray(rows) ? rows : []).map(formatAnaliseTrRow).filter(Boolean);
+    return res.json({ success: true, items });
+  } catch (err) {
+    console.error('[analise-tr/analises-salvas] erro:', err);
+    return res.status(500).json({ error: 'Erro ao listar TRs analisados', details: err.message });
+  }
+});
+
+/**
+ * GET /api/analise-tr/analises-salvas/:id
+ */
+router.get(['/analise-tr/analises-salvas/:id', '/analises-salvas/:id'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    await ensureAnalisesTrTable();
+    const userId = getUserId(req);
+    const tenantId = getTenant(req);
+    const rows = await prisma.$queryRawUnsafe(
+      `SELECT * FROM analises_tr_salvas
+       WHERE id = $1 AND ("userId"::text = $2::text OR ($3 <> '' AND "tenantCompanyId" = $3))
+       LIMIT 1`,
+      req.params.id,
+      userId ? String(userId) : '',
+      tenantId ? String(tenantId) : ''
+    );
+    if (!rows?.length) {
+      return res.status(404).json({ error: 'Análise de TR não encontrada.' });
+    }
+    return res.json({ success: true, item: formatAnaliseTrRow(rows[0]) });
+  } catch (err) {
+    console.error('[analise-tr/analises-salvas/:id] erro:', err);
+    return res.status(500).json({ error: 'Erro ao buscar análise de TR', details: err.message });
+  }
+});
+
+/**
+ * DELETE /api/analise-tr/analises-salvas/:id
+ */
+router.delete(['/analise-tr/analises-salvas/:id', '/analises-salvas/:id'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    await ensureAnalisesTrTable();
+    const userId = getUserId(req);
+    const tenantId = getTenant(req);
+    const rows = await prisma.$queryRawUnsafe(
+      `SELECT id FROM analises_tr_salvas
+       WHERE id = $1 AND ("userId"::text = $2::text OR ($3 <> '' AND "tenantCompanyId" = $3))
+       LIMIT 1`,
+      req.params.id,
+      userId ? String(userId) : '',
+      tenantId ? String(tenantId) : ''
+    );
+    if (!rows?.length) {
+      return res.status(404).json({ error: 'Análise de TR não encontrada.' });
+    }
+    await prisma.$executeRawUnsafe(`DELETE FROM analises_tr_salvas WHERE id = $1`, req.params.id);
+    return res.json({ success: true, message: 'TR analisado excluído com sucesso.' });
+  } catch (err) {
+    console.error('[analise-tr/analises-salvas/:id DELETE] erro:', err);
+    return res.status(500).json({ error: 'Erro ao excluir análise de TR', details: err.message });
+  }
+});
+
 /**
  * POST /api/analise-tr/salvar-ficha
  * Salva ou atualiza Ficha Técnica de Edital Analisado

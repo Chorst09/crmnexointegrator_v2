@@ -14,6 +14,7 @@ import {
   FileCheck,
   Settings,
   Sparkles,
+  BookmarkCheck,
   ArrowLeft,
   Menu,
   X
@@ -24,6 +25,7 @@ import { AnalyticsDashboard } from './licitacoes_components/AnalyticsDashboard';
 import { GerenciadasPage } from './licitacoes_components/GerenciadasPage';
 import { AnaliseEditaisPage } from './licitacoes_components/AnaliseEditaisPage';
 import { AnaliseTRPage } from './licitacoes_components/AnaliseTRPage';
+import { TRsAnalisadosPage } from './licitacoes_components/TRsAnalisadosPage';
 import { EditaisAnalisadosPage } from './licitacoes_components/EditaisAnalisadosPage';
 import { PipelineMonitor } from './licitacoes_components/PipelineMonitor';
 import { ThemeProvider } from './licitacoes_components/context/ThemeContext';
@@ -36,6 +38,7 @@ export default function BuscarEditais() {
   const navigate = useNavigate();
   const [currentView, setCurrentView] = useState('search');
   const [fichaParaBancada, setFichaParaBancada] = useState(null);
+  const [trParaBancada, setTrParaBancada] = useState(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navigation = [
@@ -62,6 +65,12 @@ export default function BuscarEditais() {
       name: 'Análise de TR', 
       subtitle: 'TR × Datasheet e busca de modelos',
       icon: Sparkles 
+    },
+    { 
+      id: 'trs_analisados', 
+      name: 'TRs Analisados', 
+      subtitle: 'Pareceres técnicos e modelos salvos',
+      icon: BookmarkCheck 
     },
     { 
       id: 'analisados', 
@@ -255,7 +264,22 @@ export default function BuscarEditais() {
                 onClearInitialFicha={() => setFichaParaBancada(null)}
               />
             )}
-            {currentView === 'analise_tr' && <AnaliseTRPage />}
+            {currentView === 'analise_tr' && (
+              <AnaliseTRPage
+                initialAnalise={trParaBancada}
+                onClearInitialAnalise={() => setTrParaBancada(null)}
+                onNavigateToTRsAnalisados={() => setCurrentView('trs_analisados')}
+              />
+            )}
+            {currentView === 'trs_analisados' && (
+              <TRsAnalisadosPage
+                onOpenInAnaliseTR={(item) => {
+                  setTrParaBancada(item);
+                  setCurrentView('analise_tr');
+                }}
+                onNavigateToAnaliseTR={() => setCurrentView('analise_tr')}
+              />
+            )}
             {currentView === 'analisados' && (
               <EditaisAnalisadosPage 
                 onOpenInWorkbench={(ficha) => {

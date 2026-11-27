@@ -11,6 +11,7 @@ import {
   KeyRound,
   Layers,
   Loader2,
+  Save,
   Search,
   ShieldAlert,
   Sparkles,
@@ -19,6 +20,13 @@ import {
   XCircle,
 } from 'lucide-react';
 import { buildApiUrl, getAuthHeaders } from '../../config/api';
+import type { SavedAnaliseTRItem } from './TRsAnalisadosPage';
+
+interface AnaliseTRPageProps {
+  initialAnalise?: SavedAnaliseTRItem | null;
+  onClearInitialAnalise?: () => void;
+  onNavigateToTRsAnalisados?: () => void;
+}
 
 interface EncodedFile {
   name: string;
@@ -102,7 +110,11 @@ const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
   },
 };
 
-export const AnaliseTRPage: React.FC = () => {
+export const AnaliseTRPage: React.FC<AnaliseTRPageProps> = ({
+  initialAnalise,
+  onClearInitialAnalise,
+  onNavigateToTRsAnalisados,
+}) => {
   const [trFiles, setTrFiles] = useState<File[]>([]);
   const [datasheetFiles, setDatasheetFiles] = useState<File[]>([]);
   const [searchWeb, setSearchWeb] = useState<boolean>(true);
@@ -116,6 +128,22 @@ export const AnaliseTRPage: React.FC = () => {
   const [geminiKeyInput, setGeminiKeyInput] = useState<string>('');
   const [savingKey, setSavingKey] = useState<boolean>(false);
   const [keyMsg, setKeyMsg] = useState<string | null>(null);
+  const [savingAnalysis, setSavingAnalysis] = useState<boolean>(false);
+  const [savedAnalysisId, setSavedAnalysisId] = useState<string | null>(null);
+  const [saveSuccessMsg, setSaveSuccessMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (initialAnalise && initialAnalise.analise_json) {
+      setResult(initialAnalise.analise_json as AnaliseTRResult);
+      setSavedAnalysisId(initialAnalise.id || null);
+      setCustomNotes(initialAnalise.observacoes || '');
+      if (typeof initialAnalise.modo_busca_internet === 'boolean') {
+        setSearchWeb(initialAnalise.modo_busca_internet);
+      }
+      setSaveSuccessMsg('Análise carregada de TRs Analisados.');
+      onClearInitialAnalise?.();
+    }
+  }, [initialAnalise, onClearInitialAnalise]);
 
   useEffect(() => {
     fetch(buildApiUrl('/analise-tr/ia-status'), { headers: getAuthHeaders() })
@@ -166,6 +194,8 @@ export const AnaliseTRPage: React.FC = () => {
     }
     setLoading(true);
     setError(null);
+    setSavedAnalysisId(null);
+    setSaveSuccessMsg(null);
     try {
       const encodedTR = await Promise.all(trFiles.map(fileToBase64));
       const encodedDS = await Promise.all(datasheetFiles.map(fileToBase64));
@@ -191,6 +221,40 @@ export const AnaliseTRPage: React.FC = () => {
       setError(err instanceof Error ? err.message : 'Erro ao processar análise técnica do TR.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveAnalysis = async () => {
+    if (!result) return;
+    setSavingAnalysis(true);
+    setError(null);
+    setSaveSuccessMsg(null);
+    try {
+      const response = await fetch(buildApiUrl('/analise-tr/salvar-analise'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...getAuthHeaders(),
+        },
+        body: JSON.stringify({
+          id: savedAnalysisId || undefined,
+          analise: result,
+          trFileNames: trFiles.map((f) => f.name),
+          datasheetFileNames: datasheetFiles.map((f) => f.name),
+          searchWeb,
+          customNotes,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data?.error || `Erro HTTP ${response.status}`);
+      }
+      setSavedAnalysisId(data?.item?.id || savedAnalysisId || 'saved');
+      setSaveSuccessMsg('Análise salva com sucesso em TRs Analisados!');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erro ao salvar análise de TR.');
+    } finally {
+      setSavingAnalysis(false);
     }
   };
 
@@ -271,13 +335,28 @@ export const AnaliseTRPage: React.FC = () => {
               {iaConfigured ? 'IA Gemini Ativa' : 'Configurar Chave Gemini'}
             </button>
             {result && (
-              <button
-                type="button"
-                onClick={handleExportReport}
-                className="inline-flex items-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/15 hover:bg-cyan-500/25 px-4 py-2 text-xs font-bold text-cyan-200 transition-colors"
-              >
-                <Download className="w-4 h-4" /> Exportar Parecer Técnico
-              </button>
+              <>
+                <button
+                  type="button"
+                  disabled={savingAnalysis}
+                  onClick={handleSaveAnalysis}
+                  className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 px-4 py-2 text-xs font-black text-white shadow-lg disabled:opacity-60 transition-all"
+                >
+                  {savingAnalysis ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  {savingAnalysis
+                    ? 'Salvando...'
+                    : savedAnalysisId
+                      ? 'Atualizar em TRs Analisados'
+                      : 'Salvar Análise'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleExportReport}
+                  className="inline-flex items-center gap-2 rounded-lg border border-cyan-500/40 bg-cyan-500/15 hover:bg-cyan-500/25 px-4 py-2 text-xs font-bold text-cyan-200 transition-colors"
+                >
+                  <Download className="w-4 h-4" /> Exportar Parecer Técnico
+                </button>
+              </>
             )}
           </div>
         </div>
@@ -440,6 +519,23 @@ export const AnaliseTRPage: React.FC = () => {
             <XCircle className="w-4 h-4 flex-shrink-0" /> {error}
           </div>
         )}
+
+        {saveSuccessMsg && (
+          <div className="mt-4 rounded-xl border border-emerald-500/40 bg-emerald-500/15 p-3.5 text-xs font-semibold text-emerald-200 flex flex-wrap items-center justify-between gap-3">
+            <span className="flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 flex-shrink-0" /> {saveSuccessMsg}
+            </span>
+            {onNavigateToTRsAnalisados && (
+              <button
+                type="button"
+                onClick={onNavigateToTRsAnalisados}
+                className="rounded-lg bg-emerald-500/25 hover:bg-emerald-500/40 border border-emerald-400/50 px-3 py-1 text-[11px] font-black text-emerald-100 transition-colors"
+              >
+                Ver em TRs Analisados →
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* RESULTADO DA ANÁLISE TÉCNICA */}
@@ -477,9 +573,20 @@ export const AnaliseTRPage: React.FC = () => {
 
           {/* Resumo Executivo do TR */}
           <div className="rounded-xl border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-2-rgb)_/_1)] p-5 space-y-2">
-            <h2 className="text-sm font-black uppercase tracking-wider text-cyan-300">
-              Resumo Técnico do TR — {result.resumo_tr?.titulo_objeto}
-            </h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-sm font-black uppercase tracking-wider text-cyan-300">
+                Resumo Técnico do TR — {result.resumo_tr?.titulo_objeto}
+              </h2>
+              <button
+                type="button"
+                disabled={savingAnalysis}
+                onClick={handleSaveAnalysis}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 px-3 py-1.5 text-xs font-black text-white disabled:opacity-60"
+              >
+                {savingAnalysis ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                {savingAnalysis ? 'Salvando...' : savedAnalysisId ? 'Atualizar Salvo' : 'Salvar Análise'}
+              </button>
+            </div>
             <p className="text-xs sm:text-sm leading-relaxed">{result.resumo_tr?.resumo_executivo}</p>
             <p className="text-xs text-emerald-300 pt-1">
               <strong>Veredicto:</strong> {result.aderencia_geral?.justificativa_veredicto}
