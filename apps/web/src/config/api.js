@@ -1,4 +1,19 @@
 // Configuração da API - Detecta automaticamente o ambiente
+
+// Função utilitária que normaliza caminhos base
+const normalizePathBase = (value) => {
+  const clean = String(value || '')
+    .trim()
+    .replace(/^\.\/+/, '')
+    .replace(/\/+$/, '');
+
+  if (!clean) return '/api';
+  if (clean === 'api' || clean === '/api') return '/api';
+  if (clean.startsWith('/')) return clean;
+  return `/${clean}`;
+};
+
+// Determina a URL base da API dependendo do ambiente
 const getApiBaseUrl = () => {
   const explicitApiUrl = String(import.meta.env.VITE_API_URL || '').trim();
 
@@ -7,7 +22,7 @@ const getApiBaseUrl = () => {
   if (typeof window !== 'undefined' && window.location) {
     const currentHost = String(window.location.hostname || '').toLowerCase();
     const isLocalDev = currentHost === 'localhost' || currentHost === '127.0.0.1';
-    
+
     // Se o usuário está em localhost, nunca permita que chamadas vão para domínios externos HTTPS
     if (isLocalDev) {
       if (explicitApiUrl && /^https?:\/\//i.test(explicitApiUrl)) {
@@ -27,21 +42,9 @@ const getApiBaseUrl = () => {
     }
   }
 
-  const normalizePathBase = (value) => {
-    const clean = String(value || '')
-      .trim()
-      .replace(/^\.\/+/, '')
-      .replace(/\/+$/, '');
-
-    if (!clean) return '/api';
-    if (clean === 'api' || clean === '/api') return '/api';
-    if (clean.startsWith('/')) return clean;
-    return `/${clean}`;
-  };
-
+  // Caso não esteja no navegador (ex.: SSR ou testes)
   if (explicitApiUrl) {
     const normalized = explicitApiUrl.replace(/\/+$/, '');
-
     if (/^https?:\/\//i.test(normalized)) {
       let parsed;
       try {
@@ -49,18 +52,14 @@ const getApiBaseUrl = () => {
       } catch {
         return '/api';
       }
-
       const hostname = String(parsed.hostname || '').toLowerCase();
       if (hostname === 'localhost' || hostname === '127.0.0.1') {
         return '/api';
       }
-
       return normalized;
     }
-
     return normalizePathBase(normalized);
   }
-
   return '/api';
 };
 
@@ -69,11 +68,13 @@ export const API_BASE_URL = getApiBaseUrl();
 // Função auxiliar para construir URLs de API
 export const buildApiUrl = (endpoint) => {
   const base = String(API_BASE_URL || '/api').replace(/\/+$/, '');
-  const path = String(endpoint || '/').startsWith('/') ? String(endpoint || '/') : `/${String(endpoint || '/')}`;
+  const path = String(endpoint || '/').startsWith('/')
+    ? String(endpoint || '/')
+    : `/${String(endpoint || '/')}`;
   return `${base}${path}`;
 };
 
-// URLs específicas
+// URLs específicas da API
 export const API_ENDPOINTS = {
   auth: {
     login: `${API_BASE_URL}/auth/login`,
