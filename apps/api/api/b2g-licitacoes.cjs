@@ -2424,4 +2424,270 @@ router.get('/editais/:id/download', async (req, res) => {
   return res.redirect(307, `/api/b2g-licitacoes/arquivos/${cnpj}/${cleanAno}/${cleanSeq}/download/${cleanDocSeq}`);
 });
 
+// ═══════════════════════════════════════════════════════════════════════════════
+// DOCUMENTAÇÃO B2G — Habilitação e Controle de Validade para Editais
+// ═══════════════════════════════════════════════════════════════════════════════
+
+let documentosB2gTableReady = false;
+async function ensureDocumentosB2gTable() {
+  if (documentosB2gTableReady) return;
+  await prisma.$executeRawUnsafe(`
+    CREATE TABLE IF NOT EXISTS documentos_habilitacao_b2g (
+      id TEXT PRIMARY KEY,
+      "userId" TEXT,
+      "tenantCompanyId" TEXT,
+      nome TEXT NOT NULL,
+      categoria TEXT NOT NULL,
+      numero_documento TEXT,
+      orgao_emissor TEXT,
+      data_emissao TEXT,
+      data_validade TEXT,
+      sem_validade BOOLEAN DEFAULT FALSE,
+      arquivo_nome TEXT,
+      arquivo_mime TEXT,
+      arquivo_tamanho INTEGER DEFAULT 0,
+      arquivo_base64 TEXT,
+      observacoes TEXT,
+      created_at TIMESTAMP DEFAULT NOW(),
+      updated_at TIMESTAMP DEFAULT NOW()
+    )
+  `);
+  documentosB2gTableReady = true;
+}
+
+const formatDocumentoB2g = (row) => {
+  if (!row) return null;
+  return {
+    id: row.id,
+    userId: row.userId || null,
+    tenantCompanyId: row.tenantCompanyId || null,
+    nome: row.nome,
+    categoria: row.categoria,
+    numero_documento: row.numero_documento || '',
+    orgao_emissor: row.orgao_emissor || '',
+    data_emissao: row.data_emissao || '',
+    data_validade: row.data_validade || '',
+    sem_validade: Boolean(row.sem_validade),
+    arquivo_nome: row.arquivo_nome || '',
+    arquivo_mime: row.arquivo_mime || '',
+    arquivo_tamanho: Number(row.arquivo_tamanho || 0),
+    has_file: Boolean(row.has_file ?? row.arquivo_base64),
+    observacoes: row.observacoes || '',
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+  };
+};
+
+router.get('/documentacao', ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    await ensureDocumentosB2gTable();
+    const userId = getUserId(req);
+    const tenantId = getTenant(req);
+    const rows = await prisma.$queryRawUnsafe(
+      `SELECT id, "userId", "tenantCompanyId", nome, categoria, numero_documento, orgao_emissor,
+              data_emissao, data_validade, sem_validade, arquivo_nome, arquivo_mime, arquivo_tamanho,
+              (arquivo_base64 IS NOT NULL AND arquivo_base64 <> '') AS has_file,
+              observacoes, created_at, updated_at
+       FROM documentos_habilitacao_b2g
+       WHERE ("userId"::text = $1::text OR ($2 <> '' AND "tenantCompanyId" = $2))
+       ORDER BY sem_validade ASC, NULLIF(data_validade, '') ASC NULLS LAST, created_at DESC`,
+      userId ? String(userId) : '',
+      tenantId ? String(tenantId) : ''
+    );
+    return res.json({
+      success: true,
+      items: (Array.isArray(rows) ? rows : []).map(formatDocumentoB2g).filter(Boolean),
+    });
+  } catch (err) {
+    console.error('[b2g/documentacao GET] erro:', err);
+    return res.status(500).json({ error: 'Erro ao listar documentação', detail: err.message });
+  }
+});
+
+router.get('/documentacao/:id/arquivo', ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    await ensureDocumentosB2gTable();
+    const userId = getUserId(req);
+    const tenantId = getTenant(req);
+    const rows = await prisma.$queryRawUnsafe(
+      `SELECT arquivo_nome, arquivo_mime, arquivo_base64
+       FROM documentos_habilitacao_b2g
+       WHERE id = $1 AND ("userId"::text = $2::text OR ($3 <> '' AND "tenantCompanyId" = $3))
+       LIMIT 1`,
+      req.params.id,
+      userId ? String(userId) : '',
+      tenantId ? String(tenantId) : ''
+    );
+    const doc = rows?.[0];
+    if (!doc || !doc.arquivo_base64) {
+      return res.status(404).json({ error: 'Arquivo não encontrado para este documento.' });
+    }
+    return res.json({
+      success: true,
+      arquivo_nome: doc.arquivo_nome || 'documento.pdf',
+      arquivo_mime: doc.arquivo_mime || 'application/pdf',
+      arquivo_base64: doc.arquivo_base64,
+    });
+  } catch (err) {
+    console.error('[b2g/documentacao arquivo GET] erro:', err);
+    return res.status(500).json({ error: 'Erro ao carregar arquivo', detail: err.message });
+  }
+});
+
+router.post('/documentacao', ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    await ensureDocumentosB2gTable();
+    const userId = getUserId(req);
+    const tenantId = getTenant(req);
+    const body = req.body || {};
+    const nome = String(body.nome || '').trim();
+    const categoria = String(body.categoria || 'Regularidade Fiscal e Trabalhista').trim();
+
+    if (!nome) {
+      return res.status(400).json({ error: 'Informe o nome do documento.' });
+    }
+    const semValidade = Boolean(body.sem_validade);
+    const dataValidade = semValidade ? '' : String(body.data_validade || '').trim();
+    if (!semValidade && !dataValidade) {
+      return res.status(400).json({ error: 'Informe a data de validade do documento ou marque "Sem vencimento".' });
+    }
+
+    const id = crypto.randomUUID();
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO documentos_habilitacao_b2g (
+        id, "userId", "tenantCompanyId", nome, categoria, numero_documento, orgao_emissor,
+        data_emissao, data_validade, sem_validade, arquivo_nome, arquivo_mime, arquivo_tamanho,
+        arquivo_base64, observacoes, created_at, updated_at
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, NOW(), NOW())`,
+      id,
+      userId ? String(userId) : null,
+      tenantId ? String(tenantId) : null,
+      nome.slice(0, 300),
+      categoria.slice(0, 120),
+      String(body.numero_documento || '').slice(0, 150),
+      String(body.orgao_emissor || '').slice(0, 200),
+      String(body.data_emissao || '').slice(0, 20),
+      dataValidade.slice(0, 20),
+      semValidade,
+      String(body.arquivo_nome || '').slice(0, 300),
+      String(body.arquivo_mime || '').slice(0, 120),
+      Number(body.arquivo_tamanho || 0),
+      body.arquivo_base64 ? String(body.arquivo_base64) : null,
+      String(body.observacoes || '').slice(0, 2000)
+    );
+
+    const rows = await prisma.$queryRawUnsafe(
+      `SELECT id, "userId", "tenantCompanyId", nome, categoria, numero_documento, orgao_emissor,
+              data_emissao, data_validade, sem_validade, arquivo_nome, arquivo_mime, arquivo_tamanho,
+              (arquivo_base64 IS NOT NULL AND arquivo_base64 <> '') AS has_file,
+              observacoes, created_at, updated_at
+       FROM documentos_habilitacao_b2g WHERE id = $1 LIMIT 1`,
+      id
+    );
+    return res.status(201).json({ success: true, item: formatDocumentoB2g(rows?.[0]) });
+  } catch (err) {
+    console.error('[b2g/documentacao POST] erro:', err);
+    return res.status(500).json({ error: 'Erro ao salvar documento', detail: err.message });
+  }
+});
+
+router.put('/documentacao/:id', ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    await ensureDocumentosB2gTable();
+    const userId = getUserId(req);
+    const tenantId = getTenant(req);
+    const existing = await prisma.$queryRawUnsafe(
+      `SELECT id FROM documentos_habilitacao_b2g
+       WHERE id = $1 AND ("userId"::text = $2::text OR ($3 <> '' AND "tenantCompanyId" = $3))
+       LIMIT 1`,
+      req.params.id,
+      userId ? String(userId) : '',
+      tenantId ? String(tenantId) : ''
+    );
+    if (!existing?.length) {
+      return res.status(404).json({ error: 'Documento não encontrado.' });
+    }
+
+    const body = req.body || {};
+    const nome = String(body.nome || '').trim();
+    if (!nome) return res.status(400).json({ error: 'Informe o nome do documento.' });
+
+    const semValidade = Boolean(body.sem_validade);
+    const dataValidade = semValidade ? '' : String(body.data_validade || '').trim();
+    if (!semValidade && !dataValidade) {
+      return res.status(400).json({ error: 'Informe a data de validade do documento ou marque "Sem vencimento".' });
+    }
+
+    const hasNewFile = Boolean(body.arquivo_base64);
+    await prisma.$executeRawUnsafe(
+      `UPDATE documentos_habilitacao_b2g
+       SET nome = $1,
+           categoria = $2,
+           numero_documento = $3,
+           orgao_emissor = $4,
+           data_emissao = $5,
+           data_validade = $6,
+           sem_validade = $7,
+           observacoes = $8,
+           arquivo_nome = CASE WHEN $9 THEN $10 ELSE arquivo_nome END,
+           arquivo_mime = CASE WHEN $9 THEN $11 ELSE arquivo_mime END,
+           arquivo_tamanho = CASE WHEN $9 THEN $12 ELSE arquivo_tamanho END,
+           arquivo_base64 = CASE WHEN $9 THEN $13 ELSE arquivo_base64 END,
+           updated_at = NOW()
+       WHERE id = $14`,
+      nome.slice(0, 300),
+      String(body.categoria || 'Regularidade Fiscal e Trabalhista').slice(0, 120),
+      String(body.numero_documento || '').slice(0, 150),
+      String(body.orgao_emissor || '').slice(0, 200),
+      String(body.data_emissao || '').slice(0, 20),
+      dataValidade.slice(0, 20),
+      semValidade,
+      String(body.observacoes || '').slice(0, 2000),
+      hasNewFile,
+      String(body.arquivo_nome || '').slice(0, 300),
+      String(body.arquivo_mime || '').slice(0, 120),
+      Number(body.arquivo_tamanho || 0),
+      hasNewFile ? String(body.arquivo_base64) : null,
+      req.params.id
+    );
+
+    const rows = await prisma.$queryRawUnsafe(
+      `SELECT id, "userId", "tenantCompanyId", nome, categoria, numero_documento, orgao_emissor,
+              data_emissao, data_validade, sem_validade, arquivo_nome, arquivo_mime, arquivo_tamanho,
+              (arquivo_base64 IS NOT NULL AND arquivo_base64 <> '') AS has_file,
+              observacoes, created_at, updated_at
+       FROM documentos_habilitacao_b2g WHERE id = $1 LIMIT 1`,
+      req.params.id
+    );
+    return res.json({ success: true, item: formatDocumentoB2g(rows?.[0]) });
+  } catch (err) {
+    console.error('[b2g/documentacao PUT] erro:', err);
+    return res.status(500).json({ error: 'Erro ao atualizar documento', detail: err.message });
+  }
+});
+
+router.delete('/documentacao/:id', ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    await ensureDocumentosB2gTable();
+    const userId = getUserId(req);
+    const tenantId = getTenant(req);
+    const existing = await prisma.$queryRawUnsafe(
+      `SELECT id FROM documentos_habilitacao_b2g
+       WHERE id = $1 AND ("userId"::text = $2::text OR ($3 <> '' AND "tenantCompanyId" = $3))
+       LIMIT 1`,
+      req.params.id,
+      userId ? String(userId) : '',
+      tenantId ? String(tenantId) : ''
+    );
+    if (!existing?.length) {
+      return res.status(404).json({ error: 'Documento não encontrado.' });
+    }
+    await prisma.$executeRawUnsafe(`DELETE FROM documentos_habilitacao_b2g WHERE id = $1`, req.params.id);
+    return res.json({ success: true });
+  } catch (err) {
+    console.error('[b2g/documentacao DELETE] erro:', err);
+    return res.status(500).json({ error: 'Erro ao excluir documento', detail: err.message });
+  }
+});
+
 module.exports = router;

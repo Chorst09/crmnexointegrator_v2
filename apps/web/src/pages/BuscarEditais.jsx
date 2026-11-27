@@ -15,6 +15,7 @@ import {
   Settings,
   Sparkles,
   BookmarkCheck,
+  FolderCheck,
   ArrowLeft,
   Menu,
   X
@@ -27,6 +28,7 @@ import { AnaliseEditaisPage } from './licitacoes_components/AnaliseEditaisPage';
 import { AnaliseTRPage } from './licitacoes_components/AnaliseTRPage';
 import { TRsAnalisadosPage } from './licitacoes_components/TRsAnalisadosPage';
 import { EditaisAnalisadosPage } from './licitacoes_components/EditaisAnalisadosPage';
+import { DocumentacaoPage } from './licitacoes_components/DocumentacaoPage';
 import { PipelineMonitor } from './licitacoes_components/PipelineMonitor';
 import { ThemeProvider } from './licitacoes_components/context/ThemeContext';
 import { ThemeToggle } from './licitacoes_components/ThemeToggle';
@@ -89,6 +91,12 @@ export default function BuscarEditais() {
       name: 'Meus Alertas', 
       subtitle: 'Monitoramento contínuo em tempo real',
       icon: Bell 
+    },
+    { 
+      id: 'documentacao', 
+      name: 'Documentação', 
+      subtitle: 'Certidões, habilitação e validade',
+      icon: FolderCheck 
     },
     { 
       id: 'pipeline', 
@@ -297,6 +305,7 @@ export default function BuscarEditais() {
             )}
             {currentView === 'gerenciadas' && <GerenciadasPage onNavigateToSearch={() => setCurrentView('search')} />}
             {currentView === 'alerts' && <AlertsPage />}
+            {currentView === 'documentacao' && <DocumentacaoPage />}
             {currentView === 'pipeline' && <PipelineMonitor />}
           </div>
         </main>
