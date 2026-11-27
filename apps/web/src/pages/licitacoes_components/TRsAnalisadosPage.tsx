@@ -1,4 +1,5 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   BookmarkCheck,
   Building2,
@@ -9,17 +10,24 @@ import {
   Cpu,
   Download,
   ExternalLink,
+  Eye,
   FileText,
   Globe,
   Layers,
   Loader2,
+  Printer,
   RefreshCw,
+  RotateCcw,
   Search,
   ShieldAlert,
   Sparkles,
   Trash2,
+  X,
+  ZoomIn,
+  ZoomOut,
 } from 'lucide-react';
 import { buildApiUrl, getAuthHeaders } from '../../config/api';
+import { buildAnaliseTrHtmlDocument, gerarPdfAnaliseTR } from './utils/trPdfGenerator';
 
 export interface SavedAnaliseTRItem {
   id: string;
@@ -101,6 +109,9 @@ export const TRsAnalisadosPage: React.FC<TRsAnalisadosPageProps> = ({
   const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
+  const [viewerItem, setViewerItem] = useState<SavedAnaliseTRItem | null>(null);
+  const [viewerZoom, setViewerZoom] = useState<number>(100);
+  const viewerIframeRef = useRef<HTMLIFrameElement | null>(null);
 
   const showNotice = (msg: string) => {
     setNotification(msg);
@@ -173,48 +184,14 @@ export const TRsAnalisadosPage: React.FC<TRsAnalisadosPageProps> = ({
     }
   };
 
-  const handleExportHtml = (item: SavedAnaliseTRItem) => {
-    const a = item.analise_json || {};
-    const esc = (v: unknown) =>
-      String(v ?? '')
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-    const html = `<!DOCTYPE html>
-<html lang="pt-BR"><head><meta charset="UTF-8"><title>Parecer Técnico de TR - ${esc(item.titulo_objeto)}</title>
-<style>
-  body { font-family: Arial, sans-serif; color: #0f172a; max-width: 960px; margin: 20px auto; padding: 16px; font-size: 12px; }
-  h1 { color: #0369a1; border-bottom: 2px solid #0284c7; padding-bottom: 8px; }
-  .card { border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-bottom: 12px; }
-  table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 11px; }
-  th, td { border: 1px solid #cbd5e1; padding: 6px; text-align: left; }
-  th { background: #f1f5f9; }
-</style></head><body>
-  <h1>Parecer Técnico de Análise de TR</h1>
-  <div class="card">
-    <strong>Objeto:</strong> ${esc(item.titulo_objeto)}<br/>
-    <strong>Órgão:</strong> ${esc(item.orgao || 'Não informado')}<br/>
-    <strong>Aderência Geral:</strong> ${item.percentual_atendimento}% (${esc(item.veredicto || '')})<br/>
-    <p>${esc(a.aderencia_geral?.justificativa_veredicto || a.resumo_tr?.resumo_executivo || '')}</p>
-  </div>
-  <h2>Modelos Recomendados</h2>
-  ${(a.modelos_recomendados || []).map((m) => `
-    <div class="card">
-      <strong>${esc(m.fabricante)} — ${esc(m.modelo)}</strong> (${m.aderencia_percentual}%) ${m.part_number ? `• PN: ${esc(m.part_number)}` : ''}<br/>
-      <p>${esc(m.justificativa_tecnica)}</p>
-    </div>`).join('')}
-  <h2>Matriz Comparativa</h2>
-  <table><thead><tr><th>Item</th><th>Requisito do TR</th><th>Especificação Encontrada</th><th>Status</th></tr></thead>
-  <tbody>${(a.matriz_comparativa || []).map((r) => `
-    <tr><td>${esc(r.item_tr)}</td><td>${esc(r.requisito_tr)}</td><td>${esc(r.especificacao_encontrada)}</td><td>${esc(r.status)}</td></tr>`).join('')}
-  </tbody></table>
-</body></html>`;
-    const blob = new Blob([html], { type: 'text/html;charset=utf-8' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `parecer_tr_${item.id.slice(0, 8)}.html`;
-    link.click();
+  const handleSavePdf = (item: SavedAnaliseTRItem) => {
+    gerarPdfAnaliseTR(item, 'download');
+    showNotice('PDF estruturado gerado e baixado com sucesso!');
+  };
+
+  const handleOpenViewer = (item: SavedAnaliseTRItem) => {
+    setViewerZoom(100);
+    setViewerItem(item);
   };
 
   const totalModelos = useMemo(
@@ -402,6 +379,20 @@ export const TRsAnalisadosPage: React.FC<TRsAnalisadosPageProps> = ({
 
                   {/* Ações */}
                   <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenViewer(item)}
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-blue-500/40 bg-blue-500/15 hover:bg-blue-500/25 px-3 py-1.5 text-xs font-bold text-blue-200"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> Visualizar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleSavePdf(item)}
+                      className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 px-3 py-1.5 text-xs font-black text-white shadow"
+                    >
+                      <Download className="w-3.5 h-3.5" /> Salvar em PDF
+                    </button>
                     {onOpenInAnaliseTR && (
                       <button
                         type="button"
@@ -411,13 +402,6 @@ export const TRsAnalisadosPage: React.FC<TRsAnalisadosPageProps> = ({
                         <Sparkles className="w-3.5 h-3.5" /> Abrir na Bancada
                       </button>
                     )}
-                    <button
-                      type="button"
-                      onClick={() => handleExportHtml(item)}
-                      className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/40 bg-cyan-500/10 hover:bg-cyan-500/20 px-3 py-1.5 text-xs font-bold text-cyan-200"
-                    >
-                      <Download className="w-3.5 h-3.5" /> Exportar
-                    </button>
                     <button
                       type="button"
                       onClick={() => setExpandedIds((p) => ({ ...p, [item.id]: !p[item.id] }))}
@@ -513,6 +497,114 @@ export const TRsAnalisadosPage: React.FC<TRsAnalisadosPageProps> = ({
           })}
         </div>
       )}
+
+      {/* Modal Estruturado de Visualização A4 + Salvar em PDF */}
+      {viewerItem &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/85 backdrop-blur-md p-2 sm:p-4"
+            onClick={() => setViewerItem(null)}
+          >
+            <div
+              className="bg-[rgb(var(--crm-surface-2-rgb)_/_1)] rounded-2xl shadow-2xl w-full max-w-6xl h-[94vh] flex flex-col overflow-hidden border border-[var(--crm-border)]"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-3 border-b border-[var(--crm-border)] flex-shrink-0">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-300 flex-shrink-0">
+                    <FileText className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="text-sm font-bold truncate text-[rgb(var(--crm-ink-rgb)_/_1)]">
+                      {viewerItem.titulo_objeto}
+                    </h2>
+                    <p className="text-[11px] text-[rgb(var(--crm-muted-rgb)_/_1)]">
+                      Visualização A4 Estruturada • Parecer Técnico de TR ({viewerItem.percentual_atendimento}% Aderência)
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-1 rounded-lg border border-[var(--crm-border)] bg-black/25 px-2 py-1">
+                    <button
+                      type="button"
+                      onClick={() => setViewerZoom((z) => Math.max(70, z - 10))}
+                      className="p-1 text-slate-300 hover:text-white"
+                      title="Diminuir zoom"
+                    >
+                      <ZoomOut className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-[11px] font-bold w-10 text-center">{viewerZoom}%</span>
+                    <button
+                      type="button"
+                      onClick={() => setViewerZoom((z) => Math.min(150, z + 10))}
+                      className="p-1 text-slate-300 hover:text-white"
+                      title="Aumentar zoom"
+                    >
+                      <ZoomIn className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setViewerZoom(100)}
+                      className="p-1 text-slate-300 hover:text-white"
+                      title="Resetar zoom"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (viewerIframeRef.current?.contentWindow) {
+                        viewerIframeRef.current.contentWindow.focus();
+                        viewerIframeRef.current.contentWindow.print();
+                      }
+                    }}
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-cyan-500/40 bg-cyan-500/15 hover:bg-cyan-500/25 px-3 py-1.5 text-xs font-bold text-cyan-200"
+                  >
+                    <Printer className="w-3.5 h-3.5" /> Imprimir
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleSavePdf(viewerItem)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 px-3.5 py-1.5 text-xs font-black text-white shadow"
+                  >
+                    <Download className="w-3.5 h-3.5" /> Salvar em PDF
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setViewerItem(null)}
+                    className="p-1.5 rounded-lg border border-[var(--crm-border)] bg-black/25 text-slate-300 hover:text-white"
+                    aria-label="Fechar visualizador"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-auto bg-slate-900/70 p-4 flex justify-center">
+                <div
+                  style={{
+                    width: `${Math.round(794 * (viewerZoom / 100))}px`,
+                    minHeight: '100%',
+                  }}
+                  className="bg-white rounded-lg shadow-2xl overflow-hidden transition-all"
+                >
+                  <iframe
+                    ref={viewerIframeRef}
+                    title={`Parecer Técnico - ${viewerItem.titulo_objeto}`}
+                    srcDoc={buildAnaliseTrHtmlDocument(viewerItem)}
+                    className="w-full h-full min-h-[1120px] border-0 bg-white"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
     </div>
   );
 };
