@@ -114,7 +114,13 @@ export const TRsAnalisadosPage: React.FC<TRsAnalisadosPageProps> = ({
       const res = await fetch(buildApiUrl(`/analise-tr/analises-salvas?t=${Date.now()}`), {
         headers: getAuthHeaders(),
       });
-      const data = await res.json();
+      const rawText = await res.text();
+      let data: any = null;
+      try {
+        data = JSON.parse(rawText);
+      } catch {
+        throw new Error(`Resposta inválida do servidor (HTTP ${res.status}).`);
+      }
       if (!res.ok) throw new Error(data?.error || 'Falha ao carregar TRs analisados');
       setItems(Array.isArray(data?.items) ? data.items : []);
     } catch (err) {

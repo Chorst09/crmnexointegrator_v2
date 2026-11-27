@@ -1607,6 +1607,62 @@ router.post(['/analise-tr/pergunte-edital', '/pergunte-edital'], ...requireAuthe
  * POST /api/analise-tr/analisar-equipamentos
  * Análise técnica completa do TR + Datasheets + Busca de modelos 100% aderentes na internet
  */
+const trAnalysisJobs = new Map();
+function cleanupOldTrJobs() {
+  const now = Date.now();
+  for (const [id, job] of trAnalysisJobs.entries()) {
+    if (now - job.createdAt > 30 * 60 * 1000) {
+      trAnalysisJobs.delete(id);
+    }
+  }
+}
+
+router.post(['/analise-tr/analisar-equipamentos-async', '/analisar-equipamentos-async'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
+  try {
+    cleanupOldTrJobs();
+    await ensureGeminiKeyLoaded();
+    const jobId = crypto.randomUUID();
+    const payload = {
+      trFiles: req.body?.trFiles,
+      datasheetFiles: req.body?.datasheetFiles,
+      searchWeb: req.body?.searchWeb !== false,
+      customNotes: req.body?.customNotes || ''
+    };
+    trAnalysisJobs.set(jobId, { status: 'running', createdAt: Date.now() });
+    res.json({ success: true, jobId, status: 'running' });
+
+    setImmediate(async () => {
+      try {
+        const result = await analyzeTechnicalTRWithEquipment(payload);
+        trAnalysisJobs.set(jobId, { status: 'done', createdAt: Date.now(), analise: result });
+      } catch (err) {
+        console.error('[analise-tr/analisar-equipamentos-async] erro:', err.message);
+        trAnalysisJobs.set(jobId, {
+          status: 'error',
+          createdAt: Date.now(),
+          error: err.message || 'Falha ao analisar o Termo de Referência.'
+        });
+      }
+    });
+  } catch (error) {
+    return res.status(422).json({ error: error.message || 'Falha ao iniciar análise de TR.' });
+  }
+});
+
+router.get(['/analise-tr/analisar-equipamentos/status/:jobId', '/analisar-equipamentos/status/:jobId'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), (req, res) => {
+  const job = trAnalysisJobs.get(req.params.jobId);
+  if (!job) {
+    return res.status(404).json({ error: 'Tarefa de análise não encontrada ou expirada.' });
+  }
+  if (job.status === 'done') {
+    return res.json({ success: true, status: 'done', analise: job.analise });
+  }
+  if (job.status === 'error') {
+    return res.json({ success: false, status: 'error', error: job.error });
+  }
+  return res.json({ success: true, status: 'running' });
+});
+
 router.post(['/analise-tr/analisar-equipamentos', '/analisar-equipamentos'], ...requireAuthenticatedRole(USER_ALLOWED_ROLES), async (req, res) => {
   try {
     req.setTimeout?.(180000);

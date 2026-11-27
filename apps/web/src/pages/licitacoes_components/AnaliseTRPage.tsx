@@ -79,6 +79,21 @@ interface AnaliseTRResult {
   modo_busca_internet?: boolean;
 }
 
+const readJsonSafe = async (response: Response) => {
+  const raw = await response.text();
+  try {
+    return JSON.parse(raw);
+  } catch {
+    if (response.status === 413) {
+      throw new Error('Arquivo muito grande para envio (limite HTTP 413). Reduza o tamanho do PDF ou envie os anexos separadamente.');
+    }
+    if (response.status === 502 || response.status === 504) {
+      throw new Error(`Tempo limite ou indisponibilidade temporária do servidor (${response.status}). Tente novamente.`);
+    }
+    throw new Error(`Resposta inesperada do servidor (HTTP ${response.status}).`);
+  }
+};
+
 const fileToBase64 = (file: File): Promise<EncodedFile> =>
   new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -199,7 +214,7 @@ export const AnaliseTRPage: React.FC<AnaliseTRPageProps> = ({
     try {
       const encodedTR = await Promise.all(trFiles.map(fileToBase64));
       const encodedDS = await Promise.all(datasheetFiles.map(fileToBase64));
-      const response = await fetch(buildApiUrl('/analise-tr/analisar-equipamentos'), {
+      const startRes = await fetch(buildApiUrl('/analise-tr/analisar-equipamentos-async'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -212,11 +227,31 @@ export const AnaliseTRPage: React.FC<AnaliseTRPageProps> = ({
           customNotes,
         }),
       });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data?.error || `Erro HTTP ${response.status}`);
+      const startData = await readJsonSafe(startRes);
+      if (!startRes.ok || !startData?.jobId) {
+        throw new Error(startData?.error || `Erro HTTP ${startRes.status}`);
       }
-      setResult(data.analise);
+
+      const jobId = String(startData.jobId);
+      const startedAt = Date.now();
+      while (Date.now() - startedAt < 240000) {
+        await new Promise((r) => setTimeout(r, 2500));
+        const pollRes = await fetch(buildApiUrl(`/analise-tr/analisar-equipamentos/status/${encodeURIComponent(jobId)}`), {
+          headers: getAuthHeaders(),
+        });
+        const pollData = await readJsonSafe(pollRes);
+        if (!pollRes.ok) {
+          throw new Error(pollData?.error || `Erro HTTP ${pollRes.status}`);
+        }
+        if (pollData.status === 'done' && pollData.analise) {
+          setResult(pollData.analise);
+          return;
+        }
+        if (pollData.status === 'error') {
+          throw new Error(pollData.error || 'Falha ao processar análise técnica do TR.');
+        }
+      }
+      throw new Error('A análise excedeu o tempo máximo de espera (4 min). Tente com um TR menor.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao processar análise técnica do TR.');
     } finally {
@@ -245,7 +280,7 @@ export const AnaliseTRPage: React.FC<AnaliseTRPageProps> = ({
           customNotes,
         }),
       });
-      const data = await response.json();
+      const data = await readJsonSafe(response);
       if (!response.ok) {
         throw new Error(data?.error || `Erro HTTP ${response.status}`);
       }
