@@ -957,20 +957,58 @@ const ensureTables = async () => {
   }
 };
 
+let _alertasSchemaCache = null;
+async function getAlertasSchemaInfo() {
+  if (_alertasSchemaCache) return _alertasSchemaCache;
+  try {
+    const cols = await prisma.$queryRawUnsafe(
+      `SELECT column_name, data_type FROM information_schema.columns WHERE table_name = 'alertas_licitacao'`
+    );
+    const colMap = new Map((Array.isArray(cols) ? cols : []).map((c) => [c.column_name, c.data_type]));
+    if (colMap.size === 0) {
+      await prisma.$executeRawUnsafe(`
+        CREATE TABLE IF NOT EXISTS "alertas_licitacao" (
+          "id" UUID PRIMARY KEY,
+          "user_id" VARCHAR(255),
+          "tenant_company_id" VARCHAR(255),
+          "termo" VARCHAR(255) NOT NULL,
+          "uf" VARCHAR(10),
+          "modalidade" VARCHAR(100),
+          "data_abertura_inicio" TIMESTAMP,
+          "min_valor" DECIMAL(15,4) DEFAULT 0,
+          "ativo" BOOLEAN DEFAULT true,
+          "created_at" TIMESTAMP DEFAULT NOW()
+        )
+      `);
+      _alertasSchemaCache = { userCol: '"user_id"', tenantCol: '"tenant_company_id"', idCast: '::uuid' };
+      return _alertasSchemaCache;
+    }
+    const userCol = colMap.has('user_id') ? '"user_id"' : '"userId"';
+    const tenantCol = colMap.has('tenant_company_id') ? '"tenant_company_id"' : '"tenantCompanyId"';
+    const idCast = colMap.get('id') === 'uuid' ? '::uuid' : '::text';
+    _alertasSchemaCache = { userCol, tenantCol, idCast };
+    return _alertasSchemaCache;
+  } catch (e) {
+    console.warn('[alertas] fallback schema info:', e.message);
+    return { userCol: '"userId"', tenantCol: '"tenantCompanyId"', idCast: '::uuid' };
+  }
+}
+
 // GET /alertas
 router.get('/alertas', async (req, res) => {
   try {
     const userId   = getUserId(req);
     const tenantId = getTenant(req);
+    const { userCol, tenantCol } = await getAlertasSchemaInfo();
 
     const alertas = await prisma.$queryRawUnsafe(
-      `SELECT id, user_id AS "userId", tenant_company_id AS "tenantCompanyId",
+      `SELECT id, ${userCol} AS "userId", ${tenantCol} AS "tenantCompanyId",
               termo, uf, modalidade, data_abertura_inicio, min_valor, ativo, created_at
        FROM alertas_licitacao
        WHERE ativo = true
          AND (
-           user_id::text = $2::text
-           OR ($1::text IS NOT NULL AND $1::text <> '' AND tenant_company_id::text = $1::text)
+           ${userCol}::text = $2::text
+           OR ($1::text IS NOT NULL AND $1::text <> '' AND ${tenantCol}::text = $1::text)
          )
        ORDER BY created_at DESC`,
       tenantId || null, userId ? String(userId) : ''
@@ -991,12 +1029,13 @@ router.post('/alertas', async (req, res) => {
 
     if (!termo?.trim()) return res.status(400).json({ error: 'Campo "termo" é obrigatório' });
 
+    const { userCol, tenantCol, idCast } = await getAlertasSchemaInfo();
     const crypto = require('crypto');
     const alertaId = crypto.randomUUID();
     const [alerta] = await prisma.$queryRawUnsafe(
-      `INSERT INTO alertas_licitacao (id, user_id, tenant_company_id, termo, uf, min_valor)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       RETURNING id, user_id AS "userId", tenant_company_id AS "tenantCompanyId",
+      `INSERT INTO alertas_licitacao (id, ${userCol}, ${tenantCol}, termo, uf, min_valor)
+       VALUES ($1${idCast}, $2, $3, $4, $5, $6)
+       RETURNING id, ${userCol} AS "userId", ${tenantCol} AS "tenantCompanyId",
                  termo, uf, modalidade, data_abertura_inicio, min_valor, ativo, created_at`,
       alertaId, userId ? String(userId) : null, tenantId ? String(tenantId) : null, termo.trim(),
       uf || null, parseFloat(min_valor) || 0
@@ -1013,11 +1052,12 @@ router.delete('/alertas/:id', async (req, res) => {
   try {
     const userId   = getUserId(req);
     const tenantId = getTenant(req);
+    const { userCol, tenantCol } = await getAlertasSchemaInfo();
 
     await prisma.$executeRawUnsafe(
       `UPDATE alertas_licitacao SET ativo = false
        WHERE id::text = $1::text
-         AND (user_id::text = $2::text OR ($3::text <> '' AND tenant_company_id::text = $3::text))`,
+         AND (${userCol}::text = $2::text OR ($3::text <> '' AND ${tenantCol}::text = $3::text))`,
       req.params.id, userId ? String(userId) : '', tenantId ? String(tenantId) : ''
     );
     res.status(204).send();
@@ -1274,12 +1314,13 @@ router.get('/analytics', async (req, res) => {
     );
 
     // Alertas ativos
+    const { userCol: aUserCol, tenantCol: aTenantCol } = await getAlertasSchemaInfo();
     const [alertStats] = await prisma.$queryRawUnsafe(
       `SELECT COUNT(*) AS total_alertas FROM alertas_licitacao
        WHERE ativo = true
          AND (
-           user_id::text = $2::text OR (tenant_company_id IS NOT NULL AND tenant_company_id::text = $1::text)
-           OR ($1::text IS NULL AND user_id::text = $2::text)
+           ${aUserCol}::text = $2::text OR (${aTenantCol} IS NOT NULL AND ${aTenantCol}::text = $1::text)
+           OR ($1::text IS NULL AND ${aUserCol}::text = $2::text)
          )`,
       tenantId || null, userId ? String(userId) : ''
     );

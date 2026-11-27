@@ -58,7 +58,11 @@ export function AlertsPage() {
       });
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData?.error || errData?.detail || `Erro HTTP ${res.status}`);
+        throw new Error(
+          errData?.detail
+            ? `${errData?.error || 'Erro'}: ${errData.detail}`
+            : errData?.error || `Erro HTTP ${res.status}`
+        );
       }
       setTermo('');
       setUf('');
