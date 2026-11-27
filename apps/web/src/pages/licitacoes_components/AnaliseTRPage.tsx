@@ -22,7 +22,7 @@ import { buildApiUrl, getAuthHeaders } from '../../config/api';
 interface EncodedFile {
   name: string;
   size: number;
-  contentBase64: string;
+  base64: string;
 }
 
 interface ModeloRecomendado {
@@ -76,7 +76,7 @@ const fileToBase64 = (file: File): Promise<EncodedFile> =>
     reader.onload = () => {
       const res = String(reader.result || '');
       const base64 = res.includes(',') ? res.split(',')[1] : res;
-      resolve({ name: file.name, size: file.size, contentBase64: base64 });
+      resolve({ name: file.name, size: file.size, base64 });
     };
     reader.onerror = () => reject(new Error(`Falha ao ler o arquivo ${file.name}`));
     reader.readAsDataURL(file);

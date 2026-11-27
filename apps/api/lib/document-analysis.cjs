@@ -315,7 +315,7 @@ const sanitizeExtractedText = (raw) => {
 
 async function extractDocument(file) {
   const ext = path.extname(file.name || '').toLowerCase();
-  const base64 = String(file.base64 || '').replace(/^data:[^,]*;base64,/, '').replace(/\s/g, '');
+  const base64 = String(file.base64 || file.contentBase64 || '').replace(/^data:[^,]*;base64,/, '').replace(/\s/g, '');
   if (!base64 || !/^[A-Za-z0-9+/]+={0,2}$/.test(base64)) throw new Error(`Arquivo inválido: ${file.name}`);
   const buffer = Buffer.from(base64, 'base64');
   if (!buffer.length || buffer.length > 20 * 1024 * 1024) throw new Error(`Arquivo vazio ou maior que 20 MB: ${file.name}`);
