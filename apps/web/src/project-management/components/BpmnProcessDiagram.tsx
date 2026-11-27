@@ -1,7 +1,8 @@
 import React, { useMemo, useRef, useState } from 'react';
 import {
   Plus, Trash2, ZoomIn, ZoomOut, ShieldCheck, ArrowRight, GitBranch,
-  Layers, Link2, ExternalLink, RotateCcw, Building2, Upload, ArrowLeft, X, Copy, Pencil
+  Layers, Link2, ExternalLink, RotateCcw, Building2, Upload, ArrowLeft, X, Copy, Pencil,
+  Hand, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import {
   BPMN_GOVERNANCE,
@@ -55,6 +56,8 @@ export default function BpmnProcessDiagram({
   const [dragPreview, setDragPreview] = useState<{ col: number; laneId: string } | null>(null);
   const [inlineEditNodeId, setInlineEditNodeId] = useState<string | null>(null);
   const [inlineEditValue, setInlineEditValue] = useState('');
+  const [panMode, setPanMode] = useState(false);
+  const [panning, setPanning] = useState<{ startX: number; scrollLeft: number } | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const nodeLabelInputRef = useRef<HTMLInputElement | null>(null);
@@ -572,7 +575,7 @@ export default function BpmnProcessDiagram({
       )}
 
       {/* Folha BPMN no padrão exato do PDF anexo */}
-      <div className="w-full min-w-0 max-w-full overflow-hidden rounded-xl border border-slate-300 bg-white text-slate-900 shadow-lg">
+      <div className="w-full min-w-0 max-w-full overflow-x-clip rounded-xl border border-slate-300 bg-white text-slate-900 shadow-lg">
         {/* Faixa institucional azul-marinho */}
         <div className="bg-[#0f2744] px-6 py-4 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4 min-w-0">
@@ -631,10 +634,89 @@ export default function BpmnProcessDiagram({
           </span>
         </div>
 
-        {/* Canvas SVG com scroll horizontal e drag-and-drop */}
+        {/* Barra Flutuante Sticky de Navegação Horizontal, Arrastar (Pan) e Zoom */}
+        <div className="sticky top-2 z-20 flex flex-wrap items-center justify-between gap-2 border-b border-slate-200 bg-slate-900/95 backdrop-blur-md px-4 py-2 text-xs text-white shadow-md">
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => scrollHorizontal(-320)}
+              className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 text-xs font-bold text-white transition-colors"
+              title="Mover quadro para a esquerda"
+            >
+              <ChevronLeft className="h-4 w-4 text-cyan-400" /> Esquerda
+            </button>
+            <button
+              type="button"
+              onClick={() => setPanMode((v) => !v)}
+              className={`inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-bold transition-colors ${
+                panMode
+                  ? 'border-cyan-400 bg-cyan-600 text-white shadow-sm'
+                  : 'border-slate-700 bg-slate-800 text-slate-200 hover:bg-slate-700'
+              }`}
+              title="Ativar modo arrastar quadro com o mouse"
+            >
+              <Hand className="h-3.5 w-3.5" /> {panMode ? 'Arrastando Quadro (Ativo)' : 'Arrastar Quadro'}
+            </button>
+            <button
+              type="button"
+              onClick={() => scrollHorizontal(320)}
+              className="inline-flex items-center gap-1 rounded-md border border-slate-700 bg-slate-800 hover:bg-slate-700 px-2.5 py-1.5 text-xs font-bold text-white transition-colors"
+              title="Mover quadro para a direita"
+            >
+              Direita <ChevronRight className="h-4 w-4 text-cyan-400" />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.max(0.45, Number((z - 0.1).toFixed(2))))}
+              className="rounded-md border border-slate-700 bg-slate-800 hover:bg-slate-700 p-1.5 text-slate-200"
+              title="Diminuir zoom"
+            >
+              <ZoomOut className="h-3.5 w-3.5" />
+            </button>
+            <span className="px-2 text-xs font-mono font-bold text-cyan-300">{Math.round(zoom * 100)}%</span>
+            <button
+              type="button"
+              onClick={() => setZoom((z) => Math.min(1.4, Number((z + 0.1).toFixed(2))))}
+              className="rounded-md border border-slate-700 bg-slate-800 hover:bg-slate-700 p-1.5 text-slate-200"
+              title="Aumentar zoom"
+            >
+              <ZoomIn className="h-3.5 w-3.5" />
+            </button>
+            <button
+              type="button"
+              onClick={handleFitToWidth}
+              className="rounded-md border border-cyan-500/40 bg-cyan-500/15 hover:bg-cyan-500/25 px-2.5 py-1.5 text-xs font-bold text-cyan-300"
+              title="Ajustar largura do BPMN na tela"
+            >
+              Ajustar na Tela
+            </button>
+          </div>
+        </div>
+
+        {/* Canvas SVG com scroll horizontal e drag-to-pan */}
         <div
           ref={scrollContainerRef}
-          className="w-full max-w-full overflow-x-auto overflow-y-hidden bg-white p-5"
+          onMouseDown={(e) => {
+            const targetTag = (e.target as HTMLElement)?.tagName?.toLowerCase();
+            if (panMode || targetTag === 'svg' || targetTag === 'rect' || e.target === scrollContainerRef.current) {
+              if (!draggingNodeId && scrollContainerRef.current) {
+                setPanning({ startX: e.clientX, scrollLeft: scrollContainerRef.current.scrollLeft });
+              }
+            }
+          }}
+          onMouseMove={(e) => {
+            if (panning && scrollContainerRef.current) {
+              scrollContainerRef.current.scrollLeft = panning.scrollLeft - (e.clientX - panning.startX);
+            }
+          }}
+          onMouseUp={() => setPanning(null)}
+          onMouseLeave={() => setPanning(null)}
+          className={`w-full max-w-full overflow-x-auto overflow-y-hidden bg-white p-5 ${
+            panning ? 'cursor-grabbing' : panMode ? 'cursor-grab' : ''
+          }`}
           style={{ scrollbarWidth: 'auto', scrollbarGutter: 'stable' }}
         >
           <div className="relative" style={{ width: layout.width * zoom, height: layout.height * zoom, minWidth: layout.width * zoom }}>
