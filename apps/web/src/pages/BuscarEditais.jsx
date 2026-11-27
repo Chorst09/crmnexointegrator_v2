@@ -13,6 +13,7 @@ import {
   FileText,
   FileCheck,
   Settings,
+  Sparkles,
   ArrowLeft,
   Menu,
   X
