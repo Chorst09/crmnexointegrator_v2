@@ -986,11 +986,21 @@ async function getAlertasSchemaInfo() {
     const userCol = colMap.has('user_id') ? '"user_id"' : '"userId"';
     const tenantCol = colMap.has('tenant_company_id') ? '"tenant_company_id"' : '"tenantCompanyId"';
     const idCast = colMap.get('id') === 'uuid' ? '::uuid' : '::text';
-    _alertasSchemaCache = { userCol, tenantCol, idCast };
+    const modalidadeSelect = colMap.has('modalidade') ? 'modalidade' : 'NULL::text AS modalidade';
+    const dataAberturaSelect = colMap.has('data_abertura_inicio')
+      ? 'data_abertura_inicio'
+      : 'NULL::timestamp AS data_abertura_inicio';
+    _alertasSchemaCache = { userCol, tenantCol, idCast, modalidadeSelect, dataAberturaSelect };
     return _alertasSchemaCache;
   } catch (e) {
     console.warn('[alertas] fallback schema info:', e.message);
-    return { userCol: '"userId"', tenantCol: '"tenantCompanyId"', idCast: '::uuid' };
+    return {
+      userCol: '"userId"',
+      tenantCol: '"tenantCompanyId"',
+      idCast: '::uuid',
+      modalidadeSelect: 'NULL::text AS modalidade',
+      dataAberturaSelect: 'NULL::timestamp AS data_abertura_inicio',
+    };
   }
 }
 
@@ -999,11 +1009,11 @@ router.get('/alertas', async (req, res) => {
   try {
     const userId   = getUserId(req);
     const tenantId = getTenant(req);
-    const { userCol, tenantCol } = await getAlertasSchemaInfo();
+    const { userCol, tenantCol, modalidadeSelect, dataAberturaSelect } = await getAlertasSchemaInfo();
 
     const alertas = await prisma.$queryRawUnsafe(
       `SELECT id, ${userCol} AS "userId", ${tenantCol} AS "tenantCompanyId",
-              termo, uf, modalidade, data_abertura_inicio, min_valor, ativo, created_at
+              termo, uf, ${modalidadeSelect}, ${dataAberturaSelect}, min_valor, ativo, created_at
        FROM alertas_licitacao
        WHERE ativo = true
          AND (
@@ -1029,14 +1039,14 @@ router.post('/alertas', async (req, res) => {
 
     if (!termo?.trim()) return res.status(400).json({ error: 'Campo "termo" é obrigatório' });
 
-    const { userCol, tenantCol, idCast } = await getAlertasSchemaInfo();
+    const { userCol, tenantCol, idCast, modalidadeSelect, dataAberturaSelect } = await getAlertasSchemaInfo();
     const crypto = require('crypto');
     const alertaId = crypto.randomUUID();
     const [alerta] = await prisma.$queryRawUnsafe(
       `INSERT INTO alertas_licitacao (id, ${userCol}, ${tenantCol}, termo, uf, min_valor)
        VALUES ($1${idCast}, $2, $3, $4, $5, $6)
        RETURNING id, ${userCol} AS "userId", ${tenantCol} AS "tenantCompanyId",
-                 termo, uf, modalidade, data_abertura_inicio, min_valor, ativo, created_at`,
+                 termo, uf, ${modalidadeSelect}, ${dataAberturaSelect}, min_valor, ativo, created_at`,
       alertaId, userId ? String(userId) : null, tenantId ? String(tenantId) : null, termo.trim(),
       uf || null, parseFloat(min_valor) || 0
     );
