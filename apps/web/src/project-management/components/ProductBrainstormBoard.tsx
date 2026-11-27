@@ -20,6 +20,7 @@ import {
   TrendingUp,
   Users,
   Wand2,
+  X,
 } from 'lucide-react';
 
 type ClusterType = 'Dores do Cliente' | 'Oportunidades' | 'Soluções & Features' | 'Riscos & Suposições';
@@ -247,7 +248,7 @@ export default function ProductBrainstormBoard({ onBack }: { onBack: () => void 
   const [activeTab, setActiveTab] = useState<'canvas' | 'rice' | 'matrix' | 'roadmap'>('canvas');
   const [searchTerm, setSearchTerm] = useState('');
   const [clusterFilter, setClusterFilter] = useState<string>('ALL');
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
   const [newIdeaOpen, setNewIdeaOpen] = useState(false);
   const [newIdeaTitle, setNewIdeaTitle] = useState('');
   const [newIdeaDesc, setNewIdeaDesc] = useState('');
@@ -599,39 +600,26 @@ export default function ProductBrainstormBoard({ onBack }: { onBack: () => void 
                 <div className="space-y-3 flex-1">
                   {items.map((idea) => {
                     const rice = computeRiceScore(idea);
-                    const isEditing = editingId === idea.id;
                     return (
                       <div
                         key={idea.id}
-                        className="rounded-xl border p-3.5 transition-all hover:shadow-lg"
+                        onClick={() => setSelectedIdeaId(idea.id)}
+                        className="rounded-xl border p-3.5 transition-all hover:shadow-lg hover:brightness-110 cursor-pointer"
                         style={{
                           borderColor: `${idea.color}45`,
                           background: `linear-gradient(180deg, ${idea.color}16 0%, rgba(15,23,42,0.55) 100%)`,
                         }}
                       >
                         <div className="flex items-start justify-between gap-2">
-                          {isEditing ? (
-                            <input
-                              value={idea.title}
-                              onChange={(e) => updateIdea(idea.id, { title: e.target.value })}
-                              onBlur={() => setEditingId(null)}
-                              autoFocus
-                              className="w-full bg-black/30 rounded px-2 py-1 text-xs font-bold text-white outline-none border border-cyan-400"
-                            />
-                          ) : (
-                            <h4
-                              onClick={() => setEditingId(idea.id)}
-                              className="text-xs sm:text-sm font-bold text-[var(--crm-ink)] leading-snug cursor-pointer hover:text-cyan-300"
-                              title="Clique para editar título"
-                            >
-                              {idea.title}
-                            </h4>
-                          )}
+                          <h4 className="text-xs sm:text-sm font-bold text-[var(--crm-ink)] leading-snug">
+                            {idea.title}
+                          </h4>
                           <button
                             type="button"
-                            onClick={() =>
-                              setState((p) => ({ ...p, ideas: p.ideas.filter((x) => x.id !== idea.id) }))
-                            }
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setState((p) => ({ ...p, ideas: p.ideas.filter((x) => x.id !== idea.id) }));
+                            }}
                             className="text-[var(--crm-muted)] hover:text-rose-400 p-0.5"
                             title="Excluir post-it"
                           >
@@ -643,7 +631,10 @@ export default function ProductBrainstormBoard({ onBack }: { onBack: () => void 
                           {idea.description}
                         </p>
 
-                        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/10">
+                        <div
+                          className="mt-3 flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-white/10"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <div className="flex items-center gap-1.5">
                             <button
                               type="button"
@@ -668,7 +659,10 @@ export default function ProductBrainstormBoard({ onBack }: { onBack: () => void 
                           </span>
                         </div>
 
-                        <div className="mt-2 flex items-center justify-between gap-2">
+                        <div
+                          className="mt-2 flex items-center justify-between gap-2"
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <div className="flex items-center gap-1">
                             {STICKY_PALETTE.map((c) => (
                               <button
@@ -972,6 +966,207 @@ export default function ProductBrainstormBoard({ onBack }: { onBack: () => void 
           })}
         </div>
       )}
+
+      {/* Modal Completo ao Clicar no Card */}
+      {(() => {
+        const selectedIdea = state.ideas.find((i) => i.id === selectedIdeaId);
+        if (!selectedIdea) return null;
+        return (
+          <div
+            className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setSelectedIdeaId(null)}
+          >
+            <div
+              className="w-full max-w-2xl rounded-2xl border border-cyan-500/40 bg-[rgb(var(--crm-surface-2-rgb)/0.98)] p-6 shadow-2xl space-y-4 text-[var(--crm-ink)] max-h-[90vh] overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start justify-between gap-3 border-b border-[var(--crm-border)] pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="h-3.5 w-3.5 rounded-full" style={{ backgroundColor: selectedIdea.color }} />
+                  <span className="text-xs font-bold uppercase tracking-wider text-cyan-300">
+                    Detalhes da Ideia / Hipótese
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedIdeaId(null)}
+                  className="p-1 rounded-lg text-[var(--crm-muted)] hover:text-white"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase text-[var(--crm-muted)] mb-1">Título</label>
+                <input
+                  value={selectedIdea.title}
+                  onChange={(e) => updateIdea(selectedIdea.id, { title: e.target.value })}
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.8)] px-3 py-2 text-sm font-bold text-[var(--crm-ink)] outline-none focus:border-cyan-400"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase text-[var(--crm-muted)] mb-1">Descrição / Hipótese</label>
+                <textarea
+                  rows={3}
+                  value={selectedIdea.description}
+                  onChange={(e) => updateIdea(selectedIdea.id, { description: e.target.value })}
+                  className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.8)] px-3 py-2 text-xs sm:text-sm text-[var(--crm-ink)] outline-none focus:border-cyan-400"
+                />
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-3">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-[var(--crm-muted)] mb-1">Cluster</label>
+                  <select
+                    value={selectedIdea.cluster}
+                    onChange={(e) =>
+                      updateIdea(selectedIdea.id, {
+                        cluster: e.target.value as ClusterType,
+                        color: CLUSTER_COLORS[e.target.value as ClusterType],
+                      })
+                    }
+                    className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.95)] px-2.5 py-2 text-xs font-bold"
+                  >
+                    {Object.keys(CLUSTER_COLORS).map((c) => (
+                      <option key={c} value={c}>{c}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-[var(--crm-muted)] mb-1">Horizonte</label>
+                  <select
+                    value={selectedIdea.horizon}
+                    onChange={(e) => updateIdea(selectedIdea.id, { horizon: e.target.value as HorizonType })}
+                    className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.95)] px-2.5 py-2 text-xs font-bold"
+                  >
+                    <option value="Now">Now</option>
+                    <option value="Next">Next</option>
+                    <option value="Later">Later</option>
+                    <option value="Icebox">Icebox</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-[var(--crm-muted)] mb-1">Quadrante Matriz</label>
+                  <select
+                    value={selectedIdea.quadrant}
+                    onChange={(e) => updateIdea(selectedIdea.id, { quadrant: e.target.value as QuadrantKey })}
+                    className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.95)] px-2.5 py-2 text-xs font-bold"
+                  >
+                    <option value="quick_wins">Quick Wins</option>
+                    <option value="strategic">Estratégico</option>
+                    <option value="fill_ins">Incremental</option>
+                    <option value="reassess">Reavaliar</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-[var(--crm-muted)] mb-1">Responsável</label>
+                  <input
+                    value={selectedIdea.owner}
+                    onChange={(e) => updateIdea(selectedIdea.id, { owner: e.target.value })}
+                    className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.8)] px-3 py-2 text-xs font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold uppercase text-[var(--crm-muted)] mb-1">Tags (vírgula)</label>
+                  <input
+                    value={selectedIdea.tags.join(', ')}
+                    onChange={(e) =>
+                      updateIdea(selectedIdea.id, {
+                        tags: e.target.value.split(',').map((t) => t.trim()).filter(Boolean),
+                      })
+                    }
+                    className="w-full rounded-lg border border-[var(--crm-border)] bg-[rgb(var(--crm-surface-rgb)/0.8)] px-3 py-2 text-xs font-semibold"
+                  />
+                </div>
+              </div>
+
+              {/* RICE Editor */}
+              <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black uppercase text-amber-300">Priorização RICE</span>
+                  <span className="text-sm font-mono font-black text-amber-300">
+                    Score RICE: {computeRiceScore(selectedIdea)}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div>
+                    <label className="block text-[10px] font-bold text-[var(--crm-muted)] mb-1">Alcance (1-10)</label>
+                    <input
+                      type="number"
+                      min={1}
+                      max={10}
+                      value={selectedIdea.reach}
+                      onChange={(e) => updateIdea(selectedIdea.id, { reach: Number(e.target.value) })}
+                      className="w-full rounded border border-[var(--crm-border)] bg-black/30 px-2 py-1.5 font-bold"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-[var(--crm-muted)] mb-1">Impacto</label>
+                    <select
+                      value={selectedIdea.impact}
+                      onChange={(e) => updateIdea(selectedIdea.id, { impact: Number(e.target.value) })}
+                      className="w-full rounded border border-[var(--crm-border)] bg-slate-900 px-2 py-1.5 font-bold"
+                    >
+                      <option value={3}>3 (Massivo)</option>
+                      <option value={2}>2 (Alto)</option>
+                      <option value={1}>1 (Médio)</option>
+                      <option value={0.5}>0.5 (Baixo)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-[var(--crm-muted)] mb-1">Confiança</label>
+                    <select
+                      value={selectedIdea.confidence}
+                      onChange={(e) => updateIdea(selectedIdea.id, { confidence: Number(e.target.value) })}
+                      className="w-full rounded border border-[var(--crm-border)] bg-slate-900 px-2 py-1.5 font-bold"
+                    >
+                      <option value={100}>100%</option>
+                      <option value={80}>80%</option>
+                      <option value={50}>50%</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-[10px] font-bold text-[var(--crm-muted)] mb-1">Esforço (sem)</label>
+                    <input
+                      type="number"
+                      min={0.5}
+                      max={20}
+                      step={0.5}
+                      value={selectedIdea.effort}
+                      onChange={(e) => updateIdea(selectedIdea.id, { effort: Number(e.target.value) })}
+                      className="w-full rounded border border-[var(--crm-border)] bg-black/30 px-2 py-1.5 font-bold"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-2 border-t border-[var(--crm-border)]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setState((p) => ({ ...p, ideas: p.ideas.filter((x) => x.id !== selectedIdea.id) }));
+                    setSelectedIdeaId(null);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-rose-500/40 bg-rose-500/15 px-3 py-2 text-xs font-bold text-rose-300 hover:bg-rose-500/25"
+                >
+                  <Trash2 className="w-3.5 h-3.5" /> Excluir Ideia
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedIdeaId(null)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 px-4 py-2 text-xs font-bold text-white"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" /> Concluir
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }
